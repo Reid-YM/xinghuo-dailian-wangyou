@@ -1,0 +1,30 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
+  <title>用户登录 - 星火网游代练平台</title><meta name="description" content="登录星火网游代练平台，查看询价、订单进度和后续交付状态。">
+  <link rel="stylesheet" href="/assets/app.css?v=20260928v016"><script defer src="/assets/public.js?v=20260928v016"></script><script defer src="/assets/account.js?v=20260928v016"></script><meta name="robots" content="noindex,follow"></head><body data-page="account-login">
+<header class="site-header"><div class="container topbar"><a class="brand brand-mark" href="/"><span class="brand-dot"></span><span data-config="brandName"><span th:text="#{t.38126}">星火网游代练平台</span></span></a><nav class="nav" aria-label="主导航"><a href="/services"><span th:text="#{nav.services}"><span th:text="#{t.69397}">服务</span></span></a><a href="/guides"><span th:text="#{t.15314}">攻略</span></a><a href="/mastery"><span th:text="#{nav.tools}"><span th:text="#{t.28716}">MW4 工具站</span></span></a><a href="/records"><span th:text="#{nav.records}"><span th:text="#{t.90574}">业务记录</span></span></a><a href="/account"><span th:text="#{nav.account}">我的</span></a><a class="btn primary desktop-keep" href="/quote"><span th:text="#{nav.quote}"><span th:text="#{t.32872}">立即询价</span></span></a></nav></div></header>
+<main class="container section auth-shell">
+  <section class="auth-value-panel">
+    <span class="eyebrow">Account Center</span>
+    <h1>登录后，所有询价和交付进度集中管理。</h1>
+    <p>账户系统只用于保存联系标识、业务编号与进度状态。游戏账号密码、验证码和令牌仍然禁止在网页提交。</p>
+    <div class="auth-value-grid">
+      <div><strong>进度归档</strong><span>询价、订单、完成交付状态统一留痕。</span></div>
+      <div><strong>快速续单</strong><span>再次询价不用重复说明历史需求。</span></div>
+      <div><strong>安全边界</strong><span>敏感游戏凭证不进入网页系统。</span></div>
+    </div>
+  </section>
+  <section class="auth-card card" aria-label="登录账户">
+    <div class="auth-card-head"><span class="eyebrow">登录</span><h2>继续查看你的业务</h2><p class="muted">选择注册时使用的联系方式。</p></div>
+    <form id="accountAuthForm" class="account-form" novalidate>
+      <input type="hidden" name="contactMethod" value="微信" data-contact-method>
+      <div class="auth-segment" role="tablist" aria-label="联系方式类型"><button type="button" class="active" data-method="微信"><span th:text="#{t.42742}">微信</span></button><button type="button" data-method="QQ">QQ</button><button type="button" data-method="手机"><span th:text="#{t.46146}">手机</span></button><button type="button" data-method="其他"><span th:text="#{t.56822}">其他</span></button></div>
+      <label class="field"><span><span th:text="#{t.8044}">联系号</span></span><input name="contactValue" autocomplete="username" required minlength="3" maxlength="120" placeholder="微信号 / QQ / 手机号"><small>用于匹配你的询价和订单，不公开展示。</small></label>
+      <label class="field password-field"><span>密码</span><input name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="72" placeholder="输入登录密码"><button class="password-toggle" type="button" data-toggle-password>显示</button></label>
+      <div id="accountMsg" class="notice hidden" role="status"></div>
+      <button class="btn primary auth-submit" type="submit">登录</button>
+    </form>
+    <div class="auth-card-foot"><a href="/account/register">创建新账号</a><a href="/records">用业务编号查询</a></div>
+  </section>
+</main>
+<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/"><span th:text="#{t.870}">首页</span></a><a href="/records"><span th:text="#{nav.records}"><span th:text="#{t.90574}">业务记录</span></span></a><a class="primary" href="/quote"><span th:text="#{t.32872}">立即询价</span></a></nav>
+<footer class="site-footer"><div class="container footer-row"><a class="footer-credential" href="/trust"><span class="credential-thumb" aria-hidden="true">资</span><strong data-config="legalEntityName"><span th:text="#{t.66986}">星维网络服务工作室</span></strong></a><div class="beian-row"><a class="beian-link" href="/rules"><span th:text="#{t.4517}">服务规则</span></a><a class="beian-link" href="/privacy"><span th:text="#{t.62044}">隐私说明</span></a></div></div></footer></body></html>

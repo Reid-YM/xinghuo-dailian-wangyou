@@ -210,6 +210,21 @@ public class PageController {
         return "quote";
     }
 
+    @GetMapping(value={"/account/login"})
+    String customerLogin() {
+        return "account-login";
+    }
+
+    @GetMapping(value={"/account/register"})
+    String customerRegister() {
+        return "account-register";
+    }
+
+    @GetMapping(value={"/account"})
+    String customerAccount() {
+        return "account";
+    }
+
     @GetMapping(value={"/records"})
     String records() {
         return "records";
@@ -238,13 +253,13 @@ public class PageController {
     }
 
     @GetMapping(value={"/rules"})
-    String rules() {
-        return "rules";
+    String rules(Locale locale) {
+        return Locale.ENGLISH.getLanguage().equals(locale.getLanguage()) ? "rules-en" : "rules";
     }
 
     @GetMapping(value={"/privacy"})
-    String privacy() {
-        return "privacy";
+    String privacy(Locale locale) {
+        return Locale.ENGLISH.getLanguage().equals(locale.getLanguage()) ? "privacy-en" : "privacy";
     }
 
     @GetMapping(value={"/trust"})

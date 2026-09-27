@@ -20,6 +20,16 @@ check_code /guides 200
 check_code /mastery 200
 check_code /api/guides 200
 check_code /api/tool-station 200
+check_code /account 200
+check_code /account/login 200
+check_code /account/register 200
+check_code /rules 200
+check_code /privacy 200
+check_code /contact 200
+check_code /records 200
+check_code /trust 200
+check_code /order 200
+check_code /api/account/me 401
 check_removed() {
   local path=$1
   local code

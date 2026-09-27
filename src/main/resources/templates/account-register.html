@@ -1,0 +1,34 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
+  <title>创建账号 - 星火网游代练平台</title><meta name="description" content="创建星火网游代练平台用户账号，自动归档询价、订单和交付状态。">
+  <link rel="stylesheet" href="/assets/app.css?v=20260928v016"><script defer src="/assets/public.js?v=20260928v016"></script><script defer src="/assets/account.js?v=20260928v016"></script><meta name="robots" content="noindex,follow"></head><body data-page="account-register">
+<header class="site-header"><div class="container topbar"><a class="brand brand-mark" href="/"><span class="brand-dot"></span><span data-config="brandName"><span th:text="#{t.38126}">星火网游代练平台</span></span></a><nav class="nav" aria-label="主导航"><a href="/services"><span th:text="#{nav.services}"><span th:text="#{t.69397}">服务</span></span></a><a href="/guides"><span th:text="#{t.15314}">攻略</span></a><a href="/mastery"><span th:text="#{nav.tools}"><span th:text="#{t.28716}">MW4 工具站</span></span></a><a href="/records"><span th:text="#{nav.records}"><span th:text="#{t.90574}">业务记录</span></span></a><a href="/account"><span th:text="#{nav.account}">我的</span></a><a class="btn primary desktop-keep" href="/quote"><span th:text="#{nav.quote}"><span th:text="#{t.32872}">立即询价</span></span></a></nav></div></header>
+<main class="container section auth-shell">
+  <section class="auth-value-panel">
+    <span class="eyebrow">Version 0.1</span>
+    <h1>先把买家账户做扎实，再扩展 Seller 和 Booster。</h1>
+    <p>这一版账户系统服务于下单前后的核心链路：询价、转单、进度、交付。后续可以平滑接入卖家等级、佣金和派单体系。</p>
+    <ol class="auth-steps">
+      <li><b>1</b><span>创建账户</span></li>
+      <li><b>2</b><span>提交询价</span></li>
+      <li><b>3</b><span>自动归档</span></li>
+      <li><b>4</b><span>查看交付</span></li>
+    </ol>
+  </section>
+  <section class="auth-card card" aria-label="创建账户">
+    <div class="auth-card-head"><span class="eyebrow">注册</span><h2>创建服务账户</h2><p class="muted">建议使用你和客服沟通时最常用的联系方式。</p></div>
+    <form id="accountAuthForm" class="account-form" novalidate>
+      <label class="field"><span>显示昵称</span><input name="displayName" autocomplete="name" required maxlength="80" placeholder="例如：小星"><small>只用于账户中心展示。</small></label>
+      <input type="hidden" name="contactMethod" value="微信" data-contact-method>
+      <div class="auth-segment" role="tablist" aria-label="联系方式类型"><button type="button" class="active" data-method="微信"><span th:text="#{t.42742}">微信</span></button><button type="button" data-method="QQ">QQ</button><button type="button" data-method="手机"><span th:text="#{t.46146}">手机</span></button><button type="button" data-method="其他"><span th:text="#{t.56822}">其他</span></button></div>
+      <label class="field"><span><span th:text="#{t.8044}">联系号</span></span><input name="contactValue" autocomplete="username" required minlength="3" maxlength="120" placeholder="微信号 / QQ / 手机号"><small>后续询价会按这个联系号归档。</small></label>
+      <label class="field password-field"><span>密码</span><input name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="72" placeholder="至少 8 位，建议混合字母和数字"><button class="password-toggle" type="button" data-toggle-password>显示</button></label>
+      <div class="password-meter" data-password-meter><i></i><span>密码强度：等待输入</span></div>
+      <label class="legal-consent"><input type="checkbox" required name="agree"><span>我已阅读并同意 <a href="/rules" target="_blank" rel="noopener"><span th:text="#{t.4517}">服务规则</span></a> 和 <a href="/privacy" target="_blank" rel="noopener"><span th:text="#{t.62044}">隐私说明</span></a>。</span></label>
+      <div id="accountMsg" class="notice hidden" role="status"></div>
+      <button class="btn primary auth-submit" type="submit">创建账号</button>
+    </form>
+    <div class="auth-card-foot"><a href="/account/login">已有账号登录</a><a href="/contact"><span th:text="#{t.86236}">联系客服</span></a></div>
+  </section>
+</main>
+<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/"><span th:text="#{t.870}">首页</span></a><a href="/records"><span th:text="#{nav.records}"><span th:text="#{t.90574}">业务记录</span></span></a><a class="primary" href="/quote"><span th:text="#{t.32872}">立即询价</span></a></nav>
+<footer class="site-footer"><div class="container footer-row"><a class="footer-credential" href="/trust"><span class="credential-thumb" aria-hidden="true">资</span><strong data-config="legalEntityName"><span th:text="#{t.66986}">星维网络服务工作室</span></strong></a><div class="beian-row"><a class="beian-link" href="/rules"><span th:text="#{t.4517}">服务规则</span></a><a class="beian-link" href="/privacy"><span th:text="#{t.62044}">隐私说明</span></a></div></div></footer></body></html>

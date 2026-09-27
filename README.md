@@ -68,3 +68,4 @@ java -jar build/xinghuo-v2-dev.jar
 ```
 
 详见 `docs/DEVELOPMENT.md` 和 `docs/ARCHITECTURE.md`。
+本次全站审查记录见 `docs/AUDIT-20260928.md`。

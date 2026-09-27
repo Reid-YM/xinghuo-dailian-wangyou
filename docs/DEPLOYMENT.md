@@ -16,7 +16,13 @@ APP_PORT=18080 java -jar build/current.jar --server.port=18080
 ```
 
 5. 备份当前生产 JAR 和环境文件。
-6. 将候选 JAR 复制到 `/opt/xinghuo-v2/` 并重启 `xinghuo-v2`。
+6. 安装候选 JAR，保证 `xinghuo` 用户可读，然后重启服务：
+
+```bash
+sudo install -m 0640 -o xinghuo -g xinghuo build/current.jar /opt/xinghuo-v2/xinghuo-v2-1.0.0.jar
+sudo systemctl restart xinghuo-v2
+```
+
 7. 检查 `systemctl status`、应用日志、公网页面和核心接口。
 
 禁止在共享仓库保存生产 `.env`。共享仓库中的发布文档只是流程说明，不会自动获得生产权限。

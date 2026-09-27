@@ -18,9 +18,16 @@ sudo /srv/xinghuo-dev/onboarding/list-developers.sh
 
 ## 开发者操作
 
+先用管理员分配的用户名测试 SSH：
+
 ```bash
 ssh alice@82.156.209.250
-git clone /srv/git/xinghuo-v2.git ~/xinghuo-v2
+```
+
+从外部电脑可以直接克隆；已经登录服务器时把地址换成 `/srv/git/xinghuo-v2.git`：
+
+```bash
+git clone alice@82.156.209.250:/srv/git/xinghuo-v2.git ~/xinghuo-v2
 cd ~/xinghuo-v2
 git config user.name "Alice"
 git config user.email "alice@example.com"
@@ -36,4 +43,10 @@ git commit -m "feat: ..."
 git push origin feature/your-feature
 ```
 
-合并到 `main` 前先运行构建和冒烟测试。
+合并到 `main` 前先运行构建和冒烟测试。`main` 禁止强推和删除；已合并或放弃的功能分支可以删除：
+
+```bash
+git push origin --delete feature/your-feature
+```
+
+如果开发库、密钥或其他敏感内容误入提交，推送钩子会拒绝上传。不要把生产 `.env` 复制进仓库。

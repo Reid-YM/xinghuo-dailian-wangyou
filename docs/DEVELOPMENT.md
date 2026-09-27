@@ -2,11 +2,26 @@
 
 ## 第一次拉取
 
+外部电脑使用管理员分配的账号克隆：
+
+```bash
+git clone alice@82.156.209.250:/srv/git/xinghuo-v2.git ~/xinghuo-v2
+```
+
+已经登录服务器时使用：
+
 ```bash
 git clone /srv/git/xinghuo-v2.git ~/xinghuo-v2
+```
+
+初始化并构建：
+
+```bash
 cd ~/xinghuo-v2
 git config user.name "你的名字"
 git config user.email "你的邮箱"
+cp .env.example .env.dev
+chmod 600 .env.dev
 chmod +x scripts/*.sh
 ./scripts/dev_build.sh
 ```
@@ -17,7 +32,7 @@ chmod +x scripts/*.sh
 2. 复制到 `src/main/java/com/xinghuo/` 相同包路径。
 3. 删除 CFR 注释，按当前项目版本修正泛型或 Kotlin/Lombok 反编译差异。
 4. 执行 `./scripts/dev_build.sh`。
-5. 启动构建产物并运行 `./scripts/smoke_test.sh`。
+5. 启动构建产物，确认监听 `18080`，再运行 `./scripts/smoke_test.sh 18080`。
 
 新增类可以直接放到 `src/main/java/com/xinghuo/`；构建脚本会把整个覆盖层编译进 JAR。
 
@@ -35,7 +50,8 @@ chmod +x scripts/*.sh
 
 ```bash
 ./scripts/dev_build.sh
-./scripts/smoke_test.sh
+# 先在 18080 启动构建产物
+./scripts/smoke_test.sh 18080
 git diff --check
 git status --short
 ```

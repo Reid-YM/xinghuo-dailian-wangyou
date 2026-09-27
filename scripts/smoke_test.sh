@@ -32,5 +32,5 @@ check_removed() {
 check_removed /loadouts
 check_code /api/loadouts 404
 check_code /assets/loadouts.js 404
-check_code /api/admin/ai-chat/status 404
+check_removed /api/admin/ai-chat/status
 exit "$fail"

@@ -9,29 +9,30 @@
 - `scripts/`：构建、冒烟测试、资源抓取和清理脚本。
 - `reference/decompiled/`：当前基线 JAR 的反编译参考代码。只用于阅读，不以它直接构建。
 - `/srv/xinghuo-dev/base/xinghuo-v2-base.jar`：不可变的当前线上基线 JAR。
-- `/srv/xinghuo-dev/repo/`：服务器上的共享工作克隆。
+- `/srv/xinghuo-dev/repo/`：服务器上的共享工作克隆，SSH 登录后默认进入这里。
 - `/srv/git/xinghuo-v2.git`：共享裸仓库，开发者从这里克隆和推送。
 
 ## 开发者快速开始
 
-外部电脑先通过 SSH 克隆（把 `alice` 换成管理员分配的账号）：
+管理员在服务器创建密码账号：
+
+```bash
+sudo /srv/xinghuo-dev/onboarding/add-developer-password.sh alice
+```
+
+不需要公钥。开发者使用密码登录后，会自动进入 `/srv/xinghuo-dev/repo` 共享开发区：
+
+```bash
+ssh alice@82.156.209.250
+```
+
+如需在自己的 home 下建立独立工作副本：
 
 ```bash
 git clone alice@82.156.209.250:/srv/git/xinghuo-v2.git ~/xinghuo-v2
-```
-
-已经登录服务器时，也可以使用本地路径：
-
-```bash
-git clone /srv/git/xinghuo-v2.git ~/xinghuo-v2
-```
-
-首次初始化：
-
-```bash
 cd ~/xinghuo-v2
-git config user.name "你的名字"
-git config user.email "你的邮箱"
+git config user.name "Alice"
+git config user.email "alice@example.com"
 cp .env.example .env.dev
 chmod 600 .env.dev
 ./scripts/dev_build.sh
@@ -47,7 +48,6 @@ set -a
 set +a
 java -jar build/xinghuo-v2-dev.jar
 ```
-
 ## 重要约束
 
 - 不要在仓库内提交 `.env`、数据库密码、SMTP/API Key、私钥或生产后台密码。

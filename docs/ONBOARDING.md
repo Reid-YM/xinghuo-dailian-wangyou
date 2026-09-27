@@ -1,30 +1,40 @@
 # 开发者接入
 
-## 管理员操作
+## 管理员操作（默认使用密码登录）
 
-1. 将开发者公钥保存到服务器临时文件。
-2. 执行：
+1. 创建开发者账号：
 
 ```bash
-sudo /srv/xinghuo-dev/onboarding/add-developer.sh alice /tmp/alice.pub
+sudo /srv/xinghuo-dev/onboarding/add-developer-password.sh alice
 ```
 
-3. 将输出中的用户名和克隆地址发给开发者。
+2. 按提示输入两次登录密码。
+3. 将服务器地址、端口、用户名和密码发给开发者。
 4. 查看成员：
 
 ```bash
 sudo /srv/xinghuo-dev/onboarding/list-developers.sh
 ```
 
-## 开发者操作
+如果开发者后续希望额外使用公钥登录，可以再执行：
 
-先用管理员分配的用户名测试 SSH：
+```bash
+sudo /srv/xinghuo-dev/onboarding/add-developer.sh alice /tmp/alice.pub
+```
+
+## 开发者操作
 
 ```bash
 ssh alice@82.156.209.250
 ```
 
-从外部电脑可以直接克隆；已经登录服务器时把地址换成 `/srv/git/xinghuo-v2.git`：
+登录成功后会自动进入 `/srv/xinghuo-dev/repo` 共享开发区，并显示共享区路径。首次进入建议阅读：
+
+```bash
+less README.md
+```
+
+如需在自己的 home 下建立独立工作副本：
 
 ```bash
 git clone alice@82.156.209.250:/srv/git/xinghuo-v2.git ~/xinghuo-v2

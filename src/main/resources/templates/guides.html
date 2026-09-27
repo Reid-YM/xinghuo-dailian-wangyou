@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#07090c"/>
+  <title th:text="${pageTitle}">多游戏代练攻略与任务路径 | 星火网游代练平台</title>
+  <meta name="description" th:content="${pageDescription}"/>
+  <link rel="canonical" th:href="${canonicalUrl}"/>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+  <link rel="stylesheet" href="/assets/app.css?v=20260927v22"/>
+  <link rel="stylesheet" href="/assets/guide.css?v=20260927p003"/>
+</head>
+<body data-page="guides">
+<header class="site-header">
+  <div class="container topbar">
+    <a class="brand brand-mark" href="/"><span class="brand-dot"></span><span>星火网游代练平台</span></a>
+    <nav class="nav" aria-label="主导航">
+      <a href="/services">服务</a><a href="/guides">攻略中心</a><a href="/records">业务记录</a><a href="/contact">一对一咨询</a>
+      <a class="btn primary desktop-keep" href="/quote">提交需求</a>
+    </nav>
+  </div>
+</header>
+<main class="container guide-shell">
+  <section class="guide-hero card">
+    <div>
+      <span class="eyebrow">P0-03 · Guide Center</span>
+      <h1>多游戏攻略与任务路径</h1>
+      <p>按游戏查看当前可接服务、推荐推进顺序、账号安全说明和可直接咨询的商品。内容与主站商品目录联动，后续可在后台独立维护。</p>
+    </div>
+    <div class="guide-hero-stat"><strong th:text="${guideCount}">0</strong><span>篇已发布攻略</span></div>
+  </section>
+  <form class="guide-search card" method="get" action="/guides">
+    <label>搜索游戏或攻略<input name="q" th:value="${query}" placeholder="例如：无畏契约、排位、通行证"/></label>
+    <label>游戏代码<input name="game" th:value="${activeGame}" placeholder="例如 VALORANT"/></label>
+    <button class="btn primary" type="submit">筛选攻略</button>
+  </form>
+  <section class="guide-grid" th:if="${!#lists.isEmpty(guides)}">
+    <a class="card guide-card" th:each="guide : ${guides}" th:href="@{'/guides/' + ${guide.slug}}">
+      <div class="guide-card-media">
+        <img loading="lazy" th:src="${!#strings.isEmpty(guide.coverImage) ? guide.coverImage : '/assets/generic-fps.svg'}" th:alt="${guide.gameName + ' 攻略封面'}"/>
+      </div>
+      <div class="guide-card-body">
+        <div class="guide-card-meta"><span class="tag" th:text="${guide.gameName}">游戏</span><span th:text="${guide.difficulty}">BEGINNER</span></div>
+        <h2 th:text="${guide.title}">攻略标题</h2>
+        <p class="clamp2" th:text="${guide.summary}">攻略摘要</p>
+        <div class="guide-card-foot"><span th:text="${guide.productCount + ' 个推荐商品'}">0 个推荐商品</span><span>预计 <b th:text="${guide.estimatedMinutes}">30</b> 分钟阅读</span></div>
+      </div>
+    </a>
+  </section>
+  <section class="card empty" th:if="${#lists.isEmpty(guides)}">暂无匹配攻略，请更换游戏或关键词。</section>
+</main>
+</body>
+</html>

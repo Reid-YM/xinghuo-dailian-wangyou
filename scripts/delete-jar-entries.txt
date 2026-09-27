@@ -1,0 +1,10 @@
+BOOT-INF/classes/com/xinghuo/service/LoadoutService.class
+BOOT-INF/classes/com/xinghuo/service/LoadoutService$*.class
+BOOT-INF/classes/com/xinghuo/service/AdminAiChatService.class
+BOOT-INF/classes/com/xinghuo/model/AdminAiChatMessage.class
+BOOT-INF/classes/com/xinghuo/model/AdminAiChatMessage$*.class
+BOOT-INF/classes/com/xinghuo/repository/AdminAiChatMessageRepository.class
+BOOT-INF/classes/com/xinghuo/dto/ApiDtos$AiChat*.class
+BOOT-INF/classes/templates/loadouts.html
+BOOT-INF/classes/static/assets/loadouts.js
+BOOT-INF/classes/static/assets/admin-loadouts.js

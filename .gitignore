@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+build/
+target/
+*.jar
+*.log
+*.tmp
+*.bak
+.DS_Store
+reference/generated/
+__pycache__/
+*.pyc

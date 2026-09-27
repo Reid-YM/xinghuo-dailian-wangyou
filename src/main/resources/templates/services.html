@@ -1,0 +1,27 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
+  <title>服务项目 - 星火网游代练平台</title><meta name="description" content="浏览星火网游代练平台当前可接的 COD MW4、战狗、CS2、无畏契约等游戏任务服务。">
+  <link rel="canonical" href="https://wydlgf.cn/services"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台"><meta property="og:title" content="服务项目 - 星火网游代练平台"><meta property="og:description" content="浏览当前可接的游戏任务服务。"><meta property="og:url" content="https://wydlgf.cn/services"><meta property="og:image" content="https://wydlgf.cn/og.png">
+  <link rel="stylesheet" href="/assets/app.css?v=20260927v22"><script defer src="/assets/public.js?v=20260927v22"></script><script defer src="/assets/pages.js?v=20260927v22"></script></head><body data-page="services">
+<header class="site-header"><div class="container topbar"><a class="brand brand-mark" href="/"><span class="brand-dot"></span><span data-config="brandName">星火网游代练平台</span></a><nav class="nav" aria-label="主导航"><a href="/services">服务</a><a href="/guides">攻略</a><a href="/mastery">MW4 工具站</a><a href="/records">业务记录</a><a href="/contact">一对一咨询</a><a class="btn primary desktop-keep" href="/quote">立即询价</a></nav></div></header>
+<main class="container section page-shell services-browser">
+  <div class="page-hero page-hero-compact service-browser-hero"><div><div class="service-state" data-config="status">● MW4 正式版预约中 · 上线后陆续开放服务</div><span class="eyebrow">服务大厅</span><h1>MW4 服务项目</h1></div><div class="page-hero-actions"><a class="btn primary" href="/quote" data-primary-cta>提前询价</a></div></div>
+  <section class="service-browser-console" aria-label="服务筛选">
+    <div class="service-browser-search"><span class="search-icon" aria-hidden="true">⌕</span><input id="publicServiceSearch" type="search" placeholder="搜索游戏或服务" autocomplete="off"></div>
+    <div class="browser-row"><span class="browser-label">游戏</span><div id="publicGameFilters" class="filters game-filter-rail"><button class="filter-btn active" data-game-filter="all">全部游戏</button></div></div>
+    <div class="browser-row"><span class="browser-label">平台</span><div id="publicPlatformFilters" class="filters platform-filter-rail"><button class="filter-btn active" data-platform-filter="all">全部平台</button></div></div>
+    <div class="browser-row"><span class="browser-label">需求</span><div id="publicCategoryFilters" class="filters service-filterbar"><button class="filter-btn active" data-category-filter="all">全部需求</button></div></div>
+    <div class="service-browser-summary" id="publicServiceSummary">正在读取服务…</div>
+  </section>
+  <div id="list" class="grid4 section service-browser-grid">
+    <a class="service-card card" th:each="svc : ${hallServices}" th:href="@{'/service/' + ${svc.slug}}">
+        <div class="service-cover" th:if="${svc.coverImage != null}"><img th:src="${svc.coverImage}" th:alt="|服务封面：${svc.name}|" loading="lazy" decoding="async"></div>
+        <div class="service-card-head"><span class="tag" th:text="${svc.name}">服务</span><span class="availability" th:text="${acceptingOrders and svc.status.name() == 'AVAILABLE' ? '可接单' : (svc.status.name() == 'OFFLINE' ? '已下架' : '可预约')}">可预约</span></div>
+        <h3 th:text="${svc.name}">服务名称</h3>
+        <p class="muted clamp2" th:text="${svc.shortDesc}">服务说明</p>
+        <div class="service-meta"><strong th:text="${svc.priceMin != null ? '参考 ¥' + svc.priceMin + ' 起' : '人工报价'}">参考价</strong><span th:text="${svc.durationText}">按进度确认</span></div>
+      </a>
+  </div>
+</main>
+<footer class="site-footer"><div class="container footer-row"><a class="footer-credential" href="/trust"><span class="credential-thumb" aria-hidden="true">资</span><strong data-config="legalEntityName">星维网络服务工作室</strong></a><a href="/quote" class="text-link">立即询价</a></div><div class="beian-row"><a class="beian-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">蜀ICP备2026047129号</a><a class="beian-link police-beian" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=51162102000262" target="_blank" rel="noopener noreferrer"><img src="/assets/police-beian.png" alt="" aria-hidden="true" loading="lazy" decoding="async">川公网安备51162102000262号</a><a class="beian-link" href="/privacy">隐私说明</a></div></footer>
+<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/">首页</a><a href="/records">业务记录</a><a class="primary" href="/quote">立即询价</a></nav></body></html>

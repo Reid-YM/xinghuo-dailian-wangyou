@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="_csrf" th:content="${csrf.token}"/>
+  <meta name="_csrf_header" th:content="${csrf.headerName}"/>
+  <title>攻略内容中心 - 运营后台</title>
+  <link rel="stylesheet" href="/assets/app.css?v=20260927v22"/>
+  <link rel="stylesheet" href="/assets/admin-guides.css?v=20260927p003"/>
+  <script defer src="/assets/admin-guides.js?v=20260927p003"></script>
+</head>
+<body class="admin-solid-ui">
+<header class="guide-admin-top">
+  <div class="container guide-admin-topbar"><a class="btn ghost" href="/admin">← 返回运营后台</a><div><span class="eyebrow">P0-03</span><strong>多游戏 Guide 内容中心</strong></div><div class="row-actions"><a class="btn ghost" href="/guides" target="_blank" rel="noopener">查看前台</a><button class="btn primary" id="newGuide" type="button">新建攻略</button></div></div>
+</header>
+<main class="container guide-admin-shell">
+  <section class="card guide-admin-toolbar">
+    <div><h1>攻略内容模型</h1><p class="muted">维护攻略主体、分段内容、FAQ、关联游戏与推荐商品。推荐商品直接引用主站服务，图片与价格随服务目录同步。</p></div>
+    <div class="row-actions"><button class="btn" id="importGuides" type="button">从游戏目录批量生成</button><button class="btn ghost" id="reloadGuides" type="button">刷新列表</button></div>
+  </section>
+  <div class="guide-admin-layout">
+    <section class="card guide-admin-list">
+      <div class="guide-admin-list-head"><div><span class="eyebrow">Guides</span><h2>已有攻略</h2></div><span class="badge" id="guideCount">0</span></div>
+      <div id="guideRows" class="guide-admin-rows"></div>
+    </section>
+    <section class="card guide-admin-editor" id="guideEditor">
+      <div class="guide-admin-empty" id="guideEmpty">从左侧选择攻略，或新建一篇攻略。</div>
+      <form id="guideForm" class="hidden" novalidate>
+        <input name="id" type="hidden"/>
+        <div class="guide-editor-head"><div><span class="eyebrow">Editor</span><h2 id="editorTitle">编辑攻略</h2></div><div class="row-actions"><button class="btn primary" type="submit">保存</button><button class="btn ghost" id="archiveGuide" type="button">归档</button></div></div>
+        <div class="guide-editor-grid guide-editor-grid-2">
+          <label class="field"><span>游戏</span><select name="gameCode" required></select></label>
+          <label class="field"><span>状态</span><select name="status"><option value="DRAFT">草稿</option><option value="PUBLISHED">已发布</option><option value="ARCHIVED">已归档</option></select></label>
+          <label class="field guide-span-2"><span>标题</span><input name="title" maxlength="180" required/></label>
+          <label class="field guide-span-2"><span>副标题</span><input name="subtitle" maxlength="255"/></label>
+          <label class="field guide-span-2"><span>摘要</span><textarea name="summary" rows="3" required></textarea></label>
+          <label class="field guide-span-2"><span>封面 URL（留空则跟随游戏封面）</span><input name="coverImage" maxlength="500"/></label>
+          <label class="field"><span>难度</span><select name="difficulty"><option value="BEGINNER">入门</option><option value="INTERMEDIATE">进阶</option><option value="ADVANCED">高级</option><option value="EXPERT">专家</option></select></label>
+          <label class="field"><span>阅读分钟</span><input name="estimatedMinutes" type="number" min="1" max="10080" value="60"/></label>
+          <label class="field"><span>标签（逗号分隔）</span><input name="tags"/></label>
+          <label class="field"><span>排序</span><input name="sortOrder" type="number" min="0" value="100"/></label>
+          <label class="field guide-span-2"><span>SEO 标题</span><input name="seoTitle" maxlength="160"/></label>
+          <label class="field guide-span-2"><span>SEO 描述</span><textarea name="seoDescription" rows="2" maxlength="300"></textarea></label>
+          <label class="toggle-row"><input name="featured" type="checkbox"/><span><b>重点推荐</b><small>在攻略中心优先展示。</small></span></label>
+        </div>
+        <div class="guide-editor-block"><div class="guide-editor-block-head"><div><b>内容段落</b><small>正文支持普通文本和换行；当前不执行外部脚本或原始 HTML。</small></div><button class="btn small-btn" id="addSection" type="button">增加段落</button></div><div id="sectionRows"></div></div>
+        <div class="guide-editor-block"><div class="guide-editor-block-head"><div><b>推荐商品</b><small>只能选择当前游戏下的服务，保存后商品卡会使用市场抓取封面。</small></div></div><div id="productRows" class="guide-product-picker"></div></div>
+        <div class="guide-editor-block"><div class="guide-editor-block-head"><div><b>修改原因</b><small>写入操作审计。</small></div></div><input class="guide-reason" name="reason" maxlength="200" value="P0-03 多游戏攻略维护"/></div>
+      </form>
+    </section>
+  </div>
+</main>
+</body>
+</html>

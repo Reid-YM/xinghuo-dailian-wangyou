@@ -20,7 +20,16 @@ check_code /guides 200
 check_code /mastery 200
 check_code /api/guides 200
 check_code /api/tool-station 200
-check_code /loadouts 404
+check_removed() {
+  local path=$1
+  local code
+  code=$(curl -sS -o /dev/null -w '%{http_code}' "$BASE$path" || true)
+  case "$code" in
+    301|302|307|308|404) echo "OK   $path $code (removed or redirected)" ;;
+    *) echo "FAIL $path expected removed/redirect actual=$code"; fail=1 ;;
+  esac
+}
+check_removed /loadouts
 check_code /api/loadouts 404
 check_code /assets/loadouts.js 404
 check_code /api/admin/ai-chat/status 404

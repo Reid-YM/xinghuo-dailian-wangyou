@@ -1,0 +1,60 @@
+name: Validate Xinghuo V2
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: validate-xinghuo-v2-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.TENCENT_SSH_KEY }}" > ~/.ssh/tencent_deploy_key
+          chmod 600 ~/.ssh/tencent_deploy_key
+          ssh-keyscan -p "${{ secrets.TENCENT_PORT }}" "${{ secrets.TENCENT_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync source to temporary validation workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET_DIR="/srv/xinghuo-dev/actions-workdir/validate-${{ github.run_id }}"
+          ssh -i ~/.ssh/tencent_deploy_key -p "${{ secrets.TENCENT_PORT }}" \
+            "${{ secrets.TENCENT_USER }}@${{ secrets.TENCENT_HOST }}" \
+            "rm -rf '$TARGET_DIR' && mkdir -p '$TARGET_DIR'"
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude 'build/' \
+            --exclude 'reference/decompiled/' \
+            -e "ssh -i ~/.ssh/tencent_deploy_key -p ${{ secrets.TENCENT_PORT }}" \
+            ./ "${{ secrets.TENCENT_USER }}@${{ secrets.TENCENT_HOST }}:$TARGET_DIR/"
+
+      - name: Build only
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET_DIR="/srv/xinghuo-dev/actions-workdir/validate-${{ github.run_id }}"
+          ssh -i ~/.ssh/tencent_deploy_key -p "${{ secrets.TENCENT_PORT }}" \
+            "${{ secrets.TENCENT_USER }}@${{ secrets.TENCENT_HOST }}" \
+            "cd '$TARGET_DIR' && ./scripts/dev_build.sh build/xinghuo-v2-validate.jar"
+
+      - name: Cleanup validation workspace
+        if: always()
+        shell: bash
+        run: |
+          TARGET_DIR="/srv/xinghuo-dev/actions-workdir/validate-${{ github.run_id }}"
+          ssh -i ~/.ssh/tencent_deploy_key -p "${{ secrets.TENCENT_PORT }}" \
+            "${{ secrets.TENCENT_USER }}@${{ secrets.TENCENT_HOST }}" \
+            "rm -rf '$TARGET_DIR'"

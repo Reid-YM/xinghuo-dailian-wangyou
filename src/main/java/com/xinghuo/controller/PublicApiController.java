@@ -253,7 +253,7 @@ public class PublicApiController {
             throw new NotFoundException();
         }
         Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.noStore())).body((Object)r);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.noStore()).body(r);
     }
 
     @PostMapping(value={"/track"})

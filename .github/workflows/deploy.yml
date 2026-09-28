@@ -1,0 +1,51 @@
+name: Deploy Xinghuo V2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-xinghuo-v2
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.TENCENT_SSH_KEY }}" > ~/.ssh/tencent_deploy_key
+          chmod 600 ~/.ssh/tencent_deploy_key
+          ssh-keyscan -p "${{ secrets.TENCENT_PORT }}" "${{ secrets.TENCENT_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync source to Tencent server
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET_DIR="/srv/xinghuo-dev/actions-workdir/xinghuo-v2"
+          ssh -i ~/.ssh/tencent_deploy_key -p "${{ secrets.TENCENT_PORT }}" \
+            "${{ secrets.TENCENT_USER }}@${{ secrets.TENCENT_HOST }}" \
+            "mkdir -p '$TARGET_DIR'"
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude 'build/' \
+            --exclude 'reference/decompiled/' \
+            -e "ssh -i ~/.ssh/tencent_deploy_key -p ${{ secrets.TENCENT_PORT }}" \
+            ./ "${{ secrets.TENCENT_USER }}@${{ secrets.TENCENT_HOST }}:$TARGET_DIR/"
+
+      - name: Build and restart service
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET_DIR="/srv/xinghuo-dev/actions-workdir/xinghuo-v2"
+          ssh -i ~/.ssh/tencent_deploy_key -p "${{ secrets.TENCENT_PORT }}" \
+            "${{ secrets.TENCENT_USER }}@${{ secrets.TENCENT_HOST }}" \
+            "cd '$TARGET_DIR' && bash scripts/deploy_from_actions.sh"

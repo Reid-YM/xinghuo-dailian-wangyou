@@ -150,7 +150,7 @@
       if (slot === 'BACKGROUND') {
         await api('/api/admin/site-config/section/visual', { method: 'PATCH', body: JSON.stringify({ ...configSectionPayload('visual'), reason: '背景图上传后自动适配前台' }) });
       }
-      toast(`${label}已上传并立即生效`);
+      toast(slot === 'BACKGROUND' ? `${label}已上传并立即生效` : `${label}已上传，请保存当前模块后生效`);
     } catch (error) { toast(error.message, 'error'); }
     finally { setBusy(button, false); }
   }
@@ -166,6 +166,7 @@
   }
 
   async function clearSiteImage(slot, hiddenInput, fileInput, previewSelector, label) {
+    if (!confirm(`确认移除${label}？此操作会影响前台展示。`)) return;
     try {
       await api(`/api/admin/site-config/image/${slot}`, { method: 'DELETE' });
       hiddenInput.value = ''; if (fileInput) fileInput.value = '';
@@ -201,7 +202,7 @@
       <div class="field wide"><label>备注</label><input data-contact-field="note" maxlength="120" value="${esc(row.note)}" placeholder="发送业务编号确认报价"></div>
       <div class="field"><label>二维码</label><input data-contact-field="qrImage" type="hidden" value="${esc(row.qrImage)}"><input accept="image/jpeg,image/png,image/webp,image/*" data-contact-file type="file"></div>
       <div class="admin-contact-channel-preview">${row.qrImage ? `<img src="${esc(row.qrImage)}" alt="${esc(row.label || '客服')}二维码">` : '<span class="muted small">未上传二维码</span>'}</div>
-      <div class="admin-contact-channel-actions"><button class="btn small-btn" type="button" data-contact-upload>上传二维码</button><button class="btn small-btn ghost" type="button" data-contact-remove>删除客服</button></div>
+      <div class="admin-contact-channel-actions"><button class="btn small-btn" type="button" data-contact-upload>上传二维码</button><button class="btn small-btn ghost" type="button" data-contact-remove>移除当前项</button></div>
     </div>`).join('') || '<div class="empty">还没有多客服。点击“新增客服”开始添加。</div>';
   }
 
@@ -903,7 +904,7 @@
       <td>${esc(x.currentProgress || '-')}</td>
       <td>${x.screenshotAssetId ? `<a class="text-link" target="_blank" rel="noopener" href="/api/admin/quotes/${x.id}/image">查看截图</a>` : '-'}</td>
       <td>
-        <select class="compact-select" data-quote-status="${x.id}">
+        <select class="compact-select" data-quote-status="${x.id}" aria-label="业务 ${x.businessNo || x.id} 询价状态">
           ${Object.keys(ZH.quoteStatus).map(s => `<option value="${s}" ${s === x.status ? 'selected' : ''}>${ZH.quoteStatus[s]}</option>`).join('')}
         </select>
       </td>
@@ -986,11 +987,11 @@
     const [ssRaw, slotsRaw] = await Promise.all([api('/api/admin/services'), api('/api/admin/slots')]); const ss = Array.isArray(ssRaw) ? ssRaw : []; const slots = Array.isArray(slotsRaw) ? slotsRaw : [];
     $('#slots').innerHTML = slots.map(x => `<div class="card slot-card">
       <div class="section-title"><div><span class="eyebrow">首页推荐</span><h3>展示位 ${x.slotNo}</h3></div>${statusBadge('slotMode', x.mode)}</div>
-      <div class="field"><label>推荐方式</label><select data-slot-mode="${x.slotNo}">
+      <div class="field"><label>推荐方式</label><select data-slot-mode="${x.slotNo}" aria-label="展示位 ${x.slotNo} 推荐方式">
         <option value="AUTO" ${x.mode === 'AUTO' ? 'selected' : ''}>自动推荐</option>
         <option value="MANUAL" ${x.mode === 'MANUAL' ? 'selected' : ''}>手动指定</option>
       </select></div>
-      <div class="field" data-slot-service-wrap="${x.slotNo}"><label>指定服务</label><select data-slot-service="${x.slotNo}">
+      <div class="field" data-slot-service-wrap="${x.slotNo}"><label>指定服务</label><select data-slot-service="${x.slotNo}" aria-label="展示位 ${x.slotNo} 指定服务">
         <option value="">请选择服务</option>
         ${ss.filter(s => s.active && s.status !== 'OFFLINE').map(s => `<option value="${s.id}" ${s.id === x.serviceId ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}
       </select></div>
@@ -1073,7 +1074,7 @@
       <td><strong>${esc(x.title)}</strong><div class="muted small feedback-content">${esc(x.content)}</div>${x.operatorNote ? `<div class="muted small">说明：${esc(x.operatorNote)}</div>` : ''}${x.attachmentAssetId ? `<div class="feedback-attachment-line"><a class="text-link" target="_blank" rel="noopener" href="/api/admin/test-feedback/${x.id}/attachment">查看附件</a></div>` : ''}</td>
       <td>${esc(x.pagePath || '-')}</td>
       <td>${statusBadge('feedbackPriority', x.priority)}</td>
-      <td><select class="compact-select" data-feedback-status="${x.id}">
+      <td><select class="compact-select" data-feedback-status="${x.id}" aria-label="反馈 ${x.id} 状态">
         ${Object.keys(ZH.feedbackStatus).map(s => `<option value="${s}" ${s === x.status ? 'selected' : ''}>${ZH.feedbackStatus[s]}</option>`).join('')}
       </select></td>
       <td>${formatTime(x.updatedAt)}</td>
@@ -1288,10 +1289,30 @@
     }
   });
 
+  function applyAdminA11y() {
+    const labels = {
+      '#gameCatalogSearch':'搜索游戏资料', '#serviceSearch':'搜索服务项目', '#quoteSearch':'搜索询价线索', '#orderSearch':'搜索履约订单', '#feedbackSearch':'搜索测试反馈',
+      '#gameBusinessFilter':'筛选游戏运营状态', '#gamePlatformFilter':'筛选游戏平台', '#gameActiveFilter':'筛选前台启用状态', '#gameFeaturedFilter':'只看重点游戏',
+      '#adminGameFilter':'筛选一级游戏', '#adminCategoryFilter':'筛选需求类型', '#adminServiceFilter':'筛选具体服务', '#catalogCategoryGame':'选择分类所属游戏',
+      '#feedbackModule':'反馈问题模块', '#feedbackArea':'反馈具体位置', '#feedbackIssueType':'反馈问题类型', '#feedbackScope':'反馈影响范围', '#feedbackPriority':'反馈优先级'
+    };
+    Object.entries(labels).forEach(([selector, label]) => {
+      const el = $(selector);
+      if (el && !el.getAttribute('aria-label')) el.setAttribute('aria-label', label);
+    });
+    $$('input:not([type=hidden]), select, textarea').forEach(el => {
+      if (el.getAttribute('aria-label') || el.closest('label')) return;
+      const field = el.closest('.field, .contact-combo-field, .admin-contact-channel, .service-form-section');
+      const label = field?.querySelector('label')?.textContent?.replace(/\s*\*\s*$/, '').trim();
+      if (label) el.setAttribute('aria-label', label);
+    });
+  }
+
   function initAdminCyberVisuals() {
     document.body.classList.add('admin-solid-ui');
   }
 
   initAdminCyberVisuals();
+  applyAdminA11y();
   show('dashboard');
 })();

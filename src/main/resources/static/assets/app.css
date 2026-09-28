@@ -288,3 +288,20 @@ body.admin-solid-ui .btn.danger,body.admin-solid-ui .danger{color:#fff}
 @media (prefers-reduced-motion:reduce){
   *,*:before,*:after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
+
+
+/* Admin usability audit hardening 2026-09-29 */
+body.admin-solid-ui .table-wrap{scrollbar-gutter:stable;overscroll-behavior-x:contain;scrollbar-color:rgba(245,183,0,.5) rgba(255,255,255,.04)}
+body.admin-solid-ui .row-actions .btn{white-space:nowrap}
+body.admin-solid-ui .compact-select{min-height:40px}
+@media (min-width:761px) and (max-width:1024px){
+  body.admin-solid-ui .game-center-layout> *{min-width:0}
+  body.admin-solid-ui .game-library-panel,body.admin-solid-ui .game-taxonomy-panel{min-width:0}
+  body.admin-solid-ui .game-library-row{grid-template-columns:20px 48px minmax(0,1fr) auto!important;padding:10px 0!important;gap:8px!important}
+  body.admin-solid-ui .game-deps,body.admin-solid-ui .game-health{grid-column:3!important}
+  body.admin-solid-ui .game-library-row .taxonomy-actions{grid-column:4!important;grid-row:1/4!important;display:grid!important;align-self:stretch}
+  body.admin-solid-ui .game-library-row .taxonomy-actions .btn{min-width:54px}
+}
+@media (max-width:760px){
+  body.admin-solid-ui .compact-select{min-height:44px}
+}

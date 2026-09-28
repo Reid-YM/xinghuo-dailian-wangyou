@@ -16,7 +16,6 @@ package com.xinghuo.controller;
 
 import com.xinghuo.model.GameCatalog;
 import com.xinghuo.model.ServiceItem;
-import com.xinghuo.guide.GuideContentService;
 import com.xinghuo.service.ServiceCatalogService;
 import com.xinghuo.service.TaxonomyService;
 import java.time.LocalDate;
@@ -31,7 +30,6 @@ public class SeoController {
     private static final String LAST_MOD = LocalDate.now().toString();
     private final ServiceCatalogService services;
     private final TaxonomyService taxonomy;
-    private final GuideContentService guides;
 
     @GetMapping(value={"/robots.txt"}, produces={"text/plain; charset=UTF-8"})
     ResponseEntity<String> robots() {
@@ -41,6 +39,7 @@ public class SeoController {
             + "Disallow: /account\n"
             + "Disallow: /order\n"
             + "Disallow: /record/\n"
+            + "Disallow: /guides\n"
             + "Sitemap: " + SITE_URL + "/sitemap.xml\n");
     }
 
@@ -50,7 +49,6 @@ public class SeoController {
         xml.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
         this.appendUrl(xml, "/", "daily", "1.0");
         this.appendUrl(xml, "/services", "daily", "0.9");
-        this.appendUrl(xml, "/guides", "daily", "0.8");
         this.appendUrl(xml, "/contact", "monthly", "0.6");
         this.appendUrl(xml, "/rules", "monthly", "0.5");
         this.appendUrl(xml, "/privacy", "monthly", "0.5");
@@ -62,9 +60,6 @@ public class SeoController {
         }
         for (ServiceItem service : this.services.publicItems()) {
             this.appendUrl(xml, "/service/" + service.getSlug(), "weekly", "0.8");
-        }
-        for (var guide : this.guides.publicList(null, null, 200)) {
-            this.appendUrl(xml, "/guides/" + guide.slug(), "weekly", "0.7");
         }
         xml.append("</urlset>\n");
         return ResponseEntity.ok(xml.toString());
@@ -84,9 +79,8 @@ public class SeoController {
     }
 
     @Generated
-    public SeoController(ServiceCatalogService services, TaxonomyService taxonomy, GuideContentService guides) {
+    public SeoController(ServiceCatalogService services, TaxonomyService taxonomy) {
         this.services = services;
         this.taxonomy = taxonomy;
-        this.guides = guides;
     }
 }

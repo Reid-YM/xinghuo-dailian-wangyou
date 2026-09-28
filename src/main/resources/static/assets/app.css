@@ -305,3 +305,7 @@ body.admin-solid-ui .compact-select{min-height:40px}
 @media (max-width:760px){
   body.admin-solid-ui .compact-select{min-height:44px}
 }
+
+
+/* Hide retired guide entry points and keep mobile dock evenly filled */
+.mobile-dock{grid-template-columns:repeat(auto-fit,minmax(58px,1fr))!important}

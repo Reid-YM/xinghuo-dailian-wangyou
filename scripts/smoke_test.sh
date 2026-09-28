@@ -16,9 +16,7 @@ check_code() {
 }
 check_code / 200
 check_code /services 200
-check_code /guides 200
 check_code /mastery 200
-check_code /api/guides 200
 check_code /api/tool-station 200
 check_code /account 200
 check_code /account/login 200
@@ -39,6 +37,8 @@ check_removed() {
     *) echo "FAIL $path expected removed/redirect actual=$code"; fail=1 ;;
   esac
 }
+check_removed /guides
+check_removed /api/guides
 check_removed /loadouts
 check_code /api/loadouts 404
 check_code /assets/loadouts.js 404

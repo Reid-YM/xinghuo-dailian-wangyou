@@ -13,7 +13,7 @@ from difflib import SequenceMatcher
 from html import unescape
 from pathlib import Path
 
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36 XinghuoGuideBot/1.0'
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36 XinghuoMarketBot/1.0'
 STEAM_APPS = {
     'APEX': 1172470, 'CS2': 730, 'PUBG': 578080, 'R6_SIEGE': 359550,
     'MARVEL_RIVALS': 2767030, 'DELTA_FORCE': 2507950, 'DESTINY2': 1085660,
@@ -197,9 +197,6 @@ def main():
         digest = item['checksum_sha256']
         lines.append(f"UPDATE game_catalog SET cover_image='{local_path}' WHERE code='{game_code}';")
         lines.append(f"UPDATE services SET cover_image='{local_path}' WHERE game_code='{game_code}' AND is_active=1;")
-        lines.append("INSERT INTO guide_market_assets (game_code, service_id, asset_type, source_name, source_url, source_page_url, local_path, checksum_sha256, is_active) "
-                     f"VALUES ('{game_code}', NULL, 'COVER', '{source_name}', '{source_url}', '{source_page}', '{local_path}', '{digest}', 1) "
-                     "ON DUPLICATE KEY UPDATE source_name=VALUES(source_name), source_page_url=VALUES(source_page_url), local_path=VALUES(local_path), checksum_sha256=VALUES(checksum_sha256), is_active=1;")
     if not results:
         lines.append('-- no images were downloaded; existing covers are preserved')
     sql_out.write_text('\n'.join(lines) + '\n', encoding='utf-8')

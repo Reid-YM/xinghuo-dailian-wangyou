@@ -307,5 +307,5 @@ body.admin-solid-ui .compact-select{min-height:40px}
 }
 
 
-/* Hide retired guide entry points and keep mobile dock evenly filled */
+/* Keep mobile dock evenly filled after navigation cleanup */
 .mobile-dock{grid-template-columns:repeat(auto-fit,minmax(58px,1fr))!important}

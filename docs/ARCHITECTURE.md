@@ -29,14 +29,12 @@
 - 服务商品：`services`
 - 询价与订单：`quotes`、`customer_orders`
 - 展示配置：`site_config`、`site_settings`、`hot_slots`
-- 多游戏攻略：`game_guides`、`guide_sections`、`guide_products`、`guide_faqs`、`guide_relations`
-- 市场图片来源：`guide_market_assets`
 
 ## 主要路由
 
-- 前台：`/`、`/services`、`/service/{slug}`、`/game/{slug}`、`/guides`、`/guides/{slug}`、`/mastery`
-- 公开 API：`/api/guides`、`/api/services`、`/api/catalog`、`/api/tool-station`、`/api/site-config`
-- 后台：`/admin`、`/admin/guides`
+- 前台：`/`、`/services`、`/service/{slug}`、`/game/{slug}`、`/mastery`
+- 公开 API：`/api/services`、`/api/catalog`、`/api/tool-station`、`/api/site-config`
+- 后台：`/admin`
 - 后台 API：`/api/admin/**`
 
 ## 部署基线

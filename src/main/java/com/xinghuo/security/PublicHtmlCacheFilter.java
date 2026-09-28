@@ -56,10 +56,10 @@ extends OncePerRequestFilter {
     }
 
     private boolean cacheablePublicApi(String path) {
-        return path.equals("/api/site-config") || path.startsWith("/api/public/") || path.equals("/api/services") || path.equals("/api/catalog") || path.equals("/api/tool-station") || path.equals("/api/guides") || path.startsWith("/api/guides/") || path.startsWith("/api/site-assets/");
+        return path.equals("/api/site-config") || path.startsWith("/api/public/") || path.equals("/api/services") || path.equals("/api/catalog") || path.equals("/api/tool-station") || path.startsWith("/api/site-assets/");
     }
 
     private boolean likelyPublicHtml(String path) {
-        return path.equals("/") || path.equals("/services") || path.startsWith("/service/") || path.startsWith("/game/") || path.equals("/guides") || path.startsWith("/guides/") || path.equals("/quote") || path.equals("/records") || path.startsWith("/record/") || path.equals("/contact") || path.equals("/rules") || path.equals("/privacy") || path.equals("/trust") || path.equals("/mastery") || path.equals("/order") || path.startsWith("/order/");
+        return path.equals("/") || path.equals("/services") || path.startsWith("/service/") || path.startsWith("/game/") || path.equals("/quote") || path.equals("/records") || path.startsWith("/record/") || path.equals("/contact") || path.equals("/rules") || path.equals("/privacy") || path.equals("/trust") || path.equals("/mastery") || path.equals("/order") || path.startsWith("/order/");
     }
 }

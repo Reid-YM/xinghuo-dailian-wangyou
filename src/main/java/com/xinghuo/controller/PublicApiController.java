@@ -140,7 +140,7 @@ public class PublicApiController {
     @GetMapping(value={"/public/game-status/all"})
     List<Map<String, Object>> gameStatusAll() {
         return this.gameStatuses.all().stream().map(s -> {
-            LinkedHashMap<String, Object> m = new LinkedHashMap<String, Object>();
+            Map<String, Object> m = new LinkedHashMap<String, Object>();
             m.put("game", s.getGameCode());
             m.put("status", s.getStatusCode().name().toLowerCase(Locale.ROOT));
             m.put("label", s.getPublicLabel());
@@ -196,7 +196,7 @@ public class PublicApiController {
     @GetMapping(value={"/site-assets/{assetId}"})
     ResponseEntity<Resource> siteAsset(@PathVariable UUID assetId) {
         Resource r = this.uploads.loadPublicSiteAsset(assetId);
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.maxAge((Duration)Duration.ofDays(7L)).cachePublic())).body((Object)r);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.maxAge(Duration.ofDays(7L)).cachePublic()).body(r);
     }
 
     @PostMapping(value={"/uploads/quote"})
@@ -211,7 +211,7 @@ public class PublicApiController {
         }
         Long accountId = this.customerAccounts.current(req).map(x -> x.getId()).orElse(null);
         ApiDtos.QuoteResponse out = this.quotes.create(body, key, HashUtil.sha256((String)RequestUtil.clientIp((HttpServletRequest)req)), accountId);
-        return ResponseEntity.status((HttpStatusCode)HttpStatus.CREATED).body((Object)out);
+        return ResponseEntity.status(HttpStatus.CREATED).body(out);
     }
 
     @GetMapping(value={"/records/{businessNo}"})
@@ -232,7 +232,7 @@ public class PublicApiController {
             throw new NotFoundException();
         }
         Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.noStore())).body((Object)r);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.noStore()).body(r);
     }
 
     @GetMapping(value={"/orders/{orderNo}"})

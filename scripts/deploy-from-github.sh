@@ -79,6 +79,7 @@ CANDIDATE="$CANDIDATE_DIR/xinghuo-v2-$HEAD_SHA.jar"
 sudo install -o xinghuo -g xinghuo -m 0640 "$JAR" "$CANDIDATE"
 CANDIDATE_SHA=$(sudo -u xinghuo sha256sum "$CANDIDATE" | awk '{print $1}')
 [ "$CANDIDATE_SHA" = "$BUILD_SHA" ] || fail "候选 JAR SHA256 不一致"
+sudo -u xinghuo test -r "$CANDIDATE" || fail "候选 JAR 对运行用户不可读"
 
 log "6/8 18080 预发布完整冒烟"
 cleanup_smoke
@@ -124,7 +125,8 @@ SMOKE_AT=$(date '+%Y-%m-%d %H:%M:%S %z')
 EOF
 
 log "7/8 执行 8081 -> 8080 零停机正式发布"
-env \
+# candidates 目录是 root:xinghuo 0750；正式发布脚本需要以 sudo 上下文读取同一个已冒烟候选 JAR。
+sudo env \
   CONFIRM_PROD_DEPLOY=YES \
   PREDEPLOY_SMOKE_SHA256="$CANDIDATE_SHA" \
   DEPLOY_GIT_SHA="$HEAD_SHA" \

@@ -23,3 +23,14 @@
 .console-security-actions b{font-size:16px;}
 .console-security-actions span{color:#9aa6b8;font-size:13px;}
 @media(max-width:760px){.console-security-actions{grid-template-columns:1fr;}}
+
+/* 20261006-order-mobile: 控制台订单卡片小屏防挤压 */
+@media(max-width:860px){
+  .console-card>div:first-child{min-width:0}
+  .console-card h3,.console-card p,.console-card small,.console-progress{max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+  .card-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+  .card-actions .btn{width:100%;min-width:0;min-height:44px}
+}
+@media(max-width:420px){
+  .card-actions{grid-template-columns:minmax(0,1fr)}
+}

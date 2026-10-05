@@ -9,8 +9,13 @@
   const QUOTE_KEY = 'xinghuo-cod-tool-quote-snapshot';
   const MASTERY_FALLBACK = ['MULTIPLAYER', 'WARZONE', 'DMZ'];
 
+  // 账号云同步：沿用 /api/account/progress 的乐观锁协议
+  const TOOL_KEY = 'mw4_camo_tracker';
+  const cloud = { enabled: false, version: null, timer: null, saving: false, dirty: false };
+
   // 数据同时保留英文名与中文名；界面按中文显示，英文名只用于搜索匹配。
   const zhName = entry => String(entry?.nameZh || entry?.name || '').trim();
+  const TIER_LABELS = ['一级', '二级', '三级'];
 
   let game = null;
   let modes = [];
@@ -35,6 +40,7 @@
     state.updatedAt = new Date().toISOString();
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (ignored) {}
     updateSaveState();
+    scheduleCloudSave();
   }
 
   function updateSaveState() {
@@ -107,6 +113,31 @@
     return { done, total, percent: total ? Math.round(done / total * 100) : 0 };
   }
 
+  // 机密迷彩：需要三个模式全部精通，属于派生状态，不需要单独勾选
+  function masteredModeCount() {
+    const weapons = game.weapons || [];
+    return modes.filter(mode => {
+      if (!isMastery(mode)) return false;
+      return weapons.length > 0 && weapons.every(weapon => weaponStats(mode, weapon).complete);
+    }).length;
+  }
+
+  function renderSecretCard() {
+    const masteryModes = modes.filter(isMastery).length || 3;
+    const mastered = masteredModeCount();
+    const locked = mastered < masteryModes;
+    return `<div class="camo-secret-card ${locked ? 'is-locked' : 'is-open'}">
+      <div class="camo-secret-media" aria-hidden="true">?</div>
+      <div class="camo-secret-body">
+        <span class="camo-tier-label">机密</span>
+        <b>机密迷彩</b>
+        <p>要求：[已编辑]</p>
+        <small>传闻集齐所有精通迷彩后可解锁隐藏迷彩。在《黑色行动 7》中名为 Nexus Horizon；《现代战争 4》的对应名称将在发售后公布。</small>
+        <span class="camo-secret-state">${locked ? '🔒 已锁定' : '🔓 已解锁'} · 已掌握 ${mastered}/${masteryModes} 种模式</span>
+      </div>
+    </div>`;
+  }
+
   function tabLabel(mode) {
     const stats = modeStats(mode);
     return `${esc(mode.shortName || mode.name || mode.code)} <small>${stats.done}/${stats.total}</small>`;
@@ -134,7 +165,7 @@
       return `<article class="camo-tier-card">
         <div class="camo-tier-media"><img src="${esc(item.image || '')}" alt="${esc(zhName(item))} 迷彩" loading="lazy"></div>
         <div class="camo-tier-body">
-          <span class="camo-tier-label">第 ${item.tier || index + 1} 层</span>
+          <span class="camo-tier-label">${TIER_LABELS[index] || `第 ${index + 1} 层`}</span>
           <div class="camo-tier-title"><b>${esc(zhName(item))}</b><span class="mono">${done} / ${weapons}</span></div>
           <p>${esc(item.requirement || '条件暂未公布')}</p>
         </div>
@@ -167,6 +198,7 @@
           <span class="camo-pyro-check">✓</span>
         </label>`;
       }).join('');
+      $('#secretCard').innerHTML = renderSecretCard();
       return;
     }
 
@@ -318,6 +350,133 @@
     render();
   }
 
+  /* ---------------------------------------------------------- 账号云同步 */
+
+  function setSyncBar(stateName, lead, text, actionLabel, actionHref) {
+    const bar = $('#syncBar');
+    if (!bar) return;
+    bar.dataset.state = stateName;
+    $('#syncLead').textContent = lead;
+    $('#syncText').textContent = text;
+    const action = $('#syncAction');
+    if (!actionLabel) {
+      action.classList.add('hidden');
+      action.removeAttribute('href');
+      action.removeAttribute('data-sync-retry');
+      return;
+    }
+    action.classList.remove('hidden');
+    action.textContent = actionLabel;
+    if (actionHref) {
+      action.setAttribute('href', actionHref);
+      action.removeAttribute('data-sync-retry');
+    } else {
+      action.setAttribute('href', '#');
+      action.setAttribute('data-sync-retry', '1');
+    }
+  }
+
+  function cloudPayload() {
+    return JSON.stringify({ progress: state.progress, favorites: state.favorites });
+  }
+
+  function applyCloudPayload(payload) {
+    try {
+      const parsed = typeof payload === 'string' ? JSON.parse(payload) : payload;
+      if (!parsed || typeof parsed !== 'object') return false;
+      state.progress = parsed.progress && typeof parsed.progress === 'object' ? parsed.progress : {};
+      state.favorites = Array.isArray(parsed.favorites) ? parsed.favorites : [];
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (ignored) {}
+      return true;
+    } catch (ignored) {
+      return false;
+    }
+  }
+
+  function markSynced() {
+    setSyncBar('synced', '已同步到您的帐户。', '您在所有登录的设备上都能看到您的迷彩进度。');
+  }
+
+  async function checkAccount() {
+    setSyncBar('checking', '正在检查账号状态', '登录后可在所有设备上同步进度。');
+    try {
+      const response = await fetch('/api/account/me', { headers: { Accept: 'application/json' } });
+      if (!response.ok) {
+        setSyncBar('guest', '尚未登录。', '登录后可在所有设备上同步进度。', '登录同步', '/account/login');
+        return;
+      }
+      cloud.enabled = true;
+      setSyncBar('syncing', '正在同步', '正在读取账号里的迷彩进度…');
+      await loadCloudProgress();
+    } catch (ignored) {
+      setSyncBar('guest', '尚未登录。', '登录后可在所有设备上同步进度。', '登录同步', '/account/login');
+    }
+  }
+
+  async function loadCloudProgress() {
+    try {
+      const response = await fetch(`/api/account/progress/${TOOL_KEY}`, { headers: { Accept: 'application/json' } });
+      if (response.status === 401) {
+        cloud.enabled = false;
+        setSyncBar('guest', '尚未登录。', '登录后可在所有设备上同步进度。', '登录同步', '/account/login');
+        return;
+      }
+      if (response.status === 404) {
+        cloud.version = 0;
+        await pushCloudProgress(true);
+        return;
+      }
+      if (!response.ok) throw new Error('read failed');
+      const data = await response.json();
+      cloud.version = Number(data.version) || 0;
+      if (applyCloudPayload(data.payload)) render();
+      markSynced();
+    } catch (ignored) {
+      setSyncBar('error', '同步失败。', '云端进度读取失败，本机进度仍然保留。', '重试');
+    }
+  }
+
+  function scheduleCloudSave() {
+    if (!cloud.enabled) return;
+    cloud.dirty = true;
+    clearTimeout(cloud.timer);
+    cloud.timer = setTimeout(() => pushCloudProgress(false), 800);
+  }
+
+  async function pushCloudProgress(silent) {
+    if (!cloud.enabled || cloud.saving) return;
+    cloud.saving = true;
+    cloud.dirty = false;
+    if (!silent) setSyncBar('syncing', '正在同步', '正在把本机进度保存到账号…');
+    try {
+      const response = await fetch(`/api/account/progress/${TOOL_KEY}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ version: cloud.version ?? 0, payload: cloudPayload() })
+      });
+      if (response.status === 401) {
+        cloud.enabled = false;
+        setSyncBar('guest', '登录状态已失效。', '重新登录后可在所有设备上同步进度。', '登录同步', '/account/login');
+        return;
+      }
+      if (response.status === 409) {
+        // 另一台设备已更新：载入云端版本，避免静默覆盖
+        await loadCloudProgress();
+        setSyncBar('conflict', '其他设备有新进度。', '已载入账号里的最新进度，请确认后再继续记录。');
+        return;
+      }
+      if (!response.ok) throw new Error('save failed');
+      const data = await response.json();
+      cloud.version = Number(data.version) || cloud.version;
+      markSynced();
+    } catch (ignored) {
+      setSyncBar('error', '同步失败。', '本机进度已保存，下次修改时会自动重试。', '重试');
+    } finally {
+      cloud.saving = false;
+      if (cloud.dirty) scheduleCloudSave();
+    }
+  }
+
   function bindEvents() {
     $('#modeTabs').addEventListener('click', event => {
       const button = event.target.closest('[data-mode]');
@@ -378,6 +537,16 @@
     });
 
     $('#quoteWithProgress').addEventListener('click', publishQuoteSnapshot);
+
+    $('#syncAction').addEventListener('click', event => {
+      if (!event.currentTarget.hasAttribute('data-sync-retry')) return;
+      event.preventDefault();
+      if (!cloud.enabled) {
+        checkAccount();
+        return;
+      }
+      pushCloudProgress(false);
+    });
   }
 
   async function init() {
@@ -400,6 +569,7 @@
       bindEvents();
       render();
       publishQuoteSnapshot();
+      await checkAccount();
     } catch (error) {
       const node = $('#trackerStatus');
       node.classList.remove('hidden');

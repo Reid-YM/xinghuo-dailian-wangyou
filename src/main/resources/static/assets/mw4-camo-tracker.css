@@ -512,6 +512,117 @@
 
 /* ---------- states + note ---------- */
 
+/* ---------- account sync bar ---------- */
+
+.camo-sync-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border: 1px solid var(--camo-line);
+  border-radius: 14px;
+  background: var(--camo-card);
+}
+
+.camo-sync-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: #1b212a;
+  color: var(--camo-dim);
+  font-size: 15px;
+}
+
+.camo-sync-bar p {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 13px;
+  color: var(--camo-dim);
+}
+
+.camo-sync-bar p b {
+  margin-right: 8px;
+  color: #e7ecf3;
+}
+
+.camo-sync-action {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  border: 1px solid var(--camo-line);
+  border-radius: 9px;
+  background: #0f141a;
+  color: var(--camo-gold);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.camo-sync-bar[data-state="synced"] {
+  border-color: rgba(85, 209, 132, .42);
+  background: rgba(85, 209, 132, .07);
+}
+
+.camo-sync-bar[data-state="synced"] .camo-sync-icon {
+  background: rgba(85, 209, 132, .16);
+  color: #7ce4a5;
+}
+
+.camo-sync-bar[data-state="synced"] p b { color: #9ff0bd; }
+
+.camo-sync-bar[data-state="error"],
+.camo-sync-bar[data-state="conflict"] {
+  border-color: rgba(243, 169, 76, .42);
+  background: rgba(243, 169, 76, .07);
+}
+
+.camo-sync-bar[data-state="error"] p b,
+.camo-sync-bar[data-state="conflict"] p b { color: #ffcf8f; }
+
+/* ---------- classified camo ---------- */
+
+.camo-secret-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #4a3b7a;
+  border-radius: 14px;
+  background:
+    radial-gradient(120% 120% at 10% 0%, rgba(122, 92, 220, .22), transparent 60%),
+    #14111f;
+  overflow: hidden;
+}
+
+.camo-secret-media {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1;
+  border: 1px solid #4a3b7a;
+  border-radius: 10px;
+  background: rgba(122, 92, 220, .16);
+  color: #c3b3f5;
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.camo-secret-body { display: grid; gap: 5px; min-width: 0; align-content: start; }
+.camo-secret-body b { font-size: 16px; color: #fff; }
+.camo-secret-body p { margin: 0; font-size: 13px; color: #d9cffa; }
+.camo-secret-body small { font-size: 12px; line-height: 1.6; color: #a99fd0; }
+
+.camo-secret-state {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #b9aef0;
+}
+
+.camo-secret-card.is-locked .camo-secret-body b { color: #ddd7f7; }
+
 .camo-status {
   padding: 14px;
   border: 1px dashed var(--camo-line);
@@ -568,6 +679,10 @@
   .weapon-chevron { display: none; }
   .camo-note { flex-direction: column; align-items: flex-start; }
   .camo-mode-final { width: 100%; text-align: center; }
+  .camo-sync-bar { flex-wrap: wrap; }
+  .camo-sync-bar p { flex-basis: 100%; }
+  .camo-secret-card { grid-template-columns: 64px minmax(0, 1fr); }
+  .camo-secret-media { font-size: 26px; }
 }
 
 @media (max-width: 420px) {

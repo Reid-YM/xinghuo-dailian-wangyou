@@ -35,7 +35,7 @@ jobs:
 
       - name: Validate shell scripts
         shell: bash
-        run: bash -n scripts/deploy-zero-downtime.sh scripts/deploy-from-github.sh scripts/smoke_test.sh
+        run: bash -n scripts/deploy-zero-downtime.sh scripts/deploy-from-github.sh scripts/github-deploy-gateway.sh scripts/install-github-deploy-bridge.sh scripts/smoke_test.sh
 
       - name: Build and test with Maven
         run: mvn -B -ntp clean package

@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="https://wydlgf.cn/account/login"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261004ac11">
-  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/account.js?v=20261004ac17"></script>
+  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/account.js?v=20261004ac17"></script><script defer src="/assets/wechat-login.js?v=20261006wx01"></script>
 </head>
 <body data-page="account-login">
 <header th:replace="~{fragments/site :: header}"></header>
@@ -31,8 +31,11 @@
     <div class="auth-card-head">
       <span class="eyebrow">登录</span>
       <h2 id="loginTitle">继续查看你的业务</h2>
-      <p class="muted">使用邮箱和密码登录。邮箱不公开展示。</p>
+      <p class="muted">可使用微信扫码，或使用邮箱和密码登录。</p>
     </div>
+
+    <a class="btn ghost btn-wide" href="/api/account/wechat/start" data-wechat-login>微信扫码登录</a>
+    <p class="account-inline-note">微信仅用于身份验证；登录后仍进入同一个星火账号体系，订单、询价、进度与权限都归星火账号。</p>
 
     <form id="accountLoginForm" class="account-form" novalidate>
       <input type="hidden" name="redirect" value="">

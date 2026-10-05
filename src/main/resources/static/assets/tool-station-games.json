@@ -38,6 +38,7 @@
           "code": "HAN86",
           "name": "Han 86",
           "nameZh": "汉86",
+          "image": "/assets/mw4weapon/han86.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -53,6 +54,7 @@
           "code": "M4",
           "name": "M4",
           "nameZh": "M4",
+          "image": "/assets/mw4weapon/m4.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 9",
           "unlockPlayerRank": 9,
@@ -68,6 +70,7 @@
           "code": "HYEONBURST",
           "name": "Hyeon Burst",
           "nameZh": "玄·爆裂",
+          "image": "/assets/mw4weapon/hyeonburst.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 18",
           "unlockPlayerRank": 18,
@@ -84,6 +87,7 @@
           "code": "KASTOV762",
           "name": "Kastov 762",
           "nameZh": "卡斯托夫762",
+          "image": "/assets/mw4weapon/kastov762.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 21",
           "unlockPlayerRank": 21,
@@ -100,6 +104,7 @@
           "code": "PATRIOTXMR",
           "name": "Patriot XMR",
           "nameZh": "爱国者 XMR",
+          "image": "/assets/mw4weapon/patriotxmr.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 25",
           "unlockPlayerRank": 25,
@@ -130,6 +135,7 @@
           "code": "ISONIGHTSHADE",
           "name": "ISO Nightshade",
           "nameZh": "ISO 夜影",
+          "image": "/assets/mw4weapon/isonightshade.webp",
           "weaponType": "冲锋枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -145,6 +151,7 @@
           "code": "PPSH41",
           "name": "PPSH-41",
           "nameZh": "波波沙-41",
+          "image": "/assets/mw4weapon/ppsh41.webp",
           "weaponType": "冲锋枪",
           "unlockLabel": "玩家等级 11",
           "unlockPlayerRank": 11,
@@ -160,6 +167,7 @@
           "code": "X58NYX",
           "name": "X-58 NYX",
           "nameZh": "X-58 尼克斯",
+          "image": "/assets/mw4weapon/x58nyx.webp",
           "weaponType": "冲锋枪",
           "unlockLabel": "玩家等级 27",
           "unlockPlayerRank": 27,
@@ -190,6 +198,7 @@
           "code": "REZI12",
           "name": "REZI 12",
           "nameZh": "雷齐12",
+          "image": "/assets/mw4weapon/rezi12.webp",
           "weaponType": "霰弹枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -205,6 +214,7 @@
           "code": "FINNLMG",
           "name": "Finn LMG",
           "nameZh": "芬恩轻机枪",
+          "image": "/assets/mw4weapon/finnlmg.webp",
           "weaponType": "轻机枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -220,6 +230,7 @@
           "code": "TYPE73",
           "name": "Type 73",
           "nameZh": "73式轻机枪",
+          "image": "/assets/mw4weapon/type73.webp",
           "weaponType": "轻机枪",
           "unlockLabel": "玩家等级 5",
           "unlockPlayerRank": 5,
@@ -235,6 +246,7 @@
           "code": "MAR9",
           "name": "Mar-9",
           "nameZh": "马尔-9",
+          "image": "/assets/mw4weapon/mar9.webp",
           "weaponType": "射手步枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -250,6 +262,7 @@
           "code": "ORIS86",
           "name": "Oris 8.6",
           "nameZh": "奥里斯8.6",
+          "image": "/assets/mw4weapon/oris86.webp",
           "weaponType": "射手步枪",
           "unlockLabel": "玩家等级 14",
           "unlockPlayerRank": 14,
@@ -265,6 +278,7 @@
           "code": "KG7VULCAN",
           "name": "KG-7 Vulcan",
           "nameZh": "KG-7 火神",
+          "image": "/assets/mw4weapon/kg7vulcan.webp",
           "weaponType": "狙击步枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -280,6 +294,7 @@
           "code": "SIGNAL50",
           "name": "Signal 50",
           "nameZh": "信号50",
+          "image": "/assets/mw4weapon/signal50.webp",
           "weaponType": "狙击步枪",
           "unlockLabel": "玩家等级 30",
           "unlockPlayerRank": 30,
@@ -295,6 +310,7 @@
           "code": "KARITP68",
           "name": "Krait P68",
           "nameZh": "克拉特P68",
+          "image": "/assets/mw4weapon/kraitp68.webp",
           "weaponType": "手枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -310,6 +326,7 @@
           "code": "50GS",
           "name": ".50 GS",
           "nameZh": ".50 GS",
+          "image": "/assets/mw4weapon/50gs.webp",
           "weaponType": "手枪",
           "unlockLabel": "玩家等级 23",
           "unlockPlayerRank": 23,
@@ -340,6 +357,7 @@
           "code": "PILA",
           "name": "Pila",
           "nameZh": "皮拉",
+          "image": "/assets/mw4weapon/pila.webp",
           "weaponType": "发射器",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -353,6 +371,7 @@
           "code": "COMBATKNIFE",
           "name": "Combat Knife",
           "nameZh": "战斗匕首",
+          "image": "/assets/mw4weapon/combatknife.webp",
           "weaponType": "近战",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -364,303 +383,170 @@
         }
       ],
       "camoTracks": {
-        "version": "v24r1",
+        "version": "v25r1",
         "order": [
-          "WARZONE",
           "MULTIPLAYER",
-          "DMZ"
+          "WARZONE",
+          "DMZ",
+          "PYROCLAST"
         ],
+        "tiersPerMode": 3,
         "modes": {
-          "WARZONE": {
-            "code": "WARZONE",
-            "name": "战区迷彩",
-            "status": "placeholder",
-            "note": "MW4 大师迷彩名称已由官方公布，但**解锁条件尚未公布**，官方迷彩图也未发布，此处纹理为示意。另有 4 款 Pyroclast 系列（Pyroclast / Verge / Scatter / Cascade），独立于三个模式之外。",
-            "items": [
-              {
-                "code": "BASE",
-                "name": "基础迷彩",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 1,
-                "label": "基础",
-                "requires": [],
-                "image": "/assets/camo/BASE.jpg"
-              },
-              {
-                "code": "SPECIAL_1",
-                "name": "特殊迷彩1",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 2,
-                "label": "特殊",
-                "requires": [
-                  "BASE"
-                ],
-                "image": "/assets/camo/SPECIAL_1.jpg"
-              },
-              {
-                "code": "SPECIAL_2",
-                "name": "特殊迷彩2",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 2,
-                "label": "特殊",
-                "requires": [
-                  "BASE"
-                ],
-                "image": "/assets/camo/SPECIAL_2.jpg"
-              },
-              {
-                "code": "MASTERY_1",
-                "name": "Parallax",
-                "nameZh": "视差",
-                "requirement": "条件暂未公布",
-                "placeholder": true,
-                "stage": 3,
-                "label": "视差",
-                "requires": [
-                  "SPECIAL_1",
-                  "SPECIAL_2"
-                ],
-                "image": "/assets/camo/GOLD_TIGER.jpg"
-              },
-              {
-                "code": "MASTERY_2",
-                "name": "Damascus Reforged",
-                "nameZh": "大马士革·重铸",
-                "requirement": "条件暂未公布",
-                "placeholder": true,
-                "stage": 4,
-                "label": "大马士革·重铸",
-                "requires": [
-                  "MASTERY_1"
-                ],
-                "image": "/assets/camo/KINGS_RANSOM.jpg"
-              },
-              {
-                "code": "MASTERY_3",
-                "name": "Empyros",
-                "nameZh": "天焰",
-                "requirement": "条件暂未公布",
-                "placeholder": true,
-                "stage": 5,
-                "label": "天焰",
-                "requires": [
-                  "MASTERY_2"
-                ],
-                "image": "/assets/camo/CATALYST.jpg"
-              }
-            ],
-            "previewImage": "/assets/tool/camo/WARZONE.jpg",
-            "previewAlt": "战区迷彩预览图",
-            "officialSource": "https://www.callofduty.com/modernwarfare"
-          },
           "MULTIPLAYER": {
             "code": "MULTIPLAYER",
             "name": "多人迷彩",
+            "shortName": "多人",
+            "mastery": true,
+            "finalCamo": "Orion Reforged",
+            "finalCamoZh": "猎户·重铸",
             "status": "placeholder",
-            "note": "MW4 大师迷彩名称已由官方公布，但**解锁条件尚未公布**，官方迷彩图也未发布，此处纹理为示意。另有 4 款 Pyroclast 系列（Pyroclast / Verge / Scatter / Cascade），独立于三个模式之外。",
             "items": [
               {
-                "code": "BASE",
-                "name": "基础迷彩",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 1,
-                "label": "基础",
-                "requires": [],
-                "image": "/assets/camo/BASE.jpg"
-              },
-              {
-                "code": "SPECIAL_1",
-                "name": "特殊迷彩1",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 2,
-                "label": "特殊",
-                "requires": [
-                  "BASE"
-                ],
-                "image": "/assets/camo/SPECIAL_1.jpg"
-              },
-              {
-                "code": "SPECIAL_2",
-                "name": "特殊迷彩2",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 2,
-                "label": "特殊",
-                "requires": [
-                  "BASE"
-                ],
-                "image": "/assets/camo/SPECIAL_2.jpg"
-              },
-              {
-                "code": "MASTERY_1",
+                "code": "TIER_1",
+                "tier": 1,
                 "name": "Mercurial Drift",
                 "nameZh": "水银漂移",
-                "requirement": "条件暂未公布",
-                "placeholder": true,
-                "stage": 3,
-                "label": "水银漂移",
-                "requires": [
-                  "SPECIAL_1",
-                  "SPECIAL_2"
-                ],
-                "image": "/assets/camo/GOLD_TIGER.jpg"
+                "requirement": "完成该武器的基础迷彩挑战后，累计 10 次不死 3 杀。",
+                "image": "/assets/mw4camo/mercurial-drift.webp"
               },
               {
-                "code": "MASTERY_2",
+                "code": "TIER_2",
+                "tier": 2,
                 "name": "Polyatomic Reforged",
                 "nameZh": "聚原子·重铸",
-                "requirement": "条件暂未公布",
-                "placeholder": true,
-                "stage": 4,
-                "label": "聚原子·重铸",
-                "requires": [
-                  "MASTERY_1"
-                ],
-                "image": "/assets/camo/KINGS_RANSOM.jpg"
+                "requirement": "使用该武器完成 10 次双杀或更高连杀。",
+                "image": "/assets/mw4camo/polyatomic-reforged.webp"
               },
               {
-                "code": "MASTERY_3",
+                "code": "TIER_3",
+                "tier": 3,
                 "name": "Orion Reforged",
                 "nameZh": "猎户·重铸",
-                "requirement": "条件暂未公布",
-                "placeholder": true,
-                "stage": 5,
-                "label": "猎户·重铸",
-                "requires": [
-                  "MASTERY_2"
-                ],
-                "image": "/assets/camo/CATALYST.jpg"
+                "requirement": "累计 3 次不死 5 杀（发射器：单局 5 杀）。条件参考 BO7 推演，MW4 正式条件以上线为准。",
+                "image": "/assets/mw4camo/orion-reforged.webp"
               }
             ],
             "previewImage": "/assets/tool/camo/MULTIPLAYER.jpg",
-            "previewAlt": "多人迷彩预览图",
-            "officialSource": "https://www.callofduty.com/modernwarfare"
+            "previewAlt": "多人迷彩预览图"
+          },
+          "WARZONE": {
+            "code": "WARZONE",
+            "name": "战区迷彩",
+            "shortName": "战区",
+            "mastery": true,
+            "finalCamo": "Empyros",
+            "finalCamoZh": "天焰",
+            "status": "placeholder",
+            "items": [
+              {
+                "code": "TIER_1",
+                "tier": 1,
+                "name": "Parallax",
+                "nameZh": "视差",
+                "requirement": "完成该武器的基础迷彩挑战后，累计 10 次不死 3 杀。",
+                "image": "/assets/mw4camo/parallax.webp"
+              },
+              {
+                "code": "TIER_2",
+                "tier": 2,
+                "name": "Damascus Reforged",
+                "nameZh": "大马士革·重铸",
+                "requirement": "使用该武器完成 10 次双杀或更高连杀。",
+                "image": "/assets/mw4camo/damascus-reforged.webp"
+              },
+              {
+                "code": "TIER_3",
+                "tier": 3,
+                "name": "Empyros",
+                "nameZh": "天焰",
+                "requirement": "累计 3 次不死 5 杀（发射器：单局 5 杀）。条件参考 BO7 推演，MW4 正式条件以上线为准。",
+                "image": "/assets/mw4camo/empyros.webp"
+              }
+            ],
+            "previewImage": "/assets/tool/camo/WARZONE.jpg",
+            "previewAlt": "战区迷彩预览图"
           },
           "DMZ": {
             "code": "DMZ",
             "name": "DMZ迷彩",
+            "shortName": "DMZ",
+            "mastery": true,
+            "finalCamo": "Helio",
+            "finalCamoZh": "赫利俄斯",
             "status": "placeholder",
-            "note": "MW4 大师迷彩名称已由官方公布，但**解锁条件尚未公布**，官方迷彩图也未发布，此处纹理为示意。另有 4 款 Pyroclast 系列（Pyroclast / Verge / Scatter / Cascade），独立于三个模式之外。",
             "items": [
               {
-                "code": "BASE",
-                "name": "基础迷彩",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 1,
-                "label": "基础",
-                "requires": [],
-                "image": "/assets/camo/BASE.jpg"
-              },
-              {
-                "code": "SPECIAL_1",
-                "name": "特殊迷彩1",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 2,
-                "label": "特殊",
-                "requires": [
-                  "BASE"
-                ],
-                "image": "/assets/camo/SPECIAL_1.jpg"
-              },
-              {
-                "code": "SPECIAL_2",
-                "name": "特殊迷彩2",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 2,
-                "label": "特殊",
-                "requires": [
-                  "BASE"
-                ],
-                "image": "/assets/camo/SPECIAL_2.jpg"
-              },
-              {
-                "code": "MASTERY_1",
+                "code": "TIER_1",
+                "tier": 1,
                 "name": "Chiral",
                 "nameZh": "手性",
-                "requirement": "条件暂未公布",
-                "placeholder": true,
-                "stage": 3,
-                "label": "手性",
-                "requires": [
-                  "SPECIAL_1",
-                  "SPECIAL_2"
-                ],
-                "image": "/assets/camo/GOLD_TIGER.jpg"
+                "requirement": "完成该武器的基础迷彩挑战后，累计 10 次不死 3 杀。",
+                "image": "/assets/mw4camo/chiral.webp"
               },
               {
-                "code": "MASTERY_2",
+                "code": "TIER_2",
+                "tier": 2,
                 "name": "Ripple Tide",
                 "nameZh": "涟漪潮汐",
-                "requirement": "条件暂未公布",
-                "placeholder": true,
-                "stage": 4,
-                "label": "涟漪潮汐",
-                "requires": [
-                  "MASTERY_1"
-                ],
-                "image": "/assets/camo/KINGS_RANSOM.jpg"
+                "requirement": "使用该武器完成 10 次双杀或更高连杀。",
+                "image": "/assets/mw4camo/ripple-tide.webp"
               },
               {
-                "code": "MASTERY_3",
+                "code": "TIER_3",
+                "tier": 3,
                 "name": "Helio",
                 "nameZh": "赫利俄斯",
-                "requirement": "条件暂未公布",
-                "placeholder": true,
-                "stage": 5,
-                "label": "赫利俄斯",
-                "requires": [
-                  "MASTERY_2"
-                ],
-                "image": "/assets/camo/CATALYST.jpg"
+                "requirement": "累计 3 次不死 5 杀（发射器：单局 5 杀）。条件参考 BO7 推演，MW4 正式条件以上线为准。",
+                "image": "/assets/mw4camo/helio.webp"
               }
             ],
             "previewImage": "/assets/tool/camo/DMZ.jpg",
-            "previewAlt": "DMZ迷彩预览图",
-            "officialSource": "https://www.callofduty.com/modernwarfare"
+            "previewAlt": "DMZ迷彩预览图"
+          },
+          "PYROCLAST": {
+            "code": "PYROCLAST",
+            "name": "Pyroclast",
+            "shortName": "Pyroclast",
+            "mastery": false,
+            "finalCamo": "Pyroclast Cascade",
+            "finalCamoZh": "炎爆·瀑流",
+            "status": "placeholder",
+            "items": [
+              {
+                "code": "PYROCLAST",
+                "name": "Pyroclast",
+                "nameZh": "炎爆",
+                "requirement": "条件暂未公布",
+                "image": "/assets/mw4camo/pyroclast.webp"
+              },
+              {
+                "code": "PYROCLAST_VERGE",
+                "name": "Pyroclast Verge",
+                "nameZh": "炎爆·边缘",
+                "requirement": "条件暂未公布",
+                "image": "/assets/mw4camo/pyroclast-verge.webp"
+              },
+              {
+                "code": "PYROCLAST_SCATTER",
+                "name": "Pyroclast Scatter",
+                "nameZh": "炎爆·散射",
+                "requirement": "条件暂未公布",
+                "image": "/assets/mw4camo/pyroclast-scatter.webp"
+              },
+              {
+                "code": "PYROCLAST_CASCADE",
+                "name": "Pyroclast Cascade",
+                "nameZh": "炎爆·瀑流",
+                "requirement": "条件暂未公布",
+                "image": "/assets/mw4camo/pyroclast-cascade.webp"
+              }
+            ],
+            "previewImage": "",
+            "previewAlt": "Pyroclast 迷彩"
           }
         },
-        "officialSource": "",
-        "logic": "每个模式各有 3 款大师迷彩，名称已公布；解锁条件与官方迷彩图尚未发布，进度可先按模式勾选，条件公布后本工具会同步。",
-        "previewMode": "per-mode",
-        "previewNote": "预览展示当前选中迷彩的参考纹理（官方迷彩图未发布，纹理为示意）。",
-        "groups": [
-          {
-            "code": "BASE",
-            "name": "基础迷彩",
-            "description": "基础击杀进度",
-            "items": [
-              "BASE"
-            ]
-          },
-          {
-            "code": "SPECIAL",
-            "name": "特殊迷彩",
-            "description": "两条特殊路线条件",
-            "items": [
-              "SPECIAL_1",
-              "SPECIAL_2"
-            ]
-          },
-          {
-            "code": "MASTERY",
-            "name": "大师迷彩",
-            "description": "每个模式各 3 款，名称由官方公布、条件待公布",
-            "items": [
-              "MASTERY_1",
-              "MASTERY_2",
-              "MASTERY_3"
-            ]
-          }
-        ],
-        "layout": "scheme-1"
+        "note": "四个标签：多人 / 战区 / DMZ / Pyroclast。每把武器在三个模式各 3 层大师迷彩（Tier 1-3），Pyroclast 为独立 4 款。总项数 = 22 把 × 3 模式 × 3 层 + 4 = 202。",
+        "officialSource": "https://www.callofduty.com/"
       }
     }
   ]

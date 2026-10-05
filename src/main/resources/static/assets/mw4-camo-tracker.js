@@ -4,22 +4,19 @@
   const esc = value => String(value ?? '').replace(/[&<>'"]/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
   }[char]));
-  const clamp = (value, min, max) => Math.min(max, Math.max(min, Number(value) || 0));
-  const isDone = (state, mode, weapon, item) => Boolean(state.progress?.[mode]?.[weapon.code]?.[item.code]);
-  const STORAGE_KEY = 'xinghuo-mw4-camo-tracker-v1';
-  const QUOTE_KEY = 'xinghuo-cod-tool-quote-snapshot';
-  const MODE_ORDER = ['MULTIPLAYER', 'WARZONE', 'DMZ'];
-  const MODE_LABELS = { MULTIPLAYER: '多人', WARZONE: '战区', DMZ: 'DMZ' };
-  const STAGE_LABELS = { 1: '基础', 2: '特殊', 3: '金虎', 4: '国王赎金', 5: '催化剂', 6: '深渊' };
 
-  // 数据同时保留英文名与中文名；界面统一按中文显示，英文名只用于搜索匹配。
-  const zhName = entry => (entry?.nameZh || entry?.name || '').trim();
+  const STORAGE_KEY = 'xinghuo-mw4-camo-tracker-v2';
+  const QUOTE_KEY = 'xinghuo-cod-tool-quote-snapshot';
+  const MASTERY_FALLBACK = ['MULTIPLAYER', 'WARZONE', 'DMZ'];
+
+  // 数据同时保留英文名与中文名；界面按中文显示，英文名只用于搜索匹配。
+  const zhName = entry => String(entry?.nameZh || entry?.name || '').trim();
 
   let game = null;
+  let modes = [];
+  let activeMode = null;
   let state = loadState();
-  let activeMode = state.activeMode || 'MULTIPLAYER';
   let openWeapons = new Set();
-  let status = { className: '', complete: false };
 
   function loadState() {
     try {
@@ -30,7 +27,7 @@
         return parsed;
       }
     } catch (ignored) {}
-    return { activeMode: 'MULTIPLAYER', progress: {}, favorites: [], updatedAt: null };
+    return { activeMode: null, progress: {}, favorites: [], updatedAt: null };
   }
 
   function saveState() {
@@ -38,74 +35,71 @@
     state.updatedAt = new Date().toISOString();
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (ignored) {}
     updateSaveState();
-    publishQuoteSnapshot();
   }
 
   function updateSaveState() {
     const node = $('#saveState');
     if (!node) return;
-    const time = state.updatedAt ? new Date(state.updatedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '';
+    const time = state.updatedAt
+      ? new Date(state.updatedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+      : '';
     node.textContent = time ? `进度已保存到当前设备 · ${time}` : '进度会自动保存在当前浏览器';
   }
 
-  function modeTrack(code) {
-    return game?.camoTracks?.modes?.[code] || { items: [], name: MODE_LABELS[code] || code };
+  function modeByCode(code) {
+    return modes.find(item => item.code === code) || null;
   }
 
-  function itemsForWeapon(mode, weapon) {
-    const online = weapon.onlineCamos?.[mode]?.items;
-    if (Array.isArray(online) && online.length) {
-      return online.map((item, index) => normalizeItem(item, index, true));
-    }
-    if (mode === 'WARZONE' && Array.isArray(weapon.warzoneCamos) && weapon.warzoneCamos.length) {
-      return weapon.warzoneCamos.map((item, index) => normalizeItem(item, index, false));
-    }
-    return (modeTrack(mode).items || []).map((item, index) => normalizeItem(item, index, false));
+  function isMastery(mode) {
+    return mode?.mastery !== false;
   }
 
-  function normalizeItem(item, index, online) {
-    const code = item.code || `ITEM_${index + 1}`;
+  function buckets(code) {
+    state.progress[code] = state.progress[code] && typeof state.progress[code] === 'object' ? state.progress[code] : {};
+    return state.progress[code];
+  }
+
+  function isDone(modeCode, weaponCode, itemCode) {
+    return Boolean(state.progress?.[modeCode]?.[weaponCode]?.[itemCode]);
+  }
+
+  function isPyroDone(itemCode) {
+    return Boolean(state.progress?.PYROCLAST?.['__global']?.[itemCode]);
+  }
+
+  // 单把武器的三层完成情况
+  function weaponStats(mode, weapon) {
+    const items = mode.items || [];
+    const done = items.filter(item => isDone(mode.code, weapon.code, item.code)).length;
     return {
-      code,
-      name: (item.nameZh || item.name || `迷彩 ${index + 1}`).trim(),
-      nameEn: item.name || '',
-      requirement: item.requirement || item.challenge || MODE_LABELS[activeMode] + '迷彩条件暂未提供',
-      stage: item.stage || index + 1,
-      requires: Array.isArray(item.requires) ? item.requires : [],
-      image: item.image || (online ? '' : localCamoImage(code))
+      items,
+      done,
+      total: items.length,
+      complete: items.length > 0 && done === items.length,
+      percent: items.length ? Math.round(done / items.length * 100) : 0
     };
   }
 
-  function localCamoImage(code) {
-    const known = ['BASE', 'SPECIAL_1', 'SPECIAL_2', 'GOLD_TIGER', 'KINGS_RANSOM', 'CATALYST', 'ABYSS'];
-    return known.includes(code) ? `/assets/camo/${code}.jpg` : '';
-  }
-
-  function itemAvailable(weapon, item, mode) {
-    return item.requires.every(code => isDone(state, mode, weapon, { code }));
-  }
-
-  function weaponStats(mode, weapon) {
-    const items = itemsForWeapon(mode, weapon);
-    const done = items.filter(item => isDone(state, mode, weapon, item)).length;
-    return { items, done, total: items.length, complete: items.length > 0 && done === items.length, percent: items.length ? Math.round(done / items.length * 100) : 0 };
+  // 单个模式里“达到某一层”的武器数
+  function tierCount(mode, item) {
+    return (game.weapons || []).filter(weapon => isDone(mode.code, weapon.code, item.code)).length;
   }
 
   function modeStats(mode) {
-    let done = 0;
-    let total = 0;
-    for (const weapon of game.weapons || []) {
-      const stats = weaponStats(mode, weapon);
-      done += stats.done;
-      total += stats.total;
+    if (!isMastery(mode)) {
+      const items = mode.items || [];
+      const done = items.filter(item => isPyroDone(item.code)).length;
+      return { done, total: items.length, percent: items.length ? Math.round(done / items.length * 100) : 0 };
     }
-    return { done, total, percent: total ? Math.round(done / total * 100) : 0 };
+    const weapons = (game.weapons || []).length;
+    const done = (game.weapons || []).reduce((sum, weapon) => sum + weaponStats(mode, weapon).done, 0);
+    return { done, total: weapons * (mode.items || []).length, percent: 0 };
   }
 
   function overallStats() {
     let done = 0;
     let total = 0;
-    for (const mode of MODE_ORDER) {
+    for (const mode of modes) {
       const stats = modeStats(mode);
       done += stats.done;
       total += stats.total;
@@ -113,124 +107,187 @@
     return { done, total, percent: total ? Math.round(done / total * 100) : 0 };
   }
 
-  function renderModeTabs() {
-    const host = $('#modeTabs');
-    host.innerHTML = MODE_ORDER
-      .filter(code => modeTrack(code).items.length || code === 'MULTIPLAYER')
-      .map(code => {
-        const stats = modeStats(code);
-        return `<button type="button" class="camo-mode-tab ${code === activeMode ? 'active' : ''}" data-mode="${esc(code)}">${esc(MODE_LABELS[code] || code)} <small>${stats.done}/${stats.total}</small></button>`;
-      }).join('');
+  function tabLabel(mode) {
+    const stats = modeStats(mode);
+    return `${esc(mode.shortName || mode.name || mode.code)} <small>${stats.done}/${stats.total}</small>`;
   }
 
-  function renderSummary() {
+  function renderTabs() {
+    const host = $('#modeTabs');
+    host.innerHTML = modes.map(mode =>
+      `<button type="button" role="tab" aria-selected="${mode.code === activeMode ? 'true' : 'false'}" class="camo-tab ${mode.code === activeMode ? 'active' : ''}" data-mode="${esc(mode.code)}">${tabLabel(mode)}</button>`
+    ).join('');
+  }
+
+  function renderProgress() {
     const overall = overallStats();
     $('#overallPercent').textContent = `${overall.percent}%`;
     $('#overallBar').style.width = `${overall.percent}%`;
-    $('#overallCount').textContent = `${overall.done} / ${overall.total}`;
-
-    const summary = $('#modeSummary');
-    summary.innerHTML = MODE_ORDER.map(code => {
-      const stats = modeStats(code);
-      return `<article class="camo-mode-stat ${code === activeMode ? 'is-active' : ''}">
-        <span>${esc(MODE_LABELS[code] || code)}迷彩</span>
-        <strong>${stats.percent}%</strong>
-        <small>${stats.done} / ${stats.total} 项完成</small>
-        <div class="camo-mode-progress"><i style="width:${stats.percent}%"></i></div>
-      </article>`;
-    }).join('');
+    $('#overallCount').textContent = `${overall.done} / ${overall.total} 项迷彩`;
     updateSaveState();
   }
 
-  function filteredWeapons() {
+  function renderTierCards(mode) {
+    const weapons = (game.weapons || []).length;
+    $('#tierCards').innerHTML = (mode.items || []).map((item, index) => {
+      const done = tierCount(mode, item);
+      return `<article class="camo-tier-card">
+        <div class="camo-tier-media"><img src="${esc(item.image || '')}" alt="${esc(zhName(item))} 迷彩" loading="lazy"></div>
+        <div class="camo-tier-body">
+          <span class="camo-tier-label">第 ${item.tier || index + 1} 层</span>
+          <div class="camo-tier-title"><b>${esc(zhName(item))}</b><span class="mono">${done} / ${weapons}</span></div>
+          <p>${esc(item.requirement || '条件暂未公布')}</p>
+        </div>
+      </article>`;
+    }).join('');
+  }
+
+  function renderModePanel(mode) {
+    const mastery = isMastery(mode);
+    $('#modePanel').classList.toggle('hidden', !mastery);
+    $('#pyroPanel').classList.toggle('hidden', mastery);
+    $('#filterBar').classList.toggle('hidden', !mastery);
+    $('#weaponHint').classList.toggle('hidden', !mastery);
+    $('#weaponGroups').classList.toggle('hidden', !mastery);
+    $('#emptyState').classList.add('hidden');
+
+    if (!mastery) {
+      const items = mode.items || [];
+      const done = items.filter(item => isPyroDone(item.code)).length;
+      $('#pyroMeta').textContent = `${done} / ${items.length} 项`;
+      $('#pyroCards').innerHTML = items.map(item => {
+        const checked = isPyroDone(item.code);
+        return `<label class="camo-pyro-card ${checked ? 'is-done' : ''}">
+          <input type="checkbox" data-pyro-item="${esc(item.code)}" ${checked ? 'checked' : ''}>
+          <span class="camo-pyro-media"><img src="${esc(item.image || '')}" alt="${esc(zhName(item))} 迷彩" loading="lazy"></span>
+          <span class="camo-pyro-body">
+            <b>${esc(zhName(item))}</b>
+            <small>${esc(item.requirement || '条件暂未公布')}</small>
+          </span>
+          <span class="camo-pyro-check">✓</span>
+        </label>`;
+      }).join('');
+      return;
+    }
+
+    const stats = modeStats(mode);
+    const weapons = (game.weapons || []).length;
+    $('#modeHeadTitle').textContent = `${mode.shortName || mode.name || mode.code} 大师迷彩`;
+    $('#modeHeadMeta').textContent = `${weightsDone(stats)} / ${weapons} 把武器完成任意一层`;
+    $('#modeHeadFinal').textContent = mode.finalCamoZh ? `最终层级 · ${mode.finalCamoZh}` : '';
+    $('#modeNote').textContent = mode.note || '';
+    renderTierCards(mode);
+  }
+
+  function weightsDone(stats) {
+    const mode = modeByCode(activeMode);
+    if (!mode) return 0;
+    return (game.weapons || []).filter(weapon => weaponStats(mode, weapon).done > 0).length;
+  }
+
+  function filteredWeapons(mode) {
     const query = $('#weaponSearch').value.trim().toLowerCase();
     const type = $('#classFilter').value;
     const statusValue = $('#statusFilter').value;
     return (game.weapons || []).filter(weapon => {
-      const stats = weaponStats(activeMode, weapon);
+      const stats = weaponStats(mode, weapon);
       const favorite = state.favorites.includes(weapon.code);
       if (type && weapon.weaponType !== type) return false;
       if (statusValue === 'todo' && stats.complete) return false;
       if (statusValue === 'done' && !stats.complete) return false;
       if (statusValue === 'fav' && !favorite) return false;
-      const haystack = [weapon.nameZh, weapon.name, weapon.code, weapon.weaponType, weapon.unlockLabel].join(' ').toLowerCase();
+      const haystack = [weapon.nameZh, weapon.name, weapon.code, weapon.weaponType, weapon.unlockLabel]
+        .join(' ').toLowerCase();
       return !query || haystack.includes(query);
     });
   }
 
-  function renderItem(weapon, item) {
-    const done = isDone(state, activeMode, weapon, item);
-    const locked = !done && !itemAvailable(weapon, item, activeMode);
-    const label = `${esc(item.name)} · ${esc(item.requirement)}`;
-    const image = item.image
-      ? `<img class="camo-item-image" src="${esc(item.image)}" alt="${esc(item.name)}" loading="lazy">`
-      : '';
-    return `<label class="camo-check-item ${done ? 'is-done' : ''} ${locked ? 'is-locked' : ''}" title="${label}">
-      <input type="checkbox" data-camo-item="${esc(item.code)}" data-weapon="${esc(weapon.code)}" ${done ? 'checked' : ''} ${locked ? 'disabled' : ''}>
+  function renderCheckItem(mode, weapon, item) {
+    const done = isDone(mode.code, weapon.code, item.code);
+    return `<label class="camo-check-item ${done ? 'is-done' : ''}">
+      <input type="checkbox" data-camo-item="${esc(item.code)}" data-weapon="${esc(weapon.code)}" ${done ? 'checked' : ''}>
       <span class="camo-check-box">✓</span>
       <span class="camo-check-copy">
-        <strong>${esc(item.name)}</strong>
-        <small>${esc(item.requirement)}</small>
+        <strong>${esc(zhName(item))}</strong>
+        <small>${esc(item.requirement || '条件暂未公布')}</small>
       </span>
-      ${image}
     </label>`;
   }
 
-  function renderWeapon(weapon) {
-    const stats = weaponStats(activeMode, weapon);
+  function renderWeapon(mode, weapon) {
+    const stats = weaponStats(mode, weapon);
     const favorite = state.favorites.includes(weapon.code);
     const open = openWeapons.has(weapon.code);
     const label = zhName(weapon);
+    const thumb = weapon.image
+      ? `<img class="weapon-thumb" src="${esc(weapon.image)}" alt="" loading="lazy">`
+      : '<span class="weapon-thumb is-empty" aria-hidden="true"></span>';
     return `<article class="weapon-tracker ${open ? 'is-open' : ''}" data-weapon-wrap="${esc(weapon.code)}">
       <div class="weapon-tracker-head">
         <button type="button" class="camo-fav ${favorite ? 'is-fav' : ''}" data-fav="${esc(weapon.code)}" aria-label="${favorite ? '取消收藏' : '收藏'} ${esc(label)}">★</button>
-        <button type="button" class="weapon-tracker-main" data-toggle-weapon="${esc(weapon.code)}">
-          <strong>${esc(label)}</strong>
-          <small>${esc(weapon.weaponType || '武器')} · ${esc(weapon.unlockLabel || '解锁条件待确认')}</small>
+        <button type="button" class="weapon-tracker-main" data-toggle-weapon="${esc(weapon.code)}" aria-expanded="${open}">
+          ${thumb}
+          <span class="weapon-text">
+            <strong>${esc(label)}</strong>
+            <small>${esc(weapon.weaponType || '武器')} · ${esc(weapon.unlockLabel || '解锁条件待确认')}</small>
+          </span>
+          <span class="weapon-progress-mini ${stats.complete ? 'is-done' : ''}">${stats.done}/${stats.total}</span>
+          <span class="weapon-chevron" aria-hidden="true">⌄</span>
         </button>
-        <span class="weapon-progress-mini ${stats.complete ? 'is-done' : ''}">${stats.done}/${stats.total} · ${stats.percent}%</span>
-        <button type="button" class="weapon-expand" data-toggle-weapon="${esc(weapon.code)}" aria-label="展开 ${esc(label)}">⌄</button>
       </div>
-      <div class="weapon-tracker-body">${stats.items.map(item => renderItem(weapon, item)).join('')}</div>
+      <div class="weapon-tracker-body">${stats.items.map(item => renderCheckItem(mode, weapon, item)).join('')}</div>
     </article>`;
   }
 
   function renderWeapons() {
-    const rows = filteredWeapons();
+    const mode = modeByCode(activeMode);
+    if (!mode || !isMastery(mode)) return;
+    const rows = filteredWeapons(mode);
+    const favorites = rows.filter(weapon => state.favorites.includes(weapon.code));
+    const others = rows.filter(weapon => !state.favorites.includes(weapon.code));
     const grouped = new Map();
-    for (const weapon of rows) {
+    for (const weapon of others) {
       const key = weapon.weaponType || '其他武器';
       if (!grouped.has(key)) grouped.set(key, []);
       grouped.get(key).push(weapon);
     }
-    $('#weaponGroups').innerHTML = [...grouped.entries()].map(([type, weapons]) => {
-      const complete = weapons.length > 0 && weapons.every(weapon => weaponStats(activeMode, weapon).complete);
-      const done = weapons.filter(weapon => weaponStats(activeMode, weapon).complete).length;
-      return `<section class="camo-class-group ${complete ? 'is-complete' : ''}">
-        <header class="camo-class-head"><h2>${esc(type)}</h2><span>${done}/${weapons.length} 把完成</span></header>
-        ${weapons.map(renderWeapon).join('')}
+    let html = '';
+    if (favorites.length) {
+      html += `<section class="camo-class-group is-favorites">
+        <header class="camo-class-head"><h2>已收藏</h2><span>${favorites.length} 把</span></header>
+        ${favorites.map(weapon => renderWeapon(mode, weapon)).join('')}
       </section>`;
-    }).join('');
+    }
+    for (const [type, weapons] of grouped.entries()) {
+      const done = weapons.filter(weapon => weaponStats(mode, weapon).complete).length;
+      html += `<section class="camo-class-group">
+        <header class="camo-class-head"><h2>${esc(type)}</h2><span>${done}/${weapons.length} 把完成</span></header>
+        ${weapons.map(weapon => renderWeapon(mode, weapon)).join('')}
+      </section>`;
+    }
+    $('#weaponGroups').innerHTML = html;
     $('#emptyState').classList.toggle('hidden', rows.length > 0);
     $('#trackerStatus').classList.add('hidden');
   }
 
   function render() {
-    renderModeTabs();
-    renderSummary();
+    renderTabs();
+    renderProgress();
+    const mode = modeByCode(activeMode);
+    if (mode) renderModePanel(mode);
     renderWeapons();
   }
 
   function publishQuoteSnapshot() {
-    const summary = MODE_ORDER.map(code => {
-      const stats = modeStats(code);
-      return `${MODE_LABELS[code]}:${stats.done}/${stats.total}`;
+    const summary = modes.map(mode => {
+      const stats = modeStats(mode);
+      return `${mode.shortName || mode.name || mode.code}:${stats.done}/${stats.total}`;
     }).join(' · ');
     try {
       localStorage.setItem(QUOTE_KEY, JSON.stringify({
         gameCode: 'CODMW4',
-        gameName: game.name,
-        shortName: game.shortName,
+        gameName: game?.name,
+        shortName: game?.shortName,
         summary,
         updatedAt: new Date().toISOString()
       }));
@@ -246,19 +303,17 @@
   }
 
   function toggleItem(weaponCode, itemCode, checked) {
-    const weapon = (game.weapons || []).find(item => item.code === weaponCode);
-    if (!weapon) return;
-    const item = itemsForWeapon(activeMode, weapon).find(entry => entry.code === itemCode);
-    if (!item) return;
-    if (checked && !itemAvailable(weapon, item, activeMode)) return;
-    state.progress[activeMode] = state.progress[activeMode] || {};
+    buckets(activeMode);
     state.progress[activeMode][weaponCode] = state.progress[activeMode][weaponCode] || {};
     state.progress[activeMode][weaponCode][itemCode] = checked;
-    if (!checked) {
-      for (const entry of itemsForWeapon(activeMode, weapon)) {
-        if (entry.requires.includes(itemCode)) state.progress[activeMode][weaponCode][entry.code] = false;
-      }
-    }
+    saveState();
+    render();
+  }
+
+  function togglePyro(itemCode, checked) {
+    state.progress.PYROCLAST = state.progress.PYROCLAST || {};
+    state.progress.PYROCLAST['__global'] = state.progress.PYROCLAST['__global'] || {};
+    state.progress.PYROCLAST['__global'][itemCode] = checked;
     saveState();
     render();
   }
@@ -281,7 +336,11 @@
       const code = toggle.dataset.toggleWeapon;
       openWeapons.has(code) ? openWeapons.delete(code) : openWeapons.add(code);
       const wrap = $(`[data-weapon-wrap="${CSS.escape(code)}"]`);
-      if (wrap) wrap.classList.toggle('is-open', openWeapons.has(code));
+      if (wrap) {
+        wrap.classList.toggle('is-open', openWeapons.has(code));
+        const main = wrap.querySelector('.weapon-tracker-main');
+        if (main) main.setAttribute('aria-expanded', String(openWeapons.has(code)));
+      }
     });
 
     $('#weaponGroups').addEventListener('change', event => {
@@ -290,13 +349,23 @@
       toggleItem(input.dataset.weapon, input.dataset.camoItem, input.checked);
     });
 
+    $('#pyroCards').addEventListener('change', event => {
+      const input = event.target.closest('[data-pyro-item]');
+      if (!input) return;
+      togglePyro(input.dataset.pyroItem, input.checked);
+    });
+
     $('#classFilter').addEventListener('change', renderWeapons);
     $('#statusFilter').addEventListener('change', renderWeapons);
     $('#weaponSearch').addEventListener('input', renderWeapons);
 
     $('#resetProgress').addEventListener('click', () => {
-      if (!confirm(`确定清空「${MODE_LABELS[activeMode]}」的全部勾选进度吗？收藏不会被清除。`)) return;
-      state.progress[activeMode] = {};
+      const mode = modeByCode(activeMode);
+      if (!mode) return;
+      const label = mode.shortName || mode.name || mode.code;
+      if (!confirm(`确定清空「${label}」的全部勾选进度吗？收藏不会被清除。`)) return;
+      if (isMastery(mode)) state.progress[activeMode] = {};
+      else { state.progress.PYROCLAST = {}; }
       saveState();
       render();
     });
@@ -318,14 +387,20 @@
       const payload = await response.json();
       game = (payload.games || []).find(item => item.code === 'CODMW4') || (payload.games || [])[0];
       if (!game) throw new Error('没有找到 MW4 工具数据');
-      if (!MODE_ORDER.includes(activeMode)) activeMode = MODE_ORDER[0];
+
+      const track = game.camoTracks || {};
+      const order = Array.isArray(track.order) && track.order.length ? track.order : MASTERY_FALLBACK;
+      modes = order.map(code => track.modes?.[code]).filter(Boolean);
+      if (!modes.length) throw new Error('没有找到迷彩数据');
+      activeMode = modes.some(item => item.code === state.activeMode) ? state.activeMode : modes[0].code;
+
       $('#classFilter').innerHTML = '<option value="">全部类型</option>' + [...new Set((game.weapons || []).map(item => item.weaponType).filter(Boolean))]
         .map(type => `<option value="${esc(type)}">${esc(type)}</option>`).join('');
+
       bindEvents();
       render();
       publishQuoteSnapshot();
     } catch (error) {
-      status = { className: 'error', complete: true };
       const node = $('#trackerStatus');
       node.classList.remove('hidden');
       node.textContent = error.message || '工具数据读取失败，请刷新后重试。';

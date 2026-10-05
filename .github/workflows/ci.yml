@@ -35,3 +35,29 @@ jobs:
 
       - name: Build and test with Maven
         run: mvn -B -ntp clean package
+
+      - name: Prepare main build artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          mapfile -t jars < <(find target -maxdepth 1 -type f -name '*.jar' -print)
+          if [ "${#jars[@]}" -ne 1 ]; then
+            echo "Expected exactly one JAR in target/, found ${#jars[@]}"
+            printf '%s\n' "${jars[@]}"
+            exit 1
+          fi
+
+          artifact="xinghuo-v2-${GITHUB_SHA}.jar"
+          cp "${jars[0]}" "$artifact"
+          sha256sum "$artifact" > "$artifact.sha256"
+
+      - name: Upload main build artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: xinghuo-v2-${{ github.sha }}
+          path: |
+            xinghuo-v2-${{ github.sha }}.jar
+            xinghuo-v2-${{ github.sha }}.jar.sha256
+          if-no-files-found: error
+          retention-days: 30

@@ -67,6 +67,8 @@ jobs:
         run: |
           set -euo pipefail
           bash -n scripts/deploy-from-github.sh
+          bash -n scripts/github-deploy-gateway.sh
+          bash -n scripts/install-github-deploy-bridge.sh
           bash -n scripts/deploy-zero-downtime.sh
           bash -n scripts/smoke_test.sh
 
@@ -100,11 +102,4 @@ jobs:
             -o StrictHostKeyChecking=yes \
             -o ConnectTimeout=15 \
             "ubuntu@${PROD_SSH_HOST}" \
-            "set -euo pipefail; \
-             cd /srv/xinghuo-dev/work/xinghuo-v2; \
-             git status --porcelain | grep -q . && { echo 'Production workspace is dirty'; exit 1; } || true; \
-             git fetch origin main; \
-             [ \"\$(git rev-parse origin/main)\" = '${GITHUB_SHA}' ]; \
-             git switch main; \
-             git pull --ff-only origin main; \
-             CONFIRM_GITHUB_DEPLOY=YES bash scripts/deploy-from-github.sh '${GITHUB_SHA}'"
+            "deploy ${GITHUB_SHA}"

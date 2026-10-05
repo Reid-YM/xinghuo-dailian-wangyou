@@ -1,0 +1,11 @@
+name: Permission Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  permission-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm workflow write permission
+        run: echo "GitHub Actions workflow write permission confirmed."

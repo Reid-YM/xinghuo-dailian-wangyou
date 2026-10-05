@@ -342,7 +342,7 @@
         }
       ],
       "camoTracks": {
-        "version": "v23r6",
+        "version": "v24r1",
         "order": [
           "WARZONE",
           "MULTIPLAYER",
@@ -353,7 +353,7 @@
             "code": "WARZONE",
             "name": "战区迷彩",
             "status": "placeholder",
-            "note": "战区迷彩条件暂未提供。",
+            "note": "MW4 大师迷彩名称已由官方公布，但**解锁条件尚未公布**，官方迷彩图也未发布，此处纹理为示意。另有 4 款 Pyroclast 系列（Pyroclast / Verge / Scatter / Cascade），独立于三个模式之外。",
             "items": [
               {
                 "code": "BASE",
@@ -362,7 +362,8 @@
                 "placeholder": true,
                 "stage": 1,
                 "label": "基础",
-                "requires": []
+                "requires": [],
+                "image": "/assets/camo/BASE.jpg"
               },
               {
                 "code": "SPECIAL_1",
@@ -373,7 +374,8 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_1.jpg"
               },
               {
                 "code": "SPECIAL_2",
@@ -384,62 +386,59 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_2.jpg"
               },
               {
-                "code": "GOLD_TIGER",
-                "name": "金虎",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_1",
+                "name": "Parallax",
+                "nameZh": "视差",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 3,
-                "label": "金虎",
+                "label": "视差",
                 "requires": [
                   "SPECIAL_1",
                   "SPECIAL_2"
-                ]
+                ],
+                "image": "/assets/camo/GOLD_TIGER.jpg"
               },
               {
-                "code": "KINGS_RANSOM",
-                "name": "国王赎金",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_2",
+                "name": "Damascus Reforged",
+                "nameZh": "大马士革·重铸",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 4,
-                "label": "国王赎金",
+                "label": "大马士革·重铸",
                 "requires": [
-                  "GOLD_TIGER"
-                ]
+                  "MASTERY_1"
+                ],
+                "image": "/assets/camo/KINGS_RANSOM.jpg"
               },
               {
-                "code": "CATALYST",
-                "name": "催化剂",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_3",
+                "name": "Empyros",
+                "nameZh": "天焰",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 5,
-                "label": "催化剂",
+                "label": "天焰",
                 "requires": [
-                  "KINGS_RANSOM"
-                ]
-              },
-              {
-                "code": "ABYSS",
-                "name": "深渊",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 6,
-                "label": "深渊",
-                "requires": [
-                  "CATALYST"
-                ]
+                  "MASTERY_2"
+                ],
+                "image": "/assets/camo/CATALYST.jpg"
               }
             ],
             "previewImage": "/assets/tool/camo/WARZONE.jpg",
-            "previewAlt": "战区迷彩预览图"
+            "previewAlt": "战区迷彩预览图",
+            "officialSource": "https://www.callofduty.com/modernwarfare"
           },
           "MULTIPLAYER": {
             "code": "MULTIPLAYER",
             "name": "多人迷彩",
             "status": "placeholder",
-            "note": "多人迷彩条件暂未提供。",
+            "note": "MW4 大师迷彩名称已由官方公布，但**解锁条件尚未公布**，官方迷彩图也未发布，此处纹理为示意。另有 4 款 Pyroclast 系列（Pyroclast / Verge / Scatter / Cascade），独立于三个模式之外。",
             "items": [
               {
                 "code": "BASE",
@@ -448,7 +447,8 @@
                 "placeholder": true,
                 "stage": 1,
                 "label": "基础",
-                "requires": []
+                "requires": [],
+                "image": "/assets/camo/BASE.jpg"
               },
               {
                 "code": "SPECIAL_1",
@@ -459,7 +459,8 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_1.jpg"
               },
               {
                 "code": "SPECIAL_2",
@@ -470,62 +471,59 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_2.jpg"
               },
               {
-                "code": "GOLD_TIGER",
-                "name": "金虎",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_1",
+                "name": "Mercurial Drift",
+                "nameZh": "水银漂移",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 3,
-                "label": "金虎",
+                "label": "水银漂移",
                 "requires": [
                   "SPECIAL_1",
                   "SPECIAL_2"
-                ]
+                ],
+                "image": "/assets/camo/GOLD_TIGER.jpg"
               },
               {
-                "code": "KINGS_RANSOM",
-                "name": "国王赎金",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_2",
+                "name": "Polyatomic Reforged",
+                "nameZh": "聚原子·重铸",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 4,
-                "label": "国王赎金",
+                "label": "聚原子·重铸",
                 "requires": [
-                  "GOLD_TIGER"
-                ]
+                  "MASTERY_1"
+                ],
+                "image": "/assets/camo/KINGS_RANSOM.jpg"
               },
               {
-                "code": "CATALYST",
-                "name": "催化剂",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_3",
+                "name": "Orion Reforged",
+                "nameZh": "猎户·重铸",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 5,
-                "label": "催化剂",
+                "label": "猎户·重铸",
                 "requires": [
-                  "KINGS_RANSOM"
-                ]
-              },
-              {
-                "code": "ABYSS",
-                "name": "深渊",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 6,
-                "label": "深渊",
-                "requires": [
-                  "CATALYST"
-                ]
+                  "MASTERY_2"
+                ],
+                "image": "/assets/camo/CATALYST.jpg"
               }
             ],
             "previewImage": "/assets/tool/camo/MULTIPLAYER.jpg",
-            "previewAlt": "多人迷彩预览图"
+            "previewAlt": "多人迷彩预览图",
+            "officialSource": "https://www.callofduty.com/modernwarfare"
           },
           "DMZ": {
             "code": "DMZ",
             "name": "DMZ迷彩",
             "status": "placeholder",
-            "note": "DMZ 迷彩条件暂未提供。",
+            "note": "MW4 大师迷彩名称已由官方公布，但**解锁条件尚未公布**，官方迷彩图也未发布，此处纹理为示意。另有 4 款 Pyroclast 系列（Pyroclast / Verge / Scatter / Cascade），独立于三个模式之外。",
             "items": [
               {
                 "code": "BASE",
@@ -534,7 +532,8 @@
                 "placeholder": true,
                 "stage": 1,
                 "label": "基础",
-                "requires": []
+                "requires": [],
+                "image": "/assets/camo/BASE.jpg"
               },
               {
                 "code": "SPECIAL_1",
@@ -545,7 +544,8 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_1.jpg"
               },
               {
                 "code": "SPECIAL_2",
@@ -556,110 +556,59 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_2.jpg"
               },
               {
-                "code": "GOLD_TIGER",
-                "name": "金虎",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_1",
+                "name": "Chiral",
+                "nameZh": "手性",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 3,
-                "label": "金虎",
+                "label": "手性",
                 "requires": [
                   "SPECIAL_1",
                   "SPECIAL_2"
-                ]
+                ],
+                "image": "/assets/camo/GOLD_TIGER.jpg"
               },
               {
-                "code": "KINGS_RANSOM",
-                "name": "国王赎金",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_2",
+                "name": "Ripple Tide",
+                "nameZh": "涟漪潮汐",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 4,
-                "label": "国王赎金",
+                "label": "涟漪潮汐",
                 "requires": [
-                  "GOLD_TIGER"
-                ]
+                  "MASTERY_1"
+                ],
+                "image": "/assets/camo/KINGS_RANSOM.jpg"
               },
               {
-                "code": "CATALYST",
-                "name": "催化剂",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_3",
+                "name": "Helio",
+                "nameZh": "赫利俄斯",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 5,
-                "label": "催化剂",
+                "label": "赫利俄斯",
                 "requires": [
-                  "KINGS_RANSOM"
-                ]
-              },
-              {
-                "code": "ABYSS",
-                "name": "深渊",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 6,
-                "label": "深渊",
-                "requires": [
-                  "CATALYST"
-                ]
+                  "MASTERY_2"
+                ],
+                "image": "/assets/camo/CATALYST.jpg"
               }
             ],
             "previewImage": "/assets/tool/camo/DMZ.jpg",
-            "previewAlt": "DMZ迷彩预览图"
+            "previewAlt": "DMZ迷彩预览图",
+            "officialSource": "https://www.callofduty.com/modernwarfare"
           }
         },
         "officialSource": "",
-        "logic": {
-          "mode": "staged",
-          "note": "基础完成后开放特殊迷彩；两条特殊迷彩完成后开放金虎；之后依次开放国王赎金、催化剂、深渊。",
-          "stages": [
-            {
-              "stage": 1,
-              "name": "基础迷彩",
-              "items": [
-                "BASE"
-              ]
-            },
-            {
-              "stage": 2,
-              "name": "特殊迷彩",
-              "items": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "stage": 3,
-              "name": "金虎",
-              "items": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "stage": 4,
-              "name": "国王赎金",
-              "items": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "stage": 5,
-              "name": "催化剂",
-              "items": [
-                "CATALYST"
-              ]
-            },
-            {
-              "stage": 6,
-              "name": "深渊",
-              "items": [
-                "ABYSS"
-              ]
-            }
-          ]
-        },
+        "logic": "每个模式各有 3 款大师迷彩，名称已公布；解锁条件与官方迷彩图尚未发布，进度可先按模式勾选，条件公布后本工具会同步。",
         "previewMode": "per-mode",
-        "previewNote": "每个模式共用一张预览图。",
+        "previewNote": "预览展示当前选中迷彩的参考纹理（官方迷彩图未发布，纹理为示意）。",
         "groups": [
           {
             "code": "BASE",
@@ -681,12 +630,11 @@
           {
             "code": "MASTERY",
             "name": "大师迷彩",
-            "description": "金虎、国王赎金、催化剂、深渊",
+            "description": "每个模式各 3 款，名称由官方公布、条件待公布",
             "items": [
-              "GOLD_TIGER",
-              "KINGS_RANSOM",
-              "CATALYST",
-              "ABYSS"
+              "MASTERY_1",
+              "MASTERY_2",
+              "MASTERY_3"
             ]
           }
         ],

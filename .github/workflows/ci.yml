@@ -33,6 +33,10 @@ jobs:
           java-version: '21'
           cache: maven
 
+      - name: Validate shell scripts
+        shell: bash
+        run: bash -n scripts/deploy-zero-downtime.sh scripts/smoke_test.sh
+
       - name: Build and test with Maven
         run: mvn -B -ntp clean package
 

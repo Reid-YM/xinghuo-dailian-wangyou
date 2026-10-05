@@ -37,6 +37,7 @@
         {
           "code": "HAN86",
           "name": "Han 86",
+          "nameZh": "汉86",
           "weaponType": "突击步枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -51,6 +52,7 @@
         {
           "code": "M4",
           "name": "M4",
+          "nameZh": "M4",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 9",
           "unlockPlayerRank": 9,
@@ -65,6 +67,7 @@
         {
           "code": "HYEONBURST",
           "name": "Hyeon Burst",
+          "nameZh": "玄·爆裂",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 18",
           "unlockPlayerRank": 18,
@@ -80,6 +83,7 @@
         {
           "code": "KASTOV762",
           "name": "Kastov 762",
+          "nameZh": "卡斯托夫762",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 21",
           "unlockPlayerRank": 21,
@@ -95,6 +99,7 @@
         {
           "code": "PATRIOTXMR",
           "name": "Patriot XMR",
+          "nameZh": "爱国者 XMR",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 25",
           "unlockPlayerRank": 25,
@@ -109,6 +114,7 @@
         {
           "code": "AXION",
           "name": "Axion",
+          "nameZh": "阿克西翁",
           "weaponType": "突击步枪",
           "unlockLabel": "默认配置限定",
           "unlockPlayerRank": null,
@@ -123,6 +129,7 @@
         {
           "code": "ISONIGHTSHADE",
           "name": "ISO Nightshade",
+          "nameZh": "ISO 夜影",
           "weaponType": "冲锋枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -137,6 +144,7 @@
         {
           "code": "PPSH41",
           "name": "PPSH-41",
+          "nameZh": "波波沙-41",
           "weaponType": "冲锋枪",
           "unlockLabel": "玩家等级 11",
           "unlockPlayerRank": 11,
@@ -151,6 +159,7 @@
         {
           "code": "X58NYX",
           "name": "X-58 NYX",
+          "nameZh": "X-58 尼克斯",
           "weaponType": "冲锋枪",
           "unlockLabel": "玩家等级 27",
           "unlockPlayerRank": 27,
@@ -165,6 +174,7 @@
         {
           "code": "WZ55STRIGA",
           "name": "Wz. 55 Striga",
+          "nameZh": "Wz. 55 斯特里加",
           "weaponType": "冲锋枪",
           "unlockLabel": "战役任务限定",
           "unlockPlayerRank": null,
@@ -179,6 +189,7 @@
         {
           "code": "REZI12",
           "name": "REZI 12",
+          "nameZh": "雷齐12",
           "weaponType": "霰弹枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -193,6 +204,7 @@
         {
           "code": "FINNLMG",
           "name": "Finn LMG",
+          "nameZh": "芬恩轻机枪",
           "weaponType": "轻机枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -207,6 +219,7 @@
         {
           "code": "TYPE73",
           "name": "Type 73",
+          "nameZh": "73式轻机枪",
           "weaponType": "轻机枪",
           "unlockLabel": "玩家等级 5",
           "unlockPlayerRank": 5,
@@ -221,6 +234,7 @@
         {
           "code": "MAR9",
           "name": "Mar-9",
+          "nameZh": "马尔-9",
           "weaponType": "射手步枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -235,6 +249,7 @@
         {
           "code": "ORIS86",
           "name": "Oris 8.6",
+          "nameZh": "奥里斯8.6",
           "weaponType": "射手步枪",
           "unlockLabel": "玩家等级 14",
           "unlockPlayerRank": 14,
@@ -249,6 +264,7 @@
         {
           "code": "KG7VULCAN",
           "name": "KG-7 Vulcan",
+          "nameZh": "KG-7 火神",
           "weaponType": "狙击步枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -263,6 +279,7 @@
         {
           "code": "SIGNAL50",
           "name": "Signal 50",
+          "nameZh": "信号50",
           "weaponType": "狙击步枪",
           "unlockLabel": "玩家等级 30",
           "unlockPlayerRank": 30,
@@ -277,6 +294,7 @@
         {
           "code": "KARITP68",
           "name": "Krait P68",
+          "nameZh": "克拉特P68",
           "weaponType": "手枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -291,6 +309,7 @@
         {
           "code": "50GS",
           "name": ".50 GS",
+          "nameZh": ".50 GS",
           "weaponType": "手枪",
           "unlockLabel": "玩家等级 23",
           "unlockPlayerRank": 23,
@@ -305,6 +324,7 @@
         {
           "code": "SANG9MM",
           "name": "Sang 9mm",
+          "nameZh": "桑9毫米",
           "weaponType": "手枪",
           "unlockLabel": "默认配置限定",
           "unlockPlayerRank": null,
@@ -319,6 +339,7 @@
         {
           "code": "PILA",
           "name": "Pila",
+          "nameZh": "皮拉",
           "weaponType": "发射器",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -331,6 +352,7 @@
         {
           "code": "COMBATKNIFE",
           "name": "Combat Knife",
+          "nameZh": "战斗匕首",
           "weaponType": "近战",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,

@@ -12,6 +12,9 @@
   const MODE_LABELS = { MULTIPLAYER: '多人', WARZONE: '战区', DMZ: 'DMZ' };
   const STAGE_LABELS = { 1: '基础', 2: '特殊', 3: '金虎', 4: '国王赎金', 5: '催化剂', 6: '深渊' };
 
+  // 数据同时保留英文名与中文名；界面统一按中文显示，英文名只用于搜索匹配。
+  const zhName = entry => (entry?.nameZh || entry?.name || '').trim();
+
   let game = null;
   let state = loadState();
   let activeMode = state.activeMode || 'MULTIPLAYER';
@@ -64,7 +67,8 @@
     const code = item.code || `ITEM_${index + 1}`;
     return {
       code,
-      name: item.name || `迷彩 ${index + 1}`,
+      name: (item.nameZh || item.name || `迷彩 ${index + 1}`).trim(),
+      nameEn: item.name || '',
       requirement: item.requirement || item.challenge || MODE_LABELS[activeMode] + '迷彩条件暂未提供',
       stage: item.stage || index + 1,
       requires: Array.isArray(item.requires) ? item.requires : [],
@@ -149,7 +153,7 @@
       if (statusValue === 'todo' && stats.complete) return false;
       if (statusValue === 'done' && !stats.complete) return false;
       if (statusValue === 'fav' && !favorite) return false;
-      const haystack = [weapon.name, weapon.code, weapon.weaponType, weapon.unlockLabel].join(' ').toLowerCase();
+      const haystack = [weapon.nameZh, weapon.name, weapon.code, weapon.weaponType, weapon.unlockLabel].join(' ').toLowerCase();
       return !query || haystack.includes(query);
     });
   }
@@ -176,15 +180,16 @@
     const stats = weaponStats(activeMode, weapon);
     const favorite = state.favorites.includes(weapon.code);
     const open = openWeapons.has(weapon.code);
+    const label = zhName(weapon);
     return `<article class="weapon-tracker ${open ? 'is-open' : ''}" data-weapon-wrap="${esc(weapon.code)}">
       <div class="weapon-tracker-head">
-        <button type="button" class="camo-fav ${favorite ? 'is-fav' : ''}" data-fav="${esc(weapon.code)}" aria-label="${favorite ? '取消收藏' : '收藏'} ${esc(weapon.name)}">★</button>
+        <button type="button" class="camo-fav ${favorite ? 'is-fav' : ''}" data-fav="${esc(weapon.code)}" aria-label="${favorite ? '取消收藏' : '收藏'} ${esc(label)}">★</button>
         <button type="button" class="weapon-tracker-main" data-toggle-weapon="${esc(weapon.code)}">
-          <strong>${esc(weapon.name)}</strong>
+          <strong>${esc(label)}</strong>
           <small>${esc(weapon.weaponType || '武器')} · ${esc(weapon.unlockLabel || '解锁条件待确认')}</small>
         </button>
         <span class="weapon-progress-mini ${stats.complete ? 'is-done' : ''}">${stats.done}/${stats.total} · ${stats.percent}%</span>
-        <button type="button" class="weapon-expand" data-toggle-weapon="${esc(weapon.code)}" aria-label="展开 ${esc(weapon.name)}">⌄</button>
+        <button type="button" class="weapon-expand" data-toggle-weapon="${esc(weapon.code)}" aria-label="展开 ${esc(label)}">⌄</button>
       </div>
       <div class="weapon-tracker-body">${stats.items.map(item => renderItem(weapon, item)).join('')}</div>
     </article>`;

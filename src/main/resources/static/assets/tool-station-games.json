@@ -37,6 +37,7 @@
         {
           "code": "HAN86",
           "name": "Han 86",
+          "nameZh": "汉86",
           "weaponType": "突击步枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -51,6 +52,7 @@
         {
           "code": "M4",
           "name": "M4",
+          "nameZh": "M4",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 9",
           "unlockPlayerRank": 9,
@@ -65,6 +67,7 @@
         {
           "code": "HYEONBURST",
           "name": "Hyeon Burst",
+          "nameZh": "玄·爆裂",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 18",
           "unlockPlayerRank": 18,
@@ -80,6 +83,7 @@
         {
           "code": "KASTOV762",
           "name": "Kastov 762",
+          "nameZh": "卡斯托夫762",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 21",
           "unlockPlayerRank": 21,
@@ -95,6 +99,7 @@
         {
           "code": "PATRIOTXMR",
           "name": "Patriot XMR",
+          "nameZh": "爱国者 XMR",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 25",
           "unlockPlayerRank": 25,
@@ -109,6 +114,7 @@
         {
           "code": "AXION",
           "name": "Axion",
+          "nameZh": "阿克西翁",
           "weaponType": "突击步枪",
           "unlockLabel": "默认配置限定",
           "unlockPlayerRank": null,
@@ -123,6 +129,7 @@
         {
           "code": "ISONIGHTSHADE",
           "name": "ISO Nightshade",
+          "nameZh": "ISO 夜影",
           "weaponType": "冲锋枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -136,7 +143,8 @@
         },
         {
           "code": "PPSH41",
-          "name": "PPSh-41",
+          "name": "PPSH-41",
+          "nameZh": "波波沙-41",
           "weaponType": "冲锋枪",
           "unlockLabel": "玩家等级 11",
           "unlockPlayerRank": 11,
@@ -150,7 +158,8 @@
         },
         {
           "code": "X58NYX",
-          "name": "X-58 Nyx",
+          "name": "X-58 NYX",
+          "nameZh": "X-58 尼克斯",
           "weaponType": "冲锋枪",
           "unlockLabel": "玩家等级 27",
           "unlockPlayerRank": 27,
@@ -165,6 +174,7 @@
         {
           "code": "WZ55STRIGA",
           "name": "Wz. 55 Striga",
+          "nameZh": "Wz. 55 斯特里加",
           "weaponType": "冲锋枪",
           "unlockLabel": "战役任务限定",
           "unlockPlayerRank": null,
@@ -178,7 +188,8 @@
         },
         {
           "code": "REZI12",
-          "name": "Rezi 12",
+          "name": "REZI 12",
+          "nameZh": "雷齐12",
           "weaponType": "霰弹枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -192,7 +203,8 @@
         },
         {
           "code": "FINNLMG",
-          "name": "FiNN LMG",
+          "name": "Finn LMG",
+          "nameZh": "芬恩轻机枪",
           "weaponType": "轻机枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -207,6 +219,7 @@
         {
           "code": "TYPE73",
           "name": "Type 73",
+          "nameZh": "73式轻机枪",
           "weaponType": "轻机枪",
           "unlockLabel": "玩家等级 5",
           "unlockPlayerRank": 5,
@@ -220,7 +233,8 @@
         },
         {
           "code": "MAR9",
-          "name": "MAR-9",
+          "name": "Mar-9",
+          "nameZh": "马尔-9",
           "weaponType": "射手步枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -235,6 +249,7 @@
         {
           "code": "ORIS86",
           "name": "Oris 8.6",
+          "nameZh": "奥里斯8.6",
           "weaponType": "射手步枪",
           "unlockLabel": "玩家等级 14",
           "unlockPlayerRank": 14,
@@ -249,6 +264,7 @@
         {
           "code": "KG7VULCAN",
           "name": "KG-7 Vulcan",
+          "nameZh": "KG-7 火神",
           "weaponType": "狙击步枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -262,7 +278,8 @@
         },
         {
           "code": "SIGNAL50",
-          "name": "Signal .50",
+          "name": "Signal 50",
+          "nameZh": "信号50",
           "weaponType": "狙击步枪",
           "unlockLabel": "玩家等级 30",
           "unlockPlayerRank": 30,
@@ -276,7 +293,8 @@
         },
         {
           "code": "KARITP68",
-          "name": "Karit P68",
+          "name": "Krait P68",
+          "nameZh": "克拉特P68",
           "weaponType": "手枪",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -291,6 +309,7 @@
         {
           "code": "50GS",
           "name": ".50 GS",
+          "nameZh": ".50 GS",
           "weaponType": "手枪",
           "unlockLabel": "玩家等级 23",
           "unlockPlayerRank": 23,
@@ -305,6 +324,7 @@
         {
           "code": "SANG9MM",
           "name": "Sang 9mm",
+          "nameZh": "桑9毫米",
           "weaponType": "手枪",
           "unlockLabel": "默认配置限定",
           "unlockPlayerRank": null,
@@ -318,7 +338,8 @@
         },
         {
           "code": "PILA",
-          "name": "PILA",
+          "name": "Pila",
+          "nameZh": "皮拉",
           "weaponType": "发射器",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -331,6 +352,7 @@
         {
           "code": "COMBATKNIFE",
           "name": "Combat Knife",
+          "nameZh": "战斗匕首",
           "weaponType": "近战",
           "unlockLabel": "立即解锁",
           "unlockPlayerRank": null,
@@ -339,3022 +361,10 @@
           "gunsmith": false,
           "apexAttachments": [],
           "note": "该武器不支持武器改装。"
-        },
-        {
-          "code": "WZ_AR_01",
-          "name": "XM4",
-          "weaponType": "突击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "XM4 在线迷彩资料",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "在敌方无人机监视下5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "移动中10次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ],
-          "onlineCamos": {
-            "WARZONE": {
-              "title": "XM4 战区精通迷彩",
-              "source": "",
-              "sourceUrl": "",
-              "items": [
-                {
-                  "code": "GOLD_TIGER",
-                  "name": "金虎",
-                  "challenge": "以“头号通缉目标”身份用 XM4 完成 5 次淘汰",
-                  "original": "Get 5 Eliminations while being the Most Wanted target with the XM4",
-                  "image": "https://img.game8.co/4042075/c6a5ca629a5ca4421b206e620401fffa.png/show"
-                },
-                {
-                  "code": "KINGS_RANSOM",
-                  "name": "国王赎金",
-                  "challenge": "用 XM4 连续 5 次达成不死 3 杀",
-                  "original": "Get 3 Kills without dying 5 times with the XM4",
-                  "image": "https://img.game8.co/4042072/b044ff37f74d67ec92f0f84fa2d2ce12.png/show"
-                },
-                {
-                  "code": "CATALYST",
-                  "name": "催化剂",
-                  "challenge": "用 XM4 击杀 5 名受震撼弹、闪光弹或电击陷阱影响的敌人",
-                  "original": "Get 5 Kills on enemies affected by your Stun Grenade, Flashbang, or Shock Charge with the XM4",
-                  "image": "https://img.game8.co/4042078/6d5b5173eac8d88aaad227330bf2cc7b.png/show"
-                },
-                {
-                  "code": "ABYSS",
-                  "name": "深渊",
-                  "challenge": "用 XM4 连续 2 次达成不死 5 杀",
-                  "original": "Get 5 Kills without dying 2 times with the XM4",
-                  "image": "https://img.game8.co/4042077/58039b9fb44e8ac47bc964ca83c50075.png/show"
-                }
-              ]
-            },
-            "MULTIPLAYER": {
-              "title": "XM4 多人精通迷彩",
-              "source": "",
-              "sourceUrl": "",
-              "items": [
-                {
-                  "code": "MP_GOLD",
-                  "name": "Gold 黄金",
-                  "challenge": "用 XM4 完成 10 次双杀或更高连杀",
-                  "original": "Get 10 Double Kills or better with the XM4.",
-                  "image": "https://img.game8.co/4025001/01a72e2b48558208c16d9c3d1f9bf64c.png/show"
-                },
-                {
-                  "code": "MP_DIAMOND",
-                  "name": "Diamond 钻石",
-                  "challenge": "用 XM4 连续 10 次达成不死 3 杀",
-                  "original": "Get 3 kills without dying 10 times with the XM4.",
-                  "image": "https://img.game8.co/4024996/9416d74472896aad736279e2619e9563.png/show"
-                },
-                {
-                  "code": "MP_DARK_SPINE",
-                  "name": "Dark Spine 暗脊",
-                  "challenge": "用 XM4 完成 3 次三杀或更高连杀",
-                  "original": "Get 3 Triple Kills or better with the XM4.",
-                  "image": "https://img.game8.co/4024999/7e6f80a655af009ab331933fe73d28e3.png/show"
-                },
-                {
-                  "code": "MP_DARK_MATTER",
-                  "name": "Dark Matter 暗物质",
-                  "challenge": "用 XM4 连续 3 次达成不死 5 杀",
-                  "original": "Get 5 kills without dying 3 times with the XM4.",
-                  "image": "https://img.game8.co/4024997/581d547683c8f6aa7acae598b5ac77a1.png/show"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "code": "WZ_AR_02",
-          "name": "AK74",
-          "weaponType": "突击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "30秒内2次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_AR_03",
-          "name": "AMES85",
-          "weaponType": "突击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "5次远射",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "1局内3次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_AR_04",
-          "name": "GPR91",
-          "weaponType": "突击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "击杀5个刚伤害过你的敌人",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "奔跑后立即5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_AR_05",
-          "name": "L型步枪",
-          "weaponType": "突击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "击杀5个“首要目标”合同的目标",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "不装弹2次击杀，重复5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_AR_06",
-          "name": "哥布林MK2",
-          "weaponType": "突击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "滑铲后立刻5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "击杀5个被战术装备影响的敌人",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_AR_07",
-          "name": "AS-VAL",
-          "weaponType": "突击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "无伤2次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "装弹后立刻5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_AR_08",
-          "name": "克里格C型",
-          "weaponType": "突击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "1局3次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "奔跑后立即5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SMG_01",
-          "name": "C9",
-          "weaponType": "冲锋枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "击杀5个“首要目标”合同的目标",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "装弹后立刻5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SMG_02",
-          "name": "KSV",
-          "weaponType": "冲锋枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "10次腰射击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "奔跑后立即5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SMG_03",
-          "name": "点22塔恩托",
-          "weaponType": "冲锋枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "在敌方无人机监视下5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "移动中10次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SMG_04",
-          "name": "PP-919",
-          "weaponType": "冲锋枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "不装弹2次击杀，累计15次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "击杀5个被战术装备影响的敌人",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SMG_05",
-          "name": "胡狼PDW",
-          "weaponType": "冲锋枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "10次腰射击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "移动中10次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SMG_06",
-          "name": "坎帕克特92",
-          "weaponType": "冲锋枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "5次零距离击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "滑铲后立刻5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SMG_07",
-          "name": "SAUG",
-          "weaponType": "冲锋枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "5次腰射击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "1局内3次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SG_01",
-          "name": "梅林SP",
-          "weaponType": "霰弹枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "5次零距离击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "击杀5个被战术装备影响的敌人",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SG_02",
-          "name": "ASG-89",
-          "weaponType": "霰弹枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "10次腰射",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "击杀5个刚伤害过你的敌人",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_LMG_01",
-          "name": "PU-21",
-          "weaponType": "轻机枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "无伤2次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "击杀5个“首要目标”合同的目标",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_LMG_02",
-          "name": "XMG",
-          "weaponType": "轻机枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "不装弹2次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "在敌方无人机监视下5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_LMG_03",
-          "name": "GPMG-7",
-          "weaponType": "轻机枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "30秒内2次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "卧倒时10次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_MR_01",
-          "name": "SWAT5.56",
-          "weaponType": "射手步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "5次零距离击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "滑铲后立刻5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_MR_02",
-          "name": "沙尔克夫7.62",
-          "weaponType": "射手步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "30秒内2次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "卧倒时10次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_MR_03",
-          "name": "AEK-973",
-          "weaponType": "射手步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "1局内3次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "奔跑后立刻5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_MR_04",
-          "name": "DM-10",
-          "weaponType": "射手步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "5次远射",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "击杀10个刚伤害过你的敌人",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SR_01",
-          "name": "LW3A1霜冻线",
-          "weaponType": "狙击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "2次一枪一个击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "极远距离外5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SR_02",
-          "name": "SVD",
-          "weaponType": "狙击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "卧倒时20秒内2次击杀，累计5次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "切换武器后立即5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_SR_03",
-          "name": "LR7.62",
-          "weaponType": "狙击步枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "5次一枪一个",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "装弹后立刻5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_PISTOL_01",
-          "name": "9毫米PM",
-          "weaponType": "手枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "移动时10次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "切换武器后5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_PISTOL_02",
-          "name": "格克霍娃",
-          "weaponType": "手枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "10次腰射击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "切换武器后5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_PISTOL_03",
-          "name": "GS45",
-          "weaponType": "手枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "击杀5个刚伤害过你的敌人",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "切换武器后5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_PISTOL_04",
-          "name": "点22斯崔德",
-          "weaponType": "手枪",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "100次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "5次零距离击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "切换武器后5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标5次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "5次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀5个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "2次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_LCH_01",
-          "name": "西格玛2B",
-          "weaponType": "发射器",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "40次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "摧毁5个敌方真人操控的载具",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "击杀5个半空中的目标",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "1局内破坏3个连杀奖励或者载具，重复2次",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "1局内3次击杀，累计2次",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "1局内破坏5个连杀奖励或者载具，累计1次",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "1局内5次击杀，累计1次",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_LCH_02",
-          "name": "HE-1",
-          "weaponType": "发射器",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "40次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "摧毁5个敌方真人操控的载具",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "1局内2次击杀，累计2次",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "1局内破坏3个连杀奖励或者载具，重复2次",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "1局内3次击杀，累计2次",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "1局内破坏5个连杀奖励或者载具，累计1次",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "1局内5次击杀，累计1次",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_MELEE_01",
-          "name": "匕首",
-          "weaponType": "近战",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "50次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "奔跑后5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "击杀5个伤害过你的敌人",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标3次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "2次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀3个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "1次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
-        },
-        {
-          "code": "WZ_MELEE_02",
-          "name": "棒球棍",
-          "weaponType": "近战",
-          "unlockLabel": "战区迷彩",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": false,
-          "apexAttachments": [],
-          "note": "",
-          "dataSet": "WZ_SKINS",
-          "warzoneCamos": [
-            {
-              "code": "BASE",
-              "name": "基础迷彩",
-              "requirement": "50次击杀",
-              "stage": 1,
-              "label": "基础",
-              "requires": []
-            },
-            {
-              "code": "SPECIAL_1",
-              "name": "特殊迷彩1",
-              "requirement": "击杀5个被战术装备影响的敌人",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "SPECIAL_2",
-              "name": "特殊迷彩2",
-              "requirement": "在敌方无人机监视下5次击杀",
-              "stage": 2,
-              "label": "特殊",
-              "requires": [
-                "BASE"
-              ]
-            },
-            {
-              "code": "GOLD_TIGER",
-              "name": "金虎",
-              "requirement": "作为“首要合同”时的目标3次击杀",
-              "stage": 3,
-              "label": "金虎",
-              "requires": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "code": "KINGS_RANSOM",
-              "name": "国王赎金",
-              "requirement": "2次不死3杀",
-              "stage": 4,
-              "label": "国王赎金",
-              "requires": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "code": "CATALYST",
-              "name": "催化剂",
-              "requirement": "击杀3个被震撼弹，闪光弹，电击陷阱影响的敌人",
-              "stage": 5,
-              "label": "催化剂",
-              "requires": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "code": "ABYSS",
-              "name": "深渊",
-              "requirement": "1次不死5杀",
-              "stage": 6,
-              "label": "深渊",
-              "requires": [
-                "CATALYST"
-              ]
-            }
-          ]
         }
       ],
       "camoTracks": {
-        "version": "v23r6",
+        "version": "v24r1",
         "order": [
           "WARZONE",
           "MULTIPLAYER",
@@ -3365,7 +375,7 @@
             "code": "WARZONE",
             "name": "战区迷彩",
             "status": "placeholder",
-            "note": "战区迷彩条件暂未提供。",
+            "note": "MW4 大师迷彩名称已由官方公布，但**解锁条件尚未公布**，官方迷彩图也未发布，此处纹理为示意。另有 4 款 Pyroclast 系列（Pyroclast / Verge / Scatter / Cascade），独立于三个模式之外。",
             "items": [
               {
                 "code": "BASE",
@@ -3374,7 +384,8 @@
                 "placeholder": true,
                 "stage": 1,
                 "label": "基础",
-                "requires": []
+                "requires": [],
+                "image": "/assets/camo/BASE.jpg"
               },
               {
                 "code": "SPECIAL_1",
@@ -3385,7 +396,8 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_1.jpg"
               },
               {
                 "code": "SPECIAL_2",
@@ -3396,62 +408,59 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_2.jpg"
               },
               {
-                "code": "GOLD_TIGER",
-                "name": "金虎",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_1",
+                "name": "Parallax",
+                "nameZh": "视差",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 3,
-                "label": "金虎",
+                "label": "视差",
                 "requires": [
                   "SPECIAL_1",
                   "SPECIAL_2"
-                ]
+                ],
+                "image": "/assets/camo/GOLD_TIGER.jpg"
               },
               {
-                "code": "KINGS_RANSOM",
-                "name": "国王赎金",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_2",
+                "name": "Damascus Reforged",
+                "nameZh": "大马士革·重铸",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 4,
-                "label": "国王赎金",
+                "label": "大马士革·重铸",
                 "requires": [
-                  "GOLD_TIGER"
-                ]
+                  "MASTERY_1"
+                ],
+                "image": "/assets/camo/KINGS_RANSOM.jpg"
               },
               {
-                "code": "CATALYST",
-                "name": "催化剂",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_3",
+                "name": "Empyros",
+                "nameZh": "天焰",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 5,
-                "label": "催化剂",
+                "label": "天焰",
                 "requires": [
-                  "KINGS_RANSOM"
-                ]
-              },
-              {
-                "code": "ABYSS",
-                "name": "深渊",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 6,
-                "label": "深渊",
-                "requires": [
-                  "CATALYST"
-                ]
+                  "MASTERY_2"
+                ],
+                "image": "/assets/camo/CATALYST.jpg"
               }
             ],
             "previewImage": "/assets/tool/camo/WARZONE.jpg",
-            "previewAlt": "战区迷彩预览图"
+            "previewAlt": "战区迷彩预览图",
+            "officialSource": "https://www.callofduty.com/modernwarfare"
           },
           "MULTIPLAYER": {
             "code": "MULTIPLAYER",
             "name": "多人迷彩",
             "status": "placeholder",
-            "note": "多人迷彩条件暂未提供。",
+            "note": "MW4 大师迷彩名称已由官方公布，但**解锁条件尚未公布**，官方迷彩图也未发布，此处纹理为示意。另有 4 款 Pyroclast 系列（Pyroclast / Verge / Scatter / Cascade），独立于三个模式之外。",
             "items": [
               {
                 "code": "BASE",
@@ -3460,7 +469,8 @@
                 "placeholder": true,
                 "stage": 1,
                 "label": "基础",
-                "requires": []
+                "requires": [],
+                "image": "/assets/camo/BASE.jpg"
               },
               {
                 "code": "SPECIAL_1",
@@ -3471,7 +481,8 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_1.jpg"
               },
               {
                 "code": "SPECIAL_2",
@@ -3482,62 +493,59 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_2.jpg"
               },
               {
-                "code": "GOLD_TIGER",
-                "name": "金虎",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_1",
+                "name": "Mercurial Drift",
+                "nameZh": "水银漂移",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 3,
-                "label": "金虎",
+                "label": "水银漂移",
                 "requires": [
                   "SPECIAL_1",
                   "SPECIAL_2"
-                ]
+                ],
+                "image": "/assets/camo/GOLD_TIGER.jpg"
               },
               {
-                "code": "KINGS_RANSOM",
-                "name": "国王赎金",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_2",
+                "name": "Polyatomic Reforged",
+                "nameZh": "聚原子·重铸",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 4,
-                "label": "国王赎金",
+                "label": "聚原子·重铸",
                 "requires": [
-                  "GOLD_TIGER"
-                ]
+                  "MASTERY_1"
+                ],
+                "image": "/assets/camo/KINGS_RANSOM.jpg"
               },
               {
-                "code": "CATALYST",
-                "name": "催化剂",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_3",
+                "name": "Orion Reforged",
+                "nameZh": "猎户·重铸",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 5,
-                "label": "催化剂",
+                "label": "猎户·重铸",
                 "requires": [
-                  "KINGS_RANSOM"
-                ]
-              },
-              {
-                "code": "ABYSS",
-                "name": "深渊",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 6,
-                "label": "深渊",
-                "requires": [
-                  "CATALYST"
-                ]
+                  "MASTERY_2"
+                ],
+                "image": "/assets/camo/CATALYST.jpg"
               }
             ],
             "previewImage": "/assets/tool/camo/MULTIPLAYER.jpg",
-            "previewAlt": "多人迷彩预览图"
+            "previewAlt": "多人迷彩预览图",
+            "officialSource": "https://www.callofduty.com/modernwarfare"
           },
           "DMZ": {
             "code": "DMZ",
             "name": "DMZ迷彩",
             "status": "placeholder",
-            "note": "DMZ 迷彩条件暂未提供。",
+            "note": "MW4 大师迷彩名称已由官方公布，但**解锁条件尚未公布**，官方迷彩图也未发布，此处纹理为示意。另有 4 款 Pyroclast 系列（Pyroclast / Verge / Scatter / Cascade），独立于三个模式之外。",
             "items": [
               {
                 "code": "BASE",
@@ -3546,7 +554,8 @@
                 "placeholder": true,
                 "stage": 1,
                 "label": "基础",
-                "requires": []
+                "requires": [],
+                "image": "/assets/camo/BASE.jpg"
               },
               {
                 "code": "SPECIAL_1",
@@ -3557,7 +566,8 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_1.jpg"
               },
               {
                 "code": "SPECIAL_2",
@@ -3568,110 +578,59 @@
                 "label": "特殊",
                 "requires": [
                   "BASE"
-                ]
+                ],
+                "image": "/assets/camo/SPECIAL_2.jpg"
               },
               {
-                "code": "GOLD_TIGER",
-                "name": "金虎",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_1",
+                "name": "Chiral",
+                "nameZh": "手性",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 3,
-                "label": "金虎",
+                "label": "手性",
                 "requires": [
                   "SPECIAL_1",
                   "SPECIAL_2"
-                ]
+                ],
+                "image": "/assets/camo/GOLD_TIGER.jpg"
               },
               {
-                "code": "KINGS_RANSOM",
-                "name": "国王赎金",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_2",
+                "name": "Ripple Tide",
+                "nameZh": "涟漪潮汐",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 4,
-                "label": "国王赎金",
+                "label": "涟漪潮汐",
                 "requires": [
-                  "GOLD_TIGER"
-                ]
+                  "MASTERY_1"
+                ],
+                "image": "/assets/camo/KINGS_RANSOM.jpg"
               },
               {
-                "code": "CATALYST",
-                "name": "催化剂",
-                "requirement": "条件暂未提供",
+                "code": "MASTERY_3",
+                "name": "Helio",
+                "nameZh": "赫利俄斯",
+                "requirement": "条件暂未公布",
                 "placeholder": true,
                 "stage": 5,
-                "label": "催化剂",
+                "label": "赫利俄斯",
                 "requires": [
-                  "KINGS_RANSOM"
-                ]
-              },
-              {
-                "code": "ABYSS",
-                "name": "深渊",
-                "requirement": "条件暂未提供",
-                "placeholder": true,
-                "stage": 6,
-                "label": "深渊",
-                "requires": [
-                  "CATALYST"
-                ]
+                  "MASTERY_2"
+                ],
+                "image": "/assets/camo/CATALYST.jpg"
               }
             ],
             "previewImage": "/assets/tool/camo/DMZ.jpg",
-            "previewAlt": "DMZ迷彩预览图"
+            "previewAlt": "DMZ迷彩预览图",
+            "officialSource": "https://www.callofduty.com/modernwarfare"
           }
         },
         "officialSource": "",
-        "logic": {
-          "mode": "staged",
-          "note": "基础完成后开放特殊迷彩；两条特殊迷彩完成后开放金虎；之后依次开放国王赎金、催化剂、深渊。",
-          "stages": [
-            {
-              "stage": 1,
-              "name": "基础迷彩",
-              "items": [
-                "BASE"
-              ]
-            },
-            {
-              "stage": 2,
-              "name": "特殊迷彩",
-              "items": [
-                "SPECIAL_1",
-                "SPECIAL_2"
-              ]
-            },
-            {
-              "stage": 3,
-              "name": "金虎",
-              "items": [
-                "GOLD_TIGER"
-              ]
-            },
-            {
-              "stage": 4,
-              "name": "国王赎金",
-              "items": [
-                "KINGS_RANSOM"
-              ]
-            },
-            {
-              "stage": 5,
-              "name": "催化剂",
-              "items": [
-                "CATALYST"
-              ]
-            },
-            {
-              "stage": 6,
-              "name": "深渊",
-              "items": [
-                "ABYSS"
-              ]
-            }
-          ]
-        },
+        "logic": "每个模式各有 3 款大师迷彩，名称已公布；解锁条件与官方迷彩图尚未发布，进度可先按模式勾选，条件公布后本工具会同步。",
         "previewMode": "per-mode",
-        "previewNote": "每个模式共用一张预览图。",
+        "previewNote": "预览展示当前选中迷彩的参考纹理（官方迷彩图未发布，纹理为示意）。",
         "groups": [
           {
             "code": "BASE",
@@ -3693,12 +652,11 @@
           {
             "code": "MASTERY",
             "name": "大师迷彩",
-            "description": "金虎、国王赎金、催化剂、深渊",
+            "description": "每个模式各 3 款，名称由官方公布、条件待公布",
             "items": [
-              "GOLD_TIGER",
-              "KINGS_RANSOM",
-              "CATALYST",
-              "ABYSS"
+              "MASTERY_1",
+              "MASTERY_2",
+              "MASTERY_3"
             ]
           }
         ],

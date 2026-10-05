@@ -3583,3 +3583,123 @@ body.admin-solid-ui .kefu-float{display:none!important;}
 .qr-lightbox-save:hover{background:#ffd86b}
 .qr-lightbox-hint{color:#9aa4b2;font-size:12px;font-weight:700}
 .qr-lightbox-close{position:absolute;top:18px;right:20px;width:40px;height:40px;border:1px solid #3a424e;border-radius:50%;background:#14181e;color:#fff;font-size:22px;line-height:1;cursor:pointer}
+
+/* 20261006-order-mobile: 小屏订单查询与详情页防挤压 */
+@media (max-width:760px){
+  body[data-page="order"] .order-card,
+  body[data-page="record-detail"] .order-card{
+    width:100%!important;
+    max-width:100%!important;
+    padding:16px 14px!important;
+  }
+
+  body[data-page="record-detail"] .order-head{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:10px!important;
+    align-items:start!important;
+  }
+
+  body[data-page="record-detail"] .order-head>*,
+  body[data-page="record-detail"] .order-no,
+  body[data-page="record-detail"] .record-title,
+  body[data-page="record-detail"] .order-update{
+    min-width:0!important;
+    max-width:100%!important;
+  }
+
+  body[data-page="record-detail"] .status-pill{
+    justify-self:start!important;
+    max-width:100%!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    line-height:1.35!important;
+  }
+
+  body[data-page="record-detail"] .order-no{
+    font-size:15px!important;
+    line-height:1.45!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  body[data-page="record-detail"] .record-delivery-card{
+    display:grid!important;
+    gap:4px!important;
+    margin:14px 0!important;
+    padding:12px 13px!important;
+    border:1px solid rgba(255,255,255,.09)!important;
+    border-radius:12px!important;
+    background:rgba(255,255,255,.025)!important;
+  }
+
+  body[data-page="record-detail"] .record-delivery-card>*{
+    display:block!important;
+    min-width:0!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  body[data-page="record-detail"] .record-delivery-card strong{
+    color:var(--text)!important;
+    font-size:15px!important;
+    line-height:1.45!important;
+  }
+
+  body[data-page="record-detail"] .record-delivery-card small{
+    color:var(--muted)!important;
+    line-height:1.55!important;
+  }
+
+  body[data-page="record-detail"] .business-lifecycle{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    margin:16px 0!important;
+  }
+
+  body[data-page="record-detail"] .lifecycle-step{
+    align-items:flex-start!important;
+    min-width:0!important;
+    min-height:62px!important;
+    padding:10px!important;
+    font-size:12px!important;
+    line-height:1.4!important;
+  }
+
+  body[data-page="record-detail"] .lifecycle-step span{
+    min-width:0!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  body[data-page="record-detail"] .order-update h2{
+    font-size:clamp(18px,5.6vw,22px)!important;
+    line-height:1.35!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  body[data-page="record-detail"] .order-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:10px!important;
+    width:100%!important;
+    margin-top:18px!important;
+  }
+
+  body[data-page="record-detail"] .order-actions .btn,
+  body[data-page="order"] .result-actions .btn{
+    width:100%!important;
+    min-width:0!important;
+    min-height:48px!important;
+  }
+
+  body[data-page="order"] .result-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:10px!important;
+    width:100%!important;
+  }
+}
+
+@media (max-width:360px){
+  body[data-page="record-detail"] .business-lifecycle{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}

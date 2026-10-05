@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Custom task">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#050607"/><stop offset=".65" stop-color="#16181d"/><stop offset="1" stop-color="#f6cc38"/></linearGradient></defs>
+  <rect width="960" height="540" fill="url(#g)"/><rect x="100" y="96" width="760" height="348" rx="28" fill="#07080a" fill-opacity=".55" stroke="#f6cc38" stroke-width="4"/>
+  <path d="M190 180h360M190 245h510M190 310h420" stroke="#fff" stroke-opacity=".8" stroke-width="18" stroke-linecap="round"/><circle cx="734" cy="196" r="55" fill="#f6cc38"/><path d="M714 196h40M734 176v40" stroke="#07080a" stroke-width="10" stroke-linecap="round"/>
+  <text x="104" y="492" fill="#f6cc38" font-family="Arial Black,Arial,sans-serif" font-size="44">CUSTOM REQUEST</text>
+</svg>

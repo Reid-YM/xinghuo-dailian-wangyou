@@ -1,0 +1,49 @@
+server:
+  port: ${APP_PORT:8080}
+  forward-headers-strategy: ${SERVER_FORWARD_HEADERS_STRATEGY:framework}
+  servlet:
+    session:
+      timeout: 8h
+      cookie:
+        http-only: true
+        secure: ${SESSION_COOKIE_SECURE:false}
+        same-site: lax
+spring:
+  web:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:xinghuo_v2}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USER:xinghuo}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        type:
+          preferred_uuid_jdbc_type: CHAR
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  servlet:
+    multipart:
+      max-file-size: ${MAX_UPLOAD_MB:5}MB
+      max-request-size: ${MAX_UPLOAD_MB:5}MB
+  thymeleaf:
+    cache: true
+logging:
+  level:
+    root: INFO
+    org.springframework.security: INFO
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+  upload-dir: ${UPLOAD_DIR:./uploads}
+  max-upload-mb: ${MAX_UPLOAD_MB:5}
+  bootstrap-admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:}
+  defaults:
+    wechat-id: ${DEFAULT_WECHAT_ID:}
+    qq-id: ${DEFAULT_QQ_ID:}

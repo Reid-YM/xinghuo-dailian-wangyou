@@ -1,0 +1,29 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
+  <title>多游戏任务代练服务 - 星火网游代练平台</title><meta name="description" content="浏览星火网游代练平台当前可接的 COD MW4、DMZ、战区、战狗等游戏任务服务。">
+  <link rel="canonical" href="https://wydlgf.cn/services"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台"><meta property="og:title" content="多游戏任务代练服务 - 星火网游代练平台"><meta property="og:description" content="浏览 COD MW4、DMZ、战区、战狗等当前可接的游戏任务服务。"><meta property="og:url" content="https://wydlgf.cn/services"><meta property="og:image" content="https://wydlgf.cn/og.png">
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/ui-refresh.js?v=20261003rv2"></script><script defer src="/assets/pages.js?v=20260928v016"></script></head><body data-page="services">
+<header th:replace="~{fragments/site :: header}"></header>
+<main class="container section page-shell services-browser">
+  <div class="page-hero page-hero-compact service-browser-hero"><div><div class="service-state" data-config="status">● 多游戏服务大厅 · 按当前进度确认报价</div><span class="eyebrow">服务大厅</span><h1>COD MW4 / DMZ / 战区 任务服务</h1><p class="page-hero-note">可靠手打 · 纯绿服务 · 进度可查 · 下单前确认需求</p></div><div class="page-hero-actions"><a class="btn primary" href="/quote" data-primary-cta>提前询价</a></div></div>
+  <section class="service-browser-console" aria-label="服务筛选">
+    <div class="service-browser-search"><span class="search-icon" aria-hidden="true">⌕</span><input id="publicServiceSearch" type="search" placeholder="搜索游戏或服务" autocomplete="off"></div>
+    <div class="browser-row"><span class="browser-label">游戏</span><div id="publicGameFilters" class="filters game-filter-rail"><button class="filter-btn active" data-game-filter="all">全部游戏</button></div></div>
+    <div class="browser-row"><span class="browser-label">平台</span><div id="publicPlatformFilters" class="filters platform-filter-rail"><button class="filter-btn active" data-platform-filter="all">全部平台</button></div></div>
+    <div class="browser-row"><span class="browser-label">需求</span><div id="publicCategoryFilters" class="filters service-filterbar"><button class="filter-btn active" data-category-filter="all">全部需求</button></div></div>
+    <div class="service-browser-summary" id="publicServiceSummary">正在读取服务…</div>
+  </section>
+  <div id="list" class="grid4 section service-browser-grid">
+    <a class="service-card card" th:each="svc : ${hallServices}" th:href="@{'/service/' + ${svc.slug}}" th:attr="data-game-code=${svc.gameCode},data-category=${svc.category}">
+        <div class="service-cover" th:if="${svc.coverImage != null}"><img th:src="${svc.coverImage}" th:alt="|服务封面：${svc.name}|" loading="lazy" decoding="async" width="640" height="360"></div>
+        <div class="service-card-head"><span class="tag" th:text="${svc.gameCode == 'CODMW4' ? '使命召唤 MW4' : (svc.gameCode == 'DMZ' ? 'DMZ' : (svc.gameCode == 'COD_WARZONE' ? '战区' : (svc.gameCode == 'WAR_DOGS' ? '战狗' : svc.name)))}">游戏服务</span><span class="availability" th:text="${acceptingOrders and svc.status.name() == 'AVAILABLE' ? '可接单' : (svc.status.name() == 'OFFLINE' ? '已下架' : '可预约')}">可预约</span></div>
+        <h3 th:text="${svc.name}">服务名称</h3>
+        <p class="muted clamp2" th:text="${svc.shortDesc}">服务说明</p>
+        <div class="service-card-facts"><span><b>平台</b><i th:text="${svc.gameCode == 'CODMW4' ? 'Steam / PS / Xbox / Switch 2' : (svc.gameCode == 'DMZ' ? 'Battle.net / Steam / PS / Xbox' : (svc.gameCode == 'COD_WARZONE' ? 'Battle.net / Steam / PS / Xbox' : (svc.gameCode == 'WAR_DOGS' ? 'Steam' : '按平台确认')))}">多平台确认</i></span><span><b>服务</b><i>手打 · 纯绿 · 进度可查</i></span><span><b>适合</b><i>按当前进度与目标奖励确认</i></span></div>
+        <div class="service-meta"><strong th:text="${svc.priceMode.name() == 'FIXED' ? '¥' + #numbers.formatDecimal(svc.priceFixed,1,0) : (svc.priceMode.name() == 'RANGE' ? '参考 ¥' + #numbers.formatDecimal(svc.priceMin,1,0) + '–' + #numbers.formatDecimal(svc.priceMax,1,0) : (svc.priceMin != null ? '参考 ¥' + #numbers.formatDecimal(svc.priceMin,1,0) + ' 起' : '按进度报价'))}">参考价</strong><span th:text="${svc.durationText}">按进度确认</span></div>
+        <div class="service-card-action"><span>查看详情</span><span>咨询 / 下单 →</span></div>
+      </a>
+  </div>
+</main>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/">首页</a><a href="/records">业务记录</a><a class="primary" href="/quote" data-primary-cta>提前询价</a></nav></body></html>

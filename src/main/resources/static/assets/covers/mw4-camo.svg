@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Camo challenge">
+  <defs><radialGradient id="r" cx=".68" cy=".42" r=".8"><stop stop-color="#f4c530" stop-opacity=".9"/><stop offset=".34" stop-color="#15120a"/><stop offset="1" stop-color="#050607"/></radialGradient><filter id="n"><feTurbulence baseFrequency=".9" numOctaves="3"/><feColorMatrix type="saturate" values="0"/></filter></defs>
+  <rect width="960" height="540" fill="url(#r)"/><rect width="960" height="540" opacity=".08" filter="url(#n)"/>
+  <g transform="translate(98 105)"><rect x="0" y="0" width="210" height="150" rx="18" fill="#f6cc38"/><rect x="245" y="0" width="210" height="150" rx="18" fill="#eee"/><rect x="490" y="0" width="210" height="150" rx="18" fill="#1c1f24" stroke="#f6cc38" stroke-width="4"/><rect x="120" y="195" width="210" height="150" rx="18" fill="#24272d" stroke="#fff" stroke-opacity=".55" stroke-width="4"/><rect x="365" y="195" width="210" height="150" rx="18" fill="#f6cc38"/><path d="M0 74h700M350 0v345" stroke="#050607" stroke-opacity=".28" stroke-width="24"/></g>
+  <text x="64" y="82" fill="#fff" font-family="Arial Black,Arial,sans-serif" font-size="46">CAMO</text><text x="64" y="480" fill="#f6cc38" font-family="Arial Black,Arial,sans-serif" font-size="38">GOLD / DIAMOND / DARK</text>
+</svg>

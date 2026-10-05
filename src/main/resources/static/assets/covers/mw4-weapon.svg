@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Weapon leveling">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07080a"/><stop offset=".58" stop-color="#171614"/><stop offset="1" stop-color="#f4c530"/></linearGradient><pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0v48" fill="none" stroke="#f4c530" stroke-opacity=".13"/></pattern></defs>
+  <rect width="960" height="540" fill="url(#g)"/><rect width="960" height="540" fill="url(#grid)"/>
+  <path d="M134 334h476l46-40h170v58H656l-46 40H184z" fill="#f6cc38"/><path d="M176 294h352l38-42h146l54-54h84v48h-64l-52 52H584l-34 38H176z" fill="#fff" fill-opacity=".9"/>
+  <circle cx="706" cy="220" r="76" fill="none" stroke="#f6cc38" stroke-width="8" stroke-dasharray="24 15"/><path d="M704 156v128M640 220h128" stroke="#f6cc38" stroke-width="6"/>
+  <text x="64" y="92" fill="#f6cc38" font-family="Arial Black,Arial,sans-serif" font-size="48">WEAPON</text><text x="66" y="142" fill="#fff" font-family="Arial,sans-serif" font-size="28">LEVELING</text><text x="66" y="474" fill="#fff" fill-opacity=".76" font-family="Arial,sans-serif" font-size="24">XINGHUO MW4 SERVICE</text>
+</svg>

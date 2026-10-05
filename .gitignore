@@ -1,0 +1,12 @@
+/build/
+*.jar
+*.war
+*.log
+*.pid
+.env
+.env.*
+.DS_Store
+/tmp/
+/node_modules/
+/target/
+!.env.example

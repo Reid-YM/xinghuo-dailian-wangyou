@@ -1,0 +1,507 @@
+/* ==========================================================================
+   MW4 工具站 · 武器 / 迷彩线 / 主视觉 配图
+
+   本文件由 gen-tool-css.mjs 自动生成，请勿手改。
+   原理：mastery.js 渲染的武器行带 data-weapon="<code>"，纯 CSS 即可挂图，
+         不需要修改基线 mastery.js。
+
+   武器总计 57 把
+     · 使用单武器图：57 把
+     · 使用类别图：  0 把（按武器类型映射）
+   ========================================================================== */
+
+/* 武器图标槽位：从纯文字标记升级为图片位 */
+.weapon-row { grid-template-columns: 88px minmax(0, 1fr) auto 12px; }
+.weapon-mark {
+  height: 34px;
+  border-radius: 10px;
+  background-color: #141920;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  overflow: hidden;
+}
+/* 透明底的武器图不加任何遮罩，保持原样 */
+
+/* ---- 单武器图（优先）---- */
+.weapon-row[data-weapon="HAN86"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/HAN86.png");
+  background-size: contain;
+  background-color: #292929;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="M4"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/M4.png");
+  background-size: contain;
+  background-color: #292826;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="HYEONBURST"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/HYEONBURST.png");
+  background-size: contain;
+  background-color: #2a2a2a;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="KASTOV762"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/KASTOV762.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="PATRIOTXMR"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/PATRIOTXMR.png");
+  background-size: contain;
+  background-color: #242423;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="AXION"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/AXION.png");
+  background-size: contain;
+  background-color: #615a50;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="ISONIGHTSHADE"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/ISONIGHTSHADE.png");
+  background-size: contain;
+  background-color: #2f2f2c;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="PPSH41"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/PPSH41.png");
+  background-size: contain;
+  background-color: #363734;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="X58NYX"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/X58NYX.png");
+  background-size: contain;
+  background-color: #2d2d2b;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ55STRIGA"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ55STRIGA.png");
+  background-size: contain;
+  background-color: #101010;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="REZI12"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/REZI12.png");
+  background-size: contain;
+  background-color: #2b2c2c;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="FINNLMG"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/FINNLMG.png");
+  background-size: contain;
+  background-color: #282828;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="TYPE73"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/TYPE73.png");
+  background-size: contain;
+  background-color: #353432;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="MAR9"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/MAR9.png");
+  background-size: contain;
+  background-color: #2b2a2a;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="ORIS86"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/ORIS86.png");
+  background-size: contain;
+  background-color: #2b2c2b;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="KG7VULCAN"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/KG7VULCAN.png");
+  background-size: contain;
+  background-color: #2d2e2c;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="SIGNAL50"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/SIGNAL50.png");
+  background-size: contain;
+  background-color: #292929;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="KARITP68"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/KARITP68.png");
+  background-size: contain;
+  background-color: #1b1b1a;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="50GS"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/50GS.png");
+  background-size: contain;
+  background-color: #252523;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="SANG9MM"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/SANG9MM.png");
+  background-size: contain;
+  background-color: #1a1a1a;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="PILA"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/PILA.png");
+  background-size: contain;
+  background-color: #252525;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="COMBATKNIFE"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/COMBATKNIFE.png");
+  background-size: contain;
+  background-color: #070706;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_AR_01"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_AR_01.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_AR_02"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_AR_02.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_AR_03"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_AR_03.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_AR_04"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_AR_04.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_AR_05"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_AR_05.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_AR_06"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_AR_06.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_AR_07"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_AR_07.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_AR_08"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_AR_08.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SMG_01"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SMG_01.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SMG_02"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SMG_02.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SMG_03"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SMG_03.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SMG_04"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SMG_04.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SMG_05"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SMG_05.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SMG_06"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SMG_06.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SMG_07"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SMG_07.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SG_01"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SG_01.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SG_02"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SG_02.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_LMG_01"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_LMG_01.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_LMG_02"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_LMG_02.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_LMG_03"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_LMG_03.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_MR_01"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_MR_01.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_MR_02"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_MR_02.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_MR_03"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_MR_03.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_MR_04"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_MR_04.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SR_01"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SR_01.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SR_02"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SR_02.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_SR_03"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_SR_03.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_PISTOL_01"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_PISTOL_01.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_PISTOL_02"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_PISTOL_02.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_PISTOL_03"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_PISTOL_03.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_PISTOL_04"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_PISTOL_04.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_LCH_01"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_LCH_01.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_LCH_02"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_LCH_02.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_MELEE_01"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_MELEE_01.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+.weapon-row[data-weapon="WZ_MELEE_02"] .weapon-mark {
+  background-image: url("/assets/tool/weapons-clean/WZ_MELEE_02.png");
+  background-size: contain;
+  background-color: #1e201f;
+  font-size: 0; color: transparent;
+}
+
+/* ---- 迷彩预览取景框：按武器配底色 ---- */
+.camo-mode-preview-art[data-weapon-code="HAN86"] { background-color: #292929; }
+.camo-mode-preview-art[data-weapon-code="M4"] { background-color: #292826; }
+.camo-mode-preview-art[data-weapon-code="HYEONBURST"] { background-color: #2a2a2a; }
+.camo-mode-preview-art[data-weapon-code="KASTOV762"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="PATRIOTXMR"] { background-color: #242423; }
+.camo-mode-preview-art[data-weapon-code="AXION"] { background-color: #615a50; }
+.camo-mode-preview-art[data-weapon-code="ISONIGHTSHADE"] { background-color: #2f2f2c; }
+.camo-mode-preview-art[data-weapon-code="PPSH41"] { background-color: #363734; }
+.camo-mode-preview-art[data-weapon-code="X58NYX"] { background-color: #2d2d2b; }
+.camo-mode-preview-art[data-weapon-code="WZ55STRIGA"] { background-color: #101010; }
+.camo-mode-preview-art[data-weapon-code="REZI12"] { background-color: #2b2c2c; }
+.camo-mode-preview-art[data-weapon-code="FINNLMG"] { background-color: #282828; }
+.camo-mode-preview-art[data-weapon-code="TYPE73"] { background-color: #353432; }
+.camo-mode-preview-art[data-weapon-code="MAR9"] { background-color: #2b2a2a; }
+.camo-mode-preview-art[data-weapon-code="ORIS86"] { background-color: #2b2c2b; }
+.camo-mode-preview-art[data-weapon-code="KG7VULCAN"] { background-color: #2d2e2c; }
+.camo-mode-preview-art[data-weapon-code="SIGNAL50"] { background-color: #292929; }
+.camo-mode-preview-art[data-weapon-code="KARITP68"] { background-color: #1b1b1a; }
+.camo-mode-preview-art[data-weapon-code="50GS"] { background-color: #252523; }
+.camo-mode-preview-art[data-weapon-code="SANG9MM"] { background-color: #1a1a1a; }
+.camo-mode-preview-art[data-weapon-code="PILA"] { background-color: #252525; }
+.camo-mode-preview-art[data-weapon-code="COMBATKNIFE"] { background-color: #070706; }
+.camo-mode-preview-art[data-weapon-code="WZ_AR_01"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_AR_02"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_AR_03"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_AR_04"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_AR_05"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_AR_06"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_AR_07"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_AR_08"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SMG_01"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SMG_02"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SMG_03"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SMG_04"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SMG_05"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SMG_06"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SMG_07"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SG_01"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SG_02"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_LMG_01"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_LMG_02"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_LMG_03"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_MR_01"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_MR_02"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_MR_03"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_MR_04"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SR_01"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SR_02"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_SR_03"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_PISTOL_01"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_PISTOL_02"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_PISTOL_03"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_PISTOL_04"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_LCH_01"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_LCH_02"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_MELEE_01"] { background-color: #1e201f; }
+.camo-mode-preview-art[data-weapon-code="WZ_MELEE_02"] { background-color: #1e201f; }
+
+/* ---- 按武器类型配图 ---- */
+/* 迷彩线预览（由 tool-station-games.json 的 previewImage 指定） */
+.camo-mode-preview-art.has-image img { object-fit: cover; }
+
+
+/* 20261004: 所有枪械缩略图和预览统一黑底，只突出枪械本体 */
+.weapon-row .weapon-mark,
+.weapon-row[class] .weapon-mark{
+  background-color:#050607!important;
+  background-size:contain!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  background-blend-mode:normal!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.045)!important;
+}
+.progress-suggest-art{
+  background-color:#050607!important;
+  background-size:contain!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
+.camo-mode-preview-art.weapon-preview{
+  background:#050607!important;
+  border-color:rgba(244,189,52,.38)!important;
+}
+.camo-mode-preview-art.weapon-preview > img,
+.camo-mode-preview-art.weapon-preview::before{display:none!important;}
+.camo-mode-preview-art.weapon-preview::after{
+  inset:7% 5% 9%!important;
+  background-image:var(--weapon-preview)!important;
+  background-size:contain!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  filter:contrast(1.08) saturate(.88)!important;
+  mix-blend-mode:normal!important;
+  opacity:1!important;
+}
+.camo-mode-preview-art.weapon-preview.camo-focus > img{display:block!important;opacity:.08!important;}
+.camo-mode-preview-art.weapon-preview.camo-focus::before{display:block!important;}
+@media(max-width:760px){.camo-mode-preview-art.weapon-preview::after{inset:10% 5%!important}}
+
+
+/* 20261004: cleaned weapon renders, fit card window without baked scene background */
+.weapon-row .weapon-mark,
+.weapon-row[class] .weapon-mark{
+  background-color:#050607!important;
+  background-size:86% auto!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
+.camo-mode-preview-art.weapon-preview{
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  background:#050607!important;
+}
+.camo-mode-preview-art.weapon-preview::after{
+  inset:5% 4%!important;
+  background-image:var(--weapon-preview)!important;
+  background-size:contain!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
+
+
+/* 20261004-ti6: 前台 MW4 武器图统一灰底，避免透明/深色枪械沉进黑底 */
+.weapon-row .weapon-mark,
+.weapon-row[class] .weapon-mark{
+  background-color:#2a2d31!important;
+  background-size:86% auto!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
+.progress-suggest-art,
+.camo-mode-preview-art.weapon-preview,
+.camo-mode-preview-art.weapon-preview::before{
+  background-color:#2a2d31!important;
+}

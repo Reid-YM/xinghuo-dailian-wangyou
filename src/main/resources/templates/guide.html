@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#07090c"/>
+  <title th:text="${pageTitle}">攻略详情 | 星火网游代练平台</title>
+  <meta name="description" th:content="${pageDescription}"/>
+  <link rel="canonical" th:href="${canonicalUrl}"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:site_name" content="星火网游代练平台"/>
+  <meta property="og:title" th:content="${guide.title}"/>
+  <meta property="og:description" th:content="${guide.summary}"/>
+  <meta property="og:url" th:content="${canonicalUrl}"/>
+  <meta property="og:image" th:content="${ogImage}"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" th:content="${guide.title}"/>
+  <meta name="twitter:description" th:content="${guide.summary}"/>
+  <meta name="twitter:image" th:content="${ogImage}"/>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"/><script defer src="/assets/ui-fixes.js?v=20261005uf19"></script>
+  <link rel="stylesheet" href="/assets/guide.css?v=20261004p009"/><script defer src="/assets/guide-render.js?v=20261004gr3"></script>
+  <link rel="stylesheet" href="/assets/guide-community.css?v=20261001gc1"/><script defer src="/assets/guide-community.js?v=20261001gc1"></script>
+</head>
+<body data-page="guide">
+<header th:replace="~{fragments/site :: header}"></header>
+<main class="container guide-detail-shell">
+  <nav class="guide-breadcrumb" aria-label="面包屑"><a href="/">首页</a><span>/</span><a href="/guides">攻略中心</a><span>/</span><span th:text="${guide.gameName}">游戏</span></nav>
+  <article class="guide-article card">
+    <div class="guide-article-cover">
+      <img th:src="${!#strings.isEmpty(guide.coverImage) ? guide.coverImage : '/assets/covers/mw4-weapon.svg'}" th:alt="${guide.gameName + ' 攻略封面'}" width="800" height="450"/>
+    </div>
+    <header class="guide-article-head">
+      <div class="guide-card-meta"><span class="tag" th:text="${guide.gameName}">游戏</span><span th:text="${guide.difficulty}">BEGINNER</span><span th:text="${guide.estimatedMinutes + ' 分钟'}">30 分钟</span></div>
+      <h1 th:text="${guide.title}">攻略标题</h1>
+      <p class="guide-lead" th:text="${guide.subtitle}">攻略副标题</p>
+      <p th:text="${guide.summary}">攻略摘要</p>
+      <div class="guide-author-line"><span th:text="${guide.authorName}">星火攻略组</span><span th:if="${!#strings.isEmpty(guide.sourceName)}">资料来源：<a th:if="${!#strings.isEmpty(guide.sourceUrl)}" th:href="${guide.sourceUrl}" target="_blank" rel="noopener noreferrer nofollow" th:text="${guide.sourceName}">来源</a><span th:unless="${!#strings.isEmpty(guide.sourceUrl)}" th:text="${guide.sourceName}">来源</span></span><span th:text="${guide.viewCount + ' 次浏览'}">0 次浏览</span></div>
+    </header>
+    <div class="guide-article-body">
+      <section class="guide-section" th:each="section : ${sections}" th:attr="data-guide-component=${section.sectionKey}">
+        <h2 th:text="${section.heading}">段落标题</h2>
+        <p class="guide-prose" th:text="${section.bodyMarkdown}">正文</p>
+        <figure th:if="${!#strings.isEmpty(section.imageUrl)}"><img loading="lazy" th:src="${section.imageUrl}" th:alt="${section.imageAlt}" width="800" height="450"/><figcaption th:text="${section.imageAlt}">图片说明</figcaption></figure>
+      </section>
+    </div>
+  </article>
+
+  <section class="guide-products" th:if="${!#lists.isEmpty(products)}">
+    <div class="section-title section-title-rich"><div><span class="eyebrow">Recommended Products</span><h2>推荐商品</h2></div><a class="text-link" href="/services">查看全部服务</a></div>
+    <p class="muted">商品图片来自 Steam / Apple App Store / 官方商店等公开渠道，并与主站服务目录同步。价格以人工确认后的担保订单为准。</p>
+    <div class="guide-product-grid">
+      <a class="card guide-product" th:each="product : ${products}" th:href="@{'/service/' + ${product.slug}}">
+        <div class="guide-product-media"><img loading="lazy" th:src="${!#strings.isEmpty(product.imageUrl) ? product.imageUrl : '/assets/covers/mw4-weapon.svg'}" th:alt="${product.name + ' 商品封面'}" width="640" height="360"/><span th:if="${product.featured}" class="guide-product-hot">推荐</span></div>
+        <div class="guide-product-body">
+          <span class="tag" th:if="${product.label != null and !product.label.isBlank() and product.label != product.name}" th:text="${product.label}">商品</span>
+          <h3 th:text="${product.name}">商品名称</h3>
+          <p class="clamp2" th:text="${!#strings.isEmpty(product.description) ? product.description : product.shortDesc}">商品说明</p>
+          <div class="guide-product-foot">
+            <strong th:if="${product.priceMode == 'FIXED'}" th:text="'¥' + ${product.priceFixed}">¥0</strong>
+            <strong th:if="${product.priceMode == 'RANGE'}" th:text="'¥' + ${product.priceMin} + ' 起'">¥0 起</strong>
+            <strong th:if="${product.priceMode != 'FIXED' && product.priceMode != 'RANGE'}">按进度报价</strong>
+            <span th:text="${product.durationText}">预计时间</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="card guide-faq" th:if="${!#lists.isEmpty(faqs)}">
+    <span class="eyebrow">FAQ</span>
+    <h2>下单前常见问题</h2>
+    <details th:each="faq : ${faqs}"><summary th:text="${faq.question}">问题</summary><p th:text="${faq.answer}">回答</p></details>
+  </section>
+
+  <section class="guide-related" th:if="${!#lists.isEmpty(relatedGuides)}">
+    <div class="section-title section-title-rich"><div><span class="eyebrow">Related</span><h2>相关攻略</h2></div></div>
+    <div class="guide-related-grid"><a class="card guide-related-card" th:each="item : ${relatedGuides}" th:href="@{'/guides/' + ${item.slug}}"><b th:text="${item.gameName}">游戏</b><span th:text="${item.title}">攻略</span></a></div>
+  </section>
+  <section class="card gc-root" data-guide-community th:attr="data-guide-slug=${guide.slug}">
+    <div class="gc-head">
+      <div><span class="eyebrow">Discussion</span><h2>玩家讨论</h2></div>
+      <button class="btn ghost small-btn" type="button" data-favorite-toggle
+              data-target-type="GUIDE" th:attr="data-target-id=${guide.slug}">
+        <span data-favorite-label>收藏本篇</span>
+      </button>
+    </div>
+    <p class="muted small gc-note" data-community-note>正在加载讨论…</p>
+    <form class="gc-form" data-comment-form hidden>
+      <label class="gc-label" for="guideCommentInput">写下你的经验或补充</label>
+      <textarea id="guideCommentInput" class="gc-input" maxlength="2000" rows="3"
+                placeholder="例如：这条任务链我先补声望再推主线，顺序上更顺"></textarea>
+      <small class="gc-error" data-comment-error hidden></small>
+      <button class="btn primary small-btn" type="submit" data-comment-submit>发表评论</button>
+    </form>
+    <div class="gc-list" data-comment-list></div>
+  </section>
+
+  <section class="card guide-cta"><div><span class="eyebrow">需要确认报价</span><h2>提交当前进度与目标</h2><p>说明游戏区服、平台、当前进度、目标与可操作时间。客服确认后再安排，网页不收账号密码、验证码或令牌。</p></div><div class="actions"><a class="btn primary" href="/quote" data-primary-cta>提前询价</a><a class="btn ghost" href="/contact">联系客服</a></div></section>
+</main>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+<script type="application/ld+json" th:utext="${articleJsonLd}"></script>
+<script type="application/ld+json" th:utext="${breadcrumbJsonLd}"></script>
+<script type="application/ld+json" th:utext="${faqJsonLd}"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="DMZ mission">
+  <defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#050607"/><stop offset=".72" stop-color="#20201a"/><stop offset="1" stop-color="#f4c530"/></linearGradient></defs>
+  <rect width="960" height="540" fill="url(#g)"/><path d="M100 380l150-210 116 92 120-140 110 130 96-74 168 202z" fill="#f6cc38" fill-opacity=".18" stroke="#f6cc38" stroke-width="4"/>
+  <path d="M92 115h310v70H92zM92 205h420v34H92zM92 258h330v34H92z" fill="#f6cc38"/><circle cx="720" cy="250" r="94" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="7"/><path d="M720 130v240M600 250h240" stroke="#fff" stroke-opacity=".6" stroke-width="5"/>
+  <text x="100" y="158" fill="#060607" font-family="Arial Black,Arial,sans-serif" font-size="44">DMZ</text><text x="100" y="474" fill="#fff" font-family="Arial Black,Arial,sans-serif" font-size="40">TASK PUSH</text>
+</svg>

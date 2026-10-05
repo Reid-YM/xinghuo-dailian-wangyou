@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Rank boost">
+  <defs><radialGradient id="r" cx=".5" cy=".45" r=".72"><stop stop-color="#f6cc38"/><stop offset=".22" stop-color="#201b0b"/><stop offset="1" stop-color="#050607"/></radialGradient></defs>
+  <rect width="960" height="540" fill="url(#r)"/><path d="M480 78l72 146 162 24-117 114 28 160-145-76-145 76 28-160-117-114 162-24z" fill="#f6cc38"/><path d="M480 150l43 86 95 14-69 67 17 95-86-45-86 45 17-95-69-67 95-14z" fill="#060607" fill-opacity=".78"/>
+  <path d="M132 390h190M638 390h190M160 430h150M650 430h150" stroke="#fff" stroke-opacity=".65" stroke-width="10"/>
+  <text x="70" y="96" fill="#fff" font-family="Arial Black,Arial,sans-serif" font-size="46">RANK</text><text x="660" y="96" fill="#f6cc38" font-family="Arial Black,Arial,sans-serif" font-size="46">BOOST</text>
+</svg>

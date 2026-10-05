@@ -1,0 +1,287 @@
+/* 星火个人空间 V5 — 从零建立的任务控制台设计系统 */
+:root{
+  --nx-bg:#080c12;
+  --nx-bg-2:#0d131d;
+  --nx-surface:#121a26;
+  --nx-surface-2:#182230;
+  --nx-surface-3:#202c3c;
+  --nx-line:#2a3545;
+  --nx-line-soft:#202b39;
+  --nx-text:#f5f7fa;
+  --nx-muted:#a5afbd;
+  --nx-faint:#8490a1;
+  --nx-amber:#f0b83a;
+  --nx-amber-strong:#ffc94f;
+  --nx-amber-ink:#1b1509;
+  --nx-red:#ef6a6a;
+  --nx-green:#55c88a;
+  --nx-radius:10px;
+  --nx-shadow:0 18px 45px rgba(0,0,0,.24);
+  --nx-fast:140ms;
+  --nx-base:220ms;
+}
+
+/* ---------- 基础与通用 ---------- */
+body.nexus-page,
+body[data-page="account-login"],
+body[data-page="account-register"],
+body[data-page="account-reset"],
+body[data-page="account-submit"],
+body[data-page="membership"]{
+  background:var(--nx-bg)!important;
+  color:var(--nx-text);
+  color-scheme:dark;
+}
+body.nexus-page::before,
+body[data-page^="account-"]::before,
+body[data-page="membership"]::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px),
+    radial-gradient(circle at 82% 5%,rgba(240,184,58,.07),transparent 28%);
+  background-size:36px 36px,36px 36px,auto;
+}
+.hidden,[hidden]{display:none!important}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+a{transition:color var(--nx-fast) ease,border-color var(--nx-fast) ease,background var(--nx-fast) ease,opacity var(--nx-fast) ease}
+button{font:inherit}
+.notice{margin:12px 0;padding:12px 14px;border:1px solid var(--nx-line);border-radius:8px;background:var(--nx-surface);color:var(--nx-text);font-size:13px;line-height:1.55}
+.notice.is-error{border-color:rgba(239,106,106,.52);background:rgba(239,106,106,.08);color:#ffc0c0}
+.notice.is-success{border-color:rgba(85,200,138,.5);background:rgba(85,200,138,.08);color:#adf2ca}
+.notice.is-warning{border-color:rgba(240,184,58,.5);background:rgba(240,184,58,.08);color:#ffe09a}
+.btn{display:inline-flex;min-height:44px;align-items:center;justify-content:center;padding:10px 17px;border:1px solid var(--nx-line);border-radius:8px;background:var(--nx-surface-2);color:var(--nx-text);font-size:13px;font-weight:700;line-height:1;cursor:pointer;transition:background var(--nx-fast) ease,border-color var(--nx-fast) ease,color var(--nx-fast) ease,opacity var(--nx-fast) ease}
+.btn:hover{border-color:#48566a;background:var(--nx-surface-3)}
+.btn:active{opacity:.76}
+.btn.primary{border-color:var(--nx-amber);background:var(--nx-amber);color:var(--nx-amber-ink);box-shadow:0 9px 22px rgba(240,184,58,.13)}
+.btn.primary:hover{border-color:var(--nx-amber-strong);background:var(--nx-amber-strong)}
+.btn.danger{border-color:rgba(239,106,106,.52);background:rgba(239,106,106,.06);color:#ff9c9c}
+.btn.danger:hover{background:rgba(239,106,106,.13);border-color:var(--nx-red)}
+.btn-wide{width:100%}
+.btn[disabled],.btn.is-busy{cursor:not-allowed;opacity:.52}
+:where(a,button,input,textarea,select,summary,[tabindex]):focus-visible{outline:3px solid var(--nx-amber-strong);outline-offset:3px}
+.caps-lock-warning{color:var(--nx-amber);font-size:10px;font-weight:700}
+
+/* ---------- 任务控制台外壳 ---------- */
+.nexus{min-height:calc(100vh - 68px);background:transparent}
+.nexus-commandbar{position:relative;z-index:3;display:flex;min-height:58px;align-items:center;justify-content:space-between;gap:24px;padding:8px clamp(18px,3vw,48px);border-bottom:1px solid var(--nx-line-soft);background:rgba(8,12,18,.88);backdrop-filter:blur(18px)}
+.nexus-command-title{display:flex;align-items:baseline;gap:12px}.nexus-command-title span{font-size:14px;font-weight:800;letter-spacing:.03em}.nexus-command-title i{color:var(--nx-faint);font-size:11px;font-style:normal}
+.nexus-commandbar nav{display:flex;align-items:center;gap:8px}.nexus-commandbar nav a,.nexus-commandbar nav button{min-height:36px;padding:8px 10px;border:0;border-radius:6px;background:transparent;color:var(--nx-muted);font-size:12px;cursor:pointer}.nexus-commandbar nav a:hover,.nexus-commandbar nav button:hover{background:var(--nx-surface);color:var(--nx-text)}
+.nexus-alert{max-width:1560px;margin:12px auto}
+.nexus-frame{display:grid;grid-template-columns:268px minmax(0,1fr);max-width:1560px;min-height:calc(100vh - 126px);margin:0 auto;border-inline:1px solid var(--nx-line-soft);background:rgba(13,19,29,.56)}
+.nexus-rail{position:relative;min-width:0;padding:25px 16px 32px;border-right:1px solid var(--nx-line-soft);background:rgba(8,12,18,.76)}
+.nexus-profile{display:grid;grid-template-columns:48px minmax(0,1fr);align-items:center;gap:12px;padding:0 6px 22px;border-bottom:1px solid var(--nx-line-soft)}
+.account-avatar{display:grid;width:48px;height:48px;place-items:center;overflow:hidden;border:1px solid #5a4820;border-radius:9px;background:linear-gradient(145deg,#2a2518,#121820);color:var(--nx-amber);box-shadow:inset 0 0 0 1px rgba(240,184,58,.08)}
+.account-avatar img{width:100%;height:100%;object-fit:cover}.account-avatar-fallback{font-size:18px;font-weight:900}
+.nexus-profile>div:last-child{min-width:0}.nexus-profile span{display:block;color:var(--nx-faint);font-size:10px;letter-spacing:.08em}.nexus-profile strong{display:block;margin-top:3px;overflow:hidden;color:var(--nx-text);font-size:14px;text-overflow:ellipsis;white-space:nowrap}.nexus-profile small{display:block;margin-top:4px;overflow:hidden;color:var(--nx-muted);font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+.nexus-nav{display:grid;gap:4px;margin-top:19px}.nexus-nav-label{margin:13px 9px 4px;color:#626e7e;font-size:9px;font-weight:800;letter-spacing:.14em}.nexus-nav button,.nexus-nav a{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:9px;width:100%;min-height:58px;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--nx-muted);text-align:left;cursor:pointer;transition:background var(--nx-fast) ease,border-color var(--nx-fast) ease,color var(--nx-fast) ease}
+.nexus-nav button:hover,.nexus-nav a:hover{background:rgba(255,255,255,.035);color:var(--nx-text)}
+.nexus-nav button[aria-selected="true"],.nexus-nav a[aria-current="page"]{border-color:#493d22;background:linear-gradient(90deg,rgba(240,184,58,.12),rgba(240,184,58,.025));color:var(--nx-text)}
+.nexus-nav button[aria-selected="true"]::after,.nexus-nav a[aria-current="page"]::after{content:"";position:absolute;right:-17px;top:14px;bottom:14px;width:2px;background:var(--nx-amber)}
+.nexus-nav b{display:grid;width:32px;height:32px;place-items:center;border:1px solid var(--nx-line);border-radius:7px;background:var(--nx-surface);color:var(--nx-faint);font-size:10px}.nexus-nav [aria-selected="true"] b,.nexus-nav [aria-current="page"] b{border-color:#725a27;color:var(--nx-amber)}
+.nexus-nav button>span,.nexus-nav a>span{font-size:13px;font-weight:700}.nexus-nav span small{display:block;margin-top:3px;color:var(--nx-faint);font-size:10px;font-weight:400}
+.nexus-rail-links{display:grid;gap:2px;margin:22px 8px 0;padding-top:17px;border-top:1px solid var(--nx-line-soft)}.nexus-rail-links>span{margin-bottom:5px;color:var(--nx-faint);font-size:9px;letter-spacing:.14em}.nexus-rail-links a{display:flex;min-height:40px;align-items:center;justify-content:space-between;padding:8px;color:var(--nx-muted);font-size:12px}.nexus-rail-links a:hover{color:var(--nx-amber)}.nexus-rail-links i{font-style:normal}
+.nexus-safety,.nexus-identity-card{display:grid;gap:7px;margin:24px 6px 0;padding:14px;border:1px solid #41381f;border-radius:8px;background:rgba(240,184,58,.045)}.nexus-safety b,.nexus-identity-card>span{color:var(--nx-amber);font-size:10px;letter-spacing:.08em}.nexus-safety p{margin:0;color:var(--nx-muted);font-size:10px;line-height:1.65}.nexus-safety a{color:#d8ba73;font-size:10px}.nexus-identity-card strong{overflow-wrap:anywhere;color:var(--nx-text);font-size:11px}.nexus-identity-card small{color:var(--nx-faint);font-size:10px}
+.nexus-stage{min-width:0;padding:38px clamp(24px,3.5vw,56px) 80px}.account-panel[hidden]{display:none!important}.account-panel{animation:nexus-enter var(--nx-base) ease both}.account-panel:focus{outline:none}@keyframes nexus-enter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.nexus-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:28px;margin-bottom:24px}.nexus-kicker{color:var(--nx-amber);font-size:10px;font-weight:800;letter-spacing:.15em}.nexus-hero h1{max-width:780px;margin:7px 0 7px;color:var(--nx-text);font-size:clamp(27px,3vw,42px);line-height:1.12;letter-spacing:-.035em;text-wrap:balance}.nexus-hero p{margin:0;color:var(--nx-muted);font-size:13px;line-height:1.65}.nexus-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:9px}
+
+/* ---------- 面板与信息组件 ---------- */
+.nexus-status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}.nexus-status{position:relative;display:grid;min-height:144px;padding:18px;border:1px solid var(--nx-line);border-radius:var(--nx-radius);background:linear-gradient(145deg,var(--nx-surface-2),var(--nx-surface));color:var(--nx-text);text-align:left;cursor:pointer;box-shadow:0 10px 28px rgba(0,0,0,.12);transition:border-color var(--nx-fast) ease,background var(--nx-fast) ease}.nexus-status:hover{border-color:#566276;background:linear-gradient(145deg,#1c2837,#141d29)}.nexus-status i{position:absolute;top:16px;right:16px;color:#657286;font-size:10px;font-style:normal;letter-spacing:.1em}.nexus-status>span{color:var(--nx-faint);font-size:10px;letter-spacing:.08em}.nexus-status strong{align-self:end;margin-top:25px;overflow-wrap:anywhere;font-size:16px}.nexus-status small{margin-top:6px;color:var(--nx-muted);font-size:10px}
+.nexus-module{margin-top:12px;padding:21px;border:1px solid var(--nx-line);border-radius:var(--nx-radius);background:rgba(18,26,38,.92);box-shadow:var(--nx-shadow);scroll-margin-top:76px}.nexus-module>header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:18px;padding-bottom:15px;border-bottom:1px solid var(--nx-line-soft)}.nexus-module>header span{color:var(--nx-amber);font-size:9px;font-weight:800;letter-spacing:.12em}.nexus-module>header h2{margin:5px 0 0;color:var(--nx-text);font-size:18px}.nexus-module>header p{margin:7px 0 0;color:var(--nx-muted);font-size:11px;line-height:1.6}.nexus-module>header>a,.nexus-module>header>small{align-self:center;color:#d5bd83;font-size:11px;white-space:nowrap}.nexus-module>header>button{align-self:center}
+.account-info-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.account-info-item{min-height:104px;padding:15px;border:1px solid var(--nx-line-soft);border-radius:8px;background:var(--nx-bg-2)}.account-info-item span{display:block;color:var(--nx-faint);font-size:10px}.account-info-item strong{display:block;margin:13px 0 6px;overflow-wrap:anywhere;color:var(--nx-text);font-size:14px}.account-info-item small{color:var(--nx-muted);font-size:10px}
+.nexus-task-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.nexus-task-grid>a,.nexus-task-grid>button{display:grid;min-height:164px;padding:17px;border:1px solid var(--nx-line-soft);border-radius:8px;background:var(--nx-bg-2);color:var(--nx-text);text-align:left;cursor:pointer;transition:border-color var(--nx-fast) ease,background var(--nx-fast) ease}.nexus-task-grid>:hover{border-color:#6d572b;background:#171c20}.nexus-task-grid b{color:#677487;font-size:10px}.nexus-task-grid strong{margin-top:18px;font-size:14px}.nexus-task-grid span{margin-top:7px;color:var(--nx-muted);font-size:11px;line-height:1.55}.nexus-task-grid em{align-self:end;margin-top:17px;color:var(--nx-amber);font-size:11px;font-style:normal;font-weight:700}
+.nexus-assist{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:12px;padding:19px 21px;border:1px solid #473b21;border-radius:var(--nx-radius);background:rgba(240,184,58,.055)}.nexus-assist span{color:var(--nx-amber);font-size:9px;letter-spacing:.12em}.nexus-assist b{display:block;margin-top:5px;font-size:14px}.nexus-assist p{margin:5px 0 0;color:var(--nx-muted);font-size:11px;line-height:1.6}
+.account-security-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.account-security-item{min-height:96px;padding:14px;border:1px solid var(--nx-line-soft);border-radius:8px;background:var(--nx-bg-2);color:var(--nx-text);text-align:left}.account-security-item span{display:block;color:var(--nx-faint);font-size:10px}.account-security-item strong{display:block;margin:12px 0 5px;overflow-wrap:anywhere;font-size:14px}.account-security-item small{color:var(--nx-muted);font-size:10px}
+.account-security-score{display:grid;align-content:center;min-width:220px;padding:17px;border-left:1px solid #493d22}.account-security-score span{color:var(--nx-faint);font-size:9px;letter-spacing:.12em}.account-security-score strong{margin-top:5px;color:var(--nx-amber);font-size:22px}.account-security-score small{margin-top:3px;color:var(--nx-muted);font-size:10px}
+.nexus-security-overview{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:0;margin-bottom:12px;padding:22px;border:1px solid #493d22;border-radius:var(--nx-radius);background:linear-gradient(115deg,rgba(240,184,58,.095),rgba(18,26,38,.95) 52%);box-shadow:var(--nx-shadow);scroll-margin-top:76px}.nexus-security-copy{padding-right:24px}.nexus-security-copy>span{color:var(--nx-amber);font-size:9px;letter-spacing:.12em}.nexus-security-copy h2{margin:6px 0;font-size:23px}.nexus-security-copy p{margin:0;color:var(--nx-muted);font-size:11px}.nexus-security-overview>.account-security-summary{grid-column:1/-1;margin-top:20px}
+.account-order-list,.account-device-list,.account-activity-list{margin:0;padding:0;overflow:hidden;border:1px solid var(--nx-line-soft);border-radius:8px;list-style:none}.account-order,.account-device{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(180px,.8fr) auto;align-items:center;gap:16px;padding:15px 16px;border-bottom:1px solid var(--nx-line-soft);background:var(--nx-bg-2);transition:background var(--nx-fast) ease}.account-order:last-child,.account-device:last-child{border-bottom:0}.account-order:hover,.account-device:hover{background:#111a26}.account-order-title,.account-device-title{color:var(--nx-text);font-size:13px;font-weight:700}.account-order-sub,.account-device-meta{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:5px;color:var(--nx-muted);font-size:10px}.account-order-amount{color:var(--nx-text);font-size:13px;text-align:right}.account-device-action{text-align:right}
+.account-activity{display:grid;grid-template-columns:8px minmax(0,1fr);gap:13px;padding:15px 16px;border-bottom:1px solid var(--nx-line-soft);background:var(--nx-bg-2)}.account-activity:last-child{border-bottom:0}.account-activity-marker{width:7px;height:7px;margin-top:5px;border-radius:50%;background:var(--nx-amber)}.account-activity-copy strong{font-size:12px}.account-activity-copy p{margin:5px 0;color:var(--nx-muted);font-size:11px}.account-activity-meta{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--nx-faint);font-size:9px}
+.account-pager{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:14px;color:var(--nx-muted);font-size:11px}.account-pager>div{display:flex;gap:8px}
+.account-tool-list{display:flex;flex-wrap:wrap;gap:8px}.account-tool-chip{min-height:40px;padding:9px 13px;border:1px solid var(--nx-line);border-radius:8px;background:var(--nx-bg-2);color:var(--nx-muted);cursor:pointer}.account-tool-chip:hover,.account-tool-chip.active{border-color:#6d572b;background:rgba(240,184,58,.07);color:var(--nx-amber)}
+.account-skeleton{display:grid;gap:8px}.account-skeleton span{display:block;height:58px;border-radius:8px;background:linear-gradient(90deg,#121a25 20%,#1e2938 50%,#121a25 80%);background-size:200% 100%;animation:nexus-shimmer 1.4s linear infinite}@keyframes nexus-shimmer{to{background-position:-200% 0}}
+.empty{padding:26px;border:1px dashed var(--nx-line);border-radius:8px;background:var(--nx-bg-2);color:var(--nx-muted);font-size:12px;text-align:center}.badge{display:inline-flex;align-items:center;min-height:24px;padding:3px 8px;border:1px solid var(--nx-line);border-radius:999px;background:var(--nx-surface);color:var(--nx-muted);font-size:9px}.badge.ok{border-color:rgba(85,200,138,.4);color:#87dca9}.badge.warn{border-color:rgba(240,184,58,.42);color:#f1c766}
+
+/* ---------- 表单与危险操作 ---------- */
+.account-form{display:grid;gap:15px}.field{position:relative;display:grid;gap:7px;color:var(--nx-text)}.field>span,.field>label{color:#d7dce4;font-size:11px;font-weight:700}.field input,.field textarea,.field select,select{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--nx-line);border-radius:8px;background:#0b111a;color:var(--nx-text);font:inherit;font-size:14px;box-shadow:none;transition:border-color var(--nx-fast) ease,box-shadow var(--nx-fast) ease}.field textarea{min-height:130px;resize:vertical;line-height:1.6}.field input::placeholder,.field textarea::placeholder{color:#657184}.field input:hover,.field textarea:hover,.field select:hover{border-color:#4a586c}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--nx-amber);outline:none;box-shadow:0 0 0 3px rgba(240,184,58,.15)}.field-error{color:#ff9c9c;font-size:10px}.field.is-invalid input,.field.is-invalid textarea{border-color:var(--nx-red)}
+.password-field input{min-height:50px;padding-right:70px}.password-toggle{position:absolute;right:3px;bottom:3px;min-width:58px;height:44px;border:0;border-radius:6px;background:var(--nx-surface-2);color:var(--nx-muted);font-size:10px;cursor:pointer}.password-toggle:hover{color:var(--nx-text)}
+.account-hint,.account-inline-note{color:var(--nx-muted);font-size:10px;line-height:1.55}.password-meter{display:flex;align-items:center;gap:9px;color:var(--nx-muted);font-size:10px}.password-meter i{position:relative;width:80px;height:4px;overflow:hidden;border-radius:99px;background:var(--nx-line)}.password-meter i::after{content:"";display:block;width:var(--strength,0%);height:100%;background:var(--nx-amber);transition:width var(--nx-base)}.password-meter[data-score="1"]{--strength:25%}.password-meter[data-score="2"]{--strength:50%}.password-meter[data-score="3"]{--strength:75%}.password-meter[data-score="4"]{--strength:100%}
+.nexus-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 18px}.nexus-form-span{grid-column:1/-1}.account-form-row{display:flex;align-items:end;gap:9px}.account-form-row .field{flex:1 1 360px}.account-status-line{display:flex;align-items:center;gap:8px;color:var(--nx-muted);font-size:10px}.account-status-line strong{color:var(--nx-text)}.nexus-submodule{margin-top:16px;padding:15px;border:1px solid var(--nx-line-soft);border-radius:8px;background:var(--nx-bg-2)}
+.account-code-editor{min-height:280px!important;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;font-size:12px!important}.account-danger-zone{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px;border:1px solid rgba(239,106,106,.32);border-radius:8px;background:rgba(239,106,106,.045)}.account-danger-zone b{color:#ffacac;font-size:12px}.account-danger-zone small{display:block;margin-top:4px;color:var(--nx-muted);font-size:10px}.nexus-danger-module{border-color:rgba(239,106,106,.23)}
+.account-confirm{width:min(440px,calc(100vw - 28px));padding:0;border:0;border-radius:12px;background:transparent;color:var(--nx-text)}.account-confirm::backdrop{background:rgba(0,0,0,.72);backdrop-filter:blur(4px)}.account-confirm-panel{padding:22px;border:1px solid var(--nx-line);border-radius:12px;background:var(--nx-surface);box-shadow:0 28px 80px rgba(0,0,0,.5)}.account-confirm-panel h2{margin:0 0 8px;font-size:19px}.account-confirm-panel p{margin:0;color:var(--nx-muted);font-size:12px;line-height:1.7}.account-confirm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.toast-area{position:fixed;right:18px;bottom:18px;z-index:100;display:grid;gap:8px;width:min(360px,calc(100vw - 36px))}
+
+/* ---------- 登录、注册、重置 ---------- */
+.auth-shell{display:grid;grid-template-columns:minmax(0,1.03fr) minmax(420px,.97fr);max-width:1160px;margin:0 auto;padding-block:52px 82px}
+.auth-value-panel{position:relative;overflow:hidden;padding:48px 44px;border:1px solid var(--nx-line);border-right:0;border-radius:14px 0 0 14px;background:linear-gradient(145deg,#151f2d,#0c121b);box-shadow:var(--nx-shadow)}.auth-value-panel::after{content:"";position:absolute;right:-90px;bottom:-120px;width:300px;height:300px;border:1px solid rgba(240,184,58,.12);border-radius:50%;box-shadow:0 0 0 45px rgba(240,184,58,.025),0 0 0 90px rgba(240,184,58,.018)}
+.eyebrow{color:var(--nx-amber);font-size:10px;font-weight:800;letter-spacing:.14em}.auth-value-panel h1{position:relative;z-index:1;margin:12px 0 15px;color:var(--nx-text);font-size:clamp(28px,3vw,42px);line-height:1.2;letter-spacing:-.035em;text-wrap:balance}.auth-value-panel>p{position:relative;z-index:1;margin:0;color:var(--nx-muted);font-size:13px;line-height:1.75}.auth-value-grid{position:relative;z-index:1;display:grid;gap:8px;margin-top:25px}.auth-value-grid>div{padding:14px;border:1px solid var(--nx-line);border-radius:8px;background:rgba(8,12,18,.38)}.auth-value-grid strong{display:block;font-size:12px}.auth-value-grid span{display:block;margin-top:4px;color:var(--nx-muted);font-size:10px;line-height:1.55}.detail-list{position:relative;z-index:1;display:grid;grid-template-columns:auto 1fr;gap:8px 12px;margin-top:28px;padding-top:19px;border-top:1px solid var(--nx-line-soft);font-size:10px}.detail-list strong{color:var(--nx-amber)}.detail-list span{color:var(--nx-muted)}
+.auth-card{padding:42px;border:1px solid var(--nx-line);border-radius:0 14px 14px 0;background:rgba(18,26,38,.97);color:var(--nx-text);box-shadow:var(--nx-shadow)}.auth-card-head{margin-bottom:24px}.auth-card-head h1,.auth-card-head h2{margin:7px 0;color:var(--nx-text);font-size:26px}.muted{color:var(--nx-muted)!important}.auth-card-head p{margin:0;font-size:11px;line-height:1.6}.auth-card .account-form{gap:16px}
+.auth-segment{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:4px;border:1px solid var(--nx-line);border-radius:8px;background:var(--nx-bg)}.auth-segment button{min-height:44px;border:0;border-radius:6px;background:transparent;color:var(--nx-muted);font-size:11px;font-weight:700;cursor:pointer}.auth-segment button:hover{color:var(--nx-text)}.auth-segment button.active{background:var(--nx-surface-3);color:var(--nx-amber);box-shadow:0 1px 6px rgba(0,0,0,.25)}
+.legal-consent{display:flex;align-items:flex-start;gap:9px;color:var(--nx-muted);font-size:10px;line-height:1.55}.legal-consent input{flex:0 0 auto;width:17px;height:17px;margin-top:1px;accent-color:var(--nx-amber)}.legal-consent a,.auth-card-foot a{color:#d9bd79}.auth-submit{width:100%;margin-top:1px}
+.account-disclosure{margin-top:17px;border:1px solid var(--nx-line);border-radius:8px;background:var(--nx-bg-2)}.account-disclosure summary{min-height:46px;padding:15px;color:var(--nx-muted);font-size:11px;font-weight:700;cursor:pointer}.account-disclosure-body{padding:0 15px 15px}.auth-card-foot{display:flex;flex-wrap:wrap;gap:8px 17px;margin-top:24px;padding-top:18px;border-top:1px solid var(--nx-line-soft);font-size:10px}
+.auth-steps{display:grid;gap:9px;margin:25px 0 0;padding:0;list-style:none}.auth-steps li{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--nx-line-soft);border-radius:8px;background:rgba(8,12,18,.3);color:var(--nx-muted);font-size:11px}.auth-steps b{display:grid;width:25px;height:25px;place-items:center;border:1px solid #6e5726;border-radius:6px;color:var(--nx-amber);font-size:9px}
+.account-block{padding:15px;border:1px solid var(--nx-line-soft);border-radius:8px;background:var(--nx-bg-2)}.account-block-head{display:flex;justify-content:space-between;gap:15px;margin-bottom:13px;padding-bottom:11px;border-bottom:1px solid var(--nx-line-soft)}.account-block-head b{font-size:11px}.account-block-head small{color:var(--nx-faint);font-size:9px;text-align:right}
+
+/* ---------- 投稿与会员 ---------- */
+body[data-page="account-submit"]>main,body[data-page="membership"]>main{max-width:1180px;padding-block:40px 80px}.guide-breadcrumb{margin-bottom:14px;color:var(--nx-muted);font-size:11px}.guide-breadcrumb a{color:#d7bd80}.guide-breadcrumb span{margin-left:8px}
+body[data-page="account-submit"]>main>.card{padding:clamp(20px,3vw,32px)!important;border:1px solid var(--nx-line)!important;border-radius:12px!important;background:rgba(18,26,38,.95)!important;color:var(--nx-text)!important;box-shadow:var(--nx-shadow)}.gc-list{display:grid;gap:9px}.gc-comment{padding:15px;border:1px solid var(--nx-line-soft);border-radius:8px;background:var(--nx-bg-2)}.gc-comment-head,.gc-comment-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}.gc-comment-body{color:var(--nx-muted);font-size:11px;line-height:1.65}
+.section-head h1{color:var(--nx-text)}.membership-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:26px 0}.membership-card,.membership-faq,.membership-note{border:1px solid var(--nx-line)!important;border-radius:12px!important;background:rgba(18,26,38,.95)!important;color:var(--nx-text)!important;box-shadow:var(--nx-shadow)}.membership-card{display:flex;flex-direction:column;gap:15px;padding:22px;transition:border-color var(--nx-fast) ease,background var(--nx-fast) ease}.membership-card:hover{border-color:#6d572b!important;background:#151d28!important}.membership-card h2{margin:0;font-size:18px}.membership-card header p{margin:6px 0 0;font-size:11px;line-height:1.6}.membership-price{display:flex;align-items:baseline;gap:3px;margin:0;color:var(--nx-text);font-size:30px;font-weight:800}.membership-price .currency{font-size:16px}.membership-price .period{margin-left:5px;color:var(--nx-muted);font-size:10px;font-weight:400}.membership-perks{display:grid;flex:1;gap:8px;margin:0;padding:0;list-style:none}.membership-perks li{position:relative;padding-left:17px;color:var(--nx-muted);font-size:11px;line-height:1.55}.membership-perks li::before{content:"";position:absolute;left:0;top:6px;width:7px;height:7px;border-radius:50%;background:var(--nx-amber)}.membership-note{padding:14px}.membership-note:empty{display:none}.membership-faq{padding:22px}.membership-faq h2{margin:0 0 10px;font-size:17px}.membership-faq details{padding:12px 0;border-top:1px solid var(--nx-line-soft)}.membership-faq details:first-of-type{border-top:0}.membership-faq summary{min-height:32px;cursor:pointer;font-size:12px;font-weight:700}.membership-faq p{margin:7px 0 0;color:var(--nx-muted);font-size:11px;line-height:1.65}
+.membership-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:22px 0 0;padding:0;list-style:none}.membership-flow li{display:flex;align-items:center;gap:11px;padding:13px 15px;border:1px solid var(--nx-line-soft);border-radius:8px;background:var(--nx-bg-2)}.membership-flow b{display:grid;flex:0 0 auto;width:27px;height:27px;place-items:center;border:1px solid #6e5726;border-radius:7px;color:var(--nx-amber);font-size:10px}.membership-flow span{display:grid;gap:3px}.membership-flow strong{font-size:11px}.membership-flow small{color:var(--nx-muted);font-size:9px}
+
+/* ---------- 响应式 ---------- */
+@media(max-width:1100px){
+  .nexus-frame{grid-template-columns:224px minmax(0,1fr)}
+  .nexus-stage{padding-inline:24px}
+  .nexus-nav button,.nexus-nav a{grid-template-columns:30px minmax(0,1fr)}
+  .account-info-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .auth-shell{margin-inline:18px}
+}
+@media(max-width:820px){
+  .nexus-commandbar{min-height:50px;padding-inline:14px}.nexus-command-title i,.nexus-commandbar nav a:nth-child(2){display:none}
+  .nexus-frame{display:block;border-inline:0}.nexus-rail{position:sticky;top:0;z-index:20;padding:8px 12px;border-right:0;border-bottom:1px solid var(--nx-line);background:rgba(8,12,18,.94);backdrop-filter:blur(16px)}
+  .nexus-profile,.nexus-nav-label,.nexus-rail-links,.nexus-safety,.nexus-identity-card{display:none}
+  .nexus-nav{display:flex;gap:5px;margin:0;overflow-x:auto;scrollbar-width:none}.nexus-nav::-webkit-scrollbar{display:none}.nexus-nav button,.nexus-nav a{display:block;flex:0 0 auto;width:auto;min-height:44px;padding:9px 14px;white-space:nowrap}.nexus-nav b,.nexus-nav small,.nexus-nav [aria-selected="true"]::after,.nexus-nav [aria-current="page"]::after{display:none}.nexus-nav button>span,.nexus-nav a>span{font-size:11px}
+  .nexus-anchor-nav{display:flex}.nexus-stage{padding:25px 15px 76px}.nexus-hero{align-items:stretch}.nexus-status-grid,.account-security-summary{grid-template-columns:1fr}.nexus-status{min-height:110px}.nexus-security-overview{grid-template-columns:1fr}.account-security-score{margin-top:18px;border-top:1px solid #493d22;border-left:0;padding-inline:0}.nexus-security-overview>.account-security-summary{grid-column:auto}
+  .nexus-form-grid{grid-template-columns:1fr}.nexus-form-span{grid-column:auto}.account-form-row{align-items:stretch;flex-direction:column}.account-form-row .field{flex:auto;width:100%}
+  .account-order,.account-device{grid-template-columns:1fr}.account-order-amount,.account-device-action{text-align:left}
+  .auth-shell{display:flex;flex-direction:column;margin:0;padding:24px 14px 76px}.auth-card{order:1;padding:26px 21px;border-radius:12px}.auth-value-panel{order:2;margin-top:12px;padding:28px 22px;border:1px solid var(--nx-line);border-radius:12px}.auth-value-panel h1{font-size:28px}
+}
+@media(max-width:560px){
+  .nexus-command-title span{font-size:12px}.nexus-commandbar nav a{display:none}.nexus-commandbar nav{gap:2px}.nexus-commandbar nav button{font-size:10px}
+  .nexus-stage{padding-inline:12px}.nexus-hero{display:grid;gap:17px}.nexus-hero h1{font-size:28px}.nexus-actions{justify-content:flex-start}.nexus-actions .btn{flex:1 1 auto}
+  .nexus-module{padding:17px 14px}.nexus-module>header{display:grid;gap:11px}.nexus-module>header>a,.nexus-module>header>small{justify-self:start}
+  .account-info-grid,.nexus-task-grid{grid-template-columns:1fr}.nexus-task-grid>a,.nexus-task-grid>button{min-height:135px}.nexus-assist{align-items:stretch;flex-direction:column}.account-pager{align-items:stretch;flex-direction:column}.account-pager>div{display:flex}.account-pager .btn{flex:1}.account-danger-zone{align-items:stretch;flex-direction:column}.account-danger-zone .btn{width:100%}.account-confirm-actions{flex-direction:column-reverse}.account-confirm-actions .btn{width:100%}
+  .auth-card{padding:23px 17px}.auth-value-panel{padding:24px 18px}.auth-card-foot{gap:12px}.detail-list{grid-template-columns:1fr}.account-block-head{display:grid}.membership-grid,.membership-flow{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* ---------- V6 用户系统细节与交互收口 ---------- */
+.nexus[data-loading="1"] .nexus-stage{opacity:.72;pointer-events:none}
+.nexus-stage{transition:opacity var(--nx-base) ease}
+.nexus-status-grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.nexus-status strong.is-ok{color:var(--nx-green)}
+.nexus-status strong.is-warn{color:var(--nx-amber)}
+.nexus-status:focus-visible,.nexus-task-grid>:focus-visible{border-color:var(--nx-amber-strong);outline:none;box-shadow:0 0 0 3px rgba(240,184,58,.16)}
+.nexus-nav button[aria-selected="true"]{cursor:default}
+
+.account-order{grid-template-columns:minmax(240px,1.2fr) minmax(220px,1fr) auto}
+.account-order-main{min-width:0}.account-order-title{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.account-order-title>strong{font-size:13px}.account-order-progress{display:grid;gap:9px;min-width:0}.account-order-progress>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--nx-muted);font-size:10px}.account-order-progress>div:first-child span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-order-progress>div:first-child strong{flex:0 0 auto;color:var(--nx-text);font-size:10px}.account-progress-track{height:5px;overflow:hidden;border-radius:999px;background:var(--nx-line-soft)}.account-progress-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--nx-amber),var(--nx-amber-strong))}.account-order-action{text-align:right}.account-order-action .btn{min-width:92px}
+
+.account-save-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.account-save-card{display:flex;min-height:112px;align-items:center;justify-content:space-between;gap:18px;padding:16px;border:1px solid var(--nx-line-soft);border-radius:8px;background:var(--nx-bg-2)}.account-save-card>div{display:grid;gap:5px;min-width:0}.account-save-card span{color:var(--nx-amber);font-size:9px;font-weight:800;letter-spacing:.1em}.account-save-card strong{font-size:13px}.account-save-card small{color:var(--nx-muted);font-size:10px}
+
+.submission-editor-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:14px;align-items:stretch}.submission-editor-layout .field{min-width:0}.submission-editor-layout textarea{height:100%;min-height:420px}.submission-editor-meta{display:flex;align-items:center;justify-content:space-between;gap:16px;color:var(--nx-faint);font-size:10px}.submission-preview{min-height:420px;overflow:auto;border:1px solid var(--nx-line);border-radius:8px;background:#0b111a}.submission-preview-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border-bottom:1px solid var(--nx-line-soft);background:rgba(11,17,26,.94);backdrop-filter:blur(12px)}.submission-preview-head span{color:var(--nx-amber);font-size:10px;font-weight:800;letter-spacing:.1em}.submission-preview-head small{color:var(--nx-faint);font-size:9px}.submission-preview>[data-submission-preview]{padding:18px}.submission-preview h2,.submission-preview h3,.submission-preview h4{margin:18px 0 8px;color:var(--nx-text);line-height:1.3}.submission-preview h2:first-child,.submission-preview h3:first-child,.submission-preview h4:first-child{margin-top:0}.submission-preview p,.submission-preview li{color:var(--nx-muted);font-size:12px;line-height:1.75}.submission-preview ul{padding-left:20px}.submission-actions{justify-content:space-between}
+
+@media(max-width:1200px){.nexus-status-grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}.submission-editor-layout{grid-template-columns:1fr}.submission-preview{min-height:280px}}
+@media(max-width:820px){.account-order{grid-template-columns:1fr}.account-order-action{text-align:left}.account-save-list{grid-template-columns:1fr}}
+@media(max-width:560px){.nexus-status-grid-4{grid-template-columns:1fr}.submission-editor-meta{align-items:flex-start;flex-direction:column;gap:4px}.submission-actions{align-items:stretch;flex-direction:column-reverse}.submission-actions .btn{width:100%}}
+
+/* ---------- V7 统一用户控制台 ---------- */
+body[data-page="account-submit"]>main.nexus,body[data-page="membership"]>main.nexus{max-width:none;padding:0}
+.nexus-status-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.console-state{display:flex;align-items:center;gap:7px;align-self:center;color:var(--nx-muted);font-size:10px;white-space:nowrap}.console-state i{width:7px;height:7px;border-radius:50%;background:var(--nx-green);box-shadow:0 0 0 4px rgba(85,200,138,.08)}
+.submission-workbench{scroll-margin-top:76px}.submission-meta-grid{display:grid;grid-template-columns:minmax(210px,.65fr) minmax(0,1.35fr);gap:14px}.gc-comment{display:grid;gap:9px}.gc-comment-head b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gc-comment-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;color:var(--nx-faint);font-size:9px}.gc-comment-actions{padding-top:9px;border-top:1px solid var(--nx-line-soft)}.gc-comment-actions button{min-height:36px;padding:7px 12px;border:1px solid rgba(239,106,106,.3);border-radius:7px;background:transparent;color:#ffabab;cursor:pointer}.badge.danger{border-color:rgba(239,106,106,.4);color:#ffabab}
+
+.membership-process{display:grid;grid-template-columns:minmax(180px,.55fr) minmax(0,1.45fr);align-items:center;gap:26px;margin-bottom:12px;padding:21px;border:1px solid #493d22;border-radius:var(--nx-radius);background:linear-gradient(115deg,rgba(240,184,58,.085),rgba(18,26,38,.95) 52%);scroll-margin-top:76px}.membership-process>div>span{color:var(--nx-amber);font-size:9px;font-weight:800;letter-spacing:.12em}.membership-process h2{margin:6px 0;font-size:20px}.membership-process p{margin:0;color:var(--nx-muted);font-size:10px;line-height:1.6}.membership-process .membership-flow{margin:0}
+.membership-console .membership-grid{margin:0}.membership-console .membership-card{border:1px solid var(--nx-line)!important;border-radius:9px!important;background:var(--nx-bg-2)!important;box-shadow:none}.membership-console .membership-card:hover{border-color:#6d572b!important}.membership-card header>span{color:var(--nx-amber);font-size:9px;font-weight:800;letter-spacing:.11em}.membership-card h3{margin:7px 0 0;font-size:18px}.membership-console .membership-note{margin-top:12px;padding:13px;border:1px solid var(--nx-line);border-radius:8px;background:var(--nx-bg-2)}.membership-console .membership-note.is-error{border-color:rgba(239,106,106,.38);color:#ffabab}.membership-console .empty{display:grid;justify-items:center;gap:9px}.membership-console .empty p{margin:0}.membership-console .membership-faq{padding:21px;border:1px solid var(--nx-line)!important;border-radius:var(--nx-radius)!important;background:rgba(18,26,38,.92)!important;box-shadow:var(--nx-shadow)}
+
+@media(max-width:1100px){.nexus-status-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.membership-process{grid-template-columns:1fr}.membership-process .membership-flow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){.submission-meta-grid{grid-template-columns:1fr}.nexus-status-grid-3{grid-template-columns:1fr}.membership-process{padding:17px 14px}.membership-process .membership-flow{grid-template-columns:1fr}.console-state{justify-self:start}}
+@media(max-width:560px){.gc-comment-head,.gc-comment-meta{align-items:flex-start;flex-direction:column}.gc-comment-head b{white-space:normal}.submission-status-grid .nexus-status{min-height:104px}}
+
+/* ==========================================================================
+   2026-10 前端整改收口：任务控制台令牌与可读性
+   依据：DESIGN §3.1 色彩令牌 / §3.4（琥珀金 CTA、红绿语义）、视觉清单 #1/#2/#5
+   ========================================================================== */
+:root{
+  /* 金色统一到 DESIGN 权威：#f5b700 / #ffc928（覆盖旧 --nx-amber #f0b83a） */
+  --nx-amber:#f5b700;
+  --nx-amber-strong:#ffc928;
+  --nx-amber-ink:#171000;
+  /* 状态语义收敛（DESIGN §3.1） */
+  --nx-red:#ef4444;
+  --nx-green:#36c27a;
+  --nx-warning:#f59e0b;
+}
+/* 控制台广色散金调统一到权威金（rgba(240,184,58,...) → 245,183,0） */
+body.nexus-page::before,body[data-page^="account-"]::before,body[data-page="membership"]::before{
+  background:
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px),
+    radial-gradient(circle at 82% 5%,rgba(245,183,0,.07),transparent 28%);
+}
+.notice.is-warning{border-color:rgba(245,183,0,.5);background:rgba(245,183,0,.08);color:#ffe09a}
+.btn.primary{border-color:var(--nx-amber);background:var(--nx-amber);color:var(--nx-amber-ink);box-shadow:0 9px 22px rgba(245,183,0,.13)}
+
+/* ---- 小字号提升到 ≥12px（视觉清单 #5 / UI验收中-6：辅助文本不得低于 12px） ---- */
+.caps-lock-warning{font-size:12px!important}
+.nexus-command-title i{font-size:12px!important}
+.nexus-profile>div:last-child span,.nexus-profile small{font-size:12px!important}
+.nexus-nav-label{font-size:11px!important}
+.nexus-nav b{font-size:12px!important}
+.nexus-nav span small{font-size:12px!important}
+.nexus-rail-links>span{font-size:11px!important}
+.nexus-safety,.nexus-identity-card{font-size:12px}
+.nexus-safety b,.nexus-identity-card>span{font-size:12px!important}
+.nexus-safety p{font-size:12px!important}
+.nexus-safety a{font-size:12px!important}
+.nexus-identity-card strong{font-size:12px!important}
+.nexus-identity-card small{font-size:12px!important}
+.nexus-kicker{font-size:12px!important}
+.nexus-status i,.nexus-status>span{font-size:12px!important}
+.nexus-status small{font-size:12px!important}
+.nexus-module>header span{font-size:11px!important}
+.nexus-module>header p{font-size:12px!important}
+.nexus-module>header>a,.nexus-module>header>small{font-size:12px!important}
+.account-info-item span,.account-info-item small{font-size:12px!important}
+.nexus-task-grid b,.nexus-task-grid em,.nexus-task-grid span{font-size:12px!important}
+.nexus-assist span{font-size:11px!important}
+.nexus-assist p{font-size:12px!important}
+.account-security-item span,.account-security-item small{font-size:12px!important}
+.account-security-score span{font-size:11px!important}
+.account-security-score small{font-size:12px!important}
+.nexus-security-copy>span{font-size:11px!important}
+.nexus-security-copy p{font-size:12px!important}
+.account-order-sub,.account-device-meta{font-size:12px!important}
+.account-activity-meta{font-size:11px!important}
+.badge{font-size:11px!important}
+.field-error{font-size:12px!important}
+.password-toggle{font-size:12px!important}
+.account-hint,.account-inline-note,.password-meter,.account-status-line{font-size:12px!important}
+.account-danger-zone small{font-size:12px!important}
+.eyebrow{font-size:12px!important}
+.auth-value-grid span{font-size:12px!important}
+.detail-list{font-size:12px!important}
+.auth-card-head p,.auth-segment button{font-size:12px!important}
+.legal-consent{font-size:12px!important}
+.account-disclosure summary{font-size:12px!important}
+.auth-card-foot{font-size:12px!important}
+.auth-steps li{font-size:12px!important}
+.auth-steps b{font-size:11px!important}
+.account-block-head b{font-size:12px!important}
+.account-block-head small{font-size:11px!important}
+.guide-breadcrumb{font-size:12px!important}
+.gc-comment-body,.gc-list .gc-comment{font-size:12px}
+.membership-card header p,.membership-perks li,.membership-faq p{font-size:12px!important}
+.membership-price .period{font-size:12px!important}
+.membership-faq summary{font-size:13px!important}
+.membership-flow b,.membership-flow strong,.membership-flow small{font-size:12px!important}
+.account-order-progress>div:first-child,.account-order-progress>div:first-child strong{font-size:12px!important}
+.account-save-card span{font-size:11px!important}
+.account-save-card small{font-size:12px!important}
+.console-state{font-size:12px!important}
+.gc-comment-meta{font-size:11px!important}
+.submission-editor-meta{font-size:12px!important}
+.submission-preview-head span{font-size:12px!important}
+.submission-preview-head small{font-size:11px!important}
+.membership-process>div>span,.membership-card header>span{font-size:11px!important}
+.membership-process p{font-size:12px!important}
+
+
+/* 20261004: 账号资料头像改为本地上传 */
+.account-avatar-file input[type="file"]{padding:9px;background:#0b111a;cursor:pointer}
+.account-avatar-file input[type="file"]::file-selector-button{margin-right:10px;border:0;border-radius:7px;background:var(--nx-amber);color:var(--nx-amber-ink);font-weight:800;padding:8px 12px;cursor:pointer}
+.account-avatar-file small{display:block;color:var(--nx-muted);font-size:10px;line-height:1.55}

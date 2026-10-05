@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090b0e">
+  <title>MW4 工具站｜迷彩解锁助手 - 星火网游</title>
+  <meta name="description" content="使命召唤武器等级、解锁与迷彩进度助手。MW4 支持战区、多人、DMZ 迷彩进度记录，并可随询价提交。">
+  <link rel="canonical" href="https://wydlgf.cn/mastery"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台"><meta property="og:title" content="MW4 迷彩解锁助手 | 星火网游代练平台"><meta property="og:description" content="战区 / 多人 / DMZ 迷彩进度助手，勾选未完成挑战并查看解锁条件。"><meta property="og:url" content="https://wydlgf.cn/mastery"><meta property="og:image" content="https://wydlgf.cn/og.png">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="MW4 迷彩解锁助手"><meta name="twitter:description" content="战区 / 多人 / DMZ 迷彩进度助手，勾选未完成挑战并查看解锁条件。"><meta name="twitter:image" content="https://wydlgf.cn/og.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"MW4 迷彩解锁助手","url":"https://wydlgf.cn/mastery","applicationCategory":"GameApplication","operatingSystem":"Web","inLanguage":"zh-CN","description":"使命召唤 MW4 战区 / 多人 / DMZ 迷彩进度助手，可勾选未完成挑战并查看解锁条件。","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"provider":{"@type":"Organization","name":"星火网游代练平台","url":"https://wydlgf.cn/"}}</script>
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/ui-fixes.js?v=20261005uf19"></script>
+  <link rel="stylesheet" href="/assets/mastery.css?v=20260928v016"><link rel="stylesheet" href="/assets/tool-images.css?v=20261004ti6"><link rel="stylesheet" href="/assets/tool-fixes.css?v=20261004tf2">
+  <script defer src="/assets/public.js?v=20261005pub10"></script>
+  <!--
+    这里原有一段改写 window.fetch 的内联脚本（给 tool-station-games.json 换缓存键）。
+    站点的 CSP 是 script-src 'self'，内联脚本会被浏览器直接拒绝执行 ——
+    也就是说它从未生效过，只在每个访客的控制台留下一条 CSP 违规。已删除。
+    该 JSON 目前是 max-age=2592000, immutable（30 天），要真正解决数据陈旧，
+    需要改基线 JAR 内 mastery.js 的版本号，或调整该文件的缓存策略。
+  -->
+<script defer src="/assets/mastery.js?v=20260928v016"></script>
+</head>
+<body class="tool-body">
+<header th:replace="~{fragments/site :: header}"></header>
+
+<main class="container tool-shell">
+  <section class="tool-hero" id="toolHero">
+    <div class="tool-hero-bg" id="gameArtwork" aria-hidden="true"></div>
+    <div class="tool-hero-shade"></div>
+    <div class="tool-hero-copy">
+      <div class="tool-brand-lockup">
+        <span class="tool-brand-logo" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="15.5" fill="#0c0d0f" stroke="#d6b52f" stroke-width="2.4"/><path d="M26.4 10.2 14.8 27.1h8.1l-1.5 10.7 12.8-18.4h-8.5z" fill="#f4c934" stroke="#f4c934" stroke-linejoin="round"/></svg></span>
+        <span class="tool-brand-copy"><small>MW4 工具站</small><h1>迷彩解锁助手</h1></span>
+      </div>
+      <p>选武器 → 选模式 → 战区 / 多人 / DMZ 迷彩分开勾选。进度自动保存在当前设备，不需要账号。</p>
+      <div class="tool-hero-meta"><span id="heroGameName">MW4</span><i></i><span id="heroDataStatus">读取中…</span></div>
+    </div>
+  </section>
+
+  <section class="tool-flow" aria-label="武器进度工具">
+    <aside class="tool-panel version-panel" id="versionPanel">
+      <div class="panel-title"><span>01</span><div><b>选择版本</b><small>进度按版本分开保存</small></div></div>
+      <select id="gameSelect" class="tool-select" aria-label="选择使命召唤版本"></select>
+      <div class="version-list" id="versionList"></div>
+      <a class="official-link" id="officialGameLink" href="#" target="_blank" rel="noopener">查看 MW4 官方网站 ↗</a>
+    </aside>
+
+    <section class="tool-panel weapon-panel" id="weaponPanel">
+      <div class="panel-title"><span>02</span><div><b>选择武器</b><small id="weaponPanelHint">MW4 武器列表</small></div></div>
+      <div class="player-level-row" id="playerLevelRow">
+        <label for="playerLevelInput">玩家等级</label>
+        <div><b>Lv.</b><input id="playerLevelInput" aria-label="当前等级" type="number" min="0" max="9999" value="0" inputmode="numeric"></div>
+      </div>
+      <div class="weapon-tools"><input id="weaponSearch" type="search" placeholder="搜索武器"><select id="weaponType" aria-label="武器类型"><option value="">全部类型</option></select></div>
+      <div class="weapon-list" id="weaponList"></div>
+      <div class="empty-state hidden" id="versionPending"><b>该游戏资料暂未开放</b><p>更多武器与迷彩条件正在整理。</p></div>
+    </section>
+
+    <section class="tool-panel progress-panel" id="progressPanel">
+      <div class="panel-title"><span>03</span><div><b>勾选并保存进度</b><small>自动保存进度</small></div></div>
+      <div class="progress-empty" id="progressEmpty"><div class="progress-empty-copy"><b>先选择一把武器</b><p>点击左侧武器后，这里会展开等级、解锁、Apex 与各模式迷彩进度。</p></div><div class="progress-suggest" id="progressSuggest" aria-label="快速选择武器"></div></div>
+      <div class="progress-content hidden" id="progressContent">
+        <div class="selected-weapon-head"><div><span id="selectedWeaponType">-</span><h2 id="selectedWeaponName">-</h2><p id="selectedUnlockText">-</p></div><span class="unlock-pill" id="selectedUnlockBadge">-</span></div>
+        <div class="level-card" id="levelCard">
+          <div class="level-card-head"><span>武器等级</span><b id="levelReadout">Lv.0 / 0</b></div>
+          <input id="weaponLevelRange" aria-label="武器等级进度" type="range" min="0" max="1" value="0">
+          <div class="level-actions"><input id="weaponLevelInput" aria-label="武器当前等级" type="number" min="0" value="0" inputmode="numeric"><button type="button" id="markMaxLevel">设为满级</button></div>
+        </div>
+        <div class="smart-next" id="smartNext"><span>智能下一步</span><b>选择武器后自动判断</b></div>
+        <div class="progress-rail" id="progressRail"></div>
+        <div class="mode-progress" id="modeProgress"></div>
+        <div class="progress-note" id="progressNote"></div>
+      </div>
+    </section>
+  </section>
+
+  <section class="tool-savebar">
+    <div><span class="save-dot"></span><p><b id="localSaveText">进度已自动保存</b><small id="localSaveDetail">切换版本不会丢失各自记录</small></p></div>
+    <div class="savebar-actions"><button class="btn ghost" id="clearCurrentGame" type="button">清空 MW4 进度</button><a class="btn primary" id="quoteWithProgress" href="/quote?toolProgress=1&gameCode=CODMW4" data-primary-cta>提前询价</a></div>
+  </section>
+
+  <section class="card" aria-label="工具与服务">
+    <span class="eyebrow">工具 → 服务</span>
+    <h2>看完工具，需要有人帮你推进吗？</h2>
+    <p>迷彩进度可以自己核对，时间不够的部分再交给我们。工具与服务的口径保持一致，看到还差多少就能直接询价。</p>
+    <div class="detail-list">
+      <strong>迷彩解锁助手</strong><span>按战区 / 多人 / DMZ 分开勾选进度，进度保存在当前设备，可随时重置</span>
+      <strong>下一步</strong><span>把没时间自己刷的部分交给我们：提交需求拿业务编号，确认报价后再开工</span>
+    </div>
+    <div class="actions">
+      <a class="btn primary" href="/quote" data-primary-cta>提前询价</a>
+      <a class="btn ghost" href="/service/camo-task">迷彩任务服务</a>
+      <a class="btn ghost" href="/service/weapon-leveling">武器升级服务</a>
+      <a class="btn ghost" href="/trust">查看服务示例</a>
+    </div>
+    <p class="muted">网页不收账号密码；确认报价后走淘宝 / 闲鱼担保成交。<span data-config="toolUpdatedNote">工具内容更新：2026-09-27</span></p>
+    <h3>当前可预约的 MW4 服务</h3>
+    <div class="grid3">
+      <a class="card service-card" th:each="svc : ${homeServices}" th:href="@{'/service/' + ${svc.slug}}">
+        <div class="service-card-head"><span class="tag" th:text="${svc.name}">服务</span></div>
+        <p th:text="${svc.shortDesc}">服务简介</p>
+        <small th:text="${svc.durationText}">预计时间</small>
+      </a>
+    </div>
+  </section>
+</main>
+
+<nav class="mobile-dock" aria-label="手机快捷操作"><a class="active" href="/mastery">MW4 工具站</a><a href="/records">业务记录</a><a class="primary" id="mobileQuoteWithProgress" href="/quote?toolProgress=1&gameCode=CODMW4" data-primary-cta>提前询价</a></nav>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+</body></html>

@@ -1,0 +1,37 @@
+/* =============================================================================
+   内容页社区模块：攻略页的收藏与评论
+   复用 app.css 已定义的设计令牌（--xh-*），不重复定义颜色值。
+   独立文件而不是并入 account.css：攻略页不加载账号中心那套样式，
+   为避免样式互相牵连，这里只用 gc- 前缀的类名。
+   ============================================================================= */
+
+.gc-root{display:grid;gap:16px;padding:clamp(18px,2.4vw,28px)}
+.gc-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.gc-head h2{margin:4px 0 0;font-size:clamp(20px,2.4vw,28px)}
+.gc-note{margin:0}
+
+.gc-form{display:grid;gap:10px;padding:14px;border:1px solid var(--xh-line);border-radius:12px;background:var(--xh-surface-2)}
+.gc-label{color:var(--xh-text);font-weight:800;font-size:14px}
+.gc-input{width:100%;padding:12px;background:#05070a;border:1px solid var(--xh-line-strong);border-radius:10px;color:var(--xh-text);font:inherit;line-height:1.6;resize:vertical}
+.gc-input:focus{border-color:var(--xh-gold);outline:0;box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12)}
+.gc-error{color:var(--xh-danger);font-size:13px}
+.gc-form .btn{justify-self:start}
+
+.gc-list{display:grid;gap:10px}
+.gc-empty{color:var(--xh-text-muted);font-size:14px;margin:0}
+.gc-comment{padding:12px 14px;border:1px solid var(--xh-line);border-radius:12px;background:rgba(255,255,255,.02)}
+.gc-comment-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.gc-comment-head b{color:var(--xh-text)}
+.gc-comment-head span{color:var(--xh-text-muted);font-size:12px}
+/* pre-wrap + anywhere：用户正文保留换行，同时长串不会撑破布局 */
+.gc-comment-body{margin:8px 0 0;color:#d9dde4;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.gc-comment-actions{display:flex;gap:12px;margin-top:8px}
+.gc-comment-actions button{background:none;border:0;padding:0;color:var(--xh-text-muted);font-size:12px;cursor:pointer}
+.gc-comment-actions button:hover{color:var(--xh-gold)}
+.gc-pending{color:var(--xh-warning);font-size:12px}
+.gc-reply{margin-left:clamp(12px,3vw,28px)}
+
+@media (max-width:760px){
+  .gc-root{padding:16px}
+  .gc-form .btn{justify-self:stretch}
+}

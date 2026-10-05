@@ -1,0 +1,38 @@
+# 构建时从基线 JAR 中删除的条目（glob 由 scripts/prune_jar.py 解析）
+#
+# 已存在的条目：较早的 loadouts / AI 客服模块
+BOOT-INF/classes/com/xinghuo/service/LoadoutService.class
+BOOT-INF/classes/com/xinghuo/service/LoadoutService$*.class
+BOOT-INF/classes/com/xinghuo/service/AdminAiChatService.class
+BOOT-INF/classes/com/xinghuo/model/AdminAiChatMessage.class
+BOOT-INF/classes/com/xinghuo/model/AdminAiChatMessage$*.class
+BOOT-INF/classes/com/xinghuo/repository/AdminAiChatMessageRepository.class
+BOOT-INF/classes/com/xinghuo/dto/ApiDtos$AiChat*.class
+BOOT-INF/classes/templates/loadouts.html
+BOOT-INF/classes/static/assets/loadouts.js
+BOOT-INF/classes/static/assets/admin-loadouts.js
+
+# ---------------------------------------------------------------- 旧账号模块
+# 由新版 com.xinghuo.account 模块整体取代（迁移 V35__user_system_account.sql）。
+#
+# 删除集是封闭的，依据如下（均已在服务器上以二进制扫描核对）：
+#   * CustomerDtos$Customer* 仅被 CustomerAccountController 与 CustomerAccountService 引用
+#   * CustomerAccountRepository 仅被 CustomerAccountService 引用
+#   * Quote / CustomerOrder 只持有普通 Long customerAccountId 字段，不是 @ManyToOne，
+#     因此删除 CustomerAccount 实体不影响它们的映射
+#
+# 连带覆盖的两个基线类（不删除、只覆盖，已放入 src/main/java）：
+#   * controller/PublicApiController：原来注入 CustomerAccountService，现改为 AccountSessionService
+#   * exception/ApiExceptionHandler：原 assignableTypes 引用了 CustomerAccountController.class
+BOOT-INF/classes/com/xinghuo/controller/CustomerAccountController.class
+BOOT-INF/classes/com/xinghuo/service/CustomerAccountService.class
+BOOT-INF/classes/com/xinghuo/service/CustomerAccountService$*.class
+BOOT-INF/classes/com/xinghuo/model/CustomerAccount.class
+BOOT-INF/classes/com/xinghuo/model/CustomerAccount$*.class
+BOOT-INF/classes/com/xinghuo/repository/CustomerAccountRepository.class
+BOOT-INF/classes/com/xinghuo/dto/CustomerDtos$Customer*.class
+
+# ---------------------------------------------------------------- 会员/支付模块下线
+BOOT-INF/classes/templates/membership.html
+BOOT-INF/classes/templates/pay-result.html
+BOOT-INF/classes/static/assets/membership.js

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
+  <title>创建账号 - 星火网游代练平台</title>
+  <meta name="description" content="创建星火网游代练平台账号。仅支持邮箱注册，不需要游戏账号密码。">
+  <meta name="robots" content="noindex,follow">
+  <link rel="canonical" href="https://wydlgf.cn/account/register"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261004ac11">
+  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/account.js?v=20261004ac17"></script>
+</head>
+<body data-page="account-register">
+<header th:replace="~{fragments/site :: header}"></header>
+<main class="container section auth-shell">
+  <section class="auth-value-panel">
+    <span class="eyebrow">创建账号</span>
+    <h1>一个账号，管好所有业务编号。</h1>
+    <p>注册只需要邮箱和登录密码。提交询价后，业务编号会自动归档到账号里，进度、状态与客服备注都能自己查到，不用反复追问。</p>
+    <ol class="auth-steps">
+      <li><b>1</b><span>填写昵称与联系方式</span></li>
+      <li><b>2</b><span>设置登录密码</span></li>
+      <li><b>3</b><span>提交询价并自动归档</span></li>
+      <li><b>4</b><span>随时查看进度与交付状态</span></li>
+    </ol>
+    <div class="detail-list">
+      <strong>不收密码</strong><span>游戏账号密码、验证码、令牌一律不进入网页系统。</span>
+      <strong>可解绑</strong><span>邮箱仅用于找回密码与验证身份，可随时在设置页更换。</span>
+    </div>
+  </section>
+
+  <section class="auth-card card" aria-labelledby="registerTitle">
+    <div class="auth-card-head">
+      <span class="eyebrow">注册</span>
+      <h2 id="registerTitle">创建服务账号</h2>
+      <p class="muted">建议使用你和客服沟通时最常用的联系方式。</p>
+    </div>
+
+    <form id="accountRegisterForm" class="account-form" novalidate>
+      <input type="hidden" name="contactType" value="EMAIL" data-contact-type>
+
+      <div class="field">
+        <label for="registerName">显示昵称</label>
+        <input id="registerName" name="displayName" autocomplete="nickname" required minlength="2" maxlength="40" placeholder="例如：小星">
+        <small class="account-hint">只用于账号中心展示，不会公开展示给其他用户。</small>
+      </div>
+
+      <div class="account-block">
+        <div class="account-block-head"><b>邮箱</b><small>登录、验证与找回密码凭据</small></div>
+        <div class="field">
+          <label for="registerContact" data-contact-label>邮箱</label>
+          <input id="registerContact" name="contactValue" type="email" autocomplete="email" required maxlength="160" placeholder="you@example.com" aria-describedby="registerContactHint">
+          <small id="registerContactHint" class="account-hint" data-contact-hint>请先获取邮箱验证码，注册成功后邮箱会自动标记为已验证。</small>
+        </div>
+        <div class="account-register-code-row">
+          <label class="field">
+            <span>邮箱验证码</span>
+            <input name="code" inputmode="numeric" autocomplete="one-time-code" required maxlength="6" placeholder="6 位数字验证码">
+          </label>
+          <button class="btn ghost" type="button" data-register-code>发送验证码</button>
+        </div>
+      </div>
+
+      <div class="account-block">
+        <div class="account-block-head"><b>登录密码</b><small>至少 8 位，小写 / 大写 / 数字 / 符号任两类</small></div>
+        <label class="field password-field">
+          <span>设置密码</span>
+          <input name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="72" placeholder="至少 8 位，小写 / 大写 / 数字 / 符号任选两类">
+          <button class="password-toggle" type="button" data-toggle-password aria-pressed="false" aria-label="显示密码">显示</button>
+        </label>
+        <div class="password-meter" data-password-meter data-score="0" aria-live="polite"><i></i><span>密码强度：等待输入</span></div>
+        <label class="field password-field">
+          <span>确认密码</span>
+          <input name="passwordConfirm" type="password" autocomplete="new-password" required minlength="8" maxlength="72" placeholder="再次输入密码">
+          <button class="password-toggle" type="button" data-toggle-password aria-pressed="false" aria-label="显示密码">显示</button>
+        </label>
+      </div>
+
+      <label class="legal-consent">
+        <input type="checkbox" name="agree" required>
+        <span>我已阅读并同意 <a href="/rules" target="_blank" rel="noopener">服务规则</a> 与 <a href="/privacy" target="_blank" rel="noopener">隐私说明</a>，并确认不会在网页提交游戏账号密码、验证码或令牌。</span>
+      </label>
+
+      <div id="accountMsg" class="notice hidden" role="alert" hidden></div>
+
+      <button class="btn primary auth-submit" type="submit" data-submit>创建账号</button>
+    </form>
+
+    <div class="auth-card-foot">
+      <a href="/account/login">已有账号，直接登录</a>
+      <a href="/contact">先咨询客服</a>
+    </div>
+  </section>
+</main>
+<nav class="mobile-dock" data-smart-dock aria-label="手机快捷操作"><a href="/">首页</a><a href="/account/login">登录</a><a class="primary" href="/quote" data-primary-cta>提前询价</a></nav>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+</body>
+</html>

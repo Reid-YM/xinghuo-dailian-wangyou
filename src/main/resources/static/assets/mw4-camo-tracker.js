@@ -12,6 +12,8 @@
   // 账号云同步：沿用 /api/account/progress 的乐观锁协议
   const TOOL_KEY = 'mw4_camo_tracker';
   const cloud = { enabled: false, version: null, timer: null, saving: false, dirty: false };
+  // 写接口受 AccountAuthInterceptor 保护：缺少该自定义头会被判为 CSRF 并返回 403
+  const ACCOUNT_HEADERS = { Accept: 'application/json', 'X-Requested-With': 'fetch' };
 
   // 数据同时保留英文名与中文名；界面按中文显示，英文名只用于搜索匹配。
   const zhName = entry => String(entry?.nameZh || entry?.name || '').trim();
@@ -400,7 +402,7 @@
   async function checkAccount() {
     setSyncBar('checking', '正在检查账号状态', '登录后可在所有设备上同步进度。');
     try {
-      const response = await fetch('/api/account/me', { headers: { Accept: 'application/json' } });
+      const response = await fetch('/api/account/me', { headers: ACCOUNT_HEADERS });
       if (!response.ok) {
         setSyncBar('guest', '尚未登录。', '登录后可在所有设备上同步进度。', '登录同步', '/account/login');
         return;
@@ -415,7 +417,7 @@
 
   async function loadCloudProgress() {
     try {
-      const response = await fetch(`/api/account/progress/${TOOL_KEY}`, { headers: { Accept: 'application/json' } });
+      const response = await fetch(`/api/account/progress/${TOOL_KEY}`, { headers: ACCOUNT_HEADERS });
       if (response.status === 401) {
         cloud.enabled = false;
         setSyncBar('guest', '尚未登录。', '登录后可在所有设备上同步进度。', '登录同步', '/account/login');
@@ -451,7 +453,7 @@
     try {
       const response = await fetch(`/api/account/progress/${TOOL_KEY}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, ACCOUNT_HEADERS),
         body: JSON.stringify({ version: cloud.version ?? 0, payload: cloudPayload() })
       });
       if (response.status === 401) {

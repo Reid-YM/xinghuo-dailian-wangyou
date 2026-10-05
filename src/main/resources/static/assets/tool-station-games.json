@@ -506,37 +506,37 @@
           "PYROCLAST": {
             "code": "PYROCLAST",
             "name": "Pyroclast",
-            "shortName": "Pyroclast",
+            "shortName": "火山碎屑",
             "mastery": false,
             "finalCamo": "Pyroclast Cascade",
-            "finalCamoZh": "炎爆·瀑流",
+            "finalCamoZh": "火山碎屑流级联",
             "status": "placeholder",
             "items": [
               {
                 "code": "PYROCLAST",
                 "name": "Pyroclast",
-                "nameZh": "炎爆",
+                "nameZh": "火山碎屑",
                 "requirement": "条件暂未公布",
                 "image": "/assets/mw4camo/pyroclast.webp"
               },
               {
                 "code": "PYROCLAST_VERGE",
                 "name": "Pyroclast Verge",
-                "nameZh": "炎爆·边缘",
+                "nameZh": "火山碎屑边缘",
                 "requirement": "条件暂未公布",
                 "image": "/assets/mw4camo/pyroclast-verge.webp"
               },
               {
                 "code": "PYROCLAST_SCATTER",
                 "name": "Pyroclast Scatter",
-                "nameZh": "炎爆·散射",
+                "nameZh": "火山碎屑散落",
                 "requirement": "条件暂未公布",
                 "image": "/assets/mw4camo/pyroclast-scatter.webp"
               },
               {
                 "code": "PYROCLAST_CASCADE",
                 "name": "Pyroclast Cascade",
-                "nameZh": "炎爆·瀑流",
+                "nameZh": "火山碎屑流级联",
                 "requirement": "条件暂未公布",
                 "image": "/assets/mw4camo/pyroclast-cascade.webp"
               }

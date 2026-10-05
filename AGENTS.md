@@ -133,11 +133,13 @@ Push 当前开发分支
   ↓
 开发者本人检查
   ↓
+CI 通过
+  ↓
 Merge main
   ↓
 生产服务器更新 main
   ↓
-构建 / 部署 / 验证
+构建 / 18080 冒烟 / 零停机部署 / 验证
 ```
 
 ## 8. 合并前最低检查要求
@@ -150,10 +152,11 @@ Merge main
 4. 没有无关的大规模修改。
 5. Maven 构建成功，或明确说明为什么没有执行。
 6. 必要测试已执行。
-7. 没有提交密码、Token、Cookie、私钥等敏感信息。
-8. 数据库变更已确认迁移方案。
-9. 生产配置没有被意外修改。
-10. 已明确回滚方式。
+7. GitHub CI 已完成且没有失败检查，或明确说明为什么没有 CI 结果。
+8. 没有提交密码、Token、Cookie、私钥等敏感信息。
+9. 数据库变更已确认迁移方案。
+10. 生产配置没有被意外修改。
+11. 已明确回滚方式。
 
 ## 9. AI 修改原则
 
@@ -232,6 +235,8 @@ V57__xxxx.sql
 - 订单数据
 - 支付相关数据
 
+零停机部署期间，18080 / 8081 候选实例可能连接生产数据库并触发 Flyway。若存在新 migration，必须先确认迁移与旧版 8080 可并行兼容；破坏性、不可逆或兼容性不明确的迁移不得直接套用普通零停机发布流程。
+
 ## 13. 敏感信息禁止进入 Git
 
 禁止提交：
@@ -260,14 +265,69 @@ V57__xxxx.sql
 
 正常功能修改必须回到源码完成；禁止通过解压、修改、重新打包运行中的生产 JAR 作为日常开发方式。
 
+只有在用户明确说出“确认部署”或同等明确的生产发布授权后，AI 才能进入会改变生产运行状态的部署阶段。开发完成、Push、PR 创建或 PR 合并本身都不等于部署授权。
+
 ## 15. 正式部署原则
 
 生产部署应来自已经确认进入 `main` 的代码。
 
+当前正式生产链路是：
+
+```text
+GitHub main
+  ↓
+/opt/xinghuo-v2/source-current
+  ↓
+mvn clean package
+  ↓
+候选 JAR 在 18080 预发布冒烟
+  ↓
+校验候选 JAR SHA256
+  ↓
+scripts/deploy-zero-downtime.sh
+  ↓
+8081 金丝雀完整冒烟
+  ↓
+nginx 临时切流到 8081
+  ↓
+current.jar 原子切换
+  ↓
+正式 8080 完整冒烟
+  ↓
+nginx 切回 8080
+```
+
+端口职责：
+
+- `18080`：正式发布前的候选包预发布冒烟，不接 nginx 公网流量。
+- `8081`：零停机切流过程中的临时金丝雀。
+- `8080`：正式生产服务端口。
+
+正式 release 命名统一为：
+
+```text
+/opt/xinghuo-v2/releases/xinghuo-v2-standard-YYYYMMDDHHMMSS.jar
+```
+
+`/opt/xinghuo-v2/current.jar` 必须通过 `current.jar.next + mv` 原子切换到新的 release。
+
+以下旧方式已经退出正式生产流程，不得重新作为默认发布方案：
+
+```text
+/srv/xinghuo-dev/base/xinghuo-v2-base.jar
+/srv/xinghuo-dev/work/xinghuo-v2
+基线 JAR + 覆盖源码
+rsync 覆盖源码后 dev_build.sh 拼包
+/opt/xinghuo-v2/bin/deploy-from-source.sh 直接 stop/start 替换固定 JAR
+```
+
+当前 `scripts/deploy-zero-downtime.sh` 的职责仅是发布已经 Maven 构建并完成 18080 冒烟的候选 JAR，不应重新构建源码或依赖旧 baseline JAR。
+
 每次部署应能明确对应：
 
 - Git Commit SHA
-- Git 分支
+- Git 分支（生产部署必须是 `main`）
+- 候选 JAR SHA256
 - 构建时间
 - JAR 文件名
 - 部署时间
@@ -276,13 +336,19 @@ V57__xxxx.sql
 部署后至少检查：
 
 - `xinghuo-v2.service`
+- `current.jar` 实际指向
+- 8080 / 8081 / 18080 端口状态
 - 网站 HTTP 状态
-- Nginx
+- Nginx 配置与最终 upstream
 - 应用日志
 - 核心页面
 - 本次变更涉及的功能
 
 出现严重异常时优先回滚已知正常版本，不要直接在生产环境大范围临时修改。
+
+JAR 回滚不等于数据库回滚。若新版本已经执行不可逆 Flyway migration，必须单独判断数据库恢复方案，不得假设切回旧 JAR 即可恢复。
+
+详细生产步骤以仓库根目录 `源码包部署说明.md` 为当前部署手册。
 
 ## 16. AI 高风险操作限制
 
@@ -313,6 +379,7 @@ AI 完成代码任务后，应明确说明：
 - 是否涉及安全 / 认证
 - 执行了哪些测试
 - Maven 构建结果
+- CI 结果
 - 是否存在未验证部分
 - 当前 Git 分支
 - 推荐下一步
@@ -324,7 +391,8 @@ AI 完成代码任务后，应明确说明：
 若旧 README、旧开发文档、历史恢复资料与本文件冲突：
 
 - 开发流程和 AI 协作规则以当前 `AGENTS.md` 为准。
+- 当前生产部署流程以 `AGENTS.md` 与 `源码包部署说明.md` 为准。
 - 当前代码事实以 GitHub `main` 为准。
 - 当前生产事实以实时服务器状态为准。
 
-不要因为历史文档重新使用已经淘汰的 `/srv/xinghuo-dev` 或旧 baseline JAR 覆盖开发模式。
+不要因为历史文档重新使用已经淘汰的 `/srv/xinghuo-dev`、旧 baseline JAR 覆盖开发模式或旧的直接 stop/start 固定 JAR 发布方式。

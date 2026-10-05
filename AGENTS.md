@@ -10,10 +10,11 @@
 - 正式主分支：`main`
 - 2026-10-05 生产源码恢复基线：`d127eaae39b0f9b93c940e3f4a330d6b0e654c1a`
 - 恢复标签：`production-recovered-20261005`
-- 服务器正式源码目录：`/opt/xinghuo-v2/source-current`
+- 服务器正式维护 / 构建工作区：`/srv/xinghuo-dev/work/xinghuo-v2`
+- 生产运行目录：`/opt/xinghuo-v2`
 - 生产服务：`xinghuo-v2.service`
 
-恢复基线 SHA 只是历史恢复起点，不代表以后 `main` 永远停留在该提交。`main` 会随着正常开发继续前进；恢复标签用于历史锚定，不应删除或改写。
+`/opt/xinghuo-v2/source-current` 是恢复阶段使用过的参考源码目录，不再作为正式维护、构建或发布工作区。恢复基线 SHA 只是历史恢复起点，不代表以后 `main` 永远停留在该提交。`main` 会随着正常开发继续前进；恢复标签用于历史锚定，不应删除或改写。
 
 ## 2. 开发架构
 
@@ -29,6 +30,8 @@ GitHub 是正式代码协作和版本管理中心。
 - 故障排查
 
 生产服务器不作为两位开发者的日常共同编码工作区。两位开发者应分别使用自己电脑上的独立 Git Clone。
+
+服务器上的 `/srv/xinghuo-dev/work/xinghuo-v2` 是正式生产维护工作区，仅用于同步 `main`、构建、预发布冒烟与部署，不作为多人日常开发目录。
 
 ## 3. 核心协作原则
 
@@ -137,7 +140,7 @@ CI 通过
   ↓
 Merge main
   ↓
-生产服务器更新 main
+生产服务器 /srv/xinghuo-dev/work/xinghuo-v2 更新 main
   ↓
 构建 / 18080 冒烟 / 零停机部署 / 验证
 ```
@@ -276,7 +279,7 @@ V57__xxxx.sql
 ```text
 GitHub main
   ↓
-/opt/xinghuo-v2/source-current
+/srv/xinghuo-dev/work/xinghuo-v2
   ↓
 mvn clean package
   ↓
@@ -315,11 +318,12 @@ nginx 切回 8080
 
 ```text
 /srv/xinghuo-dev/base/xinghuo-v2-base.jar
-/srv/xinghuo-dev/work/xinghuo-v2
 基线 JAR + 覆盖源码
 rsync 覆盖源码后 dev_build.sh 拼包
 /opt/xinghuo-v2/bin/deploy-from-source.sh 直接 stop/start 替换固定 JAR
 ```
+
+`/srv/xinghuo-dev/work/xinghuo-v2` 本身不是旧方式，它现在是正式全量 Git/Maven 工作区。旧的 overlay 工作区仅以类似 `/srv/xinghuo-dev/work/xinghuo-v2.legacy-*` 的备份形式保留用于追溯。
 
 当前 `scripts/deploy-zero-downtime.sh` 的职责仅是发布已经 Maven 构建并完成 18080 冒烟的候选 JAR，不应重新构建源码或依赖旧 baseline JAR。
 
@@ -395,4 +399,4 @@ AI 完成代码任务后，应明确说明：
 - 当前代码事实以 GitHub `main` 为准。
 - 当前生产事实以实时服务器状态为准。
 
-不要因为历史文档重新使用已经淘汰的 `/srv/xinghuo-dev`、旧 baseline JAR 覆盖开发模式或旧的直接 stop/start 固定 JAR 发布方式。
+不要因为历史文档重新使用旧 baseline JAR 覆盖开发模式、旧 `dev_build.sh` 拼包方式或旧的直接 stop/start 固定 JAR 发布方式。`/srv/xinghuo-dev/work/xinghuo-v2` 是当前正式生产维护工作区；`/opt/xinghuo-v2/source-current` 仅作为恢复阶段参考目录，不是正式发布入口。

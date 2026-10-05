@@ -4,6 +4,47 @@
 
 任何人或 AI 在分析、修改、提交代码前，应优先阅读并遵守本文件。
 
+## 0. AI 默认启动协议（必须自动执行）
+
+本仓库已经把固定开发规则写入版本控制。正常开发时，项目负责人或开发者**不需要每次重复粘贴 Git、CI、Flyway、生产部署等固定提示词**；只需要直接描述本次需求，例如“开发微信扫码登录”或“修复移动端订单页按钮挤压”。
+
+AI 收到正常开发需求后，应默认连续执行以下准备流程，不要要求开发者重复本文件内容：
+
+1. 先完整阅读当前仓库根目录 `AGENTS.md`；需要快速概览时也可参考 `docs/AI-START-HERE.md`，但发生冲突时以 `AGENTS.md` 为准。
+2. 检查：
+
+```bash
+git status --short --branch
+git branch --show-current
+git remote -v
+```
+
+3. 确认正式仓库是 `Reid-YM/xinghuo-dailian-wangyou`。若仓库不符，立即停止，不得在其他项目误操作。
+4. 若存在来源不明的未提交修改，立即停止并报告；不得覆盖、丢弃或擅自提交他人的工作。
+5. 若工作区干净，则同步最新主线：
+
+```bash
+git fetch origin
+git switch main
+git pull --ff-only origin main
+```
+
+6. 再次确认 `main` 与 `origin/main` 同步、工作区干净，然后根据任务创建独立分支：`feat/*`、`fix/*`、`refactor/*`、`docs/*` 或 `ci/*`。
+7. 先检查相关源码、调用链、配置和现有行为，再开始修改；不要仅凭需求描述猜测代码结构。
+8. 对正常、低风险、可逆的开发工作，可按本文件规则连续完成分析、修改、验证、Commit、Push 当前任务分支和创建 PR，无需每一个小步骤都等待确认。
+9. 完成后执行必要验证；Java 常规代码改动至少执行 `mvn clean package`，并检查 `git diff`。
+10. Push 只能推当前任务分支，随后创建 Pull Request 到 `main` 并等待 CI。**不得直接 Push `main`。**
+11. PR 合并、CI 成功都不等于生产部署授权。正常开发默认在 Merge `main` 后停止；只有项目负责人明确说出“确认部署”或同等明确授权后，才允许进入生产发布阶段，并优先使用 GitHub Actions 的 `Deploy Production`，而不是要求开发者日常登录服务器手输部署命令。
+
+只有以下情况应暂停并向项目负责人询问，而不是自行扩大操作范围：
+
+- 需求存在会明显改变结果的关键歧义；
+- 需要删除已有核心功能或改变重大业务逻辑；
+- 需要不可逆、破坏性或兼容性不明确的数据库变更；
+- 需要修改生产密钥、权限或生产基础设施；
+- 需要 Force Push、重写历史、删除分支或 Tag；
+- 准备进入生产部署，但尚未得到明确部署授权。
+
 ## 1. 正式项目基线
 
 - 正式 GitHub 仓库：`Reid-YM/xinghuo-dailian-wangyou`
@@ -70,6 +111,7 @@ git pull --ff-only
 - Bug 修复：`fix/<问题名>`
 - 重构：`refactor/<模块名>`
 - 文档：`docs/<内容>`
+- CI / 工作流：`ci/<内容>`
 
 示例：
 
@@ -80,6 +122,7 @@ fix/mobile-layout
 fix/admin-upload
 refactor/site-config
 docs/deployment-guide
+ci/update-actions
 ```
 
 两个人同时开发时，必须使用各自独立分支，不要多人和多个 AI 无序共用同一个开发分支。
@@ -93,7 +136,7 @@ git status --short --branch
 git branch --show-current
 ```
 
-如果当前分支是 `main`，正常开发情况下不要直接修改，应先创建 `feat/*`、`fix/*`、`refactor/*` 或 `docs/*` 分支。
+如果当前分支是 `main`，正常开发情况下不要直接修改，应先创建 `feat/*`、`fix/*`、`refactor/*`、`docs/*` 或 `ci/*` 分支。
 
 ## 6. main 禁止操作
 
@@ -120,7 +163,7 @@ git push --force-with-lease
 ```text
 最新 main
   ↓
-创建 feat/* / fix/* / refactor/* / docs/*
+创建 feat/* / fix/* / refactor/* / docs/* / ci/*
   ↓
 人 + AI 开发
   ↓
@@ -139,6 +182,10 @@ Push 当前开发分支
 CI 通过
   ↓
 Merge main
+  ↓
+默认停止，等待明确生产部署授权
+  ↓（仅在“确认部署”后）
+GitHub Actions: Deploy Production
   ↓
 生产服务器 /srv/xinghuo-dev/work/xinghuo-v2 更新 main
   ↓

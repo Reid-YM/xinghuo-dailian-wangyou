@@ -16,7 +16,8 @@ class GlobalUiControlContractTest {
         String controls = read("resources/static/assets/global-ui-controls.js");
         String settings = read("java/com/xinghuo/service/SiteSettingService.java");
 
-        assertTrue(fragment.contains("/assets/global-ui-controls.js?v=20261007g004"));
+        assertTrue(fragment.contains("/assets/global-ui-controls.js?v=20261007g005"));
+        assertTrue(controls.contains("protectUserCenterFromAdminLinks"));
         for (String key : new String[]{
                 "navServicesLabel", "navServicesVisible", "navGuidesLabel", "navGuidesVisible",
                 "navMasteryLabel", "navMasteryVisible", "navRecordsLabel", "navRecordsVisible",

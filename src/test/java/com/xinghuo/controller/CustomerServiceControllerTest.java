@@ -51,8 +51,9 @@ class CustomerServiceControllerTest {
     @Test
     void persistedTopicLinkOverridesEnvironmentWithoutRestart() {
         SiteSettingService settings = mock(SiteSettingService.class);
-        when(settings.get(anyString(), anyString())).thenAnswer(invocation -> invocation.getArgument(1));
-        when(settings.get("customerServiceOrderUrl", "https://work.weixin.qq.com/kfid/env-order"))
+        when(settings.customerServiceSetting(anyString(), anyString()))
+                .thenAnswer(invocation -> invocation.getArgument(1));
+        when(settings.customerServiceSetting("customerServiceOrderUrl", "https://work.weixin.qq.com/kfid/env-order"))
                 .thenReturn("https://work.weixin.qq.com/kfid/admin-order");
 
         CustomerServiceController controller = new CustomerServiceController(

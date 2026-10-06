@@ -47,11 +47,42 @@ HEAD_SHA=$(git -C "$WORK" rev-parse HEAD)
 [ -z "$(git -C "$WORK" status --porcelain)" ] || fail "同步后工作区不干净"
 
 log "2/8 Flyway 自动发布安全阀"
-MIGRATIONS=$(git -C "$WORK" diff --name-only \
-  production-recovered-20261005..HEAD -- src/main/resources/db/migration)
-if [ -n "$MIGRATIONS" ]; then
-  echo "$MIGRATIONS"
-  fail "检测到 Flyway migration 变化；一键发布默认拒绝数据库迁移版本，请走单独数据库发布评审"
+
+# 判定口径：拿「本次要发布的包」和「线上正在运行的包」比 migration 清单，
+# 而不是与固定的恢复标签 production-recovered-20261005 比较。
+# 旧口径下，一旦有任何一个新 migration 进入 main，之后每次发布都会被拦下 —
+# 哪怕那次改动完全不含数据库变更，把安全阀变成了永久路障。
+LIVE_JAR=$(readlink -f "$APP_DIR/current.jar" 2>/dev/null || echo "$APP_DIR/current.jar")
+LIVE_MIGRATIONS=""
+if [ -f "$LIVE_JAR" ]; then
+  LIVE_MIGRATIONS=$(sudo unzip -Z1 "$LIVE_JAR" 2>/dev/null \
+    | sed -n 's#^BOOT-INF/classes/db/migration/\(V[^/]*\.sql\)$#\1#p' | sort -u) \
+    || LIVE_MIGRATIONS=""
+fi
+HEAD_MIGRATIONS=$(find "$WORK/src/main/resources/db/migration" -maxdepth 1 -name 'V*.sql' \
+  -printf '%f\n' 2>/dev/null | sort -u)
+
+if [ -z "$LIVE_MIGRATIONS" ]; then
+  # 读不到线上包内的清单时退回旧口径：宁可拦下，也不能放过带迁移的版本
+  MIGRATIONS=$(git -C "$WORK" diff --name-only \
+    production-recovered-20261005..HEAD -- src/main/resources/db/migration)
+  if [ -n "$MIGRATIONS" ]; then
+    echo "$MIGRATIONS"
+    fail "无法读取线上包内的 migration 清单，且与恢复标签存在差异；请人工核对后再发布"
+  fi
+else
+  NEW_MIGRATIONS=$(comm -13 <(printf '%s\n' "$LIVE_MIGRATIONS") \
+    <(printf '%s\n' "$HEAD_MIGRATIONS") | sed '/^$/d')
+  if [ -n "$NEW_MIGRATIONS" ]; then
+    echo "$NEW_MIGRATIONS"
+    if [ "${ALLOW_REVIEWED_MIGRATION:-}" = "YES" ]; then
+      log "⚠️ 本次发布包含新 migration，已按 ALLOW_REVIEWED_MIGRATION=YES 放行（须已单独评审）"
+    else
+      fail "本次发布包含新的 Flyway migration；一键发布默认拒绝，请走单独数据库发布评审（评审后可用 ALLOW_REVIEWED_MIGRATION=YES 手动执行）"
+    fi
+  else
+    log "没有新增 migration（与线上运行版本一致）"
+  fi
 fi
 
 log "3/8 生产前置检查"

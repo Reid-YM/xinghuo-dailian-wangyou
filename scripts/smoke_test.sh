@@ -20,8 +20,23 @@ check_code /guides 200
 check_code /mastery 200
 check_code /api/guides 200
 check_code /api/tool-station 200
-# 用户中心与设置页必须要求登录，未登录时页面跳转到登录页。
+# 用户中心所有真实页面都必须存在并要求登录。未登录时应跳转登录页，绝不能 404。
 check_code /account 302
+check_code /account/requests 302
+check_code /account/orders 302
+check_code /account/progress 302
+check_code /account/settings 302
+check_code /account/submit 302
+# 常见旧用户入口也必须被账号拦截器接住，登录后再重定向到 canonical /account/**。
+check_code /account/quotes 302
+check_code /account/profile 302
+check_code /account/security 302
+check_code /console 302
+check_code /console/overview 302
+check_code /console/profile 302
+check_code /console/quotes 302
+check_code /console/orders 302
+check_code /console/security 302
 check_code /account/login 200
 check_code /account/register 200
 check_code /rules 200

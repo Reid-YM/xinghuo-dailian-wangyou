@@ -4,6 +4,47 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
+  function guardUserDestinations() {
+    document.addEventListener('click', event => {
+      const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
+      if (!link) return;
+      const href = String(link.getAttribute('href') || '').trim();
+      if (href === '/admin' || href.startsWith('/admin/')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        location.assign('/account');
+      }
+    }, true);
+  }
+
+  function redirectLegacyAccountHash() {
+    if (location.pathname !== '/account' || !location.hash) return false;
+    const key = location.hash.replace(/^#/, '').toLowerCase();
+    const targets = {
+      overview: '/account',
+      requests: '/account/requests',
+      quotes: '/account/requests',
+      orders: '/account/orders',
+      progress: '/account/progress',
+      tools: '/account/progress',
+      profile: '/account/settings#profile',
+      contact: '/account/settings#contact',
+      quotecontact: '/account/settings#contact',
+      security: '/account/settings#security',
+      password: '/account/settings#password',
+      email: '/account/settings#email',
+      devices: '/account/settings#devices',
+      activity: '/account/settings#activity'
+    };
+    const target = targets[key];
+    if (!target || target === `${location.pathname}${location.hash}`) return false;
+    location.replace(target);
+    return true;
+  }
+
+  guardUserDestinations();
+  if (redirectLegacyAccountHash()) return;
+
   function initSettingsViews() {
     const root = $('[data-settings-hub]'); if (!root) return;
     const map = { profile:'profile', contact:'contact', quotecontact:'contact', security:'security', password:'security', email:'security', devices:'security', activity:'security', session:'security' };

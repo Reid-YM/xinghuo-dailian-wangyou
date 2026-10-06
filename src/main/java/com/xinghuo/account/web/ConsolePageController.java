@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  *
  * <p>The user-facing information architecture is canonical under /account/**.
  * /console itself keeps a tiny client redirect page because URL fragments are not sent to the server.
+ * Direct legacy paths are kept as server redirects so old bookmarks never fall through to 404 or admin pages.
  */
 @Controller
 public class ConsolePageController {
@@ -18,7 +19,19 @@ public class ConsolePageController {
         return "console";
     }
 
-    @GetMapping("/console/quotes")
+    @GetMapping("/console/overview")
+    @RequireAccount
+    public String legacyOverview() {
+        return "redirect:/account";
+    }
+
+    @GetMapping("/console/profile")
+    @RequireAccount
+    public String legacyProfile() {
+        return "redirect:/account/settings#profile";
+    }
+
+    @GetMapping({"/console/quotes", "/console/requests"})
     @RequireAccount
     public String legacyQuotes() {
         return "redirect:/account/requests";
@@ -30,7 +43,13 @@ public class ConsolePageController {
         return "redirect:/account/orders";
     }
 
-    @GetMapping("/console/security")
+    @GetMapping({"/console/progress", "/console/tools"})
+    @RequireAccount
+    public String legacyProgress() {
+        return "redirect:/account/progress";
+    }
+
+    @GetMapping({"/console/security", "/console/settings"})
     @RequireAccount
     public String legacySecurity() {
         return "redirect:/account/settings#security";

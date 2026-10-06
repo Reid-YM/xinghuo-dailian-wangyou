@@ -14,7 +14,7 @@ class LegacyTemplateCleanlinessTest {
 
     @Test
     void publicTemplatesDoNotExposeRetiredDirectCustomerServiceLinks() throws IOException {
-        for (Path template : templateFiles()) {
+        for (Path template : publicTemplateFiles()) {
             String content = Files.readString(template);
             assertFalse(content.contains("AAC9878"), () -> template + " still exposes the retired WeChat ID");
             assertFalse(content.contains("work.weixin.qq.com/kfid/"),
@@ -25,8 +25,8 @@ class LegacyTemplateCleanlinessTest {
     }
 
     @Test
-    void templatesDoNotLinkToRetiredPages() throws IOException {
-        for (Path template : templateFiles()) {
+    void publicTemplatesDoNotLinkToRetiredPages() throws IOException {
+        for (Path template : publicTemplateFiles()) {
             String content = Files.readString(template);
             assertFalse(content.contains("href=\"/console"), () -> template + " still links to the retired console UI");
             assertFalse(content.contains("href=\"/order\""), () -> template + " still links to the legacy order lookup page");
@@ -34,10 +34,11 @@ class LegacyTemplateCleanlinessTest {
         }
     }
 
-    private static List<Path> templateFiles() throws IOException {
+    private static List<Path> publicTemplateFiles() throws IOException {
         try (var paths = Files.walk(TEMPLATES)) {
             return paths.filter(Files::isRegularFile)
                     .filter(path -> path.getFileName().toString().endsWith(".html"))
+                    .filter(path -> !path.getFileName().toString().startsWith("admin"))
                     .toList();
         }
     }

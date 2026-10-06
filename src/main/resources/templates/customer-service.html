@@ -65,7 +65,7 @@
         <h2 th:text="${supportTopic.title + '入口'}">客服入口</h2>
         <p th:text="${supportTopic.tip}">把关键信息一次说明。</p>
         <a class="btn primary" th:href="@{'/customer-service/start/' + ${supportTopic.slug}}" data-track="online_support_start" th:text="${supportTopic.actionLabel}">开始在线咨询</a>
-        <span class="support-safe">进入后可继续发送文字、图片或文件。请勿发送账号密码、验证码或令牌。</span>
+        <span class="support-safe">进入后可继续发送文字、图片或文件。<span data-global-ui="customer-service-safety">请勿发送账号密码、验证码或令牌。</span></span>
       </aside>
     </div>
 

@@ -1,6 +1,7 @@
 package com.xinghuo.web;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +33,15 @@ class LegacyTemplateCleanlinessTest {
             assertFalse(content.contains("href=\"/order\""), () -> template + " still links to the legacy order lookup page");
             assertFalse(content.contains("href=\"/loadouts"), () -> template + " still links to the retired loadout page");
         }
+    }
+
+    @Test
+    void sharedHeaderUsesAccountEntryInsteadOfForcingLoginPage() throws IOException {
+        String content = Files.readString(TEMPLATES.resolve("fragments/site.html"));
+        assertTrue(content.contains("href=\"/account\" data-account-entry"),
+                "shared header must use /account so the server can respect the existing login session");
+        assertFalse(content.contains("href=\"/account/login\" data-account-entry"),
+                "shared header must not force already logged-in users back to the login page");
     }
 
     private static List<Path> publicTemplateFiles() throws IOException {

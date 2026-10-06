@@ -103,7 +103,7 @@
       <details>
         <summary><b>历史联系方式兼容（旧数据）</b></summary>
         <p class="muted small">旧微信号、二维码、QQ、电话、淘宝和闲鱼字段继续保留用于历史数据兼容，但它们不再是当前公开客服体系。日常客服请只维护上方“客服中心”的企业微信配置。</p>
-        <div class="admin-control-actions"><button class="btn ghost" type="button" data-v3-open-legacy-contact>打开旧数据兼容编辑</button></div>
+        <div class="admin-control-actions"><button class="btn ghost" type="button" data-v3-open-legacy-contact data-config-entry="contact">打开旧数据兼容编辑</button></div>
       </details>
     </section>`);
   }
@@ -130,13 +130,7 @@
 
   document.addEventListener('click', (event) => {
     if (!event.target.closest('[data-v3-open-legacy-contact]')) return;
-    const trigger = document.querySelector('[data-config-entry="contact"]');
-    if (trigger) {
-      trigger.click();
-      setTimeout(markLegacyContactSection, 0);
-    } else {
-      toast('历史兼容编辑入口尚未就绪，请刷新后台后重试', 'error');
-    }
+    setTimeout(markLegacyContactSection, 0);
   });
 
   const observer = new MutationObserver(install);

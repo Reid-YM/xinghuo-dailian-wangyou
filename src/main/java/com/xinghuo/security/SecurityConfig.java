@@ -37,13 +37,13 @@ public class SecurityConfig {
             "/records", "/record/**", "/order", "/order/**", "/contact", "/support", "/support/**", "/customer-service/**",
             "/account", "/account/login", "/account/register", "/account/reset",
             "/account/settings", "/account/submit", "/console", "/console/**",
-            "/rules", "/privacy", "/trust", "/loadouts",
+            "/rules", "/privacy", "/trust",
             "/robots.txt", "/sitemap.xml", "/favicon.ico", "/favicon.svg",
             "/apple-touch-icon.png", "/og.png", "/assets/**",
             "/api/site-config", "/api/site-assets/**",
             "/api/services", "/api/catalog", "/api/quote", "/api/records/**",
             "/api/orders/**", "/api/uploads/quote", "/api/track",
-            "/api/tool-station", "/api/guides", "/api/guides/**", "/api/loadouts", "/api/account/**", "/api/console/**",
+            "/api/tool-station", "/api/guides", "/api/guides/**", "/api/account/**", "/api/console/**",
             "/admin/login", "/error"
     };
 

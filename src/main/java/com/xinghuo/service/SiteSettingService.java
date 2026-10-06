@@ -3,6 +3,7 @@ package com.xinghuo.service;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.model.SiteSetting;
 import com.xinghuo.repository.SiteSettingRepository;
+import java.net.URI;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -44,13 +45,22 @@ public class SiteSettingService {
     );
 
     private static final Set<String> GLOBAL_UI_KEYS = GLOBAL_UI_DEFAULTS.keySet();
+    private static final Set<String> CUSTOMER_SERVICE_KEYS = Set.of(
+            "customerServiceEnabled",
+            "customerServiceDefaultUrl",
+            "customerServiceGameUrl",
+            "customerServiceOrderUrl",
+            "customerServiceAfterSalesUrl",
+            "customerServiceBusinessUrl"
+    );
+
     private final SiteSettingRepository repo;
 
     @Transactional(readOnly=true)
     public Map<String, String> publicSettings() {
-        LinkedHashMap<String, String> out = new LinkedHashMap<String, String>();
+        LinkedHashMap<String, String> out = new LinkedHashMap<>();
         out.putAll(GLOBAL_UI_DEFAULTS);
-        for (SiteSetting s : this.repo.findAll()) {
+        for (SiteSetting s : repo.findAll()) {
             if (!PUBLIC_KEYS.contains(s.getSettingKey())) continue;
             out.put(s.getSettingKey(), s.getSettingValue());
         }
@@ -59,9 +69,9 @@ public class SiteSettingService {
 
     @Transactional(readOnly=true)
     public Map<String, String> globalUiSettings() {
-        LinkedHashMap<String, String> out = new LinkedHashMap<String, String>();
+        LinkedHashMap<String, String> out = new LinkedHashMap<>();
         out.putAll(GLOBAL_UI_DEFAULTS);
-        for (SiteSetting s : this.repo.findAll()) {
+        for (SiteSetting s : repo.findAll()) {
             if (!GLOBAL_UI_KEYS.contains(s.getSettingKey())) continue;
             out.put(s.getSettingKey(), s.getSettingValue());
         }
@@ -70,9 +80,7 @@ public class SiteSettingService {
 
     @Transactional
     public Map<String, String> updateGlobalUiSettings(Map<String, Object> values) {
-        if (values == null) {
-            throw new BadRequestException("全局前端配置不能为空");
-        }
+        if (values == null) throw new BadRequestException("全局前端配置不能为空");
         for (String key : GLOBAL_UI_KEYS) {
             if (!values.containsKey(key)) continue;
             String raw = values.get(key) == null ? "" : String.valueOf(values.get(key)).trim();
@@ -84,35 +92,79 @@ public class SiteSettingService {
                 normalized = String.valueOf(Boolean.parseBoolean(raw));
             } else {
                 int max = key.endsWith("Intro") || key.endsWith("Note") ? 300 : 100;
-                if (raw.length() > max) {
-                    throw new BadRequestException("全局前端配置内容过长：" + key);
-                }
+                if (raw.length() > max) throw new BadRequestException("全局前端配置内容过长：" + key);
                 normalized = raw.isBlank() ? GLOBAL_UI_DEFAULTS.get(key) : raw;
             }
-            this.putInternal(key, normalized);
+            putInternal(key, normalized);
         }
-        return this.globalUiSettings();
+        return globalUiSettings();
+    }
+
+    @Transactional(readOnly=true)
+    public Map<String, String> customerServiceSettings(Map<String, String> defaults) {
+        LinkedHashMap<String, String> out = new LinkedHashMap<>();
+        if (defaults != null) out.putAll(defaults);
+        for (String key : CUSTOMER_SERVICE_KEYS) out.putIfAbsent(key, "");
+        for (SiteSetting s : repo.findAll()) {
+            if (!CUSTOMER_SERVICE_KEYS.contains(s.getSettingKey())) continue;
+            String value = s.getSettingValue();
+            if (value != null && !value.isBlank()) out.put(s.getSettingKey(), value);
+        }
+        return out;
+    }
+
+    @Transactional
+    public Map<String, String> updateCustomerServiceSettings(Map<String, Object> values, Map<String, String> defaults) {
+        if (values == null) throw new BadRequestException("客服配置不能为空");
+        for (String key : CUSTOMER_SERVICE_KEYS) {
+            if (!values.containsKey(key)) continue;
+            String raw = values.get(key) == null ? "" : String.valueOf(values.get(key)).trim();
+            if ("customerServiceEnabled".equals(key)) {
+                if (!"true".equalsIgnoreCase(raw) && !"false".equalsIgnoreCase(raw)) {
+                    throw new BadRequestException("客服启停开关必须为 true 或 false");
+                }
+                putInternal(key, String.valueOf(Boolean.parseBoolean(raw)));
+                continue;
+            }
+            if (raw.length() > 500) throw new BadRequestException("客服链接过长：" + key);
+            if (!raw.isBlank() && !isOfficialCustomerServiceUrl(raw)) {
+                throw new BadRequestException("客服链接必须是企业微信官方 https://work.weixin.qq.com/kfid/ 或 /kf/ 地址");
+            }
+            putInternal(key, raw);
+        }
+        return customerServiceSettings(defaults);
     }
 
     @Transactional(readOnly=true)
     public String get(String key, String fallback) {
-        String v = this.repo.findById(key).map(SiteSetting::getSettingValue).orElse(null);
+        String v = repo.findById(key).map(SiteSetting::getSettingValue).orElse(null);
         return v == null || v.isBlank() ? fallback : v;
     }
 
     @Transactional
     public void put(String key, String value) {
-        if (!PUBLIC_KEYS.contains(key)) {
-            return;
-        }
-        this.putInternal(key, value);
+        if (!PUBLIC_KEYS.contains(key)) return;
+        putInternal(key, value);
     }
 
     private void putInternal(String key, String value) {
-        SiteSetting s = this.repo.findById(key).orElseGet(() -> SiteSetting.builder().settingKey(key).build());
+        SiteSetting s = repo.findById(key).orElseGet(() -> SiteSetting.builder().settingKey(key).build());
         s.setSettingValue(value);
         s.setUpdatedAt(Instant.now());
-        this.repo.save(s);
+        repo.save(s);
+    }
+
+    private boolean isOfficialCustomerServiceUrl(String configuredUrl) {
+        try {
+            URI uri = URI.create(configuredUrl.trim());
+            String path = uri.getPath();
+            return "https".equalsIgnoreCase(uri.getScheme())
+                    && "work.weixin.qq.com".equalsIgnoreCase(uri.getHost())
+                    && path != null
+                    && (path.startsWith("/kfid/") || path.startsWith("/kf/"));
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
     }
 
     @Generated

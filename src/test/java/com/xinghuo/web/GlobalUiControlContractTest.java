@@ -31,9 +31,10 @@ class GlobalUiControlContractTest {
         for (String key : new String[]{
                 "floatingCustomerServiceEnabled", "navServicesLabel", "navGuidesLabel",
                 "navMasteryLabel", "navRecordsLabel", "navAccountLabel", "footerServicesLabel",
-                "footerRulesLabel", "footerPrivacyLabel", "floatingCustomerServiceLabel",
-                "floatingCustomerServiceTitle", "floatingCustomerServiceIntro",
-                "floatingCustomerServiceNote", "icpNumber", "publicSecurityNumber"}) {
+                "footerRecordsLabel", "footerAccountLabel", "footerRulesLabel", "footerPrivacyLabel",
+                "floatingCustomerServiceLabel", "floatingCustomerServiceTitle",
+                "floatingCustomerServiceIntro", "floatingCustomerServiceNote",
+                "icpNumber", "publicSecurityNumber"}) {
             assertTrue(settings.contains("\"" + key + "\""), "missing persisted setting " + key);
             assertTrue(controls.contains(key), "public frontend does not consume " + key);
         }
@@ -54,6 +55,15 @@ class GlobalUiControlContractTest {
                 "statusShortText", "primaryButtonLabel", "toolUpdatedNote", "toolPublicEnabled"}) {
             assertTrue(admin.contains(field), "admin does not expose " + field);
         }
+    }
+
+    @Test
+    void anonymousFrontendCanReadIntendedPublicControlApis() throws IOException {
+        String security = read("java/com/xinghuo/security/SecurityConfig.java");
+        assertTrue(security.contains("\"/api/public/**\""),
+                "public frontend settings/game-status APIs must remain permitAll");
+        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin/**\")"),
+                "admin APIs must stay protected");
     }
 
     private static String read(String relative) throws IOException {

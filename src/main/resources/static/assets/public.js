@@ -201,22 +201,8 @@
     }).catch(() => {});
   }
 
-  function initLanguageSwitcher() {
-    const nav = document.querySelector('.site-header .nav');
-    if (!nav || nav.querySelector('[data-language-switcher]')) return;
-    const current = (document.cookie.match(/(?:^|; )xh_lang=([^;]+)/) || [])[1]
-      || (document.documentElement.lang || 'zh-CN');
-    const isEn = String(current).toLowerCase().indexOf('en') === 0;
-    const next = isEn ? 'zh' : 'en';
-    const returnTo = location.pathname + location.search;
-    const wrap = document.createElement('div');
-    wrap.className = 'language-switcher';
-    wrap.setAttribute('data-language-switcher', '');
-    wrap.innerHTML = '<a class="lang-current" href="/language?lang=' + next
-      + '&returnTo=' + encodeURIComponent(returnTo) + '" rel="nofollow">'
-      + (isEn ? '中文' : 'EN') + '</a>';
-    nav.appendChild(wrap);
-  }
+  // 语言切换按钮已下线：英文版尚未开放，按钮点进去只会提示「暂未开放」，
+  // 放在导航里属于无效入口。恢复英文版时再把入口加回来。
 
   const categoryMap = {
     activity: '活动任务', weapon: '武器升级', camo: '迷彩任务', rank: '排位 / 段位', ranked: '排位模式',
@@ -1184,7 +1170,6 @@
 
   initCyberVisuals();
   initSmartMobileDock();
-  initLanguageSwitcher();
   initDynamicI18n();
 
   window.XH = { initLinkedQuoteForm, loadServices, loadTaxonomy, updateDynamicStartingPrice, bindUploadFields, initResponsiveDetails,

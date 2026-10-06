@@ -30,7 +30,7 @@
   }
 
   function field(name) {
-    return document.querySelector(`#globalUiForm [name="${CSS.escape(name)}"]`);
+    return document.querySelector(`#globalUiForm [name="${name}"]`);
   }
 
   function injectStyle() {
@@ -71,21 +71,25 @@
             <div class="field"><label>MW4 工具站文案</label><input name="navMasteryLabel" maxlength="100" value="${esc(settings.navMasteryLabel)}"></div>
             <div class="field"><label>业务记录文案</label><input name="navRecordsLabel" maxlength="100" value="${esc(settings.navRecordsLabel)}"></div>
             <div class="field"><label>个人空间文案</label><input name="navAccountLabel" maxlength="100" value="${esc(settings.navAccountLabel)}"></div>
-            <div class="field"><label>主按钮文案</label><input name="primaryButtonLabel" maxlength="40" value="${esc(site.primaryButtonLabel || '')}" placeholder="提前询价"></div>
+            <div class="field"><label>兜底主按钮文案</label><input name="primaryButtonLabel" maxlength="40" value="${esc(site.primaryButtonLabel || '')}" placeholder="提前询价"><small class="form-help">游戏独立运营状态设置了按钮文案时，以游戏状态为准。</small></div>
+
+            <div class="field"><label>页脚服务文案</label><input name="footerServicesLabel" maxlength="100" value="${esc(settings.footerServicesLabel)}"></div>
+            <div class="field"><label>页脚业务记录文案</label><input name="footerRecordsLabel" maxlength="100" value="${esc(settings.footerRecordsLabel)}"></div>
+            <div class="field"><label>页脚个人空间文案</label><input name="footerAccountLabel" maxlength="100" value="${esc(settings.footerAccountLabel)}"></div>
+            <div class="field"><label>页脚规则文案</label><input name="footerRulesLabel" maxlength="100" value="${esc(settings.footerRulesLabel)}"></div>
+            <div class="field"><label>页脚隐私文案</label><input name="footerPrivacyLabel" maxlength="100" value="${esc(settings.footerPrivacyLabel)}"></div>
 
             <div class="field"><label>悬浮客服按钮文案</label><input name="floatingCustomerServiceLabel" maxlength="100" value="${esc(settings.floatingCustomerServiceLabel)}"></div>
             <div class="field"><label>悬浮客服标题</label><input name="floatingCustomerServiceTitle" maxlength="100" value="${esc(settings.floatingCustomerServiceTitle)}"></div>
             <div class="field wide"><label>悬浮客服说明</label><textarea name="floatingCustomerServiceIntro" maxlength="300">${esc(settings.floatingCustomerServiceIntro)}</textarea></div>
             <div class="field wide"><label>悬浮客服安全提示</label><input name="floatingCustomerServiceNote" maxlength="300" value="${esc(settings.floatingCustomerServiceNote)}"><small class="form-help">客服时间继续复用“联系方式”分区里的服务时间。</small></div>
 
-            <div class="field"><label>状态短文案</label><input name="statusShortText" maxlength="120" value="${esc(site.statusShortText || '')}" placeholder="当前可正常接单"></div>
+            <div class="field"><label>兜底状态短文案</label><input name="statusShortText" maxlength="120" value="${esc(site.statusShortText || '')}" placeholder="当前可正常接单"><small class="form-help">游戏有独立运营状态时，以游戏状态文案为准。</small></div>
             <div class="field"><label>工具站更新时间提示</label><input name="toolUpdatedNote" maxlength="120" value="${esc(site.toolUpdatedNote || '')}" placeholder="数据更新时间"></div>
-            <label class="toggle-row wide"><input type="checkbox" name="toolPublicEnabled"${toolChecked}><span><b>公开展示 MW4 工具站入口</b><small>关闭后公共导航中的工具站入口会隐藏；后台资料仍保留。</small></span></label>
+            <label class="toggle-row wide"><input type="checkbox" name="toolPublicEnabled"${toolChecked}><span><b>公开展示 MW4 工具站入口</b><small>关闭后公共导航与快捷入口中的工具站入口会隐藏；后台资料仍保留。</small></span></label>
 
             <div class="field"><label>ICP备案号</label><input name="icpNumber" maxlength="100" value="${esc(settings.icpNumber)}"></div>
             <div class="field"><label>公安备案号</label><input name="publicSecurityNumber" maxlength="100" value="${esc(settings.publicSecurityNumber)}"></div>
-            <div class="field"><label>页脚规则文案</label><input name="footerRulesLabel" maxlength="100" value="${esc(settings.footerRulesLabel)}"></div>
-            <div class="field"><label>页脚隐私文案</label><input name="footerPrivacyLabel" maxlength="100" value="${esc(settings.footerPrivacyLabel)}"></div>
           </div>
           <div class="global-ui-actions">
             <button class="btn primary" type="submit">保存全局前端配置</button>
@@ -121,14 +125,17 @@
         navMasteryLabel: field('navMasteryLabel').value,
         navRecordsLabel: field('navRecordsLabel').value,
         navAccountLabel: field('navAccountLabel').value,
+        footerServicesLabel: field('footerServicesLabel').value,
+        footerRecordsLabel: field('footerRecordsLabel').value,
+        footerAccountLabel: field('footerAccountLabel').value,
+        footerRulesLabel: field('footerRulesLabel').value,
+        footerPrivacyLabel: field('footerPrivacyLabel').value,
         floatingCustomerServiceLabel: field('floatingCustomerServiceLabel').value,
         floatingCustomerServiceTitle: field('floatingCustomerServiceTitle').value,
         floatingCustomerServiceIntro: field('floatingCustomerServiceIntro').value,
         floatingCustomerServiceNote: field('floatingCustomerServiceNote').value,
         icpNumber: field('icpNumber').value,
         publicSecurityNumber: field('publicSecurityNumber').value,
-        footerRulesLabel: field('footerRulesLabel').value,
-        footerPrivacyLabel: field('footerPrivacyLabel').value,
         reason: '管理员全局前端控制台保存'
       };
       await Promise.all([

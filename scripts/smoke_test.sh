@@ -26,8 +26,10 @@ check_code /account/login 200
 check_code /account/register 200
 check_code /rules 200
 check_code /privacy 200
+# 旧 /contact 已拆成四类客服中心；通用 support 页面只做兼容跳转。
 check_code /contact 200
-check_code /support/general 200
+check_code /support 302
+check_code /support/general 302
 check_code /support/game 200
 check_code /support/order 200
 check_code /support/after-sales 200

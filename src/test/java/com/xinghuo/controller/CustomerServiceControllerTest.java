@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.ui.ExtendedModelMap;
 
 class CustomerServiceControllerTest {
 
@@ -69,6 +70,27 @@ class CustomerServiceControllerTest {
 
         assertThat(response.getHeaders().getLocation())
                 .isEqualTo(URI.create("https://work.weixin.qq.com/kfid/default123"));
+    }
+
+    @Test
+    void supportHomeRedirectsToFourCategoryHub() {
+        CustomerServiceController controller = controller(
+                true,
+                "https://work.weixin.qq.com/kfid/default123",
+                "", "", "", "");
+
+        assertThat(controller.supportHome()).isEqualTo("redirect:/contact");
+    }
+
+    @Test
+    void generalSupportPageRedirectsToFourCategoryHub() {
+        CustomerServiceController controller = controller(
+                true,
+                "https://work.weixin.qq.com/kfid/default123",
+                "", "", "", "");
+
+        assertThat(controller.support("general", new ExtendedModelMap()))
+                .isEqualTo("redirect:/contact");
     }
 
     @Test

@@ -22,7 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 /**
  * 在线客服入口。
  *
- * <p>站内先按咨询类型提供不同的准备页，真正进入会话时再跳转到服务端配置的企业微信官方客服链接。
+ * <p>用户侧只暴露游戏咨询、订单咨询、售后处理、商务合作四类专属页面。
+ * 真正进入会话时，再跳转到服务端为该类型配置的企业微信官方客服链接。
  * 每个咨询类型可配置独立客服链接；未配置时回退到默认客服链接。前端不能传入目标 URL，避免开放重定向。
  */
 @Controller
@@ -94,14 +95,20 @@ public class CustomerServiceController {
         putTopicUri("business", businessUrl);
     }
 
+    /**
+     * /support 不再承载通用咨询页，统一回到四类客服中心。
+     */
     @GetMapping("/support")
     public String supportHome() {
-        return "redirect:/support/general";
+        return "redirect:/contact";
     }
 
     @GetMapping("/support/{topic}")
     public String support(@PathVariable String topic, Model model) {
         String normalizedTopic = normalizeTopic(topic);
+        if ("general".equals(normalizedTopic)) {
+            return "redirect:/contact";
+        }
         SupportTopic supportTopic = SUPPORT_TOPICS.get(normalizedTopic);
         model.addAttribute("supportTopic", supportTopic);
         model.addAttribute("supportTopics", List.of(

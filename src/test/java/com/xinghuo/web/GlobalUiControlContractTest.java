@@ -63,6 +63,39 @@ class GlobalUiControlContractTest {
     }
 
     @Test
+    void adminV3ControlsNavigationExposureWithoutTakingRoutesOffline() throws IOException {
+        String adminLoader = read("resources/static/assets/admin-tool-station.js");
+        String adminV3 = read("resources/static/assets/admin-v3-controls.js");
+        String controls = read("resources/static/assets/global-ui-controls.js");
+        String settings = read("java/com/xinghuo/service/SiteSettingService.java");
+
+        assertTrue(adminLoader.contains("/assets/admin-v3-controls.js"));
+        for (String key : new String[]{
+                "navServicesVisible", "navGuidesVisible", "navMasteryVisible", "navRecordsVisible", "navAccountVisible",
+                "footerServicesVisible", "footerRecordsVisible", "footerAccountVisible", "footerRulesVisible", "footerPrivacyVisible"}) {
+            assertTrue(settings.contains("\"" + key + "\""), "settings persistence missing " + key);
+            assertTrue(adminV3.contains(key), "admin V3 does not expose " + key);
+            assertTrue(controls.contains(key), "public frontend does not consume " + key);
+        }
+        assertTrue(adminV3.contains("隐藏入口 ≠ 下线页面") || adminV3.contains("不会下线"));
+        assertTrue(controls.contains("#mobileNavDrawer"), "mobile navigation must follow visibility settings too");
+    }
+
+    @Test
+    void legacyContactDataIsKeptBehindCompatibilityEntry() throws IOException {
+        String adminV3 = read("resources/static/assets/admin-v3-controls.js");
+        String adminTemplate = read("resources/templates/admin.html");
+
+        assertTrue(adminV3.contains("历史联系方式兼容（旧数据）"));
+        assertTrue(adminV3.contains("data-config-entry=\"contact\""));
+        for (String legacyField : new String[]{"wechatId", "wechatQrImage", "qqId", "phone", "taobaoUrl", "xianyuUrl"}) {
+            assertTrue(adminTemplate.contains("name=\"" + legacyField + "\""),
+                    "legacy contact field should remain available for compatibility: " + legacyField);
+        }
+        assertTrue(adminV3.contains("企业微信官方客服"));
+    }
+
+    @Test
     void customerServiceRoutingCanBeChangedFromAdminWithoutRestart() throws IOException {
         String admin = read("resources/static/assets/admin-global-ui.js");
         String settings = read("java/com/xinghuo/service/SiteSettingService.java");

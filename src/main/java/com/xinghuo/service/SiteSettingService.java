@@ -21,11 +21,21 @@ public class SiteSettingService {
             Map.entry("navMasteryLabel", "MW4 工具站"),
             Map.entry("navRecordsLabel", "业务记录"),
             Map.entry("navAccountLabel", "个人空间"),
+            Map.entry("navServicesVisible", "true"),
+            Map.entry("navGuidesVisible", "true"),
+            Map.entry("navMasteryVisible", "true"),
+            Map.entry("navRecordsVisible", "true"),
+            Map.entry("navAccountVisible", "true"),
             Map.entry("footerServicesLabel", "服务大厅"),
             Map.entry("footerRecordsLabel", "业务记录"),
             Map.entry("footerAccountLabel", "个人空间"),
             Map.entry("footerRulesLabel", "服务规则"),
             Map.entry("footerPrivacyLabel", "隐私说明"),
+            Map.entry("footerServicesVisible", "true"),
+            Map.entry("footerRecordsVisible", "true"),
+            Map.entry("footerAccountVisible", "true"),
+            Map.entry("footerRulesVisible", "true"),
+            Map.entry("footerPrivacyVisible", "true"),
             Map.entry("floatingCustomerServiceLabel", "在线客服"),
             Map.entry("floatingCustomerServiceTitle", "需要帮助？"),
             Map.entry("floatingCustomerServiceIntro", "先选择问题类型，我们会给你对应的准备提示，再开始在线咨询。"),
@@ -38,8 +48,10 @@ public class SiteSettingService {
             "legalEntityName", "brandName", "wechat", "serviceHours", "icpNumber",
             "publicSecurityNumber", "siteTitleSuffix", "defaultOgImage", "faviconPath",
             "floatingCustomerServiceEnabled", "navServicesLabel", "navGuidesLabel",
-            "navMasteryLabel", "navRecordsLabel", "navAccountLabel", "footerServicesLabel",
-            "footerRecordsLabel", "footerAccountLabel", "footerRulesLabel", "footerPrivacyLabel",
+            "navMasteryLabel", "navRecordsLabel", "navAccountLabel",
+            "navServicesVisible", "navGuidesVisible", "navMasteryVisible", "navRecordsVisible", "navAccountVisible",
+            "footerServicesLabel", "footerRecordsLabel", "footerAccountLabel", "footerRulesLabel", "footerPrivacyLabel",
+            "footerServicesVisible", "footerRecordsVisible", "footerAccountVisible", "footerRulesVisible", "footerPrivacyVisible",
             "floatingCustomerServiceLabel", "floatingCustomerServiceTitle",
             "floatingCustomerServiceIntro", "floatingCustomerServiceNote"
     );
@@ -85,9 +97,9 @@ public class SiteSettingService {
             if (!values.containsKey(key)) continue;
             String raw = values.get(key) == null ? "" : String.valueOf(values.get(key)).trim();
             String normalized;
-            if ("floatingCustomerServiceEnabled".equals(key)) {
+            if (isBooleanGlobalUiKey(key)) {
                 if (!"true".equalsIgnoreCase(raw) && !"false".equalsIgnoreCase(raw)) {
-                    throw new BadRequestException("悬浮客服开关必须为 true 或 false");
+                    throw new BadRequestException("全局显示开关必须为 true 或 false：" + key);
                 }
                 normalized = String.valueOf(Boolean.parseBoolean(raw));
             } else {
@@ -153,6 +165,10 @@ public class SiteSettingService {
     public void put(String key, String value) {
         if (!PUBLIC_KEYS.contains(key)) return;
         putInternal(key, value);
+    }
+
+    private boolean isBooleanGlobalUiKey(String key) {
+        return "floatingCustomerServiceEnabled".equals(key) || key.endsWith("Visible");
     }
 
     private void putInternal(String key, String value) {

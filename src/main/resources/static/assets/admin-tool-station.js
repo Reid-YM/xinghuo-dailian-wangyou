@@ -190,19 +190,3 @@
     saveData().catch(e => toast(e.message, 'error'));
   });
 })();
-
-(() => {
-  if (document.querySelector('script[data-admin-global-ui]')) return;
-  const script = document.createElement('script');
-  script.src = '/assets/admin-global-ui.js?v=20261007g002';
-  script.dataset.adminGlobalUi = '1';
-  document.head.appendChild(script);
-})();
-
-(() => {
-  if (document.querySelector('script[data-admin-v3-controls]')) return;
-  const script = document.createElement('script');
-  script.src = '/assets/admin-v3-controls.js?v=20261007v3-001';
-  script.dataset.adminV3Controls = '1';
-  document.head.appendChild(script);
-})();

@@ -8,9 +8,7 @@ import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.CustomerOrder;
 import com.xinghuo.model.GameStatus;
 import com.xinghuo.model.UploadAsset;
-import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountSessionService;
-import com.xinghuo.account.service.QuoteContactService;
 import com.xinghuo.account.service.RateLimiter;
 import com.xinghuo.account.service.RequestUtils;
 import com.xinghuo.service.GameStatusService;
@@ -33,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.Generated;
 import org.springframework.core.io.Resource;
@@ -69,7 +66,6 @@ public class PublicApiController {
     private final GameStatusService gameStatuses;
     private final SiteSettingService siteSettings;
     private final RateLimiter rateLimiter;
-    private final QuoteContactService quoteContacts;
 
     @GetMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse config() {
@@ -158,37 +154,9 @@ public class PublicApiController {
         if (!this.config.isQuoteEnabled()) {
             throw new BadRequestException("\u5f53\u524d\u5df2\u5173\u95ed\u7f51\u9875\u8be2\u4ef7\uff0c\u8bf7\u901a\u8fc7\u5ba2\u670d\u6e20\u9053\u8054\u7cfb");
         }
-        Optional<Account> current = this.accountSessions.current(req);
-        Long accountId = current.map(Account::getId).orElse(null);
-        // 已登录且账号里有可用联系方式时，用它补齐表单没填的部分，避免让用户重复填写；
-        // 表单里自己填了就以表单为准，用户可以临时换成别的联系方式。
-        PublicQuoteRequest payload = body;
-        if (current.isPresent() && this.isBlankContact(body)) {
-            Optional<QuoteContactService.StoredContact> preferred = this.quoteContacts.preferred(current.get());
-            if (preferred.isPresent()) {
-                QuoteContactService.StoredContact contact = preferred.get();
-                payload = body.withCustomerContact(contact.value(), quoteContactMethod(contact.type()));
-            }
-        }
-        ApiDtos.QuoteResponse out = this.quotes.create(payload, key, HashUtil.sha256(RequestUtil.clientIp(req)), accountId);
+        Long accountId = this.accountSessions.current(req).map(x -> x.getId()).orElse(null);
+        ApiDtos.QuoteResponse out = this.quotes.create(body, key, HashUtil.sha256(RequestUtil.clientIp(req)), accountId);
         return ResponseEntity.status((HttpStatusCode)HttpStatus.CREATED).body(out);
-    }
-
-    private boolean isBlankContact(PublicQuoteRequest body) {
-        return body.customerContact() == null || body.customerContact().isBlank();
-    }
-
-    /** 询价表单的「联系方式」取值是中文：微信 / QQ / 手机。 */
-    private static String quoteContactMethod(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-        return switch (typeName.toUpperCase(Locale.ROOT)) {
-            case "PHONE" -> "\u624b\u673a";
-            case "WECHAT" -> "\u5fae\u4fe1";
-            case "QQ" -> "QQ";
-            default -> null;
-        };
     }
 
     @GetMapping(value={"/records/{businessNo}"})
@@ -255,7 +223,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;
@@ -269,6 +237,5 @@ public class PublicApiController {
         this.gameStatuses = gameStatuses;
         this.siteSettings = siteSettings;
         this.rateLimiter = rateLimiter;
-        this.quoteContacts = quoteContacts;
     }
 }

@@ -34,16 +34,16 @@ public class SecurityConfig {
      */
     private static final String[] PERMIT_ALL = {
             "/", "/services", "/service/**", "/game/**", "/guides", "/guides/**", "/mastery", "/quote",
-            "/records", "/record/**", "/order", "/order/**", "/contact", "/support", "/support/**", "/customer-service/**",
+            "/records", "/record/**", "/order", "/order/**", "/contact",
             "/account", "/account/login", "/account/register", "/account/reset",
             "/account/settings", "/account/submit", "/console", "/console/**",
-            "/rules", "/privacy", "/trust",
+            "/rules", "/privacy", "/trust", "/loadouts",
             "/robots.txt", "/sitemap.xml", "/favicon.ico", "/favicon.svg",
             "/apple-touch-icon.png", "/og.png", "/assets/**",
-            "/api/site-config", "/api/site-assets/**", "/api/public/**",
+            "/api/site-config", "/api/site-assets/**",
             "/api/services", "/api/catalog", "/api/quote", "/api/records/**",
             "/api/orders/**", "/api/uploads/quote", "/api/track",
-            "/api/tool-station", "/api/guides", "/api/guides/**", "/api/account/**", "/api/console/**",
+            "/api/tool-station", "/api/guides", "/api/guides/**", "/api/loadouts", "/api/account/**", "/api/console/**",
             "/admin/login", "/error"
     };
 

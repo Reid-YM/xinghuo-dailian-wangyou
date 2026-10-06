@@ -26,19 +26,10 @@ check_code /account/login 200
 check_code /account/register 200
 check_code /rules 200
 check_code /privacy 200
-# 旧 /contact 已拆成四类客服中心；通用 support 页面只做兼容跳转。
 check_code /contact 200
-check_code /support 302
-check_code /support/general 302
-check_code /support/game 200
-check_code /support/order 200
-check_code /support/after-sales 200
-check_code /support/business 200
-check_code /customer-service/start/game 302
 check_code /records 200
 check_code /trust 200
-# 第一、二阶段整改后，旧订单页永久重定向到统一业务记录页。
-check_code /order 308
+check_code /order 200
 check_code /api/account/me 401
 check_code /api/account/security/events 401
 check_removed() {
@@ -46,13 +37,12 @@ check_removed() {
   local code
   code=$(curl -sS -o /dev/null -w '%{http_code}' "$BASE$path" || true)
   case "$code" in
-    301|302|307|308|404|410) echo "OK   $path $code (removed or redirected)" ;;
+    301|302|307|308|404) echo "OK   $path $code (removed or redirected)" ;;
     *) echo "FAIL $path expected removed/redirect actual=$code"; fail=1 ;;
   esac
 }
 check_removed /loadouts
-# 旧 loadouts API 已正式退役，410 比 404 更明确地表示资源永久下线。
-check_code /api/loadouts 410
+check_code /api/loadouts 404
 check_code /assets/loadouts.js 404
 # 后台旧状态接口仍存在但必须受管理员认证保护，未登录访问应为 401。
 check_code /api/admin/ai-chat/status 401

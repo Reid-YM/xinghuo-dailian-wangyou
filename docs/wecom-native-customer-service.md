@@ -15,11 +15,17 @@
 
 ## 生产环境配置
 
-从企业微信管理后台取得对应微信客服帐号的“微信外网页接入”官方客服链接后，在生产环境设置：
+当前已确认的星火企业微信官方客服链接：
+
+```text
+https://work.weixin.qq.com/kfid/kfc80cfa9ee45840208
+```
+
+`application-prod.yml` 已将该公开客服链接作为生产默认值，并默认启用，因此按项目既有 `prod` Profile 部署后即可使用。仍可通过环境变量随时覆盖或关闭：
 
 ```bash
 WECOM_KF_ENABLED=true
-WECOM_KF_URL=https://work.weixin.qq.com/kfid/你的官方客服标识
+WECOM_KF_URL=https://work.weixin.qq.com/kfid/kfc80cfa9ee45840208
 ```
 
 应用重启后，访问任意使用公共页脚的页面，点击“在线客服”并选择咨询类型即可验证。

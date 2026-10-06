@@ -2,7 +2,10 @@ package com.xinghuo.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,14 +14,16 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * 企业微信原生微信客服入口。
+ * 在线客服入口。
  *
- * <p>本站只负责记录站内入口并跳转到服务端配置的官方客服链接；聊天、图片、文件等消息
- * 始终由企业微信原生通道承载。前端不能传入目标 URL，从而避免开放重定向。
+ * <p>站内先按咨询类型提供不同的准备页，真正进入会话时再跳转到服务端配置的企业微信官方客服链接。
+ * 每个咨询类型可配置独立客服链接；未配置时回退到默认客服链接。前端不能传入目标 URL，避免开放重定向。
  */
 @Controller
 public class CustomerServiceController {
@@ -27,30 +32,120 @@ public class CustomerServiceController {
             "general", "game", "order", "after-sales", "business");
     private static final URI CONTACT_FALLBACK = URI.create("/contact?customerService=unavailable");
 
+    private static final Map<String, SupportTopic> SUPPORT_TOPICS = Map.of(
+            "general", new SupportTopic(
+                    "general",
+                    "💬",
+                    "在线咨询",
+                    "不确定该选哪一类？先从这里开始，客服会根据你的情况继续确认。",
+                    "把你想解决的问题直接说清楚即可。",
+                    List.of("说明你想咨询的游戏或业务", "有业务编号时一并提供", "涉及异常时可准备截图"),
+                    "开始在线咨询"),
+            "game", new SupportTopic(
+                    "game",
+                    "🎮",
+                    "游戏咨询",
+                    "适合咨询服务内容、价格、平台支持、完成时间和当前活动需求。",
+                    "信息越完整，客服越容易一次给出可执行方案。",
+                    List.of("游戏名称与平台", "当前进度或目标内容", "希望完成的大致时间"),
+                    "开始游戏咨询"),
+            "order", new SupportTopic(
+                    "order",
+                    "📦",
+                    "订单咨询",
+                    "适合查询已提交业务的进度、交付状态，或补充新的订单要求。",
+                    "优先准备业务编号，客服可以更快定位记录。",
+                    List.of("业务编号或下单记录", "需要确认的进度节点", "如有补充要求请一次说明"),
+                    "查询订单进度"),
+            "after-sales", new SupportTopic(
+                    "after-sales",
+                    "🛠",
+                    "售后处理",
+                    "遇到异常、交付疑问、结果不一致或需要人工复核时从这里进入。",
+                    "先说明现象，再补充截图；不要发送密码、验证码或令牌。",
+                    List.of("业务编号", "问题发生的时间与现象", "能说明问题的截图或文件"),
+                    "联系售后客服"),
+            "business", new SupportTopic(
+                    "business",
+                    "🤝",
+                    "商务合作",
+                    "适合平台、渠道、团队、供应商或长期业务合作沟通。",
+                    "先说明合作方向和资源情况，便于快速判断对接方式。",
+                    List.of("合作类型或平台名称", "团队/渠道基本情况", "希望对接的合作方式"),
+                    "开始商务沟通"));
+
     private final boolean enabled;
-    private final URI officialCustomerServiceUri;
+    private final URI defaultCustomerServiceUri;
+    private final Map<String, URI> topicCustomerServiceUris;
 
     public CustomerServiceController(
             @Value("${app.wecom-customer-service.enabled:false}") boolean enabled,
-            @Value("${app.wecom-customer-service.url:}") String configuredUrl) {
+            @Value("${app.wecom-customer-service.url:}") String configuredUrl,
+            @Value("${app.wecom-customer-service.game-url:}") String gameUrl,
+            @Value("${app.wecom-customer-service.order-url:}") String orderUrl,
+            @Value("${app.wecom-customer-service.after-sales-url:}") String afterSalesUrl,
+            @Value("${app.wecom-customer-service.business-url:}") String businessUrl) {
         this.enabled = enabled;
-        this.officialCustomerServiceUri = parseOfficialCustomerServiceUri(configuredUrl);
+        this.defaultCustomerServiceUri = parseOfficialCustomerServiceUri(configuredUrl);
+        this.topicCustomerServiceUris = new HashMap<>();
+        putTopicUri("game", gameUrl);
+        putTopicUri("order", orderUrl);
+        putTopicUri("after-sales", afterSalesUrl);
+        putTopicUri("business", businessUrl);
     }
 
+    @GetMapping("/support")
+    public String supportHome() {
+        return "redirect:/support/general";
+    }
+
+    @GetMapping("/support/{topic}")
+    public String support(@PathVariable String topic, Model model) {
+        String normalizedTopic = normalizeTopic(topic);
+        SupportTopic supportTopic = SUPPORT_TOPICS.get(normalizedTopic);
+        model.addAttribute("supportTopic", supportTopic);
+        model.addAttribute("supportTopics", List.of(
+                SUPPORT_TOPICS.get("game"),
+                SUPPORT_TOPICS.get("order"),
+                SUPPORT_TOPICS.get("after-sales"),
+                SUPPORT_TOPICS.get("business")));
+        return "customer-service";
+    }
+
+    /**
+     * 兼容旧链接。新的前端使用 /customer-service/start/{topic}，不再暴露 topic 查询字段。
+     */
     @GetMapping("/customer-service/start")
     ResponseEntity<Void> start(
             @RequestParam(name = "topic", defaultValue = "general") String topic,
             HttpServletRequest request) {
+        return redirectToCustomerService(topic, request);
+    }
+
+    @GetMapping("/customer-service/start/{topic}")
+    ResponseEntity<Void> startPath(@PathVariable String topic, HttpServletRequest request) {
+        return redirectToCustomerService(topic, request);
+    }
+
+    private ResponseEntity<Void> redirectToCustomerService(String topic, HttpServletRequest request) {
         String normalizedTopic = normalizeTopic(topic);
         String sourcePath = sourcePath(request.getHeader("Referer"));
+        URI target = topicCustomerServiceUris.getOrDefault(normalizedTopic, defaultCustomerServiceUri);
 
-        if (!enabled || officialCustomerServiceUri == null) {
-            log.warn("企业微信原生客服入口未启用或链接无效，topic={} source={}", normalizedTopic, sourcePath);
+        if (!enabled || target == null) {
+            log.warn("在线客服入口未启用或链接无效，topic={} source={}", normalizedTopic, sourcePath);
             return redirect(CONTACT_FALLBACK);
         }
 
-        log.info("企业微信原生客服入口点击 topic={} source={}", normalizedTopic, sourcePath);
-        return redirect(officialCustomerServiceUri);
+        log.info("在线客服入口点击 topic={} source={}", normalizedTopic, sourcePath);
+        return redirect(target);
+    }
+
+    private void putTopicUri(String topic, String configuredUrl) {
+        URI uri = parseOfficialCustomerServiceUri(configuredUrl);
+        if (uri != null) {
+            topicCustomerServiceUris.put(topic, uri);
+        }
     }
 
     private static ResponseEntity<Void> redirect(URI location) {
@@ -70,6 +165,7 @@ public class CustomerServiceController {
 
     /**
      * 只接受企业微信官方 HTTPS 客服链接，避免配置错误把用户导向第三方站点。
+     * /kfid/ 是当前直接客服入口；/kf/ 用于官方接口生成的带场景客服链接。
      */
     private static URI parseOfficialCustomerServiceUri(String configuredUrl) {
         if (configuredUrl == null || configuredUrl.isBlank()) {
@@ -77,10 +173,11 @@ public class CustomerServiceController {
         }
         try {
             URI uri = URI.create(configuredUrl.trim());
+            String path = uri.getPath();
             boolean official = "https".equalsIgnoreCase(uri.getScheme())
                     && "work.weixin.qq.com".equalsIgnoreCase(uri.getHost())
-                    && uri.getPath() != null
-                    && uri.getPath().startsWith("/kfid/");
+                    && path != null
+                    && (path.startsWith("/kfid/") || path.startsWith("/kf/"));
             return official ? uri : null;
         } catch (IllegalArgumentException ex) {
             return null;
@@ -104,4 +201,13 @@ public class CustomerServiceController {
             return "unknown";
         }
     }
+
+    public record SupportTopic(
+            String slug,
+            String icon,
+            String title,
+            String description,
+            String tip,
+            List<String> checklist,
+            String actionLabel) {}
 }

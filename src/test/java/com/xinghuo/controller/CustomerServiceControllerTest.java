@@ -11,13 +11,15 @@ import org.springframework.mock.web.MockHttpServletRequest;
 class CustomerServiceControllerTest {
 
     @Test
-    void redirectsToConfiguredOfficialWeComCustomerService() {
-        CustomerServiceController controller = new CustomerServiceController(
-                true, "https://work.weixin.qq.com/kfid/kfc123456789");
+    void redirectsToConfiguredDefaultCustomerService() {
+        CustomerServiceController controller = controller(
+                true,
+                "https://work.weixin.qq.com/kfid/kfc123456789",
+                "", "", "", "");
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Referer", "https://wydlgf.cn/service/mw4?campaign=home");
+        request.addHeader("Referer", "https://wydlgf.cn/support/order?campaign=home");
 
-        ResponseEntity<Void> response = controller.start("order", request);
+        ResponseEntity<Void> response = controller.startPath("order", request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(response.getHeaders().getLocation())
@@ -26,11 +28,57 @@ class CustomerServiceControllerTest {
     }
 
     @Test
-    void fallsBackWhenFeatureIsDisabled() {
-        CustomerServiceController controller = new CustomerServiceController(
-                false, "https://work.weixin.qq.com/kfid/kfc123456789");
+    void prefersTopicSpecificCustomerServiceLink() {
+        CustomerServiceController controller = controller(
+                true,
+                "https://work.weixin.qq.com/kfid/default123",
+                "https://work.weixin.qq.com/kfid/game123",
+                "https://work.weixin.qq.com/kfid/order123",
+                "",
+                "");
 
-        ResponseEntity<Void> response = controller.start("game", new MockHttpServletRequest());
+        ResponseEntity<Void> response = controller.startPath("order", new MockHttpServletRequest());
+
+        assertThat(response.getHeaders().getLocation())
+                .isEqualTo(URI.create("https://work.weixin.qq.com/kfid/order123"));
+    }
+
+    @Test
+    void acceptsOfficialGeneratedSceneLink() {
+        CustomerServiceController controller = controller(
+                true,
+                "https://work.weixin.qq.com/kfid/default123",
+                "https://work.weixin.qq.com/kf/game123?enc_scene=abc&scene_param=game",
+                "", "", "");
+
+        ResponseEntity<Void> response = controller.startPath("game", new MockHttpServletRequest());
+
+        assertThat(response.getHeaders().getLocation())
+                .isEqualTo(URI.create("https://work.weixin.qq.com/kf/game123?enc_scene=abc&scene_param=game"));
+    }
+
+    @Test
+    void invalidTopicSpecificLinkFallsBackToDefault() {
+        CustomerServiceController controller = controller(
+                true,
+                "https://work.weixin.qq.com/kfid/default123",
+                "https://example.com/kfid/fake",
+                "", "", "");
+
+        ResponseEntity<Void> response = controller.startPath("game", new MockHttpServletRequest());
+
+        assertThat(response.getHeaders().getLocation())
+                .isEqualTo(URI.create("https://work.weixin.qq.com/kfid/default123"));
+    }
+
+    @Test
+    void fallsBackWhenFeatureIsDisabled() {
+        CustomerServiceController controller = controller(
+                false,
+                "https://work.weixin.qq.com/kfid/kfc123456789",
+                "", "", "", "");
+
+        ResponseEntity<Void> response = controller.startPath("game", new MockHttpServletRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(response.getHeaders().getLocation())
@@ -38,11 +86,13 @@ class CustomerServiceControllerTest {
     }
 
     @Test
-    void rejectsNonOfficialRedirectTargets() {
-        CustomerServiceController controller = new CustomerServiceController(
-                true, "https://example.com/kfid/fake");
+    void rejectsNonOfficialDefaultRedirectTarget() {
+        CustomerServiceController controller = controller(
+                true,
+                "https://example.com/kfid/fake",
+                "", "", "", "");
 
-        ResponseEntity<Void> response = controller.start("business", new MockHttpServletRequest());
+        ResponseEntity<Void> response = controller.startPath("business", new MockHttpServletRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(response.getHeaders().getLocation())
@@ -51,13 +101,26 @@ class CustomerServiceControllerTest {
 
     @Test
     void rejectsOfficialHostWithWrongPath() {
-        CustomerServiceController controller = new CustomerServiceController(
-                true, "https://work.weixin.qq.com/not-kf/example");
+        CustomerServiceController controller = controller(
+                true,
+                "https://work.weixin.qq.com/not-kf/example",
+                "", "", "", "");
 
-        ResponseEntity<Void> response = controller.start("after-sales", new MockHttpServletRequest());
+        ResponseEntity<Void> response = controller.startPath("after-sales", new MockHttpServletRequest());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(response.getHeaders().getLocation())
                 .isEqualTo(URI.create("/contact?customerService=unavailable"));
+    }
+
+    private static CustomerServiceController controller(
+            boolean enabled,
+            String defaultUrl,
+            String gameUrl,
+            String orderUrl,
+            String afterSalesUrl,
+            String businessUrl) {
+        return new CustomerServiceController(
+                enabled, defaultUrl, gameUrl, orderUrl, afterSalesUrl, businessUrl);
     }
 }

@@ -27,6 +27,12 @@ check_code /account/register 200
 check_code /rules 200
 check_code /privacy 200
 check_code /contact 200
+check_code /support/general 200
+check_code /support/game 200
+check_code /support/order 200
+check_code /support/after-sales 200
+check_code /support/business 200
+check_code /customer-service/start/game 302
 check_code /records 200
 check_code /trust 200
 check_code /order 200

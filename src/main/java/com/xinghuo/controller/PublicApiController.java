@@ -10,6 +10,7 @@ import com.xinghuo.model.GameStatus;
 import com.xinghuo.model.UploadAsset;
 import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountSessionService;
+import com.xinghuo.account.service.QuoteContactService;
 import com.xinghuo.account.service.RateLimiter;
 import com.xinghuo.account.service.RequestUtils;
 import com.xinghuo.service.GameStatusService;
@@ -68,6 +69,7 @@ public class PublicApiController {
     private final GameStatusService gameStatuses;
     private final SiteSettingService siteSettings;
     private final RateLimiter rateLimiter;
+    private final QuoteContactService quoteContacts;
 
     @GetMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse config() {
@@ -158,13 +160,14 @@ public class PublicApiController {
         }
         Optional<Account> current = this.accountSessions.current(req);
         Long accountId = current.map(Account::getId).orElse(null);
-        // 已登录且账号绑了联系方式时，用它补齐表单没填的部分，避免让用户重复填写。
+        // 已登录且账号里有可用联系方式时，用它补齐表单没填的部分，避免让用户重复填写；
+        // 表单里自己填了就以表单为准，用户可以临时换成别的联系方式。
         PublicQuoteRequest payload = body;
         if (current.isPresent() && this.isBlankContact(body)) {
-            Account account = current.get();
-            String contact = account.effectiveQuoteContact();
-            if (contact != null && !contact.isBlank()) {
-                payload = body.withCustomerContact(contact, quoteContactMethod(account));
+            Optional<QuoteContactService.StoredContact> preferred = this.quoteContacts.preferred(current.get());
+            if (preferred.isPresent()) {
+                QuoteContactService.StoredContact contact = preferred.get();
+                payload = body.withCustomerContact(contact.value(), quoteContactMethod(contact.type()));
             }
         }
         ApiDtos.QuoteResponse out = this.quotes.create(payload, key, HashUtil.sha256(RequestUtil.clientIp(req)), accountId);
@@ -176,16 +179,14 @@ public class PublicApiController {
     }
 
     /** 询价表单的「联系方式」取值是中文：微信 / QQ / 手机。 */
-    private static String quoteContactMethod(Account account) {
-        Account.ContactType type = account.getQuoteContactType() != null
-                ? account.getQuoteContactType() : account.getContactType();
-        if (type == null) {
+    private static String quoteContactMethod(String typeName) {
+        if (typeName == null) {
             return null;
         }
-        return switch (type) {
-            case PHONE -> "\u624b\u673a";
-            case WECHAT -> "\u5fae\u4fe1";
-            case QQ -> "QQ";
+        return switch (typeName.toUpperCase(Locale.ROOT)) {
+            case "PHONE" -> "\u624b\u673a";
+            case "WECHAT" -> "\u5fae\u4fe1";
+            case "QQ" -> "QQ";
             default -> null;
         };
     }
@@ -254,7 +255,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter) {
+    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;
@@ -268,5 +269,6 @@ public class PublicApiController {
         this.gameStatuses = gameStatuses;
         this.siteSettings = siteSettings;
         this.rateLimiter = rateLimiter;
+        this.quoteContacts = quoteContacts;
     }
 }

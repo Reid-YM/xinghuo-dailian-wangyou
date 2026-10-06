@@ -5,8 +5,8 @@ import com.xinghuo.account.model.Account;
 import com.xinghuo.account.model.AccountSession;
 import com.xinghuo.account.service.AccountException;
 import com.xinghuo.account.service.AccountAuditService;
-import com.xinghuo.account.service.ContactNormalizer;
 import com.xinghuo.account.service.Masking;
+import com.xinghuo.account.service.QuoteContactService;
 import com.xinghuo.account.service.RequestUtils;
 import com.xinghuo.account.service.AccountService;
 import com.xinghuo.account.service.AccountSessionService;
@@ -16,9 +16,8 @@ import com.xinghuo.service.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,17 +45,20 @@ public class AccountApiController {
     private final AccountAuditService audit;
     private final AccountRepository accounts;
     private final UploadService uploads;
+    private final QuoteContactService quoteContacts;
 
     public AccountApiController(AccountService accountService,
                                 AccountSessionService sessionService,
                                 AccountAuditService audit,
                                 AccountRepository accounts,
-                                UploadService uploads) {
+                                UploadService uploads,
+                                QuoteContactService quoteContacts) {
         this.accountService = accountService;
         this.sessionService = sessionService;
         this.audit = audit;
         this.accounts = accounts;
         this.uploads = uploads;
+        this.quoteContacts = quoteContacts;
     }
 
     // ------------------------------------------------------------- 公开端点
@@ -99,7 +101,7 @@ public class AccountApiController {
      * 导致同一个账号在不同接口下拿到的权益不一致，前端会先看到空权益再看到真实权益。
      */
     private AccountDtos.ProfileResponse profile(Account account) {
-        return AccountDtos.ProfileResponse.of(account, List.of());
+        return AccountDtos.ProfileResponse.of(account, List.of(), quoteContactViews(account));
     }
 
     @PostMapping("/profile")
@@ -141,54 +143,46 @@ public class AccountApiController {
     }
 
     /**
-     * 绑定或更新「询价联系方式」。
+     * 追加一条「询价联系方式」（最多 QuoteContactService.MAX_CONTACTS 条）。
      *
      * <p>只用于客服回访，按需求暂不做验证；它不修改登录凭据
      * （contact_type / contact_value），因此不能作为身份依据。
      */
-    @PostMapping("/quote-contact")
+    @PostMapping("/quote-contacts")
     @RequireAccount
-    @Transactional
-    public AccountDtos.ProfileResponse bindQuoteContact(
+    public AccountDtos.ProfileResponse addQuoteContact(
             @Valid @RequestBody AccountDtos.QuoteContactRequest body,
             HttpServletRequest request) {
         Account account = AccountAuthInterceptor.requireAccount(request);
-        Account.ContactType type = parseQuoteContactType(body.contactType());
-        ContactNormalizer.validate(type, body.contactValue());
-        account.setQuoteContactType(type);
-        account.setQuoteContactValue(body.contactValue().trim());
-        account.setQuoteContactUpdatedAt(Instant.now());
-        Account saved = accounts.save(account);
-        audit.record(saved.getId(), "QUOTE_CONTACT_BOUND", "type=" + type.name(), request);
+        Account saved = quoteContacts.add(account, body.type(), body.value());
+        audit.record(saved.getId(), "QUOTE_CONTACT_ADDED", "type=" + body.type(), request);
         return profile(saved);
     }
 
-    /** 解除询价联系方式绑定；不影响登录凭据。 */
-    @DeleteMapping("/quote-contact")
+    /** 按绑定顺序删除第 index 条；不影响登录凭据。 */
+    @DeleteMapping("/quote-contacts/{index}")
     @RequireAccount
-    @Transactional
-    public AccountDtos.ProfileResponse clearQuoteContact(HttpServletRequest request) {
+    public AccountDtos.ProfileResponse removeQuoteContact(@PathVariable int index,
+                                                          HttpServletRequest request) {
         Account account = AccountAuthInterceptor.requireAccount(request);
-        account.setQuoteContactType(null);
-        account.setQuoteContactValue(null);
-        account.setQuoteContactUpdatedAt(null);
-        Account saved = accounts.save(account);
-        audit.record(saved.getId(), "QUOTE_CONTACT_CLEARED", null, request);
+        Account saved = quoteContacts.removeAt(account, index);
+        audit.record(saved.getId(), "QUOTE_CONTACT_REMOVED", "index=" + index, request);
         return profile(saved);
     }
 
-    private static Account.ContactType parseQuoteContactType(String raw) {
-        String value = raw == null ? "" : raw.trim().toUpperCase(Locale.ROOT);
-        switch (value) {
-            case "PHONE":
-                return Account.ContactType.PHONE;
-            case "WECHAT":
-                return Account.ContactType.WECHAT;
-            case "QQ":
-                return Account.ContactType.QQ;
-            default:
-                throw AccountException.badRequest("INVALID_CONTACT_TYPE", "请选择手机号 / 微信号 / QQ 号");
+    /** 询价联系方式的脱敏视图，供档案接口返回；不做身份判定。 */
+    private List<AccountDtos.QuoteContactView> quoteContactViews(Account account) {
+        List<AccountDtos.QuoteContactView> views = new ArrayList<>();
+        for (QuoteContactService.StoredContact contact : quoteContacts.list(account)) {
+            Account.ContactType type;
+            try {
+                type = Account.ContactType.valueOf(contact.type());
+            } catch (RuntimeException ignored) {
+                continue;
+            }
+            views.add(new AccountDtos.QuoteContactView(type.name(), Masking.contact(type, contact.value())));
         }
+        return views;
     }
 
     @PostMapping("/password/change")

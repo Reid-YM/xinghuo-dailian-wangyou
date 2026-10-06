@@ -5,7 +5,7 @@
   <title>星火个人空间 - 星火网游工作室</title><meta name="description" content="集中管理星火账号、订单、工具进度和在线设备。"><meta name="robots" content="noindex,nofollow">
   <link rel="canonical" href="https://wydlgf.cn/account"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261006order1">
-  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/account.js?v=20261006ac18"></script>
+  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/account.js?v=20261006ac19"></script>
 </head>
 <body data-page="account" class="nexus-page">
 <header th:replace="~{fragments/site :: header}"></header>
@@ -49,6 +49,8 @@
         </div>
 
         <section class="nexus-module nexus-module-wide"><header><div><span>账号档案</span><h2>基本信息</h2></div><a href="/account/settings">查看完整设置</a></header><div class="account-info-grid" data-account-info><div class="account-info-item"><span>账号信息</span><strong>读取中…</strong><small>正在同步</small></div></div></section>
+
+        <section class="nexus-module"><header><div><span>询价联系方式</span><h2>客服回访方式</h2><p>提交询价时自动带上第一条，也可以在询价页临时换成别的。仅用于客服回访，不作为登录凭据。</p></div><a class="btn ghost" href="/account/settings#quoteContact">管理</a></header><div id="consoleQuoteContactList" class="quote-contact-list"></div></section>
 
         <section class="nexus-module" data-account-entitlements hidden><header><div><span>账户能力</span><h2>已开通权益</h2></div><small>后台发放</small></header><div class="account-tool-list" data-account-entitlement-list></div></section>
 

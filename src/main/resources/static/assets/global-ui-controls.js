@@ -42,6 +42,8 @@
 
     const hours = settings.serviceHours || '10:00–24:00';
     const safety = settings.floatingCustomerServiceNote || '请勿发送密码、验证码或令牌';
+    text('[data-global-ui="service-hours"]', hours);
+    text('[data-global-ui="customer-service-safety"]', safety);
     text('[data-global-ui="customer-service-note"]', `客服时间 ${hours} · ${safety}`);
 
     const icp = settings.icpNumber;
@@ -59,9 +61,7 @@
     if (config.primaryButtonLabel) {
       $all('[data-primary-cta]').forEach((node) => { node.textContent = config.primaryButtonLabel; });
     }
-    if (config.statusShortText) {
-      text('[data-config="status"]', config.statusShortText);
-    }
+    if (config.statusShortText) text('[data-config="status"]', config.statusShortText);
     if (config.toolPublicEnabled === false) {
       $all('a[href="/mastery"]').forEach((link) => { link.hidden = true; });
     }

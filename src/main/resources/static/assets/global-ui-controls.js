@@ -23,11 +23,14 @@
   }
 
   function applyGlobalSettings(settings = {}) {
-    text('[data-global-ui="nav-services"]', settings.navServicesLabel);
-    text('[data-global-ui="nav-guides"]', settings.navGuidesLabel);
-    text('[data-global-ui="nav-mastery"]', settings.navMasteryLabel);
-    text('[data-global-ui="nav-records"]', settings.navRecordsLabel);
-    text('[data-global-ui="nav-account"]', settings.navAccountLabel);
+    text('.site-header [data-global-ui="nav-services"]', settings.navServicesLabel);
+    text('.site-header [data-global-ui="nav-guides"]', settings.navGuidesLabel);
+    text('.site-header [data-global-ui="nav-mastery"]', settings.navMasteryLabel);
+    text('.site-header [data-global-ui="nav-records"]', settings.navRecordsLabel);
+    text('.site-header [data-global-ui="nav-account"]', settings.navAccountLabel);
+    text('.site-footer .footer-links a[href="/services"]', settings.footerServicesLabel);
+    text('.site-footer .footer-links a[href="/records"]', settings.footerRecordsLabel);
+    text('.site-footer .footer-links a[href="/account"]', settings.footerAccountLabel);
     text('[data-global-ui="footer-rules"]', settings.footerRulesLabel);
     text('[data-global-ui="footer-privacy"]', settings.footerPrivacyLabel);
     text('[data-global-ui="customer-service-label"]', settings.floatingCustomerServiceLabel);
@@ -60,9 +63,7 @@
       text('[data-config="status"]', config.statusShortText);
     }
     if (config.toolPublicEnabled === false) {
-      $all('a[href="/mastery"]').forEach((link) => {
-        if (!link.closest('main[data-page="mw4-camo-tracker"]')) link.hidden = true;
-      });
+      $all('a[href="/mastery"]').forEach((link) => { link.hidden = true; });
     }
   }
 
@@ -80,6 +81,9 @@
       // 配置接口异常时保持模板默认值，不影响页面主流程。
     }
   }
+
+  const observer = new MutationObserver(() => removeEmbeddedCustomerServiceEntries());
+  if (document.documentElement) observer.observe(document.documentElement, { childList: true, subtree: true });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load, { once: true });
   else load();

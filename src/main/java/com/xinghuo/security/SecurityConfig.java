@@ -40,7 +40,7 @@ public class SecurityConfig {
             "/rules", "/privacy", "/trust",
             "/robots.txt", "/sitemap.xml", "/favicon.ico", "/favicon.svg",
             "/apple-touch-icon.png", "/og.png", "/assets/**",
-            "/api/site-config", "/api/site-assets/**",
+            "/api/site-config", "/api/site-assets/**", "/api/public/**",
             "/api/services", "/api/catalog", "/api/quote", "/api/records/**",
             "/api/orders/**", "/api/uploads/quote", "/api/track",
             "/api/tool-station", "/api/guides", "/api/guides/**", "/api/account/**", "/api/console/**",

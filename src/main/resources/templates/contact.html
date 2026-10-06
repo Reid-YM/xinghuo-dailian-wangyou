@@ -1,20 +1,81 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
-  <title>一对一咨询 - 星火网游代练平台</title>
-  <meta name="description" content="联系星火网游代练客服，确认游戏区服、当前进度、任务目标和交付时间。网页不收账号密码、验证码或令牌。">
-  <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台"><meta property="og:title" content="一对一咨询 - 星火网游代练平台"><meta property="og:description" content="联系星火网游代练客服，确认游戏区服、当前进度、任务目标和交付时间。网页不收账号密码、验证码或令牌。"><meta property="og:url" content="https://wydlgf.cn/contact"><meta property="og:image" content="https://wydlgf.cn/og.png">
-  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261006pub11"></script><script defer src="/assets/pages.js?v=20260928v016"></script><link rel="canonical" href="https://wydlgf.cn/contact"></head><body data-page="contact">
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07090c">
+  <title>在线客服中心 - 星火网游代练平台</title>
+  <meta name="description" content="星火在线客服中心，按游戏咨询、订单咨询、售后处理、商务合作四类需求进入对应客服页面。">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="星火网游代练平台">
+  <meta property="og:title" content="在线客服中心 - 星火网游代练平台">
+  <meta property="og:description" content="按需求选择对应客服入口，先准备关键信息，再开始在线咨询。">
+  <meta property="og:url" content="https://wydlgf.cn/contact">
+  <meta property="og:image" content="https://wydlgf.cn/og.png">
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031">
+  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script>
+  <script defer src="/assets/public.js?v=20261006pub11"></script>
+  <link rel="canonical" href="https://wydlgf.cn/contact">
+  <style>
+    .support-center-shell{max-width:1040px;padding-top:38px;padding-bottom:78px}
+    .support-center-hero{padding:34px;border:1px solid rgba(255,207,51,.18);border-radius:22px;background:radial-gradient(circle at 88% 8%,rgba(255,207,51,.14),transparent 34%),linear-gradient(145deg,#0e1117,#090b0f);box-shadow:0 24px 70px rgba(0,0,0,.22)}
+    .support-center-eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;color:#ffcf33;font-size:12px;font-weight:900;letter-spacing:.12em}
+    .support-center-eyebrow::before{content:'';width:8px;height:8px;border-radius:50%;background:#ffcf33;box-shadow:0 0 0 4px rgba(255,207,51,.12)}
+    .support-center-hero h1{margin:0;color:#fff;font-size:clamp(32px,5vw,50px);line-height:1.08}
+    .support-center-intro{max-width:760px;margin:16px 0 0;color:#b8bec8;font-size:16px;line-height:1.8}
+    .support-center-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
+    .support-center-card{position:relative;display:grid;grid-template-columns:58px 1fr auto;align-items:center;gap:15px;min-height:132px;padding:20px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:#12161c;color:#fff;text-decoration:none;transition:transform .16s ease,border-color .16s ease,background .16s ease}
+    .support-center-card:hover{transform:translateY(-2px);border-color:rgba(255,207,51,.48);background:#171b22}
+    .support-center-icon{display:grid;place-items:center;width:56px;height:56px;border:1px solid rgba(255,207,51,.22);border-radius:16px;background:rgba(255,207,51,.08);font-size:27px}
+    .support-center-copy{display:grid;gap:6px;min-width:0}
+    .support-center-copy strong{font-size:18px;line-height:1.25}
+    .support-center-copy span{color:#9ca4b0;font-size:12px;line-height:1.6}
+    .support-center-arrow{color:#ffcf33;font-size:22px;font-weight:900}
+    .support-center-note{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+    .support-center-note div{padding:14px 16px;border:1px solid rgba(255,255,255,.06);border-radius:14px;background:#0d1015;color:#8f97a3;font-size:12px;line-height:1.65}
+    .support-center-note strong{display:block;margin-bottom:3px;color:#d9dde3;font-size:12px}
+    @media (max-width:760px){.support-center-shell{padding-top:18px;padding-bottom:100px}.support-center-hero{padding:22px 18px}.support-center-intro{font-size:14px}.support-center-grid{grid-template-columns:1fr}.support-center-card{grid-template-columns:50px 1fr auto;min-height:112px;padding:16px}.support-center-icon{width:48px;height:48px;border-radius:14px;font-size:23px}.support-center-copy strong{font-size:16px}.support-center-note{grid-template-columns:1fr}}
+    @media (prefers-reduced-motion:reduce){.support-center-card{transition:none}}
+  </style>
+</head>
+<body data-page="support-center">
 <header th:replace="~{fragments/site :: header}"></header>
-<main class="container section page-shell"><div class="card contact-grid contact-console"><span class="eyebrow">人工客服</span><h1 data-config="contactTitle">一对一咨询</h1><p class="contact-intro" data-config="contactIntro"></p>
-<div class="kefu-card-entry contact-wecom-entry"><div><span class="tag">在线客服</span><p>先选择问题类型，我们会提示需要准备的信息，再开始在线咨询。</p></div><a class="kefu-image-button" href="/support/general" data-track="online_support_click" aria-label="打开在线客服"><span class="kefu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M5 13h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2v-2a1 1 0 0 1 1-1Z"/><path d="M19 13h-2a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 0 2-2v-2a1 1 0 0 0-1-1Z"/><path d="M12 20h2a4 4 0 0 0 4-4"/></svg></span><span>在线咨询</span></a></div>
-<div id="contactChannelGrid" class="contact-channel-grid"><article class="contact-channel-card"><div class="contact-channel-main"><span class="tag">主客服</span><strong id="contactChannelWechatFallback">AAC9878</strong><p>发送业务编号确认报价。</p><button class="btn small-btn copy-btn" type="button" data-copy="#contactChannelWechatFallback">复制微信</button></div><div class="contact-channel-qr contact-channel-qr-text">微信</div></article></div>
-<div class="contact-rows-grid"><div class="contact-row" data-contact-row="wechat"><span>微信</span><span id="wechatValue" class="contact-value" data-contact="wechat">AAC9878</span><button class="btn small-btn copy-btn" data-copy="#wechatValue">复制</button></div>
-<div class="contact-row hidden" data-contact-row="qq"><span>QQ</span><span id="qqValue" class="contact-value" data-contact="qq"></span><div class="actions"><button class="btn small-btn copy-btn" data-copy="#qqValue">复制</button><a class="btn small-btn hidden" data-contact-link="qq" target="_blank" rel="noopener">打开QQ</a></div></div>
-<div class="contact-row hidden" data-contact-row="phone"><span>电话</span><span id="phoneValue" class="contact-value" data-contact="phone"></span><div class="actions"><button class="btn small-btn copy-btn" data-copy="#phoneValue">复制</button><a class="btn small-btn hidden" data-contact-link="phone">拨打</a></div></div>
-<div class="contact-row" data-contact-row="hours"><span>客服时间</span><span class="contact-value" data-config="serviceHours">10:00–24:00</span><span></span></div>
-<div class="contact-row hidden" data-contact-row="taobao"><span>淘宝</span><span class="contact-value" data-config="taobaoLabel">店铺入口</span><a class="btn small-btn hidden" data-contact-link="taobao" target="_blank" rel="noopener">打开淘宝</a></div>
-<div class="contact-row hidden" data-contact-row="xianyu"><span>闲鱼</span><span class="contact-value" data-config="xianyuLabel">主页入口</span><a class="btn small-btn hidden" data-contact-link="xianyu" target="_blank" rel="noopener">打开闲鱼</a></div>
-</div>
-<div id="wechatQr" class="contact-qr hidden"></div>
-<div class="license-card" aria-label="主体资质"><span>主体资质</span><strong data-config="legalEntityName">星维网络服务工作室</strong><em>营业执照已登记 · 备案信息见页面底部</em></div>
-<div class="notice contact-safety" data-config="contactNotice">网页不要发送账号密码、验证码或令牌。确认报价后再走淘宝/闲鱼担保付款。</div></div></main>
-<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/">首页</a><a href="/records">业务记录</a><a class="primary" href="/quote" data-primary-cta>提前询价</a></nav><footer th:replace="~{fragments/site :: footer}"></footer></body></html>
+<main class="container section support-center-shell">
+  <section class="support-center-hero">
+    <span class="support-center-eyebrow">在线客服</span>
+    <h1>选择你要咨询的类型</h1>
+    <p class="support-center-intro">原“一对一咨询”已拆分为四类专属入口。进入对应页面后，会先告诉你需要准备哪些信息，再进入客服会话，减少来回确认。</p>
+
+    <nav class="support-center-grid" aria-label="选择客服类型">
+      <a class="support-center-card" href="/support/game" data-track="support_center_game">
+        <span class="support-center-icon" aria-hidden="true">🎮</span>
+        <span class="support-center-copy"><strong>游戏咨询</strong><span>服务内容、价格、游戏平台、活动任务、预计时间</span></span>
+        <span class="support-center-arrow" aria-hidden="true">›</span>
+      </a>
+      <a class="support-center-card" href="/support/order" data-track="support_center_order">
+        <span class="support-center-icon" aria-hidden="true">📦</span>
+        <span class="support-center-copy"><strong>订单咨询</strong><span>业务编号、当前进度、交付状态、补充要求</span></span>
+        <span class="support-center-arrow" aria-hidden="true">›</span>
+      </a>
+      <a class="support-center-card" href="/support/after-sales" data-track="support_center_after_sales">
+        <span class="support-center-icon" aria-hidden="true">🛠</span>
+        <span class="support-center-copy"><strong>售后处理</strong><span>异常反馈、结果复核、交付疑问、问题截图</span></span>
+        <span class="support-center-arrow" aria-hidden="true">›</span>
+      </a>
+      <a class="support-center-card" href="/support/business" data-track="support_center_business">
+        <span class="support-center-icon" aria-hidden="true">🤝</span>
+        <span class="support-center-copy"><strong>商务合作</strong><span>平台合作、渠道合作、团队供应、长期业务对接</span></span>
+        <span class="support-center-arrow" aria-hidden="true">›</span>
+      </a>
+    </nav>
+
+    <div class="support-center-note">
+      <div><strong>客服时间</strong>10:00–24:00，非在线时段可先留言。</div>
+      <div><strong>安全提醒</strong>请勿发送账号密码、验证码、令牌等敏感信息。</div>
+    </div>
+  </section>
+</main>
+<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/">首页</a><a href="/records">业务记录</a><a class="primary" href="/quote" data-primary-cta>提前询价</a></nav>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+</body>
+</html>

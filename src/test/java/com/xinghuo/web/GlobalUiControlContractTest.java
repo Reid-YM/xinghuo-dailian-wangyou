@@ -73,6 +73,22 @@ class GlobalUiControlContractTest {
     }
 
     @Test
+    void accountPagesReachCustomSessionInterceptorInsteadOfSpringDenyAll() throws IOException {
+        String security = read("java/com/xinghuo/security/SecurityConfig.java");
+        for (String route : new String[]{
+                "/account/requests", "/account/orders", "/account/progress",
+                "/account/quotes", "/account/demands", "/account/order", "/account/order-list",
+                "/account/tools", "/account/tool-progress", "/account/profile", "/account/contact",
+                "/account/security", "/account/devices", "/account/activity",
+                "/account/settings/profile", "/account/settings/contact", "/account/settings/security"}) {
+            assertTrue(security.contains("\"" + route + "\""),
+                    "account page must pass Spring Security so @RequireAccount can issue login redirect: " + route);
+        }
+        assertTrue(security.contains(".anyRequest().denyAll()"),
+                "unlisted routes must remain denied by default");
+    }
+
+    @Test
     void toolStationPublicControlsStayInToolStationEntry() throws IOException {
         String admin = read("resources/static/assets/admin-global-ui.js");
         assertTrue(admin.contains("id=\"toolRuntimeV4\""));

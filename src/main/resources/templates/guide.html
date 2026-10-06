@@ -80,23 +80,19 @@
   <section class="card gc-root" data-guide-community th:attr="data-guide-slug=${guide.slug}">
     <div class="gc-head">
       <div><span class="eyebrow">Discussion</span><h2>玩家讨论</h2></div>
-      <button class="btn ghost small-btn" type="button" data-favorite-toggle
-              data-target-type="GUIDE" th:attr="data-target-id=${guide.slug}">
-        <span data-favorite-label>收藏本篇</span>
-      </button>
+      <button class="btn ghost small-btn" type="button" data-favorite-toggle data-target-type="GUIDE" th:attr="data-target-id=${guide.slug}"><span data-favorite-label>收藏本篇</span></button>
     </div>
     <p class="muted small gc-note" data-community-note>正在加载讨论…</p>
     <form class="gc-form" data-comment-form hidden>
       <label class="gc-label" for="guideCommentInput">写下你的经验或补充</label>
-      <textarea id="guideCommentInput" class="gc-input" maxlength="2000" rows="3"
-                placeholder="例如：这条任务链我先补声望再推主线，顺序上更顺"></textarea>
+      <textarea id="guideCommentInput" class="gc-input" maxlength="2000" rows="3" placeholder="例如：这条任务链我先补声望再推主线，顺序上更顺"></textarea>
       <small class="gc-error" data-comment-error hidden></small>
       <button class="btn primary small-btn" type="submit" data-comment-submit>发表评论</button>
     </form>
     <div class="gc-list" data-comment-list></div>
   </section>
 
-  <section class="card guide-cta"><div><span class="eyebrow">需要确认报价</span><h2>提交当前进度与目标</h2><p>说明游戏区服、平台、当前进度、目标与可操作时间。客服确认后再安排，网页不收账号密码、验证码或令牌。</p></div><div class="actions"><a class="btn primary" href="/quote" data-primary-cta>提前询价</a><a class="btn ghost" href="/contact">联系客服</a></div></section>
+  <section class="card guide-cta"><div><span class="eyebrow">需要确认报价</span><h2>提交当前进度与目标</h2><p>说明游戏区服、平台、当前进度、目标与可操作时间。客服确认后再安排，网页不收账号密码、验证码或令牌。</p></div><div class="actions"><a class="btn primary" href="/quote" data-primary-cta>提前询价</a><a class="btn ghost" href="/support/game">游戏咨询</a></div></section>
 </main>
 <footer th:replace="~{fragments/site :: footer}"></footer>
 <script type="application/ld+json" th:utext="${articleJsonLd}"></script>

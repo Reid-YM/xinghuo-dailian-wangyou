@@ -107,10 +107,18 @@ public class SiteSettingService {
         for (String key : CUSTOMER_SERVICE_KEYS) out.putIfAbsent(key, "");
         for (SiteSetting s : repo.findAll()) {
             if (!CUSTOMER_SERVICE_KEYS.contains(s.getSettingKey())) continue;
-            String value = s.getSettingValue();
-            if (value != null && !value.isBlank()) out.put(s.getSettingKey(), value);
+            out.put(s.getSettingKey(), s.getSettingValue() == null ? "" : s.getSettingValue());
         }
         return out;
+    }
+
+    @Transactional(readOnly=true)
+    public String customerServiceSetting(String key, String fallback) {
+        if (!CUSTOMER_SERVICE_KEYS.contains(key)) return fallback;
+        return repo.findById(key)
+                .map(SiteSetting::getSettingValue)
+                .map(value -> value == null ? "" : value)
+                .orElse(fallback);
     }
 
     @Transactional

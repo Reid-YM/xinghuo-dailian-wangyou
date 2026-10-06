@@ -159,9 +159,58 @@
     }
   }
 
+  function basicSectionIsVisible() {
+    const section = document.querySelector('[data-config-section="basic"]');
+    return !!section && !section.classList.contains('hidden');
+  }
+
+  async function saveLegacyBasicWithoutLosingGlobalFields(button) {
+    const form = document.querySelector('#configForm');
+    if (!form) return;
+    const oldText = button.textContent;
+    button.disabled = true;
+    button.textContent = '保存中…';
+    try {
+      const current = await api('/api/admin/site-config');
+      await api('/api/admin/site-config/section/basic', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          brandName: form.brandName.value,
+          legalEntityName: form.legalEntityName.value,
+          serviceStatus: form.serviceStatus.value,
+          quoteEnabled: form.quoteEnabled.checked,
+          orderQueryEnabled: form.orderQueryEnabled.checked,
+          statusShortText: field('statusShortText')?.value ?? current.statusShortText ?? '',
+          primaryButtonLabel: field('primaryButtonLabel')?.value ?? current.primaryButtonLabel ?? '',
+          reason: document.querySelector('#configSectionReason')?.value || '后台分区保存（保留全局字段）'
+        })
+      });
+      toast('基础状态已单独保存');
+      await load();
+    } catch (error) {
+      toast(error.message || '保存失败', 'error');
+    } finally {
+      button.disabled = false;
+      button.textContent = oldText;
+    }
+  }
+
   document.addEventListener('submit', (event) => {
     if (event.target?.id === 'globalUiForm') save(event);
   });
+
+  // 旧后台基础分区没有把 statusShortText / primaryButtonLabel 放进 payload，
+  // 会把全局面板刚保存的值清成 null。捕获阶段接管“基础状态”的旧保存按钮，
+  // 其他分区仍由原 admin.js 处理。
+  document.addEventListener('click', (event) => {
+    const button = event.target?.closest('#saveConfigSection');
+    if (!button || !basicSectionIsVisible()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    saveLegacyBasicWithoutLosingGlobalFields(button);
+  }, true);
+
   document.addEventListener('click', (event) => {
     if (event.target?.closest('#globalUiReload')) load().then(() => toast('全局配置已重新读取')).catch((e) => toast(e.message, 'error'));
     if (event.target?.closest('[data-nav="config"]') && !document.querySelector('#globalUiControlCard')) {

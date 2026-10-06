@@ -30,6 +30,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
 
       - name: Validate production request
         shell: bash
@@ -48,6 +50,7 @@ jobs:
                 echo "Production deploy confirmation was not checked."
                 exit 1
               }
+              deploy_sha="${GITHUB_SHA}"
               ;;
             push)
               [ "${GITHUB_REF}" = "refs/heads/deploy/production" ] || {
@@ -62,12 +65,28 @@ jobs:
                 "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" \
                 | jq -r '.object.sha')
 
-              [ "${GITHUB_SHA}" = "${main_sha}" ] || {
-                echo "::error::Production deployment blocked: deploy/production must point at current main."
-                echo "deploy/production: ${GITHUB_SHA}"
+              parent_count=$(git rev-list --parents -n 1 "${GITHUB_SHA}" | wc -w)
+              [ "${parent_count}" -eq 2 ] || {
+                echo "::error::Production deployment blocked: deploy request must have exactly one parent."
+                exit 1
+              }
+
+              request_parent=$(git rev-parse "${GITHUB_SHA}^")
+              [ "${request_parent}" = "${main_sha}" ] || {
+                echo "::error::Production deployment blocked: deploy request must be created directly on current main."
+                echo "request parent: ${request_parent}"
                 echo "main: ${main_sha}"
                 exit 1
               }
+
+              changed_files=$(git diff --name-only "${main_sha}" "${GITHUB_SHA}")
+              [ "${changed_files}" = ".deploy-request" ] || {
+                echo "::error::Production deployment blocked: request commit may only change .deploy-request."
+                printf 'Changed files:\n%s\n' "${changed_files}"
+                exit 1
+              }
+
+              deploy_sha="${main_sha}"
               ;;
             *)
               echo "Unsupported production deploy event: ${GITHUB_EVENT_NAME}"
@@ -75,7 +94,8 @@ jobs:
               ;;
           esac
 
-          echo "Target SHA: ${GITHUB_SHA}"
+          echo "DEPLOY_SHA=${deploy_sha}" >> "${GITHUB_ENV}"
+          echo "Target SHA: ${deploy_sha}"
 
       - name: Require merged Pull Request origin
         shell: bash
@@ -83,14 +103,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls"
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${DEPLOY_SHA}/pulls"
           prs=$(curl -fsSL \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "$api")
 
-          echo "$prs" | jq -e --arg sha "$GITHUB_SHA" '
+          echo "$prs" | jq -e --arg sha "$DEPLOY_SHA" '
             any(.[];
               .merged_at != null
               and .base.ref == "main"
@@ -109,7 +129,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${GITHUB_SHA}&branch=main&event=push&per_page=10"
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${DEPLOY_SHA}&branch=main&event=push&per_page=10"
           json=$(curl -fsSL \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
@@ -119,10 +139,10 @@ jobs:
             .workflow_runs
             | any(.status == "completed" and .conclusion == "success")
           ' >/dev/null || {
-            echo "No successful main CI run found for ${GITHUB_SHA}."
+            echo "No successful main CI run found for ${DEPLOY_SHA}."
             exit 1
           }
-          echo "Main CI is successful for ${GITHUB_SHA}."
+          echo "Main CI is successful for ${DEPLOY_SHA}."
 
       - name: Validate deployment scripts
         shell: bash
@@ -164,4 +184,4 @@ jobs:
             -o StrictHostKeyChecking=yes \
             -o ConnectTimeout=15 \
             "ubuntu@${PROD_SSH_HOST}" \
-            "deploy ${GITHUB_SHA}"
+            "deploy ${DEPLOY_SHA}"

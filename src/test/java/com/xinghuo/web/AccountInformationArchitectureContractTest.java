@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 class AccountInformationArchitectureContractTest {
@@ -51,8 +52,11 @@ class AccountInformationArchitectureContractTest {
         String controller = read("java/com/xinghuo/account/web/ConsolePageController.java");
         String console = read("resources/templates/console.html");
         String script = read("resources/static/assets/console.js");
+        assertTrue(controller.contains("/console/overview"));
+        assertTrue(controller.contains("/console/profile"));
         assertTrue(controller.contains("redirect:/account/requests"));
         assertTrue(controller.contains("redirect:/account/orders"));
+        assertTrue(controller.contains("redirect:/account/progress"));
         assertTrue(controller.contains("redirect:/account/settings#security"));
         assertTrue(controller.contains("redirect:/contact"));
         assertFalse(console.contains("console-tabs"));
@@ -60,6 +64,53 @@ class AccountInformationArchitectureContractTest {
         assertTrue(script.contains("quotes: '/account/requests'"));
         assertTrue(script.contains("orders: '/account/orders'"));
         assertTrue(script.contains("security: '/account/settings#security'"));
+    }
+
+    @Test
+    void legacyAccountPathsAndHashesResolveOnlyToCanonicalUserPages() throws IOException {
+        String controller = read("java/com/xinghuo/account/web/AccountCenterPageController.java");
+        String script = read("resources/static/assets/account-center.js");
+        assertTrue(controller.contains("/account/quotes"));
+        assertTrue(controller.contains("/account/profile"));
+        assertTrue(controller.contains("/account/contact"));
+        assertTrue(controller.contains("/account/security"));
+        assertTrue(controller.contains("/account/devices"));
+        assertTrue(controller.contains("redirect:/account/requests"));
+        assertTrue(controller.contains("redirect:/account/settings#profile"));
+        assertTrue(controller.contains("redirect:/account/settings#security"));
+        assertTrue(script.contains("quotes: '/account/requests'"));
+        assertTrue(script.contains("orders: '/account/orders'"));
+        assertTrue(script.contains("profile: '/account/settings#profile'"));
+        assertTrue(script.contains("security: '/account/settings#security'"));
+    }
+
+    @Test
+    void userFacingAccountSurfacesNeverLinkToAdmin() throws IOException {
+        Path templates = ROOT.resolve("resources/templates");
+        try (Stream<Path> files = Files.list(templates)) {
+            files.filter(path -> path.getFileName().toString().startsWith("account"))
+                    .filter(path -> path.getFileName().toString().endsWith(".html"))
+                    .forEach(path -> assertNoAdminDestination(path));
+        }
+        assertNoAdminDestination(ROOT.resolve("resources/templates/fragments/account-center.html"));
+        assertNoAdminDestination(ROOT.resolve("resources/templates/console.html"));
+        assertNoAdminDestination(ROOT.resolve("resources/static/assets/account-center.js"));
+        assertNoAdminDestination(ROOT.resolve("resources/static/assets/account.js"));
+        assertNoAdminDestination(ROOT.resolve("resources/static/assets/console.js"));
+        String center = read("resources/static/assets/account-center.js");
+        assertTrue(center.contains("href === '/admin' || href.startsWith('/admin/')"));
+        assertTrue(center.contains("location.assign('/account')"));
+    }
+
+    @Test
+    void productionSmokeCoversEveryAccountDestinationThatUsersCanClick() throws IOException {
+        String smoke = Files.readString(Path.of("scripts/smoke_test.sh"));
+        for (String path : new String[]{
+                "/account/requests", "/account/orders", "/account/progress", "/account/settings", "/account/submit",
+                "/account/quotes", "/account/profile", "/account/security",
+                "/console/overview", "/console/profile", "/console/quotes", "/console/orders", "/console/security"}) {
+            assertTrue(smoke.contains("check_code " + path + " 302"), "missing smoke coverage for " + path);
+        }
     }
 
     @Test
@@ -93,6 +144,18 @@ class AccountInformationArchitectureContractTest {
         assertTrue(fragment.contains("data-profile-avatar-preview"));
         assertTrue(fragment.contains("data-settings-name"));
         assertTrue(fragment.contains("data-settings-contact"));
+    }
+
+    private static void assertNoAdminDestination(Path path) {
+        try {
+            String content = Files.readString(path);
+            assertFalse(content.contains("href=\"/admin"), "user page contains admin href: " + path);
+            assertFalse(content.contains("location.href='/admin"), "user script contains admin redirect: " + path);
+            assertFalse(content.contains("location.assign('/admin"), "user script contains admin redirect: " + path);
+            assertFalse(content.contains("location.replace('/admin"), "user script contains admin redirect: " + path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static String read(String relative) throws IOException {

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="bar" class="account-center-bar">
+  <div><span class="account-center-eyebrow">XINGHUO ACCOUNT</span><strong>个人中心</strong><small>需求、订单、资料与安全各归其位</small></div>
+  <nav aria-label="个人中心快捷操作"><a href="/">工作室首页</a><a href="/records">编号查询</a><a href="/contact">联系客服</a><button type="button" data-account-logout>安全退出</button></nav>
+</header>
+
+<aside th:fragment="rail(active)" class="account-center-rail" aria-label="个人中心导航">
+  <div class="account-center-profile">
+    <div class="account-avatar" data-account-center-avatar data-profile-avatar-preview aria-hidden="true"><span class="account-avatar-fallback">星</span></div>
+    <div><span>当前账号</span><strong data-account-center-name data-settings-name>读取中…</strong><small data-account-center-meta data-settings-contact>正在同步账号信息</small></div>
+  </div>
+  <nav class="account-center-nav">
+    <span>业务中心</span>
+    <a href="/account" th:classappend="${active == 'overview'} ? ' is-active' : ''"><b>概</b><i><strong>总览</strong><small>状态与快捷任务</small></i></a>
+    <a href="/account/requests" th:classappend="${active == 'requests'} ? ' is-active' : ''"><b>需</b><i><strong>我的需求</strong><small>询价与补充资料</small></i></a>
+    <a href="/account/orders" th:classappend="${active == 'orders'} ? ' is-active' : ''"><b>单</b><i><strong>我的订单</strong><small>进度与交付详情</small></i></a>
+    <a href="/account/progress" th:classappend="${active == 'progress'} ? ' is-active' : ''"><b>云</b><i><strong>工具存档</strong><small>跨设备同步记录</small></i></a>
+    <span>账号管理</span>
+    <a href="/account/settings#profile" th:classappend="${active == 'settings'} ? ' is-active' : ''"><b>资</b><i><strong>资料与设置</strong><small>资料、联系方式、安全</small></i></a>
+    <a href="/account/submit" th:classappend="${active == 'submit'} ? ' is-active' : ''"><b>稿</b><i><strong>攻略投稿</strong><small>草稿与审核进度</small></i></a>
+  </nav>
+  <div class="account-center-safety"><strong>安全边界</strong><p>网页不会索取游戏密码、验证码或令牌。付款仅通过担保渠道。</p><a href="/rules">查看服务规则</a></div>
+</aside>
+</body>
+</html>

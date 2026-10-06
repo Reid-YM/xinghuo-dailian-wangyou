@@ -24,14 +24,14 @@ public class SiteSettingService {
             Map.entry("navRecordsVisible", "true"),
             Map.entry("navContactLabel", "一对一咨询"),
             Map.entry("navContactVisible", "true"),
-            Map.entry("navAccountLabel", "登录"),
+            Map.entry("navAccountLabel", "个人中心"),
             Map.entry("navAccountVisible", "true"),
             Map.entry("headerQuoteVisible", "true"),
             Map.entry("footerServicesLabel", "服务大厅"),
             Map.entry("footerServicesVisible", "true"),
             Map.entry("footerRecordsLabel", "业务记录"),
             Map.entry("footerRecordsVisible", "true"),
-            Map.entry("footerConsoleLabel", "用户控制台"),
+            Map.entry("footerConsoleLabel", "个人中心"),
             Map.entry("footerConsoleVisible", "true"),
             Map.entry("footerRulesLabel", "服务规则"),
             Map.entry("footerRulesVisible", "true"),
@@ -80,6 +80,7 @@ public class SiteSettingService {
             String value = s.getSettingValue();
             if (value != null && !value.isBlank()) out.put(s.getSettingKey(), value);
         }
+        normalizeLegacyAccountLabels(out);
         return out;
     }
 
@@ -92,7 +93,22 @@ public class SiteSettingService {
             String value = s.getSettingValue();
             if (value != null && !value.isBlank()) out.put(s.getSettingKey(), value);
         }
+        normalizeLegacyAccountLabels(out);
         return out;
+    }
+
+    /**
+     * 旧版本把同一账号体系暴露成“登录”和“用户控制台”两个概念。
+     * 新信息架构统一为“个人中心”；仅对这两个精确的历史默认值做读取期归一，
+     * 其他管理员自定义文案仍原样保留。
+     */
+    private static void normalizeLegacyAccountLabels(Map<String, String> settings) {
+        if ("登录".equals(settings.get("navAccountLabel"))) {
+            settings.put("navAccountLabel", "个人中心");
+        }
+        if ("用户控制台".equals(settings.get("footerConsoleLabel"))) {
+            settings.put("footerConsoleLabel", "个人中心");
+        }
     }
 
     @Transactional

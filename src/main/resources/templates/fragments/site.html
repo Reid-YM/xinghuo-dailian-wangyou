@@ -1,13 +1,7 @@
 <!doctype html>
-<!--
-  全站公共页头 / 页脚片段
-
-  用途：统一公共导航、页脚与备案展示。公共文案/显示开关由 site_settings 驱动，
-  模板中的文字仅作为接口异常时的安全兜底。
--->
+<!-- 全站公共页头 / 页脚片段：公共文案和显示开关由 site_settings 驱动。 -->
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
 <body>
-
 <header th:fragment="header" class="site-header">
   <div class="container topbar">
     <a class="brand brand-mark" href="/"><span class="brand-dot"></span><span data-config="brandName">星火网游代练平台</span></a>
@@ -17,27 +11,19 @@
       <a href="/mastery" data-global-ui="nav-mastery" data-global-visible="navMasteryVisible">MW4 工具站</a>
       <a href="/records" data-global-ui="nav-records" data-global-visible="navRecordsVisible">业务记录</a>
       <a href="/contact" data-global-ui="nav-contact" data-global-visible="navContactVisible">一对一咨询</a>
-      <!--
-        账号入口保持当前前端行为：静态指向登录页，由现有账号脚本/会话逻辑处理。
-        本轮只补齐后台文案与显示控制，不改变账号认证流程。
-      -->
-      <a href="/account/login" data-account-entry data-global-visible="navAccountVisible"><span data-account-entry-text data-global-ui="nav-account">登录</span></a>
+      <a href="/account" data-account-entry data-global-visible="navAccountVisible"><span data-account-entry-text data-global-ui="nav-account">个人中心</span></a>
       <a class="btn primary desktop-keep" href="/quote" data-track="header_quote_click" data-primary-cta data-global-visible="headerQuoteVisible">提前询价</a>
     </nav>
     <button type="button" class="nav-toggle" aria-label="打开导航菜单" aria-controls="mobileNavDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </header>
-
 <footer th:fragment="footer" class="site-footer">
   <div class="container footer-row">
-    <a class="footer-credential" href="/trust">
-      <span class="credential-thumb" aria-hidden="true">资</span>
-      <strong data-config="legalEntityName">星维网络服务工作室</strong>
-    </a>
+    <a class="footer-credential" href="/trust"><span class="credential-thumb" aria-hidden="true">资</span><strong data-config="legalEntityName">星维网络服务工作室</strong></a>
     <nav class="footer-links" aria-label="页脚导航">
       <a href="/services" data-global-ui="footer-services" data-global-visible="footerServicesVisible">服务大厅</a>
       <a href="/records" data-global-ui="footer-records" data-global-visible="footerRecordsVisible">业务记录</a>
-      <a href="/console" data-global-ui="footer-console" data-global-visible="footerConsoleVisible">用户控制台</a>
+      <a href="/account" data-global-ui="footer-console" data-global-visible="footerConsoleVisible">个人中心</a>
       <a href="/rules" data-global-ui="footer-rules" data-global-visible="footerRulesVisible">服务规则</a>
       <a href="/privacy" data-global-ui="footer-privacy" data-global-visible="footerPrivacyVisible">隐私说明</a>
       <a href="/contact" data-global-ui="footer-contact" data-global-visible="footerContactVisible">一对一咨询</a>
@@ -49,6 +35,5 @@
   </div>
   <script defer src="/assets/global-ui-controls.js?v=20261007g004"></script>
 </footer>
-
 </body>
 </html>

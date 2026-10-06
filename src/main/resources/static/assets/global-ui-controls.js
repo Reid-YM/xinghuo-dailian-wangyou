@@ -8,6 +8,13 @@
     if (value == null || value === '') return fallback;
     return String(value).toLowerCase() === 'true';
   };
+  const visible = (selector, value, fallback = true) => {
+    const show = bool(value, fallback);
+    $all(selector).forEach((node) => {
+      node.hidden = !show;
+      node.style.display = show ? '' : 'none';
+    });
+  };
 
   function removeEmbeddedCustomerServiceEntries() {
     // 产品规则：普通页面只保留公共页脚里的悬浮在线客服。
@@ -37,6 +44,17 @@
     text('[data-global-ui="customer-service-title"]', settings.floatingCustomerServiceTitle);
     text('[data-global-ui="customer-service-intro"]', settings.floatingCustomerServiceIntro);
 
+    visible('.site-header .nav a[href="/services"],#mobileNavDrawer a[href="/services"]', settings.navServicesVisible);
+    visible('.site-header .nav a[href="/guides"],#mobileNavDrawer a[href="/guides"]', settings.navGuidesVisible);
+    visible('.site-header .nav a[href="/mastery"],#mobileNavDrawer a[href="/mastery"]', settings.navMasteryVisible);
+    visible('.site-header .nav a[href="/records"],#mobileNavDrawer a[href="/records"]', settings.navRecordsVisible);
+    visible('.site-header .nav a[href="/account"],#mobileNavDrawer a[href="/account"]', settings.navAccountVisible);
+    visible('.site-footer .footer-links a[href="/services"]', settings.footerServicesVisible);
+    visible('.site-footer .footer-links a[href="/records"]', settings.footerRecordsVisible);
+    visible('.site-footer .footer-links a[href="/account"]', settings.footerAccountVisible);
+    visible('.site-footer .footer-links a[href="/rules"]', settings.footerRulesVisible);
+    visible('.site-footer .footer-links a[href="/privacy"]', settings.footerPrivacyVisible);
+
     const floating = document.querySelector('.native-customer-service');
     if (floating) floating.hidden = !bool(settings.floatingCustomerServiceEnabled, true);
 
@@ -63,7 +81,10 @@
     }
     if (config.statusShortText) text('[data-config="status"]', config.statusShortText);
     if (config.toolPublicEnabled === false) {
-      $all('a[href="/mastery"]').forEach((link) => { link.hidden = true; });
+      $all('a[href="/mastery"]').forEach((link) => {
+        link.hidden = true;
+        link.style.display = 'none';
+      });
     }
   }
 

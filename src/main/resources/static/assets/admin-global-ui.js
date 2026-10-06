@@ -138,19 +138,18 @@
         publicSecurityNumber: field('publicSecurityNumber').value,
         reason: '管理员全局前端控制台保存'
       };
-      await Promise.all([
-        api('/api/admin/global-ui-settings', { method: 'PATCH', body: JSON.stringify(globalPayload) }),
-        api('/api/admin/site-config/section/basic', { method: 'PATCH', body: JSON.stringify({
-          statusShortText: field('statusShortText').value,
-          primaryButtonLabel: field('primaryButtonLabel').value,
-          reason: '补齐后台控制：状态与主按钮文案'
-        }) }),
-        api('/api/admin/site-config/section/tools', { method: 'PATCH', body: JSON.stringify({
-          toolUpdatedNote: field('toolUpdatedNote').value,
-          toolPublicEnabled: field('toolPublicEnabled').checked,
-          reason: '补齐后台控制：工具站公开状态'
-        }) })
-      ]);
+      await api('/api/admin/global-ui-settings', { method: 'PATCH', body: JSON.stringify(globalPayload) });
+      // SiteConfig 是单行配置实体，两个分区必须串行保存，避免并发事务产生最后写入覆盖。
+      await api('/api/admin/site-config/section/basic', { method: 'PATCH', body: JSON.stringify({
+        statusShortText: field('statusShortText').value,
+        primaryButtonLabel: field('primaryButtonLabel').value,
+        reason: '补齐后台控制：状态与主按钮文案'
+      }) });
+      await api('/api/admin/site-config/section/tools', { method: 'PATCH', body: JSON.stringify({
+        toolUpdatedNote: field('toolUpdatedNote').value,
+        toolPublicEnabled: field('toolPublicEnabled').checked,
+        reason: '补齐后台控制：工具站公开状态'
+      }) });
       toast('全局前端配置已保存并生效');
       await load();
     } catch (error) {

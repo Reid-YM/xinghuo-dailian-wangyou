@@ -149,7 +149,7 @@ public class CustomerServiceController {
 
     private boolean isEnabled() {
         if (siteSettings == null) return configuredEnabled;
-        String value = siteSettings.get("customerServiceEnabled", String.valueOf(configuredEnabled));
+        String value = siteSettings.customerServiceSetting("customerServiceEnabled", String.valueOf(configuredEnabled));
         return Boolean.parseBoolean(value);
     }
 
@@ -164,14 +164,16 @@ public class CustomerServiceController {
         };
 
         if (topicKey != null) {
-            String configured = siteSettings == null ? topicFallback : siteSettings.get(topicKey, topicFallback);
+            String configured = siteSettings == null
+                    ? topicFallback
+                    : siteSettings.customerServiceSetting(topicKey, topicFallback);
             URI topicUri = parseOfficialCustomerServiceUri(configured);
             if (topicUri != null) return topicUri;
         }
 
         String defaultUrl = siteSettings == null
                 ? configuredDefaultUrl
-                : siteSettings.get("customerServiceDefaultUrl", configuredDefaultUrl);
+                : siteSettings.customerServiceSetting("customerServiceDefaultUrl", configuredDefaultUrl);
         return parseOfficialCustomerServiceUri(defaultUrl);
     }
 

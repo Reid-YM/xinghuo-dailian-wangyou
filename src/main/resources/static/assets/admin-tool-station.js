@@ -190,3 +190,11 @@
     saveData().catch(e => toast(e.message, 'error'));
   });
 })();
+
+(() => {
+  if (document.querySelector('script[data-admin-global-ui]')) return;
+  const script = document.createElement('script');
+  script.src = '/assets/admin-global-ui.js?v=20261006g001';
+  script.dataset.adminGlobalUi = '1';
+  document.head.appendChild(script);
+})();

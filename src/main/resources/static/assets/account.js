@@ -1449,6 +1449,8 @@
           if (avatarInput && document.activeElement !== avatarInput) avatarInput.value = '';
         }
         $$('[data-settings-contact]').forEach((node) => setText(node, `${contactTypeText(me.contactType)} ${me.contactMasked || '—'}`));
+        $$('[data-settings-quote-contact]').forEach((node) => setText(node,
+          me.quoteContactMasked ? `${contactTypeText(me.quoteContactType)} ${me.quoteContactMasked}` : '未绑定'));
         $$('[data-settings-created]').forEach((node) => setText(node, fmtDate(me.createdAt)));
         $$('[data-settings-email]').forEach((node) => setText(node, me.email || '未绑定邮箱'));
         $$('[data-settings-email-state]').forEach((emailState) => {
@@ -1826,9 +1828,66 @@
 
     /* ---------------------------------------------------------------- 启动 */
 
+    /* ---------------------------------------------------- 询价联系方式表单 */
+
+    function initQuoteContactForm() {
+      const form = $('#accountQuoteContactForm');
+      if (!form) return;
+      const msg = $('[data-quote-contact-msg]');
+      const submit = $('[data-submit]', form);
+      const typeInput = $('[name="contactType"]', form);
+      const valueInput = $('[name="contactValue"]', form);
+      const clearButton = $('[data-quote-contact-clear]');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        clearFieldErrors(form);
+        notify(msg, '');
+        const contactType = String((typeInput && typeInput.value) || '').trim();
+        const contactValue = String((valueInput && valueInput.value) || '').trim();
+        if (!contactValue) {
+          fieldError(valueInput, '请填写手机号 / 微信号 / QQ 号。');
+          if (valueInput) valueInput.focus();
+          return;
+        }
+        busy(submit, true, '保存中…');
+        try {
+          // 该接口暂不做验证，只校验格式；不会改动登录凭据
+          await request('/api/account/quote-contact', {
+            method: 'POST',
+            body: { contactType, contactValue },
+          });
+          notify(msg, '已绑定。前台提交询价时会自动带上这个联系方式。', 'success');
+          if (valueInput) valueInput.value = '';
+          await loadMe();
+        } catch (err) {
+          notify(msg, accountErrorMessage(err, '绑定失败，请稍后重试。'), 'error');
+        } finally {
+          busy(submit, false);
+        }
+      });
+
+      if (clearButton) {
+        clearButton.addEventListener('click', async () => {
+          if (!await confirmAction('解除询价联系方式', '解除后前台询价会重新要求填写联系方式；登录方式不受影响。', '解除绑定')) return;
+          busy(clearButton, true, '处理中…');
+          try {
+            await request('/api/account/quote-contact', { method: 'DELETE' });
+            notify(msg, '已解除绑定。', 'success');
+            await loadMe();
+          } catch (err) {
+            notify(msg, accountErrorMessage(err, '解除失败，请稍后重试。'), 'error');
+          } finally {
+            busy(clearButton, false);
+          }
+        });
+      }
+    }
+
     initProfileForm();
     initPasswordForm();
     initEmailForm();
+    initQuoteContactForm();
 
     const refresh = $('[data-session-refresh]');
     if (refresh) refresh.addEventListener('click', () => loadSessions());

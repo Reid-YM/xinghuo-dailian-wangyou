@@ -5,6 +5,7 @@ import com.xinghuo.account.model.Account;
 import com.xinghuo.account.model.AccountSession;
 import com.xinghuo.account.service.AccountException;
 import com.xinghuo.account.service.AccountAuditService;
+import com.xinghuo.account.service.ContactNormalizer;
 import com.xinghuo.account.service.Masking;
 import com.xinghuo.account.service.RequestUtils;
 import com.xinghuo.account.service.AccountService;
@@ -15,7 +16,9 @@ import com.xinghuo.service.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -135,6 +138,57 @@ public class AccountApiController {
         String value = raw.trim();
         if (value.startsWith("/") || value.startsWith("https://")) return value;
         throw AccountException.badRequest("INVALID_AVATAR_URL", "头像地址需为站内路径或 https 链接");
+    }
+
+    /**
+     * 绑定或更新「询价联系方式」。
+     *
+     * <p>只用于客服回访，按需求暂不做验证；它不修改登录凭据
+     * （contact_type / contact_value），因此不能作为身份依据。
+     */
+    @PostMapping("/quote-contact")
+    @RequireAccount
+    @Transactional
+    public AccountDtos.ProfileResponse bindQuoteContact(
+            @Valid @RequestBody AccountDtos.QuoteContactRequest body,
+            HttpServletRequest request) {
+        Account account = AccountAuthInterceptor.requireAccount(request);
+        Account.ContactType type = parseQuoteContactType(body.contactType());
+        ContactNormalizer.validate(type, body.contactValue());
+        account.setQuoteContactType(type);
+        account.setQuoteContactValue(body.contactValue().trim());
+        account.setQuoteContactUpdatedAt(Instant.now());
+        Account saved = accounts.save(account);
+        audit.record(saved.getId(), "QUOTE_CONTACT_BOUND", "type=" + type.name(), request);
+        return profile(saved);
+    }
+
+    /** 解除询价联系方式绑定；不影响登录凭据。 */
+    @DeleteMapping("/quote-contact")
+    @RequireAccount
+    @Transactional
+    public AccountDtos.ProfileResponse clearQuoteContact(HttpServletRequest request) {
+        Account account = AccountAuthInterceptor.requireAccount(request);
+        account.setQuoteContactType(null);
+        account.setQuoteContactValue(null);
+        account.setQuoteContactUpdatedAt(null);
+        Account saved = accounts.save(account);
+        audit.record(saved.getId(), "QUOTE_CONTACT_CLEARED", null, request);
+        return profile(saved);
+    }
+
+    private static Account.ContactType parseQuoteContactType(String raw) {
+        String value = raw == null ? "" : raw.trim().toUpperCase(Locale.ROOT);
+        switch (value) {
+            case "PHONE":
+                return Account.ContactType.PHONE;
+            case "WECHAT":
+                return Account.ContactType.WECHAT;
+            case "QQ":
+                return Account.ContactType.QQ;
+            default:
+                throw AccountException.badRequest("INVALID_CONTACT_TYPE", "请选择手机号 / 微信号 / QQ 号");
+        }
     }
 
     @PostMapping("/password/change")

@@ -12,6 +12,20 @@
     $$(selector).forEach(node => { node.hidden = !visible; });
   };
 
+  function protectUserCenterFromAdminLinks() {
+    if (!(location.pathname === '/account' || location.pathname.startsWith('/account/') || location.pathname === '/console' || location.pathname.startsWith('/console/'))) return;
+    document.addEventListener('click', event => {
+      const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
+      if (!link) return;
+      const href = String(link.getAttribute('href') || '').trim();
+      if (href === '/admin' || href.startsWith('/admin/')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        location.assign('/account');
+      }
+    }, true);
+  }
+
   function applySharedNavigation(settings = {}, site = {}) {
     const labels = [
       ['nav-services', settings.navServicesLabel],
@@ -101,6 +115,7 @@
     }
   }
 
+  protectUserCenterFromAdminLinks();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load, { once: true });
   else load();
 })();

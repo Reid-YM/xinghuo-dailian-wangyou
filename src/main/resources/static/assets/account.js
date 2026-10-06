@@ -1449,8 +1449,7 @@
           if (avatarInput && document.activeElement !== avatarInput) avatarInput.value = '';
         }
         $$('[data-settings-contact]').forEach((node) => setText(node, `${contactTypeText(me.contactType)} ${me.contactMasked || '—'}`));
-        $$('[data-settings-quote-contact]').forEach((node) => setText(node,
-          me.quoteContactMasked ? `${contactTypeText(me.quoteContactType)} ${me.quoteContactMasked}` : '未绑定'));
+        renderQuoteContacts(me.quoteContacts);
         $$('[data-settings-created]').forEach((node) => setText(node, fmtDate(me.createdAt)));
         $$('[data-settings-email]').forEach((node) => setText(node, me.email || '未绑定邮箱'));
         $$('[data-settings-email-state]').forEach((emailState) => {
@@ -1828,7 +1827,42 @@
 
     /* ---------------------------------------------------------------- 启动 */
 
-    /* ---------------------------------------------------- 询价联系方式表单 */
+    /* ---------------------------------------------------- 询价联系方式（多条） */
+
+    const QUOTE_CONTACT_TYPES = { PHONE: '手机号', WECHAT: '微信号', QQ: 'QQ 号' };
+
+    function renderQuoteContacts(list) {
+      const contacts = Array.isArray(list) ? list : [];
+      $$('[data-settings-quote-contact]').forEach((node) => setText(node,
+        contacts.length ? `已绑定 ${contacts.length} 条` : '未绑定'));
+      renderQuoteContactRows($('#quoteContactList'), contacts, true);
+      renderQuoteContactRows($('#consoleQuoteContactList'), contacts, false);
+    }
+
+    function renderQuoteContactRows(host, contacts, editable) {
+      if (!host) return;
+      clear(host);
+      if (!contacts.length) {
+        renderEmpty(host, editable
+          ? '还没有绑定询价联系方式。未登录或未绑定时，提交询价需要手动填写联系方式。'
+          : '还没有绑定询价联系方式，提交询价时需要手动填写。可到「安全设置」里添加。');
+        return;
+      }
+      contacts.forEach((item, index) => {
+        const row = el('div', 'quote-contact-row');
+        const meta = el('div', 'quote-contact-meta');
+        meta.appendChild(el('span', null, QUOTE_CONTACT_TYPES[item.type] || item.type || '联系方式'));
+        meta.appendChild(el('strong', null, item.masked || '—'));
+        row.appendChild(meta);
+        if (editable) {
+          const remove = el('button', 'btn ghost small-btn', '删除');
+          remove.type = 'button';
+          remove.setAttribute('data-quote-contact-remove', String(index));
+          row.appendChild(remove);
+        }
+        host.appendChild(row);
+      });
+    }
 
     function initQuoteContactForm() {
       const form = $('#accountQuoteContactForm');
@@ -1837,48 +1871,48 @@
       const submit = $('[data-submit]', form);
       const typeInput = $('[name="contactType"]', form);
       const valueInput = $('[name="contactValue"]', form);
-      const clearButton = $('[data-quote-contact-clear]');
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
         clearFieldErrors(form);
         notify(msg, '');
-        const contactType = String((typeInput && typeInput.value) || '').trim();
-        const contactValue = String((valueInput && valueInput.value) || '').trim();
-        if (!contactValue) {
+        const type = String((typeInput && typeInput.value) || '').trim();
+        const value = String((valueInput && valueInput.value) || '').trim();
+        if (!value) {
           fieldError(valueInput, '请填写手机号 / 微信号 / QQ 号。');
           if (valueInput) valueInput.focus();
           return;
         }
-        busy(submit, true, '保存中…');
+        busy(submit, true, '添加中…');
         try {
-          // 该接口暂不做验证，只校验格式；不会改动登录凭据
-          await request('/api/account/quote-contact', {
-            method: 'POST',
-            body: { contactType, contactValue },
-          });
-          notify(msg, '已绑定。前台提交询价时会自动带上这个联系方式。', 'success');
+          // 该接口暂不做验证，只做格式校验；不会改动登录凭据
+          await request('/api/account/quote-contacts', { method: 'POST', body: { type, value } });
+          notify(msg, '已添加。前台提交询价时会自动带上第一条，也可以在询价页临时改。', 'success');
           if (valueInput) valueInput.value = '';
           await loadMe();
         } catch (err) {
-          notify(msg, accountErrorMessage(err, '绑定失败，请稍后重试。'), 'error');
+          notify(msg, accountErrorMessage(err, '添加失败，请检查格式后重试。'), 'error');
         } finally {
           busy(submit, false);
         }
       });
 
-      if (clearButton) {
-        clearButton.addEventListener('click', async () => {
-          if (!await confirmAction('解除询价联系方式', '解除后前台询价会重新要求填写联系方式；登录方式不受影响。', '解除绑定')) return;
-          busy(clearButton, true, '处理中…');
+      const host = $('#quoteContactList');
+      if (host) {
+        host.addEventListener('click', async (event) => {
+          const button = event.target.closest('[data-quote-contact-remove]');
+          if (!button) return;
+          const index = Number(button.getAttribute('data-quote-contact-remove'));
+          if (!Number.isInteger(index) || index < 0) return;
+          if (!await confirmAction('删除询价联系方式', '删除后提交询价不再自动带上这一条；登录方式不受影响。', '删除')) return;
+          busy(button, true, '处理中…');
           try {
-            await request('/api/account/quote-contact', { method: 'DELETE' });
-            notify(msg, '已解除绑定。', 'success');
+            await request(`/api/account/quote-contacts/${index}`, { method: 'DELETE' });
+            notify(msg, '已删除。', 'success');
             await loadMe();
           } catch (err) {
-            notify(msg, accountErrorMessage(err, '解除失败，请稍后重试。'), 'error');
-          } finally {
-            busy(clearButton, false);
+            notify(msg, accountErrorMessage(err, '删除失败，请稍后重试。'), 'error');
+            busy(button, false);
           }
         });
       }

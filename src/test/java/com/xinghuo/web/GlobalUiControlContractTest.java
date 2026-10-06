@@ -77,8 +77,8 @@ class GlobalUiControlContractTest {
             assertTrue(settings.contains("\"" + key + "\""), "settings persistence missing " + key);
             assertTrue(admin.contains(key), "admin customer center missing " + key);
         }
-        assertTrue(controller.contains("siteSettings.get(\"customerServiceEnabled\""));
-        assertTrue(controller.contains("siteSettings.get(topicKey"));
+        assertTrue(controller.contains("customerServiceSetting(\"customerServiceEnabled\""));
+        assertTrue(controller.contains("customerServiceSetting(topicKey"));
         assertTrue(settings.contains("work.weixin.qq.com"));
     }
 

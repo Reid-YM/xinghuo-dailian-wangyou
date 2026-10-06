@@ -143,6 +143,6 @@ class CustomerServiceControllerTest {
             String afterSalesUrl,
             String businessUrl) {
         return new CustomerServiceController(
-                enabled, defaultUrl, gameUrl, orderUrl, afterSalesUrl, businessUrl);
+                enabled, defaultUrl, gameUrl, orderUrl, afterSalesUrl, businessUrl, null);
     }
 }

@@ -2,14 +2,8 @@
 <!--
   全站公共页头 / 页脚片段
 
-  用途：消除各页面 10 种导航写法与 7 种页脚写法。
-  用法：<header th:replace="~{fragments/site :: header}"></header>
-        <footer th:replace="~{fragments/site :: footer}"></footer>
-
-  注意：
-  - 页头必须保留 .site-header / .nav 结构，public.js 依赖它注入语言切换控件；
-  - 页脚备案号必须出现在所有页面（合规要求）；
-  - 语言切换、当前页高亮由脚本按 URL 处理，片段内不写死。
+  用途：统一公共导航、页脚与备案展示。公共文案/显示开关由 site_settings 驱动，
+  模板中的文字仅作为接口异常时的安全兜底。
 -->
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
 <body>
@@ -18,20 +12,17 @@
   <div class="container topbar">
     <a class="brand brand-mark" href="/"><span class="brand-dot"></span><span data-config="brandName">星火网游代练平台</span></a>
     <nav class="nav" aria-label="主导航">
-      <a href="/services">服务</a>
-      <a href="/guides">攻略</a>
-      <a href="/mastery">MW4 工具站</a>
-      <a href="/records">业务记录</a>
-      <a href="/contact">一对一咨询</a>
+      <a href="/services" data-global-ui="nav-services" data-global-visible="navServicesVisible">服务</a>
+      <a href="/guides" data-global-ui="nav-guides" data-global-visible="navGuidesVisible">攻略</a>
+      <a href="/mastery" data-global-ui="nav-mastery" data-global-visible="navMasteryVisible">MW4 工具站</a>
+      <a href="/records" data-global-ui="nav-records" data-global-visible="navRecordsVisible">业务记录</a>
+      <a href="/contact" data-global-ui="nav-contact" data-global-visible="navContactVisible">一对一咨询</a>
       <!--
-        账号入口。刻意用一个静态链接指向 /account，不按登录态渲染：
-        本站的公开 HTML 会被 PublicHtmlCacheFilter 缓存，若页头依赖登录态，
-        缓存就会把某个用户的状态发给其他人。
-        /account 未登录时 302 到登录页、已登录时进用户中心，一个链接覆盖两种状态。
-        这也是移动端抽屉里唯一的账号入口（ui-fixes.js 会收集 .nav 下的非按钮链接）。
+        账号入口保持当前前端行为：静态指向登录页，由现有账号脚本/会话逻辑处理。
+        本轮只补齐后台文案与显示控制，不改变账号认证流程。
       -->
-        <a href="/account/login" data-account-entry><span data-account-entry-text>登录</span></a>
-      <a class="btn primary desktop-keep" href="/quote" data-track="header_quote_click" data-primary-cta>提前询价</a>
+      <a href="/account/login" data-account-entry data-global-visible="navAccountVisible"><span data-account-entry-text data-global-ui="nav-account">登录</span></a>
+      <a class="btn primary desktop-keep" href="/quote" data-track="header_quote_click" data-primary-cta data-global-visible="headerQuoteVisible">提前询价</a>
     </nav>
     <button type="button" class="nav-toggle" aria-label="打开导航菜单" aria-controls="mobileNavDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
@@ -44,18 +35,19 @@
       <strong data-config="legalEntityName">星维网络服务工作室</strong>
     </a>
     <nav class="footer-links" aria-label="页脚导航">
-      <a href="/services">服务大厅</a>
-      <a href="/records">业务记录</a>
-        <a href="/console">用户控制台</a>
-      <a href="/rules">服务规则</a>
-      <a href="/privacy">隐私说明</a>
-      <a href="/contact">一对一咨询</a>
+      <a href="/services" data-global-ui="footer-services" data-global-visible="footerServicesVisible">服务大厅</a>
+      <a href="/records" data-global-ui="footer-records" data-global-visible="footerRecordsVisible">业务记录</a>
+      <a href="/console" data-global-ui="footer-console" data-global-visible="footerConsoleVisible">用户控制台</a>
+      <a href="/rules" data-global-ui="footer-rules" data-global-visible="footerRulesVisible">服务规则</a>
+      <a href="/privacy" data-global-ui="footer-privacy" data-global-visible="footerPrivacyVisible">隐私说明</a>
+      <a href="/contact" data-global-ui="footer-contact" data-global-visible="footerContactVisible">一对一咨询</a>
     </nav>
   </div>
   <div class="container beian-row">
-    <a class="beian-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">蜀ICP备2026047129号</a>
-    <a class="beian-link police-beian" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=51162102000262" target="_blank" rel="noopener noreferrer"><img src="/assets/police-beian.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="14" height="14">川公网安备51162102000262号</a>
+    <a class="beian-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" data-global-visible="icpVisible"><span data-global-ui="icp-number">蜀ICP备2026047129号</span></a>
+    <a class="beian-link police-beian" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=51162102000262" target="_blank" rel="noopener noreferrer" data-global-ui-link="public-security" data-global-visible="publicSecurityVisible"><img src="/assets/police-beian.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="14" height="14"><span data-global-ui="public-security-number">川公网安备51162102000262号</span></a>
   </div>
+  <script defer src="/assets/global-ui-controls.js?v=20261007g004"></script>
 </footer>
 
 </body>

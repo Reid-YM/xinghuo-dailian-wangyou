@@ -6,9 +6,33 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ConsolePageController {
 
-    @GetMapping({"/console", "/console/orders", "/console/quotes", "/console/security", "/console/support"})
+    @GetMapping("/console")
     @RequireAccount
     public String console() {
-        return "console";
+        return "redirect:/account";
+    }
+
+    @GetMapping("/console/quotes")
+    @RequireAccount
+    public String quotes() {
+        return "redirect:/account#quotes";
+    }
+
+    @GetMapping("/console/orders")
+    @RequireAccount
+    public String orders() {
+        return "redirect:/account#orders";
+    }
+
+    @GetMapping("/console/security")
+    @RequireAccount
+    public String security() {
+        return "redirect:/account/settings";
+    }
+
+    @GetMapping("/console/support")
+    @RequireAccount
+    public String support() {
+        return "redirect:/contact";
     }
 }

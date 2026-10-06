@@ -3,7 +3,15 @@
   <title>快速询价 - 星火网游代练平台</title><meta name="description" content="选择游戏、平台和具体服务，提交任务询价。">
   <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台"><meta property="og:title" content="快速询价 - 星火网游代练平台"><meta property="og:description" content="选择游戏、平台和具体服务提交询价，获取业务编号并随时查询进度。"><meta property="og:url" content="https://wydlgf.cn/quote"><meta property="og:image" content="https://wydlgf.cn/og.png">
   <link rel="canonical" href="https://wydlgf.cn/quote"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/pages.js?v=20260928v016"></script><script defer src="/assets/quote-steps.js?v=20261006qs17"></script></head>
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/pages.js?v=20260928v016"></script><script defer src="/assets/quote-steps.js?v=20261006qs18"></script>
+  <style>
+    /* 询价页：一对一咨询卡片与报价卡片顶部对齐。
+       app.css 里 .consult-card{top:86px} 是历史偏移，这里做页面级覆盖，
+       避免为这几行去提升全局 app.css 的缓存版本号。 */
+    body[data-page="quote"] .quote-layout { align-items: start; }
+    body[data-page="quote"] .consult-card { top: 0; }
+  </style>
+</head>
 <body data-page="quote">
 <header th:replace="~{fragments/site :: header}"></header>
 <main class="container section page-shell quote-page-r3">
@@ -59,7 +67,6 @@
         <strong>安全提交提醒</strong>
         <p>截图只需要展示任务进度，不要包含账号密码、验证码、令牌、身份证或付款码。</p>
       </div>
-      <a class="kefu-image-button small consult-cta" data-wecom-link href="https://work.weixin.qq.com/kfid/kfc80cfa9ee45840208" target="_blank" rel="noopener noreferrer" data-track="wecom_kefu_click" aria-label="联系企微客服"><span class="kefu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M5 13h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2v-2a1 1 0 0 1 1-1Z"/><path d="M19 13h-2a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 0 2-2v-2a1 1 0 0 0-1-1Z"/><path d="M12 20h2a4 4 0 0 0 4-4"/></svg></span><span data-wecom-button>联系客服</span></a>
     </aside>
   </div>
 </main>

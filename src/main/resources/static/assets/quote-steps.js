@@ -104,32 +104,40 @@
     });
   }
 
-  // 账号里已经绑定了回访联系方式时，第 2 步不再要求填写联系号。
-  // 不在前端放真实值：字段置空并禁用，提交后由服务端按账号补齐，
-  // 避免脱敏串被当成真的联系方式写进订单。
-  function applyAccountContact(form, masked) {
-    if (!masked) return;
+  var ACCOUNT_CONTACT_LABEL = { PHONE: '手机号', WECHAT: '微信号', QQ: 'QQ 号' };
+
+  // 账号里已经绑定了回访联系方式时，第 2 步不再「必须填写」：
+  // 留空由服务端按账号补齐；用户想临时换一个也可以直接填，填了就以表单为准。
+  // 前端只拿得到脱敏值，仅用于展示，绝不回填进表单。
+  function applyAccountContact(form, contacts) {
+    if (!contacts || !contacts.length) return;
     form.dataset.contactFromAccount = '1';
     var panel = panelOf(form, 2);
     var combo = panel ? panel.querySelector('.contact-combo') : null;
-    if (combo) combo.hidden = true;
 
     [form.querySelector('[name="contactMethod"]'), form.querySelector('[name="customerContact"]')]
       .forEach(function (el) {
-        if (!el) return;
-        el.removeAttribute('required');
-        el.disabled = true;
+        if (el) el.removeAttribute('required');
       });
 
+    if (combo) {
+      var hint = combo.querySelector('.contact-required-hint');
+      if (hint) hint.textContent = '留空则自动使用账号绑定的联系方式';
+    }
+
     if (panel && !panel.querySelector('[data-account-contact-note]')) {
+      var names = contacts.map(function (c) {
+        var label = ACCOUNT_CONTACT_LABEL[String(c.type || '').toUpperCase()] || c.type || '联系方式';
+        return label + ' ' + (c.masked || '');
+      }).join('、');
       var note = document.createElement('p');
       note.className = 'quote-account-contact';
       note.setAttribute('data-account-contact-note', '1');
-      note.textContent = '已使用账号绑定的联系方式：' + masked
-        + '。需要更换请到个人中心修改“询价联系方式”。';
+      note.textContent = '账号已绑定：' + names
+        + '。留空即使用第一条，也可以直接在下面填写别的联系方式。';
       note.style.cssText = 'margin:10px 0 0;padding:10px 12px;border:1px solid rgba(244,189,52,.32);'
         + 'border-radius:10px;background:rgba(244,189,52,.08);color:#ffe09a;font-size:13px;line-height:1.6;';
-      if (combo && combo.parentNode) combo.parentNode.insertBefore(note, combo.nextSibling);
+      if (combo && combo.parentNode) combo.parentNode.insertBefore(note, combo);
       else panel.insertBefore(note, panel.firstChild);
     }
 
@@ -142,12 +150,15 @@
       .then(function (res) { return res.ok ? res.json() : null; })
       .then(function (me) {
         if (!me) return;
-        var masked = me.quoteContactMasked || '';
-        if (!masked) {
+        var list = Array.isArray(me.quoteContacts) ? me.quoteContacts.slice() : [];
+        if (!list.length) {
+          // 账号本身就是用手机号/微信/QQ 注册的，等于已经有一个可用联系方式
           var type = String(me.contactType || '').toUpperCase();
-          if (type === 'PHONE' || type === 'WECHAT' || type === 'QQ') masked = me.contactMasked || '';
+          if ((type === 'PHONE' || type === 'WECHAT' || type === 'QQ') && me.contactMasked) {
+            list = [{ type: type, masked: me.contactMasked }];
+          }
         }
-        if (masked) applyAccountContact(form, masked);
+        applyAccountContact(form, list);
       })
       .catch(function () { /* 未登录或网络失败时保持原有必填流程 */ });
   }

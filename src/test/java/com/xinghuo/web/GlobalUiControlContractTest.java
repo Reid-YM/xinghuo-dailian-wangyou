@@ -43,7 +43,7 @@ class GlobalUiControlContractTest {
     }
 
     @Test
-    void adminExposesPreviouslyBackendOnlyControls() throws IOException {
+    void adminExposesPreviouslyBackendOnlyControlsInMatchingEntrypoints() throws IOException {
         String adminLoader = read("resources/static/assets/admin-tool-station.js");
         String admin = read("resources/static/assets/admin-global-ui.js");
         String controller = read("java/com/xinghuo/controller/GlobalUiSettingsController.java");
@@ -55,6 +55,44 @@ class GlobalUiControlContractTest {
                 "statusShortText", "primaryButtonLabel", "toolUpdatedNote", "toolPublicEnabled"}) {
             assertTrue(admin.contains(field), "admin does not expose " + field);
         }
+        for (String entry : new String[]{
+                "站点运营", "全局导航与备案", "站点状态", "首页内容", "首页视觉",
+                "客服中心", "内容中心", "游戏运营状态", "客户履约", "用户与系统"}) {
+            assertTrue(admin.contains(entry), "admin navigation missing " + entry);
+        }
+    }
+
+    @Test
+    void customerServiceRoutingCanBeChangedFromAdminWithoutRestart() throws IOException {
+        String admin = read("resources/static/assets/admin-global-ui.js");
+        String settings = read("java/com/xinghuo/service/SiteSettingService.java");
+        String controller = read("java/com/xinghuo/controller/CustomerServiceController.java");
+        String adminController = read("java/com/xinghuo/controller/CustomerServiceSettingsController.java");
+
+        assertTrue(admin.contains("/api/admin/customer-service-settings"));
+        assertTrue(adminController.contains("@RequestMapping(\"/api/admin/customer-service-settings\")"));
+        for (String key : new String[]{
+                "customerServiceEnabled", "customerServiceDefaultUrl", "customerServiceGameUrl",
+                "customerServiceOrderUrl", "customerServiceAfterSalesUrl", "customerServiceBusinessUrl"}) {
+            assertTrue(settings.contains("\"" + key + "\""), "settings persistence missing " + key);
+            assertTrue(admin.contains(key), "admin customer center missing " + key);
+        }
+        assertTrue(controller.contains("siteSettings.get(\"customerServiceEnabled\""));
+        assertTrue(controller.contains("siteSettings.get(topicKey"));
+        assertTrue(settings.contains("work.weixin.qq.com"));
+    }
+
+    @Test
+    void supportPagesConsumeCustomerHoursAndSafetyCopy() throws IOException {
+        String controls = read("resources/static/assets/global-ui-controls.js");
+        String contact = read("resources/templates/contact.html");
+        String support = read("resources/templates/customer-service.html");
+
+        assertTrue(controls.contains("data-global-ui=\"service-hours\""));
+        assertTrue(controls.contains("data-global-ui=\"customer-service-safety\""));
+        assertTrue(contact.contains("data-global-ui=\"service-hours\""));
+        assertTrue(contact.contains("data-global-ui=\"customer-service-safety\""));
+        assertTrue(support.contains("data-global-ui=\"customer-service-safety\""));
     }
 
     @Test

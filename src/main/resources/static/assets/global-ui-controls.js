@@ -64,8 +64,7 @@
       ['/mastery', settings.navMasteryLabel || 'MW4 工具站', visibility.navMasteryVisible],
       ['/records', settings.navRecordsLabel || '业务记录', visibility.navRecordsVisible],
       ['/contact', settings.navContactLabel || '一对一咨询', visibility.navContactVisible],
-      ['/account', settings.navAccountLabel || '登录', visibility.navAccountVisible],
-      ['/account/login', settings.navAccountLabel || '登录', visibility.navAccountVisible]
+      ['/account', settings.navAccountLabel || '个人中心', visibility.navAccountVisible]
     ];
     drawerRules.forEach(([href, label, visible]) => {
       $$(`.nav-drawer a[href="${href}"]`).forEach(link => {
@@ -95,7 +94,6 @@
       const site = siteResponse.ok ? await siteResponse.json() : {};
       applySharedNavigation(settings || {}, site || {});
       applyPageControls(settings || {}, site || {});
-      // ui-fixes.js 在移动端会动态创建抽屉，再补一次确保抽屉也受同一配置控制。
       setTimeout(() => applySharedNavigation(settings || {}, site || {}), 120);
       setTimeout(() => applySharedNavigation(settings || {}, site || {}), 600);
     } catch (_) {

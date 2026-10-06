@@ -65,9 +65,16 @@ class AccountInformationArchitectureContractTest {
     @Test
     void sharedNavigationUsesCanonicalAccountEntry() throws IOException {
         String site = read("resources/templates/fragments/site.html");
+        String settings = read("java/com/xinghuo/service/SiteSettingService.java");
+        String controls = read("resources/static/assets/global-ui-controls.js");
         assertTrue(site.contains("href=\"/account\" data-account-entry"));
         assertTrue(site.contains("href=\"/account\" data-global-ui=\"footer-console\""));
         assertFalse(site.contains("href=\"/console\" data-global-ui=\"footer-console\""));
+        assertTrue(settings.contains("Map.entry(\"navAccountLabel\", \"个人中心\")"));
+        assertTrue(settings.contains("Map.entry(\"footerConsoleLabel\", \"个人中心\")"));
+        assertTrue(settings.contains("normalizeLegacyAccountLabels(out)"));
+        assertTrue(controls.contains("['/account', settings.navAccountLabel || '个人中心'"));
+        assertFalse(controls.contains("['/account/login', settings.navAccountLabel"));
     }
 
     @Test
@@ -78,6 +85,14 @@ class AccountInformationArchitectureContractTest {
         assertTrue(css.contains("@media(max-width:860px)"));
         assertTrue(css.contains("grid-template-columns:1fr"));
         assertTrue(css.contains("min-width:0"));
+    }
+
+    @Test
+    void settingsRailReusesExistingProfileBinding() throws IOException {
+        String fragment = read("resources/templates/fragments/account-center.html");
+        assertTrue(fragment.contains("data-profile-avatar-preview"));
+        assertTrue(fragment.contains("data-settings-name"));
+        assertTrue(fragment.contains("data-settings-contact"));
     }
 
     private static String read(String relative) throws IOException {

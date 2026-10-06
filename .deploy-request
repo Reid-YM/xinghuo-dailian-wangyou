@@ -1,0 +1,4 @@
+rollback production to pre-2026-10-06 18:00 Beijing baseline
+main=315a7e8dde1cfdd2494a0982e6b72f3fe5f7983f
+application-baseline=e6a441ee5a941b923f2fd89eb41daf70d589deea
+requested-at=2026-10-07T01:52:00+08:00

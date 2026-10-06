@@ -1,8 +1,9 @@
 package com.xinghuo.controller;
 
+import com.xinghuo.service.SiteSettingService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * <p>用户侧只暴露游戏咨询、订单咨询、售后处理、商务合作四类专属页面。
  * 真正进入会话时，再跳转到服务端为该类型配置的企业微信官方客服链接。
  * 每个咨询类型可配置独立客服链接；未配置时回退到默认客服链接。前端不能传入目标 URL，避免开放重定向。
+ * 后台保存的 site_settings 优先于环境变量，因此管理员修改后无需重启即可生效。
  */
 @Controller
 public class CustomerServiceController {
@@ -75,9 +77,10 @@ public class CustomerServiceController {
                     List.of("合作类型或平台名称", "团队/渠道基本情况", "希望对接的合作方式"),
                     "开始商务沟通"));
 
-    private final boolean enabled;
-    private final URI defaultCustomerServiceUri;
-    private final Map<String, URI> topicCustomerServiceUris;
+    private final boolean configuredEnabled;
+    private final String configuredDefaultUrl;
+    private final Map<String, String> configuredTopicUrls;
+    private final SiteSettingService siteSettings;
 
     public CustomerServiceController(
             @Value("${app.wecom-customer-service.enabled:false}") boolean enabled,
@@ -85,19 +88,19 @@ public class CustomerServiceController {
             @Value("${app.wecom-customer-service.game-url:}") String gameUrl,
             @Value("${app.wecom-customer-service.order-url:}") String orderUrl,
             @Value("${app.wecom-customer-service.after-sales-url:}") String afterSalesUrl,
-            @Value("${app.wecom-customer-service.business-url:}") String businessUrl) {
-        this.enabled = enabled;
-        this.defaultCustomerServiceUri = parseOfficialCustomerServiceUri(configuredUrl);
-        this.topicCustomerServiceUris = new HashMap<>();
-        putTopicUri("game", gameUrl);
-        putTopicUri("order", orderUrl);
-        putTopicUri("after-sales", afterSalesUrl);
-        putTopicUri("business", businessUrl);
+            @Value("${app.wecom-customer-service.business-url:}") String businessUrl,
+            SiteSettingService siteSettings) {
+        this.configuredEnabled = enabled;
+        this.configuredDefaultUrl = clean(configuredUrl);
+        this.configuredTopicUrls = new LinkedHashMap<>();
+        this.configuredTopicUrls.put("game", clean(gameUrl));
+        this.configuredTopicUrls.put("order", clean(orderUrl));
+        this.configuredTopicUrls.put("after-sales", clean(afterSalesUrl));
+        this.configuredTopicUrls.put("business", clean(businessUrl));
+        this.siteSettings = siteSettings;
     }
 
-    /**
-     * /support 不再承载通用咨询页，统一回到四类客服中心。
-     */
+    /** /support 不再承载通用咨询页，统一回到四类客服中心。 */
     @GetMapping("/support")
     public String supportHome() {
         return "redirect:/contact";
@@ -106,9 +109,7 @@ public class CustomerServiceController {
     @GetMapping("/support/{topic}")
     public String support(@PathVariable String topic, Model model) {
         String normalizedTopic = normalizeTopic(topic);
-        if ("general".equals(normalizedTopic)) {
-            return "redirect:/contact";
-        }
+        if ("general".equals(normalizedTopic)) return "redirect:/contact";
         SupportTopic supportTopic = SUPPORT_TOPICS.get(normalizedTopic);
         model.addAttribute("supportTopic", supportTopic);
         model.addAttribute("supportTopics", List.of(
@@ -119,9 +120,7 @@ public class CustomerServiceController {
         return "customer-service";
     }
 
-    /**
-     * 兼容旧链接。新的前端使用 /customer-service/start/{topic}，不再暴露 topic 查询字段。
-     */
+    /** 兼容旧链接。新的前端使用 /customer-service/start/{topic}。 */
     @GetMapping("/customer-service/start")
     ResponseEntity<Void> start(
             @RequestParam(name = "topic", defaultValue = "general") String topic,
@@ -137,9 +136,9 @@ public class CustomerServiceController {
     private ResponseEntity<Void> redirectToCustomerService(String topic, HttpServletRequest request) {
         String normalizedTopic = normalizeTopic(topic);
         String sourcePath = sourcePath(request.getHeader("Referer"));
-        URI target = topicCustomerServiceUris.getOrDefault(normalizedTopic, defaultCustomerServiceUri);
+        URI target = resolveCustomerServiceUri(normalizedTopic);
 
-        if (!enabled || target == null) {
+        if (!isEnabled() || target == null) {
             log.warn("在线客服入口未启用或链接无效，topic={} source={}", normalizedTopic, sourcePath);
             return redirect(CONTACT_FALLBACK);
         }
@@ -148,11 +147,38 @@ public class CustomerServiceController {
         return redirect(target);
     }
 
-    private void putTopicUri(String topic, String configuredUrl) {
-        URI uri = parseOfficialCustomerServiceUri(configuredUrl);
-        if (uri != null) {
-            topicCustomerServiceUris.put(topic, uri);
+    private boolean isEnabled() {
+        if (siteSettings == null) return configuredEnabled;
+        String value = siteSettings.customerServiceSetting("customerServiceEnabled", String.valueOf(configuredEnabled));
+        return Boolean.parseBoolean(value);
+    }
+
+    private URI resolveCustomerServiceUri(String topic) {
+        String topicFallback = configuredTopicUrls.getOrDefault(topic, "");
+        String topicKey = switch (topic) {
+            case "game" -> "customerServiceGameUrl";
+            case "order" -> "customerServiceOrderUrl";
+            case "after-sales" -> "customerServiceAfterSalesUrl";
+            case "business" -> "customerServiceBusinessUrl";
+            default -> null;
+        };
+
+        if (topicKey != null) {
+            String configured = siteSettings == null
+                    ? topicFallback
+                    : siteSettings.customerServiceSetting(topicKey, topicFallback);
+            URI topicUri = parseOfficialCustomerServiceUri(configured);
+            if (topicUri != null) return topicUri;
         }
+
+        String defaultUrl = siteSettings == null
+                ? configuredDefaultUrl
+                : siteSettings.customerServiceSetting("customerServiceDefaultUrl", configuredDefaultUrl);
+        return parseOfficialCustomerServiceUri(defaultUrl);
+    }
+
+    private static String clean(String value) {
+        return value == null ? "" : value.trim();
     }
 
     private static ResponseEntity<Void> redirect(URI location) {
@@ -163,21 +189,14 @@ public class CustomerServiceController {
     }
 
     private static String normalizeTopic(String topic) {
-        if (topic == null) {
-            return "general";
-        }
+        if (topic == null) return "general";
         String normalized = topic.trim().toLowerCase(Locale.ROOT);
         return ALLOWED_TOPICS.contains(normalized) ? normalized : "general";
     }
 
-    /**
-     * 只接受企业微信官方 HTTPS 客服链接，避免配置错误把用户导向第三方站点。
-     * /kfid/ 是当前直接客服入口；/kf/ 用于官方接口生成的带场景客服链接。
-     */
-    private static URI parseOfficialCustomerServiceUri(String configuredUrl) {
-        if (configuredUrl == null || configuredUrl.isBlank()) {
-            return null;
-        }
+    /** 只接受企业微信官方 HTTPS 客服链接，避免配置错误把用户导向第三方站点。 */
+    static URI parseOfficialCustomerServiceUri(String configuredUrl) {
+        if (configuredUrl == null || configuredUrl.isBlank()) return null;
         try {
             URI uri = URI.create(configuredUrl.trim());
             String path = uri.getPath();
@@ -191,18 +210,12 @@ public class CustomerServiceController {
         }
     }
 
-    /**
-     * 只记录来源页面路径，不记录查询参数、Cookie、IP 等访客敏感信息。
-     */
+    /** 只记录来源页面路径，不记录查询参数、Cookie、IP 等访客敏感信息。 */
     private static String sourcePath(String referrer) {
-        if (referrer == null || referrer.isBlank()) {
-            return "unknown";
-        }
+        if (referrer == null || referrer.isBlank()) return "unknown";
         try {
             String path = URI.create(referrer).getPath();
-            if (path == null || path.isBlank()) {
-                return "/";
-            }
+            if (path == null || path.isBlank()) return "/";
             return path.length() <= 160 ? path : path.substring(0, 160);
         } catch (IllegalArgumentException ex) {
             return "unknown";

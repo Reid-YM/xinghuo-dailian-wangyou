@@ -1,7 +1,11 @@
 package com.xinghuo.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.xinghuo.service.SiteSettingService;
 import java.net.URI;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -42,6 +46,29 @@ class CustomerServiceControllerTest {
 
         assertThat(response.getHeaders().getLocation())
                 .isEqualTo(URI.create("https://work.weixin.qq.com/kfid/order123"));
+    }
+
+    @Test
+    void persistedTopicLinkOverridesEnvironmentWithoutRestart() {
+        SiteSettingService settings = mock(SiteSettingService.class);
+        when(settings.customerServiceSetting(anyString(), anyString()))
+                .thenAnswer(invocation -> invocation.getArgument(1));
+        when(settings.customerServiceSetting("customerServiceOrderUrl", "https://work.weixin.qq.com/kfid/env-order"))
+                .thenReturn("https://work.weixin.qq.com/kfid/admin-order");
+
+        CustomerServiceController controller = new CustomerServiceController(
+                true,
+                "https://work.weixin.qq.com/kfid/default123",
+                "",
+                "https://work.weixin.qq.com/kfid/env-order",
+                "",
+                "",
+                settings);
+
+        ResponseEntity<Void> response = controller.startPath("order", new MockHttpServletRequest());
+
+        assertThat(response.getHeaders().getLocation())
+                .isEqualTo(URI.create("https://work.weixin.qq.com/kfid/admin-order"));
     }
 
     @Test
@@ -143,6 +170,6 @@ class CustomerServiceControllerTest {
             String afterSalesUrl,
             String businessUrl) {
         return new CustomerServiceController(
-                enabled, defaultUrl, gameUrl, orderUrl, afterSalesUrl, businessUrl);
+                enabled, defaultUrl, gameUrl, orderUrl, afterSalesUrl, businessUrl, null);
     }
 }

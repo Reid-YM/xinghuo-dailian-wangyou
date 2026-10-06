@@ -302,13 +302,3 @@ body.nexus-page::before,body[data-page^="account-"]::before,body[data-page="memb
 @media(max-width:360px){
   .account-pager>div{grid-template-columns:1fr}
 }
-
-/* 询价联系方式：账号与安全页的多条绑定管理 */
-.quote-contact-list{display:grid;gap:8px;margin-top:4px}
-.quote-contact-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--border,#263041);border-radius:11px;background:rgba(255,255,255,.02)}
-.quote-contact-meta{display:flex;align-items:baseline;gap:8px;min-width:0}
-.quote-contact-meta span{font-size:12px;color:var(--muted,#8b95a7)}
-.quote-contact-meta strong{font-size:14px;overflow-wrap:anywhere}
-@media(max-width:760px){
-  .quote-contact-row{flex-wrap:wrap}
-}

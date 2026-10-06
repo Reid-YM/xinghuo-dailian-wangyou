@@ -44,13 +44,6 @@ app:
   wechat-login:
     app-id: ${WECHAT_OPEN_APP_ID:}
     app-secret: ${WECHAT_OPEN_APP_SECRET:}
-  wecom-customer-service:
-    enabled: ${WECOM_KF_ENABLED:false}
-    url: ${WECOM_KF_URL:}
-    game-url: ${WECOM_KF_GAME_URL:}
-    order-url: ${WECOM_KF_ORDER_URL:}
-    after-sales-url: ${WECOM_KF_AFTER_SALES_URL:}
-    business-url: ${WECOM_KF_BUSINESS_URL:}
   bootstrap-admin:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:}

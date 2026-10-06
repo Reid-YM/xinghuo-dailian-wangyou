@@ -15,20 +15,14 @@
 <body>
 
 <header th:fragment="header" class="site-header">
-  <style>
-    /* 普通页面只保留右下角悬浮客服。客服中心/四类落地页本身仍可展示完整客服流程。 */
-    body:not([data-page="support"]):not([data-page="support-center"]) .quick-contact-card,
-    body:not([data-page="support"]):not([data-page="support-center"]) a[href="/contact"],
-    body:not([data-page="support"]):not([data-page="support-center"]) a[href^="/support/"]{display:none!important}
-    body:not([data-page="support"]):not([data-page="support-center"]) .native-customer-service a[href^="/support/"]{display:grid!important}
-  </style>
   <div class="container topbar">
     <a class="brand brand-mark" href="/"><span class="brand-dot"></span><span data-config="brandName">星火网游代练平台</span></a>
     <nav class="nav" aria-label="主导航">
-      <a href="/services" data-global-ui="nav-services">服务</a>
-      <a href="/guides" data-global-ui="nav-guides">攻略</a>
-      <a href="/mastery" data-global-ui="nav-mastery">MW4 工具站</a>
-      <a href="/records" data-global-ui="nav-records">业务记录</a>
+      <a href="/services">服务</a>
+      <a href="/guides">攻略</a>
+      <a href="/mastery">MW4 工具站</a>
+      <a href="/records">业务记录</a>
+      <a href="/contact">一对一咨询</a>
       <!--
         账号入口。刻意用一个静态链接指向 /account，不按登录态渲染：
         本站的公开 HTML 会被 PublicHtmlCacheFilter 缓存，若页头依赖登录态，
@@ -36,7 +30,7 @@
         /account 未登录时 302 到登录页、已登录时进用户中心，一个链接覆盖两种状态。
         这也是移动端抽屉里唯一的账号入口（ui-fixes.js 会收集 .nav 下的非按钮链接）。
       -->
-      <a href="/account" data-account-entry><span data-account-entry-text data-global-ui="nav-account">个人空间</span></a>
+        <a href="/account/login" data-account-entry><span data-account-entry-text>登录</span></a>
       <a class="btn primary desktop-keep" href="/quote" data-track="header_quote_click" data-primary-cta>提前询价</a>
     </nav>
     <button type="button" class="nav-toggle" aria-label="打开导航菜单" aria-controls="mobileNavDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -50,66 +44,25 @@
       <strong data-config="legalEntityName">星维网络服务工作室</strong>
     </a>
     <nav class="footer-links" aria-label="页脚导航">
-      <a href="/services" data-global-ui="nav-services">服务大厅</a>
-      <a href="/records" data-global-ui="nav-records">业务记录</a>
-      <a href="/account" data-global-ui="nav-account">个人空间</a>
-      <a href="/rules" data-global-ui="footer-rules">服务规则</a>
-      <a href="/privacy" data-global-ui="footer-privacy">隐私说明</a>
+      <a href="/services">服务大厅</a>
+      <a href="/records">业务记录</a>
+        <a href="/console">用户控制台</a>
+      <a href="/rules">服务规则</a>
+      <a href="/privacy">隐私说明</a>
+      <a href="/contact">一对一咨询</a>
     </nav>
   </div>
   <div class="container beian-row">
-    <a class="beian-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" data-global-ui="icp-number">蜀ICP备2026047129号</a>
-    <a class="beian-link police-beian" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=51162102000262" target="_blank" rel="noopener noreferrer" data-global-ui-link="public-security"><img src="/assets/police-beian.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="14" height="14"><span data-global-ui="public-security-number">川公网安备51162102000262号</span></a>
+    <a class="beian-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">蜀ICP备2026047129号</a>
+    <a class="beian-link police-beian" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=51162102000262" target="_blank" rel="noopener noreferrer"><img src="/assets/police-beian.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="14" height="14">川公网安备51162102000262号</a>
   </div>
+  <a class="kefu-float" data-wecom-entry data-wecom-link href="https://work.weixin.qq.com/kfid/kfc80cfa9ee45840208" target="_blank" rel="noopener noreferrer" aria-label="联系企业微信客服">
+    <span class="kefu-image-button small">
+      <span class="kefu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13a8 8 0 0 1 16 0"/><path d="M4 13v3a2 2 0 0 0 2 2h1v-7H6a2 2 0 0 0-2 2Z"/><path d="M20 13v3a2 2 0 0 1-2 2h-1v-7h1a2 2 0 0 1 2 2Z"/><path d="M8 21h4a4 4 0 0 0 4-4"/></svg></span>
+      <span>联系客服</span>
+    </span>
+  </a>
 
-  <details class="native-customer-service">
-    <summary class="native-customer-service-trigger" aria-label="打开在线客服">
-      <span class="native-customer-service-status" aria-hidden="true"></span>
-      <span data-global-ui="customer-service-label">在线客服</span>
-    </summary>
-    <section class="native-customer-service-panel" aria-label="在线客服">
-      <div class="native-customer-service-head">
-        <div>
-          <small>客服团队</small>
-          <strong data-global-ui="customer-service-title">需要帮助？</strong>
-        </div>
-      </div>
-      <p data-global-ui="customer-service-intro">先选择问题类型，我们会给你对应的准备提示，再开始在线咨询。</p>
-      <nav class="native-customer-service-topics" aria-label="选择咨询类型">
-        <a href="/support/game" rel="nofollow"><span>🎮</span><b>游戏咨询</b><small>服务、价格、平台</small></a>
-        <a href="/support/order" rel="nofollow"><span>📦</span><b>订单咨询</b><small>进度、交付、补充要求</small></a>
-        <a href="/support/after-sales" rel="nofollow"><span>🛠</span><b>售后处理</b><small>异常、复核、问题反馈</small></a>
-        <a href="/support/business" rel="nofollow"><span>🤝</span><b>商务合作</b><small>平台、渠道、团队合作</small></a>
-      </nav>
-      <div class="native-customer-service-note" data-global-ui="customer-service-note">客服时间 10:00–24:00 · 请勿发送密码、验证码或令牌</div>
-    </section>
-  </details>
-
-  <style>
-    .native-customer-service{position:fixed;right:max(20px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));z-index:1100;color:#f7f7f4;font-family:inherit}
-    .native-customer-service>summary{list-style:none}
-    .native-customer-service>summary::-webkit-details-marker{display:none}
-    .native-customer-service-trigger{display:flex;align-items:center;gap:9px;min-height:48px;padding:0 17px;border:1px solid rgba(255,207,51,.5);border-radius:999px;background:#111318;color:#fff;box-shadow:0 12px 34px rgba(0,0,0,.35);font-size:14px;font-weight:800;letter-spacing:.02em;cursor:pointer;user-select:none}
-    .native-customer-service-trigger:hover{border-color:#ffcf33;transform:translateY(-1px)}
-    .native-customer-service-status{width:9px;height:9px;border-radius:50%;background:#ffcf33;box-shadow:0 0 0 4px rgba(255,207,51,.13)}
-    .native-customer-service-panel{position:absolute;right:0;bottom:60px;width:min(350px,calc(100vw - 28px));padding:18px;border:1px solid rgba(255,207,51,.25);border-radius:18px;background:#0d0f13;box-shadow:0 24px 70px rgba(0,0,0,.5);text-align:left}
-    .native-customer-service:not([open]) .native-customer-service-panel{display:none}
-    .native-customer-service-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
-    .native-customer-service-head div{display:grid;gap:3px}
-    .native-customer-service-head small{color:#9da2ac;font-size:11px}
-    .native-customer-service-head strong{font-size:18px;line-height:1.25;color:#fff}
-    .native-customer-service-panel>p{margin:0 0 13px;color:#b8bdc7;font-size:13px;line-height:1.65}
-    .native-customer-service-topics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .native-customer-service-topics a{display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;column-gap:8px;row-gap:2px;padding:12px 11px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:#15181e;color:#fff;text-decoration:none;transition:border-color .16s ease,background .16s ease,transform .16s ease}
-    .native-customer-service-topics a:hover{border-color:rgba(255,207,51,.5);background:#1a1d23;transform:translateY(-1px)}
-    .native-customer-service-topics a>span{grid-row:1/3;align-self:center;font-size:20px}
-    .native-customer-service-topics b{font-size:13px;line-height:1.3}
-    .native-customer-service-topics small{color:#8f96a2;font-size:10px;line-height:1.35}
-    .native-customer-service-note{margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.07);color:#858c98;font-size:10px;text-align:center;line-height:1.5}
-    @media (max-width:720px){.native-customer-service{right:12px;bottom:calc(76px + env(safe-area-inset-bottom))}.native-customer-service-trigger{min-height:44px;padding:0 14px}.native-customer-service-panel{right:0;bottom:55px;width:min(330px,calc(100vw - 24px));padding:15px}.native-customer-service-topics{grid-template-columns:1fr 1fr}}
-    @media (prefers-reduced-motion:reduce){.native-customer-service-trigger,.native-customer-service-topics a{transition:none}}
-  </style>
-  <script defer src="/assets/global-ui-controls.js?v=20261007g003"></script>
 </footer>
 
 </body>

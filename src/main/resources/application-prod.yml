@@ -1,6 +1,0 @@
-app:
-  # 生产环境默认启用已确认的企业微信官方微信客服链接。
-  # 该链接是公开客服入口，不是 Secret；仍可通过环境变量随时覆盖或关闭。
-  wecom-customer-service:
-    enabled: ${WECOM_KF_ENABLED:true}
-    url: "${WECOM_KF_URL:https://work.weixin.qq.com/kfid/kfc80cfa9ee45840208}"

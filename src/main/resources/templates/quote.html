@@ -3,12 +3,7 @@
   <title>快速询价 - 星火网游代练平台</title><meta name="description" content="选择游戏、平台和具体服务，提交任务询价。">
   <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台"><meta property="og:title" content="快速询价 - 星火网游代练平台"><meta property="og:description" content="选择游戏、平台和具体服务提交询价，获取业务编号并随时查询进度。"><meta property="og:url" content="https://wydlgf.cn/quote"><meta property="og:image" content="https://wydlgf.cn/og.png">
   <link rel="canonical" href="https://wydlgf.cn/quote"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261006pub11"></script><script defer src="/assets/pages.js?v=20260928v016"></script><script defer src="/assets/quote-steps.js?v=20261006qs18"></script>
-  <style>
-    body[data-page="quote"] .quote-layout { align-items: start; }
-    body[data-page="quote"] .consult-card { top: 0; }
-  </style>
-</head>
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/pages.js?v=20260928v016"></script><script defer src="/assets/quote-steps.js?v=20260928v016"></script></head>
 <body data-page="quote">
 <header th:replace="~{fragments/site :: header}"></header>
 <main class="container section page-shell quote-page-r3">
@@ -54,13 +49,20 @@
       </form>
     </div>
     <aside class="card consult-card desktop-secondary-panel">
-      <span class="eyebrow">在线客服</span><h2>需要人工确认？</h2>
-      <p>服务内容、平台支持、价格或完成时间不确定时，直接进入游戏咨询。已经有业务编号的订单问题请走订单咨询。</p>
-      <div class="actions"><a class="btn primary" href="/support/game">游戏咨询</a><a class="btn ghost" href="/support/order">订单咨询</a></div>
-      <div class="quote-safe-panel"><strong>安全提交提醒</strong><p>截图只需要展示任务进度，不要包含账号密码、验证码、令牌、身份证或付款码。</p></div>
+      <span class="eyebrow"><span th:text="#{t.73500}">一对一咨询</span></span><h2>需要人工确认？</h2>
+      <div class="consult-channel" data-contact-row="wechat"><span><span th:text="#{t.42742}">微信</span></span><strong id="quoteWechat" data-contact="wechat">AAC9878</strong><button class="btn small-btn" type="button" data-copy="#quoteWechat"><span th:text="#{t.13630}">复制</span></button></div>
+      <div class="consult-channel hidden" data-contact-row="qq"><span>QQ</span><strong id="quoteQq" data-contact="qq"></strong><div class="actions"><button class="btn small-btn" type="button" data-copy="#quoteQq"><span th:text="#{t.13630}">复制</span></button><a class="btn small-btn hidden" data-contact-link="qq" target="_blank" rel="noopener">打开QQ</a></div></div>
+      <div class="consult-channel hidden" data-contact-row="phone"><span>电话</span><strong id="quotePhone" data-contact="phone"></strong><a class="btn small-btn hidden" data-contact-link="phone">拨打</a></div>
+      <div class="consult-channel" data-contact-row="hours"><span>客服时间</span><strong data-config="serviceHours">10:00–24:00</strong><span></span></div>
+      <div class="kefu-card-entry quote-wecom-entry" data-wecom-entry><p data-wecom-note>需要人工确认时，可直接进入企业微信客服。</p><a class="kefu-image-button small" data-wecom-link href="https://work.weixin.qq.com/kfid/kfc80cfa9ee45840208" target="_blank" rel="noopener noreferrer" data-track="wecom_kefu_click" aria-label="联系企微客服"><span class="kefu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M5 13h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2v-2a1 1 0 0 1 1-1Z"/><path d="M19 13h-2a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 0 2-2v-2a1 1 0 0 0-1-1Z"/><path d="M12 20h2a4 4 0 0 0 4-4"/></svg></span><span data-wecom-button>联系客服</span></a></div>
+      <div class="quote-safe-panel">
+        <strong>安全提交提醒</strong>
+        <p>截图只需要展示任务进度，不要包含账号密码、验证码、令牌、身份证或付款码。</p>
+      </div>
+      <a class="kefu-image-button small consult-cta" data-wecom-link href="https://work.weixin.qq.com/kfid/kfc80cfa9ee45840208" target="_blank" rel="noopener noreferrer" data-track="wecom_kefu_click" aria-label="联系企微客服"><span class="kefu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M5 13h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2v-2a1 1 0 0 1 1-1Z"/><path d="M19 13h-2a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 0 2-2v-2a1 1 0 0 0-1-1Z"/><path d="M12 20h2a4 4 0 0 0 4-4"/></svg></span><span data-wecom-button>联系客服</span></a>
     </aside>
   </div>
 </main>
-<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/"><span th:text="#{t.870}">首页</span></a><a href="/records"><span th:text="#{nav.records}"><span th:text="#{t.90574}">业务记录</span></span></a><a class="primary" href="/support/game">游戏客服</a></nav>
+<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/"><span th:text="#{t.870}">首页</span></a><a href="/records"><span th:text="#{nav.records}"><span th:text="#{t.90574}">业务记录</span></span></a><a class="primary" href="/contact"><span th:text="#{t.86236}">联系客服</span></a></nav>
 <footer th:replace="~{fragments/site :: footer}"></footer>
 </body></html>

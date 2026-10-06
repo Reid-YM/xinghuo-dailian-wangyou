@@ -20,6 +20,9 @@ public class SiteSettingService {
             Map.entry("navMasteryLabel", "MW4 工具站"),
             Map.entry("navRecordsLabel", "业务记录"),
             Map.entry("navAccountLabel", "个人空间"),
+            Map.entry("footerServicesLabel", "服务大厅"),
+            Map.entry("footerRecordsLabel", "业务记录"),
+            Map.entry("footerAccountLabel", "个人空间"),
             Map.entry("footerRulesLabel", "服务规则"),
             Map.entry("footerPrivacyLabel", "隐私说明"),
             Map.entry("floatingCustomerServiceLabel", "在线客服"),
@@ -34,8 +37,9 @@ public class SiteSettingService {
             "legalEntityName", "brandName", "wechat", "serviceHours", "icpNumber",
             "publicSecurityNumber", "siteTitleSuffix", "defaultOgImage", "faviconPath",
             "floatingCustomerServiceEnabled", "navServicesLabel", "navGuidesLabel",
-            "navMasteryLabel", "navRecordsLabel", "navAccountLabel", "footerRulesLabel",
-            "footerPrivacyLabel", "floatingCustomerServiceLabel", "floatingCustomerServiceTitle",
+            "navMasteryLabel", "navRecordsLabel", "navAccountLabel", "footerServicesLabel",
+            "footerRecordsLabel", "footerAccountLabel", "footerRulesLabel", "footerPrivacyLabel",
+            "floatingCustomerServiceLabel", "floatingCustomerServiceTitle",
             "floatingCustomerServiceIntro", "floatingCustomerServiceNote"
     );
 

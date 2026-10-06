@@ -8,6 +8,7 @@ import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.CustomerOrder;
 import com.xinghuo.model.GameStatus;
 import com.xinghuo.model.UploadAsset;
+import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountSessionService;
 import com.xinghuo.account.service.RateLimiter;
 import com.xinghuo.account.service.RequestUtils;
@@ -31,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.Generated;
 import org.springframework.core.io.Resource;
@@ -154,9 +156,38 @@ public class PublicApiController {
         if (!this.config.isQuoteEnabled()) {
             throw new BadRequestException("\u5f53\u524d\u5df2\u5173\u95ed\u7f51\u9875\u8be2\u4ef7\uff0c\u8bf7\u901a\u8fc7\u5ba2\u670d\u6e20\u9053\u8054\u7cfb");
         }
-        Long accountId = this.accountSessions.current(req).map(x -> x.getId()).orElse(null);
-        ApiDtos.QuoteResponse out = this.quotes.create(body, key, HashUtil.sha256(RequestUtil.clientIp(req)), accountId);
+        Optional<Account> current = this.accountSessions.current(req);
+        Long accountId = current.map(Account::getId).orElse(null);
+        // 已登录且账号绑了联系方式时，用它补齐表单没填的部分，避免让用户重复填写。
+        PublicQuoteRequest payload = body;
+        if (current.isPresent() && this.isBlankContact(body)) {
+            Account account = current.get();
+            String contact = account.effectiveQuoteContact();
+            if (contact != null && !contact.isBlank()) {
+                payload = body.withCustomerContact(contact, quoteContactMethod(account));
+            }
+        }
+        ApiDtos.QuoteResponse out = this.quotes.create(payload, key, HashUtil.sha256(RequestUtil.clientIp(req)), accountId);
         return ResponseEntity.status((HttpStatusCode)HttpStatus.CREATED).body(out);
+    }
+
+    private boolean isBlankContact(PublicQuoteRequest body) {
+        return body.customerContact() == null || body.customerContact().isBlank();
+    }
+
+    /** 询价表单的「联系方式」取值是中文：微信 / QQ / 手机。 */
+    private static String quoteContactMethod(Account account) {
+        Account.ContactType type = account.getQuoteContactType() != null
+                ? account.getQuoteContactType() : account.getContactType();
+        if (type == null) {
+            return null;
+        }
+        return switch (type) {
+            case PHONE -> "\u624b\u673a";
+            case WECHAT -> "\u5fae\u4fe1";
+            case QQ -> "QQ";
+            default -> null;
+        };
     }
 
     @GetMapping(value={"/records/{businessNo}"})

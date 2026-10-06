@@ -61,6 +61,22 @@ public class Account {
     @Column(name = "contact_verified", nullable = false)
     private boolean contactVerified;
 
+    /**
+     * 询价联系方式，与登录凭据解耦（见 V56 迁移说明）。
+     *
+     * <p>contact_* 是登录凭据，改它等于换登录方式；quote_contact_* 只用于
+     * 客服回访，可在后台免验证绑定，因此不能拿它做身份判定。
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "quote_contact_type", length = 16)
+    private ContactType quoteContactType;
+
+    @Column(name = "quote_contact_value", length = 120)
+    private String quoteContactValue;
+
+    @Column(name = "quote_contact_updated_at")
+    private Instant quoteContactUpdatedAt;
+
     @Column(name = "public_user_id", nullable = false, length = 24, unique = true)
     private String publicUserId;
 
@@ -148,6 +164,22 @@ public class Account {
         return lockedUntil != null && lockedUntil.isAfter(Instant.now());
     }
 
+    /**
+     * 询价时可自动带上的联系方式：优先用绑定的询价联系方式，
+     * 否则在登录凭据本身就是手机/微信/QQ 时复用。
+     * 邮箱是账号恢复方式，不适合当客服回访渠道，所以不返回。
+     */
+    public String effectiveQuoteContact() {
+        if (quoteContactValue != null && !quoteContactValue.isBlank()) {
+            return quoteContactValue.trim();
+        }
+        if (contactType == ContactType.PHONE || contactType == ContactType.WECHAT
+                || contactType == ContactType.QQ) {
+            return contactValue == null ? null : contactValue.trim();
+        }
+        return null;
+    }
+
     public enum ContactType {
         EMAIL,
         WECHAT,
@@ -174,6 +206,12 @@ public class Account {
         private String contactNorm;
         @Generated
         private boolean contactVerified;
+        @Generated
+        private ContactType quoteContactType;
+        @Generated
+        private String quoteContactValue;
+        @Generated
+        private Instant quoteContactUpdatedAt;
         @Generated
         private String publicUserId;
         @Generated
@@ -346,8 +384,26 @@ public class Account {
         }
 
         @Generated
+        public AccountBuilder quoteContactType(ContactType contactType) {
+            this.quoteContactType = contactType;
+            return this;
+        }
+
+        @Generated
+        public AccountBuilder quoteContactValue(String string) {
+            this.quoteContactValue = string;
+            return this;
+        }
+
+        @Generated
+        public AccountBuilder quoteContactUpdatedAt(Instant instant) {
+            this.quoteContactUpdatedAt = instant;
+            return this;
+        }
+
+        @Generated
         public Account build() {
-            return new Account(this.id, this.contactType, this.contactValue, this.contactNorm, this.contactVerified, this.publicUserId, this.email, this.emailNorm, this.emailVerified, this.passwordHash, this.displayName, this.avatarUrl, this.role, this.levelCode, this.status, this.failedAttempts, this.lockedUntil, this.lastLoginAt, this.lastLoginIp, this.createdAt, this.updatedAt, this.deletedAt);
+            return new Account(this.id, this.contactType, this.contactValue, this.contactNorm, this.contactVerified, this.quoteContactType, this.quoteContactValue, this.quoteContactUpdatedAt, this.publicUserId, this.email, this.emailNorm, this.emailVerified, this.passwordHash, this.displayName, this.avatarUrl, this.role, this.levelCode, this.status, this.failedAttempts, this.lockedUntil, this.lastLoginAt, this.lastLoginIp, this.createdAt, this.updatedAt, this.deletedAt);
         }
 
         @Generated

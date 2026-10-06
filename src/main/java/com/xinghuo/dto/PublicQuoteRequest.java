@@ -21,4 +21,15 @@ public record PublicQuoteRequest(
     @Size(max = 64) String utmMedium,
     @Size(max = 64) String utmCampaign,
     @Size(max = 300) String referrer
-) {}
+) {
+
+    /**
+     * 用账号里已绑定的联系方式补齐表单：已登录用户不必再填一遍。
+     * 记录是不可变的，所以这里返回一份替换了联系方式的副本。
+     */
+    public PublicQuoteRequest withCustomerContact(String contact, String method) {
+        return new PublicQuoteRequest(game, demand, currentProgress, screenshotAssetId, platform,
+                expectedTime, method, contact, privacyConsent, firstTouchSource, utmSource,
+                utmMedium, utmCampaign, referrer);
+    }
+}

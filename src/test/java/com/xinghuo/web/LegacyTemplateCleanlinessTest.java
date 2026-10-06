@@ -19,6 +19,8 @@ class LegacyTemplateCleanlinessTest {
             assertFalse(content.contains("AAC9878"), () -> template + " still exposes the retired WeChat ID");
             assertFalse(content.contains("work.weixin.qq.com/kfid/"),
                     () -> template + " still bypasses the server-side customer-service router");
+            assertFalse(content.contains("/customer-service/start?topic="),
+                    () -> template + " still uses the legacy customer-service query route");
         }
     }
 

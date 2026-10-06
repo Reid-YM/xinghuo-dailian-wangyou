@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1018"><meta name="robots" content="noindex,nofollow">
+  <title>我的订单 - 星火网游工作室</title><link rel="canonical" href="https://wydlgf.cn/account/orders"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261006ac16"><link rel="stylesheet" href="/assets/account-center.css?v=20261007ia01">
+  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261006pub11"></script><script defer src="/assets/account-center.js?v=20261007ia01"></script>
+</head>
+<body data-page="account-center-orders" class="account-center-page">
+<header th:replace="~{fragments/site :: header}"></header>
+<main class="account-center-shell"><header th:replace="~{fragments/account-center :: bar}"></header><div class="notice hidden" data-hub-message hidden></div><div class="account-center-layout"><aside th:replace="~{fragments/account-center :: rail('orders')}"></aside><div class="account-center-main">
+  <section class="account-center-hero"><div><span class="account-center-eyebrow">ORDERS</span><h1>我的订单</h1><p>集中查看已经进入履约的业务、当前进度、详情时间线和补充说明。未成交询价不在这里重复展示。</p></div><div class="account-center-actions"><a class="btn ghost" href="/records">编号查询</a><a class="btn primary" href="/quote">提交新需求</a></div></section>
+  <section class="account-center-card"><header><div><h2>履约记录</h2><p>按最新记录展示。点击“查看详情”展开当前订单时间线。</p></div></header><div class="account-center-list" data-hub-orders><div class="account-center-empty">正在读取…</div></div><aside class="account-center-detail" data-hub-order-detail hidden></aside></section>
+</div></div></main>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+</body></html>

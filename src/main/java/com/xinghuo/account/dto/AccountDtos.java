@@ -69,6 +69,8 @@ public final class AccountDtos {
             String contactType,
             String contactMasked,
             boolean contactVerified,
+            String quoteContactType,
+            String quoteContactMasked,
             String email,
             boolean emailVerified,
             String role,
@@ -84,6 +86,8 @@ public final class AccountDtos {
                     a.getContactType() == null ? null : a.getContactType().name(),
                     com.xinghuo.account.service.Masking.contact(a.getContactType(), a.getContactValue()),
                     a.isContactVerified(),
+                    a.getQuoteContactType() == null ? null : a.getQuoteContactType().name(),
+                    com.xinghuo.account.service.Masking.contact(a.getQuoteContactType(), a.getQuoteContactValue()),
                     a.getEmail(),
                     a.isEmailVerified(),
                     a.getRole(),
@@ -91,6 +95,17 @@ public final class AccountDtos {
                     a.getCreatedAt(),
                     entitlements == null ? List.of() : entitlements);
         }
+    }
+
+    /**
+     * 绑定/更新询价联系方式。
+     *
+     * <p>按需求暂不做验证，因此这里只做格式校验；它不会改动登录凭据
+     * （contact_type / contact_value），也不参与任何身份判定。
+     */
+    public record QuoteContactRequest(
+            @NotBlank String contactType,
+            @NotBlank @Size(max = 120) String contactValue) {
     }
 
     /** 「我的设备」列表项。 */

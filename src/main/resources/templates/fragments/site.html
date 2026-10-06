@@ -18,10 +18,10 @@
   <div class="container topbar">
     <a class="brand brand-mark" href="/"><span class="brand-dot"></span><span data-config="brandName">星火网游代练平台</span></a>
     <nav class="nav" aria-label="主导航">
-      <a href="/services">服务</a>
-      <a href="/guides">攻略</a>
-      <a href="/mastery">MW4 工具站</a>
-      <a href="/records">业务记录</a>
+      <a href="/services" data-global-ui="nav-services">服务</a>
+      <a href="/guides" data-global-ui="nav-guides">攻略</a>
+      <a href="/mastery" data-global-ui="nav-mastery">MW4 工具站</a>
+      <a href="/records" data-global-ui="nav-records">业务记录</a>
       <!--
         账号入口。刻意用一个静态链接指向 /account，不按登录态渲染：
         本站的公开 HTML 会被 PublicHtmlCacheFilter 缓存，若页头依赖登录态，
@@ -29,7 +29,7 @@
         /account 未登录时 302 到登录页、已登录时进用户中心，一个链接覆盖两种状态。
         这也是移动端抽屉里唯一的账号入口（ui-fixes.js 会收集 .nav 下的非按钮链接）。
       -->
-      <a href="/account" data-account-entry><span data-account-entry-text>个人空间</span></a>
+      <a href="/account" data-account-entry><span data-account-entry-text data-global-ui="nav-account">个人空间</span></a>
       <a class="btn primary desktop-keep" href="/quote" data-track="header_quote_click" data-primary-cta>提前询价</a>
     </nav>
     <button type="button" class="nav-toggle" aria-label="打开导航菜单" aria-controls="mobileNavDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -43,38 +43,38 @@
       <strong data-config="legalEntityName">星维网络服务工作室</strong>
     </a>
     <nav class="footer-links" aria-label="页脚导航">
-      <a href="/services">服务大厅</a>
-      <a href="/records">业务记录</a>
-      <a href="/account">个人空间</a>
-      <a href="/rules">服务规则</a>
-      <a href="/privacy">隐私说明</a>
+      <a href="/services" data-global-ui="nav-services">服务大厅</a>
+      <a href="/records" data-global-ui="nav-records">业务记录</a>
+      <a href="/account" data-global-ui="nav-account">个人空间</a>
+      <a href="/rules" data-global-ui="footer-rules">服务规则</a>
+      <a href="/privacy" data-global-ui="footer-privacy">隐私说明</a>
     </nav>
   </div>
   <div class="container beian-row">
-    <a class="beian-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">蜀ICP备2026047129号</a>
-    <a class="beian-link police-beian" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=51162102000262" target="_blank" rel="noopener noreferrer"><img src="/assets/police-beian.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="14" height="14">川公网安备51162102000262号</a>
+    <a class="beian-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" data-global-ui="icp-number">蜀ICP备2026047129号</a>
+    <a class="beian-link police-beian" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=51162102000262" target="_blank" rel="noopener noreferrer" data-global-ui-link="public-security"><img src="/assets/police-beian.png" alt="" aria-hidden="true" loading="lazy" decoding="async" width="14" height="14"><span data-global-ui="public-security-number">川公网安备51162102000262号</span></a>
   </div>
 
   <details class="native-customer-service">
     <summary class="native-customer-service-trigger" aria-label="打开在线客服">
       <span class="native-customer-service-status" aria-hidden="true"></span>
-      <span>在线客服</span>
+      <span data-global-ui="customer-service-label">在线客服</span>
     </summary>
     <section class="native-customer-service-panel" aria-label="在线客服">
       <div class="native-customer-service-head">
         <div>
           <small>客服团队</small>
-          <strong>需要帮助？</strong>
+          <strong data-global-ui="customer-service-title">需要帮助？</strong>
         </div>
       </div>
-      <p>先选择问题类型，我们会给你对应的准备提示，再开始在线咨询。</p>
+      <p data-global-ui="customer-service-intro">先选择问题类型，我们会给你对应的准备提示，再开始在线咨询。</p>
       <nav class="native-customer-service-topics" aria-label="选择咨询类型">
         <a href="/support/game" rel="nofollow"><span>🎮</span><b>游戏咨询</b><small>服务、价格、平台</small></a>
         <a href="/support/order" rel="nofollow"><span>📦</span><b>订单咨询</b><small>进度、交付、补充要求</small></a>
         <a href="/support/after-sales" rel="nofollow"><span>🛠</span><b>售后处理</b><small>异常、复核、问题反馈</small></a>
         <a href="/support/business" rel="nofollow"><span>🤝</span><b>商务合作</b><small>平台、渠道、团队合作</small></a>
       </nav>
-      <div class="native-customer-service-note">客服时间 10:00–24:00 · 请勿发送密码、验证码或令牌</div>
+      <div class="native-customer-service-note" data-global-ui="customer-service-note">客服时间 10:00–24:00 · 请勿发送密码、验证码或令牌</div>
     </section>
   </details>
 
@@ -102,6 +102,7 @@
     @media (max-width:720px){.native-customer-service{right:12px;bottom:calc(76px + env(safe-area-inset-bottom))}.native-customer-service-trigger{min-height:44px;padding:0 14px}.native-customer-service-panel{right:0;bottom:55px;width:min(330px,calc(100vw - 24px));padding:15px}.native-customer-service-topics{grid-template-columns:1fr 1fr}}
     @media (prefers-reduced-motion:reduce){.native-customer-service-trigger,.native-customer-service-topics a{transition:none}}
   </style>
+  <script defer src="/assets/global-ui-controls.js?v=20261006g001"></script>
 </footer>
 
 </body>

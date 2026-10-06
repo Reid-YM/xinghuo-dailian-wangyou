@@ -29,13 +29,21 @@ public class SecurityConfig {
      * <p>注意 {@code /api/account/**} 在这里是 permitAll：账号模块的登录态不是
      * Spring Security 的 SecurityContext，而是自建会话表 + Cookie，
      * 由 {@code com.xinghuo.account.web.AccountAuthInterceptor} 与
-     * {@code @RequireAccount} 注解负责鉴权。
+     * {@code @RequireAccount} 注解负责鉴权。用户中心页面同样必须先通过这里，
+     * 才能由拦截器把未登录访问统一 302 到账号登录页；这里的 permitAll
+     * 并不代表业务页面免登录。
      */
     private static final String[] PERMIT_ALL = {
             "/", "/services", "/service/**", "/game/**", "/guides", "/guides/**", "/mastery", "/quote",
             "/records", "/record/**", "/order", "/order/**", "/contact",
             "/account", "/account/login", "/account/register", "/account/reset",
-            "/account/settings", "/account/submit", "/console", "/console/**",
+            "/account/settings", "/account/submit",
+            "/account/requests", "/account/orders", "/account/progress",
+            "/account/quotes", "/account/demands", "/account/order", "/account/order-list",
+            "/account/tools", "/account/tool-progress", "/account/profile", "/account/contact",
+            "/account/security", "/account/devices", "/account/activity",
+            "/account/settings/profile", "/account/settings/contact", "/account/settings/security",
+            "/console", "/console/**",
             "/rules", "/privacy", "/trust", "/loadouts",
             "/robots.txt", "/sitemap.xml", "/favicon.ico", "/favicon.svg",
             "/apple-touch-icon.png", "/og.png", "/assets/**",

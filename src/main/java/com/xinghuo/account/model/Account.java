@@ -61,6 +61,16 @@ public class Account {
     @Column(name = "contact_verified", nullable = false)
     private boolean contactVerified;
 
+    /**
+     * 询价联系方式（可多条），与登录凭据解耦（见 V56 / V57 迁移说明）。
+     *
+     * <p>contact_* 是登录凭据，改它等于换登录方式；quote_contacts 只用于
+     * 客服回访，可在后台免验证绑定，因此不能拿它做身份判定。
+     * 形如 [{"type":"PHONE","value":"13800000000"}]，解析与校验见 QuoteContactService。
+     */
+    @Column(name = "quote_contacts", columnDefinition = "TEXT")
+    private String quoteContacts;
+
     @Column(name = "public_user_id", nullable = false, length = 24, unique = true)
     private String publicUserId;
 
@@ -174,6 +184,8 @@ public class Account {
         private String contactNorm;
         @Generated
         private boolean contactVerified;
+        @Generated
+        private String quoteContacts;
         @Generated
         private String publicUserId;
         @Generated
@@ -346,8 +358,14 @@ public class Account {
         }
 
         @Generated
+        public AccountBuilder quoteContacts(String string) {
+            this.quoteContacts = string;
+            return this;
+        }
+
+        @Generated
         public Account build() {
-            return new Account(this.id, this.contactType, this.contactValue, this.contactNorm, this.contactVerified, this.publicUserId, this.email, this.emailNorm, this.emailVerified, this.passwordHash, this.displayName, this.avatarUrl, this.role, this.levelCode, this.status, this.failedAttempts, this.lockedUntil, this.lastLoginAt, this.lastLoginIp, this.createdAt, this.updatedAt, this.deletedAt);
+            return new Account(this.id, this.contactType, this.contactValue, this.contactNorm, this.contactVerified, this.quoteContacts, this.publicUserId, this.email, this.emailNorm, this.emailVerified, this.passwordHash, this.displayName, this.avatarUrl, this.role, this.levelCode, this.status, this.failedAttempts, this.lockedUntil, this.lastLoginAt, this.lastLoginIp, this.createdAt, this.updatedAt, this.deletedAt);
         }
 
         @Generated

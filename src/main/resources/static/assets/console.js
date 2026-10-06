@@ -51,6 +51,86 @@
     $('[data-console-verify]').textContent = me.emailVerified ? '邮箱已验证' : '邮箱未验证';
     $('[data-console-verify]').classList.toggle('warn', !me.emailVerified);
     fillProfileForm(me);
+    paintQuoteContacts(me);
+  }
+
+  /* ------------------------------------------------- 询价联系方式（可多条） */
+
+  const CONTACT_LABEL = { PHONE: '手机号', WECHAT: '微信号', QQ: 'QQ 号' };
+
+  function apiError(err, fallback) {
+    const raw = String((err && err.message) || '');
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.message) return parsed.message;
+    } catch (ignored) { /* 非 JSON 响应，退回原文 */ }
+    return raw || fallback;
+  }
+
+  function paintQuoteContacts(me) {
+    const host = $('#consoleQuoteContacts');
+    if (!host) return;
+    const contacts = Array.isArray(me?.quoteContacts) ? me.quoteContacts : [];
+    host.innerHTML = contacts.length
+      ? contacts.map((c, i) => `<div class="quote-contact-row"><div class="quote-contact-meta"><span>${esc(CONTACT_LABEL[c.type] || c.type || '联系方式')}</span><strong>${esc(c.masked || '—')}</strong></div><button class="btn ghost small-btn" type="button" data-quote-contact-remove="${i}">删除</button></div>`).join('')
+      : empty('还没有绑定询价联系方式，提交询价时需要手动填写。');
+  }
+
+  function contactMsg(text, isError) {
+    const node = $('[data-console-quote-contact-msg]');
+    if (!node) return;
+    node.textContent = text || '';
+    node.hidden = !text;
+    node.classList.toggle('error', !!isError);
+  }
+
+  function initQuoteContacts() {
+    const form = $('[data-console-quote-contact-form]');
+    if (form) {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        contactMsg('');
+        const type = String((form.contactType && form.contactType.value) || '').trim();
+        const value = String((form.contactValue && form.contactValue.value) || '').trim();
+        if (!value) {
+          contactMsg('请填写手机号 / 微信号 / QQ 号。', true);
+          if (form.contactValue) form.contactValue.focus();
+          return;
+        }
+        const button = form.querySelector('button[type=submit]');
+        const label = button ? button.textContent : '';
+        if (button) { button.disabled = true; button.textContent = '添加中…'; }
+        try {
+          await api('/api/account/quote-contacts', { method: 'POST', body: { type, value } });
+          form.contactValue.value = '';
+          contactMsg('已添加。提交询价时会自动带上第一条。');
+          await loadMe();
+        } catch (err) {
+          contactMsg(apiError(err, '添加失败，请检查格式后重试。'), true);
+        } finally {
+          if (button) { button.disabled = false; button.textContent = label; }
+        }
+      });
+    }
+
+    const host = $('#consoleQuoteContacts');
+    if (host) {
+      host.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-quote-contact-remove]');
+        if (!button) return;
+        const index = Number(button.getAttribute('data-quote-contact-remove'));
+        if (!Number.isInteger(index) || index < 0) return;
+        button.disabled = true;
+        try {
+          await api(`/api/account/quote-contacts/${index}`, { method: 'DELETE' });
+          contactMsg('已删除。');
+          await loadMe();
+        } catch (err) {
+          contactMsg(apiError(err, '删除失败，请稍后重试。'), true);
+          button.disabled = false;
+        }
+      });
+    }
   }
   async function loadSummary() {
     const s = await api('/api/console/summary'); if (!s) return;
@@ -108,5 +188,6 @@
       }
     });
   }
+  initQuoteContacts();
   (async () => { try { await loadMe(); await Promise.all([loadSummary(), loadQuotes(), loadOrders(), loadLogins()]); showTab((location.hash || '#overview').slice(1)); } catch (e) { alert(e.message); } })();
 })();

@@ -69,6 +69,7 @@ public final class AccountDtos {
             String contactType,
             String contactMasked,
             boolean contactVerified,
+            List<QuoteContactView> quoteContacts,
             String email,
             boolean emailVerified,
             String role,
@@ -76,7 +77,8 @@ public final class AccountDtos {
             Instant createdAt,
             List<String> entitlements) {
 
-        public static ProfileResponse of(Account a, List<String> entitlements) {
+        public static ProfileResponse of(Account a, List<String> entitlements,
+                                         List<QuoteContactView> quoteContacts) {
             return new ProfileResponse(
                     a.getPublicUserId(),
                     a.getDisplayName(),
@@ -84,6 +86,7 @@ public final class AccountDtos {
                     a.getContactType() == null ? null : a.getContactType().name(),
                     com.xinghuo.account.service.Masking.contact(a.getContactType(), a.getContactValue()),
                     a.isContactVerified(),
+                    quoteContacts == null ? List.of() : quoteContacts,
                     a.getEmail(),
                     a.isEmailVerified(),
                     a.getRole(),
@@ -91,6 +94,23 @@ public final class AccountDtos {
                     a.getCreatedAt(),
                     entitlements == null ? List.of() : entitlements);
         }
+    }
+
+    /**
+     * 询价联系方式（脱敏展示）。原始值只在账号自己的绑定接口里出现。
+     */
+    public record QuoteContactView(String type, String masked) {
+    }
+
+    /**
+     * 追加一条询价联系方式（一个账号最多几条，见 QuoteContactService）。
+     *
+     * <p>按需求暂不做验证，因此这里只做格式校验；它不会改动登录凭据
+     * （contact_type / contact_value），也不参与任何身份判定。
+     */
+    public record QuoteContactRequest(
+            @NotBlank String type,
+            @NotBlank @Size(max = 120) String value) {
     }
 
     /** 「我的设备」列表项。 */

@@ -34,7 +34,7 @@ public class SecurityConfig {
      */
     private static final String[] PERMIT_ALL = {
             "/", "/services", "/service/**", "/game/**", "/guides", "/guides/**", "/mastery", "/quote",
-            "/records", "/record/**", "/order", "/order/**", "/contact", "/customer-service/**",
+            "/records", "/record/**", "/order", "/order/**", "/contact", "/support", "/support/**", "/customer-service/**",
             "/account", "/account/login", "/account/register", "/account/reset",
             "/account/settings", "/account/submit", "/console", "/console/**",
             "/rules", "/privacy", "/trust", "/loadouts",

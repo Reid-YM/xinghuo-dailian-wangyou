@@ -10,7 +10,7 @@
     link.href = '/contact';
     link.setAttribute('aria-label', '联系客服');
     link.setAttribute('data-global-visible', 'navContactVisible');
-    link.innerHTML = '<span class="floating-customer-service-icon" aria-hidden="true">客</span><span class="floating-customer-service-text">联系客服</span>';
+    link.innerHTML = '<span class="floating-customer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><use href="/assets/icons.svg#i-support"></use></svg></span><span class="floating-customer-service-text">联系客服</span>';
     document.body.appendChild(link);
   }
 

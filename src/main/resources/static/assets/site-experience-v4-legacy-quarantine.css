@@ -57,7 +57,7 @@ body[data-page="home"] .hero.hero-r3{
     pointer-events:auto!important;
     transform:none!important;
     transition:none!important;
-    background:rgba(255,255,255,.98)!important;
+    background:#fff!important;
     border-color:var(--xh-line)!important;
     box-shadow:0 -8px 24px rgba(17,24,39,.09)!important;
     -webkit-backdrop-filter:none!important;

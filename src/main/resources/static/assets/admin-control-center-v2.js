@@ -15,8 +15,24 @@
     document.head.appendChild(link);
   }
 
+  function ensureFrontendControlEntry(sidebar) {
+    const nav = $('.admin-workspace-nav', sidebar || document);
+    if (!nav || nav.querySelector('a[href="/admin/frontend-controls"]')) return;
+
+    const siteToggle = nav.querySelector('[data-nav-group="site"]');
+    const siteSection = siteToggle?.closest('.nav-section');
+    const items = siteSection?.querySelector('.nav-section-items');
+    if (!items) return;
+
+    const link = document.createElement('a');
+    link.className = 'btn nav-item nav-level-2';
+    link.href = '/admin/frontend-controls';
+    link.innerHTML = '<span>前端控制中心</span><small>模块显隐 / 文案 / 主题</small>';
+    items.appendChild(link);
+  }
+
   function createChrome() {
-    // V2 使用独立深色后台主题；移除旧版 admin-solid-ui，避免两套主题的 !important 规则互相覆盖。
+    // V2 使用独立后台主题；移除旧版 admin-solid-ui，避免两套主题的 !important 规则互相覆盖。
     document.body.classList.remove('admin-solid-ui');
     document.body.classList.add('admin-control-center-v2');
     const main = $('.admin-main');
@@ -35,6 +51,7 @@
         </div>
         <div class="admin-v2-actions">
           <button class="btn ghost admin-v2-dashboard-shortcut" type="button" data-nav="dashboard">回到总览</button>
+          <a class="btn ghost" href="/admin/frontend-controls">前端控制</a>
           <a class="btn ghost" href="/" target="_blank" rel="noopener">查看前台</a>
         </div>`;
       main.prepend(topbar);
@@ -58,6 +75,7 @@
       else sidebar.prepend(wrapper);
     }
 
+    ensureFrontendControlEntry(sidebar);
     $$('.admin-main>[data-panel]').forEach(panel => panel.classList.add('admin-v2-panel'));
   }
 
@@ -126,9 +144,9 @@
         closeMobileNav();
         return;
       }
-      const navTarget = event.target.closest('.admin-workspace-nav [data-nav], .admin-workspace-nav [data-config-entry], .admin-workspace-nav [data-admin-panel]');
+      const navTarget = event.target.closest('.admin-workspace-nav [data-nav], .admin-workspace-nav [data-config-entry], .admin-workspace-nav [data-admin-panel], .admin-workspace-nav a[href]');
       if (navTarget && window.matchMedia('(max-width: 980px)').matches) closeMobileNav();
-      if (navTarget) window.setTimeout(syncCurrentContext, 0);
+      if (navTarget?.matches('[data-nav], [data-config-entry], [data-admin-panel]')) window.setTimeout(syncCurrentContext, 0);
     });
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeMobileNav();
@@ -154,6 +172,7 @@
     const nav = $('.admin-workspace-nav');
     if (!nav) return;
     const observer = new MutationObserver(() => {
+      ensureFrontendControlEntry($('.sidebar'));
       refreshSearch();
       syncCurrentContext();
     });

@@ -246,7 +246,7 @@ public class AccountApiController {
         Account account = AccountAuthInterceptor.requireAccount(request);
         return audit.recentForUser(account.getId(), 10).stream()
                 .map(row -> new AccountDtos.SecurityEventResponse(
-                        row.getAction(), eventTitle(row.getAction()), eventDescription(row.getAction()),
+                        eventTitle(row.getAction()), eventDescription(row.getAction()),
                         Masking.ip(row.getIp()), RequestUtils.deviceLabel(row.getUserAgent()), row.getCreatedAt()))
                 .toList();
     }

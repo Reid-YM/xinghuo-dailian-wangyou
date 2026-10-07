@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1018"><meta name="robots" content="noindex,nofollow">
   <title>资料与账号设置 - 星火网游工作室</title><meta name="description" content="管理个人资料、客服回访方式与账号安全。"><link rel="canonical" href="https://wydlgf.cn/account/settings"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261006ac16"><link rel="stylesheet" href="/assets/account-center.css?v=20261007ia01">
-  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261006pub11"></script><script defer src="/assets/account.js?v=20261007ac20"></script><script defer src="/assets/account-center.js?v=20261007ia01"></script>
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261006ac16"><link rel="stylesheet" href="/assets/account-center.css?v=20261007ia01"><link rel="stylesheet" href="/assets/account-center-refine.css?v=20261007ar01">
+  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261006pub11"></script><script defer src="/assets/account.js?v=20261007ac20"></script><script defer src="/assets/account-center.js?v=20261007ia02"></script><script defer src="/assets/account-center-refine.js?v=20261007ar01"></script>
 </head>
 <body data-page="account-settings" class="account-center-page">
 <header th:replace="~{fragments/site :: header}"></header>
@@ -15,9 +15,9 @@
     <aside th:replace="~{fragments/account-center :: rail('settings')}"></aside>
     <div class="account-center-main nexus-stage">
       <section class="account-center-hero"><div><span class="account-center-eyebrow">ACCOUNT SETTINGS</span><h1>资料与账号设置</h1><p>资料、客服回访方式和账号安全分开维护；页面一次只显示一个职责区域，不再纵向堆成一个大合页。</p></div><a class="btn ghost" href="/account">返回总览</a></section>
-      <nav class="account-center-settings-nav" aria-label="设置分类"><a href="#profile" data-settings-target="profile">个人资料</a><a href="#contact" data-settings-target="contact">回访方式</a><a href="#security" data-settings-target="security">账号安全</a></nav>
+      <nav class="account-center-settings-nav" aria-label="设置分类"><a class="is-active" href="#profile" data-settings-target="profile">个人资料</a><a href="#contact" data-settings-target="contact">回访方式</a><a href="#security" data-settings-target="security">账号安全</a></nav>
 
-      <div class="account-settings-view" data-settings-view="profile" hidden>
+      <div class="account-settings-view" data-settings-view="profile">
         <section class="nexus-module account-panel" id="profile" aria-labelledby="profileTitle"><header><div><span>个人资料</span><h2 id="profileTitle">头像与昵称</h2><p>这里仅维护账号公开资料；登录凭据和客服回访方式分别在其他分区。</p></div><div class="account-profile-preview"><span class="account-avatar" data-profile-avatar-preview><span class="account-avatar-fallback">星</span></span><strong data-profile-public-id>—</strong></div></header><form id="accountProfileForm" class="account-form nexus-form-grid" novalidate><label class="field"><span>昵称</span><input name="displayName" maxlength="60" required placeholder="设置你的昵称"></label><label class="field account-avatar-file"><span>头像上传</span><input name="avatarFile" type="file" accept="image/jpeg,image/png,image/webp,image/*"><small class="account-hint">支持 JPG / PNG / WebP，建议使用方形头像。</small></label><div id="profileMsg" class="notice hidden nexus-form-span" role="alert" data-profile-msg hidden></div><div class="nexus-actions nexus-form-span"><button class="btn primary" type="submit" data-submit>保存资料</button></div></form></section>
         <section class="nexus-module"><header><div><span>账号档案</span><h2>只读信息</h2></div></header><div class="account-info-grid"><div class="account-info-item"><span>专属用户ID</span><strong data-settings-public-id>—</strong><small>对外沟通可使用这个 ID</small></div><div class="account-info-item"><span>账号状态</span><strong>正常使用</strong><small>安全保护已启用</small></div><div class="account-info-item"><span>注册时间</span><strong data-settings-created>—</strong><small>账号创建时间</small></div><div class="account-info-item"><span>登录联系方式</span><strong data-settings-contact>—</strong><small>仅展示脱敏结果</small></div></div></section>
       </div>

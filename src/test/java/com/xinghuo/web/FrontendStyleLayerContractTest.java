@@ -35,7 +35,7 @@ class FrontendStyleLayerContractTest {
         assertTrue(css.contains("body .mobile-dock"));
         assertTrue(css.contains("opacity:1!important"));
         assertTrue(css.contains("pointer-events:auto!important"));
-        assertTrue(css.contains("background:rgba(255,255,255,.98)!important"));
+        assertTrue(css.contains("background:#fff!important"));
         assertTrue(css.contains("min-height:46px!important"));
         assertFalse(css.contains("body.admin-solid-ui"));
     }

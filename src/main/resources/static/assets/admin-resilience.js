@@ -22,7 +22,7 @@
     if (!$('link[data-admin-light-theme]')) {
       const light = document.createElement('link');
       light.rel = 'stylesheet';
-      light.href = '/assets/admin-light-theme.css?v=20261007l003';
+      light.href = '/assets/admin-light-theme.css?v=20261007l004';
       light.dataset.adminLightTheme = '1';
       document.head.appendChild(light);
     }

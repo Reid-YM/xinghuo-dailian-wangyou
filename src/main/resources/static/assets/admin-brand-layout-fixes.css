@@ -30,6 +30,43 @@ body.admin-login-ui .brand-mark>span:last-child{
   text-overflow:ellipsis;
 }
 
+/* 主后台左侧品牌卡片不能被 legacy 高度/行高裁切。 */
+body.admin-control-center-v2 .admin-brand{
+  box-sizing:border-box!important;
+  height:auto!important;
+  min-height:100px!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+body.admin-control-center-v2 .admin-brand .brand,
+body.admin-control-center-v2 .admin-brand .brand-mark{
+  display:flex!important;
+  width:100%!important;
+  min-height:34px!important;
+  height:auto!important;
+  max-height:none!important;
+  align-items:center!important;
+  overflow:visible!important;
+  line-height:1.25!important;
+}
+body.admin-control-center-v2 .admin-brand [data-admin-brand]{
+  display:block!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  line-height:20px!important;
+}
+body.admin-control-center-v2 .admin-brand .muted{
+  height:auto!important;
+  max-height:none!important;
+  line-height:1.4!important;
+  overflow:visible!important;
+}
+
 /* Control Center 顶栏原 X 标记同步成正式 Logo。 */
 body.admin-control-center-v2 .admin-v2-context-mark{
   width:32px!important;

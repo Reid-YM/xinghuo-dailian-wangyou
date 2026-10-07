@@ -12,36 +12,48 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 class AdminBrandLayoutPlaywrightTest {
-    private static final Path ASSETS = Path.of("src/main/resources/static/assets");
+    private static final Path STATIC = Path.of("src/main/resources/static");
+    private static final Path ASSETS = STATIC.resolve("assets");
     private static final Path TEMPLATES = Path.of("src/main/resources/templates");
 
     @Test
-    void backendSurfacesLoadTheSharedBrandFixLayer() throws Exception {
+    void backendSurfacesLoadTheSharedBrandFixLayerAndOfficialFavicon() throws Exception {
         String resilience = Files.readString(ASSETS.resolve("admin-resilience.js"));
         String frontendControls = Files.readString(ASSETS.resolve("admin-frontend-controls.js"));
         String login = Files.readString(TEMPLATES.resolve("admin-login.html"));
         String guides = Files.readString(TEMPLATES.resolve("admin-guides.html"));
         String fixes = Files.readString(ASSETS.resolve("admin-brand-layout-fixes.css"));
+        String rootFavicon = Files.readString(STATIC.resolve("favicon.svg"));
+        String brandLogo = Files.readString(ASSETS.resolve("brand-logo.svg"));
 
-        assertTrue(resilience.contains("/assets/admin-brand-layout-fixes.css?v=20261008b001"));
-        assertTrue(frontendControls.contains("/assets/admin-brand-layout-fixes.css?v=20261008b001"));
-        assertTrue(login.contains("/assets/admin-brand-layout-fixes.css?v=20261008b001"));
-        assertTrue(guides.contains("/assets/admin-brand-layout-fixes.css?v=20261008b001"));
+        assertTrue(resilience.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
+        assertTrue(frontendControls.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
+        assertTrue(login.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
+        assertTrue(guides.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
+        assertTrue(resilience.contains("/assets/brand-logo.svg?v=20261008logo02"));
+        assertTrue(frontendControls.contains("/assets/brand-logo.svg?v=20261008logo02"));
+        assertTrue(login.contains("/assets/brand-logo.svg?v=20261008logo02"));
+        assertTrue(guides.contains("/assets/brand-logo.svg?v=20261008logo02"));
         assertTrue(fixes.contains("url('/assets/brand-logo.svg')"));
-        assertTrue(Files.exists(ASSETS.resolve("brand-logo.svg")));
+        assertEquals(brandLogo.strip(), rootFavicon.strip());
+        assertTrue(Files.exists(STATIC.resolve("favicon.ico")));
+        assertTrue(Files.exists(STATIC.resolve("apple-touch-icon.png")));
     }
 
     @Test
     @EnabledIfEnvironmentVariable(named = "PLAYWRIGHT_UI_TESTS", matches = "1")
-    void mainAdminBrandAndNarrowTopbarStayAlignedWithoutHorizontalOverflow() {
+    void mainAdminBrandTextIsNotClippedAndNarrowTopbarDoesNotOverflow() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
-            page.setViewportSize(390, 844);
+            page.setViewportSize(1280, 844);
             page.setContent("""
                     <body class="admin-control-center-v2">
                       <div class="admin-shell-with-rail">
                         <aside class="sidebar">
-                          <div class="admin-brand"><b class="brand brand-mark"><span class="brand-dot"></span><span>星火网游代练平台</span></b></div>
+                          <div class="admin-brand">
+                            <b class="brand brand-mark"><span class="brand-dot"></span><span data-admin-brand>星火网游代练平台</span></b>
+                            <div class="muted small">admin</div>
+                          </div>
                         </aside>
                         <main class="admin-main">
                           <div class="admin-v2-topbar">
@@ -69,6 +81,18 @@ class AdminBrandLayoutPlaywrightTest {
 
             assertTrue(((String) page.evaluate("() => getComputedStyle(document.querySelector('.admin-v2-context-mark')).backgroundImage")).contains("brand-logo.svg"));
             assertTrue(((String) page.evaluate("() => getComputedStyle(document.querySelector('.brand-dot')).backgroundImage")).contains("brand-logo.svg"));
+            assertTrue((Boolean) page.evaluate("""
+                    () => {
+                      const card = document.querySelector('.admin-brand').getBoundingClientRect();
+                      const label = document.querySelector('[data-admin-brand]').getBoundingClientRect();
+                      return card.height >= 90
+                        && label.height >= 16
+                        && label.top >= card.top - 1
+                        && label.bottom <= card.bottom + 1;
+                    }
+                    """));
+
+            page.setViewportSize(390, 844);
             assertEquals("none", page.evaluate("() => getComputedStyle(document.querySelector('.admin-v2-actions a[href=\"/\"]')).display"));
             assertEquals("none", page.evaluate("() => getComputedStyle(document.querySelector('.admin-v2-actions a[href=\"/admin/frontend-controls\"]')).display"));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));

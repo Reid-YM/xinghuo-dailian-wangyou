@@ -3,9 +3,24 @@
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const ADMIN_BRAND_FAVICON = '/assets/brand-logo.svg?v=20261008logo02';
 
   function hasControlCenter() {
     return Boolean($('.admin-main') && $('.sidebar') && $$('[data-panel]').length);
+  }
+
+  function ensureAdminBrandFavicon() {
+    if (!document.head) return;
+    let icon = document.head.querySelector('link[data-xh-admin-favicon]');
+    if (!icon) {
+      icon = document.createElement('link');
+      icon.rel = 'icon';
+      icon.type = 'image/svg+xml';
+      icon.setAttribute('sizes', 'any');
+      icon.setAttribute('data-xh-admin-favicon', 'true');
+      document.head.appendChild(icon);
+    }
+    icon.href = ADMIN_BRAND_FAVICON;
   }
 
   function loadControlCenterV2() {
@@ -29,7 +44,7 @@
     if (!$('link[data-admin-brand-layout-fixes]')) {
       const brandFixes = document.createElement('link');
       brandFixes.rel = 'stylesheet';
-      brandFixes.href = '/assets/admin-brand-layout-fixes.css?v=20261008b001';
+      brandFixes.href = '/assets/admin-brand-layout-fixes.css?v=20261008b002';
       brandFixes.dataset.adminBrandLayoutFixes = '1';
       document.head.appendChild(brandFixes);
     }
@@ -162,6 +177,7 @@
   }
 
   function boot() {
+    ensureAdminBrandFavicon();
     loadControlCenterV2();
     injectStyles();
     restoreVisiblePanel();

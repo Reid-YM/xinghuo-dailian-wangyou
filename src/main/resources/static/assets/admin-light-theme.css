@@ -1,0 +1,252 @@
+/* 星火后台统一白色主题。仅作用于后台控制中心、攻略后台和后台登录。 */
+body.admin-control-center-v2,
+body.admin-solid-ui,
+body.admin-login-ui{
+  --bg:#f4f6f8;
+  --surface:#ffffff;
+  --surface-2:#ffffff;
+  --surface-3:#f8fafc;
+  --text:#101828;
+  --muted:#667085;
+  --muted-2:#475467;
+  --border:#e2e8f0;
+  --shadow:0 16px 38px rgba(15,23,42,.08);
+  color-scheme:light;
+}
+
+/* Control Center V2 */
+body.admin-control-center-v2{
+  --admin-bg:#f4f6f8;
+  --admin-surface:#ffffff;
+  --admin-surface-2:#ffffff;
+  --admin-surface-3:#f8fafc;
+  --admin-line:#e2e8f0;
+  --admin-line-soft:#edf1f5;
+  --admin-text:#101828;
+  --admin-muted:#667085;
+  --admin-accent:#f4bd34;
+  --admin-accent-strong:#ffd767;
+  --admin-good:#14804a;
+  --admin-danger:#b42318;
+  --admin-shadow:0 16px 38px rgba(15,23,42,.08);
+  color:var(--admin-text)!important;
+  background:#f4f6f8!important;
+}
+body.admin-control-center-v2::before{display:none!important}
+body.admin-control-center-v2 .admin-main{background:#f4f6f8!important}
+body.admin-control-center-v2 .sidebar,
+body.admin-control-center-v2 .admin-right-rail{
+  background:#fff!important;
+  border-color:var(--admin-line)!important;
+  box-shadow:none!important;
+}
+body.admin-control-center-v2 .admin-brand{
+  border-color:#ead89f!important;
+  background:linear-gradient(145deg,#fffaf0,#fff)!important;
+}
+body.admin-control-center-v2 .admin-brand .brand,
+body.admin-control-center-v2 .nav-section-toggle,
+body.admin-control-center-v2 .admin-v2-context strong,
+body.admin-control-center-v2 .right-rail-link,
+body.admin-control-center-v2 .kpi b,
+body.admin-control-center-v2 h1,
+body.admin-control-center-v2 h2,
+body.admin-control-center-v2 h3,
+body.admin-control-center-v2 label,
+body.admin-control-center-v2 strong,
+body.admin-control-center-v2 b{
+  color:#101828!important;
+}
+body.admin-control-center-v2 .admin-brand .muted,
+body.admin-control-center-v2 .nav-section-toggle small,
+body.admin-control-center-v2 .sidebar .nav-item small,
+body.admin-control-center-v2 .right-rail-link small,
+body.admin-control-center-v2 .admin-v2-context small,
+body.admin-control-center-v2 .muted,
+body.admin-control-center-v2 .form-help,
+body.admin-control-center-v2 small{
+  color:#667085!important;
+}
+body.admin-control-center-v2 .eyebrow,
+body.admin-control-center-v2 .section-kicker{color:#8a6b16!important}
+body.admin-control-center-v2 .admin-v2-nav-search input,
+body.admin-control-center-v2 input,
+body.admin-control-center-v2 select,
+body.admin-control-center-v2 textarea{
+  border-color:#d0d5dd!important;
+  background:#fff!important;
+  color:#101828!important;
+  box-shadow:0 1px 2px rgba(16,24,40,.03)!important;
+}
+body.admin-control-center-v2 input::placeholder,
+body.admin-control-center-v2 textarea::placeholder{color:#98a2b3!important}
+body.admin-control-center-v2 .nav-section{
+  border-color:#eef1f5!important;
+  background:#fff!important;
+}
+body.admin-control-center-v2 .sidebar .nav-item{
+  color:#475467!important;
+  background:transparent!important;
+}
+body.admin-control-center-v2 .sidebar .nav-item:hover{
+  border-color:#e2e8f0!important;
+  background:#f8fafc!important;
+  color:#101828!important;
+}
+body.admin-control-center-v2 .sidebar .nav-item.active,
+body.admin-control-center-v2 .sidebar .nav-item.admin-nav-current{
+  border-color:#e6c65f!important;
+  background:linear-gradient(90deg,#fff4c4,#fffaf0)!important;
+  color:#5f4700!important;
+}
+body.admin-control-center-v2 .sidebar .nav-item.active small,
+body.admin-control-center-v2 .sidebar .nav-item.admin-nav-current small{color:#8a6b16!important}
+body.admin-control-center-v2 .logout-form .danger{
+  background:#fff5f5!important;
+  border-color:#f3c6c6!important;
+  color:#b42318!important;
+}
+body.admin-control-center-v2 .admin-v2-topbar{
+  border-bottom-color:#e4e7ec!important;
+  background:rgba(255,255,255,.94)!important;
+  box-shadow:0 6px 18px rgba(15,23,42,.05)!important;
+}
+body.admin-control-center-v2 .admin-main>[data-panel]>.admin-toolbar,
+body.admin-control-center-v2 .card,
+body.admin-control-center-v2 .table-wrap,
+body.admin-control-center-v2 .inset-panel,
+body.admin-control-center-v2 .linkage-workspace,
+body.admin-control-center-v2 .game-center-filterbar,
+body.admin-control-center-v2 .config-group,
+body.admin-control-center-v2 .right-rail-card,
+body.admin-control-center-v2 .right-rail-stack,
+body.admin-control-center-v2 .service-form-section,
+body.admin-control-center-v2 .tool-admin-block,
+body.admin-control-center-v2 .game-profile-identity,
+body.admin-control-center-v2 .tracking-card,
+body.admin-control-center-v2 .feedback-choice-grid,
+body.admin-control-center-v2 .toggle-row,
+body.admin-control-center-v2 details{
+  border-color:var(--admin-line)!important;
+  background:#fff!important;
+  color:#101828!important;
+  box-shadow:0 10px 26px rgba(15,23,42,.055)!important;
+}
+body.admin-control-center-v2 .admin-subnav{
+  border-color:#e2e8f0!important;
+  background:#f8fafc!important;
+}
+body.admin-control-center-v2 .admin-subnav .btn{
+  color:#667085!important;
+  background:transparent!important;
+}
+body.admin-control-center-v2 .admin-subnav .btn.active{
+  border-color:#d6b84f!important;
+  background:#fff4c4!important;
+  color:#694f00!important;
+}
+body.admin-control-center-v2 .btn{
+  border-color:#d0d5dd!important;
+  background:#fff!important;
+  color:#344054!important;
+}
+body.admin-control-center-v2 .btn:hover{background:#f8fafc!important;border-color:#bfc7d2!important}
+body.admin-control-center-v2 .btn.primary{
+  border-color:#c79521!important;
+  background:var(--admin-accent)!important;
+  color:#17130a!important;
+}
+body.admin-control-center-v2 .btn.primary:hover{background:var(--admin-accent-strong)!important}
+body.admin-control-center-v2 .btn.ghost{background:#fff!important}
+body.admin-control-center-v2 .table{background:#fff!important}
+body.admin-control-center-v2 .table th{
+  background:#f8fafc!important;
+  color:#475467!important;
+  border-bottom-color:#e4e7ec!important;
+}
+body.admin-control-center-v2 .table td{
+  color:#344054!important;
+  border-bottom-color:#eef1f5!important;
+  background:#fff!important;
+}
+body.admin-control-center-v2 .table tbody tr:hover td{background:#fffdf5!important}
+body.admin-control-center-v2 .kpi{
+  border-color:#e2e8f0!important;
+  background:linear-gradient(145deg,#fff,#fafbfc)!important;
+  box-shadow:0 8px 22px rgba(15,23,42,.045)!important;
+}
+body.admin-control-center-v2 .dashboard-focus{
+  border-color:#ecd889!important;
+  background:#fff9e8!important;
+  color:#765600!important;
+}
+body.admin-control-center-v2 .config-savebar{
+  border-color:#e7ca68!important;
+  background:rgba(255,255,255,.96)!important;
+  box-shadow:0 14px 34px rgba(15,23,42,.10)!important;
+}
+body.admin-control-center-v2 .modal{background:rgba(15,23,42,.28)!important}
+body.admin-control-center-v2 .modal>.card{
+  border-color:#dfe5ee!important;
+  background:#fff!important;
+  color:#101828!important;
+}
+body.admin-control-center-v2 .right-rail-link:hover{background:#f8fafc!important}
+body.admin-control-center-v2 .admin-panel-load-error{
+  border-color:#f1c8c8!important;
+  background:#fff5f5!important;
+}
+
+/* 攻略后台 */
+body.admin-solid-ui{
+  background:#f4f6f8!important;
+  color:#101828!important;
+}
+body.admin-solid-ui .guide-admin-top{
+  border-bottom:1px solid #e4e7ec!important;
+  background:rgba(255,255,255,.96)!important;
+  box-shadow:0 8px 24px rgba(15,23,42,.07)!important;
+}
+body.admin-solid-ui .guide-admin-topbar>div:nth-child(2) strong{color:#101828!important}
+body.admin-solid-ui .guide-admin-topbar .eyebrow{color:#8a6b16!important}
+body.admin-solid-ui .guide-admin-topbar .btn.ghost{
+  border-color:#d0d5dd!important;
+  background:#fff!important;
+  color:#344054!important;
+}
+
+/* 后台登录 */
+body.admin-login-ui{
+  min-height:100vh;
+  background:#f4f6f8!important;
+  color:#101828!important;
+}
+body.admin-login-ui .login .card{
+  border:1px solid #e1e6ee!important;
+  background:#fff!important;
+  color:#101828!important;
+  box-shadow:0 20px 55px rgba(15,23,42,.10)!important;
+}
+body.admin-login-ui .muted{color:#667085!important}
+body.admin-login-ui .field label{color:#475467!important}
+body.admin-login-ui input{
+  border:1px solid #d0d5dd!important;
+  background:#fff!important;
+  color:#101828!important;
+  box-shadow:0 1px 2px rgba(16,24,40,.03)!important;
+}
+body.admin-login-ui input:focus{
+  outline:0!important;
+  border-color:#c9a12c!important;
+  box-shadow:0 0 0 3px rgba(214,169,31,.12)!important;
+}
+body.admin-login-ui .btn.primary{
+  border-color:#c79521!important;
+  background:#f4bd34!important;
+  color:#17130a!important;
+}
+
+@media(max-width:980px){
+  body.admin-control-center-v2 .sidebar{box-shadow:26px 0 70px rgba(15,23,42,.18)!important}
+  body.admin-control-center-v2 .admin-v2-backdrop{background:rgba(15,23,42,.30)!important}
+}

@@ -87,13 +87,17 @@ class AdminControlCenterV2PlaywrightTest {
     }
 
     @Test
-    void resilienceLoadsControlCenterAssetsAndStylesStayAdminScoped() throws Exception {
+    void resilienceLoadsControlCenterAssetsAndWhiteThemeStaysAdminScoped() throws Exception {
         String resilience = Files.readString(ASSETS.resolve("admin-resilience.js"));
         String css = Files.readString(ASSETS.resolve("admin-control-center-v2.css"));
+        String light = Files.readString(ASSETS.resolve("admin-light-theme.css"));
         assertTrue(resilience.contains("/assets/admin-control-center-v2.js?v=20261007a002"));
         assertTrue(resilience.contains("/assets/admin-control-center-v2.css?v=20261007a002"));
+        assertTrue(resilience.contains("/assets/admin-light-theme.css?v=20261007l001"));
         assertTrue(css.contains("body.admin-control-center-v2 .admin-shell-with-rail"));
         assertTrue(css.contains("body.admin-control-center-v2 .table-wrap"));
-        assertTrue(css.contains("body.admin-control-center-v2 .admin-v2-topbar"));
+        assertTrue(light.contains("body.admin-control-center-v2"));
+        assertTrue(light.contains("background:#f4f6f8!important"));
+        assertTrue(light.contains("body.admin-login-ui"));
     }
 }

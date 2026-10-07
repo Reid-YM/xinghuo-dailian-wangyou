@@ -2,6 +2,18 @@
   const getBar = () => document.getElementById('announcementBar');
   let frame = 0;
 
+  function ensureFloatingSupport() {
+    if (document.getElementById('floatingCustomerService')) return;
+    const link = document.createElement('a');
+    link.id = 'floatingCustomerService';
+    link.className = 'floating-customer-service';
+    link.href = '/contact';
+    link.setAttribute('aria-label', '联系客服');
+    link.setAttribute('data-global-visible', 'navContactVisible');
+    link.innerHTML = '<span class="floating-customer-service-icon" aria-hidden="true">客</span><span class="floating-customer-service-text">联系客服</span>';
+    document.body.appendChild(link);
+  }
+
   function evaluateMode(bar) {
     const first = bar?.querySelector('.announcement-ticker span:not([aria-hidden="true"])');
     if (!bar || !first) return;
@@ -40,6 +52,7 @@
   }
 
   function start() {
+    ensureFloatingSupport();
     const bar = getBar();
     if (!bar) return;
     enhanceAnnouncement();

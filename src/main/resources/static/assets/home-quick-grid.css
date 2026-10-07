@@ -1,0 +1,73 @@
+/*
+ * 首页快速操作区布局边界。
+ *
+ * app.css 的历史响应式层在 1180px 及以下已经把 quick-grid-r3 切为单列，
+ * 但较早的子项规则仍会把查询卡 / 客服卡固定到第 2 列，浏览器因此创建
+ * 隐式网格列；在桌面缩放、系统 DPI 或中间窗口宽度下会出现横向撑开和重叠。
+ *
+ * 这里只收口网格位置与尺寸，不修改颜色、字体或视觉主题。
+ */
+body[data-page="home"] .quick-grid-r3 > .quote-card-home,
+body[data-page="home"] .quick-grid-r3 > .desktop-secondary-panel,
+body[data-page="home"] .quick-grid-r3 > .quick-contact-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  inset: auto;
+}
+
+@media (min-width: 1181px) {
+  body[data-page="home"] .quick-grid-r3 {
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, .48fr) !important;
+    grid-template-rows: auto auto;
+    grid-auto-columns: 0;
+    align-items: start !important;
+  }
+
+  body[data-page="home"] .quick-grid-r3 > .quote-card-home {
+    grid-column: 1 !important;
+    grid-row: 1 / span 2 !important;
+    width: 100%;
+  }
+
+  body[data-page="home"] .quick-grid-r3 > .desktop-secondary-panel {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 100%;
+  }
+
+  body[data-page="home"] .quick-grid-r3 > .quick-contact-card {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    width: 100%;
+    align-self: start !important;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1180px) {
+  body[data-page="home"] .quick-grid-r3 {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: none;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+  }
+
+  body[data-page="home"] .quick-grid-r3 > .quote-card-home,
+  body[data-page="home"] .quick-grid-r3 > .desktop-secondary-panel,
+  body[data-page="home"] .quick-grid-r3 > .quick-contact-card {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  body[data-page="home"] .quick-grid-r3 > .quote-card-home,
+  body[data-page="home"] .quick-grid-r3 > .desktop-secondary-panel,
+  body[data-page="home"] .quick-grid-r3 > .quick-contact-card {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    width: 100%;
+  }
+}

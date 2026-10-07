@@ -277,8 +277,24 @@
     });
   }
 
+  async function initSubmissionIdentityAvatar() {
+    const host = $('.nexus-profile .account-avatar');
+    if (!host) return;
+    try {
+      const profile = await api('/api/account/me');
+      renderAvatar(host, profile);
+      $$('[data-submit-account-name]').forEach(node => {
+        node.textContent = profile?.displayName || '未命名账号';
+      });
+    } catch (error) {
+      // account.js 负责投稿页主体错误处理；头像读取失败时保留静态占位即可。
+    }
+  }
+
   if (page === 'account-settings') {
     initSettingsNavigationFallback();
     initProfileController();
+  } else if (page === 'account-submit') {
+    initSubmissionIdentityAvatar();
   }
 })();

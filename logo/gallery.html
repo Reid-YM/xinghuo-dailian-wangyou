@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>星火网游 · 设计图库</title>
+<style>
+  :root{--ink:#0A0C0F;--panel:#12161D;--line:#232A34;--gold:#F5B700;--text:#F2F4F7;--muted:#98A1AD}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--ink);color:var(--text);font-family:Inter,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;line-height:1.6}
+  .wrap{max-width:1320px;margin:0 auto;padding:40px 32px 72px}
+  h1{font-size:26px;font-weight:750;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13.5px;margin-top:8px}
+  nav{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+  nav a{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none}
+  nav a:hover{color:var(--gold)}
+  h2{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:46px 0 4px;scroll-margin-top:20px}
+  .hint{color:var(--muted);font-size:12.5px;margin-bottom:18px}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .tile{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);display:flex;flex-direction:column}
+  .tile .ph{display:grid;place-items:center;padding:14px;min-height:150px}
+  .tile .ph.dark{background:var(--ink)}
+  .tile .ph.light{background:#F4F5F7}
+  .tile .ph.grey{background:#333}
+  .tile img{max-width:100%;max-height:100%;display:block;object-fit:contain}
+  .tile .cap{font-size:11.5px;color:var(--muted);padding:9px 12px;border-top:1px solid var(--line)}
+  .tile .cap b{color:var(--text);font-weight:600}
+  .tall img{max-height:420px}
+  .wide img{max-height:230px}
+  .av img{max-height:150px}
+  .big img{max-height:260px}
+  footer{color:var(--muted);font-size:12px;margin-top:56px;padding-top:22px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>星火网游 · 设计图库</h1>
+  <p class="sub">本页把本轮所有产出集中展示，图片使用相对路径，直接在浏览器里就能看。</p>
+  <nav>
+    <a href="#logo">01 Logo</a>
+    <a href="#promo">02 宣传图</a>
+    <a href="#avatar">03 头像</a>
+    <a href="#process">04 过程与对比</a>
+  </nav>
+
+  <h2 id="logo">01 · Logo</h2>
+  <p class="hint">Style D「四级等级条」是当前主推；下面同时列出 Earlier 的几套风格备选。</p>
+  <div class="grid g3">
+    <div class="tile"><div class="ph dark big"><img src="styles/png/style-d-lockup-2048.png" alt=""></div><div class="cap"><b>Style D 横向组合</b> · 主推</div></div>
+    <div class="tile"><div class="ph dark big"><img src="styles/png/style-d-icon-512.png" alt=""></div><div class="cap"><b>Style D 标记</b> · 四级金色</div></div>
+    <div class="tile"><div class="ph light big"><img src="styles/style-d-icon-mono.svg" alt=""></div><div class="cap"><b>Style D 标记</b> · 单色（浅底 / 印刷）</div></div>
+  </div>
+
+  <div class="grid g4" style="margin-top:16px">
+    <div class="tile"><div class="ph dark big"><img src="styles/style-d-icon.svg" alt=""></div><div class="cap">Style D · 彩色</div></div>
+    <div class="tile"><div class="ph dark big"><img src="styles/style-c-icon.svg" alt=""></div><div class="cap">Style C · 模块化四单元</div></div>
+    <div class="tile"><div class="ph dark big"><img src="styles/style-b-icon.svg" alt=""></div><div class="cap">Style B · 印记</div></div>
+    <div class="tile"><div class="ph dark big"><img src="svg/logo-icon.svg" alt=""></div><div class="cap">Style A · 折光火花（v2）</div></div>
+  </div>
+
+  <h2 id="promo">02 · 宣传图</h2>
+  <p class="hint">精确像素输出，可直接投放。点开图可看原尺寸。</p>
+  <div class="grid g3">
+    <div class="tile"><a href="promo/png/promo-square-1080.png" target="_blank"><div class="ph light tall"><img src="promo/png/promo-square-1080.png" alt=""></div></a><div class="cap"><b>1080×1080</b> · 朋友圈 / 社群 / 淘宝主图</div></div>
+    <div class="tile"><a href="promo/png/promo-story-1080x1920.png" target="_blank"><div class="ph light tall"><img src="promo/png/promo-story-1080x1920.png" alt=""></div></a><div class="cap"><b>1080×1920</b> · 抖音 / 视频号 / 小红书竖版</div></div>
+    <div class="tile"><a href="promo/png/promo-og-1200x630.png" target="_blank"><div class="ph light tall"><img src="promo/png/promo-og-1200x630.png" alt="" style="width:100%"></div></a><div class="cap"><b>1200×630</b> · 链接分享卡</div></div>
+  </div>
+  <div class="grid" style="margin-top:16px">
+    <div class="tile"><a href="promo/png/promo-banner-1920x1080.png" target="_blank"><div class="ph light wide"><img src="promo/png/promo-banner-1920x1080.png" alt=""></div></a><div class="cap"><b>1920×1080</b> · 网站 hero / 直播间贴片 / 视频封面</div></div>
+  </div>
+
+  <h2 id="avatar">03 · 头像</h2>
+  <p class="hint">512 与 128 两档，圆形裁切安全。</p>
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="tile"><div class="ph dark av"><img src="avatars/png512/avatar-01-dark-gold.png" alt=""></div><div class="cap"><b>主头像</b> · 深底金条</div></div>
+    <div class="tile"><div class="ph light av"><img src="avatars/png512/avatar-02-gold-ink.png" alt=""></div><div class="cap"><b>金底</b> · 墨色条</div></div>
+    <div class="tile"><div class="ph dark av"><img src="avatars/png512/avatar-03-xmark.png" alt=""></div><div class="cap"><b>X 字标</b></div></div>
+    <div class="tile"><div class="ph dark av"><img src="avatars/png512/avatar-04-support.png" alt=""></div><div class="cap"><b>客服</b></div></div>
+  </div>
+  <div class="grid g4">
+    <div class="tile"><div class="ph light av"><img src="avatars/png512/avatar-05-taobao.png" alt=""></div><div class="cap"><b>淘宝</b> · 橙底</div></div>
+    <div class="tile"><div class="ph light av"><img src="avatars/png512/avatar-06-xianyu.png" alt=""></div><div class="cap"><b>闲鱼</b> · 黄底</div></div>
+    <div class="tile"><div class="ph light av"><img src="avatars/png512/avatar-07-wechat.png" alt=""></div><div class="cap"><b>微信</b> · 绿底</div></div>
+    <div class="tile"><div class="ph dark av"><img src="avatars/png512/avatar-08-char.png" alt=""></div><div class="cap"><b>「火」字</b></div></div>
+  </div>
+
+  <h2 id="process">04 · 过程与对比</h2>
+  <p class="hint">方向探索、尺寸测试、与大公司 Logo 的货架测试。</p>
+  <div class="grid g2">
+    <div class="tile"><div class="ph light wide"><img src="explorations/10-nonstar-directions.png" alt=""></div><div class="cap">6 个非星星方向</div></div>
+    <div class="tile"><div class="ph light wide"><img src="explorations/11-style-d.png" alt=""></div><div class="cap">Style D 三个形态</div></div>
+    <div class="tile"><div class="ph light wide"><img src="explorations/08-shelf-test.png" alt=""></div><div class="cap">货架测试 · 与大公司同尺寸对比</div></div>
+    <div class="tile"><div class="ph light wide"><img src="explorations/09-style-candidates.png" alt=""></div><div class="cap">被否决的 X + 底板方案</div></div>
+    <div class="tile"><div class="ph light wide"><img src="explorations/02-premium-candidates.png" alt=""></div><div class="cap">折面候选对比（v2 阶段）</div></div>
+    <div class="tile"><div class="ph light wide"><img src="explorations/04-size-ladder.png" alt=""></div><div class="cap">尺寸测试</div></div>
+  </div>
+
+  <footer>
+    星火网游 · 设计图库 · 本页为本地预览，未接入线上站点。
+  </footer>
+</div>
+</body>
+</html>

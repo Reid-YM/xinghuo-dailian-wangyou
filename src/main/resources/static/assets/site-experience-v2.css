@@ -58,7 +58,7 @@ a,button{-webkit-tap-highlight-color:rgba(var(--accent-rgb),.16)}
 .grid4{gap:clamp(12px,1.4vw,20px)}
 
 /* ===== Shared header: solid, predictable, WebView-safe ===== */
-.site-header{
+html body .site-header{
   padding-top:env(safe-area-inset-top,0px);
   background:rgba(7,9,12,.97)!important;
   -webkit-backdrop-filter:none!important;
@@ -230,7 +230,15 @@ textarea{min-height:112px}
   -webkit-backdrop-filter:none;
   backdrop-filter:none;
 }
-.mobile-dock a{min-height:44px}
+body .mobile-dock a{
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  min-height:44px!important;
+  height:auto!important;
+  padding:8px 6px!important;
+  box-sizing:border-box;
+}
 .floating-customer-service{right:max(16px,var(--xh-safe-right));bottom:max(18px,calc(var(--xh-safe-bottom) + 18px))}
 
 /* ===== Pointer / motion / accessibility ===== */
@@ -240,7 +248,7 @@ textarea{min-height:112px}
   .account-center-quick>a:hover{border-color:var(--xh-yellow-line);background:var(--xh-yellow-soft)}
 }
 @media(pointer:coarse){
-  .btn,button,.filter-btn,.nav-toggle,.mobile-dock a,.account-center-nav a,.footer-links a{min-height:44px}
+  .btn,button,.filter-btn,.nav-toggle,.mobile-dock a,.account-center-nav a,.footer-links a{min-height:44px!important}
 }
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -286,7 +294,7 @@ textarea{min-height:112px}
   :root{--xh-page-gutter:14px;--xh-section-gap:28px;--xh-control-height:46px}
   body{padding-bottom:calc(76px + var(--xh-safe-bottom))}
   .container{width:calc(100% - (var(--xh-page-gutter) * 2))}
-  .site-header{padding-left:var(--xh-safe-left);padding-right:var(--xh-safe-right)}
+  html body .site-header{padding-left:var(--xh-safe-left);padding-right:var(--xh-safe-right)}
   .site-header .topbar{width:calc(100% - 24px);min-height:56px}
   .site-header .brand-mark>span:last-child{max-width:52vw}
   .site-header .nav>.desktop-keep{min-height:40px;padding:8px 10px;font-size:12px}
@@ -336,7 +344,10 @@ textarea{min-height:112px}
   .account-center-quick{grid-template-columns:1fr}
   .site-footer{margin-top:28px;padding-left:var(--xh-safe-left);padding-right:var(--xh-safe-right)}
   .site-footer .container{width:calc(100% - 28px)}
-  .mobile-dock{display:grid}
+  body .mobile-dock{
+    display:grid!important;
+    grid-auto-rows:minmax(44px,auto);
+  }
   .floating-customer-service{bottom:calc(86px + var(--xh-safe-bottom))}
 }
 

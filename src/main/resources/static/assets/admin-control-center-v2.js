@@ -32,12 +32,15 @@
   }
 
   function createChrome() {
-    // V2 使用独立后台主题；移除旧版 admin-solid-ui，避免两套主题的 !important 规则互相覆盖。
-    document.body.classList.remove('admin-solid-ui');
-    document.body.classList.add('admin-control-center-v2');
     const main = $('.admin-main');
     const sidebar = $('.sidebar');
-    if (!main || !sidebar) return;
+    // 只有完整的运营后台工作区才能启用 V2。攻略、登录、前端控制中心等独立后台页
+    // 即使误加载此脚本，也不能被移除自身主题类或套上 Control Center 布局。
+    if (!main || !sidebar) return false;
+
+    ensureStylesheet();
+    document.body.classList.remove('admin-solid-ui');
+    document.body.classList.add('admin-control-center-v2');
 
     if (!$('#adminV2Topbar')) {
       const topbar = document.createElement('div');
@@ -77,6 +80,23 @@
 
     ensureFrontendControlEntry(sidebar);
     $$('.admin-main>[data-panel]').forEach(panel => panel.classList.add('admin-v2-panel'));
+    return true;
+  }
+
+  function ensureVisiblePanel() {
+    const panels = $$('.admin-main>[data-panel]');
+    if (!panels.length || panels.some(panel => !panel.classList.contains('hidden'))) return null;
+
+    // admin.js 的旧 show(name) 会先隐藏全部面板，再寻找目标。
+    // 一旦 name 不存在或中途脚本异常，页面会永久空白。V2 在渲染层做最后兜底：
+    // 优先恢复 dashboard，没有 dashboard 时恢复第一个真实业务面板。
+    const fallback = panels.find(panel => panel.dataset.panel === 'dashboard') || panels[0];
+    fallback.classList.remove('hidden');
+    const name = fallback.dataset.panel || '';
+    $$('.admin-workspace-nav [data-nav]').forEach(node => {
+      node.classList.toggle('active', Boolean(name) && node.dataset.nav === name);
+    });
+    return fallback;
   }
 
   function panelTitle(panel) {
@@ -87,6 +107,7 @@
   }
 
   function syncCurrentContext() {
+    ensureVisiblePanel();
     const visible = $$('[data-panel]').find(panel => !panel.classList.contains('hidden'));
     const title = panelTitle(visible);
     const target = $('#adminV2CurrentTitle');
@@ -163,6 +184,7 @@
     root.dataset.adminV2Watch = '1';
     const observer = new MutationObserver(records => {
       if (!records.some(record => record.type === 'attributes' && record.attributeName === 'class')) return;
+      ensureVisiblePanel();
       syncCurrentContext();
     });
     observer.observe(root, { subtree: true, attributes: true, attributeFilter: ['class'] });
@@ -181,8 +203,8 @@
   }
 
   function boot() {
-    ensureStylesheet();
-    createChrome();
+    if (!createChrome()) return;
+    ensureVisiblePanel();
     bindInteractions();
     watchPanels();
     waitForDynamicNavigation();
@@ -190,7 +212,6 @@
     syncCurrentContext();
   }
 
-  ensureStylesheet();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
   else boot();
 })();

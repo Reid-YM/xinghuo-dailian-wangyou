@@ -11,10 +11,11 @@ class FrontendStyleLayerContractTest {
     private static final Path MAIN = Path.of("src/main");
 
     @Test
-    void sharedSiteUsesCanonicalShellAssets() throws Exception {
+    void sharedSiteUsesSingleAuthoritativeExperienceLayer() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
-        assertTrue(site.contains("/assets/site-shell.css?v=20261007ss02"));
+        assertTrue(site.contains("/assets/site-experience-v2.css?v=20261007ux03"));
         assertTrue(site.contains("/assets/site-shell.js?v=20261007ss02"));
+        assertFalse(site.contains("site-shell.css"));
         assertFalse(site.contains("site-surface-refine.css"));
         assertFalse(site.contains("site-surface-refine.js"));
     }
@@ -31,18 +32,16 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
-    void shellDefinesCentralLayerTokensAndRestoresFloatingSupport() throws Exception {
-        String css = Files.readString(MAIN.resolve("resources/static/assets/site-shell.css"));
+    void experienceLayerOwnsZIndexFloatingSupportAndSecurityLayout() throws Exception {
+        String css = Files.readString(MAIN.resolve("resources/static/assets/site-experience-v2.css"));
         String js = Files.readString(MAIN.resolve("resources/static/assets/site-shell.js"));
         assertTrue(css.contains("--xh-z-header:40"));
         assertTrue(css.contains("--xh-z-floating:70"));
         assertTrue(css.contains("--xh-z-modal:100"));
         assertTrue(css.contains("--xh-z-toast:120"));
         assertTrue(css.contains(".floating-customer-service"));
+        assertTrue(css.contains(".account-settings-view[data-settings-view=\"security\"]"));
         assertTrue(js.contains("floatingCustomerService"));
         assertTrue(js.contains("href = '/contact'"));
-        assertTrue(css.contains("#password>header>div>span:first-child"));
-        assertFalse(css.contains("#password::before"));
-        assertFalse(css.contains("#devices::before"));
     }
 }

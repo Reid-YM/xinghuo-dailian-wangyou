@@ -29,11 +29,43 @@ body.admin-control-center-v2{
   --admin-good:#14804a;
   --admin-danger:#b42318;
   --admin-shadow:0 16px 38px rgba(15,23,42,.08);
+  --ui-bg:#f4f6f8;
+  --ui-surface:#ffffff;
+  --ui-surface-2:#ffffff;
+  --ui-surface-3:#f8fafc;
+  --ui-line:rgba(15,23,42,.10);
+  --ui-line-strong:rgba(15,23,42,.16);
+  --ui-text:#101828;
+  --ui-muted:#667085;
+  --ui-shadow:0 16px 38px rgba(15,23,42,.08);
+  --r3-card:#ffffff;
+  --r3-card-2:#f8fafc;
+  --r3-line:rgba(15,23,42,.11);
   color:var(--admin-text)!important;
   background:#f4f6f8!important;
 }
-body.admin-control-center-v2::before{display:none!important}
+body.admin-control-center-v2::before,
+body.admin-control-center-v2::after,
+body.admin-control-center-v2 .cyber-stage,
+body.admin-control-center-v2 .cyber-grid,
+body.admin-control-center-v2 .cyber-noise,
+body.admin-control-center-v2 .cyber-radar,
+body.admin-control-center-v2 .cyber-scan,
+body.admin-control-center-v2 .cyber-surface::before,
+body.admin-control-center-v2 .cyber-surface::after{display:none!important}
 body.admin-control-center-v2 .admin-main{background:#f4f6f8!important}
+body.admin-control-center-v2 .admin-main>[data-panel]{
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  color:#101828!important;
+}
+body.admin-control-center-v2 .admin-main section{
+  color:#101828!important;
+  border-color:var(--admin-line)!important;
+}
 body.admin-control-center-v2 .sidebar,
 body.admin-control-center-v2 .admin-right-rail{
   background:#fff!important;
@@ -80,6 +112,17 @@ body.admin-control-center-v2 textarea{
 }
 body.admin-control-center-v2 input::placeholder,
 body.admin-control-center-v2 textarea::placeholder{color:#98a2b3!important}
+body.admin-control-center-v2 input[readonly],
+body.admin-control-center-v2 textarea[readonly],
+body.admin-control-center-v2 select:disabled,
+body.admin-control-center-v2 input:disabled{
+  background:#f8fafc!important;
+  color:#667085!important;
+  opacity:1!important;
+}
+body.admin-control-center-v2 input[type=checkbox],
+body.admin-control-center-v2 input[type=range]{accent-color:#d6a91f!important}
+body.admin-control-center-v2 input[type=range]{background:transparent!important;box-shadow:none!important}
 body.admin-control-center-v2 .nav-section{
   border-color:#eef1f5!important;
   background:#fff!important;
@@ -108,11 +151,12 @@ body.admin-control-center-v2 .logout-form .danger{
 }
 body.admin-control-center-v2 .admin-v2-topbar{
   border-bottom-color:#e4e7ec!important;
-  background:rgba(255,255,255,.94)!important;
+  background:rgba(255,255,255,.96)!important;
   box-shadow:0 6px 18px rgba(15,23,42,.05)!important;
 }
 body.admin-control-center-v2 .admin-main>[data-panel]>.admin-toolbar,
 body.admin-control-center-v2 .card,
+body.admin-control-center-v2 section.card,
 body.admin-control-center-v2 .table-wrap,
 body.admin-control-center-v2 .inset-panel,
 body.admin-control-center-v2 .linkage-workspace,
@@ -122,6 +166,8 @@ body.admin-control-center-v2 .right-rail-card,
 body.admin-control-center-v2 .right-rail-stack,
 body.admin-control-center-v2 .service-form-section,
 body.admin-control-center-v2 .tool-admin-block,
+body.admin-control-center-v2 .tool-admin-sidebar,
+body.admin-control-center-v2 .tool-admin-editor,
 body.admin-control-center-v2 .game-profile-identity,
 body.admin-control-center-v2 .tracking-card,
 body.admin-control-center-v2 .feedback-choice-grid,
@@ -132,6 +178,87 @@ body.admin-control-center-v2 details{
   color:#101828!important;
   box-shadow:0 10px 26px rgba(15,23,42,.055)!important;
 }
+
+/* app.css 中仍有大量后台组件写死深色，这里统一收敛为白色/浅灰。 */
+body.admin-control-center-v2 .game-kpi,
+body.admin-control-center-v2 .game-library-panel,
+body.admin-control-center-v2 .game-taxonomy-panel,
+body.admin-control-center-v2 .game-library-row,
+body.admin-control-center-v2 .game-profile-preview,
+body.admin-control-center-v2 .game-profile-score,
+body.admin-control-center-v2 .platform-choice,
+body.admin-control-center-v2 .compact-toggle,
+body.admin-control-center-v2 .taxonomy-item,
+body.admin-control-center-v2 .taxonomy-item-v20,
+body.admin-control-center-v2 .lifecycle-step,
+body.admin-control-center-v2 .admin-contact-channel,
+body.admin-control-center-v2 .admin-trust-editor-card,
+body.admin-control-center-v2 .tool-admin-weapon,
+body.admin-control-center-v2 .tool-image-admin,
+body.admin-control-center-v2 .tool-camo-admin-item,
+body.admin-control-center-v2 .tool-online-admin-item,
+body.admin-control-center-v2 .tool-image-preview,
+body.admin-control-center-v2 .tracking-funnel,
+body.admin-control-center-v2 .tracking-events,
+body.admin-control-center-v2 .tracking-event-grid>*{
+  border-color:var(--admin-line)!important;
+  background:#fff!important;
+  color:#101828!important;
+  box-shadow:none!important;
+}
+body.admin-control-center-v2 .game-library-row.is-featured,
+body.admin-control-center-v2 .platform-choice:has(input:checked){
+  background:#fff9e8!important;
+  border-color:#ead58b!important;
+}
+body.admin-control-center-v2 .game-thumb,
+body.admin-control-center-v2 .admin-image-preview,
+body.admin-control-center-v2 .tool-image-preview{
+  border-color:var(--admin-line)!important;
+  background:#f8fafc!important;
+  color:#667085!important;
+}
+body.admin-control-center-v2 .game-profile-modal .modal-head,
+body.admin-control-center-v2 #serviceModal .modal-head,
+body.admin-control-center-v2 #orderModal .modal-head,
+body.admin-control-center-v2 #taxonomyModal .modal-head{
+  border-bottom-color:#e4e7ec!important;
+  background:#fff!important;
+  color:#101828!important;
+  box-shadow:none!important;
+}
+body.admin-control-center-v2 .game-center-bulk,
+body.admin-control-center-v2 .dashboard-focus{
+  border-color:#ecd889!important;
+  background:#fff9e8!important;
+  color:#765600!important;
+}
+body.admin-control-center-v2 .panel-head,
+body.admin-control-center-v2 .guide-section-editor-head,
+body.admin-control-center-v2 .tracking-head{
+  border-color:#e4e7ec!important;
+  color:#101828!important;
+}
+body.admin-control-center-v2 .admin-contact-channel-preview img,
+body.admin-control-center-v2 .qr-preview img{background:#fff!important}
+body.admin-control-center-v2 code{
+  border:1px solid #e4e7ec!important;
+  background:#f8fafc!important;
+  color:#694f00!important;
+}
+body.admin-control-center-v2 hr{border-color:#e4e7ec!important}
+body.admin-control-center-v2 .status-pill,
+body.admin-control-center-v2 .badge{
+  box-shadow:none!important;
+}
+body.admin-control-center-v2 .badge:not(.ok):not(.warn):not(.danger):not(.ready){
+  background:#f8fafc!important;
+  border-color:#e2e8f0!important;
+  color:#475467!important;
+}
+body.admin-control-center-v2 .badge.ok{background:#ecfdf3!important;border-color:#abefc6!important;color:#027a48!important}
+body.admin-control-center-v2 .badge.warn{background:#fffaeb!important;border-color:#fedf89!important;color:#b54708!important}
+body.admin-control-center-v2 .badge.danger{background:#fff1f2!important;border-color:#fecdd3!important;color:#b42318!important}
 body.admin-control-center-v2 .admin-subnav{
   border-color:#e2e8f0!important;
   background:#f8fafc!important;
@@ -158,6 +285,12 @@ body.admin-control-center-v2 .btn.primary{
 }
 body.admin-control-center-v2 .btn.primary:hover{background:var(--admin-accent-strong)!important}
 body.admin-control-center-v2 .btn.ghost{background:#fff!important}
+body.admin-control-center-v2 .btn.danger,
+body.admin-control-center-v2 button.danger{
+  background:#fff1f2!important;
+  border-color:#fecdd3!important;
+  color:#b42318!important;
+}
 body.admin-control-center-v2 .table{background:#fff!important}
 body.admin-control-center-v2 .table th{
   background:#f8fafc!important;
@@ -175,14 +308,9 @@ body.admin-control-center-v2 .kpi{
   background:linear-gradient(145deg,#fff,#fafbfc)!important;
   box-shadow:0 8px 22px rgba(15,23,42,.045)!important;
 }
-body.admin-control-center-v2 .dashboard-focus{
-  border-color:#ecd889!important;
-  background:#fff9e8!important;
-  color:#765600!important;
-}
 body.admin-control-center-v2 .config-savebar{
   border-color:#e7ca68!important;
-  background:rgba(255,255,255,.96)!important;
+  background:rgba(255,255,255,.97)!important;
   box-shadow:0 14px 34px rgba(15,23,42,.10)!important;
 }
 body.admin-control-center-v2 .modal{background:rgba(15,23,42,.28)!important}
@@ -191,11 +319,32 @@ body.admin-control-center-v2 .modal>.card{
   background:#fff!important;
   color:#101828!important;
 }
+body.admin-control-center-v2 .right-rail-link{background:#fff!important;color:#344054!important}
 body.admin-control-center-v2 .right-rail-link:hover{background:#f8fafc!important}
 body.admin-control-center-v2 .admin-panel-load-error{
   border-color:#f1c8c8!important;
   background:#fff5f5!important;
 }
+body.admin-control-center-v2 .toast{
+  background:#fff!important;
+  border-color:#dfe5ee!important;
+  color:#101828!important;
+  box-shadow:0 14px 34px rgba(15,23,42,.10)!important;
+}
+body.admin-control-center-v2 .toast.error{background:#fff5f5!important;border-color:#fecdd3!important;color:#b42318!important}
+body.admin-control-center-v2 #serviceForm::-webkit-scrollbar-thumb,
+body.admin-control-center-v2 #taxonomyForm::-webkit-scrollbar-thumb,
+body.admin-control-center-v2 #gameProfileForm::-webkit-scrollbar-thumb,
+body.admin-control-center-v2 #orderForm::-webkit-scrollbar-thumb{
+  background:#cbd5e1!important;
+  border-color:#fff!important;
+}
+body.admin-control-center-v2 #serviceForm::-webkit-scrollbar-track,
+body.admin-control-center-v2 #taxonomyForm::-webkit-scrollbar-track,
+body.admin-control-center-v2 #gameProfileForm::-webkit-scrollbar-track,
+body.admin-control-center-v2 #orderForm::-webkit-scrollbar-track{background:#f1f5f9!important}
+body.admin-control-center-v2 ::-webkit-scrollbar-thumb{background:#cbd5e1!important;border-color:#f8fafc!important}
+body.admin-control-center-v2 ::-webkit-scrollbar-track{background:#f1f5f9!important}
 
 /* 攻略后台 */
 body.admin-solid-ui{
@@ -204,7 +353,7 @@ body.admin-solid-ui{
 }
 body.admin-solid-ui .guide-admin-top{
   border-bottom:1px solid #e4e7ec!important;
-  background:rgba(255,255,255,.96)!important;
+  background:rgba(255,255,255,.97)!important;
   box-shadow:0 8px 24px rgba(15,23,42,.07)!important;
 }
 body.admin-solid-ui .guide-admin-topbar>div:nth-child(2) strong{color:#101828!important}
@@ -213,6 +362,18 @@ body.admin-solid-ui .guide-admin-topbar .btn.ghost{
   border-color:#d0d5dd!important;
   background:#fff!important;
   color:#344054!important;
+}
+body.admin-solid-ui .guide-admin-shell,
+body.admin-solid-ui .guide-admin-layout,
+body.admin-solid-ui .guide-admin-editor,
+body.admin-solid-ui .guide-admin-list,
+body.admin-solid-ui .guide-admin-toolbar,
+body.admin-solid-ui .guide-editor-grid,
+body.admin-solid-ui .guide-editor-block,
+body.admin-solid-ui .guide-section-editor,
+body.admin-solid-ui .guide-product-option,
+body.admin-solid-ui .guide-admin-row{
+  color:#101828!important;
 }
 
 /* 后台登录 */

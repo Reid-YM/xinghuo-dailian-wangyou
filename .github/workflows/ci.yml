@@ -125,3 +125,24 @@ jobs:
         env:
           PLAYWRIGHT_UI_TESTS: '1'
         run: mvn -B -ntp -Dtest='*PlaywrightTest' test
+
+      - name: Print UI regression diagnostics
+        if: failure()
+        shell: bash
+        run: |
+          echo '===== Surefire reports ====='
+          find target/surefire-reports -maxdepth 1 -type f -print 2>/dev/null || true
+          for report in target/surefire-reports/*.txt; do
+            [ -f "$report" ] || continue
+            echo "===== $report ====="
+            cat "$report"
+          done
+
+      - name: Upload UI regression diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-regression-diagnostics-${{ github.run_id }}
+          path: target/surefire-reports/
+          if-no-files-found: warn
+          retention-days: 7

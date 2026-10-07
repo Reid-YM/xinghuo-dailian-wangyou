@@ -70,13 +70,13 @@
     const visible = $$('[data-panel]').find(panel => !panel.classList.contains('hidden'));
     const title = panelTitle(visible);
     const target = $('#adminV2CurrentTitle');
-    if (target) target.textContent = title;
+    if (target && target.textContent !== title) target.textContent = title;
 
     const panelName = visible?.dataset.panel || '';
     $$('.admin-workspace-nav [data-nav]').forEach(node => {
       const active = node.dataset.nav === panelName || node.classList.contains('active') || node.classList.contains('admin-nav-current');
-      node.toggleAttribute('aria-current', active);
       if (active) node.setAttribute('aria-current', 'page');
+      else node.removeAttribute('aria-current');
     });
   }
 
@@ -142,13 +142,10 @@
     if (!root || root.dataset.adminV2Watch === '1') return;
     root.dataset.adminV2Watch = '1';
     const observer = new MutationObserver(records => {
-      const shouldSync = records.some(record => record.type === 'attributes' || record.type === 'childList');
-      if (shouldSync) {
-        syncCurrentContext();
-        refreshSearch();
-      }
+      if (!records.some(record => record.type === 'attributes' && record.attributeName === 'class')) return;
+      syncCurrentContext();
     });
-    observer.observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+    observer.observe(root, { subtree: true, attributes: true, attributeFilter: ['class'] });
   }
 
   function waitForDynamicNavigation() {

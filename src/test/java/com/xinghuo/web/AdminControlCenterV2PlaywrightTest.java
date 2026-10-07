@@ -185,6 +185,35 @@ class AdminControlCenterV2PlaywrightTest {
     }
 
     @Test
+    void wideDesktopUsesOperationalCanvasInsteadOfNarrowTemplateColumn() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setViewportSize(1920, 1080);
+            page.setContent("""
+                    <body class="admin-control-center-v2">
+                      <div class="admin-shell-with-rail">
+                        <aside class="sidebar"><div class="admin-brand"><b class="brand">星火后台</b></div></aside>
+                        <main class="admin-main">
+                          <section data-panel="dashboard">
+                            <div class="admin-toolbar"><div><span class="eyebrow">运营数据</span><h1>今日概览</h1></div></div>
+                            <div class="kpis"><div class="kpi"><b>12</b></div><div class="kpi"><b>8</b></div><div class="kpi"><b>3</b></div><div class="kpi"><b>1</b></div></div>
+                          </section>
+                        </main>
+                        <aside class="admin-right-rail"><div class="right-rail-card">快捷入口</div></aside>
+                      </div>
+                    </body>
+                    """);
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-control-center-v2.css")));
+
+            Number panelWidth = (Number) page.evaluate("() => document.querySelector('[data-panel=dashboard]').getBoundingClientRect().width");
+            assertTrue(panelWidth.doubleValue() > 1200.0);
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.sidebar')).backgroundColor"));
+            assertEquals("rgba(0, 0, 0, 0)", page.evaluate("() => getComputedStyle(document.querySelector('.admin-toolbar')).backgroundColor"));
+            assertEquals("3px", page.evaluate("() => getComputedStyle(document.querySelector('.kpi'), '::before').width"));
+        }
+    }
+
+    @Test
     void frontendControlCenterUsesLightAdminSurface() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
@@ -210,12 +239,13 @@ class AdminControlCenterV2PlaywrightTest {
         String css = Files.readString(ASSETS.resolve("admin-control-center-v2.css"));
         String light = Files.readString(ASSETS.resolve("admin-light-theme.css"));
         assertTrue(resilience.contains("/assets/admin-control-center-v2.js?v=20261007a004"));
-        assertTrue(resilience.contains("/assets/admin-control-center-v2.css?v=20261007a002"));
-        assertTrue(resilience.contains("/assets/admin-light-theme.css?v=20261007l002"));
+        assertTrue(resilience.contains("/assets/admin-control-center-v2.css?v=20261007a005"));
+        assertTrue(resilience.contains("/assets/admin-light-theme.css?v=20261007l003"));
         assertTrue(resilience.contains("restoreVisiblePanel"));
         assertTrue(resilience.contains("hasControlCenter"));
         assertTrue(css.contains("body.admin-control-center-v2 .admin-shell-with-rail"));
         assertTrue(css.contains("body.admin-control-center-v2 .table-wrap"));
+        assertTrue(css.contains("width:min(100%,1680px)"));
         assertTrue(light.contains("body.admin-control-center-v2"));
         assertTrue(light.contains("--ui-bg:#f4f6f8"));
         assertTrue(light.contains("body.admin-control-center-v2 .game-kpi"));

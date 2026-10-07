@@ -15,14 +15,14 @@
     if (!$('link[data-admin-control-center-v2]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = '/assets/admin-control-center-v2.css?v=20261007a002';
+      link.href = '/assets/admin-control-center-v2.css?v=20261007a005';
       link.dataset.adminControlCenterV2 = '1';
       document.head.appendChild(link);
     }
     if (!$('link[data-admin-light-theme]')) {
       const light = document.createElement('link');
       light.rel = 'stylesheet';
-      light.href = '/assets/admin-light-theme.css?v=20261007l002';
+      light.href = '/assets/admin-light-theme.css?v=20261007l003';
       light.dataset.adminLightTheme = '1';
       document.head.appendChild(light);
     }

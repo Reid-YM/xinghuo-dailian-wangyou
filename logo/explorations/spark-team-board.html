@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Spark Team · Logo 总览</title>
+<style>
+  :root{--ink:#0A0C0F;--line:#E3E6EB;--muted:#6C7480}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#fff;color:var(--ink);font-family:Inter,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;line-height:1.6}
+  .wrap{width:1600px;margin:0 auto;padding:52px 56px 60px}
+  h1{font-size:30px;font-weight:750;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13.5px;margin-top:8px}
+  h2{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:40px 0 14px;display:flex;align-items:center;gap:14px}
+  h2::after{content:"";flex:1;height:1px;background:var(--line)}
+  .row{display:grid;gap:16px;margin-bottom:16px}
+  .r3{grid-template-columns:repeat(3,1fr)}
+  .tile{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+  .tile .ph{display:grid;place-items:center;padding:18px;min-height:180px}
+  .tile .ph.dark{background:var(--ink)}
+  .tile .ph.light{background:#F4F5F7}
+  .tile img{max-width:100%;max-height:100%;display:block;object-fit:contain}
+  .tile .cap{font-size:11.5px;color:var(--muted);padding:10px 14px;border-top:1px solid var(--line)}
+  .fav{display:flex;align-items:flex-end;gap:26px;justify-content:center}
+  .fav figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .fav figcaption{font-size:10px;color:var(--muted)}
+  .fav img{border-radius:6px;display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Spark Team · Logo</h1>
+  <p class="sub">双箭头上升标记 + 手工几何字标 SPARK TEAM</p>
+
+  <h2>标记 Mark</h2>
+  <div class="row r3">
+    <div class="tile"><div class="ph dark"><img src="../spark-team/svg/spark-team-icon.svg" style="width:170px;height:170px" alt=""></div><div class="cap">双色金 · 深底主用</div></div>
+    <div class="tile"><div class="ph dark"><img src="../spark-team/svg/spark-team-icon-flat.svg" style="width:170px;height:170px" alt=""></div><div class="cap">单色金</div></div>
+    <div class="tile"><div class="ph light"><img src="../spark-team/svg/spark-team-icon-mono.svg" style="width:170px;height:170px" alt=""></div><div class="cap">单色墨黑</div></div>
+  </div>
+
+  <h2>横向组合 Horizontal</h2>
+  <div class="row r3">
+    <div class="tile" style="grid-column:span 2"><div class="ph dark"><img src="../spark-team/png/logo-horizontal-2048.png" alt=""></div><div class="cap">深色背景（主用）</div></div>
+    <div class="tile"><div class="ph light"><img src="../spark-team/svg/spark-team-horizontal-light.svg" alt=""></div><div class="cap">浅色背景</div></div>
+  </div>
+
+  <h2>堆叠组合 Stacked</h2>
+  <div class="row r3">
+    <div class="tile"><div class="ph dark"><img src="../spark-team/svg/spark-team-stacked.svg" style="max-height:280px" alt=""></div><div class="cap">堆叠 · 深色背景</div></div>
+    <div class="tile"><div class="ph light"><img src="../spark-team/svg/spark-team-black.svg" alt=""></div><div class="cap">单色黑 · 浅底 / 印刷</div></div>
+    <div class="tile"><div class="ph dark"><img src="../spark-team/svg/spark-team-white.svg" alt=""></div><div class="cap">单色白 · 深底</div></div>
+  </div>
+
+  <h2>图标与字标 Icon &amp; Wordmark</h2>
+  <div class="row r3">
+    <div class="tile"><div class="ph light"><div class="fav">
+      <figure><img src="../spark-team/favicon/favicon-16.png" width="16" height="16" alt=""><figcaption>16</figcaption></figure>
+      <figure><img src="../spark-team/favicon/favicon-32.png" width="32" height="32" alt=""><figcaption>32</figcaption></figure>
+      <figure><img src="../spark-team/favicon/apple-touch-icon.png" width="72" height="72" alt=""><figcaption>180</figcaption></figure>
+    </div></div><div class="cap">favicon 三档</div></div>
+    <div class="tile" style="grid-column:span 2"><div class="ph dark"><img src="../spark-team/svg/spark-team-wordmark.svg" style="width:100%;filter:invert(1)" alt=""></div><div class="cap">手绘几何字标 SPARK TEAM</div></div>
+  </div>
+</div>
+</body>
+</html>

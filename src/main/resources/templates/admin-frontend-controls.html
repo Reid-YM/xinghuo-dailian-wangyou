@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0d10">
+  <meta name="_csrf" th:content="${csrf.token}">
+  <meta name="_csrf_header" th:content="${csrf.headerName}">
+  <title>前端控制中心 - 星火网游</title>
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031">
+  <link rel="stylesheet" href="/assets/admin-frontend-controls.css?v=20261007fc01">
+  <script defer src="/assets/admin-frontend-controls.js?v=20261007fc01"></script>
+</head>
+<body class="frontend-control-admin">
+  <header class="fc-topbar">
+    <div class="fc-topbar-inner">
+      <div class="fc-brand">
+        <span class="fc-brand-mark">X</span>
+        <div><small>星火后台</small><strong>前端控制中心</strong></div>
+      </div>
+      <div class="fc-top-actions">
+        <span class="fc-user" th:text="${username}">admin</span>
+        <a class="btn ghost" href="/admin">返回运营后台</a>
+        <a class="btn primary" href="/" target="_blank" rel="noopener">预览前台</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="fc-shell">
+    <section class="fc-hero">
+      <div>
+        <span class="eyebrow">Frontend Control Center</span>
+        <h1>让管理员直接控制前端展示</h1>
+        <p>这里负责导航、首页关键模块、按钮跳转、显隐和主题样式。业务价格、主图、背景图、客服资料仍由原“站点配置”维护，避免重复字段互相覆盖。</p>
+      </div>
+      <div class="fc-status-card">
+        <span class="fc-status-dot"></span>
+        <div><b>配置从后端读取</b><small>保存后前台刷新即可读取最新值</small></div>
+      </div>
+    </section>
+
+    <nav class="fc-section-nav" aria-label="配置区域">
+      <a href="#global">导航与备案</a>
+      <a href="#home">首页模块</a>
+      <a href="#theme">主题样式</a>
+      <a href="#existing">已有配置</a>
+    </nav>
+
+    <section class="fc-card" id="global">
+      <div class="fc-card-head">
+        <div><span class="eyebrow">全站</span><h2>导航、页脚与备案</h2><p>桌面导航、移动端导航抽屉和页脚共用同一份配置。</p></div>
+        <span class="fc-badge">全站生效</span>
+      </div>
+      <form id="globalUiForm">
+        <div class="fc-subhead"><h3>顶部导航</h3><span>文案 + 显隐</span></div>
+        <div class="fc-grid two">
+          <div class="field"><label>服务入口文案</label><input name="navServicesLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="navServicesVisible"><span><b>显示服务入口</b><small>只隐藏导航，不删除服务页。</small></span></label>
+          <div class="field"><label>攻略入口文案</label><input name="navGuidesLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="navGuidesVisible"><span><b>显示攻略入口</b><small>同步移动端导航。</small></span></label>
+          <div class="field"><label>工具站入口文案</label><input name="navMasteryLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="navMasteryVisible"><span><b>显示 MW4 工具站</b><small>仍受工具站自身公开开关约束。</small></span></label>
+          <div class="field"><label>业务记录入口文案</label><input name="navRecordsLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="navRecordsVisible"><span><b>显示业务记录</b><small>不影响业务记录数据。</small></span></label>
+          <div class="field"><label>咨询入口文案</label><input name="navContactLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="navContactVisible"><span><b>显示咨询入口</b><small>联系页本身仍可直接访问。</small></span></label>
+          <div class="field"><label>个人中心入口文案</label><input name="navAccountLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="navAccountVisible"><span><b>显示个人中心</b><small>不影响用户登录能力。</small></span></label>
+          <label class="toggle-row wide"><input type="checkbox" name="headerQuoteVisible"><span><b>显示顶部询价按钮</b><small>控制公共页头主按钮。</small></span></label>
+        </div>
+
+        <div class="fc-subhead"><h3>页脚与辅助入口</h3><span>统一控制</span></div>
+        <div class="fc-grid two">
+          <div class="field"><label>页脚服务文案</label><input name="footerServicesLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="footerServicesVisible"><span><b>显示页脚服务入口</b><small></small></span></label>
+          <div class="field"><label>页脚业务记录文案</label><input name="footerRecordsLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="footerRecordsVisible"><span><b>显示页脚业务记录</b><small></small></span></label>
+          <div class="field"><label>页脚个人中心文案</label><input name="footerConsoleLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="footerConsoleVisible"><span><b>显示页脚个人中心</b><small></small></span></label>
+          <div class="field"><label>页脚规则文案</label><input name="footerRulesLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="footerRulesVisible"><span><b>显示服务规则</b><small></small></span></label>
+          <div class="field"><label>页脚隐私文案</label><input name="footerPrivacyLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="footerPrivacyVisible"><span><b>显示隐私说明</b><small></small></span></label>
+          <div class="field"><label>页脚咨询文案</label><input name="footerContactLabel" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="footerContactVisible"><span><b>显示页脚咨询入口</b><small></small></span></label>
+          <label class="toggle-row wide"><input type="checkbox" name="homeQuickContactVisible"><span><b>显示首页快捷联系卡片</b><small>只影响首页卡片，不影响联系页。</small></span></label>
+        </div>
+
+        <div class="fc-subhead"><h3>备案展示</h3><span>合规信息</span></div>
+        <div class="fc-grid two">
+          <div class="field"><label>ICP备案号</label><input name="icpNumber" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="icpVisible"><span><b>显示 ICP 备案</b><small></small></span></label>
+          <div class="field"><label>公安备案号</label><input name="publicSecurityNumber" maxlength="120"></div>
+          <label class="toggle-row"><input type="checkbox" name="publicSecurityVisible"><span><b>显示公安备案</b><small>链接会自动按备案数字生成。</small></span></label>
+        </div>
+        <div class="fc-savebar"><span id="globalUiState">正在读取配置…</span><button class="btn primary" type="submit">保存导航与备案</button></div>
+      </form>
+    </section>
+
+    <form id="frontendControlsForm">
+      <section class="fc-card" id="home">
+        <div class="fc-card-head">
+          <div><span class="eyebrow">首页</span><h2>首屏与关键模块</h2><p>这些字段直接控制首页 DOM，不再需要改模板或重新编译文案。</p></div>
+          <span class="fc-badge">首页生效</span>
+        </div>
+
+        <div class="fc-subhead"><h3>Hero 首屏</h3><span>入口与展示</span></div>
+        <div class="fc-grid two">
+          <label class="toggle-row"><input type="checkbox" name="homeHeroVisible"><span><b>显示 Hero 首屏</b><small>关闭后整个首页首屏隐藏。</small></span></label>
+          <label class="toggle-row"><input type="checkbox" name="homeHeroPromisesVisible"><span><b>显示服务承诺</b><small>可靠手打 / 纯绿 / 业务编号说明。</small></span></label>
+          <label class="toggle-row"><input type="checkbox" name="homeHeroMediaVisible"><span><b>显示右侧推荐面板</b><small>桌面端热门服务展示。</small></span></label>
+          <div class="field"><label>Hero 上方短文案</label><input name="homeHeroKicker" maxlength="240"></div>
+          <div class="field"><label>主按钮文案</label><input name="homePrimaryCtaLabel" maxlength="120"></div>
+          <div class="field"><label>主按钮跳转</label><input name="homePrimaryCtaHref" maxlength="500" placeholder="#quick-actions"></div>
+          <label class="toggle-row"><input type="checkbox" name="homeSecondaryCtaVisible"><span><b>显示第二按钮</b><small>默认进入服务大厅。</small></span></label>
+          <div class="field"><label>第二按钮文案</label><input name="homeSecondaryCtaLabel" maxlength="120"></div>
+          <div class="field"><label>第二按钮跳转</label><input name="homeSecondaryCtaHref" maxlength="500"></div>
+          <label class="toggle-row"><input type="checkbox" name="homeProgressCtaVisible"><span><b>显示进度查询按钮</b><small>默认进入业务记录。</small></span></label>
+          <div class="field"><label>进度按钮文案</label><input name="homeProgressCtaLabel" maxlength="120"></div>
+          <div class="field"><label>进度按钮跳转</label><input name="homeProgressCtaHref" maxlength="500"></div>
+        </div>
+
+        <div class="fc-subhead"><h3>首页业务模块</h3><span>标题 + 显隐</span></div>
+        <div class="fc-grid two">
+          <label class="toggle-row"><input type="checkbox" name="homeQuotePanelVisible"><span><b>显示快速询价模块</b><small>关闭只隐藏首页表单，不关闭全站询价能力。</small></span></label>
+          <div class="field"><label>询价眉题</label><input name="homeQuoteEyebrow" maxlength="120"></div>
+          <div class="field"><label>询价标题</label><input name="homeQuoteTitle" maxlength="160"></div>
+          <label class="toggle-row"><input type="checkbox" name="homeRecordPanelVisible"><span><b>显示业务进度模块</b><small>关闭只隐藏首页查询卡片。</small></span></label>
+          <div class="field"><label>业务进度眉题</label><input name="homeRecordEyebrow" maxlength="120"></div>
+          <div class="field"><label>业务进度标题</label><input name="homeRecordTitle" maxlength="160"></div>
+          <label class="toggle-row"><input type="checkbox" name="homeGameEntryVisible"><span><b>显示游戏入口模块</b><small>主要用于移动端游戏入口。</small></span></label>
+          <div class="field"><label>游戏入口眉题</label><input name="homeGameEyebrow" maxlength="120"></div>
+          <div class="field"><label>游戏入口标题</label><input name="homeGameTitle" maxlength="160"></div>
+          <div class="field"><label>游戏入口链接文案</label><input name="homeGameLinkLabel" maxlength="120"></div>
+          <div class="field"><label>游戏入口链接</label><input name="homeGameLinkHref" maxlength="500"></div>
+          <label class="toggle-row"><input type="checkbox" name="homeWhyVisible"><span><b>显示“为什么选择星火”</b><small>控制信任说明模块。</small></span></label>
+          <div class="field"><label>信任模块眉题</label><input name="homeWhyEyebrow" maxlength="120"></div>
+          <div class="field"><label>信任模块标题</label><input name="homeWhyTitle" maxlength="160"></div>
+          <div class="field"><label>信任模块链接文案</label><input name="homeWhyLinkLabel" maxlength="120"></div>
+          <div class="field"><label>信任模块链接</label><input name="homeWhyLinkHref" maxlength="500"></div>
+        </div>
+      </section>
+
+      <section class="fc-card" id="theme">
+        <div class="fc-card-head">
+          <div><span class="eyebrow">Theme</span><h2>全站主题样式</h2><p>通过受控 CSS 变量调整，不允许直接写任意 CSS，确保手机端和后台配置后仍可恢复。</p></div>
+          <span class="fc-badge">安全变量</span>
+        </div>
+        <div class="fc-theme-preview" id="themePreview">
+          <span>主题预览</span><strong>星火前端</strong><button type="button">主按钮</button>
+        </div>
+        <div class="fc-grid two">
+          <div class="field color-field"><label>主强调色</label><div><input type="color" name="themeAccentColor"><output data-color-output="themeAccentColor"></output></div></div>
+          <div class="field color-field"><label>页面背景色</label><div><input type="color" name="themeBackgroundColor"><output data-color-output="themeBackgroundColor"></output></div></div>
+          <div class="field color-field"><label>卡片背景色</label><div><input type="color" name="themeSurfaceColor"><output data-color-output="themeSurfaceColor"></output></div></div>
+          <div class="field color-field"><label>主文字颜色</label><div><input type="color" name="themeTextColor"><output data-color-output="themeTextColor"></output></div></div>
+          <div class="field"><label>圆角（6–30 px）</label><input type="number" name="themeRadius" min="6" max="30"></div>
+          <div class="field"><label>内容最大宽度（960–1440 px）</label><input type="number" name="themeContentWidth" min="960" max="1440"></div>
+          <div class="field"><label>全站字体缩放（90–115%）</label><input type="number" name="themeFontScale" min="90" max="115"></div>
+          <label class="toggle-row"><input type="checkbox" name="motionEnabled"><span><b>启用前端动效</b><small>关闭后会压低动画和过渡，适合更稳的运营展示。</small></span></label>
+        </div>
+      </section>
+
+      <div class="fc-sticky-save">
+        <div><b>首页与主题配置</b><span id="frontendControlState">正在读取配置…</span></div>
+        <button class="btn primary" type="submit">保存首页与主题</button>
+      </div>
+    </form>
+
+    <section class="fc-card" id="existing">
+      <div class="fc-card-head">
+        <div><span class="eyebrow">已有能力</span><h2>继续在原后台维护的内容</h2><p>这些字段已经与前端深度联动，不在这里重复创建第二份数据。</p></div>
+        <a class="btn ghost" href="/admin">打开运营后台</a>
+      </div>
+      <div class="fc-existing-grid">
+        <article><b>首页内容</b><span>Hero 标题、副标题、起步价、信任标签</span></article>
+        <article><b>首页视觉</b><span>主图、背景图、透明度、焦点、裁切、模糊</span></article>
+        <article><b>客服与联系方式</b><span>微信、二维码、企微、淘宝、闲鱼、服务时间</span></article>
+        <article><b>信任与 FAQ</b><span>案例、常见问题、业务说明</span></article>
+        <article><b>服务项目</b><span>价格、上下架、封面、排序、游戏与需求分类</span></article>
+        <article><b>SEO 与运营状态</b><span>搜索标题、描述、游戏接单状态、按钮状态</span></article>
+      </div>
+    </section>
+  </main>
+  <div class="toast-area" id="toastArea" aria-live="polite"></div>
+</body>
+</html>

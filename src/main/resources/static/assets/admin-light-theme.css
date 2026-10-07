@@ -2,6 +2,15 @@
 body.admin-control-center-v2,
 body.admin-solid-ui,
 body.admin-login-ui{
+  --bg:#f4f6f8;
+  --surface:#ffffff;
+  --surface-2:#ffffff;
+  --surface-3:#f8fafc;
+  --text:#101828;
+  --muted:#667085;
+  --muted-2:#475467;
+  --border:#e2e8f0;
+  --shadow:0 16px 38px rgba(15,23,42,.08);
   color-scheme:light;
 }
 
@@ -39,7 +48,13 @@ body.admin-control-center-v2 .admin-brand .brand,
 body.admin-control-center-v2 .nav-section-toggle,
 body.admin-control-center-v2 .admin-v2-context strong,
 body.admin-control-center-v2 .right-rail-link,
-body.admin-control-center-v2 .kpi b{
+body.admin-control-center-v2 .kpi b,
+body.admin-control-center-v2 h1,
+body.admin-control-center-v2 h2,
+body.admin-control-center-v2 h3,
+body.admin-control-center-v2 label,
+body.admin-control-center-v2 strong,
+body.admin-control-center-v2 b{
   color:#101828!important;
 }
 body.admin-control-center-v2 .admin-brand .muted,
@@ -48,9 +63,12 @@ body.admin-control-center-v2 .sidebar .nav-item small,
 body.admin-control-center-v2 .right-rail-link small,
 body.admin-control-center-v2 .admin-v2-context small,
 body.admin-control-center-v2 .muted,
-body.admin-control-center-v2 .form-help{
+body.admin-control-center-v2 .form-help,
+body.admin-control-center-v2 small{
   color:#667085!important;
 }
+body.admin-control-center-v2 .eyebrow,
+body.admin-control-center-v2 .section-kicker{color:#8a6b16!important}
 body.admin-control-center-v2 .admin-v2-nav-search input,
 body.admin-control-center-v2 input,
 body.admin-control-center-v2 select,
@@ -101,7 +119,14 @@ body.admin-control-center-v2 .linkage-workspace,
 body.admin-control-center-v2 .game-center-filterbar,
 body.admin-control-center-v2 .config-group,
 body.admin-control-center-v2 .right-rail-card,
-body.admin-control-center-v2 .right-rail-stack{
+body.admin-control-center-v2 .right-rail-stack,
+body.admin-control-center-v2 .service-form-section,
+body.admin-control-center-v2 .tool-admin-block,
+body.admin-control-center-v2 .game-profile-identity,
+body.admin-control-center-v2 .tracking-card,
+body.admin-control-center-v2 .feedback-choice-grid,
+body.admin-control-center-v2 .toggle-row,
+body.admin-control-center-v2 details{
   border-color:var(--admin-line)!important;
   background:#fff!important;
   color:#101828!important;

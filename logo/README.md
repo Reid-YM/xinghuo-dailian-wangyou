@@ -50,11 +50,14 @@ logo/
 │   ├── favicon-16.png
 │   └── apple-touch-icon.png    180×180
 ├── concepts/                   5 个第一轮方向（设计过程存档）
-├── styles/                     另两套风格候选：B 字标主导、C 模块化四单元
-├── explorations/               过程渲染：方向、折面候选、尺寸测试、展示页截图
+├── styles/                     其他风格候选：B 字标主导、C 模块化、D 四级等级条（含 png/）
+├── promo/                      宣传图：4 个规格的 HTML 源 + 精确像素 PNG
+├── avatars/                    头像：8 款（png512 / png128）
+├── explorations/               过程渲染：方向、折面候选、尺寸测试、货架测试、展示页截图
 ├── showcase/index.html         品牌标志规范页（可直接双击打开）
 ├── tools/                      导出与截图脚本（Node）
 ├── DESIGN-PROCESS.md           设计流程：5 方向 → 评分 → TOP3 → v2 高级感重做
+├── PROMO-AND-AVATAR.md         非星星方向（Style D）+ 宣传图 + 头像说明
 └── README.md                   本文件
 ```
 

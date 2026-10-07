@@ -21,16 +21,17 @@
 ## AI 收到开发需求后必须自动完成
 
 1. 阅读根目录 `AGENTS.md`。
-2. 检查 `git status --short --branch`、当前分支和远程仓库。
-3. 确认仓库为 `Reid-YM/xinghuo-dailian-wangyou`。
-4. 若存在不明未提交修改，停止并报告，不覆盖现有工作。
-5. 若工作区干净，执行 `git fetch origin`，切换 `main`，并以 `git pull --ff-only origin main` 同步最新主线。
-6. 根据任务创建独立的 `feat/*`、`fix/*`、`refactor/*`、`docs/*` 或 `ci/*` 分支。
-7. 阅读相关代码和调用链后再修改，不猜测现有行为。
-8. 完成后执行必要测试，Java 常规改动至少执行 `mvn clean package`。
-9. 检查 `git diff`，提交并 Push 当前任务分支。
-10. 创建 Pull Request 到 `main`，等待 CI。
-11. 按 `AGENTS.md` 的交付格式汇报。
+2. 如果任务涉及 UI、布局、视觉、交互、响应式、前台可配置能力、Dashboard、表格、表单、列表或详情页，同时阅读 `docs/XINGHUO-UI-TASTE.md`，先确定页面主任务和 Visual Thesis，再开始修改。
+3. 检查 `git status --short --branch`、当前分支和远程仓库。
+4. 确认仓库为 `Reid-YM/xinghuo-dailian-wangyou`。
+5. 若存在不明未提交修改，停止并报告，不覆盖现有工作。
+6. 若工作区干净，执行 `git fetch origin`，切换 `main`，并以 `git pull --ff-only origin main` 同步最新主线。
+7. 根据任务创建独立的 `feat/*`、`fix/*`、`refactor/*`、`docs/*` 或 `ci/*` 分支。
+8. 阅读相关代码和调用链后再修改，不猜测现有行为。
+9. 完成后执行必要测试，Java 常规改动至少执行 `mvn clean package`。
+10. 检查 `git diff`，提交并 Push 当前任务分支。
+11. 创建 Pull Request 到 `main`，等待 CI。
+12. 按 `AGENTS.md` 的交付格式汇报；明显 UI 改版同时按 `docs/XINGHUO-UI-TASTE.md` 汇报 Visual Thesis、响应式与状态验证结果。
 
 ## 绝对不要自动做的事
 

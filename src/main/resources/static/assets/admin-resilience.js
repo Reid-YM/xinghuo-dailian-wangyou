@@ -26,6 +26,13 @@
       light.dataset.adminLightTheme = '1';
       document.head.appendChild(light);
     }
+    if (!$('link[data-admin-brand-layout-fixes]')) {
+      const brandFixes = document.createElement('link');
+      brandFixes.rel = 'stylesheet';
+      brandFixes.href = '/assets/admin-brand-layout-fixes.css?v=20261008b001';
+      brandFixes.dataset.adminBrandLayoutFixes = '1';
+      document.head.appendChild(brandFixes);
+    }
     if (!$('script[data-admin-control-center-v2]')) {
       const script = document.createElement('script');
       script.src = '/assets/admin-control-center-v2.js?v=20261007a004';

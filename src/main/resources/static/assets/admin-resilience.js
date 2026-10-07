@@ -15,7 +15,7 @@
     if (!$('link[data-admin-light-theme]')) {
       const light = document.createElement('link');
       light.rel = 'stylesheet';
-      light.href = '/assets/admin-light-theme.css?v=20261007l001';
+      light.href = '/assets/admin-light-theme.css?v=20261007l002';
       light.dataset.adminLightTheme = '1';
       document.head.appendChild(light);
     }

@@ -87,16 +87,54 @@ class AdminControlCenterV2PlaywrightTest {
     }
 
     @Test
+    void completeWhiteThemeOverridesLegacyNestedDarkSurfaces() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setContent("""
+                    <body class="admin-control-center-v2">
+                      <main class="admin-main">
+                        <section data-panel="dashboard">
+                          <div class="game-kpi">游戏指标</div>
+                          <div class="game-library-panel">游戏资料</div>
+                          <div class="admin-contact-channel">客服配置</div>
+                          <div class="tool-image-preview">图片预览</div>
+                          <div class="tracking-funnel">转化漏斗</div>
+                          <label class="toggle-row">开关</label>
+                          <div class="game-profile-modal"><div class="modal-head">资料弹窗标题</div></div>
+                        </section>
+                      </main>
+                    </body>
+                    """);
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("app.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-control-center-v2.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-light-theme.css")));
+
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.game-kpi')).backgroundColor"));
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.game-library-panel')).backgroundColor"));
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.admin-contact-channel')).backgroundColor"));
+            assertEquals("rgb(248, 250, 252)", page.evaluate("() => getComputedStyle(document.querySelector('.tool-image-preview')).backgroundColor"));
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.tracking-funnel')).backgroundColor"));
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.toggle-row')).backgroundColor"));
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.modal-head')).backgroundColor"));
+            assertEquals("rgba(0, 0, 0, 0)", page.evaluate("() => getComputedStyle(document.querySelector('[data-panel=dashboard]')).backgroundColor"));
+            assertEquals("none", page.evaluate("() => getComputedStyle(document.body, '::after').display"));
+        }
+    }
+
+    @Test
     void resilienceLoadsControlCenterAssetsAndWhiteThemeStaysAdminScoped() throws Exception {
         String resilience = Files.readString(ASSETS.resolve("admin-resilience.js"));
         String css = Files.readString(ASSETS.resolve("admin-control-center-v2.css"));
         String light = Files.readString(ASSETS.resolve("admin-light-theme.css"));
         assertTrue(resilience.contains("/assets/admin-control-center-v2.js?v=20261007a002"));
         assertTrue(resilience.contains("/assets/admin-control-center-v2.css?v=20261007a002"));
-        assertTrue(resilience.contains("/assets/admin-light-theme.css?v=20261007l001"));
+        assertTrue(resilience.contains("/assets/admin-light-theme.css?v=20261007l002"));
         assertTrue(css.contains("body.admin-control-center-v2 .admin-shell-with-rail"));
         assertTrue(css.contains("body.admin-control-center-v2 .table-wrap"));
         assertTrue(light.contains("body.admin-control-center-v2"));
+        assertTrue(light.contains("--ui-bg:#f4f6f8"));
+        assertTrue(light.contains("body.admin-control-center-v2 .game-kpi"));
+        assertTrue(light.contains("body.admin-control-center-v2 .tool-image-preview"));
         assertTrue(light.contains("background:#f4f6f8!important"));
         assertTrue(light.contains("body.admin-login-ui"));
     }

@@ -29,6 +29,12 @@ class AdminControlCenterV2PlaywrightTest {
                               <button class="nav-item active" data-nav="dashboard"><span>运营总览</span><small>数据</small></button>
                               <button class="nav-item" data-nav="orders"><span>履约订单</span><small>进度</small></button>
                             </div></div>
+                            <div class="nav-section">
+                              <button data-nav-group="site" type="button"><span>站点运营</span></button>
+                              <div class="nav-section-items">
+                                <button class="nav-item" data-nav="config"><span>站点配置</span></button>
+                              </div>
+                            </div>
                           </nav>
                         </aside>
                         <main class="admin-main">
@@ -45,6 +51,9 @@ class AdminControlCenterV2PlaywrightTest {
             assertEquals(1, page.locator("#adminV2Topbar").count());
             assertEquals("今日概览", page.locator("#adminV2CurrentTitle").textContent());
             assertEquals(1, page.locator("#adminV2NavSearch").count());
+            assertEquals(1, page.locator(".admin-workspace-nav a[href='/admin/frontend-controls']").count());
+            assertEquals("前端控制中心", page.locator(".admin-workspace-nav a[href='/admin/frontend-controls'] span").textContent());
+            assertEquals(1, page.locator("#adminV2Topbar a[href='/admin/frontend-controls']").count());
 
             page.evaluate("""
                     () => {
@@ -122,11 +131,31 @@ class AdminControlCenterV2PlaywrightTest {
     }
 
     @Test
+    void frontendControlCenterUsesLightAdminSurface() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setContent("""
+                    <body class="frontend-control-admin">
+                      <header class="fc-topbar"><div class="fc-topbar-inner">顶部</div></header>
+                      <main class="fc-shell">
+                        <section class="fc-card"><div class="field"><label>字段</label><input value="内容"></div></section>
+                      </main>
+                    </body>
+                    """);
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-frontend-controls.css")));
+
+            assertEquals("rgb(244, 246, 248)", page.evaluate("() => getComputedStyle(document.body).backgroundColor"));
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.fc-card')).backgroundColor"));
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.fc-card input')).backgroundColor"));
+        }
+    }
+
+    @Test
     void resilienceLoadsControlCenterAssetsAndWhiteThemeStaysAdminScoped() throws Exception {
         String resilience = Files.readString(ASSETS.resolve("admin-resilience.js"));
         String css = Files.readString(ASSETS.resolve("admin-control-center-v2.css"));
         String light = Files.readString(ASSETS.resolve("admin-light-theme.css"));
-        assertTrue(resilience.contains("/assets/admin-control-center-v2.js?v=20261007a002"));
+        assertTrue(resilience.contains("/assets/admin-control-center-v2.js?v=20261007a003"));
         assertTrue(resilience.contains("/assets/admin-control-center-v2.css?v=20261007a002"));
         assertTrue(resilience.contains("/assets/admin-light-theme.css?v=20261007l002"));
         assertTrue(css.contains("body.admin-control-center-v2 .admin-shell-with-rail"));

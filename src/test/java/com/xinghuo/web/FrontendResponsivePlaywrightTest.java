@@ -27,8 +27,7 @@ class FrontendResponsivePlaywrightTest {
                     () -> "24-inch desktop canvas collapsed to " + containerWidth + "px");
             assertNoHorizontalOverflow(page, "Chromium 1920 desktop");
             assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
-            assertEquals(4, number(page,
-                    "getComputedStyle(document.querySelector('.service-browser-grid')).gridTemplateColumns.split(' ').filter(Boolean).length").intValue());
+            assertFourColumnServiceGrid(page);
         }
     }
 
@@ -78,6 +77,8 @@ class FrontendResponsivePlaywrightTest {
         assertTrue(css.contains("var(--accent"));
         assertTrue(css.contains("var(--surface-2"));
         assertTrue(css.contains("-webkit-backdrop-filter:none!important"));
+        assertTrue(css.contains(".service-browser-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}"),
+                "desktop service browser must keep the explicit four-column experience contract");
 
         assertTrue(!fragment.contains("site-shell.css"),
                 "retired legacy shell must not compete with the rewritten public experience layer");
@@ -88,6 +89,41 @@ class FrontendResponsivePlaywrightTest {
         int runtime = fragment.indexOf("frontend-controls-runtime.js");
         assertTrue(experience >= 0, "rewritten experience stylesheet must load globally");
         assertTrue(runtime > experience, "runtime frontend controls must remain able to override theme variables");
+    }
+
+    private static void assertFourColumnServiceGrid(Page page) {
+        Number cardCount = number(page,
+                "document.querySelectorAll('.service-browser-grid > .service-card').length");
+        assertEquals(4, cardCount.intValue(), "desktop regression fixture must contain four service cards");
+
+        Number cardsOnFirstRow = number(page, """
+                (() => {
+                  const cards = Array.from(document.querySelectorAll('.service-browser-grid > .service-card'));
+                  const top = cards[0].getBoundingClientRect().top;
+                  return cards.filter(card => Math.abs(card.getBoundingClientRect().top - top) < 1).length;
+                })()
+                """);
+        assertEquals(4, cardsOnFirstRow.intValue(),
+                "1920 desktop must render all four service cards on one row");
+
+        Number gridWidth = number(page,
+                "document.querySelector('.service-browser-grid').getBoundingClientRect().width");
+        Number firstCardWidth = number(page,
+                "document.querySelector('.service-browser-grid > .service-card').getBoundingClientRect().width");
+        assertTrue(firstCardWidth.doubleValue() >= gridWidth.doubleValue() / 4.5,
+                () -> "service cards collapsed below a real four-column width: grid=" + gridWidth
+                        + "px, firstCard=" + firstCardWidth + "px");
+
+        Number trailingGap = number(page, """
+                (() => {
+                  const grid = document.querySelector('.service-browser-grid').getBoundingClientRect();
+                  const cards = document.querySelectorAll('.service-browser-grid > .service-card');
+                  const last = cards[cards.length - 1].getBoundingClientRect();
+                  return grid.right - last.right;
+                })()
+                """);
+        assertTrue(Math.abs(trailingGap.doubleValue()) <= 2.0,
+                () -> "four service cards did not occupy the full desktop grid; trailing gap=" + trailingGap + "px");
     }
 
     private static void assertMobileContract(Browser browser, int width, int height, String userAgent, String label) {

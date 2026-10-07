@@ -5,6 +5,16 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
+  function ensureBrandLayoutFixes() {
+    if (document.querySelector('link[data-admin-brand-layout-fixes]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/assets/admin-brand-layout-fixes.css?v=20261008b001';
+    link.dataset.adminBrandLayoutFixes = '1';
+    document.head.appendChild(link);
+  }
+  ensureBrandLayoutFixes();
+
   async function api(url, options = {}) {
     const method = String(options.method || 'GET').toUpperCase();
     const headers = { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) };

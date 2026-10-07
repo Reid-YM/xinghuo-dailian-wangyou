@@ -187,6 +187,22 @@ body.admin-control-center-v2 #orderForm::-webkit-scrollbar-track{background:#f1f
 body.admin-control-center-v2 ::-webkit-scrollbar-thumb{background:#cbd5e1!important;border-color:#f8fafc!important}
 body.admin-control-center-v2 ::-webkit-scrollbar-track{background:#f1f5f9!important}
 
+/* 长页面滚动时，左侧/右侧轨道由 shell 持续铺底，避免 legacy 深色 body/sidebar 在 sticky 边界露出。 */
+body.admin-control-center-v2 .admin-shell-with-rail{
+  min-height:100vh;
+  min-height:100dvh;
+  background:linear-gradient(90deg,#fff 0 252px,#f4f6f8 252px calc(100% - 224px),#fff calc(100% - 224px) 100%)!important;
+}
+body.admin-control-center-v2 .admin-main{overflow:visible!important}
+body.admin-control-center-v2 .sidebar,
+body.admin-control-center-v2 .admin-right-rail{
+  min-height:100vh;
+  min-height:100dvh;
+  height:100vh;
+  height:100dvh;
+  background:#fff!important;
+}
+
 /* 攻略后台 */
 body.admin-solid-ui{background:#f4f6f8!important;color:#101828!important}
 body.admin-solid-ui .guide-admin-top{
@@ -222,7 +238,19 @@ body.admin-login-ui input{
 body.admin-login-ui input:focus{outline:0!important;border-color:#c9a12c!important;box-shadow:0 0 0 3px rgba(214,169,31,.12)!important}
 body.admin-login-ui .btn.primary{border-color:#c79521!important;background:#f4bd34!important;color:#17130a!important}
 
+@media(max-width:1360px){
+  body.admin-control-center-v2 .admin-shell-with-rail{
+    background:linear-gradient(90deg,#fff 0 244px,#f4f6f8 244px 100%)!important;
+  }
+}
 @media(max-width:980px){
-  body.admin-control-center-v2 .sidebar{box-shadow:26px 0 70px rgba(15,23,42,.18)!important}
+  body.admin-control-center-v2 .admin-shell-with-rail{background:#f4f6f8!important}
+  body.admin-control-center-v2 .sidebar{
+    min-height:100vh;
+    min-height:100dvh;
+    height:100vh;
+    height:100dvh;
+    box-shadow:26px 0 70px rgba(15,23,42,.18)!important
+  }
   body.admin-control-center-v2 .admin-v2-backdrop{background:rgba(15,23,42,.30)!important}
 }

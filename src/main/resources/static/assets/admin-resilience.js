@@ -21,7 +21,7 @@
     }
     if (!$('script[data-admin-control-center-v2]')) {
       const script = document.createElement('script');
-      script.src = '/assets/admin-control-center-v2.js?v=20261007a002';
+      script.src = '/assets/admin-control-center-v2.js?v=20261007a003';
       script.dataset.adminControlCenterV2 = '1';
       document.head.appendChild(script);
     }

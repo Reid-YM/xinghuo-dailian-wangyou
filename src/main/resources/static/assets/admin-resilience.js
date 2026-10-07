@@ -4,6 +4,22 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
+  function loadControlCenterV2() {
+    if (!$('link[data-admin-control-center-v2]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/assets/admin-control-center-v2.css?v=20261007a001';
+      link.dataset.adminControlCenterV2 = '1';
+      document.head.appendChild(link);
+    }
+    if (!$('script[data-admin-control-center-v2]')) {
+      const script = document.createElement('script');
+      script.src = '/assets/admin-control-center-v2.js?v=20261007a001';
+      script.dataset.adminControlCenterV2 = '1';
+      document.head.appendChild(script);
+    }
+  }
+
   function injectStyles() {
     if ($('#adminResilienceStyles')) return;
     const style = document.createElement('style');
@@ -107,6 +123,7 @@
     showPanelError(event.error?.message || event.message || '后台脚本执行失败');
   });
 
+  loadControlCenterV2();
   injectStyles();
   watchErrorToasts();
   if (document.readyState === 'loading') {

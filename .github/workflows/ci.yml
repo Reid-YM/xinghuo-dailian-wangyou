@@ -96,9 +96,9 @@ jobs:
           retention-days: 30
 
   frontend-ui:
-    name: Chromium UI Regression
+    name: Chromium + WebKit UI Regression
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository
@@ -114,12 +114,12 @@ jobs:
       - name: Compile UI regression tests
         run: mvn -B -ntp -DskipTests test-compile
 
-      - name: Install Playwright Chromium
+      - name: Install Playwright Chromium and WebKit
         run: >-
           mvn -B -ntp org.codehaus.mojo:exec-maven-plugin:3.6.2:java
           -Dexec.mainClass=com.microsoft.playwright.CLI
           -Dexec.classpathScope=test
-          -Dexec.args="install --with-deps chromium"
+          -Dexec.args="install --with-deps chromium webkit"
 
       - name: Run all browser interaction regression tests
         env:

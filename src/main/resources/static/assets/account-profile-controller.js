@@ -34,6 +34,15 @@
     return (name || '星').slice(0, 1);
   }
 
+  function fallbackAvatarImage(image) {
+    const host = image?.closest?.('.account-avatar');
+    if (!host || !host.contains(image)) return;
+    const fallback = document.createElement('span');
+    fallback.className = 'account-avatar-fallback';
+    fallback.textContent = host.dataset.avatarInitial || '星';
+    host.replaceChildren(fallback);
+  }
+
   function renderAvatar(host, profile, previewUrl = '') {
     if (!host) return;
     const initial = initialOf(profile);
@@ -52,15 +61,17 @@
     image.alt = '';
     image.loading = 'lazy';
     image.decoding = 'async';
-    image.addEventListener('error', () => {
-      if (!host.contains(image)) return;
-      const fallback = document.createElement('span');
-      fallback.className = 'account-avatar-fallback';
-      fallback.textContent = host.dataset.avatarInitial || '星';
-      host.replaceChildren(fallback);
-    }, { once: true });
+    image.addEventListener('error', () => fallbackAvatarImage(image), { once: true });
     host.appendChild(image);
   }
+
+  // 账号页还有其他渲染器会刷新头像 DOM。图片 error 不冒泡，因此用捕获阶段
+  // 统一兜底，避免后写入的失效 avatarUrl 留下破图。
+  document.addEventListener('error', (event) => {
+    if (event.target instanceof HTMLImageElement && event.target.closest('.account-avatar')) {
+      fallbackAvatarImage(event.target);
+    }
+  }, true);
 
   async function api(url, options = {}) {
     const method = String(options.method || 'GET').toUpperCase();

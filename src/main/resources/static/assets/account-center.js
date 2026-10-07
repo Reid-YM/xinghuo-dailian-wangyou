@@ -49,8 +49,8 @@
     const root = $('[data-settings-hub]'); if (!root) return;
     const map = { profile:'profile', contact:'contact', quotecontact:'contact', security:'security', password:'security', email:'security', devices:'security', activity:'security', session:'security' };
     const activate = raw => {
-      const key = String(raw || 'security').replace(/^#/,'').toLowerCase();
-      const view = map[key] || 'security';
+      const key = String(raw || 'profile').replace(/^#/,'').toLowerCase();
+      const view = map[key] || 'profile';
       $$('[data-settings-view]', root).forEach(p => { p.hidden = p.dataset.settingsView !== view; });
       $$('[data-settings-target]', root).forEach(a => a.classList.toggle('is-active', a.dataset.settingsTarget === view));
       if (['password','email','devices','activity','session'].includes(key)) window.setTimeout(() => document.getElementById(key)?.scrollIntoView({ block:'start' }), 0);

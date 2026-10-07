@@ -67,6 +67,60 @@ class AdminControlCenterV2PlaywrightTest {
     }
 
     @Test
+    void controlCenterRecoversDashboardWhenEveryPanelBecomesHidden() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setContent("""
+                    <body class="admin-solid-ui">
+                      <div class="admin-shell admin-shell-with-rail">
+                        <aside class="sidebar">
+                          <div class="admin-brand"><b>星火后台</b></div>
+                          <nav class="admin-workspace-nav">
+                            <div class="nav-section"><div class="nav-section-items">
+                              <button class="nav-item active" data-nav="dashboard"><span>运营总览</span></button>
+                              <button class="nav-item" data-nav="orders"><span>履约订单</span></button>
+                            </div></div>
+                          </nav>
+                        </aside>
+                        <main class="admin-main">
+                          <section data-panel="dashboard"><div class="admin-toolbar"><h1>今日概览</h1></div></section>
+                          <section class="hidden" data-panel="orders"><div class="admin-toolbar"><h1>履约订单</h1></div></section>
+                        </main>
+                      </div>
+                    </body>
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-control-center-v2.js")));
+
+            page.evaluate("() => document.querySelectorAll('[data-panel]').forEach(panel => panel.classList.add('hidden'))");
+            page.waitForFunction("() => !document.querySelector('[data-panel=dashboard]').classList.contains('hidden')");
+
+            assertEquals(Boolean.FALSE, page.evaluate("() => document.querySelector('[data-panel=dashboard]').classList.contains('hidden')"));
+            assertTrue((Boolean) page.evaluate("() => document.querySelector('[data-nav=dashboard]').classList.contains('active')"));
+            page.waitForFunction("() => document.querySelector('#adminV2CurrentTitle')?.textContent === '今日概览'");
+            assertEquals("今日概览", page.locator("#adminV2CurrentTitle").textContent());
+        }
+    }
+
+    @Test
+    void controlCenterDoesNotMutateStandaloneAdminPages() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setContent("""
+                    <body class="admin-solid-ui">
+                      <header class="guide-admin-top">攻略后台</header>
+                      <main class="guide-admin-main"><section>攻略内容</section></main>
+                    </body>
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-control-center-v2.js")));
+
+            assertTrue((Boolean) page.evaluate("() => document.body.classList.contains('admin-solid-ui')"));
+            assertEquals(Boolean.FALSE, page.evaluate("() => document.body.classList.contains('admin-control-center-v2')"));
+            assertEquals(0, page.locator("#adminV2Topbar").count());
+            assertEquals(0, page.locator("link[data-admin-control-center-v2]").count());
+        }
+    }
+
+    @Test
     void navigationSearchFiltersItemsWithoutRemovingBusinessContracts() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
@@ -155,9 +209,11 @@ class AdminControlCenterV2PlaywrightTest {
         String resilience = Files.readString(ASSETS.resolve("admin-resilience.js"));
         String css = Files.readString(ASSETS.resolve("admin-control-center-v2.css"));
         String light = Files.readString(ASSETS.resolve("admin-light-theme.css"));
-        assertTrue(resilience.contains("/assets/admin-control-center-v2.js?v=20261007a003"));
+        assertTrue(resilience.contains("/assets/admin-control-center-v2.js?v=20261007a004"));
         assertTrue(resilience.contains("/assets/admin-control-center-v2.css?v=20261007a002"));
         assertTrue(resilience.contains("/assets/admin-light-theme.css?v=20261007l002"));
+        assertTrue(resilience.contains("restoreVisiblePanel"));
+        assertTrue(resilience.contains("hasControlCenter"));
         assertTrue(css.contains("body.admin-control-center-v2 .admin-shell-with-rail"));
         assertTrue(css.contains("body.admin-control-center-v2 .table-wrap"));
         assertTrue(light.contains("body.admin-control-center-v2"));

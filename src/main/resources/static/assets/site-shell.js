@@ -10,7 +10,16 @@
     link.href = '/contact';
     link.setAttribute('aria-label', '联系客服');
     link.setAttribute('data-global-visible', 'navContactVisible');
-    link.innerHTML = '<span class="floating-customer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><use href="/assets/icons.svg#i-support"></use></svg></span><span class="floating-customer-service-text">联系客服</span>';
+    link.innerHTML = '<span class="floating-customer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><use href="/assets/icons.svg#i-support"></use></svg></span><span class="floating-customer-service-text">联系客服</span>';
+    link.style.setProperty('background', '#07c160', 'important');
+    link.style.setProperty('color', '#fff', 'important');
+    link.style.setProperty('border-color', 'rgba(7,193,96,.62)', 'important');
+    link.style.setProperty('box-shadow', '0 14px 34px rgba(0,0,0,.28), 0 8px 24px rgba(7,193,96,.20)', 'important');
+    const icon = link.querySelector('.floating-customer-service-icon');
+    if (icon) {
+      icon.style.setProperty('background', '#05984b', 'important');
+      icon.style.setProperty('color', '#fff', 'important');
+    }
     document.body.appendChild(link);
   }
 

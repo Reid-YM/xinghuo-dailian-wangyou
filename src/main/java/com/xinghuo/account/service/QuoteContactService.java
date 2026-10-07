@@ -168,9 +168,14 @@ public class QuoteContactService {
         String value = raw == null ? "" : raw.trim().toUpperCase(java.util.Locale.ROOT);
         try {
             Account.ContactType type = Account.ContactType.valueOf(value);
-            return type == Account.ContactType.EMAIL ? null : type;
+            if (type == Account.ContactType.EMAIL) {
+                throw AccountException.badRequest("QUOTE_CONTACT_INVALID_TYPE",
+                        "只支持手机号 / 微信号 / QQ 号");
+            }
+            return type;
         } catch (IllegalArgumentException e) {
-            return null;
+            throw AccountException.badRequest("QUOTE_CONTACT_INVALID_TYPE",
+                    "只支持手机号 / 微信号 / QQ 号");
         }
     }
 

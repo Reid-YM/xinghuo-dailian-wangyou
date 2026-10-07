@@ -13,8 +13,10 @@ class FrontendStyleLayerContractTest {
     @Test
     void sharedSiteUsesSingleAuthoritativeExperienceLayer() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
-        assertTrue(site.contains("/assets/site-experience-v2.css?v=20261007ux03"));
+        assertTrue(site.contains("/assets/site-experience-v4.css?v=20261007ux04"));
+        assertTrue(site.contains("data-experience-shell=\"v4\""));
         assertTrue(site.contains("/assets/site-shell.js?v=20261007ss02"));
+        assertFalse(site.contains("site-experience-v2.css"));
         assertFalse(site.contains("site-shell.css"));
         assertFalse(site.contains("site-surface-refine.css"));
         assertFalse(site.contains("site-surface-refine.js"));
@@ -32,15 +34,20 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
-    void experienceLayerOwnsZIndexFloatingSupportAndSecurityLayout() throws Exception {
-        String css = Files.readString(MAIN.resolve("resources/static/assets/site-experience-v2.css"));
+    void experienceLayerOwnsBrandToWorkspaceContrastAndOperationalStates() throws Exception {
+        String css = Files.readString(MAIN.resolve("resources/static/assets/site-experience-v4.css"));
         String js = Files.readString(MAIN.resolve("resources/static/assets/site-shell.js"));
         assertTrue(css.contains("--xh-z-header:40"));
         assertTrue(css.contains("--xh-z-floating:70"));
         assertTrue(css.contains("--xh-z-modal:100"));
         assertTrue(css.contains("--xh-z-toast:120"));
+        assertTrue(css.contains("--xh-dark:#0b0c0f"));
+        assertTrue(css.contains("--xh-canvas:#f1f2f4"));
+        assertTrue(css.contains("background:var(--xh-canvas)!important"));
+        assertTrue(css.contains(".hero.hero-r3"));
+        assertTrue(css.contains("background:var(--xh-dark)!important"));
         assertTrue(css.contains(".floating-customer-service"));
-        assertTrue(css.contains(".account-settings-view[data-settings-view=\"security\"]"));
+        assertTrue(css.contains(".account-center-page"));
         assertTrue(js.contains("floatingCustomerService"));
         assertTrue(js.contains("href = '/contact'"));
     }

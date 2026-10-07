@@ -58,35 +58,47 @@ jobs:
                 exit 1
               }
 
-              main_sha=$(curl -fsSL \
-                -H "Authorization: Bearer ${GH_TOKEN}" \
-                -H "Accept: application/vnd.github+json" \
-                -H "X-GitHub-Api-Version: 2022-11-28" \
-                "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" \
-                | jq -r '.object.sha')
-
               parent_count=$(git rev-list --parents -n 1 "${GITHUB_SHA}" | wc -w)
               [ "${parent_count}" -eq 2 ] || {
-                echo "::error::Production deployment blocked: deploy request must have exactly one parent."
+                echo "::error::Production deployment blocked: deploy request must be a normal one-parent commit."
                 exit 1
               }
 
               request_parent=$(git rev-parse "${GITHUB_SHA}^")
-              [ "${request_parent}" = "${main_sha}" ] || {
-                echo "::error::Production deployment blocked: deploy request must be created directly on current main."
-                echo "request parent: ${request_parent}"
-                echo "main: ${main_sha}"
-                exit 1
-              }
-
-              changed_files=$(git diff --name-only "${main_sha}" "${GITHUB_SHA}")
+              changed_files=$(git diff --name-only "${request_parent}" "${GITHUB_SHA}")
               [ "${changed_files}" = ".deploy-request" ] || {
                 echo "::error::Production deployment blocked: request commit may only change .deploy-request."
                 printf 'Changed files:\n%s\n' "${changed_files}"
                 exit 1
               }
 
-              deploy_sha="${main_sha}"
+              [ -f .deploy-request ] || {
+                echo "::error::Production deployment blocked: .deploy-request is missing."
+                exit 1
+              }
+              deploy_sha_count=$(grep -c '^deploy_sha=' .deploy-request || true)
+              [ "${deploy_sha_count}" -eq 1 ] || {
+                echo "::error::Production deployment blocked: .deploy-request must contain exactly one deploy_sha entry."
+                exit 1
+              }
+              deploy_sha=$(sed -n 's/^deploy_sha=//p' .deploy-request | head -n 1 | tr -d '[:space:]')
+              [[ "${deploy_sha}" =~ ^[0-9a-f]{40}$ ]] || {
+                echo "::error::Production deployment blocked: invalid deploy_sha in .deploy-request."
+                exit 1
+              }
+
+              main_sha=$(curl -fsSL \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/heads/main" \
+                | jq -r '.object.sha')
+              [ "${deploy_sha}" = "${main_sha}" ] || {
+                echo "::error::Production deployment blocked: deploy_sha must equal current main."
+                echo "request target: ${deploy_sha}"
+                echo "main: ${main_sha}"
+                exit 1
+              }
               ;;
             *)
               echo "Unsupported production deploy event: ${GITHUB_EVENT_NAME}"

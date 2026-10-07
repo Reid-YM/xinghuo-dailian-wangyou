@@ -1,6 +1,21 @@
 (() => {
   const getBar = () => document.getElementById('announcementBar');
+  const brandLogoHref = '/assets/brand-logo.svg?v=20261008logo01';
   let frame = 0;
+
+  function ensureBrandAssets() {
+    if (!document.head) return;
+    let icon = document.head.querySelector('link[data-xh-brand-favicon]');
+    if (!icon) {
+      icon = document.createElement('link');
+      icon.rel = 'icon';
+      icon.type = 'image/svg+xml';
+      icon.setAttribute('sizes', 'any');
+      icon.setAttribute('data-xh-brand-favicon', 'true');
+      document.head.appendChild(icon);
+    }
+    icon.href = brandLogoHref;
+  }
 
   function ensureFloatingSupport() {
     if (document.getElementById('floatingCustomerService')) return;
@@ -61,6 +76,7 @@
   }
 
   function start() {
+    ensureBrandAssets();
     ensureFloatingSupport();
     const bar = getBar();
     if (!bar) return;

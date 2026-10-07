@@ -14,7 +14,7 @@ class FrontendStyleLayerContractTest {
     void sharedSiteUsesSingleAuthoritativeExperienceLayer() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
         assertTrue(site.contains("/assets/site-experience-v2.css?v=20261007ux03"));
-        assertTrue(site.contains("/assets/site-shell.js?v=20261007ss02"));
+        assertTrue(site.contains("/assets/site-shell.js?v=20261008ss03"));
         assertFalse(site.contains("site-shell.css"));
         assertFalse(site.contains("site-surface-refine.css"));
         assertFalse(site.contains("site-surface-refine.js"));
@@ -43,5 +43,7 @@ class FrontendStyleLayerContractTest {
         assertTrue(css.contains(".account-settings-view[data-settings-view=\"security\"]"));
         assertTrue(js.contains("floatingCustomerService"));
         assertTrue(js.contains("href = '/contact'"));
+        assertTrue(js.contains("#07c160"));
+        assertTrue(js.contains("/assets/icons.svg#i-support"));
     }
 }

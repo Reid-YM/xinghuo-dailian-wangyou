@@ -81,6 +81,9 @@ class FrontendResponsivePlaywrightTest {
 
         assertTrue(!fragment.contains("site-shell.css"),
                 "retired legacy shell must not compete with the rewritten public experience layer");
+        assertTrue(fragment.contains("data-experience-shell=\"v3\""));
+        assertTrue(fragment.contains("backdrop-filter:none!important;transition:none!important"),
+                "public v3 header must quarantine legacy blur transitions at the shell boundary");
         int experience = fragment.indexOf("site-experience-v2.css?v=20261007ux03");
         int runtime = fragment.indexOf("frontend-controls-runtime.js");
         assertTrue(experience >= 0, "rewritten experience stylesheet must load globally");
@@ -127,7 +130,7 @@ class FrontendResponsivePlaywrightTest {
     private static void renderPublicShell(Page page) {
         page.setContent("""
                 <body data-page="home">
-                  <header class="site-header">
+                  <header class="site-header" data-experience-shell="v3" style="-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important">
                     <div class="container topbar">
                       <a class="brand brand-mark"><span class="brand-dot"></span><span>星火网游代练平台</span></a>
                       <nav class="nav"><a>服务</a><a>攻略</a><a>工具站</a><a class="btn primary desktop-keep">提前询价</a></nav>

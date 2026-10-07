@@ -214,6 +214,36 @@ class AdminControlCenterV2PlaywrightTest {
     }
 
     @Test
+    void longAdminPageKeepsLightRailsThroughDocumentScroll() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setViewportSize(1440, 720);
+            page.setContent("""
+                    <body class="admin-control-center-v2">
+                      <div class="admin-shell admin-shell-with-rail">
+                        <aside class="sidebar"><div class="admin-brand"><b>星火后台</b></div></aside>
+                        <main class="admin-main">
+                          <section data-panel="dashboard" style="min-height:2200px"><h1>长页面</h1></section>
+                        </main>
+                        <aside class="admin-right-rail"><div class="right-rail-card">辅助区</div></aside>
+                      </div>
+                    </body>
+                    """);
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("app.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-control-center-v2.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-light-theme.css")));
+
+            assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollHeight > innerHeight * 2"));
+            assertEquals("visible", page.evaluate("() => getComputedStyle(document.querySelector('.admin-main')).overflow"));
+            assertTrue(((String) page.evaluate("() => getComputedStyle(document.querySelector('.admin-shell-with-rail')).backgroundImage")).contains("linear-gradient"));
+
+            page.evaluate("() => scrollTo(0, document.documentElement.scrollHeight)");
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.sidebar')).backgroundColor"));
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.admin-right-rail')).backgroundColor"));
+        }
+    }
+
+    @Test
     void frontendControlCenterUsesLightAdminSurface() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
@@ -240,7 +270,7 @@ class AdminControlCenterV2PlaywrightTest {
         String light = Files.readString(ASSETS.resolve("admin-light-theme.css"));
         assertTrue(resilience.contains("/assets/admin-control-center-v2.js?v=20261007a004"));
         assertTrue(resilience.contains("/assets/admin-control-center-v2.css?v=20261007a005"));
-        assertTrue(resilience.contains("/assets/admin-light-theme.css?v=20261007l003"));
+        assertTrue(resilience.contains("/assets/admin-light-theme.css?v=20261007l004"));
         assertTrue(resilience.contains("restoreVisiblePanel"));
         assertTrue(resilience.contains("hasControlCenter"));
         assertTrue(css.contains("body.admin-control-center-v2 .admin-shell-with-rail"));
@@ -251,6 +281,8 @@ class AdminControlCenterV2PlaywrightTest {
         assertTrue(light.contains("body.admin-control-center-v2 .game-kpi"));
         assertTrue(light.contains("body.admin-control-center-v2 .tool-image-preview"));
         assertTrue(light.contains("background:#f4f6f8!important"));
+        assertTrue(light.contains("overflow:visible!important"));
+        assertTrue(light.contains("linear-gradient(90deg,#fff 0 252px"));
         assertTrue(light.contains("body.admin-login-ui"));
     }
 }

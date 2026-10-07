@@ -11,13 +11,33 @@ class FrontendStyleLayerContractTest {
     private static final Path MAIN = Path.of("src/main");
 
     @Test
-    void sharedSiteUsesSingleAuthoritativeExperienceLayer() throws Exception {
+    void sharedSiteUsesAuthoritativeExperienceLayerWithLegacyQuarantine() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
-        assertTrue(site.contains("/assets/site-experience-v2.css?v=20261007ux03"));
+        String experience = "/assets/site-experience-v4.css?v=20261007ux04";
+        String quarantine = "/assets/site-experience-v4-legacy-quarantine.css?v=20261007q001";
+        assertTrue(site.contains(experience));
+        assertTrue(site.contains(quarantine));
+        assertTrue(site.indexOf(quarantine) > site.indexOf(experience));
+        assertTrue(site.contains("data-experience-shell=\"v4\""));
         assertTrue(site.contains("/assets/site-shell.js?v=20261007ss02"));
+        assertFalse(site.contains("site-experience-v2.css"));
         assertFalse(site.contains("site-shell.css"));
         assertFalse(site.contains("site-surface-refine.css"));
         assertFalse(site.contains("site-surface-refine.js"));
+    }
+
+    @Test
+    void legacyQuarantineOnlyRestoresV4ContractAgainstHistoricalImportantRules() throws Exception {
+        String css = Files.readString(MAIN.resolve("resources/static/assets/site-experience-v4-legacy-quarantine.css"));
+        assertTrue(css.contains("body[data-page=\"home\"]"));
+        assertTrue(css.contains("background:var(--xh-canvas)!important"));
+        assertTrue(css.contains("max-width:var(--max)!important"));
+        assertTrue(css.contains("body .mobile-dock"));
+        assertTrue(css.contains("opacity:1!important"));
+        assertTrue(css.contains("pointer-events:auto!important"));
+        assertTrue(css.contains("background:#fff!important"));
+        assertTrue(css.contains("min-height:46px!important"));
+        assertFalse(css.contains("body.admin-solid-ui"));
     }
 
     @Test
@@ -32,15 +52,20 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
-    void experienceLayerOwnsZIndexFloatingSupportAndSecurityLayout() throws Exception {
-        String css = Files.readString(MAIN.resolve("resources/static/assets/site-experience-v2.css"));
+    void experienceLayerOwnsBrandToWorkspaceContrastAndOperationalStates() throws Exception {
+        String css = Files.readString(MAIN.resolve("resources/static/assets/site-experience-v4.css"));
         String js = Files.readString(MAIN.resolve("resources/static/assets/site-shell.js"));
         assertTrue(css.contains("--xh-z-header:40"));
         assertTrue(css.contains("--xh-z-floating:70"));
         assertTrue(css.contains("--xh-z-modal:100"));
         assertTrue(css.contains("--xh-z-toast:120"));
+        assertTrue(css.contains("--xh-dark:#0b0c0f"));
+        assertTrue(css.contains("--xh-canvas:#f1f2f4"));
+        assertTrue(css.contains("background:var(--xh-canvas)!important"));
+        assertTrue(css.contains(".hero.hero-r3"));
+        assertTrue(css.contains("background:var(--xh-dark)!important"));
         assertTrue(css.contains(".floating-customer-service"));
-        assertTrue(css.contains(".account-settings-view[data-settings-view=\"security\"]"));
+        assertTrue(css.contains(".account-center-page"));
         assertTrue(js.contains("floatingCustomerService"));
         assertTrue(js.contains("href = '/contact'"));
     }

@@ -41,6 +41,7 @@ class HomeQuickGridPlaywrightTest {
         assertTrue(contact[1] >= lookup[3] - 1,
                 () -> label + " contact card overlaps the business lookup card");
         assertNoAreaIntersection(quote, contact, label + " quote/contact");
+        assertNoHorizontalOverflow(page, label);
         page.close();
     }
 
@@ -49,17 +50,20 @@ class HomeQuickGridPlaywrightTest {
         renderFixture(page);
 
         double[] quote = rect(page, ".quote-card-home");
-        double[] lookup = rect(page, ".desktop-secondary-panel");
         double[] contact = rect(page, ".quick-contact-card");
+        String lookupDisplay = String.valueOf(page.evaluate(
+                "() => getComputedStyle(document.querySelector('.desktop-secondary-panel')).display"));
 
-        assertTrue(Math.abs(quote[0] - lookup[0]) <= 2 && Math.abs(lookup[0] - contact[0]) <= 2,
-                () -> label + " intermediate breakpoint created an implicit second column");
-        assertTrue(Math.abs(quote[2] - lookup[2]) <= 2 && Math.abs(lookup[2] - contact[2]) <= 2,
-                () -> label + " stacked cards do not share one constrained grid column");
-        assertTrue(lookup[1] >= quote[3] - 1,
-                () -> label + " business lookup overlaps the quote card");
-        assertTrue(contact[1] >= lookup[3] - 1,
-                () -> label + " contact card overlaps the business lookup card");
+        assertTrue("none".equals(lookupDisplay),
+                () -> label + " must preserve the existing hidden business lookup panel at <=1180px");
+        assertTrue(Math.abs(quote[0] - contact[0]) <= 2,
+                () -> label + " contact card created an implicit second column");
+        assertTrue(Math.abs(quote[2] - contact[2]) <= 2,
+                () -> label + " contact card escaped the single-column grid width");
+        assertTrue(contact[1] >= quote[3] - 1,
+                () -> label + " contact card overlaps the quote card");
+        assertNoAreaIntersection(quote, contact, label + " quote/contact");
+        assertNoHorizontalOverflow(page, label);
         page.close();
     }
 
@@ -116,6 +120,14 @@ class HomeQuickGridPlaywrightTest {
                 ((Number) list.get(2)).doubleValue(),
                 ((Number) list.get(3)).doubleValue()
         };
+    }
+
+    private static void assertNoHorizontalOverflow(Page page, String label) {
+        Number scrollWidth = (Number) page.evaluate("() => document.documentElement.scrollWidth");
+        Number clientWidth = (Number) page.evaluate("() => document.documentElement.clientWidth");
+        assertTrue(scrollWidth.doubleValue() <= clientWidth.doubleValue() + 1,
+                () -> label + " overflowed horizontally: scrollWidth=" + scrollWidth
+                        + ", clientWidth=" + clientWidth);
     }
 
     private static void assertNoAreaIntersection(double[] a, double[] b, String label) {

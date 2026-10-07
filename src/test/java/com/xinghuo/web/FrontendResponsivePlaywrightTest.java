@@ -17,45 +17,55 @@ class FrontendResponsivePlaywrightTest {
     private static final Path SITE_FRAGMENT = Path.of("src/main/resources/templates/fragments/site.html");
 
     @Test
-    void wideDesktopUsesOperationalCanvasWithoutHorizontalOverflow() {
+    void wideDesktopUsesFullOperationalCanvasWithoutLegacyGlass() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(1920, 1080));
             renderPublicShell(page);
 
-            Number containerWidth = (Number) page.evaluate("() => document.querySelector('main.container').getBoundingClientRect().width");
-            assertTrue(containerWidth.doubleValue() >= 1380.0, "24-inch desktop should use the available canvas");
-            assertEquals(Boolean.FALSE, page.evaluate("() => document.documentElement.scrollWidth > window.innerWidth"));
-            assertEquals("none", page.evaluate("() => getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
-            assertEquals("4", page.evaluate("() => getComputedStyle(document.querySelector('.service-browser-grid')).gridTemplateColumns.split(' ').length.toString()"));
+            Number containerWidth = number(page, "document.querySelector('main.container').getBoundingClientRect().width");
+            assertTrue(containerWidth.doubleValue() >= 1380.0,
+                    () -> "24-inch desktop canvas collapsed to " + containerWidth + "px");
+            assertNoHorizontalOverflow(page, "Chromium 1920 desktop");
+            assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
+            assertEquals(4, number(page,
+                    "getComputedStyle(document.querySelector('.service-browser-grid')).gridTemplateColumns.split(' ').filter(Boolean).length").intValue());
         }
     }
 
     @Test
-    void chromiumAndroidAndWechatWindowsStayTouchSafeAndOverflowFree() {
+    void chromiumAndroidWechatAndNarrowWindowsStayTouchSafe() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             assertMobileContract(browser, 412, 915,
-                    "Mozilla/5.0 (Linux; Android 16; Pixel) AppleWebKit/537.36 Chrome/141 Mobile Safari/537.36");
+                    "Mozilla/5.0 (Linux; Android 16; Pixel) AppleWebKit/537.36 Chrome/141 Mobile Safari/537.36",
+                    "Android Chrome 412");
             assertMobileContract(browser, 375, 812,
-                    "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 MicroMessenger/8.0.60 Mobile Safari/537.36");
+                    "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 MicroMessenger/8.0.60 Mobile Safari/537.36",
+                    "Android WeChat 375");
+            assertMobileContract(browser, 320, 700,
+                    "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/141 Mobile Safari/537.36",
+                    "Android narrow 320");
         }
     }
 
     @Test
-    void webkitIphoneAndSafariWindowsStayTouchSafeAndOverflowFree() {
+    void webkitIphoneAndMacSafariStayTouchSafeAndWide() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.webkit().launch()) {
             assertMobileContract(browser, 390, 844,
-                    "Mozilla/5.0 (iPhone; CPU iPhone OS 19_0 like Mac OS X) AppleWebKit/605.1.15 Version/19.0 Mobile/15E148 Safari/604.1");
+                    "Mozilla/5.0 (iPhone; CPU iPhone OS 19_0 like Mac OS X) AppleWebKit/605.1.15 Version/19.0 Mobile/15E148 Safari/604.1",
+                    "iPhone Safari 390");
 
             Page desktop = browser.newPage(new Browser.NewPageOptions().setViewportSize(1440, 900));
             renderPublicShell(desktop);
-            assertEquals(Boolean.FALSE, desktop.evaluate("() => document.documentElement.scrollWidth > window.innerWidth"));
-            Number width = (Number) desktop.evaluate("() => document.querySelector('main.container').getBoundingClientRect().width");
-            assertTrue(width.doubleValue() > 1200.0, "Safari desktop should not collapse into the legacy narrow canvas");
+            assertNoHorizontalOverflow(desktop, "macOS Safari 1440");
+            Number width = number(desktop, "document.querySelector('main.container').getBoundingClientRect().width");
+            assertTrue(width.doubleValue() > 1300.0,
+                    () -> "Safari desktop collapsed into a legacy narrow canvas: " + width + "px");
+            assertEquals("none", string(desktop, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
         }
     }
 
     @Test
-    void experienceLayerKeepsRuntimeThemeControlsAndLoadsGlobally() throws Exception {
+    void experienceLayerIsAuthoritativeAndRuntimeThemeControlsRemainLast() throws Exception {
         String css = Files.readString(ASSETS.resolve("site-experience-v2.css"));
         String fragment = Files.readString(SITE_FRAGMENT);
 
@@ -65,29 +75,53 @@ class FrontendResponsivePlaywrightTest {
         assertTrue(css.contains("input,select,textarea{font-size:16px!important}"));
         assertTrue(css.contains("@media(forced-colors:active)"));
         assertTrue(css.contains("@media(prefers-reduced-motion:reduce)"));
-        assertTrue(css.contains("var(--accent)"));
-        assertTrue(css.contains("var(--surface-2)"));
+        assertTrue(css.contains("var(--accent"));
+        assertTrue(css.contains("var(--surface-2"));
+        assertTrue(css.contains("-webkit-backdrop-filter:none!important"));
 
-        int shell = fragment.indexOf("site-shell.css");
-        int experience = fragment.indexOf("site-experience-v2.css");
+        assertTrue(!fragment.contains("site-shell.css"),
+                "retired legacy shell must not compete with the rewritten public experience layer");
+        int experience = fragment.indexOf("site-experience-v2.css?v=20261007ux03");
         int runtime = fragment.indexOf("frontend-controls-runtime.js");
-        assertTrue(shell >= 0 && experience > shell, "experience layer must load after the legacy shell");
+        assertTrue(experience >= 0, "rewritten experience stylesheet must load globally");
         assertTrue(runtime > experience, "runtime frontend controls must remain able to override theme variables");
     }
 
-    private static void assertMobileContract(Browser browser, int width, int height, String userAgent) {
+    private static void assertMobileContract(Browser browser, int width, int height, String userAgent, String label) {
         Page page = browser.newPage(new Browser.NewPageOptions()
                 .setViewportSize(width, height)
                 .setUserAgent(userAgent));
         renderPublicShell(page);
 
-        assertEquals(Boolean.FALSE, page.evaluate("() => document.documentElement.scrollWidth > window.innerWidth"));
-        assertEquals("16px", page.evaluate("() => getComputedStyle(document.querySelector('input')).fontSize"));
-        Number buttonHeight = (Number) page.evaluate("() => document.querySelector('.mobile-dock a').getBoundingClientRect().height");
-        assertTrue(buttonHeight.doubleValue() >= 44.0, "mobile quick actions must remain touch-safe");
-        assertEquals("grid", page.evaluate("() => getComputedStyle(document.querySelector('.mobile-dock')).display"));
-        assertEquals("none", page.evaluate("() => getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
+        assertNoHorizontalOverflow(page, label);
+        assertEquals("16px", string(page, "getComputedStyle(document.querySelector('input')).fontSize"),
+                label + " must not trigger iOS form zoom");
+        Number buttonHeight = number(page, "document.querySelector('.mobile-dock a').getBoundingClientRect().height");
+        assertTrue(buttonHeight.doubleValue() >= 44.0,
+                () -> label + " mobile dock touch target was only " + buttonHeight + "px");
+        Number primaryHeight = number(page, "document.querySelector('.hero-actions .btn').getBoundingClientRect().height");
+        assertTrue(primaryHeight.doubleValue() >= 44.0,
+                () -> label + " primary CTA touch target was only " + primaryHeight + "px");
+        assertEquals("grid", string(page, "getComputedStyle(document.querySelector('.mobile-dock')).display"),
+                label + " mobile dock should be visible");
+        assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"),
+                label + " header must not rely on glass blur");
         page.close();
+    }
+
+    private static void assertNoHorizontalOverflow(Page page, String label) {
+        Number scrollWidth = number(page, "document.documentElement.scrollWidth");
+        Number clientWidth = number(page, "document.documentElement.clientWidth");
+        assertTrue(scrollWidth.doubleValue() <= clientWidth.doubleValue() + 1,
+                () -> label + " overflowed horizontally: scrollWidth=" + scrollWidth + ", clientWidth=" + clientWidth);
+    }
+
+    private static Number number(Page page, String expression) {
+        return (Number) page.evaluate("() => " + expression);
+    }
+
+    private static String string(Page page, String expression) {
+        return String.valueOf(page.evaluate("() => " + expression));
     }
 
     private static void renderPublicShell(Page page) {
@@ -97,6 +131,7 @@ class FrontendResponsivePlaywrightTest {
                     <div class="container topbar">
                       <a class="brand brand-mark"><span class="brand-dot"></span><span>星火网游代练平台</span></a>
                       <nav class="nav"><a>服务</a><a>攻略</a><a>工具站</a><a class="btn primary desktop-keep">提前询价</a></nav>
+                      <button class="nav-toggle"><span></span><span></span><span></span></button>
                     </div>
                   </header>
                   <main class="container">
@@ -120,7 +155,6 @@ class FrontendResponsivePlaywrightTest {
                 </body>
                 """);
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("app.css")));
-        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-shell.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v2.css")));
     }
 }

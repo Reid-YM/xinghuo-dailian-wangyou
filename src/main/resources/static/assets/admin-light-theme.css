@@ -100,7 +100,16 @@ body.admin-control-center-v2 .tool-camo-admin-item,
 body.admin-control-center-v2 .tool-online-admin-item,
 body.admin-control-center-v2 .tracking-funnel,
 body.admin-control-center-v2 .tracking-events,
-body.admin-control-center-v2 .tracking-event-grid>*{
+body.admin-control-center-v2 .tracking-event-grid>*,
+body.admin-control-center-v2 .toggle-row,
+body.admin-control-center-v2 .service-form-section,
+body.admin-control-center-v2 .tool-admin-block,
+body.admin-control-center-v2 .tool-admin-sidebar,
+body.admin-control-center-v2 .tool-admin-editor,
+body.admin-control-center-v2 .game-profile-identity,
+body.admin-control-center-v2 .tracking-card,
+body.admin-control-center-v2 .feedback-choice-grid,
+body.admin-control-center-v2 details{
   border-color:#e2e8f0!important;
   background:#fff!important;
   color:#101828!important;

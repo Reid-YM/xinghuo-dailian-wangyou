@@ -17,7 +17,7 @@ class FrontendResponsivePlaywrightTest {
     private static final Path SITE_FRAGMENT = Path.of("src/main/resources/templates/fragments/site.html");
 
     @Test
-    void wideDesktopUsesFullOperationalCanvasWithoutLegacyGlass() {
+    void wideDesktopUsesVisibleBrandToWorkspaceContrast() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(1920, 1080));
             renderPublicShell(page);
@@ -27,6 +27,12 @@ class FrontendResponsivePlaywrightTest {
                     () -> "24-inch desktop canvas collapsed to " + containerWidth + "px");
             assertNoHorizontalOverflow(page, "Chromium 1920 desktop");
             assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
+            assertEquals("rgb(241, 242, 244)", string(page, "getComputedStyle(document.body).backgroundColor"),
+                    "public workspace must be visibly light instead of the legacy full-black canvas");
+            assertEquals("rgb(11, 12, 15)", string(page, "getComputedStyle(document.querySelector('.hero')).backgroundColor"),
+                    "home hero must retain a dark brand stage");
+            assertEquals("rgb(255, 255, 255)", string(page, "getComputedStyle(document.querySelector('.service-card')).backgroundColor"),
+                    "service cards must read as white business objects on the light workspace");
             assertFourColumnServiceGrid(page);
         }
     }
@@ -60,35 +66,37 @@ class FrontendResponsivePlaywrightTest {
             assertTrue(width.doubleValue() > 1300.0,
                     () -> "Safari desktop collapsed into a legacy narrow canvas: " + width + "px");
             assertEquals("none", string(desktop, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
+            assertEquals("rgb(241, 242, 244)", string(desktop, "getComputedStyle(document.body).backgroundColor"));
         }
     }
 
     @Test
     void experienceLayerIsAuthoritativeAndRuntimeThemeControlsRemainLast() throws Exception {
-        String css = Files.readString(ASSETS.resolve("site-experience-v2.css"));
+        String css = Files.readString(ASSETS.resolve("site-experience-v4.css"));
         String fragment = Files.readString(SITE_FRAGMENT);
 
         assertTrue(css.contains("--max:1440px"));
+        assertTrue(css.contains("--xh-dark:#0b0c0f"));
+        assertTrue(css.contains("--xh-canvas:#f1f2f4"));
         assertTrue(css.contains("env(safe-area-inset-bottom"));
         assertTrue(css.contains("min-height:100dvh"));
         assertTrue(css.contains("input,select,textarea{font-size:16px!important}"));
         assertTrue(css.contains("@media(forced-colors:active)"));
         assertTrue(css.contains("@media(prefers-reduced-motion:reduce)"));
-        assertTrue(css.contains("var(--accent"));
-        assertTrue(css.contains("var(--surface-2"));
-        assertTrue(css.contains("-webkit-backdrop-filter:none!important"));
-        assertTrue(css.contains(".service-browser-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}"),
+        assertTrue(css.contains(".service-browser-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))"),
                 "desktop service browser must keep the explicit four-column experience contract");
 
         assertTrue(!fragment.contains("site-shell.css"),
-                "retired legacy shell must not compete with the rewritten public experience layer");
-        assertTrue(fragment.contains("data-experience-shell=\"v3\""));
+                "retired legacy shell must not compete with the public experience layer");
+        assertTrue(!fragment.contains("site-experience-v2.css"),
+                "previous conservative experience layer must be retired from the public shell");
+        assertTrue(fragment.contains("data-experience-shell=\"v4\""));
         assertTrue(fragment.contains("backdrop-filter:none!important;transition:none!important"),
-                "public v3 header must quarantine legacy blur transitions at the shell boundary");
-        int experience = fragment.indexOf("site-experience-v2.css?v=20261007ux03");
+                "public v4 header must quarantine legacy blur transitions at the shell boundary");
+        int experience = fragment.indexOf("site-experience-v4.css?v=20261007ux04");
         int runtime = fragment.indexOf("frontend-controls-runtime.js");
-        assertTrue(experience >= 0, "rewritten experience stylesheet must load globally");
-        assertTrue(runtime > experience, "runtime frontend controls must remain able to override theme variables");
+        assertTrue(experience >= 0, "v4 experience stylesheet must load globally");
+        assertTrue(runtime > experience, "runtime frontend controls must remain able to override configured variables");
     }
 
     private static void assertFourColumnServiceGrid(Page page) {
@@ -145,6 +153,8 @@ class FrontendResponsivePlaywrightTest {
                 label + " mobile dock should be visible");
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"),
                 label + " header must not rely on glass blur");
+        assertEquals("rgb(241, 242, 244)", string(page, "getComputedStyle(document.body).backgroundColor"),
+                label + " must keep the light business workspace");
         page.close();
     }
 
@@ -166,7 +176,7 @@ class FrontendResponsivePlaywrightTest {
     private static void renderPublicShell(Page page) {
         page.setContent("""
                 <body data-page="home">
-                  <header class="site-header" data-experience-shell="v3" style="-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important">
+                  <header class="site-header" data-experience-shell="v4" style="-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important">
                     <div class="container topbar">
                       <a class="brand brand-mark"><span class="brand-dot"></span><span>星火网游代练平台</span></a>
                       <nav class="nav"><a>服务</a><a>攻略</a><a>工具站</a><a class="btn primary desktop-keep">提前询价</a></nav>
@@ -194,6 +204,6 @@ class FrontendResponsivePlaywrightTest {
                 </body>
                 """);
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("app.css")));
-        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v2.css")));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v4.css")));
     }
 }

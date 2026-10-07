@@ -20,7 +20,7 @@ class AdminControlCenterV2PlaywrightTest {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
             page.setContent("""
-                    <body>
+                    <body class="admin-solid-ui">
                       <div class="admin-shell admin-shell-with-rail">
                         <aside class="sidebar">
                           <div class="admin-brand"><b>星火后台</b></div>
@@ -41,6 +41,7 @@ class AdminControlCenterV2PlaywrightTest {
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-control-center-v2.js")));
 
             assertTrue((Boolean) page.evaluate("() => document.body.classList.contains('admin-control-center-v2')"));
+            assertEquals(Boolean.FALSE, page.evaluate("() => document.body.classList.contains('admin-solid-ui')"));
             assertEquals(1, page.locator("#adminV2Topbar").count());
             assertEquals("今日概览", page.locator("#adminV2CurrentTitle").textContent());
             assertEquals(1, page.locator("#adminV2NavSearch").count());
@@ -89,8 +90,8 @@ class AdminControlCenterV2PlaywrightTest {
     void resilienceLoadsControlCenterAssetsAndStylesStayAdminScoped() throws Exception {
         String resilience = Files.readString(ASSETS.resolve("admin-resilience.js"));
         String css = Files.readString(ASSETS.resolve("admin-control-center-v2.css"));
-        assertTrue(resilience.contains("/assets/admin-control-center-v2.js?v=20261007a001"));
-        assertTrue(resilience.contains("/assets/admin-control-center-v2.css?v=20261007a001"));
+        assertTrue(resilience.contains("/assets/admin-control-center-v2.js?v=20261007a002"));
+        assertTrue(resilience.contains("/assets/admin-control-center-v2.css?v=20261007a002"));
         assertTrue(css.contains("body.admin-control-center-v2 .admin-shell-with-rail"));
         assertTrue(css.contains("body.admin-control-center-v2 .table-wrap"));
         assertTrue(css.contains("body.admin-control-center-v2 .admin-v2-topbar"));

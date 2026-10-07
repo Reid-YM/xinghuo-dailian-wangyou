@@ -10,12 +10,14 @@
     if ($('link[data-admin-control-center-v2]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/assets/admin-control-center-v2.css?v=20261007a001';
+    link.href = '/assets/admin-control-center-v2.css?v=20261007a002';
     link.dataset.adminControlCenterV2 = '1';
     document.head.appendChild(link);
   }
 
   function createChrome() {
+    // V2 使用独立深色后台主题；移除旧版 admin-solid-ui，避免两套主题的 !important 规则互相覆盖。
+    document.body.classList.remove('admin-solid-ui');
     document.body.classList.add('admin-control-center-v2');
     const main = $('.admin-main');
     const sidebar = $('.sidebar');

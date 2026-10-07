@@ -8,13 +8,13 @@
     if (!$('link[data-admin-control-center-v2]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = '/assets/admin-control-center-v2.css?v=20261007a001';
+      link.href = '/assets/admin-control-center-v2.css?v=20261007a002';
       link.dataset.adminControlCenterV2 = '1';
       document.head.appendChild(link);
     }
     if (!$('script[data-admin-control-center-v2]')) {
       const script = document.createElement('script');
-      script.src = '/assets/admin-control-center-v2.js?v=20261007a001';
+      script.src = '/assets/admin-control-center-v2.js?v=20261007a002';
       script.dataset.adminControlCenterV2 = '1';
       document.head.appendChild(script);
     }

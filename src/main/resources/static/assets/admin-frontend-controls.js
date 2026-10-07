@@ -4,16 +4,33 @@
   const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const ADMIN_BRAND_FAVICON = '/assets/brand-logo.svg?v=20261008logo02';
 
   function ensureBrandLayoutFixes() {
     if (document.querySelector('link[data-admin-brand-layout-fixes]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/assets/admin-brand-layout-fixes.css?v=20261008b001';
+    link.href = '/assets/admin-brand-layout-fixes.css?v=20261008b002';
     link.dataset.adminBrandLayoutFixes = '1';
     document.head.appendChild(link);
   }
+
+  function ensureAdminBrandFavicon() {
+    if (!document.head) return;
+    let icon = document.head.querySelector('link[data-xh-admin-favicon]');
+    if (!icon) {
+      icon = document.createElement('link');
+      icon.rel = 'icon';
+      icon.type = 'image/svg+xml';
+      icon.setAttribute('sizes', 'any');
+      icon.setAttribute('data-xh-admin-favicon', 'true');
+      document.head.appendChild(icon);
+    }
+    icon.href = ADMIN_BRAND_FAVICON;
+  }
+
   ensureBrandLayoutFixes();
+  ensureAdminBrandFavicon();
 
   async function api(url, options = {}) {
     const method = String(options.method || 'GET').toUpperCase();

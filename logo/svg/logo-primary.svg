@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 200" width="960" height="200" role="img" aria-labelledby="title">
+  <title id="title">星火网游 logo - primary lockup for dark backgrounds</title>
+  <g fill="none" stroke="#FFFFFF" stroke-width="19" stroke-linejoin="round" transform="translate(214 50)">
+    <path d="M10 10 L74 90 M74 10 L10 90"/>
+    <path d="M120 10 V90"/>
+    <path d="M166 90 V10 L236 90 V10"/>
+    <path d="M333.7 12.4 A40 40 0 0 0 289.4 75.7 A40 40 0 0 0 359.4 43.1 M360 50 H328"/>
+    <path d="M404 10 V90 M474 10 V90 M404 50 H474"/>
+    <path d="M518 10 V55 A35 35 0 0 0 588 55 V10"/>
+    <circle cx="672" cy="50" r="40"/>
+  </g>
+  <path fill="#F5B700" d="M244 12 Q186 88 182 128 Q186 168 244 244 Q168 186 128 182 Q88 186 12 244 Q70 168 74 128 Q70 88 12 12 Q88 70 128 74 Q168 70 244 12 Z" transform="translate(16 15) scale(0.664)"/>
+</svg>

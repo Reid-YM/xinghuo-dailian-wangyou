@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>星火网游 · Logo 展示 / Brand Showcase</title>
+<style>
+  :root{
+    --ink:#0B0D10;
+    --surface:#12151A;
+    --surface-2:#171B21;
+    --line:#262C35;
+    --gold:#F5B700;
+    --gold-2:#FFC928;
+    --gold-deep:#B97800;
+    --text:#F5F6F7;
+    --muted:#9BA3AE;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--ink);color:var(--text);
+    font-family:Inter,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.6;
+  }
+  a{color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+  header.top{border-bottom:1px solid var(--line);padding:34px 0 26px;position:sticky;top:0;background:rgba(11,13,16,.92);backdrop-filter:blur(8px);z-index:5}
+  .top-row{display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .top h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.02em}
+  .top p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+  .top nav{display:flex;gap:18px;font-size:13px;color:var(--muted)}
+  .top nav a{text-decoration:none}
+  .top nav a:hover{color:var(--gold-2)}
+  section{padding:56px 0;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:0}
+  h2{margin:0 0 6px;font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-2);font-weight:700}
+  .lede{margin:0 0 30px;color:var(--muted);font-size:14px;max-width:70ch}
+  h3{margin:0 0 14px;font-size:14px;font-weight:700;color:#D7DBE1}
+  .grid{display:grid;gap:18px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;display:flex;flex-direction:column;gap:16px;align-items:center;justify-content:center;min-height:190px;min-width:0}
+  .card.light{background:#F4F5F7;color:var(--ink);border-color:#E2E5EA}
+  .card.gold{background:var(--gold);color:var(--ink);border-color:var(--gold-2)}
+  .card.flat{background:transparent;border-style:dashed}
+  .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0}
+  .card.light .lbl,.card.gold .lbl{color:rgba(11,13,16,.55)}
+  .art{color:#fff;display:block;max-width:100%;min-width:0}
+  .art-gold{color:var(--gold)}
+  .art-ink{color:var(--ink)}
+  .lock{width:100%;max-width:560px;height:auto;min-width:0}
+  .sym{width:132px;height:132px}
+  .sym-sm{width:64px;height:64px}
+  .mono-row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;justify-content:center}
+  .size-ladder{display:flex;gap:26px;align-items:flex-end;flex-wrap:wrap;justify-content:center}
+  .size-ladder figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .size-ladder figcaption{font-size:10px;color:var(--muted);letter-spacing:.08em}
+  .tag{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+  .tag i{width:9px;height:9px;border-radius:50%;display:inline-block;border:1px solid rgba(255,255,255,.18)}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+  .swatch{border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--surface)}
+  .swatch .chip{height:76px}
+  .swatch .meta{padding:10px 12px;font-size:11px;color:var(--muted)}
+  .swatch .meta b{display:block;color:var(--text);font-size:12px;font-weight:700;margin-bottom:2px}
+  /* mockups */
+  .browser{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0E1116;width:100%}
+  .browser .bar{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#171B21;border-bottom:1px solid var(--line)}
+  .browser .dots{display:flex;gap:5px}
+  .browser .dots i{width:9px;height:9px;border-radius:50%;background:#2E353F;display:block}
+  .browser .tab{display:flex;align-items:center;gap:8px;background:#0E1116;border:1px solid var(--line);border-radius:8px 8px 0 0;padding:6px 12px;font-size:11px;color:var(--muted)}
+  .browser .url{flex:1;background:#0E1116;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:11px;color:#79828E}
+  .site-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;background:linear-gradient(180deg,#101318,#0D1014);border-top:1px solid var(--line)}
+  .site-head .brandline{display:flex;align-items:center;gap:11px;font-weight:700;font-size:15px;letter-spacing:-.01em}
+  .site-head .brandline svg{width:26px;height:26px;color:var(--gold)}
+  .site-head .menu{display:flex;gap:16px;font-size:12px;color:#AEB5BF}
+  .site-head .cta{background:var(--gold);color:#17120A;font-weight:800;font-size:12px;padding:7px 14px;border-radius:999px}
+  .mobile{width:270px;border-radius:26px;border:1px solid var(--line);background:#0E1116;padding:12px;box-shadow:0 22px 60px rgba(0,0,0,.5)}
+  .mobile .m-head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px}
+  .mobile .m-brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14px}
+  .mobile .m-brand svg{width:24px;height:24px;color:var(--gold)}
+  .mobile .burger{display:flex;flex-direction:column;gap:4px}
+  .mobile .burger i{width:18px;height:2px;background:#C6CCD4;display:block;border-radius:2px}
+  .mobile .m-body{margin-top:10px;height:120px;border-radius:12px;background:linear-gradient(135deg,rgba(245,183,0,.14),rgba(245,183,0,.02));border:1px solid var(--line)}
+  .avatars{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+  .avatar{display:flex;flex-direction:column;align-items:center;gap:9px}
+  .avatar .ring{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;overflow:hidden;border:1px solid var(--line)}
+  .avatar .ring svg{width:52%;height:52%}
+  .avatar span{font-size:11px;color:var(--muted)}
+  .appicon{width:92px;height:92px;border-radius:22px;display:grid;place-items:center;background:var(--ink);border:1px solid #232A33;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+  .appicon svg{width:62%;height:62%}
+  .homescreen{display:flex;gap:22px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .homescreen .label{font-size:11px;color:var(--muted);margin-top:8px;text-align:center}
+  .card-mock{width:100%;max-width:360px;aspect-ratio:1.75/1;border-radius:14px;background:var(--ink);border:1px solid #232A33;display:flex;flex-direction:column;justify-content:space-between;padding:22px;box-shadow:0 18px 45px rgba(0,0,0,.45)}
+  .card-mock.light{background:#F4F5F7;border-color:#E2E5EA;color:var(--ink)}
+  .card-mock .cl{width:190px;color:#fff}
+  .card-mock.light .cl{color:var(--ink)}
+  .card-mock .who{font-size:12px;color:var(--muted);line-height:1.5}
+  .card-mock.light .who{color:#5C636D}
+  .card-mock .who b{display:block;color:var(--text);font-size:13px}
+  .card-mock.light .who b{color:var(--ink)}
+  .misuse{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .misuse .m{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;display:grid;place-items:center;min-height:160px;position:relative;overflow:hidden}
+  .misuse .m::after{content:attr(data-x);position:absolute;top:9px;right:11px;font-size:10px;letter-spacing:.1em;color:#F08A8A;font-weight:700}
+  .rules{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .rules div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px}
+  .rules h4{margin:0 0 8px;font-size:13px;color:var(--gold-2)}
+  .rules p,.rules ul{margin:0;font-size:13px;color:var(--muted)}
+  .rules ul{padding-left:18px}
+  .clearspace{position:relative;display:grid;place-items:center;padding:56px}
+  .clearspace .frame{border:1px dashed rgba(245,183,0,.5);padding:34px;border-radius:6px}
+  footer{padding:40px 0 64px;color:var(--muted);font-size:12px}
+  code{background:#171B21;border:1px solid var(--line);border-radius:6px;padding:2px 6px;font-size:12px}
+  @media (max-width:900px){
+    .g2,.g3,.g4,.misuse,.rules{grid-template-columns:repeat(2,1fr)}
+    .site-head .menu{display:none}
+  }
+  @media (max-width:560px){
+    .g2,.g3,.g4,.misuse,.rules{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:40px 0}
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="spark" viewBox="0 0 256 256">
+    <path fill="currentColor" d="M244 12 Q186 88 182 128 Q186 168 244 244 Q168 186 128 182 Q88 186 12 244 Q70 168 74 128 Q70 88 12 12 Q88 70 128 74 Q168 70 244 12 Z"/>
+  </symbol>
+  <symbol id="word" viewBox="0 0 722 100">
+    <g fill="none" stroke="currentColor" stroke-width="20" stroke-linejoin="round">
+      <path d="M10 10 L74 90 M74 10 L10 90"/>
+      <path d="M120 10 V90"/>
+      <path d="M166 90 V10 L236 90 V10"/>
+      <path d="M333.7 12.4 A40 40 0 0 0 289.4 75.7 A40 40 0 0 0 359.4 43.1 M360 50 H328"/>
+      <path d="M404 10 V90 M474 10 V90 M404 50 H474"/>
+      <path d="M518 10 V55 A35 35 0 0 0 588 55 V10"/>
+      <circle cx="672" cy="50" r="40"/>
+    </g>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap top-row">
+    <div>
+      <h1>星火网游 · Logo 展示</h1>
+      <p>星火符 Spark Glyph · 品牌识别资产预览</p>
+    </div>
+    <nav>
+      <a href="#lockup">组合</a>
+      <a href="#symbol">图标</a>
+      <a href="#system">应用</a>
+      <a href="#rules">规范</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section id="lockup">
+  <div class="wrap">
+    <h2>Primary Lockup</h2>
+    <p class="lede">主组合：星火符 + 英文名 XINGHUO。符号取“星火”的四面火花，四点落在对角线上，同时暗示品牌首字母 X。深色底为主用场景，浅色底与单色版本同步提供。</p>
+    <div class="grid g2">
+      <div class="card">
+        <svg class="art lock" viewBox="0 0 960 200" width="960" height="200" role="img" aria-label="星火网游主组合（深色背景）">
+          <g transform="translate(214 50)" fill="none" stroke="#FFFFFF" stroke-width="19" stroke-linejoin="round">
+            <path d="M10 10 L74 90 M74 10 L10 90"/>
+            <path d="M120 10 V90"/>
+            <path d="M166 90 V10 L236 90 V10"/>
+            <path d="M333.7 12.4 A40 40 0 0 0 289.4 75.7 A40 40 0 0 0 359.4 43.1 M360 50 H328"/>
+            <path d="M404 10 V90 M474 10 V90 M404 50 H474"/>
+            <path d="M518 10 V55 A35 35 0 0 0 588 55 V10"/>
+            <circle cx="672" cy="50" r="40"/>
+          </g>
+          <use href="#spark" x="0" y="0" width="256" height="256" style="color:#F5B700" transform="translate(16 15) scale(0.664)"/>
+        </svg>
+        <p class="lbl">深色背景 · 主用</p>
+      </div>
+      <div class="card light">
+        <svg class="art lock" viewBox="0 0 960 200" width="960" height="200" role="img" aria-label="星火网游主组合（浅色背景）">
+          <g transform="translate(214 50)" fill="none" stroke="#0B0D10" stroke-width="20" stroke-linejoin="round">
+            <path d="M10 10 L74 90 M74 10 L10 90"/>
+            <path d="M120 10 V90"/>
+            <path d="M166 90 V10 L236 90 V10"/>
+            <path d="M333.7 12.4 A40 40 0 0 0 289.4 75.7 A40 40 0 0 0 359.4 43.1 M360 50 H328"/>
+            <path d="M404 10 V90 M474 10 V90 M404 50 H474"/>
+            <path d="M518 10 V55 A35 35 0 0 0 588 55 V10"/>
+            <circle cx="672" cy="50" r="40"/>
+          </g>
+          <use href="#spark" x="0" y="0" width="256" height="256" style="color:#F5B700" transform="translate(16 15) scale(0.664)"/>
+        </svg>
+        <p class="lbl">浅色背景 · 彩色</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Secondary Lockups</h2>
+    <p class="lede">堆叠组合用于方形与纵向版面；符号单独用于头像、图标与极窄空间。</p>
+    <div class="grid g3">
+      <div class="card">
+        <svg class="art" style="width:230px;height:auto" viewBox="0 0 760 400" width="760" height="400" role="img" aria-label="堆叠组合">
+          <use href="#spark" x="0" y="0" width="256" height="256" style="color:#F5B700" transform="translate(276 20) scale(0.813)"/>
+          <g transform="translate(20 280)" fill="none" stroke="#FFFFFF" stroke-width="19" stroke-linejoin="round">
+            <path d="M10 10 L74 90 M74 10 L10 90"/>
+            <path d="M120 10 V90"/>
+            <path d="M166 90 V10 L236 90 V10"/>
+            <path d="M333.7 12.4 A40 40 0 0 0 289.4 75.7 A40 40 0 0 0 359.4 43.1 M360 50 H328"/>
+            <path d="M404 10 V90 M474 10 V90 M404 50 H474"/>
+            <path d="M518 10 V55 A35 35 0 0 0 588 55 V10"/>
+            <circle cx="672" cy="50" r="40"/>
+          </g>
+        </svg>
+        <p class="lbl">堆叠 · 深色背景</p>
+      </div>
+      <div class="card light">
+        <svg class="art art-ink" style="width:190px;height:auto" viewBox="0 0 722 100" width="722" height="100" role="img" aria-label="英文标准字">
+          <use href="#word" width="722" height="100"/>
+        </svg>
+        <p class="lbl">标准字 · 单色</p>
+      </div>
+      <div class="card">
+        <svg class="art art-gold sym" viewBox="0 0 256 256" role="img" aria-label="星火符">
+          <use href="#spark" width="256" height="256"/>
+        </svg>
+        <p class="lbl">符号 · 品牌金</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="symbol">
+  <div class="wrap">
+    <h2>Symbol & Sizes</h2>
+    <p class="lede">单色与尺寸测试：16px 起可辨识，小尺寸下轮廓不糊、笔画不断。</p>
+    <div class="grid g3" style="margin-bottom:20px">
+      <div class="card light"><svg class="art art-ink sym" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg><p class="lbl">单色黑</p></div>
+      <div class="card"><svg class="art sym" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg><p class="lbl">单色白</p></div>
+      <div class="card gold"><svg class="art art-ink sym" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg><p class="lbl">品牌金底 · 反白</p></div>
+    </div>
+    <div class="card" style="min-height:auto">
+      <div class="size-ladder">
+        <figure><svg class="art art-gold" style="width:16px;height:16px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg><figcaption>16</figcaption></figure>
+        <figure><svg class="art art-gold" style="width:24px;height:24px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg><figcaption>24</figcaption></figure>
+        <figure><svg class="art art-gold" style="width:32px;height:32px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg><figcaption>32</figcaption></figure>
+        <figure><svg class="art art-gold" style="width:48px;height:48px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg><figcaption>48</figcaption></figure>
+        <figure><svg class="art art-gold" style="width:72px;height:72px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg><figcaption>72</figcaption></figure>
+        <figure><svg class="art art-gold" style="width:112px;height:112px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg><figcaption>112</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Colour</h2>
+    <p class="lede">沿用站点现有金色链，确保与既有 UI 一致。金色是唯一强调色，黑与白承担结构与文字。</p>
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:#F5B700"></div><div class="meta"><b>星火金</b>#F5B700<br>主色</div></div>
+      <div class="swatch"><div class="chip" style="background:#FFC928"></div><div class="meta"><b>亮金</b>#FFC928<br>悬停 / 高光</div></div>
+      <div class="swatch"><div class="chip" style="background:#B97800"></div><div class="meta"><b>深金</b>#B97800<br>金底上的字</div></div>
+      <div class="swatch"><div class="chip" style="background:#0B0D10"></div><div class="meta"><b>墨黑</b>#0B0D10<br>结构 / 背景</div></div>
+      <div class="swatch"><div class="chip" style="background:#171B21"></div><div class="meta"><b>深灰</b>#171B21<br>面板</div></div>
+      <div class="swatch"><div class="chip" style="background:#F5F6F7"></div><div class="meta"><b>近白</b>#F5F6F7<br>浅底 / 反白</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="system">
+  <div class="wrap">
+    <h2>In Context</h2>
+    <p class="lede">真实场景预览：网站页头、浏览器标签、APP 图标、客服头像、平台头像、名片。</p>
+
+    <h3>网站页头（桌面）</h3>
+    <div class="browser" style="margin-bottom:26px">
+      <div class="bar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="url">https://wydlgf.cn/</div>
+      </div>
+      <div class="site-head">
+        <div class="brandline">
+          <svg viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg>
+          <span>星火网游代练平台</span>
+        </div>
+        <div class="menu"><span>服务</span><span>攻略</span><span>MW4 工具站</span><span>业务记录</span><span>一对一咨询</span></div>
+        <div class="cta">提前询价</div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="align-items:start">
+      <div>
+        <h3>浏览器标签 / favicon</h3>
+        <div class="browser">
+          <div class="bar">
+            <div class="dots"><i></i><i></i><i></i></div>
+          </div>
+          <div style="display:flex;gap:6px;padding:8px 8px 0">
+            <div class="tab">
+              <span style="width:16px;height:16px;border-radius:4px;background:#0B0D10;display:grid;place-items:center">
+                <svg style="width:11px;height:11px;color:#F5B700" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg>
+              </span>
+              MW4 代练 | 星火网游代练平台
+            </div>
+            <div class="tab" style="opacity:.5">＋</div>
+          </div>
+          <div style="height:74px"></div>
+        </div>
+      </div>
+      <div>
+        <h3>手机端页头</h3>
+        <div style="display:grid;place-items:center">
+          <div class="mobile">
+            <div class="m-head">
+              <div class="m-brand">
+                <svg viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg>
+                <span>星火网游</span>
+              </div>
+              <div class="burger"><i></i><i></i><i></i></div>
+            </div>
+            <div class="m-body"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Icons & Avatars</h2>
+    <p class="lede">APP 图标、浏览器图标、客服与平台头像、社交头像。圆形裁切下符号保持在视觉中心。</p>
+    <div class="homescreen" style="margin-bottom:30px">
+      <div style="display:grid;place-items:center">
+        <div class="appicon"><svg style="color:#F5B700" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg></div>
+        <p class="label">APP 图标</p>
+      </div>
+      <div style="display:grid;place-items:center">
+        <div class="appicon" style="border-radius:50%"><svg style="color:#F5B700" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg></div>
+        <p class="label">圆形图标</p>
+      </div>
+      <div style="display:grid;place-items:center">
+        <div class="appicon" style="background:#F5B700"><svg style="color:#0B0D10" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg></div>
+        <p class="label">金底图标</p>
+      </div>
+      <div style="display:grid;place-items:center">
+        <div class="appicon" style="background:#F4F5F7;border-color:#E2E5EA"><svg style="color:#0B0D10" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg></div>
+        <p class="label">浅底图标</p>
+      </div>
+    </div>
+
+    <div class="avatars">
+      <div class="avatar"><div class="ring" style="background:#0B0D10"><svg style="color:#F5B700" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg></div><span>客服头像</span></div>
+      <div class="avatar"><div class="ring" style="background:#FF5000"><svg style="color:#FFFFFF" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg></div><span>淘宝头像</span></div>
+      <div class="avatar"><div class="ring" style="background:#FFE411"><svg style="color:#0B0D10" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg></div><span>闲鱼头像</span></div>
+      <div class="avatar"><div class="ring" style="background:#1AAD19"><svg style="color:#FFFFFF" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg></div><span>微信 / 社交头像</span></div>
+      <div class="avatar"><div class="ring" style="background:#FFFFFF"><svg style="color:#0B0D10" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg></div><span>通用头像</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Business Card</h2>
+    <p class="lede">名片示意：正面深色放主组合，背面浅色放符号与联系方式。</p>
+    <div class="grid g2">
+      <div class="card" style="background:transparent;border-style:dashed">
+        <div class="card-mock">
+          <svg class="cl" viewBox="0 0 960 200" width="960" height="200">
+            <use href="#spark" x="0" y="0" width="256" height="256" style="color:#F5B700" transform="translate(16 15) scale(0.664)"/>
+            <g transform="translate(214 50)" fill="none" stroke="#FFFFFF" stroke-width="19" stroke-linejoin="round">
+              <path d="M10 10 L74 90 M74 10 L10 90"/>
+              <path d="M120 10 V90"/>
+              <path d="M166 90 V10 L236 90 V10"/>
+              <path d="M333.7 12.4 A40 40 0 0 0 289.4 75.7 A40 40 0 0 0 359.4 43.1 M360 50 H328"/>
+              <path d="M404 10 V90 M474 10 V90 M404 50 H474"/>
+              <path d="M518 10 V55 A35 35 0 0 0 588 55 V10"/>
+              <circle cx="672" cy="50" r="40"/>
+            </g>
+          </svg>
+          <div class="who"><b>星火网游代练平台</b>游戏代练 · 陪玩 · 任务服务<br>待提供</div>
+        </div>
+        <p class="lbl">名片正面</p>
+      </div>
+      <div class="card" style="background:transparent;border-style:dashed">
+        <div class="card-mock light">
+          <svg style="width:52px;height:52px;color:#0B0D10" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg>
+          <div class="who"><b>星火网游代练平台</b>wydlgf.cn<br>客服：待提供</div>
+        </div>
+        <p class="lbl">名片背面</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="rules">
+  <div class="wrap">
+    <h2>Usage Rules</h2>
+    <p class="lede">安全区域、最小尺寸与禁止用法。</p>
+    <div class="rules" style="margin-bottom:26px">
+      <div>
+        <h4>安全区域</h4>
+        <p>以符号“火花”单侧宽度的 <b>1/2</b> 为最小留白（记为 <code>X</code>）。四周禁止压字、压边或叠图。</p>
+      </div>
+      <div>
+        <h4>最小尺寸</h4>
+        <ul>
+          <li>符号：屏幕 ≥ 16px，印刷 ≥ 5mm</li>
+          <li>横向组合：宽度 ≥ 120px</li>
+          <li>堆叠组合：宽度 ≥ 88px</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:26px">
+      <div class="clearspace">
+        <div class="frame">
+          <svg class="art art-ink sym-sm" style="width:88px;height:88px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256"/></svg>
+        </div>
+      </div>
+      <p class="lbl">虚线 = 最小安全区域</p>
+    </div>
+
+    <h3>禁止用法</h3>
+    <div class="misuse">
+      <div class="m" data-x="DON'T"><svg style="width:96px;height:96px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256" style="color:#7C5CFF"/></svg></div>
+      <div class="m" data-x="DON'T" style="background:#2A2410"><svg style="width:96px;height:96px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256" style="color:#8A6B0A"/></svg></div>
+      <div class="m" data-x="DON'T"><svg style="width:110px;height:88px;transform:scaleY(1.25)" viewBox="0 0 256 256"><use href="#spark" width="256" height="256" style="color:#F5B700"/></svg></div>
+      <div class="m" data-x="DON'T"><svg style="width:96px;height:96px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256" style="color:#0B0D10;filter:drop-shadow(3px 3px 4px rgba(255,255,255,.4))"/></svg></div>
+      <div class="m" data-x="DON'T"><svg style="width:96px;height:96px" viewBox="0 0 256 256"><use href="#spark" width="256" height="256" style="color:#F5B700;stroke:#FF0000;stroke-width:6"/></svg></div>
+      <div class="m" data-x="DON'T"><div style="display:flex;align-items:center;gap:6px"><svg style="width:82px;height:82px;transform:rotate(30deg)" viewBox="0 0 256 256"><use href="#spark" width="256" height="256" style="color:#F5B700"/></svg><span style="font-size:12px;font-weight:700;color:#9BA3AE">XINGHUO</span></div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    星火网游 · Logo 资产预览页 · 本页仅用于品牌资产评审，未接入线上站点。符号与标准字均为矢量构建，可直接用于网站、APP、头像与印刷场景。
+  </div>
+</footer>
+
+</body>
+</html>

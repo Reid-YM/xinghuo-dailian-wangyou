@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>星火网游 · 本轮交付总览</title>
+<style>
+  :root{--ink:#0A0C0F;--line:#E3E6EB;--muted:#6C7480;--gold:#F5B700}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#fff;color:var(--ink);font-family:Inter,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;line-height:1.6}
+  .wrap{width:1600px;margin:0 auto;padding:56px 60px 64px}
+  h1{font-size:32px;font-weight:750;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;margin-top:8px}
+  h2{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:44px 0 16px;display:flex;align-items:center;gap:14px}
+  h2::after{content:"";flex:1;height:1px;background:var(--line)}
+  .row{display:grid;gap:18px}
+  .r3{grid-template-columns:repeat(3,1fr)}
+  .r4{grid-template-columns:repeat(4,1fr)}
+  .r8{grid-template-columns:repeat(8,1fr)}
+  .tile{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+  .tile .ph{flex:1;display:grid;place-items:center;padding:18px;background:#F4F5F7}
+  .tile .ph.dark{background:var(--ink)}
+  .tile img{max-width:100%;max-height:100%;display:block;object-fit:contain}
+  .tile .cap{font-size:11.5px;color:var(--muted);padding:10px 14px;border-top:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .logo-big{height:200px}
+  .promo-sq{height:300px}
+  .promo-wide{height:200px}
+  .av{height:150px}
+  .note{font-size:12.5px;color:var(--muted);margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>星火网游 · 本轮交付总览</h1>
+  <p class="sub">新 Logo（非星星方向 Style D「四级等级条」）+ 宣传图 4 个规格 + 头像 8 款</p>
+
+  <h2>01 · Logo</h2>
+  <div class="row r3">
+    <div class="tile"><div class="ph dark logo-big"><img src="../styles/png/style-d-lockup-2048.png" alt=""></div><div class="cap">横向组合 · 深色背景</div></div>
+    <div class="tile"><div class="ph dark logo-big"><img src="../styles/png/style-d-icon-512.png" alt="" style="max-height:150px"></div><div class="cap">标记 · 四级金色</div></div>
+    <div class="tile"><div class="ph logo-big"><img src="../styles/style-d-icon-mono.svg" alt="" style="max-height:150px"></div><div class="cap">标记 · 单色（浅底 / 印刷）</div></div>
+  </div>
+
+  <h2>02 · 宣传图</h2>
+  <div class="row r3">
+    <div class="tile"><div class="ph promo-sq"><img src="../promo/png/promo-square-1080.png" alt=""></div><div class="cap">1080×1080 · 朋友圈 / 社群 / 淘宝主图</div></div>
+    <div class="tile"><div class="ph promo-sq"><img src="../promo/png/promo-story-1080x1920.png" alt=""></div><div class="cap">1080×1920 · 抖音 / 视频号竖版</div></div>
+    <div class="tile"><div class="ph promo-sq" style="padding:0"><img src="../promo/png/promo-og-1200x630.png" alt="" style="width:100%"></div><div class="cap">1200×630 · 链接分享卡</div></div>
+  </div>
+  <div class="row" style="margin-top:18px">
+    <div class="tile"><div class="ph promo-wide"><img src="../promo/png/promo-banner-1920x1080.png" alt=""></div><div class="cap">1920×1080 · 网站 hero / 直播间贴片 / 视频封面</div></div>
+  </div>
+
+  <h2>03 · 头像</h2>
+  <div class="row r8">
+    <div class="tile"><div class="ph dark av"><img src="../avatars/png512/avatar-01-dark-gold.png" alt=""></div><div class="cap">主头像</div></div>
+    <div class="tile"><div class="ph av"><img src="../avatars/png512/avatar-02-gold-ink.png" alt=""></div><div class="cap">金底</div></div>
+    <div class="tile"><div class="ph dark av"><img src="../avatars/png512/avatar-03-xmark.png" alt=""></div><div class="cap">X 字标</div></div>
+    <div class="tile"><div class="ph dark av"><img src="../avatars/png512/avatar-04-support.png" alt=""></div><div class="cap">客服</div></div>
+    <div class="tile"><div class="ph av"><img src="../avatars/png512/avatar-05-taobao.png" alt=""></div><div class="cap">淘宝</div></div>
+    <div class="tile"><div class="ph av"><img src="../avatars/png512/avatar-06-xianyu.png" alt=""></div><div class="cap">闲鱼</div></div>
+    <div class="tile"><div class="ph av"><img src="../avatars/png512/avatar-07-wechat.png" alt=""></div><div class="cap">微信</div></div>
+    <div class="tile"><div class="ph dark av"><img src="../avatars/png512/avatar-08-char.png" alt=""></div><div class="cap">「火」字</div></div>
+  </div>
+  <p class="note">头像均已按圆形裁切安全区控制；宣传图为精确像素输出，可直接投放。</p>
+</div>
+</body>
+</html>

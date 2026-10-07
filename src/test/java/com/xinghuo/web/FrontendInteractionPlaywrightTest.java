@@ -121,7 +121,7 @@ class FrontendInteractionPlaywrightTest {
                     </div>
                     <div class="account-settings-view" data-settings-view="security"><section class="nexus-module" id="password">P</section></div>
                     """);
-            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-surface-refine.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-shell.css")));
 
             int headerZ = Integer.parseInt((String) page.evaluate("() => getComputedStyle(document.querySelector('.site-header')).zIndex"));
             int modalZ = Integer.parseInt((String) page.evaluate("() => getComputedStyle(document.querySelector('.modal')).zIndex"));

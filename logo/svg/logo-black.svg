@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 200" width="960" height="200" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 966 200" width="966" height="200" role="img" aria-labelledby="title">
   <title id="title">星火网游 logo - one colour black</title>
-  <g fill="none" stroke="#0B0D10" stroke-width="20" stroke-linejoin="round" transform="translate(214 50)">
-    <path d="M10 10 L74 90 M74 10 L10 90"/>
-    <path d="M120 10 V90"/>
-    <path d="M166 90 V10 L236 90 V10"/>
-    <path d="M333.7 12.4 A40 40 0 0 0 289.4 75.7 A40 40 0 0 0 359.4 43.1 M360 50 H328"/>
-    <path d="M404 10 V90 M474 10 V90 M404 50 H474"/>
-    <path d="M518 10 V55 A35 35 0 0 0 588 55 V10"/>
-    <circle cx="672" cy="50" r="40"/>
+  <g fill="none" stroke="#0B0D10" stroke-width="18" stroke-linejoin="round" transform="translate(214 50)">
+    <path d="M8 5 L76 95 M76 5 L8 95"/>
+    <path d="M119 0 V100"/>
+    <path d="M163 0 V100 M235 0 V100 M163 9 L235 91"/>
+    <path d="M334 11.5 A41 41 0 0 0 288.6 76.4 A41 41 0 0 0 360.4 42.9 M361 50 H330"/>
+    <path d="M405 0 V100 M477 0 V100 M405 50 H477"/>
+    <path d="M521 0 V55 A36 36 0 0 0 593 55 V0"/>
+    <circle cx="678" cy="50" r="41"/>
   </g>
   <path fill="#0B0D10" d="M244 12 Q186 88 182 128 Q186 168 244 244 Q168 186 128 182 Q88 186 12 244 Q70 168 74 128 Q70 88 12 12 Q88 70 128 74 Q168 70 244 12 Z" transform="translate(16 15) scale(0.664)"/>
 </svg>

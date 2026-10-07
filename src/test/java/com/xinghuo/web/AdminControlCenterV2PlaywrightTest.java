@@ -47,7 +47,7 @@ class AdminControlCenterV2PlaywrightTest {
             assertEquals(1, page.locator("#adminV2NavSearch").count());
 
             page.evaluate("""
-                    () -> {
+                    () => {
                       document.querySelector('[data-panel=dashboard]').classList.add('hidden');
                       document.querySelector('[data-panel=orders]').classList.remove('hidden');
                     }

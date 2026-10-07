@@ -121,7 +121,7 @@ jobs:
           -Dexec.classpathScope=test
           -Dexec.args="install --with-deps chromium"
 
-      - name: Run browser interaction regression tests
+      - name: Run all browser interaction regression tests
         env:
           PLAYWRIGHT_UI_TESTS: '1'
-        run: mvn -B -ntp -Dtest=FrontendInteractionPlaywrightTest test
+        run: mvn -B -ntp -Dtest='*PlaywrightTest' test

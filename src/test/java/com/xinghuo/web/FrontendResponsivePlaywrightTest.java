@@ -23,8 +23,8 @@ class FrontendResponsivePlaywrightTest {
             renderPublicShell(page);
 
             Number containerWidth = number(page, "document.querySelector('main.container').getBoundingClientRect().width");
-            assertTrue(containerWidth.doubleValue() >= 1380.0,
-                    () -> "24-inch desktop canvas collapsed to " + containerWidth + "px");
+            assertTrue(containerWidth.doubleValue() >= 1380.0 && containerWidth.doubleValue() <= 1441.0,
+                    () -> "24-inch desktop canvas escaped the V4 1440px workspace: " + containerWidth + "px");
             assertNoHorizontalOverflow(page, "Chromium 1920 desktop");
             assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
             assertEquals("rgb(241, 242, 244)", string(page, "getComputedStyle(document.body).backgroundColor"),
@@ -73,6 +73,7 @@ class FrontendResponsivePlaywrightTest {
     @Test
     void experienceLayerIsAuthoritativeAndRuntimeThemeControlsRemainLast() throws Exception {
         String css = Files.readString(ASSETS.resolve("site-experience-v4.css"));
+        String quarantine = Files.readString(ASSETS.resolve("site-experience-v4-legacy-quarantine.css"));
         String fragment = Files.readString(SITE_FRAGMENT);
 
         assertTrue(css.contains("--max:1440px"));
@@ -85,6 +86,10 @@ class FrontendResponsivePlaywrightTest {
         assertTrue(css.contains("@media(prefers-reduced-motion:reduce)"));
         assertTrue(css.contains(".service-browser-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))"),
                 "desktop service browser must keep the explicit four-column experience contract");
+        assertTrue(quarantine.contains("body[data-page=\"home\"]"));
+        assertTrue(quarantine.contains("background:var(--xh-canvas)!important"));
+        assertTrue(quarantine.contains("body .mobile-dock"));
+        assertTrue(quarantine.contains("min-height:46px!important"));
 
         assertTrue(!fragment.contains("site-shell.css"),
                 "retired legacy shell must not compete with the public experience layer");
@@ -94,9 +99,11 @@ class FrontendResponsivePlaywrightTest {
         assertTrue(fragment.contains("backdrop-filter:none!important;transition:none!important"),
                 "public v4 header must quarantine legacy blur transitions at the shell boundary");
         int experience = fragment.indexOf("site-experience-v4.css?v=20261007ux04");
+        int legacyQuarantine = fragment.indexOf("site-experience-v4-legacy-quarantine.css?v=20261007q001");
         int runtime = fragment.indexOf("frontend-controls-runtime.js");
         assertTrue(experience >= 0, "v4 experience stylesheet must load globally");
-        assertTrue(runtime > experience, "runtime frontend controls must remain able to override configured variables");
+        assertTrue(legacyQuarantine > experience, "legacy quarantine must load after the authoritative V4 layer");
+        assertTrue(runtime > legacyQuarantine, "runtime frontend controls must remain after all public style layers");
     }
 
     private static void assertFourColumnServiceGrid(Page page) {
@@ -151,6 +158,12 @@ class FrontendResponsivePlaywrightTest {
                 () -> label + " primary CTA touch target was only " + primaryHeight + "px");
         assertEquals("grid", string(page, "getComputedStyle(document.querySelector('.mobile-dock')).display"),
                 label + " mobile dock should be visible");
+        assertEquals("1", string(page, "getComputedStyle(document.querySelector('.mobile-dock')).opacity"),
+                label + " mobile dock must not inherit the legacy hidden state");
+        assertEquals("auto", string(page, "getComputedStyle(document.querySelector('.mobile-dock')).pointerEvents"),
+                label + " mobile dock must remain interactive");
+        assertEquals("rgb(255, 255, 255)", string(page, "getComputedStyle(document.querySelector('.mobile-dock')).backgroundColor"),
+                label + " mobile dock must use the V4 light workspace surface");
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"),
                 label + " header must not rely on glass blur");
         assertEquals("rgb(241, 242, 244)", string(page, "getComputedStyle(document.body).backgroundColor"),
@@ -184,7 +197,7 @@ class FrontendResponsivePlaywrightTest {
                     </div>
                   </header>
                   <main class="container">
-                    <section class="hero hero-r3">
+                    <section id="homeHero" class="hero hero-r3">
                       <div class="hero-copy">
                         <div class="hero-signal"><span class="hero-kicker">可靠手打 · 纯绿服务 · 进度可查</span></div>
                         <h1>使命召唤 MW4 任务代练</h1>
@@ -205,5 +218,6 @@ class FrontendResponsivePlaywrightTest {
                 """);
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("app.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v4.css")));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v4-legacy-quarantine.css")));
     }
 }

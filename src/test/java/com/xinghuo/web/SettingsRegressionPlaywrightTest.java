@@ -35,7 +35,6 @@ class SettingsRegressionPlaywrightTest {
                     """);
             page.evaluate("""
                     () => {
-                      history.replaceState(null, '', location.pathname);
                       window.__scrollCalls = 0;
                       Element.prototype.scrollIntoView = function () { window.__scrollCalls += 1; };
                     }

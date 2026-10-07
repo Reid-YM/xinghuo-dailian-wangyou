@@ -50,6 +50,7 @@ logo/
 │   ├── favicon-16.png
 │   └── apple-touch-icon.png    180×180
 ├── concepts/                   5 个第一轮方向（设计过程存档）
+├── styles/                     另两套风格候选：B 字标主导、C 模块化四单元
 ├── explorations/               过程渲染：方向、折面候选、尺寸测试、展示页截图
 ├── showcase/index.html         品牌标志规范页（可直接双击打开）
 ├── tools/                      导出与截图脚本（Node）
@@ -181,3 +182,29 @@ node tools/sheet.mjs   out.png cols tile "#f4f5f7" a.png b.png ...
 node tools/size-ladder.mjs out.png "#ffffff" 16,24,32,48,64,128 a.svg b.svg
 node tools/shot.mjs    page.html out.png 390 844 full
 ```
+
+---
+
+## 10. 风格选项与货架测试（追加）
+
+除主方案外，另做了两套**风格明显不同**的候选，并全部放进"和大公司同尺寸对比"的货架测试里。
+
+| 风格 | 构图逻辑 | 适合场景 | 主要风险 |
+|---|---|---|---|
+| **A 折光火花**（当前主方案） | 单条闭合路径 + 四折面 | 全部场景；小尺寸用单色版 | 单色剪影属于常见"四角火花"家族，差异只在折面 |
+| **B 字标主导 + 印记** | 金色印记 + 更轻更宽的 `XINGHUO` 字标 | 超大字号、周边、视频角标；印记做 APP 图标 | 字标主体在小空间退化为印记，需要两套资产 |
+| **C 模块化四单元** | 四个相同锥形单元 + 中心菱形，一形四色 | 图形系统、动效、活动换色 | 单元之间有间隙，16px 会并成一团，需另做无间隙小尺寸版 |
+
+文件：`logo/styles/style-b-*.svg`、`logo/styles/style-c-*.svg`。
+
+### 货架测试
+
+把三个候选与 Spotify / YouTube / Discord / Reddit / Telegram / WhatsApp / Vercel / Framer / Figma / Dropbox / Slack / OpenAI / Steam / Twitch / TikTok / GitHub / Apple 放在同一尺寸、同一底色下对比，并额外做了一行**纯剪影对比**（把每个标志压成纯黑，只比形状）。结果见 `explorations/08-shelf-test.png`。
+
+**三条结论**
+
+1. **底板路线只在"底板里是无歧义图形"时成立。** Spotify 的声波、YouTube 的播放键、Telegram 的纸飞机都成立；而**把字母 X 放进方底会被读成"关闭 / 取消 / 错误"**——这是系统级既有语义，品牌改不动。本次实测否决的三个 X + 底板方案见 `explorations/09-style-candidates.png`。
+2. **单色剪影比不出高低。** A 的剪影落在常见"四角火花"家族里，靠剪影赢不了 Vercel 三角、Figma 五块那种独特性；差异必须放在"面"（折面）上。
+3. **最像大公司做法的是模块化。** Figma（五块）、Dropbox（四个菱形）、Slack（四根条）都是"相同单元 + 系统组合"，在剪影行里辨识度最高 —— 这是 Style C 的依据。
+
+**建议**：主方案维持 A（小尺寸最强、资产最省）；若要更强的"系统感"，用 C 的四个单元做辅助图形与动效，用 B 的轻字标做超大字号场景，三者共用同一条金色链。

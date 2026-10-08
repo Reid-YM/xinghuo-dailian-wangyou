@@ -957,21 +957,14 @@
       } else { heroVisual.innerHTML = ''; heroVisual.classList.remove('has-image'); }
     }
 
+    window.SiteImageControls.main(heroVisual, heroVisual?.querySelector('img'), config);
+
     const hero = $('#homeHero');
     const heroBg = $('#heroBackground');
     const heroBgImage = safeUrl(config.heroBackgroundImage);
     if (hero && heroBg) {
       hero.classList.toggle('has-background', !!heroBgImage);
-      const bgOpacity = Math.max(0, Math.min(100, Number(config.heroBackgroundOpacity ?? 72))) / 100;
-      hero.style.setProperty('--hero-bg-image-strength', String(bgOpacity));
-      hero.style.setProperty('--hero-bg-text-dim', String(Math.max(0.18, 0.58 - bgOpacity * 0.4)));
-      hero.style.setProperty('--hero-bg-edge-dim', String(Math.max(0.22, 0.72 - bgOpacity * 0.34)));
-      heroBg.style.backgroundImage = heroBgImage ? `url("${replaceAllCompat(heroBgImage, '"', '%22')}")` : '';
-      heroBg.style.opacity = String(bgOpacity);
-      const bgFit = ['cover','contain','fill'].includes(config.heroBackgroundFit) ? config.heroBackgroundFit : 'cover';
-      heroBg.style.backgroundSize = bgFit === 'fill' ? '100% 100%' : bgFit;
-      heroBg.style.backgroundPosition = `${Number(config.heroBackgroundPositionX ?? 50)}% ${Number(config.heroBackgroundPositionY ?? 50)}%`;
-      heroBg.style.filter = `blur(${Math.max(0, Math.min(24, Number(config.heroBackgroundBlur ?? 0)))}px)`;
+      window.SiteImageControls.background(hero, heroBg, config, heroBgImage);
     }
 
     document.documentElement.style.setProperty('--service-cover-height', `${Math.max(70, Math.min(240, Number(config.serviceCoverHeight || 105)))}px`);
@@ -1183,3 +1176,4 @@
   initResponsiveDetails();
   loadConfig().catch(() => {});
 })();
+

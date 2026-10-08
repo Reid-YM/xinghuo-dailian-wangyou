@@ -21,7 +21,8 @@ public final class QuoteLeadDtos {
     public record QuoteLeadPageResponse(List<QuoteLeadResponse> items, int page, int size, long total, int totalPages, List<String> sources) {
     }
 
-    public record QuoteLeadResponse(UUID id, String businessNo, String game, String demand, String currentProgress, UUID screenshotAssetId, String platform, String expectedTime, String contactMethod, String customerContact, String customerIpHash, String status, Instant createdAt, Integer leadScore, String leadIntentLevel, String nextAction, String followUpNote, String aiSuggestion, Instant lastContactedAt, String firstTouchSource, String utmSource, String utmMedium, String utmCampaign, String referrer, Instant updatedAt) {
+    public record QuoteLeadResponse(UUID id, String businessNo, String game, String demand, String currentProgress, UUID screenshotAssetId, String platform, String expectedTime, String contactMethod, String customerContact, String customerIpHash, String status, Instant createdAt, Integer leadScore, String leadIntentLevel, String nextAction, String followUpNote, String aiSuggestion, Instant lastContactedAt, String firstTouchSource, String utmSource, String utmMedium, String utmCampaign, String referrer, Instant updatedAt, String customerSupplement) {
     }
 }
+
 

@@ -145,7 +145,7 @@ public class PublicApiController {
     @GetMapping(value={"/site-assets/{assetId}"})
     ResponseEntity<Resource> siteAsset(@PathVariable UUID assetId) {
         Resource r = this.uploads.loadPublicSiteAsset(assetId);
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.maxAge((Duration)Duration.ofDays(7L)).cachePublic())).body(r);
+        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(assetId)).cacheControl(CacheControl.maxAge((Duration)Duration.ofDays(7L)).cachePublic())).body(r);
     }
 
     @PostMapping(value={"/uploads/quote"})
@@ -211,7 +211,7 @@ public class PublicApiController {
             throw new NotFoundException();
         }
         Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.noStore())).body(r);
+        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(o.getProgressImageAssetId())).cacheControl(CacheControl.noStore())).body(r);
     }
 
     @GetMapping(value={"/orders/{orderNo}"})
@@ -234,7 +234,7 @@ public class PublicApiController {
             throw new NotFoundException();
         }
         Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.noStore())).body(r);
+        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(o.getProgressImageAssetId())).cacheControl(CacheControl.noStore())).body(r);
     }
 
     /**
@@ -272,3 +272,4 @@ public class PublicApiController {
         this.quoteContacts = quoteContacts;
     }
 }
+

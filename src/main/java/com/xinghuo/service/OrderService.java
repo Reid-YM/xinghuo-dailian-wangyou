@@ -148,6 +148,9 @@ public class OrderService {
     @Transactional
     public ApiDtos.AdminOrderResponse update(String orderNo, ApiDtos.UpdateOrderRequest r, String operator, HttpServletRequest req) {
         CustomerOrder o = this.findByOrderNo(orderNo);
+        if (r.version() == null || r.version() != o.getVersion()) {
+            throw new com.xinghuo.exception.ConflictException("订单已被更新，请刷新后重新编辑；当前内容尚未保存");
+        }
         ApiDtos.AdminOrderResponse before = this.admin(o);
         CustomerOrder.Status nextStatus = this.parseStatus(r.status());
         o.setStatus(nextStatus);
@@ -159,6 +162,7 @@ public class OrderService {
             o.setFinishedAt(Instant.now());
         }
         o.setUpdatedAt(Instant.now());
+        this.repo.flush();
         ApiDtos.AdminOrderResponse after = this.admin(o);
         this.audit.log("ORDER_UPDATE", "ORDER", o.getBusinessNo(), operator, before, after, r.reason(), req);
         return after;
@@ -246,4 +250,5 @@ public class OrderService {
         this.audit = audit;
     }
 }
+
 

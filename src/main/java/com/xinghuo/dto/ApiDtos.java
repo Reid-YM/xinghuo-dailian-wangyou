@@ -128,10 +128,11 @@ public final class ApiDtos {
     public record TrustFaqResponse(String question, String answer) {
     }
 
-    public record UpdateOrderRequest(@NotBlank String status, @Min(value=0L) @Max(value=100L) @Min(value=0L) @Max(value=100L) Integer progressPercent, @NotBlank @Size(max=240) @NotBlank @Size(max=240) String progressText, @Size(max=500) @Size(max=500) String customerNote, @Size(max=1200) @Size(max=1200) String internalNote, @Size(max=500) @Size(max=500) String reason) {
+    public record UpdateOrderRequest(@jakarta.validation.constraints.NotNull Long version, @NotBlank String status, @Min(value=0L) @Max(value=100L) @Min(value=0L) @Max(value=100L) Integer progressPercent, @NotBlank @Size(max=240) @NotBlank @Size(max=240) String progressText, @Size(max=500) @Size(max=500) String customerNote, @Size(max=1200) @Size(max=1200) String internalNote, @Size(max=500) @Size(max=500) String reason) {
     }
 
     public record UploadResponse(UUID assetId) {
     }
 }
+
 

@@ -32,9 +32,11 @@ public class AccountTokenService {
     private static final int CODE_BOUND = 1_000_000;
 
     private final AccountTokenRepository tokens;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbc;
 
-    public AccountTokenService(AccountTokenRepository tokens) {
+    public AccountTokenService(AccountTokenRepository tokens, org.springframework.jdbc.core.JdbcTemplate jdbc) {
         this.tokens = tokens;
+        this.jdbc = jdbc;
     }
 
     /**
@@ -86,17 +88,33 @@ public class AccountTokenService {
         return code;
     }
 
-    @Transactional
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
     public Optional<AccountToken> consumeCode(String codeScope, String code, AccountToken.Purpose purpose) {
-        if (codeScope == null || code == null || !code.matches("\\d{6}")) {
-            return Optional.empty();
-        }
+        if (codeScope == null || code == null) return Optional.empty();
+        Instant now = Instant.now();
+        var candidates = jdbc.query("""
+                SELECT id, token_hash, failed_attempts FROM user_token
+                 WHERE payload = ? AND purpose = ? AND used_at IS NULL AND expires_at > ?
+                 ORDER BY id DESC LIMIT 1 FOR UPDATE
+                """, (rs, row) -> new CodeCandidate(rs.getLong("id"), rs.getString("token_hash"),
+                        rs.getInt("failed_attempts")), codeScope, purpose.name(), java.sql.Timestamp.from(now));
+        if (candidates.isEmpty()) return Optional.empty();
+        CodeCandidate candidate = candidates.get(0);
+        if (candidate.failures() >= 5) return Optional.empty();
         String hash = sha256(codePlaintext(codeScope, code));
-        if (tokens.consumeAtomically(hash, purpose, Instant.now()) != 1) {
+        if (!code.matches("\\d{6}") || !MessageDigest.isEqual(
+                hash.getBytes(StandardCharsets.US_ASCII), candidate.hash().getBytes(StandardCharsets.US_ASCII))) {
+            jdbc.update("""
+                    UPDATE user_token SET failed_attempts = failed_attempts + 1,
+                        used_at = CASE WHEN ? >= 5 THEN ? ELSE used_at END WHERE id = ?
+                    """, candidate.failures() + 1, java.sql.Timestamp.from(now), candidate.id());
             return Optional.empty();
         }
+        if (tokens.consumeAtomically(hash, purpose, now) != 1) return Optional.empty();
         return tokens.findByTokenHash(hash);
     }
+
+    private record CodeCandidate(long id, String hash, int failures) {}
 
     private static String codePlaintext(String codeScope, String code) {
         return (codeScope == null ? "" : codeScope.trim().toLowerCase()) + ":" + code;
@@ -132,3 +150,4 @@ public class AccountTokenService {
         }
     }
 }
+

@@ -31,7 +31,7 @@ class ImageControlsPlaywrightTest {
      assertEquals(mobile?"60% 35%":"15% 80%",page.evaluate("getComputedStyle(document.querySelector('img')).objectPosition"));
      assertEquals(mobile?"cover":"contain",page.evaluate("getComputedStyle(document.querySelector('#heroBackground')).backgroundSize"));
      assertEquals(mobile?"70% 25%":"10% 90%",page.evaluate("getComputedStyle(document.querySelector('#heroBackground')).backgroundPosition"));
-     assertEquals("0",page.evaluate("getComputedStyle(document.querySelector('#heroBackground')).opacity"));
+     assertEquals(mobile?"0.78":"0",page.evaluate("getComputedStyle(document.querySelector('#heroBackground')).opacity"));
      assertEquals(mobile?"150px":"135px",page.evaluate("getComputedStyle(document.querySelector('.service-cover')).height"));
      assertEquals(mobile?"cover":"contain",page.evaluate("getComputedStyle(document.querySelector('.service-cover img')).objectFit"));
      page.close();

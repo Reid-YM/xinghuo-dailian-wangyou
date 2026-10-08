@@ -62,6 +62,16 @@
     document.body.appendChild(nav);
   }
 
+  function normalizeHomeHeroEdge() {
+    if (!document.body || document.body.dataset.page !== 'home') return;
+    const hero = document.getElementById('homeHero');
+    if (!hero) return;
+    hero.style.setProperty('width', '100vw', 'important');
+    hero.style.setProperty('max-width', 'none', 'important');
+    hero.style.setProperty('margin-left', 'calc(50% - 50vw)', 'important');
+    hero.style.setProperty('margin-right', 'calc(50% - 50vw)', 'important');
+  }
+
   function syncHeroBackdrop() {
     if (!document.body || document.body.dataset.page !== 'home') return;
     const hero = document.getElementById('homeHero');
@@ -112,6 +122,7 @@
     setViewportUnit();
     installHeaderAction();
     installPrimaryNav();
+    normalizeHomeHeroEdge();
     syncHeroBackdrop();
     compactHomeQuoteDetails();
     window.addEventListener('resize', setViewportUnit, { passive: true });

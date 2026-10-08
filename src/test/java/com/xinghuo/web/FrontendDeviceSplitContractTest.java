@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.xinghuo.config.FrontendDeviceViewInterceptor;
+import com.xinghuo.config.MobileFrontendAssetFilter;
+import jakarta.servlet.FilterChain;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -51,6 +53,33 @@ class FrontendDeviceSplitContractTest {
         interceptor.postHandle(admin, new MockHttpServletResponse(), new Object(), adminView);
         assertEquals("admin", adminView.getViewName());
         assertEquals("desktop", admin.getAttribute("frontendMode"));
+    }
+
+    @Test
+    void mobileResponseLoadsMobileAssetsButDesktopDoesNot() throws Exception {
+        var filter = new MobileFrontendAssetFilter();
+        FilterChain html = (request, response) -> {
+            var http = (jakarta.servlet.http.HttpServletResponse) response;
+            http.setContentType("text/html;charset=UTF-8");
+            http.getWriter().write("<!doctype html><html><head><title>x</title></head><body>ok</body></html>");
+        };
+
+        var mobileRequest = new MockHttpServletRequest("GET", "/services");
+        mobileRequest.addHeader("User-Agent", "Mozilla/5.0 (iPhone) Mobile");
+        var mobileResponse = new MockHttpServletResponse();
+        filter.doFilter(mobileRequest, mobileResponse, html);
+        String mobileHtml = mobileResponse.getContentAsString();
+        assertTrue(mobileHtml.contains("name=\"xh-frontend\" content=\"mobile\""));
+        assertTrue(mobileHtml.contains("/assets/mobile-app.css?v=20261009m1"));
+        assertTrue(mobileHtml.contains("/assets/mobile-app.js?v=20261009m1"));
+
+        var desktopRequest = new MockHttpServletRequest("GET", "/services");
+        desktopRequest.addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X) Chrome Safari");
+        var desktopResponse = new MockHttpServletResponse();
+        filter.doFilter(desktopRequest, desktopResponse, html);
+        String desktopHtml = desktopResponse.getContentAsString();
+        assertFalse(desktopHtml.contains("mobile-app.css"));
+        assertFalse(desktopHtml.contains("mobile-app.js"));
     }
 
     @Test

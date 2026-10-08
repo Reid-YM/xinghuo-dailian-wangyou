@@ -17,20 +17,23 @@ class ImageControlsPlaywrightTest {
      for(String file:new String[]{"app.css","site-experience-v2.css","site-image-controls.css"})page.addStyleTag(new Page.AddStyleTagOptions().setPath(A.resolve(file)));
      page.addScriptTag(new Page.AddScriptTagOptions().setPath(A.resolve("site-image-controls.js")));
      page.evaluate("""
-       () => {const c={heroImageHeight:110,heroImageFit:'contain',heroImagePositionX:15,heroImagePositionY:80,heroBackgroundOpacity:0,heroBackgroundFit:'contain',heroBackgroundPositionX:10,heroBackgroundPositionY:90,heroBackgroundBlur:3};
+       () => {const c={heroImageHeight:110,heroImageFit:'contain',heroImagePositionX:15,heroImagePositionY:80,heroImageMobileHeight:170,heroImageMobileFit:'cover',heroImageMobilePositionX:60,heroImageMobilePositionY:35,heroBackgroundOpacity:0,heroBackgroundFit:'contain',heroBackgroundPositionX:10,heroBackgroundPositionY:90,heroBackgroundBlur:3,heroBackgroundMobileFit:'cover',heroBackgroundMobilePositionX:70,heroBackgroundMobilePositionY:25,serviceCoverHeight:135,serviceCoverFit:'contain',serviceCoverPositionX:20,serviceCoverPositionY:30,serviceCoverMobileHeight:150,serviceCoverMobileFit:'cover',serviceCoverMobilePositionX:80,serviceCoverMobilePositionY:40};
        SiteImageControls.main(document.querySelector('#heroVisual'),document.querySelector('#heroVisual img'),c);
-       document.documentElement.style.setProperty('--service-cover-height','135px');
-       document.documentElement.style.setProperty('--service-cover-fit','contain');
+       const cover=SiteImageControls.serviceCoverVars(c);
+       document.documentElement.style.setProperty('--service-cover-height',cover.height);
+       document.documentElement.style.setProperty('--service-cover-fit',cover.fit);
+       document.documentElement.style.setProperty('--service-cover-position',cover.position);
        SiteImageControls.background(document.querySelector('#homeHero'),document.querySelector('#heroBackground'),c,'/image.png');}
        """);
-     assertEquals("110px",page.evaluate("getComputedStyle(document.querySelector('#heroVisual')).height"));
-     assertEquals("contain",page.evaluate("getComputedStyle(document.querySelector('img')).objectFit"));
-     assertEquals("15% 80%",page.evaluate("getComputedStyle(document.querySelector('img')).objectPosition"));
-     assertEquals("contain",page.evaluate("getComputedStyle(document.querySelector('#heroBackground')).backgroundSize"));
-     assertEquals("10% 90%",page.evaluate("getComputedStyle(document.querySelector('#heroBackground')).backgroundPosition"));
+     boolean mobile=width<768;
+     assertEquals(mobile?"170px":"110px",page.evaluate("getComputedStyle(document.querySelector('#heroVisual')).height"));
+     assertEquals(mobile?"cover":"contain",page.evaluate("getComputedStyle(document.querySelector('img')).objectFit"));
+     assertEquals(mobile?"60% 35%":"15% 80%",page.evaluate("getComputedStyle(document.querySelector('img')).objectPosition"));
+     assertEquals(mobile?"cover":"contain",page.evaluate("getComputedStyle(document.querySelector('#heroBackground')).backgroundSize"));
+     assertEquals(mobile?"70% 25%":"10% 90%",page.evaluate("getComputedStyle(document.querySelector('#heroBackground')).backgroundPosition"));
      assertEquals("0",page.evaluate("getComputedStyle(document.querySelector('#heroBackground')).opacity"));
-     assertEquals("135px",page.evaluate("getComputedStyle(document.querySelector('.service-cover')).height"));
-     assertEquals("contain",page.evaluate("getComputedStyle(document.querySelector('.service-cover img')).objectFit"));
+     assertEquals(mobile?"150px":"135px",page.evaluate("getComputedStyle(document.querySelector('.service-cover')).height"));
+     assertEquals(mobile?"cover":"contain",page.evaluate("getComputedStyle(document.querySelector('.service-cover img')).objectFit"));
      page.close();
     }
    }
@@ -48,7 +51,7 @@ class ImageControlsPlaywrightTest {
     for(String file:new String[]{"app.css","admin-control-center-v2.css","site-image-controls.css"})page.addStyleTag(new Page.AddStyleTagOptions().setPath(A.resolve(file)));
     for(String file:new String[]{"site-image-controls.js","admin-image-editor.js"})page.addScriptTag(new Page.AddScriptTagOptions().setPath(A.resolve(file)));
     page.evaluate("document.dispatchEvent(new CustomEvent('site-config-loaded'))");
-    page.getByLabel("主图高度（px）").fill("180");
+    page.getByLabel("手机主图高度（px）").fill("180");
     assertEquals("参数有未保存修改",page.locator("#visualSaveState").innerText());
     page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,new Page.GetByRoleOptions().setName("手机").setExact(true)).click();
     assertEquals("mobile",page.locator("#heroBackgroundLivePreview").getAttribute("data-device"));

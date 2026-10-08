@@ -21,6 +21,7 @@
  section.querySelectorAll('[data-visual-device]').forEach(button=>button.addEventListener('click',()=>{
    document.getElementById('heroBackgroundLivePreview').dataset.device=button.dataset.visualDevice;
    section.querySelectorAll('[data-visual-device]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+   document.dispatchEvent(new CustomEvent('visual-device-changed'));
  }));
  document.addEventListener('site-config-loaded',()=>{saved=snapshot();refresh();});
  document.addEventListener('site-image-updated',refresh);

@@ -37,7 +37,7 @@ public class SiteConfigService {
     @Transactional(readOnly=true)
     public ApiDtos.SiteConfigResponse publicConfig() {
         SiteConfig c = this.get();
-        return new ApiDtos.SiteConfigResponse(c.getBrandName(), c.getLegalEntityName(), this.mw4Status().name().toLowerCase(Locale.ROOT), this.mw4ShortText(c), this.mw4CtaLabel(c), c.isQuoteEnabled(), c.isOrderQueryEnabled(), c.getHeroTitle(), c.getHeroSubtitle(), c.getStartingPriceMode().name().toLowerCase(Locale.ROOT), this.displayStartingPrice(c), c.isShowStartingPrice(), c.getHomeServiceLimit(), c.getHeroImage(), c.getHeroImageHeight(), c.getHeroImageFit().toLowerCase(Locale.ROOT), c.getHeroImagePositionX(), c.getHeroImagePositionY(), c.getHeroBackgroundImage(), c.getHeroBackgroundOpacity(), c.getHeroBackgroundFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundPositionX(), c.getHeroBackgroundPositionY(), c.getHeroBackgroundBlur(), c.getServiceCoverHeight(), c.getServiceCoverFit().toLowerCase(Locale.ROOT), c.getServiceCoverPositionX(), c.getServiceCoverPositionY(), this.splitTags(c.getTrustTags()), this.parseTrustCases(c), this.parseTrustFaq(c), c.isAnnouncementEnabled(), c.getAnnouncementText(), c.getContactTitle(), c.getContactIntro(), c.getWechatId(), c.getWechatQrImage(), c.getWechatQrSize(), this.parseContactChannels(c), c.getQqId(), c.getQqLink(), c.getPhone(), c.getServiceHours(), c.getTaobaoUrl(), c.getXianyuUrl(), c.getContactNotice(), c.getWecomKefuUrl(), c.getWecomKefuNote(), c.getQuickContactTitle(), c.getTaobaoLabel(), c.getXianyuLabel(), c.getWecomKefuLabel(), c.getWecomKefuButton(), c.getQuoteSuccessText(), c.getOrderHelpText(), c.getFooterText(), c.getSeoTitle(), c.getSeoDescription(), c.getToolUpdatedNote(), c.isToolPublicEnabled(), this.slotService.publicHotServices());
+        return new ApiDtos.SiteConfigResponse(c.getBrandName(), c.getLegalEntityName(), this.mw4Status().name().toLowerCase(Locale.ROOT), this.mw4ShortText(c), this.mw4CtaLabel(c), c.isQuoteEnabled(), c.isOrderQueryEnabled(), c.getHeroTitle(), c.getHeroSubtitle(), c.getStartingPriceMode().name().toLowerCase(Locale.ROOT), this.displayStartingPrice(c), c.isShowStartingPrice(), c.getHomeServiceLimit(), c.getHeroImage(), c.getHeroImageHeight(), c.getHeroImageFit().toLowerCase(Locale.ROOT), c.getHeroImagePositionX(), c.getHeroImagePositionY(), c.getHeroImageMobileHeight(), c.getHeroImageMobileFit().toLowerCase(Locale.ROOT), c.getHeroImageMobilePositionX(), c.getHeroImageMobilePositionY(), c.getHeroBackgroundImage(), c.getHeroBackgroundOpacity(), c.getHeroBackgroundFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundPositionX(), c.getHeroBackgroundPositionY(), c.getHeroBackgroundBlur(), c.getHeroBackgroundMobileFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundMobilePositionX(), c.getHeroBackgroundMobilePositionY(), c.getServiceCoverHeight(), c.getServiceCoverFit().toLowerCase(Locale.ROOT), c.getServiceCoverPositionX(), c.getServiceCoverPositionY(), c.getServiceCoverMobileHeight(), c.getServiceCoverMobileFit().toLowerCase(Locale.ROOT), c.getServiceCoverMobilePositionX(), c.getServiceCoverMobilePositionY(), this.splitTags(c.getTrustTags()), this.parseTrustCases(c), this.parseTrustFaq(c), c.isAnnouncementEnabled(), c.getAnnouncementText(), c.getContactTitle(), c.getContactIntro(), c.getWechatId(), c.getWechatQrImage(), c.getWechatQrSize(), this.parseContactChannels(c), c.getQqId(), c.getQqLink(), c.getPhone(), c.getServiceHours(), c.getTaobaoUrl(), c.getXianyuUrl(), c.getContactNotice(), c.getWecomKefuUrl(), c.getWecomKefuNote(), c.getQuickContactTitle(), c.getTaobaoLabel(), c.getXianyuLabel(), c.getWecomKefuLabel(), c.getWecomKefuButton(), c.getQuoteSuccessText(), c.getOrderHelpText(), c.getFooterText(), c.getSeoTitle(), c.getSeoDescription(), c.getToolUpdatedNote(), c.isToolPublicEnabled(), this.slotService.publicHotServices());
     }
 
     @Transactional(readOnly=true)
@@ -103,16 +103,27 @@ public class SiteConfigService {
         c.setHeroImageFit(this.normalizeFit(r.heroImageFit()));
         c.setHeroImagePositionX(r.heroImagePositionX());
         c.setHeroImagePositionY(r.heroImagePositionY());
+        c.setHeroImageMobileHeight(r.heroImageMobileHeight());
+        c.setHeroImageMobileFit(this.normalizeFit(r.heroImageMobileFit()));
+        c.setHeroImageMobilePositionX(r.heroImageMobilePositionX());
+        c.setHeroImageMobilePositionY(r.heroImageMobilePositionY());
         c.setHeroBackgroundImage(this.blankToNull(r.heroBackgroundImage()));
         c.setHeroBackgroundOpacity(r.heroBackgroundOpacity());
         c.setHeroBackgroundFit(this.normalizeFit(r.heroBackgroundFit()));
         c.setHeroBackgroundPositionX(r.heroBackgroundPositionX());
         c.setHeroBackgroundPositionY(r.heroBackgroundPositionY());
         c.setHeroBackgroundBlur(r.heroBackgroundBlur());
+        c.setHeroBackgroundMobileFit(this.normalizeFit(r.heroBackgroundMobileFit()));
+        c.setHeroBackgroundMobilePositionX(r.heroBackgroundMobilePositionX());
+        c.setHeroBackgroundMobilePositionY(r.heroBackgroundMobilePositionY());
         c.setServiceCoverHeight(r.serviceCoverHeight());
         c.setServiceCoverFit(this.normalizeFit(r.serviceCoverFit()));
         c.setServiceCoverPositionX(r.serviceCoverPositionX());
         c.setServiceCoverPositionY(r.serviceCoverPositionY());
+        c.setServiceCoverMobileHeight(r.serviceCoverMobileHeight());
+        c.setServiceCoverMobileFit(this.normalizeFit(r.serviceCoverMobileFit()));
+        c.setServiceCoverMobilePositionX(r.serviceCoverMobilePositionX());
+        c.setServiceCoverMobilePositionY(r.serviceCoverMobilePositionY());
         c.setTrustTags(String.join((CharSequence)"|", r.trustTags().stream().map(String::trim).filter(x -> !x.isBlank()).toList()));
         c.setTrustCases(this.serializeTrustCases(r.trustCases(), c));
         c.setTrustFaq(this.serializeTrustFaq(r.trustFaq(), c));
@@ -178,16 +189,27 @@ public class SiteConfigService {
                 c.setHeroImageFit(this.normalizeFit(this.text(r, "heroImageFit", c.getHeroImageFit(), 16)));
                 c.setHeroImagePositionX(this.integer(r, "heroImagePositionX", c.getHeroImagePositionX(), 0, 100));
                 c.setHeroImagePositionY(this.integer(r, "heroImagePositionY", c.getHeroImagePositionY(), 0, 100));
+                c.setHeroImageMobileHeight(this.integer(r, "heroImageMobileHeight", c.getHeroImageMobileHeight(), 80, 420));
+                c.setHeroImageMobileFit(this.normalizeFit(this.text(r, "heroImageMobileFit", c.getHeroImageMobileFit(), 16)));
+                c.setHeroImageMobilePositionX(this.integer(r, "heroImageMobilePositionX", c.getHeroImageMobilePositionX(), 0, 100));
+                c.setHeroImageMobilePositionY(this.integer(r, "heroImageMobilePositionY", c.getHeroImageMobilePositionY(), 0, 100));
                 c.setHeroBackgroundImage(this.nullableText(r, "heroBackgroundImage", 500));
                 c.setHeroBackgroundOpacity(this.integer(r, "heroBackgroundOpacity", c.getHeroBackgroundOpacity(), 0, 100));
                 c.setHeroBackgroundFit(this.normalizeFit(this.text(r, "heroBackgroundFit", c.getHeroBackgroundFit(), 16)));
                 c.setHeroBackgroundPositionX(this.integer(r, "heroBackgroundPositionX", c.getHeroBackgroundPositionX(), 0, 100));
                 c.setHeroBackgroundPositionY(this.integer(r, "heroBackgroundPositionY", c.getHeroBackgroundPositionY(), 0, 100));
                 c.setHeroBackgroundBlur(this.integer(r, "heroBackgroundBlur", c.getHeroBackgroundBlur(), 0, 24));
+                c.setHeroBackgroundMobileFit(this.normalizeFit(this.text(r, "heroBackgroundMobileFit", c.getHeroBackgroundMobileFit(), 16)));
+                c.setHeroBackgroundMobilePositionX(this.integer(r, "heroBackgroundMobilePositionX", c.getHeroBackgroundMobilePositionX(), 0, 100));
+                c.setHeroBackgroundMobilePositionY(this.integer(r, "heroBackgroundMobilePositionY", c.getHeroBackgroundMobilePositionY(), 0, 100));
                 c.setServiceCoverHeight(this.integer(r, "serviceCoverHeight", c.getServiceCoverHeight(), 70, 240));
                 c.setServiceCoverFit(this.normalizeFit(this.text(r, "serviceCoverFit", c.getServiceCoverFit(), 16)));
                 c.setServiceCoverPositionX(this.integer(r, "serviceCoverPositionX", c.getServiceCoverPositionX(), 0, 100));
                 c.setServiceCoverPositionY(this.integer(r, "serviceCoverPositionY", c.getServiceCoverPositionY(), 0, 100));
+                c.setServiceCoverMobileHeight(this.integer(r, "serviceCoverMobileHeight", c.getServiceCoverMobileHeight(), 70, 240));
+                c.setServiceCoverMobileFit(this.normalizeFit(this.text(r, "serviceCoverMobileFit", c.getServiceCoverMobileFit(), 16)));
+                c.setServiceCoverMobilePositionX(this.integer(r, "serviceCoverMobilePositionX", c.getServiceCoverMobilePositionX(), 0, 100));
+                c.setServiceCoverMobilePositionY(this.integer(r, "serviceCoverMobilePositionY", c.getServiceCoverMobilePositionY(), 0, 100));
                 break;
             }
             case "notice": {
@@ -600,4 +622,5 @@ public class SiteConfigService {
         this.siteSettings = siteSettings;
     }
 }
+
 

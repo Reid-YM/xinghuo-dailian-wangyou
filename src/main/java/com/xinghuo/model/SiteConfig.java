@@ -67,6 +67,14 @@ public class SiteConfig {
     private int heroImagePositionX;
     @Column(name="hero_image_position_y", nullable=false)
     private int heroImagePositionY;
+    @Column(name="hero_image_mobile_height", nullable=false)
+    private int heroImageMobileHeight;
+    @Column(name="hero_image_mobile_fit", nullable=false, length=16)
+    private String heroImageMobileFit;
+    @Column(name="hero_image_mobile_position_x", nullable=false)
+    private int heroImageMobilePositionX;
+    @Column(name="hero_image_mobile_position_y", nullable=false)
+    private int heroImageMobilePositionY;
     @Column(name="hero_background_image", length=500)
     private String heroBackgroundImage;
     @Column(name="hero_background_opacity", nullable=false)
@@ -79,6 +87,12 @@ public class SiteConfig {
     private int heroBackgroundPositionY;
     @Column(name="hero_background_blur", nullable=false)
     private int heroBackgroundBlur;
+    @Column(name="hero_background_mobile_fit", nullable=false, length=16)
+    private String heroBackgroundMobileFit;
+    @Column(name="hero_background_mobile_position_x", nullable=false)
+    private int heroBackgroundMobilePositionX;
+    @Column(name="hero_background_mobile_position_y", nullable=false)
+    private int heroBackgroundMobilePositionY;
     @Column(name="service_cover_height", nullable=false)
     private int serviceCoverHeight;
     @Column(name="service_cover_fit", nullable=false, length=16)
@@ -87,6 +101,14 @@ public class SiteConfig {
     private int serviceCoverPositionX;
     @Column(name="service_cover_position_y", nullable=false)
     private int serviceCoverPositionY;
+    @Column(name="service_cover_mobile_height", nullable=false)
+    private int serviceCoverMobileHeight;
+    @Column(name="service_cover_mobile_fit", nullable=false, length=16)
+    private String serviceCoverMobileFit;
+    @Column(name="service_cover_mobile_position_x", nullable=false)
+    private int serviceCoverMobilePositionX;
+    @Column(name="service_cover_mobile_position_y", nullable=false)
+    private int serviceCoverMobilePositionY;
     @Column(name="trust_tags", nullable=false, length=500)
     private String trustTags;
     @Column(name="trust_cases", columnDefinition="TEXT")
@@ -257,6 +279,26 @@ public class SiteConfig {
     }
 
     @Generated
+    public int getHeroImageMobileHeight() {
+        return this.heroImageMobileHeight;
+    }
+
+    @Generated
+    public String getHeroImageMobileFit() {
+        return this.heroImageMobileFit;
+    }
+
+    @Generated
+    public int getHeroImageMobilePositionX() {
+        return this.heroImageMobilePositionX;
+    }
+
+    @Generated
+    public int getHeroImageMobilePositionY() {
+        return this.heroImageMobilePositionY;
+    }
+
+    @Generated
     public String getHeroBackgroundImage() {
         return this.heroBackgroundImage;
     }
@@ -287,6 +329,21 @@ public class SiteConfig {
     }
 
     @Generated
+    public String getHeroBackgroundMobileFit() {
+        return this.heroBackgroundMobileFit;
+    }
+
+    @Generated
+    public int getHeroBackgroundMobilePositionX() {
+        return this.heroBackgroundMobilePositionX;
+    }
+
+    @Generated
+    public int getHeroBackgroundMobilePositionY() {
+        return this.heroBackgroundMobilePositionY;
+    }
+
+    @Generated
     public int getServiceCoverHeight() {
         return this.serviceCoverHeight;
     }
@@ -304,6 +361,26 @@ public class SiteConfig {
     @Generated
     public int getServiceCoverPositionY() {
         return this.serviceCoverPositionY;
+    }
+
+    @Generated
+    public int getServiceCoverMobileHeight() {
+        return this.serviceCoverMobileHeight;
+    }
+
+    @Generated
+    public String getServiceCoverMobileFit() {
+        return this.serviceCoverMobileFit;
+    }
+
+    @Generated
+    public int getServiceCoverMobilePositionX() {
+        return this.serviceCoverMobilePositionX;
+    }
+
+    @Generated
+    public int getServiceCoverMobilePositionY() {
+        return this.serviceCoverMobilePositionY;
     }
 
     @Generated
@@ -572,6 +649,26 @@ public class SiteConfig {
     }
 
     @Generated
+    public void setHeroImageMobileHeight(int heroImageMobileHeight) {
+        this.heroImageMobileHeight = heroImageMobileHeight;
+    }
+
+    @Generated
+    public void setHeroImageMobileFit(String heroImageMobileFit) {
+        this.heroImageMobileFit = heroImageMobileFit;
+    }
+
+    @Generated
+    public void setHeroImageMobilePositionX(int heroImageMobilePositionX) {
+        this.heroImageMobilePositionX = heroImageMobilePositionX;
+    }
+
+    @Generated
+    public void setHeroImageMobilePositionY(int heroImageMobilePositionY) {
+        this.heroImageMobilePositionY = heroImageMobilePositionY;
+    }
+
+    @Generated
     public void setHeroBackgroundImage(String heroBackgroundImage) {
         this.heroBackgroundImage = heroBackgroundImage;
     }
@@ -602,6 +699,21 @@ public class SiteConfig {
     }
 
     @Generated
+    public void setHeroBackgroundMobileFit(String heroBackgroundMobileFit) {
+        this.heroBackgroundMobileFit = heroBackgroundMobileFit;
+    }
+
+    @Generated
+    public void setHeroBackgroundMobilePositionX(int heroBackgroundMobilePositionX) {
+        this.heroBackgroundMobilePositionX = heroBackgroundMobilePositionX;
+    }
+
+    @Generated
+    public void setHeroBackgroundMobilePositionY(int heroBackgroundMobilePositionY) {
+        this.heroBackgroundMobilePositionY = heroBackgroundMobilePositionY;
+    }
+
+    @Generated
     public void setServiceCoverHeight(int serviceCoverHeight) {
         this.serviceCoverHeight = serviceCoverHeight;
     }
@@ -619,6 +731,26 @@ public class SiteConfig {
     @Generated
     public void setServiceCoverPositionY(int serviceCoverPositionY) {
         this.serviceCoverPositionY = serviceCoverPositionY;
+    }
+
+    @Generated
+    public void setServiceCoverMobileHeight(int serviceCoverMobileHeight) {
+        this.serviceCoverMobileHeight = serviceCoverMobileHeight;
+    }
+
+    @Generated
+    public void setServiceCoverMobileFit(String serviceCoverMobileFit) {
+        this.serviceCoverMobileFit = serviceCoverMobileFit;
+    }
+
+    @Generated
+    public void setServiceCoverMobilePositionX(int serviceCoverMobilePositionX) {
+        this.serviceCoverMobilePositionX = serviceCoverMobilePositionX;
+    }
+
+    @Generated
+    public void setServiceCoverMobilePositionY(int serviceCoverMobilePositionY) {
+        this.serviceCoverMobilePositionY = serviceCoverMobilePositionY;
     }
 
     @Generated
@@ -1346,3 +1478,4 @@ public class SiteConfig {
 
     }
 }
+

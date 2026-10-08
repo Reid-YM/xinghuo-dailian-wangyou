@@ -202,12 +202,17 @@ public class QuoteService {
         return (Quote)this.repo.findById(id).orElseThrow(NotFoundException::new);
     }
 
+    private String customerProgress(Quote q) {
+        return (q.getCurrentProgress() == null ? "" : q.getCurrentProgress())
+                + (q.getCustomerSupplement() == null ? "" : "\n客户补充：" + q.getCustomerSupplement());
+    }
+
     private ApiDtos.QuoteAdminResponse admin(Quote q) {
-        return new ApiDtos.QuoteAdminResponse(q.getId(), q.getBusinessNo(), q.getGame(), q.getDemand(), q.getCurrentProgress(), q.getScreenshotAssetId(), q.getPlatform(), q.getExpectedTime(), q.getContactMethod(), q.getCustomerContact(), q.getCustomerIpHash(), q.getStatus().name(), q.getCreatedAt());
+        return new ApiDtos.QuoteAdminResponse(q.getId(), q.getBusinessNo(), q.getGame(), q.getDemand(), customerProgress(q), q.getScreenshotAssetId(), q.getPlatform(), q.getExpectedTime(), q.getContactMethod(), q.getCustomerContact(), q.getCustomerIpHash(), q.getStatus().name(), q.getCreatedAt());
     }
 
     private QuoteLeadDtos.QuoteLeadResponse leadAdmin(Quote q) {
-        return new QuoteLeadDtos.QuoteLeadResponse(q.getId(), q.getBusinessNo(), q.getGame(), q.getDemand(), q.getCurrentProgress(), q.getScreenshotAssetId(), q.getPlatform(), q.getExpectedTime(), q.getContactMethod(), q.getCustomerContact(), q.getCustomerIpHash(), q.getStatus().name(), q.getCreatedAt(), q.getLeadScore(), q.getLeadIntentLevel(), q.getNextAction(), q.getFollowUpNote(), q.getAiSuggestion(), q.getLastContactedAt(), q.getFirstTouchSource(), q.getUtmSource(), q.getUtmMedium(), q.getUtmCampaign(), q.getReferrer(), q.getUpdatedAt());
+        return new QuoteLeadDtos.QuoteLeadResponse(q.getId(), q.getBusinessNo(), q.getGame(), q.getDemand(), customerProgress(q), q.getScreenshotAssetId(), q.getPlatform(), q.getExpectedTime(), q.getContactMethod(), q.getCustomerContact(), q.getCustomerIpHash(), q.getStatus().name(), q.getCreatedAt(), q.getLeadScore(), q.getLeadIntentLevel(), q.getNextAction(), q.getFollowUpNote(), q.getAiSuggestion(), q.getLastContactedAt(), q.getFirstTouchSource(), q.getUtmSource(), q.getUtmMedium(), q.getUtmCampaign(), q.getReferrer(), q.getUpdatedAt(), q.getCustomerSupplement());
     }
 
     @Transactional
@@ -331,4 +336,5 @@ public class QuoteService {
         this.orders = orders;
     }
 }
+
 

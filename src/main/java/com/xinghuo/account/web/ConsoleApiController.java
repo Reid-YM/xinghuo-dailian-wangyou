@@ -73,7 +73,7 @@ public class ConsoleApiController {
         findQuote(account, businessNo);
         int updated = jdbc.update("""
                 UPDATE quotes
-                   SET follow_up_note = CONCAT(COALESCE(follow_up_note, ''), ?), updated_at = CURRENT_TIMESTAMP(6)
+                   SET customer_supplement = CONCAT(COALESCE(customer_supplement, ''), ?), updated_at = CURRENT_TIMESTAMP(6)
                  WHERE customer_account_id = ? AND business_no = ?
                 """, appendBlock(body.content()), account.getId(), businessNo);
         if (updated == 0) throw AccountException.notFound("QUOTE_NOT_FOUND", "需求不存在或不属于当前账号");
@@ -116,7 +116,7 @@ public class ConsoleApiController {
         findOrder(account, businessNo);
         int updated = jdbc.update("""
                 UPDATE customer_orders
-                   SET customer_note = CONCAT(COALESCE(customer_note, ''), ?), updated_at = CURRENT_TIMESTAMP(6)
+                   SET customer_note = CONCAT(COALESCE(customer_note, ''), ?), version = version + 1, updated_at = CURRENT_TIMESTAMP(6)
                  WHERE customer_account_id = ? AND (business_no = ? OR order_no = ?)
                 """, appendBlock(body.content()), account.getId(), businessNo, businessNo);
         if (updated == 0) throw AccountException.notFound("ORDER_NOT_FOUND", "订单不存在或不属于当前账号");
@@ -134,7 +134,7 @@ public class ConsoleApiController {
     private QuoteListResponse quotes(Account account, int page, int size) {
         List<QuoteItem> items = jdbc.query("""
                 SELECT business_no, game, demand, current_progress, platform, expected_time,
-                       status, next_action, follow_up_note, created_at, updated_at
+                       status, customer_supplement, created_at, updated_at
                   FROM quotes
                  WHERE customer_account_id = ?
                  ORDER BY created_at DESC
@@ -142,8 +142,8 @@ public class ConsoleApiController {
                 """, (rs, i) -> new QuoteItem(
                 rs.getString("business_no"), rs.getString("game"), rs.getString("demand"),
                 rs.getString("current_progress"), rs.getString("platform"), rs.getString("expected_time"),
-                rs.getString("status"), quoteStatusText(rs.getString("status")), rs.getString("next_action"),
-                rs.getString("follow_up_note"), toInstant(rs.getTimestamp("created_at")),
+                rs.getString("status"), quoteStatusText(rs.getString("status")),
+                rs.getString("customer_supplement"), toInstant(rs.getTimestamp("created_at")),
                 toInstant(rs.getTimestamp("updated_at"))), account.getId(), size, (long) page * size);
         long total = count("SELECT COUNT(*) FROM quotes WHERE customer_account_id = ?", account.getId());
         return new QuoteListResponse(items, total, page, size);
@@ -167,15 +167,15 @@ public class ConsoleApiController {
     private QuoteItem findQuote(Account account, String businessNo) {
         List<QuoteItem> rows = jdbc.query("""
                 SELECT business_no, game, demand, current_progress, platform, expected_time,
-                       status, next_action, follow_up_note, created_at, updated_at
+                       status, customer_supplement, created_at, updated_at
                   FROM quotes
                  WHERE customer_account_id = ? AND business_no = ?
                  LIMIT 1
                 """, (rs, i) -> new QuoteItem(
                 rs.getString("business_no"), rs.getString("game"), rs.getString("demand"),
                 rs.getString("current_progress"), rs.getString("platform"), rs.getString("expected_time"),
-                rs.getString("status"), quoteStatusText(rs.getString("status")), rs.getString("next_action"),
-                rs.getString("follow_up_note"), toInstant(rs.getTimestamp("created_at")),
+                rs.getString("status"), quoteStatusText(rs.getString("status")),
+                rs.getString("customer_supplement"), toInstant(rs.getTimestamp("created_at")),
                 toInstant(rs.getTimestamp("updated_at"))), account.getId(), businessNo);
         if (rows.isEmpty()) throw AccountException.notFound("QUOTE_NOT_FOUND", "需求不存在或不属于当前账号");
         return rows.get(0);
@@ -261,7 +261,7 @@ public class ConsoleApiController {
     public record OrderDetailResponse(OrderItem order, QuoteItem sourceQuote, List<TimelineItem> timeline) {}
     public record QuoteItem(String businessNo, String game, String demand, String currentProgress,
                             String platform, String expectedTime, String status, String statusText,
-                            String nextAction, String followUpNote, Instant createdAt, Instant updatedAt) {}
+                            String customerSupplement, Instant createdAt, Instant updatedAt) {}
     public record OrderItem(String orderNo, String businessNo, String sourceQuoteBusinessNo,
                             String status, String statusText, Integer progressPercent, String progressText,
                             String customerNote, String gameName, String serviceName,
@@ -269,3 +269,4 @@ public class ConsoleApiController {
     public record TimelineItem(String title, String content, Instant createdAt) {}
     public record LoginLogItem(String action, String detail, String ip, String userAgent, Instant createdAt) {}
 }
+

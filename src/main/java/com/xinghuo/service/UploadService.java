@@ -88,16 +88,17 @@ public class UploadService {
             UUID id = UUID.randomUUID();
             Path dir = Paths.get(this.uploadDir, kind.name().toLowerCase());
             Files.createDirectories(dir);
-            String stored = String.valueOf(id) + ".jpg";
+            String format = image.getColorModel().hasAlpha() ? "png" : "jpg";
+            String stored = id + "." + format;
             Path dest = dir.resolve(stored).normalize();
             if (!dest.startsWith(dir.normalize())) {
                 throw new BadRequestException("\u975e\u6cd5\u6587\u4ef6\u8def\u5f84");
             }
-            if (!ImageIO.write(image, "jpg", dest.toFile())) {
+            if (!ImageIO.write(image, format, dest.toFile())) {
                 throw new IOException("Image encode failed");
             }
             long size = Files.size(dest);
-            UploadAsset a = UploadAsset.builder().id(id).kind(kind).storedName(kind.name().toLowerCase() + "/" + stored).originalName(this.safeName(file.getOriginalFilename())).contentType("image/jpeg").byteSize(size).createdAt(Instant.now()).build();
+            UploadAsset a = UploadAsset.builder().id(id).kind(kind).storedName(kind.name().toLowerCase() + "/" + stored).originalName(this.safeName(file.getOriginalFilename())).contentType("png".equals(format) ? "image/png" : "image/jpeg").byteSize(size).createdAt(Instant.now()).build();
             return this.repo.save(a);
         }
         catch (BadRequestException e) {
@@ -106,6 +107,12 @@ public class UploadService {
         catch (Exception e) {
             throw new BadRequestException("\u56fe\u7247\u5904\u7406\u5931\u8d25");
         }
+    }
+
+    public org.springframework.http.MediaType mediaType(UUID assetId) {
+        UploadAsset asset = repo.findById(assetId).orElseThrow(NotFoundException::new);
+        return "image/png".equals(asset.getContentType())
+                ? org.springframework.http.MediaType.IMAGE_PNG : org.springframework.http.MediaType.IMAGE_JPEG;
     }
 
     @Transactional
@@ -161,4 +168,5 @@ public class UploadService {
         this.repo = repo;
     }
 }
+
 

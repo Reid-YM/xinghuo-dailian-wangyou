@@ -22,8 +22,8 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 public class MobileFrontendAssetFilter extends OncePerRequestFilter {
     private static final String MARKER = "<meta name=\"xh-frontend\" content=\"mobile\">";
     private static final String ASSETS = MARKER
-            + "<link rel=\"stylesheet\" href=\"/assets/mobile-app.css?v=20261009m1\">"
-            + "<script defer src=\"/assets/mobile-app.js?v=20261009m1\"></script>";
+            + "<link rel=\"stylesheet\" href=\"/assets/mobile-app.css?v=20261009m2\">"
+            + "<script defer src=\"/assets/mobile-app.js?v=20261009m2\"></script>";
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {

@@ -77,8 +77,8 @@ class FrontendDeviceSplitContractTest {
         filter.doFilter(mobileRequest, mobileResponse, html);
         String mobileHtml = mobileResponse.getContentAsString();
         assertTrue(mobileHtml.contains("name=\"xh-frontend\" content=\"mobile\""));
-        assertTrue(mobileHtml.contains("/assets/mobile-app.css?v=20261009m1"));
-        assertTrue(mobileHtml.contains("/assets/mobile-app.js?v=20261009m1"));
+        assertTrue(mobileHtml.contains("/assets/mobile-app.css?v=20261009m2"));
+        assertTrue(mobileHtml.contains("/assets/mobile-app.js?v=20261009m2"));
 
         var desktopRequest = new MockHttpServletRequest("GET", "/services");
         desktopRequest.addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X) Chrome Safari");

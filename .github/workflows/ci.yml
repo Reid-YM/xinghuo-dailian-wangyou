@@ -98,7 +98,7 @@ jobs:
   frontend-ui:
     name: Chromium + WebKit UI Regression
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
 
     steps:
       - name: Checkout repository
@@ -110,6 +110,14 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
       - name: Compile UI regression tests
         run: mvn -B -ntp -DskipTests test-compile

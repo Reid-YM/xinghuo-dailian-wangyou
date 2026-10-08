@@ -37,7 +37,7 @@ public class SiteConfigService {
     @Transactional(readOnly=true)
     public ApiDtos.SiteConfigResponse publicConfig() {
         SiteConfig c = this.get();
-        return new ApiDtos.SiteConfigResponse(c.getBrandName(), c.getLegalEntityName(), this.mw4Status().name().toLowerCase(Locale.ROOT), this.mw4ShortText(c), this.mw4CtaLabel(c), c.isQuoteEnabled(), c.isOrderQueryEnabled(), c.getHeroTitle(), c.getHeroSubtitle(), c.getStartingPriceMode().name().toLowerCase(Locale.ROOT), this.displayStartingPrice(c), c.isShowStartingPrice(), c.getHomeServiceLimit(), c.getHeroImage(), c.getHeroImageHeight(), c.getHeroImageFit().toLowerCase(Locale.ROOT), c.getHeroImagePositionX(), c.getHeroImagePositionY(), c.getHeroImageMobileHeight(), c.getHeroImageMobileFit().toLowerCase(Locale.ROOT), c.getHeroImageMobilePositionX(), c.getHeroImageMobilePositionY(), c.getHeroBackgroundImage(), c.getHeroBackgroundOpacity(), c.getHeroBackgroundFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundPositionX(), c.getHeroBackgroundPositionY(), c.getHeroBackgroundBlur(), c.getHeroBackgroundMobileFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundMobilePositionX(), c.getHeroBackgroundMobilePositionY(), c.getServiceCoverHeight(), c.getServiceCoverFit().toLowerCase(Locale.ROOT), c.getServiceCoverPositionX(), c.getServiceCoverPositionY(), c.getServiceCoverMobileHeight(), c.getServiceCoverMobileFit().toLowerCase(Locale.ROOT), c.getServiceCoverMobilePositionX(), c.getServiceCoverMobilePositionY(), this.splitTags(c.getTrustTags()), this.parseTrustCases(c), this.parseTrustFaq(c), c.isAnnouncementEnabled(), c.getAnnouncementText(), c.getContactTitle(), c.getContactIntro(), c.getWechatId(), c.getWechatQrImage(), c.getWechatQrSize(), this.parseContactChannels(c), c.getQqId(), c.getQqLink(), c.getPhone(), c.getServiceHours(), c.getTaobaoUrl(), c.getXianyuUrl(), c.getContactNotice(), c.getWecomKefuUrl(), c.getWecomKefuNote(), c.getQuickContactTitle(), c.getTaobaoLabel(), c.getXianyuLabel(), c.getWecomKefuLabel(), c.getWecomKefuButton(), c.getQuoteSuccessText(), c.getOrderHelpText(), c.getFooterText(), c.getSeoTitle(), c.getSeoDescription(), c.getToolUpdatedNote(), c.isToolPublicEnabled(), this.slotService.publicHotServices());
+        return new ApiDtos.SiteConfigResponse(c.getBrandName(), c.getLegalEntityName(), this.mw4Status().name().toLowerCase(Locale.ROOT), this.mw4ShortText(c), this.mw4CtaLabel(c), c.isQuoteEnabled(), c.isOrderQueryEnabled(), c.getHeroTitle(), c.getHeroSubtitle(), c.getStartingPriceMode().name().toLowerCase(Locale.ROOT), this.displayStartingPrice(c), c.isShowStartingPrice(), c.getHomeServiceLimit(), c.getHomeServiceMobileLimit(), c.getHomeServiceDesktopColumns(), c.getHomeServiceMobileColumns(), this.normalizeDensity(c.getServiceCardDensity()).toLowerCase(Locale.ROOT), this.normalizeDensity(c.getServiceCardMobileDensity()).toLowerCase(Locale.ROOT), c.getHeroImage(), c.getHeroImageHeight(), c.getHeroImageFit().toLowerCase(Locale.ROOT), c.getHeroImagePositionX(), c.getHeroImagePositionY(), c.getHeroImageMobileHeight(), c.getHeroImageMobileFit().toLowerCase(Locale.ROOT), c.getHeroImageMobilePositionX(), c.getHeroImageMobilePositionY(), c.getHeroBackgroundImage(), c.getHeroBackgroundOpacity(), c.getHeroBackgroundFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundPositionX(), c.getHeroBackgroundPositionY(), c.getHeroBackgroundBlur(), c.getHeroBackgroundMobileFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundMobilePositionX(), c.getHeroBackgroundMobilePositionY(), c.getServiceCoverHeight(), c.getServiceCoverFit().toLowerCase(Locale.ROOT), c.getServiceCoverPositionX(), c.getServiceCoverPositionY(), c.getServiceCoverMobileHeight(), c.getServiceCoverMobileFit().toLowerCase(Locale.ROOT), c.getServiceCoverMobilePositionX(), c.getServiceCoverMobilePositionY(), this.splitTags(c.getTrustTags()), this.parseTrustCases(c), c.getTrustCaseHomeLimit(), c.getTrustCaseHomeMobileLimit(), this.parseTrustFaq(c), c.getTrustFaqHomeLimit(), c.getTrustFaqHomeMobileLimit(), c.isAnnouncementEnabled(), c.getAnnouncementText(), c.getContactTitle(), c.getContactIntro(), c.getWechatId(), c.getWechatQrImage(), c.getWechatQrSize(), this.parseContactChannels(c), c.getHomeContactLimit(), c.getHomeContactMobileLimit(), c.getQqId(), c.getQqLink(), c.getPhone(), c.getServiceHours(), c.getTaobaoUrl(), c.getXianyuUrl(), c.getContactNotice(), c.getWecomKefuUrl(), c.getWecomKefuNote(), c.getQuickContactTitle(), c.getTaobaoLabel(), c.getXianyuLabel(), c.getWecomKefuLabel(), c.getWecomKefuButton(), c.getQuoteSuccessText(), c.getOrderHelpText(), c.getFooterText(), c.getSeoTitle(), c.getSeoDescription(), c.getToolUpdatedNote(), c.isToolPublicEnabled(), this.slotService.publicHotServices());
     }
 
     @Transactional(readOnly=true)
@@ -98,6 +98,11 @@ public class SiteConfigService {
         c.setStartingPrice(r.startingPrice());
         c.setShowStartingPrice(r.showStartingPrice());
         c.setHomeServiceLimit(r.homeServiceLimit());
+        c.setHomeServiceMobileLimit(r.homeServiceMobileLimit());
+        c.setHomeServiceDesktopColumns(r.homeServiceDesktopColumns());
+        c.setHomeServiceMobileColumns(r.homeServiceMobileColumns());
+        c.setServiceCardDensity(this.normalizeDensity(r.serviceCardDensity()));
+        c.setServiceCardMobileDensity(this.normalizeDensity(r.serviceCardMobileDensity()));
         c.setHeroImage(this.blankToNull(r.heroImage()));
         c.setHeroImageHeight(r.heroImageHeight());
         c.setHeroImageFit(this.normalizeFit(r.heroImageFit()));
@@ -126,7 +131,11 @@ public class SiteConfigService {
         c.setServiceCoverMobilePositionY(r.serviceCoverMobilePositionY());
         c.setTrustTags(String.join((CharSequence)"|", r.trustTags().stream().map(String::trim).filter(x -> !x.isBlank()).toList()));
         c.setTrustCases(this.serializeTrustCases(r.trustCases(), c));
+        c.setTrustCaseHomeLimit(r.trustCaseHomeLimit());
+        c.setTrustCaseHomeMobileLimit(r.trustCaseHomeMobileLimit());
         c.setTrustFaq(this.serializeTrustFaq(r.trustFaq(), c));
+        c.setTrustFaqHomeLimit(r.trustFaqHomeLimit());
+        c.setTrustFaqHomeMobileLimit(r.trustFaqHomeMobileLimit());
         c.setAnnouncementEnabled(r.announcementEnabled());
         c.setAnnouncementText(this.blankToNull(r.announcementText()));
         c.setContactTitle(r.contactTitle().trim());
@@ -135,6 +144,8 @@ public class SiteConfigService {
         c.setWechatQrImage(this.blankToNull(r.wechatQrImage()));
         c.setWechatQrSize(r.wechatQrSize());
         c.setContactChannels(this.serializeContactChannels(r.contactChannels(), c));
+        c.setHomeContactLimit(r.homeContactLimit());
+        c.setHomeContactMobileLimit(r.homeContactMobileLimit());
         c.setQqId(this.blankToNull(r.qqId()));
         c.setQqLink(this.blankToNull(r.qqLink()));
         c.setPhone(this.blankToNull(r.phone()));
@@ -177,6 +188,17 @@ public class SiteConfigService {
                 c.setStartingPrice(this.decimal(r, "startingPrice", c.getStartingPrice()));
                 c.setShowStartingPrice(this.bool(r, "showStartingPrice", c.isShowStartingPrice()));
                 c.setHomeServiceLimit(this.integer(r, "homeServiceLimit", c.getHomeServiceLimit(), 2, 8));
+                c.setHomeServiceMobileLimit(this.integer(r, "homeServiceMobileLimit", c.getHomeServiceMobileLimit(), 2, 8));
+                c.setHomeServiceDesktopColumns(this.integer(r, "homeServiceDesktopColumns", c.getHomeServiceDesktopColumns(), 1, 4));
+                c.setHomeServiceMobileColumns(this.integer(r, "homeServiceMobileColumns", c.getHomeServiceMobileColumns(), 1, 2));
+                c.setServiceCardDensity(this.normalizeDensity(this.text(r, "serviceCardDensity", c.getServiceCardDensity(), 16)));
+                c.setServiceCardMobileDensity(this.normalizeDensity(this.text(r, "serviceCardMobileDensity", c.getServiceCardMobileDensity(), 16)));
+                c.setHomeContactLimit(this.integer(r, "homeContactLimit", c.getHomeContactLimit(), 1, 6));
+                c.setHomeContactMobileLimit(this.integer(r, "homeContactMobileLimit", c.getHomeContactMobileLimit(), 1, 6));
+                c.setTrustCaseHomeLimit(this.integer(r, "trustCaseHomeLimit", c.getTrustCaseHomeLimit(), 1, 8));
+                c.setTrustCaseHomeMobileLimit(this.integer(r, "trustCaseHomeMobileLimit", c.getTrustCaseHomeMobileLimit(), 1, 8));
+                c.setTrustFaqHomeLimit(this.integer(r, "trustFaqHomeLimit", c.getTrustFaqHomeLimit(), 1, 12));
+                c.setTrustFaqHomeMobileLimit(this.integer(r, "trustFaqHomeMobileLimit", c.getTrustFaqHomeMobileLimit(), 1, 12));
                 Object tags = r.get("trustTags");
                 if (!(tags instanceof List<?>)) break;
                 List<?> xs = (List<?>)tags;
@@ -604,6 +626,15 @@ public class SiteConfigService {
         String string = v = s == null ? "COVER" : s.trim().toUpperCase(Locale.ROOT);
         if (!Set.of("COVER", "CONTAIN", "FILL").contains(v)) {
             throw new BadRequestException("\u975e\u6cd5\u56fe\u7247\u9002\u914d\u6a21\u5f0f");
+        }
+        return v;
+    }
+
+    private String normalizeDensity(String s) {
+        String v;
+        String string = v = s == null ? "COMFORTABLE" : s.trim().toUpperCase(Locale.ROOT);
+        if (!Set.of("COMPACT", "COMFORTABLE", "SPACIOUS").contains(v)) {
+            throw new BadRequestException("\u975e\u6cd5\u7ec4\u4ef6\u5bc6\u5ea6");
         }
         return v;
     }

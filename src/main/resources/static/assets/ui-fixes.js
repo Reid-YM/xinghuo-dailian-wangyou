@@ -204,7 +204,10 @@
   fetch('/api/site-config', { cache: 'no-store' })
     .then((r) => (r.ok ? r.json() : null))
     .then((config) => {
-      const hot = Array.isArray(config?.hotServices) ? config.hotServices.slice(0, 2) : [];
+      const mobile = window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
+      const configured = mobile ? config?.homeServiceMobileLimit : config?.homeServiceLimit;
+      const limit = Math.max(1, Math.min(4, Number(configured || 2)));
+      const hot = Array.isArray(config?.hotServices) ? config.hotServices.slice(0, limit) : [];
       if (!hot.length) { copy.remove(); return; }
 
       const list = document.createElement('div');

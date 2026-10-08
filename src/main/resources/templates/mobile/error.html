@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
+  <meta name="robots" content="noindex,nofollow">
+  <title th:text="${statusTitle} + ' - 星火网游代练平台'">页面未找到 - 星火网游代练平台</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/ui-fixes.js?v=20261008audit01"></script><script defer src="/assets/site-image-controls.js?v=20261008r2"></script><script defer src="/assets/public.js?v=20261008r2"></script>
+<link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008r2"/>
+</head>
+<body data-page="error">
+<header th:replace="~{fragments/site :: header}"></header>
+<main class="container section page-shell error-page">
+  <section class="card rules-console" style="max-width:640px;margin:0 auto;text-align:center">
+    <span class="eyebrow" th:text="${statusLabel}">404</span>
+    <h1 th:text="${statusTitle}">页面未找到</h1>
+    <p class="muted" th:text="${statusMessage}">这个地址没有对应内容。</p>
+    <div class="actions" style="justify-content:center">
+      <a class="btn primary" href="/">返回首页</a>
+      <a class="btn ghost" href="/services">服务大厅</a>
+      <a class="btn ghost" href="/contact">联系客服</a>
+    </div>
+    <p class="muted" style="margin-top:18px"><a href="/records">查询业务进度</a> · <a href="/mastery">MW4 工具站</a></p>
+    <p class="muted" th:if="${requestId}" style="font-size:12px">如联系客服，请提供请求编号：<b th:text="${requestId}">-</b></p>
+  </section>
+</main>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+</body>
+</html>
+

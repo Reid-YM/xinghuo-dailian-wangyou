@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
+  <title th:text="${serviceTitle}">服务详情 - 星火网游代练平台</title>
+  <meta name="description" th:content="${serviceDescription}" content="星火网游代练平台游戏任务服务详情。">
+  <link rel="canonical" th:href="${canonicalUrl}" href="https://wydlgf.cn/service/weapon-leveling">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台">
+  <meta property="og:title" th:content="${serviceTitle}" content="服务详情 - 星火网游代练平台">
+  <meta property="og:description" th:content="${serviceDescription}" content="星火网游代练平台游戏任务服务详情。">
+  <meta property="og:url" th:content="${canonicalUrl}" content="https://wydlgf.cn/service/weapon-leveling">
+  <meta property="og:image" th:content="${ogImage}" content="https://wydlgf.cn/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" th:content="${serviceTitle}" content="服务详情 - 星火网游代练平台">
+  <meta name="twitter:description" th:content="${serviceDescription}" content="星火网游代练平台游戏任务服务详情。">
+  <meta name="twitter:image" th:content="${ogImage}" content="https://wydlgf.cn/og.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/ui-fixes.js?v=20261008audit01"></script><script defer src="/assets/site-image-controls.js?v=20261008r2"></script><script defer src="/assets/public.js?v=20261008r2"></script><script defer src="/assets/pages.js?v=20260928v016"></script>
+  <script type="application/ld+json" th:inline="javascript">{"@context":"https://schema.org","@type":"Service","name":[[${serviceH1}]],"description":[[${serviceDescription}]],"serviceType":[[${gameName}]],"areaServed":"CN","provider":{"@type":"Organization","name":"星火网游代练平台","url":"https://wydlgf.cn/"},"url":[[${canonicalUrl}]]}</script>
+  <!-- SEO-A(Java 侧生成)：Product + 服务端真实价格 offers，价格只由后端产出，不经浏览器 -->
+  <script type="application/ld+json" th:utext="${productJsonLd}"></script>
+  <script type="application/ld+json" th:utext="${breadcrumbJsonLd}"></script>
+  <script type="application/ld+json" th:utext="${faqJsonLd}"></script>
+<link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008r2"/>
+</head>
+<body data-page="service-detail">
+<header th:replace="~{fragments/site :: header}"></header>
+<main class="container section page-shell service-detail-page" data-service-detail th:attr="data-service-slug=${service.slug}">
+
+  <!-- 1. Hero：服务名、状态、参考价格、预计时间、支持平台、CTA -->
+  <nav class="guide-breadcrumb" aria-label="面包屑"><a th:href="@{/}">首页</a><span>/</span><a th:href="@{/services}">服务大厅</a><span>/</span><span th:text="${serviceH1}">服务</span></nav>
+  <section class="service-detail-panel is-active" th:attr="data-service-panel=${service.slug}">
+    <div class="detail-hero">
+      <div>
+        <div class="service-state" data-config="status">● MW4 正式版预约中 · 上线后陆续开放服务</div>
+        <span class="eyebrow" th:text="${gameName}">服务项目</span>
+        <h1 th:text="${serviceH1}">服务详情</h1>
+        <p th:text="${service.shortDesc}">服务说明</p>
+        <div class="detail-list">
+          <strong>参考价格</strong>
+          <span th:text="${service.priceMode.name() == 'FIXED' ? '¥' + #numbers.formatDecimal(service.priceFixed,1,0) : (service.priceMode.name() == 'RANGE' ? '参考 ¥' + #numbers.formatDecimal(service.priceMin,1,0) + '–' + #numbers.formatDecimal(service.priceMax,1,0) : (service.priceMin != null ? '参考 ¥' + #numbers.formatDecimal(service.priceMin,1,0) + ' 起' : '按进度报价'))}">按进度报价</span>
+          <strong>预计时间</strong><span th:text="${service.durationText}">按进度确认</span>
+          <strong>支持平台</strong><span>Steam · Battle.net · PlayStation · Xbox · Switch 2</span>
+          <strong>报价方式</strong><span>按当前进度到目标进度的差距计算</span>
+        </div>
+        <div class="actions">
+          <a class="btn primary" th:href="@{/quote(service=${service.slug})}" href="/quote" data-primary-cta>提前询价</a>
+          <a class="btn ghost" href="/contact">联系客服</a>
+        </div>
+        <p class="muted">网页不收账号密码；确认报价后走淘宝 / 闲鱼担保成交。</p>
+      </div>
+      <img th:if="${service.coverImage != null}" th:src="${service.coverImage}" th:alt="|服务封面：${service.name}|" src="/assets/covers/mw4-weapon.svg" alt="服务封面" width="640" height="360" loading="eager" decoding="async">
+      <div th:if="${service.coverImage == null}" class="service-cover service-fallback-icon"><svg class="ui-icon"><use href="/assets/icons.svg#i-service"></use></svg></div>
+    </div>
+  </section>
+
+  <!-- 2. 服务说明 -->
+  <section class="card">
+    <span class="eyebrow">服务说明</span>
+    <h2>这个项目解决什么需求</h2>
+    <p>「<span th:text="${service.name}">服务</span>」面向已经进入游戏、但不方便自己投入时间的玩家。你只需要说明当前进度和期望目标，客服会先核对可行性，再给出报价与预计时间。</p>
+    <p class="muted">适合：想跳过重复刷取、补齐进度差距，或需要在限时活动结束前拿到奖励的玩家。不确定进度够不够，也可以在询价时上传截图由客服判断。</p>
+  </section>
+
+  <!-- 3. 支持范围 -->
+  <section class="card">
+    <span class="eyebrow">支持范围</span>
+    <h2>可以接的目标</h2>
+    <div class="detail-list">
+      <th:block th:each="row : ${supportItems}">
+        <strong th:text="${row.key}">标签</strong><span th:text="${row.value}">说明</span>
+      </th:block>
+    </div>
+  </section>
+
+  <!-- 4. 报价逻辑 -->
+  <section class="card">
+    <span class="eyebrow">报价逻辑</span>
+    <h2>价格由哪些因素决定</h2>
+    <div class="detail-list">
+      <th:block th:each="row : ${quoteFactors}">
+        <strong th:text="${row.key}">标签</strong><span th:text="${row.value}">说明</span>
+      </th:block>
+    </div>
+    <p class="muted">以上为参考口径，最终金额以人工确认 / 实际页面为准，确认前不会开工。</p>
+  </section>
+
+  <!-- 5. 服务流程 -->
+  <section class="card rules-console process-console">
+    <span class="eyebrow">服务流程</span>
+    <h2>从提交到完成</h2>
+    <section><h2>1. 提交</h2><p>在询价页选择需求并留下联系方式，提交后立即拿到业务编号。</p></section>
+    <section><h2>2. 确认</h2><p>客服核对截图与目标，确认报价、工时和可执行时间。</p></section>
+    <section><h2>3. 担保成交</h2><p>确认后走淘宝 / 闲鱼担保交易，网站本身不收取任何费用。</p></section>
+    <section><h2>4. 执行</h2><p>按约定目标执行；遇到异常情况第一时间沟通，不硬冲。</p></section>
+    <section><h2>5. 查进度</h2><p>用业务编号在「业务记录」查看当前状态与客服备注。</p></section>
+    <section><h2>6. 完成</h2><p>交付并核对结果，有疑问可按服务规则处理。</p></section>
+  </section>
+
+  <!-- 6. 安全说明 -->
+  <section class="card">
+    <span class="eyebrow">安全说明</span>
+    <h2>安全边界与风险提示</h2>
+    <p>本工作室不使用外挂、注入器、脚本等未经授权的软件。网页、查询页与截图都不需要提供账号密码、验证码或令牌。</p>
+    <p class="muted">第三方游戏厂商对账号共享、代练、进度提升等行为可能有独立规则和处罚政策，客户下单前应了解并自行判断相关风险。如官方政策或游戏机制发生变化，相应服务可能暂停或调整。</p>
+  </section>
+
+  <!-- 7. FAQ -->
+  <section class="card rules-console faq-console">
+    <span class="eyebrow">FAQ</span>
+    <h2>常见问题</h2>
+    <section th:each="faq : ${serviceFaqs}">
+      <h2 th:text="${faq.question}">问题</h2>
+      <p th:text="${faq.answer}">回答</p>
+    </section>
+  </section>
+
+  <!-- 8. 相关工具 -->
+  <section class="section">
+    <div class="section-title section-title-rich"><div><span class="eyebrow">相关工具</span><h2>先自己看看，再决定要不要下单</h2></div><a class="text-link" href="/mastery">MW4 工具站</a></div>
+    <div class="grid2">
+      <a class="card quick-card" href="/mastery"><span class="tag">MW4 工具</span><h2>迷彩解锁助手</h2><p>勾选未完成的迷彩挑战，直接看到还差多少，需要时一键转询价。</p></a>
+    </div>
+  </section>
+
+  <!-- 9. 相关服务 -->
+  <section class="section" th:if="${!relatedServices.isEmpty()}">
+    <div class="section-title section-title-rich"><div><span class="eyebrow">相关服务</span><h2 th:text="${gameName} + ' 的其他服务'">相关服务</h2></div><a class="text-link" href="/services">服务大厅</a></div>
+    <div class="grid3">
+      <a class="card service-card" th:each="related : ${relatedServices}" th:href="@{'/service/' + ${related.slug}}">
+        <div class="service-card-head"><span class="tag" th:text="${gameName}">游戏</span></div>
+        <h2 th:text="${related.name}">服务名称</h2>
+        <p th:text="${related.shortDesc}">服务简介</p>
+        <small class="muted" th:text="${related.durationText}">预计时间</small>
+      </a>
+    </div>
+  </section>
+
+  <!-- 10. 转化区 -->
+  <section class="card">
+    <span class="eyebrow">下一步</span>
+    <h2 th:text="'需要 ' + ${service.name} + '？'">需要这个服务？</h2>
+    <p>提交后立刻得到业务编号，可用于查询进度；确认报价前不产生任何费用。</p>
+    <div class="actions">
+      <a class="btn primary" th:href="@{/quote(service=${service.slug})}" href="/quote" data-primary-cta>提前询价</a>
+      <a class="btn ghost" href="/contact">联系客服</a>
+      <a class="btn ghost" href="/records">查业务进度</a>
+    </div>
+  </section>
+</main>
+<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/">首页</a><a href="/services">服务</a><a href="/guides">攻略</a><a href="/mastery">MW4 工具站</a><a class="primary" th:href="@{/quote(service=${service.slug})}" href="/quote" data-primary-cta>提前询价</a></nav>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+</body>
+</html>
+

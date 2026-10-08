@@ -995,7 +995,7 @@
 
     const hero = $('#homeHero');
     const heroBg = $('#heroBackground');
-    const heroBgImage = safeUrl(config.heroBackgroundImage);
+    const heroBgImage = safeUrl((isMobileViewport() && config.heroBackgroundMobileImage) ? config.heroBackgroundMobileImage : config.heroBackgroundImage);
     if (hero && heroBg) {
       hero.classList.toggle('has-background', !!heroBgImage);
       window.SiteImageControls.background(hero, heroBg, config, heroBgImage);

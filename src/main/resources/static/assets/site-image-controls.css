@@ -28,6 +28,7 @@ body:is(.admin-solid-ui,.admin-control-center-v2) #heroImagePreview{width:100%;m
 body:not(.admin-solid-ui):not(.admin-control-center-v2) .service-cover{height:var(--service-cover-height,105px)!important;min-height:0!important;max-height:none!important;aspect-ratio:auto!important}
 body:not(.admin-solid-ui):not(.admin-control-center-v2) .service-cover img{width:100%!important;height:100%!important;object-fit:var(--service-cover-fit,cover)!important;object-position:var(--service-cover-position,50% 50%)!important}
 body.admin-control-center-v2 [data-config-section="visual"]{padding:0;border:0;background:transparent}
+@media(max-width:760px){body[data-page="home"] #homeHero.image-controlled-background.has-background{min-height:var(--hero-mobile-background-height,520px)!important}}
 .component-adapt-grid{margin:18px 0}
 body:not(.admin-solid-ui):not(.admin-control-center-v2) #serviceGrid,
 body:not(.admin-solid-ui):not(.admin-control-center-v2) #hotServices{

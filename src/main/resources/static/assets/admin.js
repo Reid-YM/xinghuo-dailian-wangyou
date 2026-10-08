@@ -119,15 +119,16 @@
     const box = $('#heroBackgroundLivePreview');
     const layer = box?.querySelector('.admin-hero-bg-live-layer');
     if (!f || !box || !layer) return;
-    const url = f.heroBackgroundImage.value || '';
+    const mobile = box.dataset.device === 'mobile';
+    const url = mobile ? (f.heroBackgroundMobileImage.value || f.heroBackgroundImage.value || '') : (f.heroBackgroundImage.value || '');
     if (!url) {
       box.classList.add('hidden');
       layer.style.backgroundImage = '';
       return;
     }
-    const config = Object.fromEntries(['heroBackgroundOpacity','heroBackgroundFit','heroBackgroundPositionX','heroBackgroundPositionY','heroBackgroundBlur','heroBackgroundMobileFit','heroBackgroundMobilePositionX','heroBackgroundMobilePositionY'].map(k => [k, f[k].value]));
-    const mobile = box.dataset.device === 'mobile';
+    const config = Object.fromEntries(['heroBackgroundOpacity','heroBackgroundFit','heroBackgroundPositionX','heroBackgroundPositionY','heroBackgroundBlur','heroBackgroundMobileImage','heroBackgroundMobileHeight','heroBackgroundMobileFit','heroBackgroundMobilePositionX','heroBackgroundMobilePositionY'].map(k => [k, f[k].value]));
     if (mobile) {
+      config.heroBackgroundImage = f.heroBackgroundImage.value || '';
       config.heroBackgroundFit = config.heroBackgroundMobileFit;
       config.heroBackgroundPositionX = config.heroBackgroundMobilePositionX;
       config.heroBackgroundPositionY = config.heroBackgroundMobilePositionY;
@@ -144,7 +145,7 @@
       const out = await api(`/api/admin/site-config/image/${slot}`, { method: 'POST', body: fd });
       hiddenInput.value = out.url || '';
       renderNamedPreview(previewSelector, hiddenInput.value, label);
-      if (slot === 'BACKGROUND') updateHeroBackgroundLivePreview();
+      if (slot === 'BACKGROUND' || slot === 'BACKGROUND_MOBILE') updateHeroBackgroundLivePreview();
 
       document.dispatchEvent(new CustomEvent('site-image-updated'));
       toast(`${label}已替换，原有调参已保留`);
@@ -160,6 +161,7 @@
     f.heroBackgroundPositionX.value = 50;
     f.heroBackgroundPositionY.value = 50;
     f.heroBackgroundMobileFit.value = 'COVER';
+    f.heroBackgroundMobileHeight.value = 520;
     f.heroBackgroundMobilePositionX.value = 50;
     f.heroBackgroundMobilePositionY.value = 50;
     f.heroBackgroundBlur.value = 0;
@@ -170,7 +172,7 @@
       await api(`/api/admin/site-config/image/${slot}`, { method: 'DELETE' });
       hiddenInput.value = ''; if (fileInput) fileInput.value = '';
       renderNamedPreview(previewSelector, '', label);
-      if (slot === 'BACKGROUND') updateHeroBackgroundLivePreview();
+      if (slot === 'BACKGROUND' || slot === 'BACKGROUND_MOBILE') updateHeroBackgroundLivePreview();
       document.dispatchEvent(new CustomEvent('site-image-updated'));
       toast(`${label}已移除并立即生效`);
     } catch (error) { toast(error.message, 'error'); }
@@ -506,11 +508,14 @@ async function loadDashboard() {
     f.heroImageMobilePositionY.value = c.heroImageMobilePositionY ?? c.heroImagePositionY ?? 50;
     f.heroBackgroundImage.value = c.heroBackgroundImage || '';
     renderNamedPreview('#heroBackgroundPreview', c.heroBackgroundImage || '', '首屏背景图预览');
+    f.heroBackgroundMobileImage.value = c.heroBackgroundMobileImage || '';
+    renderNamedPreview('#heroBackgroundMobilePreview', c.heroBackgroundMobileImage || '', '手机首屏背景图预览');
     f.heroBackgroundOpacity.value = c.heroBackgroundOpacity ?? 90;
     f.heroBackgroundFit.value = (c.heroBackgroundFit || 'cover').toUpperCase();
     f.heroBackgroundPositionX.value = c.heroBackgroundPositionX ?? 50;
     f.heroBackgroundPositionY.value = c.heroBackgroundPositionY ?? 50;
     f.heroBackgroundBlur.value = c.heroBackgroundBlur ?? 0;
+    f.heroBackgroundMobileHeight.value = c.heroBackgroundMobileHeight || 520;
     f.heroBackgroundMobileFit.value = (c.heroBackgroundMobileFit || c.heroBackgroundFit || 'cover').toUpperCase();
     f.heroBackgroundMobilePositionX.value = c.heroBackgroundMobilePositionX ?? c.heroBackgroundPositionX ?? 50;
     f.heroBackgroundMobilePositionY.value = c.heroBackgroundMobilePositionY ?? c.heroBackgroundPositionY ?? 50;
@@ -570,6 +575,11 @@ async function loadDashboard() {
     return uploadSiteImage('BACKGROUND', f?.heroBackgroundImageFile?.files?.[0], f.heroBackgroundImage, '#heroBackgroundPreview', event.currentTarget, '首屏背景图');
   });
   $('#clearHeroBackground')?.addEventListener('click', () => { const f=$('#configForm'); return clearSiteImage('BACKGROUND', f.heroBackgroundImage, f.heroBackgroundImageFile, '#heroBackgroundPreview', '首屏背景图'); });
+  $('#uploadHeroBackgroundMobile')?.addEventListener('click', event => {
+    const f = $('#configForm');
+    return uploadSiteImage('BACKGROUND_MOBILE', f?.heroBackgroundMobileImageFile?.files?.[0], f.heroBackgroundMobileImage, '#heroBackgroundMobilePreview', event.currentTarget, '手机首屏背景图');
+  });
+  $('#clearHeroBackgroundMobile')?.addEventListener('click', () => { const f=$('#configForm'); return clearSiteImage('BACKGROUND_MOBILE', f.heroBackgroundMobileImage, f.heroBackgroundMobileImageFile, '#heroBackgroundMobilePreview', '手机首屏背景图'); });
   $('#autoFitHeroBackground')?.addEventListener('click', () => {
     const f = $('#configForm');
     if (!f?.heroBackgroundImage?.value) return toast('请先上传首页首屏背景图', 'error');
@@ -578,7 +588,7 @@ async function loadDashboard() {
     f.heroBackgroundOpacity.dispatchEvent(new Event('input', { bubbles: true }));
     toast('已套用前台自动适配参数，保存图片视觉模块后生效');
   });
-  ['heroBackgroundOpacity','heroBackgroundFit','heroBackgroundPositionX','heroBackgroundPositionY','heroBackgroundBlur','heroBackgroundMobileFit','heroBackgroundMobilePositionX','heroBackgroundMobilePositionY'].forEach(name => {
+  ['heroBackgroundOpacity','heroBackgroundFit','heroBackgroundPositionX','heroBackgroundPositionY','heroBackgroundBlur','heroBackgroundMobileHeight','heroBackgroundMobileFit','heroBackgroundMobilePositionX','heroBackgroundMobilePositionY'].forEach(name => {
     $('#configForm')?.[name]?.addEventListener('input', updateHeroBackgroundLivePreview);
     $('#configForm')?.[name]?.addEventListener('change', updateHeroBackgroundLivePreview);
   });
@@ -608,7 +618,7 @@ async function loadDashboard() {
     const common={reason};
     if(section==='basic') return {...common,brandName:f.brandName.value,legalEntityName:f.legalEntityName.value,serviceStatus:f.serviceStatus.value,quoteEnabled:f.quoteEnabled.checked,orderQueryEnabled:f.orderQueryEnabled.checked};
     if(section==='home') return {...common,heroTitle:f.heroTitle.value,heroSubtitle:f.heroSubtitle.value,startingPriceMode:f.startingPriceMode.value,startingPrice:Number(f.startingPrice.value||0),showStartingPrice:f.showStartingPrice.checked,homeServiceLimit:Number(f.homeServiceLimit.value||4),homeServiceMobileLimit:Number(f.homeServiceMobileLimit.value||4),homeServiceDesktopColumns:Number(f.homeServiceDesktopColumns.value||4),homeServiceMobileColumns:Number(f.homeServiceMobileColumns.value||1),serviceCardDensity:f.serviceCardDensity.value,serviceCardMobileDensity:f.serviceCardMobileDensity.value,homeContactLimit:Number(f.homeContactLimit.value||6),homeContactMobileLimit:Number(f.homeContactMobileLimit.value||2),trustCaseHomeLimit:Number(f.trustCaseHomeLimit.value||4),trustCaseHomeMobileLimit:Number(f.trustCaseHomeMobileLimit.value||2),trustFaqHomeLimit:Number(f.trustFaqHomeLimit.value||6),trustFaqHomeMobileLimit:Number(f.trustFaqHomeMobileLimit.value||4),trustTags:[...f.trustTags.selectedOptions].map(x=>x.value)};
-    if(section==='visual') return {...common,heroImage:f.heroImage.value||null,heroImageHeight:Number(f.heroImageHeight.value||150),heroImageFit:f.heroImageFit.value,heroImagePositionX:Number(f.heroImagePositionX.value||50),heroImagePositionY:Number(f.heroImagePositionY.value||50),heroImageMobileHeight:Number(f.heroImageMobileHeight.value||f.heroImageHeight.value||150),heroImageMobileFit:f.heroImageMobileFit.value||f.heroImageFit.value,heroImageMobilePositionX:Number(f.heroImageMobilePositionX.value||f.heroImagePositionX.value||50),heroImageMobilePositionY:Number(f.heroImageMobilePositionY.value||f.heroImagePositionY.value||50),heroBackgroundImage:f.heroBackgroundImage.value||null,heroBackgroundOpacity:Number(f.heroBackgroundOpacity.value||0),heroBackgroundFit:f.heroBackgroundFit.value,heroBackgroundPositionX:Number(f.heroBackgroundPositionX.value||50),heroBackgroundPositionY:Number(f.heroBackgroundPositionY.value||50),heroBackgroundBlur:Number(f.heroBackgroundBlur.value||0),heroBackgroundMobileFit:f.heroBackgroundMobileFit.value||f.heroBackgroundFit.value,heroBackgroundMobilePositionX:Number(f.heroBackgroundMobilePositionX.value||f.heroBackgroundPositionX.value||50),heroBackgroundMobilePositionY:Number(f.heroBackgroundMobilePositionY.value||f.heroBackgroundPositionY.value||50),serviceCoverHeight:Number(f.serviceCoverHeight.value||105),serviceCoverFit:f.serviceCoverFit.value,serviceCoverPositionX:Number(f.serviceCoverPositionX.value||50),serviceCoverPositionY:Number(f.serviceCoverPositionY.value||50),serviceCoverMobileHeight:Number(f.serviceCoverMobileHeight.value||f.serviceCoverHeight.value||105),serviceCoverMobileFit:f.serviceCoverMobileFit.value||f.serviceCoverFit.value,serviceCoverMobilePositionX:Number(f.serviceCoverMobilePositionX.value||f.serviceCoverPositionX.value||50),serviceCoverMobilePositionY:Number(f.serviceCoverMobilePositionY.value||f.serviceCoverPositionY.value||50)};
+    if(section==='visual') return {...common,heroImage:f.heroImage.value||null,heroImageHeight:Number(f.heroImageHeight.value||150),heroImageFit:f.heroImageFit.value,heroImagePositionX:Number(f.heroImagePositionX.value||50),heroImagePositionY:Number(f.heroImagePositionY.value||50),heroImageMobileHeight:Number(f.heroImageMobileHeight.value||f.heroImageHeight.value||150),heroImageMobileFit:f.heroImageMobileFit.value||f.heroImageFit.value,heroImageMobilePositionX:Number(f.heroImageMobilePositionX.value||f.heroImagePositionX.value||50),heroImageMobilePositionY:Number(f.heroImageMobilePositionY.value||f.heroImagePositionY.value||50),heroBackgroundImage:f.heroBackgroundImage.value||null,heroBackgroundMobileImage:f.heroBackgroundMobileImage.value||null,heroBackgroundMobileHeight:Number(f.heroBackgroundMobileHeight.value||520),heroBackgroundOpacity:Number(f.heroBackgroundOpacity.value||0),heroBackgroundFit:f.heroBackgroundFit.value,heroBackgroundPositionX:Number(f.heroBackgroundPositionX.value||50),heroBackgroundPositionY:Number(f.heroBackgroundPositionY.value||50),heroBackgroundBlur:Number(f.heroBackgroundBlur.value||0),heroBackgroundMobileFit:f.heroBackgroundMobileFit.value||f.heroBackgroundFit.value,heroBackgroundMobilePositionX:Number(f.heroBackgroundMobilePositionX.value||f.heroBackgroundPositionX.value||50),heroBackgroundMobilePositionY:Number(f.heroBackgroundMobilePositionY.value||f.heroBackgroundPositionY.value||50),serviceCoverHeight:Number(f.serviceCoverHeight.value||105),serviceCoverFit:f.serviceCoverFit.value,serviceCoverPositionX:Number(f.serviceCoverPositionX.value||50),serviceCoverPositionY:Number(f.serviceCoverPositionY.value||50),serviceCoverMobileHeight:Number(f.serviceCoverMobileHeight.value||f.serviceCoverHeight.value||105),serviceCoverMobileFit:f.serviceCoverMobileFit.value||f.serviceCoverFit.value,serviceCoverMobilePositionX:Number(f.serviceCoverMobilePositionX.value||f.serviceCoverPositionX.value||50),serviceCoverMobilePositionY:Number(f.serviceCoverMobilePositionY.value||f.serviceCoverPositionY.value||50)};
     if(section==='notice') return {...common,announcementEnabled:f.announcementEnabled.checked,announcementText:f.announcementText.value||null};
     if(section==='contact') return {...common,contactTitle:f.contactTitle.value,contactIntro:f.contactIntro.value,wechatId:f.wechatId.value||null,wechatQrImage:f.wechatQrImage.value||null,wechatQrSize:Number(f.wechatQrSize.value||260),contactChannels:syncContactChannelsFromDom(),qqId:f.qqId.value||null,qqLink:f.qqLink.value||null,phone:f.phone.value||null,serviceHours:f.serviceHours.value||null,taobaoUrl:f.taobaoUrl.value||null,xianyuUrl:f.xianyuUrl.value||null,contactNotice:f.contactNotice.value,wecomKefuUrl:f.wecomKefuUrl.value||null,wecomKefuNote:f.wecomKefuNote.value||null,quickContactTitle:f.quickContactTitle.value||null,taobaoLabel:f.taobaoLabel.value||null,xianyuLabel:f.xianyuLabel.value||null,wecomKefuLabel:f.wecomKefuLabel.value||null,wecomKefuButton:f.wecomKefuButton.value||null};
     if(section==='trust') return {...common,trustCases:syncTrustCasesFromDom(),trustFaq:syncTrustFaqFromDom()};

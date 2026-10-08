@@ -18,9 +18,12 @@ class ComponentResponsiveControlsContractTest {
         assertTrue(migration.contains("home_service_mobile_limit"));
         assertTrue(migration.contains("home_service_desktop_columns"));
         assertTrue(migration.contains("trust_faq_home_mobile_limit"));
+        assertTrue(Files.readString(ROOT.resolve("src/main/resources/db/migration/V61__mobile_background_image_controls.sql")).contains("hero_background_mobile_image"));
         assertTrue(dto.contains("int homeServiceMobileLimit"));
         assertTrue(dto.contains("String serviceCardMobileDensity"));
+        assertTrue(dto.contains("String heroBackgroundMobileImage"));
         assertTrue(service.contains("setHomeServiceMobileLimit"));
+        assertTrue(service.contains("setHeroBackgroundMobileImage"));
         assertTrue(service.contains("normalizeDensity"));
     }
 
@@ -33,8 +36,12 @@ class ComponentResponsiveControlsContractTest {
         String css = Files.readString(ROOT.resolve("src/main/resources/static/assets/site-image-controls.css"));
 
         assertTrue(adminHtml.contains("name=\"homeServiceMobileLimit\""));
+        assertTrue(adminHtml.contains("name=\"heroBackgroundMobileImage\""));
+        assertTrue(adminHtml.contains("id=\"uploadHeroBackgroundMobile\""));
         assertTrue(adminHtml.contains("name=\"homeContactMobileLimit\""));
         assertTrue(adminJs.contains("trustCaseHomeMobileLimit"));
+        assertTrue(adminJs.contains("BACKGROUND_MOBILE"));
+        assertTrue(publicJs.contains("heroBackgroundMobileImage"));
         assertTrue(publicJs.contains("componentNumber(config, 'homeServiceLimit', 'homeServiceMobileLimit'"));
         assertTrue(publicJs.contains("componentNumber(config, 'homeContactLimit', 'homeContactMobileLimit'"));
         assertTrue(pagesJs.contains("XH.applyServiceGridControls"));

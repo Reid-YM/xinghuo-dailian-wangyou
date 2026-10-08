@@ -22,6 +22,15 @@ public final class FrontendDeviceViewInterceptor implements HandlerInterceptor {
     );
 
     @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if (isPublicFrontendRequest(request)) {
+            // Dynamic serving uses the same URL for desktop/mobile HTML. Shared caches must key by UA.
+            response.addHeader("Vary", "User-Agent");
+        }
+        return true;
+    }
+
+    @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
         boolean mobile = isMobile(request);
         request.setAttribute("frontendMode", mobile ? "mobile" : "desktop");
@@ -32,12 +41,15 @@ public final class FrontendDeviceViewInterceptor implements HandlerInterceptor {
         modelAndView.setViewName("mobile/" + view);
     }
 
-    static boolean isMobile(HttpServletRequest request) {
+    static boolean isPublicFrontendRequest(HttpServletRequest request) {
         if (request == null) return false;
         String path = request.getRequestURI();
-        if (path != null && (path.startsWith("/admin") || path.startsWith("/api/") || path.startsWith("/assets/") || path.startsWith("/uploads/"))) {
-            return false;
-        }
+        if (path == null) return false;
+        return !(path.startsWith("/admin") || path.startsWith("/api/") || path.startsWith("/assets/") || path.startsWith("/uploads/"));
+    }
+
+    static boolean isMobile(HttpServletRequest request) {
+        if (!isPublicFrontendRequest(request)) return false;
 
         // Header override is intentionally for tests/operations only; no alternate public URL is created.
         String forced = request.getHeader("X-Xinghuo-Frontend");

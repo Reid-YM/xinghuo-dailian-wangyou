@@ -74,8 +74,8 @@ class MobileCompactLayoutPlaywrightTest {
     }
 
     private static double number(Page page, String selector, String dimension) {
-        return ((Number) page.evaluate("([selector,dimension]) => document.querySelector(selector).getBoundingClientRect()[dimension]",
-                new Object[] { selector, dimension })).doubleValue();
+        String expression = "() => document.querySelector('" + selector + "').getBoundingClientRect()." + dimension;
+        return ((Number) page.evaluate(expression)).doubleValue();
     }
 
     private static void assertBetween(double value, double min, double max) {

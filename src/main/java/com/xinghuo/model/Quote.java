@@ -60,7 +60,8 @@ public class Quote {
     private String nextAction;
     @Column(name="follow_up_note", columnDefinition="TEXT")
     private String followUpNote;
-    @Column(name="customer_supplement", columnDefinition="TEXT")
+    // Customer supplements are appended atomically by the console; CRM saves must never overwrite them.
+    @Column(name="customer_supplement", columnDefinition="TEXT", insertable=false, updatable=false)
     private String customerSupplement;
 
     public String getCustomerSupplement() { return customerSupplement; }

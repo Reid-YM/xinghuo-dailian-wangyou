@@ -13,7 +13,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 class MobileVisualAssetInjectionTest {
 
     @Test
-    void mobilePublicResponseLoadsDedicatedRuntimeButDesktopDoesNot() throws Exception {
+    void mobilePublicResponseLoadsDedicatedRuntimeAndCompactCssButDesktopDoesNot() throws Exception {
         var filter = new MobileFrontendAssetFilter();
         FilterChain html = (request, response) -> {
             var http = (jakarta.servlet.http.HttpServletResponse) response;
@@ -25,13 +25,17 @@ class MobileVisualAssetInjectionTest {
         mobileRequest.addHeader("User-Agent", "Mozilla/5.0 (iPhone) Mobile");
         var mobileResponse = new MockHttpServletResponse();
         filter.doFilter(mobileRequest, mobileResponse, html);
-        assertTrue(mobileResponse.getContentAsString().contains("mobile-visual-runtime.js?v=20261009mv1"));
+        String mobileHtml = mobileResponse.getContentAsString();
+        assertTrue(mobileHtml.contains("mobile-visual-runtime.js?v=20261009mv1"));
+        assertTrue(mobileHtml.contains("mobile-compact.css?v=20261009mc1"));
 
         var desktopRequest = new MockHttpServletRequest("GET", "/");
         desktopRequest.addHeader("User-Agent", "Mozilla/5.0 (Macintosh) Chrome Safari");
         var desktopResponse = new MockHttpServletResponse();
         filter.doFilter(desktopRequest, desktopResponse, html);
-        assertFalse(desktopResponse.getContentAsString().contains("mobile-visual-runtime.js"));
+        String desktopHtml = desktopResponse.getContentAsString();
+        assertFalse(desktopHtml.contains("mobile-visual-runtime.js"));
+        assertFalse(desktopHtml.contains("mobile-compact.css"));
     }
 
     @Test

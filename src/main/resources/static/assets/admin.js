@@ -125,7 +125,13 @@
       layer.style.backgroundImage = '';
       return;
     }
-    const config = Object.fromEntries(['heroBackgroundOpacity','heroBackgroundFit','heroBackgroundPositionX','heroBackgroundPositionY','heroBackgroundBlur'].map(k => [k, f[k].value]));
+    const config = Object.fromEntries(['heroBackgroundOpacity','heroBackgroundFit','heroBackgroundPositionX','heroBackgroundPositionY','heroBackgroundBlur','heroBackgroundMobileFit','heroBackgroundMobilePositionX','heroBackgroundMobilePositionY'].map(k => [k, f[k].value]));
+    const mobile = box.dataset.device === 'mobile';
+    if (mobile) {
+      config.heroBackgroundFit = config.heroBackgroundMobileFit;
+      config.heroBackgroundPositionX = config.heroBackgroundMobilePositionX;
+      config.heroBackgroundPositionY = config.heroBackgroundMobilePositionY;
+    }
     window.SiteImageControls.background(box, layer, config, url);
     box.classList.remove('hidden');
   }
@@ -153,6 +159,9 @@
     f.heroBackgroundFit.value = 'COVER';
     f.heroBackgroundPositionX.value = 50;
     f.heroBackgroundPositionY.value = 50;
+    f.heroBackgroundMobileFit.value = 'COVER';
+    f.heroBackgroundMobilePositionX.value = 50;
+    f.heroBackgroundMobilePositionY.value = 50;
     f.heroBackgroundBlur.value = 0;
   }
 
@@ -480,6 +489,10 @@ async function loadDashboard() {
     f.heroImageFit.value = (c.heroImageFit || 'cover').toUpperCase();
     f.heroImagePositionX.value = c.heroImagePositionX ?? 50;
     f.heroImagePositionY.value = c.heroImagePositionY ?? 50;
+    f.heroImageMobileHeight.value = c.heroImageMobileHeight || c.heroImageHeight || 150;
+    f.heroImageMobileFit.value = (c.heroImageMobileFit || c.heroImageFit || 'cover').toUpperCase();
+    f.heroImageMobilePositionX.value = c.heroImageMobilePositionX ?? c.heroImagePositionX ?? 50;
+    f.heroImageMobilePositionY.value = c.heroImageMobilePositionY ?? c.heroImagePositionY ?? 50;
     f.heroBackgroundImage.value = c.heroBackgroundImage || '';
     renderNamedPreview('#heroBackgroundPreview', c.heroBackgroundImage || '', '首屏背景图预览');
     f.heroBackgroundOpacity.value = c.heroBackgroundOpacity ?? 90;
@@ -487,11 +500,18 @@ async function loadDashboard() {
     f.heroBackgroundPositionX.value = c.heroBackgroundPositionX ?? 50;
     f.heroBackgroundPositionY.value = c.heroBackgroundPositionY ?? 50;
     f.heroBackgroundBlur.value = c.heroBackgroundBlur ?? 0;
+    f.heroBackgroundMobileFit.value = (c.heroBackgroundMobileFit || c.heroBackgroundFit || 'cover').toUpperCase();
+    f.heroBackgroundMobilePositionX.value = c.heroBackgroundMobilePositionX ?? c.heroBackgroundPositionX ?? 50;
+    f.heroBackgroundMobilePositionY.value = c.heroBackgroundMobilePositionY ?? c.heroBackgroundPositionY ?? 50;
     updateHeroBackgroundLivePreview();
     f.serviceCoverHeight.value = c.serviceCoverHeight || 105;
     f.serviceCoverFit.value = (c.serviceCoverFit || 'cover').toUpperCase();
     f.serviceCoverPositionX.value = c.serviceCoverPositionX ?? 50;
     f.serviceCoverPositionY.value = c.serviceCoverPositionY ?? 50;
+    f.serviceCoverMobileHeight.value = c.serviceCoverMobileHeight || c.serviceCoverHeight || 105;
+    f.serviceCoverMobileFit.value = (c.serviceCoverMobileFit || c.serviceCoverFit || 'cover').toUpperCase();
+    f.serviceCoverMobilePositionX.value = c.serviceCoverMobilePositionX ?? c.serviceCoverPositionX ?? 50;
+    f.serviceCoverMobilePositionY.value = c.serviceCoverMobilePositionY ?? c.serviceCoverPositionY ?? 50;
     const trustValues = Array.isArray(c.trustTags) ? c.trustTags : [];
     [...f.trustTags.options].forEach(o => { o.selected = trustValues.includes(o.value); });
     renderTrustCases(c.trustCases || []);
@@ -547,10 +567,11 @@ async function loadDashboard() {
     f.heroBackgroundOpacity.dispatchEvent(new Event('input', { bubbles: true }));
     toast('已套用前台自动适配参数，保存图片视觉模块后生效');
   });
-  ['heroBackgroundOpacity','heroBackgroundFit','heroBackgroundPositionX','heroBackgroundPositionY','heroBackgroundBlur'].forEach(name => {
+  ['heroBackgroundOpacity','heroBackgroundFit','heroBackgroundPositionX','heroBackgroundPositionY','heroBackgroundBlur','heroBackgroundMobileFit','heroBackgroundMobilePositionX','heroBackgroundMobilePositionY'].forEach(name => {
     $('#configForm')?.[name]?.addEventListener('input', updateHeroBackgroundLivePreview);
     $('#configForm')?.[name]?.addEventListener('change', updateHeroBackgroundLivePreview);
   });
+  document.addEventListener('visual-device-changed', updateHeroBackgroundLivePreview);
   $('#uploadWechatQr')?.addEventListener('click', async event => {
     const f = $('#configForm');
     const file = f?.wechatQrImageFile?.files?.[0];
@@ -576,7 +597,7 @@ async function loadDashboard() {
     const common={reason};
     if(section==='basic') return {...common,brandName:f.brandName.value,legalEntityName:f.legalEntityName.value,serviceStatus:f.serviceStatus.value,quoteEnabled:f.quoteEnabled.checked,orderQueryEnabled:f.orderQueryEnabled.checked};
     if(section==='home') return {...common,heroTitle:f.heroTitle.value,heroSubtitle:f.heroSubtitle.value,startingPriceMode:f.startingPriceMode.value,startingPrice:Number(f.startingPrice.value||0),showStartingPrice:f.showStartingPrice.checked,homeServiceLimit:Number(f.homeServiceLimit.value||4),trustTags:[...f.trustTags.selectedOptions].map(x=>x.value)};
-    if(section==='visual') return {...common,heroImage:f.heroImage.value||null,heroImageHeight:Number(f.heroImageHeight.value||150),heroImageFit:f.heroImageFit.value,heroImagePositionX:Number(f.heroImagePositionX.value||50),heroImagePositionY:Number(f.heroImagePositionY.value||50),heroBackgroundImage:f.heroBackgroundImage.value||null,heroBackgroundOpacity:Number(f.heroBackgroundOpacity.value||0),heroBackgroundFit:f.heroBackgroundFit.value,heroBackgroundPositionX:Number(f.heroBackgroundPositionX.value||50),heroBackgroundPositionY:Number(f.heroBackgroundPositionY.value||50),heroBackgroundBlur:Number(f.heroBackgroundBlur.value||0),serviceCoverHeight:Number(f.serviceCoverHeight.value||105),serviceCoverFit:f.serviceCoverFit.value,serviceCoverPositionX:Number(f.serviceCoverPositionX.value||50),serviceCoverPositionY:Number(f.serviceCoverPositionY.value||50)};
+    if(section==='visual') return {...common,heroImage:f.heroImage.value||null,heroImageHeight:Number(f.heroImageHeight.value||150),heroImageFit:f.heroImageFit.value,heroImagePositionX:Number(f.heroImagePositionX.value||50),heroImagePositionY:Number(f.heroImagePositionY.value||50),heroImageMobileHeight:Number(f.heroImageMobileHeight.value||f.heroImageHeight.value||150),heroImageMobileFit:f.heroImageMobileFit.value||f.heroImageFit.value,heroImageMobilePositionX:Number(f.heroImageMobilePositionX.value||f.heroImagePositionX.value||50),heroImageMobilePositionY:Number(f.heroImageMobilePositionY.value||f.heroImagePositionY.value||50),heroBackgroundImage:f.heroBackgroundImage.value||null,heroBackgroundOpacity:Number(f.heroBackgroundOpacity.value||0),heroBackgroundFit:f.heroBackgroundFit.value,heroBackgroundPositionX:Number(f.heroBackgroundPositionX.value||50),heroBackgroundPositionY:Number(f.heroBackgroundPositionY.value||50),heroBackgroundBlur:Number(f.heroBackgroundBlur.value||0),heroBackgroundMobileFit:f.heroBackgroundMobileFit.value||f.heroBackgroundFit.value,heroBackgroundMobilePositionX:Number(f.heroBackgroundMobilePositionX.value||f.heroBackgroundPositionX.value||50),heroBackgroundMobilePositionY:Number(f.heroBackgroundMobilePositionY.value||f.heroBackgroundPositionY.value||50),serviceCoverHeight:Number(f.serviceCoverHeight.value||105),serviceCoverFit:f.serviceCoverFit.value,serviceCoverPositionX:Number(f.serviceCoverPositionX.value||50),serviceCoverPositionY:Number(f.serviceCoverPositionY.value||50),serviceCoverMobileHeight:Number(f.serviceCoverMobileHeight.value||f.serviceCoverHeight.value||105),serviceCoverMobileFit:f.serviceCoverMobileFit.value||f.serviceCoverFit.value,serviceCoverMobilePositionX:Number(f.serviceCoverMobilePositionX.value||f.serviceCoverPositionX.value||50),serviceCoverMobilePositionY:Number(f.serviceCoverMobilePositionY.value||f.serviceCoverPositionY.value||50)};
     if(section==='notice') return {...common,announcementEnabled:f.announcementEnabled.checked,announcementText:f.announcementText.value||null};
     if(section==='contact') return {...common,contactTitle:f.contactTitle.value,contactIntro:f.contactIntro.value,wechatId:f.wechatId.value||null,wechatQrImage:f.wechatQrImage.value||null,wechatQrSize:Number(f.wechatQrSize.value||260),contactChannels:syncContactChannelsFromDom(),qqId:f.qqId.value||null,qqLink:f.qqLink.value||null,phone:f.phone.value||null,serviceHours:f.serviceHours.value||null,taobaoUrl:f.taobaoUrl.value||null,xianyuUrl:f.xianyuUrl.value||null,contactNotice:f.contactNotice.value,wecomKefuUrl:f.wecomKefuUrl.value||null,wecomKefuNote:f.wecomKefuNote.value||null,quickContactTitle:f.quickContactTitle.value||null,taobaoLabel:f.taobaoLabel.value||null,xianyuLabel:f.xianyuLabel.value||null,wecomKefuLabel:f.wecomKefuLabel.value||null,wecomKefuButton:f.wecomKefuButton.value||null};
     if(section==='trust') return {...common,trustCases:syncTrustCasesFromDom(),trustFaq:syncTrustFaqFromDom()};

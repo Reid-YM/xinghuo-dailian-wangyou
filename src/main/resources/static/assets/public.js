@@ -967,9 +967,10 @@
       window.SiteImageControls.background(hero, heroBg, config, heroBgImage);
     }
 
-    document.documentElement.style.setProperty('--service-cover-height', `${Math.max(70, Math.min(240, Number(config.serviceCoverHeight || 105)))}px`);
-    document.documentElement.style.setProperty('--service-cover-fit', ['cover','contain','fill'].includes(config.serviceCoverFit) ? config.serviceCoverFit : 'cover');
-    document.documentElement.style.setProperty('--service-cover-position', `${Number(config.serviceCoverPositionX ?? 50)}% ${Number(config.serviceCoverPositionY ?? 50)}%`);
+    const coverVars = window.SiteImageControls.serviceCoverVars(config);
+    document.documentElement.style.setProperty('--service-cover-height', coverVars.height);
+    document.documentElement.style.setProperty('--service-cover-fit', coverVars.fit);
+    document.documentElement.style.setProperty('--service-cover-position', coverVars.position);
     document.documentElement.style.setProperty('--wechat-qr-size', `${Math.max(120, Math.min(420, Number(config.wechatQrSize || 260)))}px`);
 
     const announce = $('#announcementBar');

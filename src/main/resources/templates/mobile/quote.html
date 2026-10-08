@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
+  <title>快速询价 - 星火网游代练平台</title><meta name="description" content="选择游戏、平台和具体服务，提交任务询价。">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台"><meta property="og:title" content="快速询价 - 星火网游代练平台"><meta property="og:description" content="选择游戏、平台和具体服务提交询价，获取业务编号并随时查询进度。"><meta property="og:url" content="https://wydlgf.cn/quote"><meta property="og:image" content="https://wydlgf.cn/og.png">
+  <link rel="canonical" href="https://wydlgf.cn/quote"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/ui-fixes.js?v=20261008audit01"></script><script defer src="/assets/site-image-controls.js?v=20261008r2"></script><script defer src="/assets/public.js?v=20261008r2"></script><script defer src="/assets/pages.js?v=20260928v016"></script><script defer src="/assets/quote-steps.js?v=20261006qs18"></script>
+  <style>
+    /* 询价页：一对一咨询卡片与报价卡片顶部对齐。
+       app.css 里 .consult-card{top:86px} 是历史偏移，这里做页面级覆盖，
+       避免为这几行去提升全局 app.css 的缓存版本号。 */
+    body[data-page="quote"] .quote-layout { align-items: start; }
+    body[data-page="quote"] .consult-card { top: 0; }
+  </style>
+<link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008r2"/>
+</head>
+<body data-page="quote">
+<header th:replace="~{fragments/site :: header}"></header>
+<main class="container section page-shell quote-page-r3">
+  <div class="page-stepbar desktop-showcase" aria-label="询价流程"><span class="active"><b>1</b>选择需求</span><i></i><span><b>2</b>客服确认</span><i></i><span><b>3</b><span th:text="#{t.82618}">查询进度</span></span></div>
+  <div class="quote-layout">
+    <div class="card order-card quote-main-card quote-card">
+      <div class="quote-card-head"><div class="service-state" data-config="status">● MW4 正式版预约中 · 上线后陆续开放服务</div><span class="eyebrow">快速询价</span><h1>帮我报价</h1></div>
+      <div id="selectedService" class="selected-service hidden"></div>
+      <form id="quotePageForm" data-linked-quote data-two-step novalidate>
+        <div data-step-panel="1">
+          <p class="eyebrow">第 1 步 / 共 2 步 · 说明需求</p>
+          <div class="linked-selects linked-selects-page four-step quote-page-steps">
+            <div class="field"><label for="q-game"><span>①</span> 游戏 *</label><select id="q-game" name="game" required data-link-game><option value="">请选择游戏</option></select></div>
+            <div class="field"><label for="q-platform"><span>②</span> 游戏平台</label><select id="q-platform" name="platform" data-link-platform><option value="">请选择平台 / 不确定</option><option value="Steam">Steam · PC</option><option value="Battle.net">Battle.net · PC</option><option value="PlayStation">PlayStation · 主机</option><option value="Xbox">Xbox · 主机</option><option value="Nintendo Switch 2">Nintendo Switch 2 · 主机</option></select><div class="platform-select" data-platform-picker></div></div>
+            <div class="field"><label for="q-category"><span>③</span> 需求类型 *</label><select id="q-category" required data-link-category disabled><option value="">请先选择游戏</option></select></div>
+            <div class="field"><label for="q-demand"><span>④</span> 具体服务 *</label><select id="q-demand" name="demand" required data-link-service disabled><option value="">请先选择需求类型</option></select></div>
+          </div>
+          <div class="quote-extras-content quote-extras-page">
+            <div class="field compact-field"><label for="q-progress"><span th:text="#{t.10171}">当前进度</span></label><select id="q-progress" name="currentProgress"><option value="">不确定</option><option value="未开始">未开始</option><option value="刚开始">刚开始</option><option value="进行中"><span th:text="#{t.18223}">进行中</span></option><option value="接近完成">接近完成</option><option value="已有部分进度，截图为准">已有部分进度</option></select></div>
+            <div class="field compact-field"><label for="q-time"><span th:text="#{t.44934}">期望时间</span></label><select id="q-time" name="expectedTime"><option value="">按客服安排</option><option value="尽快">尽快</option><option value="今天">今天</option><option value="24小时内">24小时内</option><option value="1–3天">1–3天</option><option value="不着急">不着急</option></select></div>
+          </div>
+          <div class="detail-list" aria-live="polite">
+            <strong><span th:text="#{t.55405}">参考价格</span></strong><span id="stepPriceHint">选择具体服务后显示</span>
+            <strong><span th:text="#{t.31460}">预计时间</span></strong><span id="stepDurationHint">选择具体服务后显示</span>
+            <strong>需要准备</strong><span>任务截图（可选）：显示当前进度即可，不要包含密码或验证码</span>
+          </div>
+          <div class="actions"><button class="btn primary" type="button" data-step-next>下一步：留联系方式</button></div>
+        </div>
+        <div data-step-panel="2" hidden>
+          <p class="eyebrow">第 2 步 / 共 2 步 · 留联系方式</p>
+          <div class="contact-combo">
+            <div class="contact-combo-head"><b>联系方式 *</b><small class="contact-required-hint">用于客服确认报价与开工时间</small></div>
+            <div class="contact-combo-grid">
+              <div class="contact-combo-field"><label for="q-contact-method"><span th:text="#{t.26902}">联系方式</span></label><select id="q-contact-method" name="contactMethod" required><option value="">请选择</option><option value="微信"><span th:text="#{t.42742}">微信</span></option><option value="QQ">QQ</option><option value="手机"><span th:text="#{t.46146}">手机</span></option><option value="其他"><span th:text="#{t.56822}">其他</span></option></select></div>
+              <div class="contact-combo-field"><label for="q-contact"><span th:text="#{t.8044}">联系号</span></label><div class="contact-number-row"><select class="phone-code-select hidden" data-phone-code aria-label="国家区号"></select><input id="q-contact" name="customerContact" maxlength="120" required placeholder="微信号 / 手机号 / QQ号"></div></div>
+            </div>
+          </div>
+          <div class="field upload-field quote-upload-wide"><label for="q-file">任务截图（可选）</label><input id="q-file" class="upload-input" type="file" name="file" accept="image/jpeg,image/png,image/*" data-upload-input><label class="upload-zone" for="q-file"><span class="upload-icon" aria-hidden="true"><svg class="ui-icon"><use href="/assets/icons.svg#i-upload"></use></svg></span><span class="upload-copy"><strong data-file-name><span th:text="#{t.67748}">上传任务截图</span></strong><span>JPG / PNG · ≤5MB</span></span><span class="upload-action"><span th:text="#{t.59349}">选择图片</span></span></label></div>
+          <label class="legal-consent"><input type="checkbox" name="privacyConsent" required><span>我已阅读并同意 <a href="/rules" target="_blank" rel="noopener"><span th:text="#{t.4517}">服务规则</span></a> 和 <a href="/privacy" target="_blank" rel="noopener"><span th:text="#{t.62044}">隐私说明</span></a>，不会在表单或截图中提交账号密码、验证码或令牌。</span></label>
+          <div class="actions"><button class="btn ghost" type="button" data-step-prev>上一步</button><button class="btn primary quote-submit" type="submit" data-primary-cta>提交并获取业务编号</button></div>
+          <div id="quotePageMsg" aria-live="polite"></div>
+        </div>
+      </form>
+    </div>
+    <aside class="card consult-card desktop-secondary-panel">
+      <span class="eyebrow"><span th:text="#{t.73500}">一对一咨询</span></span><h2>需要人工确认？</h2>
+      <div class="consult-channel" data-contact-row="wechat"><span><span th:text="#{t.42742}">微信</span></span><strong id="quoteWechat" data-contact="wechat">AAC9878</strong><button class="btn small-btn" type="button" data-copy="#quoteWechat"><span th:text="#{t.13630}">复制</span></button></div>
+      <div class="consult-channel hidden" data-contact-row="qq"><span>QQ</span><strong id="quoteQq" data-contact="qq"></strong><div class="actions"><button class="btn small-btn" type="button" data-copy="#quoteQq"><span th:text="#{t.13630}">复制</span></button><a class="btn small-btn hidden" data-contact-link="qq" target="_blank" rel="noopener">打开QQ</a></div></div>
+      <div class="consult-channel hidden" data-contact-row="phone"><span>电话</span><strong id="quotePhone" data-contact="phone"></strong><a class="btn small-btn hidden" data-contact-link="phone">拨打</a></div>
+      <div class="consult-channel" data-contact-row="hours"><span>客服时间</span><strong data-config="serviceHours">10:00–24:00</strong><span></span></div>
+      <div class="kefu-card-entry quote-wecom-entry" data-wecom-entry><p data-wecom-note>需要人工确认时，可直接进入企业微信客服。</p><a class="kefu-image-button small" data-wecom-link href="https://work.weixin.qq.com/kfid/kfc80cfa9ee45840208" target="_blank" rel="noopener noreferrer" data-track="wecom_kefu_click" aria-label="联系企微客服"><span class="kefu-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M5 13h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2v-2a1 1 0 0 1 1-1Z"/><path d="M19 13h-2a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 0 2-2v-2a1 1 0 0 0-1-1Z"/><path d="M12 20h2a4 4 0 0 0 4-4"/></svg></span><span data-wecom-button>联系客服</span></a></div>
+      <div class="quote-safe-panel">
+        <strong>安全提交提醒</strong>
+        <p>截图只需要展示任务进度，不要包含账号密码、验证码、令牌、身份证或付款码。</p>
+      </div>
+    </aside>
+  </div>
+</main>
+<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/"><span th:text="#{t.870}">首页</span></a><a href="/records"><span th:text="#{nav.records}"><span th:text="#{t.90574}">业务记录</span></span></a><a class="primary" href="/contact"><span th:text="#{t.86236}">联系客服</span></a></nav>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+</body></html>
+

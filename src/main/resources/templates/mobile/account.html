@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1018"><meta name="robots" content="noindex,nofollow">
+  <title>个人中心 - 星火网游工作室</title><meta name="description" content="查看星火账号概览、需求、订单与常用入口。"><link rel="canonical" href="https://wydlgf.cn/account">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261006ac16"><link rel="stylesheet" href="/assets/account-center.css?v=20261007ia01"><link rel="stylesheet" href="/assets/account-center-refine.css?v=20261007ar01">
+  <script defer src="/assets/ui-fixes.js?v=20261008audit01"></script><script defer src="/assets/site-image-controls.js?v=20261008r2"></script><script defer src="/assets/public.js?v=20261008r2"></script><script defer src="/assets/account-center.js?v=20261008audit01"></script><script defer src="/assets/account-center-refine.js?v=20261007ar01"></script>
+<link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008r2"/>
+</head>
+<body data-page="account-center-overview" class="account-center-page">
+<header th:replace="~{fragments/site :: header}"></header>
+<main class="account-center-shell">
+  <header th:replace="~{fragments/account-center :: bar}"></header>
+  <div class="notice hidden" data-hub-message hidden></div>
+  <div class="account-center-layout">
+    <aside th:replace="~{fragments/account-center :: rail('overview')}"></aside>
+    <div class="account-center-main">
+      <section class="account-center-hero"><div><span class="account-center-eyebrow">OVERVIEW</span><h1>欢迎回到个人中心</h1><p>这里只看关键状态和下一步动作。需求、订单、工具存档和账号设置都已经拆到独立页面，不再堆在一个大面板里。</p></div><div class="account-center-actions"><a class="btn ghost" href="/account/settings#security">安全设置</a><a class="btn primary" href="/quote" data-primary-cta>提交新需求</a></div></section>
+      <section class="account-center-kpis" aria-label="个人中心概览"><article class="account-center-kpi"><span>我的需求</span><strong data-hub-kpi="requests">—</strong><small>已归属当前账号</small></article><article class="account-center-kpi"><span>我的订单</span><strong data-hub-kpi="orders">—</strong><small>可查看交付进度</small></article><article class="account-center-kpi"><span>进行中</span><strong data-hub-kpi="active">—</strong><small>需要关注的订单</small></article><article class="account-center-kpi"><span>安全活动</span><strong data-hub-kpi="security">—</strong><small>账号操作记录</small></article></section>
+      <div class="account-center-grid">
+        <section class="account-center-card"><header><div><span class="account-center-eyebrow">REQUESTS</span><h2>最近需求</h2><p>最新询价与客服处理状态。</p></div><a href="/account/requests">查看全部 →</a></header><div class="account-center-list" data-hub-recent-requests><div class="account-center-empty">正在读取…</div></div></section>
+        <section class="account-center-card"><header><div><span class="account-center-eyebrow">ORDERS</span><h2>最近订单</h2><p>交付进度与最近更新。</p></div><a href="/account/orders">查看全部 →</a></header><div class="account-center-list" data-hub-recent-orders><div class="account-center-empty">正在读取…</div></div></section>
+      </div>
+      <section class="account-center-quick" aria-label="常用功能"><a href="/account/settings#profile"><b>个人资料</b><strong>头像与昵称</strong><span>只维护账号公开资料，不和安全设置混在一起。</span></a><a href="/account/settings#contact"><b>回访方式</b><strong>询价联系方式</strong><span>管理手机号、微信号或 QQ，仅用于客服回访。</span></a><a href="/account/progress"><b>工具存档</b><strong>云端进度</strong><span>查看 MW4 工具站已保存的跨设备记录。</span></a></section>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+</body>
+</html>

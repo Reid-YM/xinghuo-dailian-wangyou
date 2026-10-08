@@ -1,0 +1,299 @@
+/* Mobile-only compact density layer. Loaded after mobile-app.css. */
+:root[data-frontend="mobile"] {
+  --mobile-shell-header: 52px;
+  --mobile-shell-dock: 66px;
+  --mobile-page-gutter: 12px;
+  --mobile-control-height: 42px;
+  --mobile-control-radius: 10px;
+  --mobile-card-radius: 14px;
+}
+
+body.mobile-frontend {
+  padding-bottom: calc(var(--mobile-shell-dock) + max(12px, env(safe-area-inset-bottom)));
+}
+
+/* Tighter shell and navigation so content lines up with the page gutter. */
+body.mobile-frontend .site-header .topbar {
+  min-height: var(--mobile-shell-header);
+  padding-inline: max(10px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-right));
+  gap: 8px;
+}
+
+body.mobile-frontend .site-header .brand,
+body.mobile-frontend .site-header .brand-mark {
+  max-width: calc(100vw - 112px);
+  gap: 7px;
+  font-size: 13px;
+}
+
+body.mobile-frontend .site-header .brand-mark > img {
+  width: 28px !important;
+  height: 28px !important;
+  flex-basis: 28px !important;
+  border-radius: 7px !important;
+}
+
+body.mobile-frontend .mobile-header-cta {
+  min-width: 62px;
+  min-height: 34px;
+  padding: 6px 11px;
+  font-size: 12px;
+}
+
+body.mobile-frontend .mobile-primary-nav {
+  min-height: var(--mobile-shell-dock);
+  padding-top: 5px;
+}
+
+body.mobile-frontend .mobile-primary-nav a {
+  min-height: 48px;
+  padding: 3px 2px;
+  gap: 2px;
+  border-radius: 10px;
+  font-size: 9.5px;
+}
+
+body.mobile-frontend .mobile-primary-nav a svg {
+  width: 19px;
+  height: 19px;
+}
+
+body.mobile-frontend .mobile-primary-nav .mobile-nav-quote {
+  margin-top: -15px;
+}
+
+body.mobile-frontend .mobile-primary-nav .mobile-nav-quote .mobile-nav-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-width: 3px;
+}
+
+/* Global mobile spacing: reduce desktop-like air without crowding. */
+body.mobile-frontend .section {
+  padding-block: 14px;
+}
+
+body.mobile-frontend .grid4,
+body.mobile-frontend .grid3,
+body.mobile-frontend .grid2,
+body.mobile-frontend .quick-grid,
+body.mobile-frontend .quick-grid-r3,
+body.mobile-frontend .linked-selects,
+body.mobile-frontend .contact-combo-grid,
+body.mobile-frontend .quote-layout,
+body.mobile-frontend .account-center-layout {
+  gap: 10px !important;
+}
+
+body.mobile-frontend .card,
+body.mobile-frontend .service-browser-console,
+body.mobile-frontend .account-center-card,
+body.mobile-frontend .account-center-kpi {
+  border-radius: var(--mobile-card-radius);
+}
+
+body.mobile-frontend .quick-card,
+body.mobile-frontend .quick-contact-card,
+body.mobile-frontend .quote-main-card,
+body.mobile-frontend .consult-card,
+body.mobile-frontend .account-center-card,
+body.mobile-frontend .account-center-kpi {
+  padding: 12px;
+}
+
+body.mobile-frontend .service-browser-console {
+  padding: 10px;
+}
+
+body.mobile-frontend .section-title,
+body.mobile-frontend .section-title-rich,
+body.mobile-frontend .game-entry-head,
+body.mobile-frontend .quick-contact-head {
+  gap: 7px;
+}
+
+body.mobile-frontend .section-title h2,
+body.mobile-frontend .section-title-rich h2,
+body.mobile-frontend .game-entry-head h2 {
+  margin-block: 0;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+/* Form rhythm. Keep text controls at 16px to avoid iOS focus zoom, but reduce box height. */
+body.mobile-frontend form {
+  gap: 10px;
+}
+
+body.mobile-frontend .field {
+  gap: 6px;
+}
+
+body.mobile-frontend .field > label,
+body.mobile-frontend label {
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+body.mobile-frontend .form-help,
+body.mobile-frontend .muted.small,
+body.mobile-frontend form small {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+body.mobile-frontend input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
+body.mobile-frontend select {
+  width: 100%;
+  min-height: var(--mobile-control-height) !important;
+  height: var(--mobile-control-height);
+  padding: 8px 10px !important;
+  border-radius: var(--mobile-control-radius);
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+body.mobile-frontend textarea {
+  width: 100%;
+  min-height: 88px !important;
+  padding: 9px 10px !important;
+  border-radius: var(--mobile-control-radius);
+  font-size: 16px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+/* Fix the Phase 2 rule that made every input 48px tall, including checkboxes/radios/ranges. */
+body.mobile-frontend input[type="checkbox"],
+body.mobile-frontend input[type="radio"] {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  max-width: 18px !important;
+  padding: 0 !important;
+  margin: 1px 0 0;
+  flex: 0 0 18px;
+}
+
+body.mobile-frontend input[type="range"] {
+  width: 100%;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 !important;
+}
+
+body.mobile-frontend input[type="file"] {
+  min-height: 0 !important;
+  padding: 6px !important;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+body.mobile-frontend input[type="file"]::file-selector-button {
+  min-height: 34px;
+  margin-right: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+body.mobile-frontend .toggle-row,
+body.mobile-frontend .legal-consent,
+body.mobile-frontend label:has(> input[type="checkbox"]),
+body.mobile-frontend label:has(> input[type="radio"]) {
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Buttons: maintain touchability while removing the oversized desktop feel. */
+body.mobile-frontend .btn,
+body.mobile-frontend button:not(.mobile-nav-icon-wrap) {
+  min-height: 40px;
+  padding: 8px 11px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+body.mobile-frontend .hero-actions .btn,
+body.mobile-frontend .actions .btn,
+body.mobile-frontend .btn-wide,
+body.mobile-frontend .quote-submit {
+  min-height: 44px !important;
+}
+
+body.mobile-frontend .btn.small-btn,
+body.mobile-frontend .small-btn {
+  min-height: 34px;
+  padding: 6px 9px;
+  font-size: 12px;
+}
+
+body.mobile-frontend .row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+body.mobile-frontend .row-actions > .btn,
+body.mobile-frontend .row-actions > button {
+  margin: 0;
+  flex: 0 1 auto;
+}
+
+/* Slightly tighten the home composition without changing its edge-to-edge behavior. */
+body.mobile-frontend[data-page="home"] #homeHero .hero-copy {
+  padding-inline: 15px;
+  padding-bottom: 22px;
+}
+
+body.mobile-frontend[data-page="home"] #homeHero h1 {
+  margin: 10px 0 7px;
+  font-size: clamp(30px, 8.5vw, 39px);
+}
+
+body.mobile-frontend[data-page="home"] #homeHero .hero-subtitle {
+  font-size: 13px;
+  line-height: 1.48;
+}
+
+body.mobile-frontend[data-page="home"] #homeHero .hero-promise {
+  margin: 12px 0 8px;
+  gap: 5px;
+}
+
+body.mobile-frontend[data-page="home"] #homeHero .hero-promise > span {
+  padding: 7px 5px;
+  border-radius: 9px;
+}
+
+body.mobile-frontend[data-page="home"] #homeHero .hero-price-row .price {
+  font-size: 27px;
+}
+
+@media (max-width: 360px) {
+  :root[data-frontend="mobile"] {
+    --mobile-page-gutter: 10px;
+    --mobile-control-height: 40px;
+  }
+
+  body.mobile-frontend .quick-card,
+  body.mobile-frontend .quick-contact-card,
+  body.mobile-frontend .quote-main-card,
+  body.mobile-frontend .consult-card,
+  body.mobile-frontend .account-center-card,
+  body.mobile-frontend .account-center-kpi {
+    padding: 10px;
+  }
+
+  body.mobile-frontend .section-title h2,
+  body.mobile-frontend .section-title-rich h2,
+  body.mobile-frontend .game-entry-head h2 {
+    font-size: 19px;
+  }
+
+  body.mobile-frontend[data-page="home"] #homeHero h1 {
+    font-size: 29px;
+  }
+}

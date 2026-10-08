@@ -195,7 +195,7 @@ public class OrderLinkService {
         }
 
         int updated = jdbc.update(
-                "UPDATE customer_orders SET customer_account_id = ? WHERE order_no = ? "
+                "UPDATE customer_orders SET customer_account_id = ?, version = version + 1 WHERE order_no = ? "
                         + "AND customer_account_id IS NULL",
                 account.getId(), row.orderNo());
         if (updated == 0) {
@@ -279,3 +279,4 @@ public class OrderLinkService {
             Instant createdAt) {
     }
 }
+

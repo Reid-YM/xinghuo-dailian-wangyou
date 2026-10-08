@@ -25,7 +25,7 @@ class CodeAttemptRegressionTest {
   }
   @Bean AccountTokenService service(AccountTokenRepository repo,JdbcTemplate jdbc){return new AccountTokenService(repo,jdbc);}
  }
- @Test void failedAttemptsSurviveOuterRollbackAndExhaustCorrectCode() {
+ @Test void failedAttemptsSurviveOuterRollbackAndExhaustCorrectCode() throws Exception {
   try(var context=new AnnotationConfigApplicationContext(Config.class)) {
    var jdbc=context.getBean(JdbcTemplate.class);var service=context.getBean(AccountTokenService.class);
    jdbc.execute("DROP TABLE IF EXISTS user_token");
@@ -36,6 +36,14 @@ class CodeAttemptRegressionTest {
    assertEquals(5,jdbc.queryForObject("SELECT failed_attempts FROM user_token WHERE id=1",Integer.class));
    assertTrue(service.consumeCode("scope","123456",AccountToken.Purpose.RESET_PASSWORD).isEmpty());
    assertNotNull(jdbc.queryForObject("SELECT used_at FROM user_token WHERE id=1",java.sql.Timestamp.class));
+   jdbc.update("INSERT INTO user_token(id,token_hash,payload,purpose,expires_at) VALUES(2,?,?,?,?)",AccountTokenService.sha256("parallel:123456"),"parallel","RESET_PASSWORD",java.sql.Timestamp.from(Instant.now().plusSeconds(600)));
+   try(var pool=java.util.concurrent.Executors.newFixedThreadPool(6)) {
+    var tasks=new java.util.ArrayList<java.util.concurrent.Callable<Boolean>>();
+    for(int i=0;i<12;i++) tasks.add(()->service.consumeCode("parallel","000000",AccountToken.Purpose.RESET_PASSWORD).isEmpty());
+    for(var result:pool.invokeAll(tasks)) assertTrue(result.get());
+   }
+   assertEquals(5,jdbc.queryForObject("SELECT failed_attempts FROM user_token WHERE id=2",Integer.class));
+   assertTrue(service.consumeCode("parallel","123456",AccountToken.Purpose.RESET_PASSWORD).isEmpty());
   }
  }
 }

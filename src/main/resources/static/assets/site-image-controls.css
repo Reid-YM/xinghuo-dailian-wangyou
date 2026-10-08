@@ -23,3 +23,4 @@ body:is(.admin-solid-ui,.admin-control-center-v2) #heroImagePreview{width:100%;m
 /* Service cover parameters are authoritative; existing visibility rules remain in place. */
 body:not(.admin-solid-ui):not(.admin-control-center-v2) .service-cover{height:var(--service-cover-height,105px)!important;min-height:0!important;max-height:none!important;aspect-ratio:auto!important}
 body:not(.admin-solid-ui):not(.admin-control-center-v2) .service-cover img{width:100%!important;height:100%!important;object-fit:var(--service-cover-fit,cover)!important;object-position:var(--service-cover-position,50% 50%)!important}
+body.admin-control-center-v2 [data-config-section="visual"]{padding:0;border:0;background:transparent}

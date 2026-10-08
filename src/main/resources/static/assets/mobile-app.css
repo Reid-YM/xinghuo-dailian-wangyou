@@ -1,0 +1,135 @@
+/* Mobile frontend only. Desktop pages never load this file. */
+html[data-frontend="mobile"] {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: #07090c;
+}
+
+body.mobile-frontend {
+  width: 100%;
+  min-width: 0;
+  max-width: 100vw;
+  overflow-x: hidden;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+}
+
+body.mobile-frontend .container,
+body.mobile-frontend main.container {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 14px;
+}
+
+body.mobile-frontend .desktop-showcase,
+body.mobile-frontend .desktop-secondary-panel {
+  display: none !important;
+}
+
+body.mobile-frontend .mobile-showcase {
+  display: block !important;
+}
+
+body.mobile-frontend .hero,
+body.mobile-frontend .card,
+body.mobile-frontend .section,
+body.mobile-frontend form,
+body.mobile-frontend .field,
+body.mobile-frontend input,
+body.mobile-frontend select,
+body.mobile-frontend textarea,
+body.mobile-frontend button,
+body.mobile-frontend img {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+body.mobile-frontend .hero {
+  width: 100%;
+  margin-inline: 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+body.mobile-frontend .hero-copy {
+  width: 100%;
+  padding-inline: 16px;
+}
+
+body.mobile-frontend .hero-actions,
+body.mobile-frontend .actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  gap: 10px;
+}
+
+body.mobile-frontend .hero-actions .btn,
+body.mobile-frontend .actions .btn,
+body.mobile-frontend .btn-wide,
+body.mobile-frontend .quote-submit {
+  width: 100%;
+  min-height: 46px;
+}
+
+body.mobile-frontend .grid4,
+body.mobile-frontend .grid3,
+body.mobile-frontend .grid2,
+body.mobile-frontend .quick-grid,
+body.mobile-frontend .linked-selects,
+body.mobile-frontend .contact-combo-grid {
+  grid-template-columns: 1fr !important;
+}
+
+body.mobile-frontend .card {
+  border-radius: 14px;
+}
+
+body.mobile-frontend .section {
+  margin-top: 18px;
+}
+
+body.mobile-frontend .section-title,
+body.mobile-frontend .section-title-rich,
+body.mobile-frontend .game-entry-head,
+body.mobile-frontend .quick-contact-head {
+  align-items: flex-start;
+  gap: 10px;
+}
+
+body.mobile-frontend .service-cover,
+body.mobile-frontend .hero-visual {
+  width: 100%;
+}
+
+body.mobile-frontend .legal-consent {
+  align-items: flex-start;
+}
+
+body.mobile-frontend input,
+body.mobile-frontend select,
+body.mobile-frontend textarea {
+  font-size: 16px;
+}
+
+body.mobile-frontend table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.mobile-frontend .site-header,
+body.mobile-frontend header {
+  max-width: 100vw;
+}
+
+body.mobile-frontend .announcement {
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+body.mobile-frontend [data-mobile-independent="true"] {
+  contain: layout style;
+}

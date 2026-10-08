@@ -88,17 +88,36 @@
       hero.insertBefore(backdrop, layer);
     }
 
-    const copyImage = () => {
-      const style = getComputedStyle(layer);
-      const image = layer.style.getPropertyValue('background-image') || style.backgroundImage || 'none';
-      const position = layer.style.getPropertyValue('background-position') || style.backgroundPosition || '50% 50%';
-      backdrop.style.backgroundImage = image;
-      backdrop.style.backgroundPosition = position;
-      backdrop.hidden = !image || image === 'none';
+    let syncing = false;
+    const sync = () => {
+      if (syncing) return;
+      syncing = true;
+      try {
+        const style = getComputedStyle(layer);
+        const image = layer.style.getPropertyValue('background-image') || style.backgroundImage || 'none';
+        const configuredSize = layer.style.getPropertyValue('background-size') || 'cover';
+        const configuredPosition = layer.style.getPropertyValue('background-position') || '50% 50%';
+
+        // Legacy shared CSS contains high-specificity !important cover/center rules.
+        // Mobile owns its foreground renderer now, so preserve the runtime/admin fit + position
+        // as inline-important values while the separate backdrop remains cover-filled.
+        if (layer.style.getPropertyPriority('background-size') !== 'important') {
+          layer.style.setProperty('background-size', configuredSize, 'important');
+        }
+        if (layer.style.getPropertyPriority('background-position') !== 'important') {
+          layer.style.setProperty('background-position', configuredPosition, 'important');
+        }
+
+        backdrop.style.backgroundImage = image;
+        backdrop.style.backgroundPosition = configuredPosition;
+        backdrop.hidden = !image || image === 'none';
+      } finally {
+        syncing = false;
+      }
     };
 
-    copyImage();
-    const observer = new MutationObserver(copyImage);
+    sync();
+    const observer = new MutationObserver(sync);
     observer.observe(layer, { attributes: true, attributeFilter: ['style', 'class'] });
   }
 

@@ -70,6 +70,8 @@
     hero.style.setProperty('max-width', 'none', 'important');
     hero.style.setProperty('margin-left', 'calc(50% - 50vw)', 'important');
     hero.style.setProperty('margin-right', 'calc(50% - 50vw)', 'important');
+    hero.style.setProperty('border', '0', 'important');
+    hero.style.setProperty('border-radius', '0', 'important');
   }
 
   function syncHeroBackdrop() {

@@ -27,7 +27,7 @@ class MobileVisualPhase3PlaywrightTest {
                             .setContentType("application/json")
                             .setBody("{\"heroBackgroundMobileOpacity\":42,\"heroBackgroundMobileBlur\":7}")));
             page.setContent("""
-                    <html data-frontend="mobile"><body data-page="home" class="mobile-frontend">
+                    <html data-frontend="mobile"><head><base href="https://test.local/"></head><body data-page="home" class="mobile-frontend">
                       <section id="homeHero" style="--image-text-dim:.22">
                         <div class="mobile-hero-backdrop" style="background-image:url('/x.jpg');opacity:.55"></div>
                         <div id="heroBackground" style="background-image:url('/x.jpg');background-size:contain!important;background-position:61% 35%!important;opacity:.9!important;filter:brightness(1.1) blur(0px)!important"></div>
@@ -66,7 +66,7 @@ class MobileVisualPhase3PlaywrightTest {
             });
 
             page.setContent("""
-                    <html><head><meta name="_csrf" content="token"><meta name="_csrf_header" content="X-CSRF-TOKEN"></head>
+                    <html><head><base href="https://test.local/"><meta name="_csrf" content="token"><meta name="_csrf_header" content="X-CSRF-TOKEN"></head>
                     <body>
                       <input id="configSectionReason" value="phase3 test">
                       <form id="configForm">

@@ -23,7 +23,8 @@ public class MobileFrontendAssetFilter extends OncePerRequestFilter {
     private static final String MARKER = "<meta name=\"xh-frontend\" content=\"mobile\">";
     private static final String ASSETS = MARKER
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-app.css?v=20261009m2\">"
-            + "<script defer src=\"/assets/mobile-app.js?v=20261009m2\"></script>";
+            + "<script defer src=\"/assets/mobile-app.js?v=20261009m2\"></script>"
+            + "<script defer src=\"/assets/mobile-visual-runtime.js?v=20261009mv1\"></script>";
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {

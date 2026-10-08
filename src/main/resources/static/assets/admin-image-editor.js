@@ -2,6 +2,7 @@
  const form=document.getElementById('configForm'), section=document.querySelector('[data-config-section="visual"]');
  if(!form||!section)return;
  const state=document.getElementById('visualSaveState');
+ section.querySelectorAll('.field').forEach(field=>{const input=field.querySelector('input:not([type="hidden"]),select'),label=field.querySelector('label');if(input&&label){input.id=input.id||'visual-'+input.name;label.htmlFor=input.id;}});
  let saved=null;
  const fields=()=>Array.from(section.querySelectorAll('input:not([type="file"]),select')).filter(x=>x.name&&!['heroImage','heroBackgroundImage'].includes(x.name));
  const snapshot=()=>JSON.stringify(fields().map(x=>[x.name,x.value]));

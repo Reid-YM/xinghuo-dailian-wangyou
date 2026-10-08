@@ -162,6 +162,7 @@
       hiddenInput.value = ''; if (fileInput) fileInput.value = '';
       renderNamedPreview(previewSelector, '', label);
       if (slot === 'BACKGROUND') updateHeroBackgroundLivePreview();
+      document.dispatchEvent(new CustomEvent('site-image-updated'));
       toast(`${label}已移除并立即生效`);
     } catch (error) { toast(error.message, 'error'); }
   }
@@ -657,7 +658,16 @@ async function loadDashboard() {
 
   $('#saveConfigSection')?.addEventListener('click', async event => {
     const btn=event.currentTarget; setBusy(btn,true,'保存中…');
-    try { await api(`/api/admin/site-config/section/${activeConfigSection}`,{method:'PATCH',body:JSON.stringify(configSectionPayload(activeConfigSection))}); toast(`${configSectionLabels[activeConfigSection]}已单独保存`); await loadConfig(); }
+    try {
+      const section = activeConfigSection;
+      const preserve = section !== 'visual' && document.getElementById('visualSaveState')?.dataset.dirty === 'true';
+      const drafts = preserve ? [...document.querySelectorAll('[data-config-section="visual"] input:not([type="file"]),[data-config-section="visual"] select')].map(input => [input, input.value]) : [];
+      await api(`/api/admin/site-config/section/${section}`,{method:'PATCH',body:JSON.stringify(configSectionPayload(section))});
+      toast(`${configSectionLabels[section]}已单独保存`);
+      await loadConfig();
+      drafts.forEach(([input,value]) => { input.value = value; });
+      if (drafts.length) { updateHeroBackgroundLivePreview(); drafts[0][0].dispatchEvent(new Event('input', {bubbles:true})); }
+    }
     catch(error){ toast(error.message,'error'); } finally { setBusy(btn,false); }
   });
 

@@ -15,7 +15,7 @@
       'background-position': `${number(c.heroBackgroundPositionX,0,100,50)}% ${number(c.heroBackgroundPositionY,0,100,50)}%`,
       'background-repeat': 'no-repeat', opacity,
       filter: `brightness(${Math.max(1.02, Math.min(1.22, .98 + opacity * .22))}) saturate(1.04) blur(${number(c.heroBackgroundBlur,0,24,0)}px)`,
-      inset: '0', transform: 'none' });
+      inset: '0', transform: 'none', transition: 'none' });
   }
   function main(box, img, c) {
     if (!box) return;

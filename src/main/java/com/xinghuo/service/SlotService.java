@@ -49,11 +49,11 @@ public class SlotService {
             out.add(item);
         }
         for (ServiceItem s2 : publicList) {
-            if (out.size() >= 2) break;
+            if (out.size() >= 8) break;
             if (!added.add(s2.getId())) continue;
             out.add(s2);
         }
-        return out.stream().limit(2L).map(this::pub).toList();
+        return out.stream().limit(8L).map(this::pub).toList();
     }
 
     @Transactional(readOnly=true)
@@ -110,4 +110,5 @@ public class SlotService {
         this.taxonomy = taxonomy;
     }
 }
+
 

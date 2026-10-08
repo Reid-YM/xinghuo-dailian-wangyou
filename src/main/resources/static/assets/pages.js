@@ -42,7 +42,14 @@
     XH.bindUploadFields();
 
     const grid = $('#serviceGrid');
-    if (grid) grid.innerHTML = services.slice(0, config.homeServiceLimit || 4).map(s => XH.serviceCard(s)).join('');
+    const renderHomeServices = () => {
+      if (!grid) return;
+      XH.applyServiceGridControls(grid, config);
+      const limit = XH.componentNumber(config, 'homeServiceLimit', 'homeServiceMobileLimit', 4, 2, 8);
+      grid.innerHTML = services.slice(0, limit).map(s => XH.serviceCard(s)).join('');
+    };
+    renderHomeServices();
+    window.matchMedia?.('(max-width: 760px)').addEventListener?.('change', renderHomeServices);
 
     const gameRail = $('#homeGameRail');
     const gameSection = $('#gameEntrySection');
@@ -320,3 +327,4 @@
   if (page === 'rules') XH.track('rule_open');
   if (page === 'trust') XH.track('trust_open');
 })();
+

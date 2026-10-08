@@ -49,6 +49,33 @@
     return contactJumpUrl(raw) ? '点击打开微信' : raw;
   }
 
+  function isMobileViewport() {
+    return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
+  }
+
+  function clampNumber(value, fallback, min, max) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function componentNumber(config, desktopKey, mobileKey, fallback, min, max) {
+    const value = isMobileViewport() ? config?.[mobileKey] : config?.[desktopKey];
+    return clampNumber(value ?? config?.[desktopKey], fallback, min, max);
+  }
+
+  function componentDensity(config) {
+    const value = String((isMobileViewport() ? config?.serviceCardMobileDensity : config?.serviceCardDensity) || config?.serviceCardDensity || 'comfortable').toLowerCase();
+    return ['compact', 'comfortable', 'spacious'].includes(value) ? value : 'comfortable';
+  }
+
+  function applyServiceGridControls(grid, config) {
+    if (!grid) return;
+    grid.dataset.cardDensity = componentDensity(config);
+    const columns = componentNumber(config, 'homeServiceDesktopColumns', 'homeServiceMobileColumns', isMobileViewport() ? 1 : 4, 1, 4);
+    grid.style.setProperty('--component-card-columns', String(columns));
+  }
+
   async function api(url, opt = {}) {
     const hasBody = opt.body !== undefined && opt.body !== null;
     const isForm = opt.body instanceof FormData;
@@ -906,7 +933,8 @@
 
     const trustCaseGrid = $('#trustCaseGrid');
     if (trustCaseGrid && Array.isArray(config.trustCases) && config.trustCases.length) {
-      trustCaseGrid.innerHTML = config.trustCases.map(item => `<article class="card trust-case">
+      const limit = componentNumber(config, 'trustCaseHomeLimit', 'trustCaseHomeMobileLimit', 4, 1, 8);
+      trustCaseGrid.innerHTML = config.trustCases.slice(0, limit).map(item => `<article class="card trust-case">
         <span class="tag">${esc(item.tag || '服务示例')}</span>
         <h2>${esc(item.title || '服务示例')}</h2>
         <p>${esc(item.metric || '按进度确认')}</p>
@@ -921,7 +949,8 @@
       api('/api/public/cases').then(function (rows) {
         const list = Array.isArray(rows) ? rows : [];
         if (!list.length) return;
-        caseGrid.innerHTML = list.slice(0, 6).map(function (c) {
+        const limit = componentNumber(config, 'trustCaseHomeLimit', 'trustCaseHomeMobileLimit', 4, 1, 8);
+        caseGrid.innerHTML = list.slice(0, limit).map(function (c) {
           const when = c.finishedAt ? String(c.finishedAt).slice(0, 10) : '';
           return `<article class="card trust-case">
             <span class="tag">已完成</span>
@@ -936,14 +965,19 @@
 
     const trustFaqList = $('#trustFaqList');
     if (trustFaqList && Array.isArray(config.trustFaq) && config.trustFaq.length) {
-      trustFaqList.innerHTML = config.trustFaq.map(item => `<section>
+      const limit = componentNumber(config, 'trustFaqHomeLimit', 'trustFaqHomeMobileLimit', 6, 1, 12);
+      trustFaqList.innerHTML = config.trustFaq.slice(0, limit).map(item => `<section>
         <h2>${esc(item.question || '常见问题')}</h2>
         <p>${esc(item.answer || '')}</p>
       </section>`).join('');
     }
 
     const hot = $('#hotServices');
-    if (hot) hot.innerHTML = config.hotServices.length ? config.hotServices.map(s => serviceCard(s, true)).join('') : '<div class="empty">暂无热门推荐，可直接联系客服。</div>';
+    if (hot) {
+      applyServiceGridControls(hot, config);
+      const limit = componentNumber(config, 'homeServiceLimit', 'homeServiceMobileLimit', 4, 2, 8);
+      hot.innerHTML = config.hotServices.length ? config.hotServices.slice(0, limit).map(s => serviceCard(s, true)).join('') : '<div class="empty">暂无热门推荐，可直接联系客服。</div>';
+    }
 
     const heroVisual = $('#heroVisual');
     const heroImage = safeUrl(config.heroImage);
@@ -1016,7 +1050,8 @@
     setText('[data-config=xianyuLabel]', config.xianyuLabel || '主页入口');
     const homeList = document.getElementById('homeContactList');
     if (homeList) {
-      homeList.innerHTML = contactChannels(config).map((c, i) => {
+      const limit = componentNumber(config, 'homeContactLimit', 'homeContactMobileLimit', 6, 1, 6);
+      homeList.innerHTML = contactChannels(config).slice(0, limit).map((c, i) => {
         const id = `homeContactValue${i}`;
         const raw = String(c.wechatId || '').trim();
         const legacyJump = contactJumpUrl(raw);
@@ -1116,6 +1151,10 @@
 
   window.addEventListener('focus', () => loadConfig(true).catch(() => {}));
   document.addEventListener('visibilitychange', () => { if (!document.hidden) loadConfig(true).catch(() => {}); });
+  if (window.matchMedia) {
+    const componentMedia = window.matchMedia('(max-width: 760px)');
+    componentMedia.addEventListener?.('change', () => { if (currentConfig) applyConfig(currentConfig); });
+  }
 
   function initSmartMobileDock() {
     const dock = document.querySelector('[data-smart-dock]');
@@ -1168,6 +1207,7 @@
 
   window.XH = { initLinkedQuoteForm, loadServices, loadTaxonomy, updateDynamicStartingPrice, bindUploadFields, initResponsiveDetails,
     $, $$, api, esc, safeUrl, track, price, serviceCard, loadConfig, gameLabel, categoryLabel,
+    componentNumber, applyServiceGridControls,
     submitQuoteForm, setBusy, showMessage, orderStatusLabel, recordStatusLabel, categoryMap,
     normalizeRecordNo, validRecordNo, getSavedRecords, rememberRecord, clearSavedRecords,
     getConfig: () => currentConfig

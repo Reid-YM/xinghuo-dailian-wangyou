@@ -19,15 +19,19 @@ class FrontendDeviceSplitContractTest {
     private static final Path TEMPLATES = Path.of("src/main/resources/templates/mobile");
 
     @Test
-    void iphoneUsesIndependentMobileTemplateTree() throws Exception {
+    void iphoneUsesIndependentMobileTemplateTreeAndPublicHtmlVariesByUserAgent() throws Exception {
         var request = new MockHttpServletRequest("GET", "/");
         request.addHeader("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit Mobile/15E148");
+        var response = new MockHttpServletResponse();
         var modelAndView = new ModelAndView("index");
+        var interceptor = new FrontendDeviceViewInterceptor();
 
-        new FrontendDeviceViewInterceptor().postHandle(request, new MockHttpServletResponse(), new Object(), modelAndView);
+        assertTrue(interceptor.preHandle(request, response, new Object()));
+        interceptor.postHandle(request, response, new Object(), modelAndView);
 
         assertEquals("mobile/index", modelAndView.getViewName());
         assertEquals("mobile", request.getAttribute("frontendMode"));
+        assertTrue(response.getHeaders("Vary").contains("User-Agent"));
     }
 
     @Test
@@ -49,10 +53,13 @@ class FrontendDeviceSplitContractTest {
 
         var admin = new MockHttpServletRequest("GET", "/admin");
         admin.addHeader("User-Agent", "Mozilla/5.0 (iPhone) Mobile");
+        var adminResponse = new MockHttpServletResponse();
         var adminView = new ModelAndView("admin");
-        interceptor.postHandle(admin, new MockHttpServletResponse(), new Object(), adminView);
+        interceptor.preHandle(admin, adminResponse, new Object());
+        interceptor.postHandle(admin, adminResponse, new Object(), adminView);
         assertEquals("admin", adminView.getViewName());
         assertEquals("desktop", admin.getAttribute("frontendMode"));
+        assertFalse(adminResponse.getHeaders("Vary").contains("User-Agent"));
     }
 
     @Test

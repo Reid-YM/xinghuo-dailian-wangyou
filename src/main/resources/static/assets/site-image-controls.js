@@ -20,10 +20,12 @@
   function background(box, layer, c, url) {
     if (!box || !layer) return;
     const mobile = isMobile();
-    const opacity = number(c.heroBackgroundOpacity, 0, 100, 90) / 100;
-    const dim = Math.max(.18, .58 - opacity * .4);
+    const rawOpacity = number(c.heroBackgroundOpacity, 0, 100, 90) / 100;
+    const opacity = mobile ? Math.max(.78, rawOpacity) : rawOpacity;
+    const dim = mobile ? Math.max(.08, .36 - opacity * .22) : Math.max(.18, .58 - opacity * .4);
     box.classList.toggle('has-background', !!url);
     box.classList.add('image-controlled-background');
+    box.classList.toggle('mobile-background-boost', mobile && !!url);
     box.style.setProperty('--image-text-dim', String(dim));
     if (mobile) {
       box.style.setProperty('--hero-mobile-background-height', `${number(c.heroBackgroundMobileHeight,360,760,520)}px`);
@@ -35,7 +37,9 @@
       'background-size': bgFit === 'fill' ? '100% 100%' : bgFit,
       'background-position': `${number(value(c,'heroBackgroundPositionX','heroBackgroundMobilePositionX'),0,100,50)}% ${number(value(c,'heroBackgroundPositionY','heroBackgroundMobilePositionY'),0,100,50)}%`,
       'background-repeat': 'no-repeat', opacity,
-      filter: `brightness(${Math.max(1.02, Math.min(1.22, .98 + opacity * .22))}) saturate(1.04) blur(${number(c.heroBackgroundBlur,0,24,0)}px)`,
+      filter: mobile
+        ? `brightness(${Math.max(1.14, Math.min(1.32, 1.02 + opacity * .26))}) saturate(1.18) contrast(1.06) blur(${number(c.heroBackgroundBlur,0,24,0)}px)`
+        : `brightness(${Math.max(1.02, Math.min(1.22, .98 + opacity * .22))}) saturate(1.04) blur(${number(c.heroBackgroundBlur,0,24,0)}px)`,
       inset: '0', transform: 'none', transition: 'none' });
   }
   function main(box, img, c) {

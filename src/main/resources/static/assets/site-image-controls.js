@@ -19,11 +19,17 @@
   }
   function background(box, layer, c, url) {
     if (!box || !layer) return;
+    const mobile = isMobile();
     const opacity = number(c.heroBackgroundOpacity, 0, 100, 90) / 100;
     const dim = Math.max(.18, .58 - opacity * .4);
     box.classList.toggle('has-background', !!url);
     box.classList.add('image-controlled-background');
     box.style.setProperty('--image-text-dim', String(dim));
+    if (mobile) {
+      box.style.setProperty('--hero-mobile-background-height', `${number(c.heroBackgroundMobileHeight,360,760,520)}px`);
+    } else {
+      box.style.removeProperty('--hero-mobile-background-height');
+    }
     const bgFit = fit(value(c, 'heroBackgroundFit', 'heroBackgroundMobileFit'));
     set(layer, { 'background-image': url ? `url("${String(url).replace(/"/g, '%22')}")` : 'none',
       'background-size': bgFit === 'fill' ? '100% 100%' : bgFit,

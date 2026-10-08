@@ -110,6 +110,7 @@ public class AdminApiController {
         UploadAsset.Kind kind = switch (key = slot.trim().toUpperCase(Locale.ROOT)) {
             case "HERO" -> UploadAsset.Kind.SITE_HERO;
             case "BACKGROUND" -> UploadAsset.Kind.SITE_BACKGROUND;
+            case "BACKGROUND_MOBILE" -> UploadAsset.Kind.SITE_BACKGROUND;
             case "WECHAT_QR" -> UploadAsset.Kind.SITE_WECHAT_QR;
             case "CONTACT_QR" -> UploadAsset.Kind.SITE_WECHAT_QR;
             default -> throw new BadRequestException("\u975e\u6cd5\u56fe\u7247\u4f4d\u7f6e");

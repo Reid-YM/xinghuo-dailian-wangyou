@@ -87,6 +87,10 @@ public class SiteConfig {
     private int heroImageMobilePositionY;
     @Column(name="hero_background_image", length=500)
     private String heroBackgroundImage;
+    @Column(name="hero_background_mobile_image", length=500)
+    private String heroBackgroundMobileImage;
+    @Column(name="hero_background_mobile_height", nullable=false)
+    private int heroBackgroundMobileHeight;
     @Column(name="hero_background_opacity", nullable=false)
     private int heroBackgroundOpacity;
     @Column(name="hero_background_fit", nullable=false, length=16)
@@ -348,6 +352,16 @@ public class SiteConfig {
     @Generated
     public String getHeroBackgroundImage() {
         return this.heroBackgroundImage;
+    }
+
+    @Generated
+    public String getHeroBackgroundMobileImage() {
+        return this.heroBackgroundMobileImage;
+    }
+
+    @Generated
+    public int getHeroBackgroundMobileHeight() {
+        return this.heroBackgroundMobileHeight;
     }
 
     @Generated
@@ -773,6 +787,16 @@ public class SiteConfig {
     @Generated
     public void setHeroBackgroundImage(String heroBackgroundImage) {
         this.heroBackgroundImage = heroBackgroundImage;
+    }
+
+    @Generated
+    public void setHeroBackgroundMobileImage(String heroBackgroundMobileImage) {
+        this.heroBackgroundMobileImage = heroBackgroundMobileImage;
+    }
+
+    @Generated
+    public void setHeroBackgroundMobileHeight(int heroBackgroundMobileHeight) {
+        this.heroBackgroundMobileHeight = heroBackgroundMobileHeight;
     }
 
     @Generated

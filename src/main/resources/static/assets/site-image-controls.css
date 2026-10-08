@@ -28,35 +28,7 @@ body:is(.admin-solid-ui,.admin-control-center-v2) #heroImagePreview{width:100%;m
 body:not(.admin-solid-ui):not(.admin-control-center-v2) .service-cover{height:var(--service-cover-height,105px)!important;min-height:0!important;max-height:none!important;aspect-ratio:auto!important}
 body:not(.admin-solid-ui):not(.admin-control-center-v2) .service-cover img{width:100%!important;height:100%!important;object-fit:var(--service-cover-fit,cover)!important;object-position:var(--service-cover-position,50% 50%)!important}
 body.admin-control-center-v2 [data-config-section="visual"]{padding:0;border:0;background:transparent}
-@media(max-width:760px){
- body[data-page="home"] #homeHero.image-controlled-background.has-background{
-  min-height:var(--hero-mobile-background-height,520px)!important;
-  background:#05070a!important;
- }
- body[data-page="home"] #homeHero.mobile-background-boost .hero-bg-layer{
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  background-size:cover!important;
-  background-position:50% 42%!important;
-  opacity:.92!important;
- }
- body[data-page="home"] #homeHero.mobile-background-boost::after{
-  background:
-   linear-gradient(180deg,rgba(3,5,8,.20) 0%,rgba(3,5,8,.08) 35%,rgba(3,5,8,.18) 70%,rgba(3,5,8,.32) 100%),
-   linear-gradient(90deg,rgba(3,5,8,.24),rgba(3,5,8,.02) 48%,rgba(3,5,8,.24))!important;
- }
- body[data-page="home"] #homeHero.mobile-background-boost .hero-kicker,
- body[data-page="home"] #homeHero.mobile-background-boost .hero-promise>span,
- body[data-page="home"] #homeHero.mobile-background-boost .hero-flow{
-  background:rgba(6,8,12,.68)!important;
-  -webkit-backdrop-filter:blur(6px)!important;
-  backdrop-filter:blur(6px)!important;
- }
- body[data-page="home"] #homeHero.mobile-background-boost .hero-actions .btn.ghost{
-  background:rgba(6,8,12,.58)!important;
- }
-}
+@media(max-width:760px){body[data-page="home"] #homeHero.image-controlled-background.has-background{min-height:var(--hero-mobile-background-height,520px)!important}}
 .component-adapt-grid{margin:18px 0}
 body:not(.admin-solid-ui):not(.admin-control-center-v2) #serviceGrid,
 body:not(.admin-solid-ui):not(.admin-control-center-v2) #hotServices{

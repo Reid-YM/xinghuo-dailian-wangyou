@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>抖音主页背景图</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#1b1f25;font-family:Inter,"Segoe UI",system-ui,sans-serif}
+  .stack{display:flex;flex-direction:column;gap:22px;padding:22px}
+  .cv{position:relative;width:1280px;height:720px;overflow:hidden;background:#0A0C0F;flex:none}
+  .cv::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.07);pointer-events:none}
+  .mk{position:absolute;display:block}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="chev" viewBox="0 0 256 256">
+    <path fill="#FFD24A" d="M44 125 L128 41 L212 125 L212 169 L128 85 L44 169 Z"/>
+    <path fill="#D89A00" d="M76 187 L128 135 L180 187 L180 215 L128 163 L76 215 Z"/>
+  </symbol>
+  <symbol id="chevMono" viewBox="0 0 256 256">
+    <g fill="currentColor">
+      <path d="M44 125 L128 41 L212 125 L212 169 L128 85 L44 169 Z"/>
+      <path d="M76 187 L128 135 L180 187 L180 215 L128 163 L76 215 Z"/>
+    </g>
+  </symbol>
+</svg>
+
+<div class="stack">
+
+  <!-- A · 大标记居中（留白最足，头像压左下不冲突） -->
+  <div class="cv" data-shot="douyin-bg-a-center">
+    <svg class="mk" style="left:50%;transform:translateX(-50%);top:150px;width:300px;height:300px" viewBox="0 0 256 256"><use href="#chev" width="256" height="256"/></svg>
+  </div>
+
+  <!-- B · 超大淡水印（几乎无内容感，最安全） -->
+  <div class="cv" data-shot="douyin-bg-b-watermark">
+    <svg class="mk" style="left:50%;top:50%;transform:translate(-50%,-50%);width:1000px;height:1000px;opacity:.085" viewBox="0 0 256 256"><use href="#chev" width="256" height="256"/></svg>
+  </div>
+
+  <!-- C · 右上角标（左下角完全留空给头像） -->
+  <div class="cv" data-shot="douyin-bg-c-corner">
+    <svg class="mk" style="right:96px;top:88px;width:150px;height:150px" viewBox="0 0 256 256"><use href="#chev" width="256" height="256"/></svg>
+    <div style="position:absolute;right:96px;top:262px;width:150px;height:1px;background:linear-gradient(90deg,rgba(245,183,0,0),rgba(245,183,0,.55))"></div>
+  </div>
+
+  <!-- D · 平铺纹理（技术感，几乎不抢内容） -->
+  <div class="cv" data-shot="douyin-bg-d-pattern">
+    <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <pattern id="tile" width="128" height="128" patternUnits="userSpaceOnUse">
+          <g transform="translate(44 44) scale(0.155)" opacity="0.10" color="#FFD24A">
+            <path fill="currentColor" d="M44 125 L128 41 L212 125 L212 169 L128 85 L44 169 Z"/>
+            <path fill="currentColor" d="M76 187 L128 135 L180 187 L180 215 L128 163 L76 215 Z"/>
+          </g>
+        </pattern>
+      </defs>
+      <rect width="1280" height="720" fill="url(#tile)"/>
+    </svg>
+    <svg class="mk" style="left:50%;transform:translateX(-50%);top:270px;width:180px;height:180px" viewBox="0 0 256 256"><use href="#chev" width="256" height="256"/></svg>
+  </div>
+
+  <!-- E · 单色版（深灰底 + 浅金，最耐久） -->
+  <div class="cv" style="background:#0D1014" data-shot="douyin-bg-e-mono">
+    <svg class="mk" style="left:50%;transform:translateX(-50%);top:190px;width:220px;height:220px;color:#B9842A" viewBox="0 0 256 256"><use href="#chevMono" width="256" height="256"/></svg>
+  </div>
+
+</div>
+</body>
+</html>

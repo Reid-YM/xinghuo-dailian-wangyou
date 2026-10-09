@@ -1,4 +1,11 @@
 (function(){
+ if(!document.querySelector('link[data-vnext-formal-theme]')){
+   const link=document.createElement('link');
+   link.rel='stylesheet';link.href='/assets/vnext-formal-ui.css?v=20261010ui01';link.dataset.vnextFormalTheme='1';
+   document.head.append(link);
+ }
+})();
+(function(){
  const form=document.getElementById('configForm'), section=document.querySelector('[data-config-section="visual"]');
  if(!form||!section||!window.SiteImageControls)return;
  const state=document.getElementById('visualSaveState');

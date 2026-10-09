@@ -26,13 +26,24 @@ check_contains() {
 }
 check_code / 200
 check_code /services 200
+check_code /quote 200
+check_code /records 200
 check_code /guides 200
 check_code /mastery 200
 check_code /api/site-config 200
 check_code /api/guides 200
 check_code /api/tool-station 200
 
-# VNext 是隔离预览入口：必须随生产包可访问，但在 UI 审核通过前不替换根路径。
+# 已批准的 VNext 正式接管核心页面壳：路由仍由 Spring/Thymeleaf 控制，页面挂载 React。
+check_contains / '<div id="root"></div>'
+check_contains /services '<div id="root"></div>'
+check_contains /quote '<div id="root"></div>'
+check_contains /records '<div id="root"></div>'
+check_code /vnext/assets/app.js 200
+check_code /vnext/assets/app.css 200
+check_code /assets/vnext-formal-ui.css 200
+
+# /vnext/ 继续作为 noindex 的直接预览入口和故障排查入口。
 check_code /vnext/ 200
 check_contains /vnext/ '<div id="root"></div>'
 VNEXT_HTML=$(curl -fsS "$BASE/vnext/" || true)
@@ -58,7 +69,6 @@ check_code /account/orders 302
 check_code /account/progress 302
 check_code /account/settings 302
 check_code /account/submit 302
-# 常见旧用户入口也必须被账号拦截器接住，登录后再重定向到 canonical /account/**。
 check_code /account/quotes 302
 check_code /account/profile 302
 check_code /account/security 302
@@ -73,12 +83,12 @@ check_code /account/register 200
 check_code /rules 200
 check_code /privacy 200
 check_code /contact 200
-check_code /records 200
 check_code /trust 200
 check_code /order 200
 check_code /api/account/me 401
 check_code /api/account/security/events 401
-# 后台登录页必须始终可达；后台配置接口必须存在且未登录严格返回 401，而不是 404/500/302。
+
+# 后台功能仍为原后台，UI 仅主题化；鉴权边界必须保持不变。
 check_code /admin/login 200
 check_code /api/admin/site-config 401
 check_code /api/admin/global-ui-settings 401
@@ -95,6 +105,5 @@ check_removed() {
 check_removed /loadouts
 check_code /api/loadouts 404
 check_code /assets/loadouts.js 404
-# 后台旧状态接口仍存在但必须受管理员认证保护，未登录访问应为 401。
 check_code /api/admin/ai-chat/status 401
 exit "$fail"

@@ -15,10 +15,14 @@ class AccountInformationArchitectureContractTest {
     @Test
     void accountHomeIsOverviewInsteadOfMegaTabPage() throws IOException {
         String account = read("resources/templates/account.html");
-        assertTrue(account.contains("data-page=\"account-center-overview\""));
-        assertTrue(account.contains("href=\"/account/requests\""));
-        assertTrue(account.contains("href=\"/account/orders\""));
-        assertTrue(account.contains("href=\"/account/progress\""));
+        String vnext = Files.readString(Path.of("frontend-vnext/src/main.tsx"));
+        assertTrue(account.contains("data-page=\"account\""));
+        assertTrue(account.contains("id=\"root\""));
+        assertTrue(account.contains("/vnext/assets/app.js"));
+        assertTrue(vnext.contains("'/account/requests'"));
+        assertTrue(vnext.contains("'/account/orders'"));
+        assertTrue(vnext.contains("'/account/progress'"));
+        assertTrue(vnext.contains("'/account/settings'"));
         assertFalse(account.contains("role=\"tablist\""));
         assertFalse(account.contains("id=\"panel-orders\""));
         assertFalse(account.contains("id=\"panel-devices\""));

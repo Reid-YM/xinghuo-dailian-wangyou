@@ -15,10 +15,10 @@ class MobileHomeHeroShellPlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
 
     @Test
-    void chromiumPhoneWidthsKeepArtworkCopyAndCtaAsSeparateCompactRegions() {
+    void chromiumPhoneWidthsKeepHeroAsOneFullBleedArtworkWithFloatingCopyAndCta() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
-            verifyWidth(browser, 390, 844, 396.0, 406.0);
-            verifyWidth(browser, 430, 932, 419.0, 429.0);
+            verifyWidth(browser, 390, 844, 395.0, 401.0);
+            verifyWidth(browser, 430, 932, 436.0, 441.0);
         }
     }
 
@@ -29,41 +29,46 @@ class MobileHomeHeroShellPlaywrightTest {
 
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.mobile-hero-backdrop')).display"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('#homeHero'),'::after').display"));
-
-        double heroHeight = number(page, "document.querySelector('#homeHero').getBoundingClientRect().height").doubleValue();
-        assertTrue(heroHeight >= minHero && heroHeight <= maxHero,
-            () -> width + "px homepage hero height out of rebuilt compact range: " + heroHeight);
+        assertEquals("none", string(page, "getComputedStyle(document.querySelector('#heroBackground')).filter"));
 
         double heroTop = number(page, "document.querySelector('#homeHero').getBoundingClientRect().top").doubleValue();
-        double artworkTop = number(page, "document.querySelector('#heroBackground').getBoundingClientRect().top").doubleValue();
-        double artworkHeight = number(page, "document.querySelector('#heroBackground').getBoundingClientRect().height").doubleValue();
-        assertTrue(artworkTop - heroTop >= 53.0 && artworkTop - heroTop <= 57.0,
-            () -> width + "px artwork should start directly below the dedicated app bar: " + (artworkTop - heroTop));
-        assertTrue(Math.abs(artworkHeight - width * 0.5625) <= 1.5,
-            () -> width + "px artwork should keep a true 16:9 media slot: " + artworkHeight);
+        double heroBottom = number(page, "document.querySelector('#homeHero').getBoundingClientRect().bottom").doubleValue();
+        double heroHeight = heroBottom - heroTop;
+        assertTrue(heroHeight >= minHero && heroHeight <= maxHero,
+            () -> width + "px full-bleed hero height out of range: " + heroHeight);
 
+        double artworkTop = number(page, "document.querySelector('#heroBackground').getBoundingClientRect().top").doubleValue();
         double artworkBottom = number(page, "document.querySelector('#heroBackground').getBoundingClientRect().bottom").doubleValue();
-        double titleTop = number(page, "document.querySelector('#mobileHeroTitle').getBoundingClientRect().top").doubleValue();
-        assertTrue(titleTop - artworkBottom >= 22.0 && titleTop - artworkBottom <= 26.0,
-            () -> width + "px title should live below artwork instead of overlapping it: " + (titleTop - artworkBottom));
+        assertTrue(Math.abs(artworkTop - heroTop) <= 1.0,
+            () -> width + "px artwork should begin at hero top: " + (artworkTop - heroTop));
+        assertTrue(Math.abs(artworkBottom - heroBottom) <= 1.0,
+            () -> width + "px artwork should fill hero bottom: " + (heroBottom - artworkBottom));
+
+        double appbarTop = number(page, "document.querySelector('.xh-v4-appbar').getBoundingClientRect().top").doubleValue();
+        double appbarBottom = number(page, "document.querySelector('.xh-v4-appbar').getBoundingClientRect().bottom").doubleValue();
+        assertTrue(Math.abs(appbarTop - heroTop) <= 1.0,
+            () -> width + "px floating app bar must start inside artwork");
+        assertTrue(appbarBottom - appbarTop >= 56.0 && appbarBottom - appbarTop <= 60.0,
+            () -> width + "px floating app bar height is wrong: " + (appbarBottom - appbarTop));
 
         double statusTop = number(page, "document.querySelector('.xh-v4-status').getBoundingClientRect().top").doubleValue();
-        assertTrue(statusTop >= artworkTop + 8.0 && statusTop <= artworkTop + 12.0,
-            () -> width + "px status chip should sit lightly inside artwork: " + (statusTop - artworkTop));
+        assertTrue(statusTop >= appbarBottom + 8.0 && statusTop <= appbarBottom + 12.0,
+            () -> width + "px status chip should float just below app bar: " + (statusTop - appbarBottom));
 
+        double titleTop = number(page, "document.querySelector('#mobileHeroTitle').getBoundingClientRect().top").doubleValue();
+        double titleBottom = number(page, "document.querySelector('#mobileHeroTitle').getBoundingClientRect().bottom").doubleValue();
+        assertTrue(titleTop > heroTop && titleBottom < heroBottom,
+            () -> width + "px title must stay over the artwork");
+
+        double subtitleBottom = number(page, "document.querySelector('.xh-v4-subtitle').getBoundingClientRect().bottom").doubleValue();
         double actionsTop = number(page, "document.querySelector('.xh-v4-hero-actions').getBoundingClientRect().top").doubleValue();
-        double artworkToCtaGap = actionsTop - artworkBottom;
-        assertTrue(artworkToCtaGap >= 66.0 && artworkToCtaGap <= 70.0,
-            () -> width + "px artwork-to-CTA gap should be the dedicated copy strip: " + artworkToCtaGap);
-
         double actionsBottom = number(page, "document.querySelector('.xh-v4-hero-actions').getBoundingClientRect().bottom").doubleValue();
-        double heroBottom = number(page, "document.querySelector('#homeHero').getBoundingClientRect().bottom").doubleValue();
-        assertTrue(heroBottom - actionsBottom >= 10.0 && heroBottom - actionsBottom <= 13.0,
-            () -> width + "px CTA bottom gap is wrong: " + (heroBottom - actionsBottom));
-
-        double appbarHeight = number(page, "document.querySelector('.xh-v4-appbar').getBoundingClientRect().height").doubleValue();
-        assertTrue(appbarHeight >= 53.0 && appbarHeight <= 57.0,
-            () -> width + "px appbar height should stay compact and separate: " + appbarHeight);
+        assertTrue(actionsTop > titleBottom,
+            () -> width + "px CTA should sit below the floating title");
+        assertTrue(actionsTop - subtitleBottom >= 24.0 && actionsTop - subtitleBottom <= 28.0,
+            () -> width + "px subtitle-to-CTA breathing room is wrong: " + (actionsTop - subtitleBottom));
+        assertTrue(heroBottom - actionsBottom >= 13.0 && heroBottom - actionsBottom <= 15.0,
+            () -> width + "px CTA must float inside artwork bottom edge: " + (heroBottom - actionsBottom));
 
         assertNoOverflow(page);
         page.close();

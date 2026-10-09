@@ -71,11 +71,12 @@ body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-sync-bar p b{display:bl
 body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-sync-action{
   grid-column:1/-1!important;
   min-height:44px!important;
-  display:flex!important;
   align-items:center!important;
   justify-content:center!important;
   padding:9px 12px!important;
 }
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-sync-action:not(.hidden){display:flex!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-sync-action.hidden{display:none!important}
 body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-tabs{
   gap:7px!important;
   margin:0 -2px!important;

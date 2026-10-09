@@ -6,10 +6,13 @@
     if (path === '/') return '/';
     if (path.startsWith('/service/') || path === '/services' || path === '/mastery') return '/services';
     if (path.startsWith('/account')) return '/account';
-    if (path.startsWith('/records') || path.startsWith('/order')) return '/records';
+    if (path.startsWith('/records') || path.startsWith('/record/') || path.startsWith('/order')) return '/records';
     if (path.startsWith('/quote')) return '/quote';
     return path;
   };
+  const dockMarkup = () => [
+    ['/', '首页'], ['/services', '服务'], ['/quote', '询价'], ['/records', '进度'], ['/account', '我的']
+  ].map(([href, label]) => `<a href="${href}" data-nv-route class="${href === '/quote' ? 'nv-dock-primary' : ''}">${label}</a>`).join('');
 
   ready(() => {
     document.documentElement.dataset.publicUi = 'nova';
@@ -27,12 +30,8 @@
         drawer.classList.toggle('is-open', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       });
-      drawer.addEventListener('click', (event) => {
-        if (event.target.closest('a')) closeDrawer();
-      });
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') closeDrawer();
-      });
+      drawer.addEventListener('click', (event) => { if (event.target.closest('a')) closeDrawer(); });
+      document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeDrawer(); });
       document.addEventListener('pointerdown', (event) => {
         if (!drawer.classList.contains('is-open')) return;
         if (!drawer.contains(event.target) && !toggle.contains(event.target)) closeDrawer();
@@ -40,43 +39,43 @@
     }
 
     const current = normalize(location.pathname);
-    document.querySelectorAll('[data-nv-route]').forEach((link) => {
-      const target = normalize(link.getAttribute('href'));
-      const active = target === current;
+    const applyActive = (root = document) => root.querySelectorAll('[data-nv-route]').forEach((link) => {
+      const active = normalize(link.getAttribute('href')) === current;
       link.classList.toggle('is-active', active);
-      if (active) link.setAttribute('aria-current', 'page');
-      else link.removeAttribute('aria-current');
+      if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
     });
+    applyActive();
 
     const announcement = document.getElementById('announcementBar');
     if (announcement) announcement.classList.add('nv-announcement');
 
     document.querySelectorAll('.mobile-dock:not(.nv-mobile-dock)').forEach((dock) => {
-      dock.classList.add('nv-mobile-dock');
-      const links = [...dock.querySelectorAll('a')];
-      links.forEach((link) => {
-        link.dataset.nvRoute = '';
-        if (normalize(link.getAttribute('href')) === current) link.classList.add('is-active');
-      });
-      if (links.length === 3) {
-        const model = [
-          ['/', '首页'],
-          ['/services', '服务'],
-          ['/quote', '询价'],
-          ['/records', '进度'],
-          ['/account', '我的']
-        ];
-        dock.innerHTML = model.map(([href, label]) => `<a href="${href}" data-nv-route class="${href === '/quote' ? 'nv-dock-primary' : ''}">${label}</a>`).join('');
-        dock.querySelectorAll('[data-nv-route]').forEach((link) => {
-          if (normalize(link.getAttribute('href')) === current) link.classList.add('is-active');
-        });
-      }
+      dock.className = 'nv-mobile-dock';
+      dock.innerHTML = dockMarkup();
+      applyActive(dock);
     });
 
-    const artwork = document.querySelector('[data-nv-hero-art]');
-    if (artwork && !artwork.style.backgroundImage) {
-      const source = document.querySelector('#heroVisual img, #heroBackground');
-      if (source?.tagName === 'IMG' && source.currentSrc) artwork.style.backgroundImage = `url("${source.currentSrc}")`;
+    const gameSection = document.getElementById('gameEntrySection');
+    const gameRail = document.getElementById('homeGameRail');
+    if (gameSection && gameRail) {
+      const syncGames = () => {
+        const visible = gameRail.children.length > 0;
+        gameSection.hidden = !visible;
+        gameSection.classList.toggle('hidden', !visible);
+        if (visible) gameRail.classList.add('home-game-rail');
+      };
+      syncGames();
+      new MutationObserver(syncGames).observe(gameRail, { childList: true });
+    }
+
+    const visual = document.getElementById('heroVisual');
+    if (visual) {
+      const syncVisual = () => {
+        const image = visual.querySelector('img');
+        visual.classList.toggle('has-image', !!image);
+      };
+      syncVisual();
+      new MutationObserver(syncVisual).observe(visual, { childList: true });
     }
   });
 })();

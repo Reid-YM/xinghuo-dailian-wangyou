@@ -79,7 +79,8 @@ class FrontendDeviceSplitContractTest {
         assertTrue(mobileHtml.contains("/assets/mobile-screenshot-fixes.css?v=20261009msf2"));
         assertTrue(mobileHtml.contains("/assets/mobile-flat-overflow.css?v=20261009mfo1"));
         assertTrue(mobileHtml.contains("/assets/mobile-runtime-fixes.css?v=20261009mrf1"));
-        assertTrue(mobileHtml.contains("/assets/mobile-home-v3.css?v=20261009mh3"));
+        assertTrue(mobileHtml.contains("/assets/mobile-home-v4.css?v=20261009mh4"));
+        assertFalse(mobileHtml.contains("mobile-home-v3.css"));
         assertTrue(mobileHtml.contains("/assets/mobile-app.js?v=20261009m2"));
 
         var desktopRequest = new MockHttpServletRequest("GET", "/services");
@@ -92,7 +93,7 @@ class FrontendDeviceSplitContractTest {
         assertFalse(desktopHtml.contains("mobile-screenshot-fixes.css"));
         assertFalse(desktopHtml.contains("mobile-flat-overflow.css"));
         assertFalse(desktopHtml.contains("mobile-runtime-fixes.css"));
-        assertFalse(desktopHtml.contains("mobile-home-v3.css"));
+        assertFalse(desktopHtml.contains("mobile-home-v4.css"));
         assertFalse(desktopHtml.contains("mobile-app.js"));
     }
 
@@ -110,7 +111,7 @@ class FrontendDeviceSplitContractTest {
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-screenshot-fixes.css")));
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-flat-overflow.css")));
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-runtime-fixes.css")));
-        assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-home-v3.css")));
+        assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-home-v4.css")));
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-app.js")));
         assertFalse(TEMPLATES.resolve("index.html").equals(Path.of("src/main/resources/templates/index.html")));
     }

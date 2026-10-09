@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07090c">
+  <meta name="theme-color" content="#06080b">
   <title>COD MW4 代练 | 武器升级/迷彩/活动任务 ¥20起 | 星火网游代练平台</title>
   <meta name="description" content="星火网游代练平台提供 COD MW4、战狗、CS2、无畏契约、三角洲行动、王者荣耀、原神等游戏任务服务。武器、等级、活动、排位按进度报价；提交需求拿业务编号，客服一对一确认。网页不收账号密码。">
   <link rel="canonical" href="https://wydlgf.cn/">
@@ -31,126 +31,148 @@
 <header th:replace="~{fragments/site :: header}"></header>
 <div id="announcementBar" class="announcement hidden" role="status"></div>
 
-<main class="xh-mh" id="mobileHomeV3">
-  <section class="xh-mh-hero hero hero-r3" id="homeHero" aria-labelledby="mobileHeroTitle">
+<main class="xh-v4" id="mobileHomeV4">
+  <section class="xh-v4-hero hero" id="homeHero" aria-labelledby="mobileHeroTitle">
     <div id="heroBackground" class="hero-bg-layer" aria-hidden="true"></div>
-    <div class="xh-mh-hero-shade" aria-hidden="true"></div>
-    <div class="xh-mh-hero-content hero-copy">
-      <div class="xh-mh-status" data-config="status">● MW4 正式版预约中 · 可提前询价</div>
-      <div class="xh-mh-kicker">CALL OF DUTY · MW4</div>
+    <div class="xh-v4-hero-shade" aria-hidden="true"></div>
+
+    <nav class="xh-v4-appbar" aria-label="首页快捷导航">
+      <a class="xh-v4-brand" href="/" aria-label="星火网游代练平台首页">
+        <span class="xh-v4-logo">火</span>
+        <span class="xh-v4-brand-text"><strong>星火网游</strong><small>GAME SERVICE</small></span>
+      </a>
+      <div class="xh-v4-appbar-actions">
+        <a href="/contact">客服</a>
+        <a href="/account">我的</a>
+      </div>
+    </nav>
+
+    <div class="xh-v4-hero-copy hero-copy">
+      <div class="xh-v4-status" data-config="status">● MW4 正式版预约中 · 可提前询价</div>
+      <div class="xh-v4-eyebrow">CALL OF DUTY · MW4</div>
       <h1 id="mobileHeroTitle" data-config="heroTitle">使命召唤 MW4 任务代练</h1>
-      <p class="xh-mh-subtitle" data-config="heroSubtitle">武器升级 · 迷彩解锁 · 活动任务 · 排位冲分</p>
+      <p class="xh-v4-subtitle" data-config="heroSubtitle">武器升级 · 迷彩解锁 · 活动任务 · 排位冲分</p>
 
-      <div id="trustTags" class="xh-mh-trust" aria-label="服务特点">
-        <span>可靠手打</span><span>纯绿服务</span><span>进度可查</span>
+      <div class="xh-v4-meta">
+        <div class="xh-v4-price" data-config="priceRow">
+          <small>参考起步</small>
+          <strong data-config="price">¥20 起</strong>
+          <span>最终价格以人工确认为准</span>
+        </div>
+        <div id="trustTags" class="xh-v4-trust" aria-label="服务特点">
+          <span>可靠手打</span><span>纯绿服务</span><span>进度可查</span>
+        </div>
       </div>
 
-      <div class="xh-mh-price" data-config="priceRow">
-        <small>参考起步</small>
-        <strong data-config="price">¥20 起</strong>
-        <span>最终以人工确认为准</span>
-      </div>
-
-      <div class="actions hero-actions xh-mh-hero-actions">
-        <a class="btn primary xh-mh-primary" href="#quick-actions" data-track="hero_quote_click" data-primary-cta>提前询价</a>
-        <a class="btn ghost" href="/services" data-track="hero_services_click">服务大厅</a>
-        <a class="btn ghost hero-progress-link" href="/records" data-track="hero_order_click">查询进度</a>
+      <div class="actions hero-actions xh-v4-hero-actions">
+        <a class="btn primary xh-v4-primary" href="#quick-actions" data-track="hero_quote_click" data-primary-cta>立即询价</a>
+        <a class="btn ghost xh-v4-progress" href="/records" data-track="hero_order_click">查询进度</a>
       </div>
     </div>
   </section>
 
-  <section class="xh-mh-shortcuts" aria-label="快捷服务入口">
-    <a class="xh-mh-shortcut" href="/services"><span class="xh-mh-shortcut-no">01</span><strong>武器升级</strong><small>等级 · 配件 · 解锁</small><b>→</b></a>
-    <a class="xh-mh-shortcut" href="/services"><span class="xh-mh-shortcut-no">02</span><strong>迷彩任务</strong><small>多人 · 战区 · DMZ</small><b>→</b></a>
-    <a class="xh-mh-shortcut" href="/services"><span class="xh-mh-shortcut-no">03</span><strong>活动任务</strong><small>赛季 · 挑战 · 收集</small><b>→</b></a>
-    <a class="xh-mh-shortcut" href="/quote"><span class="xh-mh-shortcut-no">04</span><strong>其他需求</strong><small>描述需求人工确认</small><b>→</b></a>
+  <section class="xh-v4-launcher" aria-label="MW4 常用服务">
+    <div class="xh-v4-launcher-head"><strong>你想做什么？</strong><span>选择任务后再确认报价</span></div>
+    <div class="xh-v4-task-grid">
+      <a class="xh-v4-task" href="/services"><i>⚙</i><strong>武器升级</strong><small>等级 · 配件 · 解锁</small></a>
+      <a class="xh-v4-task" href="/services"><i>◆</i><strong>迷彩任务</strong><small>多人 · 战区 · DMZ</small></a>
+      <a class="xh-v4-task" href="/services"><i>★</i><strong>活动任务</strong><small>赛季 · 挑战 · 收集</small></a>
+      <a class="xh-v4-task" href="/quote"><i>＋</i><strong>其他需求</strong><small>描述目标 · 人工确认</small></a>
+    </div>
   </section>
 
-  <section id="gameEntrySection" class="xh-mh-block xh-mh-game hidden" aria-label="可服务游戏">
-    <div class="xh-mh-section-head"><div><span>可服务游戏</span><h2>选择游戏</h2></div><a href="/services">全部服务</a></div>
-    <div id="homeGameRail" class="home-game-rail xh-mh-game-rail"></div>
+  <section class="xh-v4-block xh-v4-hot" aria-label="热门服务">
+    <div class="xh-v4-head"><div><span>HOT NOW</span><h2>当前热门</h2></div><a href="/services">全部服务 →</a></div>
+    <div id="hotServices" class="hot-list hot-rail xh-v4-hot-rail"></div>
   </section>
 
-  <section class="xh-mh-block xh-mh-hot" aria-label="热门服务">
-    <div class="xh-mh-section-head"><div><span>当前热门</span><h2>优先推荐</h2></div><a href="/services">查看全部</a></div>
-    <div id="hotServices" class="hot-list hot-rail xh-mh-hot-rail"></div>
+  <section id="gameEntrySection" class="xh-v4-block hidden" aria-label="可服务游戏">
+    <div class="xh-v4-head"><div><span>ALL GAMES</span><h2>其他游戏</h2></div><a href="/services">查看全部 →</a></div>
+    <div id="homeGameRail" class="home-game-rail xh-v4-game-rail"></div>
   </section>
 
-  <section class="xh-mh-block xh-mh-quote" id="quick-actions" aria-labelledby="mobileQuoteTitle">
-    <div class="xh-mh-section-head xh-mh-quote-head">
-      <div><span>30 秒询价</span><h2 id="mobileQuoteTitle">选需求，拿业务编号</h2></div>
-      <em>网站不收账号密码</em>
+  <div class="xh-v4-proof" aria-label="服务保障快捷说明">
+    <a href="/records"><b>编号</b><span>业务可查询</span></a>
+    <a href="/trust"><b>手打</b><span>过程可核对</span></a>
+    <a href="/rules"><b>担保</b><span>平台规则交易</span></a>
+    <a href="/privacy"><b>安全</b><span>网页不收密码</span></a>
+  </div>
+
+  <section class="xh-v4-quote" id="quick-actions" aria-labelledby="mobileQuoteTitle">
+    <div class="xh-v4-head">
+      <div><span>QUICK QUOTE</span><h2 id="mobileQuoteTitle">30 秒快速询价</h2></div>
+      <em>提交后获取业务编号</em>
     </div>
 
-    <form id="quoteForm" class="xh-mh-quote-form" data-linked-quote>
-      <div class="xh-mh-form-grid linked-selects four-step">
+    <form id="quoteForm" class="xh-v4-quote-form" data-linked-quote>
+      <div class="xh-v4-form-grid linked-selects four-step">
         <div class="field"><label for="home-game">游戏 *</label><select id="home-game" name="game" required data-link-game><option value="">请选择游戏</option></select></div>
         <div class="field"><label for="home-platform">平台</label><select id="home-platform" name="platform" data-link-platform><option value="">不确定 / 请选择</option><option value="Steam">Steam</option><option value="Battle.net">Battle.net</option><option value="PlayStation">PlayStation</option><option value="Xbox">Xbox</option><option value="Nintendo Switch 2">Switch 2</option></select><div class="platform-select" data-platform-picker></div></div>
         <div class="field"><label for="home-category">需求类型 *</label><select id="home-category" required data-link-category disabled><option value="">请先选择游戏</option></select></div>
         <div class="field"><label for="home-demand">具体服务 *</label><select id="home-demand" name="demand" required data-link-service disabled><option value="">请先选择需求类型</option></select></div>
       </div>
 
-      <div class="xh-mh-contact-grid">
+      <div class="xh-v4-contact-grid">
         <div class="field"><label for="home-contact-method">联系方式 *</label><select id="home-contact-method" name="contactMethod" required><option value="">请选择</option><option value="微信">微信</option><option value="QQ">QQ</option><option value="手机">手机</option><option value="其他">其他</option></select></div>
-        <div class="field"><label for="home-contact">联系号 *</label><div class="contact-number-row"><select class="phone-code-select hidden" data-phone-code aria-label="国家区号"></select><input id="home-contact" name="customerContact" maxlength="120" required placeholder="微信号 / 手机 / QQ"></div></div>
+        <div class="field"><label for="home-contact">联系号 *</label><div class="contact-number-row"><select class="phone-code-select hidden" data-phone-code aria-label="国家区号"></select><input id="home-contact" name="customerContact" maxlength="120" required placeholder="微信 / 手机 / QQ"></div></div>
       </div>
 
-      <details class="xh-mh-more responsive-details" data-responsive-details>
-        <summary>补充进度或任务截图（可选）</summary>
-        <div class="xh-mh-more-body">
+      <details class="xh-v4-more responsive-details" data-responsive-details>
+        <summary>补充当前进度或任务截图（可选）</summary>
+        <div class="xh-v4-more-body">
           <div class="field"><label for="home-progress">当前进度</label><select id="home-progress" name="currentProgress"><option value="">不确定</option><option value="未开始">未开始</option><option value="刚开始">刚开始</option><option value="进行中">进行中</option><option value="接近完成">接近完成</option><option value="已有部分进度，截图为准">已有部分进度</option></select></div>
           <div class="field upload-field"><label for="home-file">任务截图</label><input id="home-file" class="upload-input" name="file" type="file" accept="image/jpeg,image/png,image/*" data-upload-input><label class="upload-zone" for="home-file"><span class="upload-copy"><strong data-file-name>上传任务截图</strong><span>JPG / PNG · ≤5MB</span></span><span class="upload-action">选择图片</span></label></div>
         </div>
       </details>
 
-      <label class="legal-consent xh-mh-consent"><input type="checkbox" name="privacyConsent" required><span>我已阅读并同意 <a href="/rules" target="_blank" rel="noopener">服务规则</a> 和 <a href="/privacy" target="_blank" rel="noopener">隐私说明</a>，不会提交账号密码、验证码或令牌。</span></label>
-      <button class="btn primary quote-submit xh-mh-submit" type="submit">立即获取报价</button>
-      <div id="quoteMsg" class="xh-mh-message" aria-live="polite"></div>
+      <label class="legal-consent xh-v4-consent"><input type="checkbox" name="privacyConsent" required><span>我已阅读并同意 <a href="/rules" target="_blank" rel="noopener">服务规则</a> 和 <a href="/privacy" target="_blank" rel="noopener">隐私说明</a>，不会提交账号密码、验证码或令牌。</span></label>
+      <button class="btn primary quote-submit xh-v4-submit" type="submit">提交需求并获取报价</button>
+      <div id="quoteMsg" aria-live="polite"></div>
     </form>
   </section>
 
-  <section class="xh-mh-block xh-mh-process" aria-label="服务流程">
-    <div class="xh-mh-section-head"><div><span>流程透明</span><h2>三步完成</h2></div><a href="/rules">服务规则</a></div>
-    <ol class="xh-mh-steps">
-      <li><b>01</b><span><strong>提交需求</strong><small>选择游戏与具体任务</small></span></li>
-      <li><b>02</b><span><strong>人工确认</strong><small>确认价格、排期和方式</small></span></li>
-      <li><b>03</b><span><strong>进度可查</strong><small>统一业务编号持续跟踪</small></span></li>
+  <section class="xh-v4-block" aria-label="服务流程">
+    <div class="xh-v4-head"><div><span>HOW IT WORKS</span><h2>三步完成</h2></div><a href="/rules">服务规则 →</a></div>
+    <ol class="xh-v4-process">
+      <li><b>01</b><strong>提交需求</strong><small>选游戏和任务</small></li>
+      <li><b>02</b><strong>人工确认</strong><small>确认价格与排期</small></li>
+      <li><b>03</b><strong>进度可查</strong><small>业务编号持续跟踪</small></li>
     </ol>
   </section>
 
-  <section class="xh-mh-block xh-mh-assurance" aria-label="服务保障">
-    <div class="xh-mh-section-head"><div><span>服务保障</span><h2>能核对，不靠口号</h2></div><a href="/trust">查看说明</a></div>
-    <div class="xh-mh-assurance-list">
-      <a href="/records"><b>业务编号</b><span>询价与履约共用同一个编号</span><i>→</i></a>
-      <a href="/records"><b>进度记录</b><span>当前阶段与客服备注可查询</span><i>→</i></a>
-      <a href="/rules"><b>担保交易</b><span>确认报价后走淘宝 / 闲鱼规则</span><i>→</i></a>
-      <a href="/privacy"><b>信息安全</b><span>网页不收账号密码和验证码</span><i>→</i></a>
+  <section class="xh-v4-block" aria-label="MW4 工具站">
+    <div class="xh-v4-tool-card">
+      <div><span>MW4 TOOL</span><h2>迷彩解锁助手</h2><p>分阶段查看迷彩条件，进度保存在当前设备。</p></div>
+      <a href="/mastery">打开工具</a>
     </div>
   </section>
 
-  <section class="xh-mh-block xh-mh-tool" aria-label="MW4 工具站">
-    <div><span>MW4 专版工具</span><h2>迷彩解锁助手</h2><p>分阶段查看迷彩条件，进度保存在当前设备。</p></div>
-    <a href="/mastery">打开工具站 →</a>
+  <section class="xh-v4-block" aria-label="客服联系">
+    <div class="xh-v4-head"><div><span data-config="quickContactTitle">CONTACT</span><h2>不确定怎么选？</h2></div><a href="/contact">更多方式 →</a></div>
+    <div id="homeContactList" class="quick-contact-list xh-v4-contact-list"><div class="quick-contact-item"><div class="quick-contact-row"><span>微信</span><strong id="homeWechatQuick" data-contact="wechat" th:text="${contactFallback}">AAC9878</strong><button class="btn small-btn" type="button" data-copy="#homeWechatQuick">复制</button></div></div></div>
+    <div class="xh-v4-service-time"><span>在线时间</span><strong data-config="serviceHours">10:00–24:00</strong></div>
   </section>
 
-  <section class="xh-mh-block xh-mh-contact" aria-label="客服联系">
-    <div class="xh-mh-section-head"><div><span data-config="quickContactTitle">客服联系</span><h2>不确定怎么选？直接问</h2></div><a href="/contact">更多方式</a></div>
-    <div id="homeContactList" class="quick-contact-list xh-mh-contact-list"><div class="quick-contact-item"><div class="quick-contact-row"><span>微信</span><strong id="homeWechatQuick" data-contact="wechat" th:text="${contactFallback}">AAC9878</strong><button class="btn small-btn" type="button" data-copy="#homeWechatQuick">复制</button></div></div></div>
-    <div class="xh-mh-service-time"><span>在线时间</span><strong data-config="serviceHours">10:00–24:00</strong></div>
+  <section class="xh-v4-block" id="publicCaseSection" hidden aria-label="近期完成">
+    <div class="xh-v4-head"><div><span>RECENT</span><h2>近期完成</h2></div><a href="/trust">服务示例 →</a></div>
+    <div id="publicCaseGrid"></div>
   </section>
 
-  <section class="xh-mh-block xh-mh-cases" id="publicCaseSection" hidden aria-label="近期完成">
-    <div class="xh-mh-section-head"><div><span>近期完成</span><h2>真实完成记录</h2></div><a href="/trust">服务示例</a></div>
-    <div id="publicCaseGrid" class="xh-mh-case-grid"></div>
-  </section>
-
-  <section class="xh-mh-block xh-mh-faq" aria-label="常见问题">
-    <div class="xh-mh-section-head"><div><span>FAQ</span><h2>下单前先看这 3 条</h2></div><a href="/rules">全部规则</a></div>
-    <details><summary>现在 MW4 能直接接单吗？</summary><p>以顶部实时运营状态为准。预约阶段可先提交需求，正式开放后按确认顺序安排。</p></details>
-    <details><summary>报价怎么计算？</summary><p>按当前进度、目标、平台和任务难度确认。页面价格用于参考，最终金额以客服人工确认结果为准。</p></details>
-    <details><summary>需要把账号密码填在网站里吗？</summary><p>不需要。询价、查询和截图都不要提交账号密码、验证码或令牌。</p></details>
+  <section class="xh-v4-block xh-v4-faq" aria-label="常见问题">
+    <div class="xh-v4-head"><div><span>FAQ</span><h2>下单前先看</h2></div><a href="/rules">全部规则 →</a></div>
+    <details><summary>现在 MW4 能直接接单吗？</summary><p>以首页顶部实时运营状态为准。预约阶段可先提交需求，正式开放后按确认顺序安排。</p></details>
+    <details><summary>报价怎么计算？</summary><p>按当前进度、目标、平台和任务难度确认。页面价格仅作参考，最终金额以客服人工确认结果为准。</p></details>
+    <details><summary>需要在网站填写账号密码吗？</summary><p>不需要。询价、查询和上传截图时都不要提交账号密码、验证码或令牌。</p></details>
   </section>
 </main>
+
+<nav class="xh-v4-bottom-nav" aria-label="手机底部导航">
+  <a href="/" aria-current="page"><b>⌂</b><span>首页</span></a>
+  <a href="/services"><b>▦</b><span>服务</span></a>
+  <a class="xh-v4-nav-quote" href="#quick-actions"><b>＋</b><span>询价</span></a>
+  <a href="/records"><b>◎</b><span>进度</span></a>
+  <a href="/account"><b>○</b><span>我的</span></a>
+</nav>
 
 <footer th:replace="~{fragments/site :: footer}"></footer>
 </body>

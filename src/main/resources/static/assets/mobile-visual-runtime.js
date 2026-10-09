@@ -26,9 +26,10 @@
 
     /* The mobile homepage Hero has its own existing UI geometry. Public image
        controls may still update the configured image URL/position, but they
-       must not stretch or blur that artwork across the title/action deck. */
+       must not stretch or blur that artwork across the title/action deck.
+       Avoid mixing the inset shorthand with longhands here: doing so can make
+       a style MutationObserver repeatedly observe its own normalization. */
     setImportant(layer, 'position', 'absolute');
-    setImportant(layer, 'inset', 'auto');
     setImportant(layer, 'top', 'var(--xh-r4-nav-h)');
     setImportant(layer, 'left', '0');
     setImportant(layer, 'right', '0');

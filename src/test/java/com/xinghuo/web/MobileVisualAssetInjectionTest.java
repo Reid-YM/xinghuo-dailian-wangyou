@@ -13,7 +13,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 class MobileVisualAssetInjectionTest {
 
     @Test
-    void mobileFilterOnlyMarksDeviceAndNeverInjectsLegacyVisualBundles() throws Exception {
+    void mobilePublicResponseLoadsDedicatedRuntimeAndCompactCssButDesktopDoesNot() throws Exception {
         var filter = new MobileFrontendAssetFilter();
         FilterChain html = (request, response) -> {
             var http = (jakarta.servlet.http.HttpServletResponse) response;
@@ -21,23 +21,21 @@ class MobileVisualAssetInjectionTest {
             http.getWriter().write("<!doctype html><html><head><title>x</title></head><body>ok</body></html>");
         };
 
-        var mobileRequest = new MockHttpServletRequest("GET", "/services");
+        var mobileRequest = new MockHttpServletRequest("GET", "/");
         mobileRequest.addHeader("User-Agent", "Mozilla/5.0 (iPhone) Mobile");
         var mobileResponse = new MockHttpServletResponse();
         filter.doFilter(mobileRequest, mobileResponse, html);
         String mobileHtml = mobileResponse.getContentAsString();
-        assertTrue(mobileHtml.contains("name=\"xh-frontend\" content=\"mobile\""));
-        assertFalse(mobileHtml.contains("mobile-app.css"));
-        assertFalse(mobileHtml.contains("mobile-compact.css"));
-        assertFalse(mobileHtml.contains("mobile-runtime-fixes.css"));
-        assertFalse(mobileHtml.contains("mobile-app.js"));
-        assertFalse(mobileHtml.contains("mobile-visual-runtime.js"));
+        assertTrue(mobileHtml.contains("mobile-visual-runtime.js?v=20261009mv1"));
+        assertTrue(mobileHtml.contains("mobile-compact.css?v=20261009mc1"));
 
-        var desktopRequest = new MockHttpServletRequest("GET", "/services");
+        var desktopRequest = new MockHttpServletRequest("GET", "/");
         desktopRequest.addHeader("User-Agent", "Mozilla/5.0 (Macintosh) Chrome Safari");
         var desktopResponse = new MockHttpServletResponse();
         filter.doFilter(desktopRequest, desktopResponse, html);
-        assertFalse(desktopResponse.getContentAsString().contains("xh-frontend"));
+        String desktopHtml = desktopResponse.getContentAsString();
+        assertFalse(desktopHtml.contains("mobile-visual-runtime.js"));
+        assertFalse(desktopHtml.contains("mobile-compact.css"));
     }
 
     @Test

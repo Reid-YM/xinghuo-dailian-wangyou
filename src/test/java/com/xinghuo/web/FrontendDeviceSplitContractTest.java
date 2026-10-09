@@ -25,10 +25,8 @@ class FrontendDeviceSplitContractTest {
         var response = new MockHttpServletResponse();
         var modelAndView = new ModelAndView("index");
         var interceptor = new FrontendDeviceViewInterceptor();
-
         assertTrue(interceptor.preHandle(request, response, new Object()));
         interceptor.postHandle(request, response, new Object(), modelAndView);
-
         assertEquals("mobile/index", modelAndView.getViewName());
         assertEquals("mobile", request.getAttribute("frontendMode"));
         assertTrue(response.getHeaders("Vary").contains("User-Agent"));
@@ -37,7 +35,6 @@ class FrontendDeviceSplitContractTest {
     @Test
     void androidPhoneUsesMobileButDesktopAndAdminDoNot() throws Exception {
         var interceptor = new FrontendDeviceViewInterceptor();
-
         var android = new MockHttpServletRequest("GET", "/services");
         android.addHeader("User-Agent", "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit Chrome Mobile Safari");
         var androidView = new ModelAndView("services");
@@ -79,8 +76,9 @@ class FrontendDeviceSplitContractTest {
         assertTrue(mobileHtml.contains("name=\"xh-frontend\" content=\"mobile\""));
         assertTrue(mobileHtml.contains("/assets/mobile-app.css?v=20261009m2"));
         assertTrue(mobileHtml.contains("/assets/mobile-compact.css?v=20261009mc1"));
-        assertTrue(mobileHtml.contains("/assets/mobile-screenshot-fixes.css?v=20261009msf1"));
+        assertTrue(mobileHtml.contains("/assets/mobile-screenshot-fixes.css?v=20261009msf2"));
         assertTrue(mobileHtml.contains("/assets/mobile-flat-overflow.css?v=20261009mfo1"));
+        assertTrue(mobileHtml.contains("/assets/mobile-runtime-fixes.css?v=20261009mrf1"));
         assertTrue(mobileHtml.contains("/assets/mobile-app.js?v=20261009m2"));
 
         var desktopRequest = new MockHttpServletRequest("GET", "/services");
@@ -92,6 +90,7 @@ class FrontendDeviceSplitContractTest {
         assertFalse(desktopHtml.contains("mobile-compact.css"));
         assertFalse(desktopHtml.contains("mobile-screenshot-fixes.css"));
         assertFalse(desktopHtml.contains("mobile-flat-overflow.css"));
+        assertFalse(desktopHtml.contains("mobile-runtime-fixes.css"));
         assertFalse(desktopHtml.contains("mobile-app.js"));
     }
 
@@ -108,6 +107,7 @@ class FrontendDeviceSplitContractTest {
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-compact.css")));
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-screenshot-fixes.css")));
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-flat-overflow.css")));
+        assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-runtime-fixes.css")));
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-app.js")));
         assertFalse(TEMPLATES.resolve("index.html").equals(Path.of("src/main/resources/templates/index.html")));
     }

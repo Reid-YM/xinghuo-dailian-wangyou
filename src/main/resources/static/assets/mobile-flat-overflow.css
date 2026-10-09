@@ -1,0 +1,302 @@
+/* Mobile-only flat surface and overflow safety layer.
+   Loaded last so desktop glass/chrome and legacy overflow rules cannot leak into mobile. */
+:root[data-frontend="mobile"] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  background: #07090c;
+  overflow-x: clip;
+}
+
+body.mobile-frontend {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 !important;
+  overflow-x: clip !important;
+  background: #07090c !important;
+}
+
+@supports not (overflow: clip) {
+  :root[data-frontend="mobile"],
+  body.mobile-frontend {
+    overflow-x: hidden !important;
+  }
+}
+
+/* Remove the desktop-style glass shell from mobile structural surfaces. */
+body.mobile-frontend main,
+body.mobile-frontend main.container,
+body.mobile-frontend .container,
+body.mobile-frontend .section,
+body.mobile-frontend .page-shell,
+body.mobile-frontend .services-browser,
+body.mobile-frontend .quote-layout,
+body.mobile-frontend .account-center-layout,
+body.mobile-frontend .page-hero,
+body.mobile-frontend .page-hero-compact,
+body.mobile-frontend .service-browser-hero,
+body.mobile-frontend .game-entry-section {
+  min-width: 0;
+  max-width: 100%;
+  background: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Top-level mobile content must use the viewport as its hard width boundary. */
+body.mobile-frontend main,
+body.mobile-frontend main.container,
+body.mobile-frontend .page-shell,
+body.mobile-frontend .services-browser {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+  box-sizing: border-box;
+}
+
+/* Keep functional cards readable, but make them solid rather than glass. */
+body.mobile-frontend .card,
+body.mobile-frontend .service-browser-console,
+body.mobile-frontend .quote-main-card,
+body.mobile-frontend .consult-card,
+body.mobile-frontend .quick-card,
+body.mobile-frontend .quick-contact-card,
+body.mobile-frontend .account-center-card,
+body.mobile-frontend .account-center-kpi,
+body.mobile-frontend .record-card,
+body.mobile-frontend .order-card {
+  min-width: 0;
+  max-width: 100% !important;
+  background: #10141a !important;
+  background-image: none !important;
+  border-color: rgba(255,255,255,.08) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Width declarations from desktop or dynamic inline styles must not push cards past the phone. */
+body.mobile-frontend main .card,
+body.mobile-frontend .service-browser-console,
+body.mobile-frontend .quote-main-card,
+body.mobile-frontend .consult-card,
+body.mobile-frontend .account-center-card,
+body.mobile-frontend .account-center-kpi,
+body.mobile-frontend .record-card,
+body.mobile-frontend .order-card {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* Structural wrappers must not clip content, dropdowns or horizontal rails. */
+body.mobile-frontend .section,
+body.mobile-frontend .page-shell,
+body.mobile-frontend .services-browser,
+body.mobile-frontend .quote-layout,
+body.mobile-frontend .account-center-layout,
+body.mobile-frontend .page-hero,
+body.mobile-frontend .page-hero-compact,
+body.mobile-frontend .service-browser-console,
+body.mobile-frontend .quick-grid,
+body.mobile-frontend .grid4,
+body.mobile-frontend .grid3,
+body.mobile-frontend .grid2 {
+  overflow: visible !important;
+}
+
+/* The hero is the one intentional clipping surface because its background is edge-to-edge. */
+body.mobile-frontend[data-page="home"] #homeHero {
+  overflow: hidden !important;
+}
+
+/* Never let a grid/flex child force the page wider than the phone. */
+body.mobile-frontend main,
+body.mobile-frontend main *,
+body.mobile-frontend .site-footer,
+body.mobile-frontend .site-footer * {
+  box-sizing: border-box;
+}
+
+body.mobile-frontend main > *,
+body.mobile-frontend .section > *,
+body.mobile-frontend .page-shell > *,
+body.mobile-frontend .grid4 > *,
+body.mobile-frontend .grid3 > *,
+body.mobile-frontend .grid2 > *,
+body.mobile-frontend .quick-grid > *,
+body.mobile-frontend .linked-selects > *,
+body.mobile-frontend .contact-combo-grid > *,
+body.mobile-frontend .browser-row > *,
+body.mobile-frontend .service-card-head > *,
+body.mobile-frontend .service-meta > *,
+body.mobile-frontend .service-card-action > *,
+body.mobile-frontend .row-actions > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Horizontal option rails scroll inside themselves instead of wrapping, being cut off or widening the page. */
+body.mobile-frontend .filters,
+body.mobile-frontend .game-filter-rail,
+body.mobile-frontend .platform-filter-rail,
+body.mobile-frontend .service-filterbar,
+body.mobile-frontend .home-game-rail {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+  min-width: 0;
+  max-width: 100% !important;
+  white-space: nowrap;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+body.mobile-frontend .filters::-webkit-scrollbar,
+body.mobile-frontend .game-filter-rail::-webkit-scrollbar,
+body.mobile-frontend .platform-filter-rail::-webkit-scrollbar,
+body.mobile-frontend .service-filterbar::-webkit-scrollbar,
+body.mobile-frontend .home-game-rail::-webkit-scrollbar {
+  display: none;
+}
+
+body.mobile-frontend .filter-btn,
+body.mobile-frontend .home-game-rail > * {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  max-width: none !important;
+  white-space: nowrap;
+}
+
+/* Forms and dynamic content must always stay inside the mobile content width. */
+body.mobile-frontend form,
+body.mobile-frontend fieldset,
+body.mobile-frontend .field,
+body.mobile-frontend .contact-combo,
+body.mobile-frontend .contact-number-row,
+body.mobile-frontend .platform-select,
+body.mobile-frontend input,
+body.mobile-frontend select,
+body.mobile-frontend textarea,
+body.mobile-frontend button {
+  min-width: 0;
+  max-width: 100%;
+}
+
+body.mobile-frontend input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+body.mobile-frontend select,
+body.mobile-frontend textarea {
+  width: 100% !important;
+}
+
+/* Media and long content are common sources of phone-width overflow. */
+body.mobile-frontend img,
+body.mobile-frontend video,
+body.mobile-frontend canvas,
+body.mobile-frontend iframe {
+  display: block;
+  max-width: 100% !important;
+  height: auto;
+}
+
+body.mobile-frontend svg {
+  max-width: 100%;
+}
+
+body.mobile-frontend table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.mobile-frontend pre,
+body.mobile-frontend code {
+  max-width: 100%;
+}
+
+body.mobile-frontend pre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.mobile-frontend h1,
+body.mobile-frontend h2,
+body.mobile-frontend h3,
+body.mobile-frontend p,
+body.mobile-frontend label,
+body.mobile-frontend .muted,
+body.mobile-frontend .service-card,
+body.mobile-frontend .record-card,
+body.mobile-frontend .order-card {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Service browser: undo the previous clipping rule while keeping the rail itself scrollable. */
+body.mobile-frontend[data-page="services"] .service-browser-console {
+  overflow: visible !important;
+}
+
+body.mobile-frontend[data-page="services"] .browser-row {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: visible !important;
+}
+
+body.mobile-frontend[data-page="services"] .browser-row .filters,
+body.mobile-frontend[data-page="services"] .game-filter-rail,
+body.mobile-frontend[data-page="services"] .platform-filter-rail,
+body.mobile-frontend[data-page="services"] .service-filterbar {
+  margin-inline: 0 !important;
+  padding-inline: 0 !important;
+}
+
+body.mobile-frontend[data-page="services"] .service-browser-grid,
+body.mobile-frontend[data-page="services"] .service-browser-grid .service-card {
+  width: 100% !important;
+  min-width: 0;
+  max-width: 100% !important;
+}
+
+body.mobile-frontend[data-page="services"] .service-cover {
+  overflow: hidden;
+}
+
+/* Fixed bottom navigation must not hide the final interactive content. */
+body.mobile-frontend main {
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+body.mobile-frontend .site-footer {
+  margin-bottom: 8px;
+}
+
+body.mobile-frontend :target,
+body.mobile-frontend input,
+body.mobile-frontend select,
+body.mobile-frontend textarea,
+body.mobile-frontend button,
+body.mobile-frontend a[href] {
+  scroll-margin-bottom: calc(var(--mobile-shell-dock, 64px) + 28px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 360px) {
+  body.mobile-frontend .card,
+  body.mobile-frontend .service-browser-console,
+  body.mobile-frontend .quote-main-card,
+  body.mobile-frontend .consult-card,
+  body.mobile-frontend .account-center-card,
+  body.mobile-frontend .account-center-kpi {
+    border-radius: 10px !important;
+  }
+}

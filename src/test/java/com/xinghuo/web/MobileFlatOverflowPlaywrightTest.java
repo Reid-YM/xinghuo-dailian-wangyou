@@ -52,7 +52,7 @@ class MobileFlatOverflowPlaywrightTest {
         return """
                 <!doctype html>
                 <html data-frontend="mobile">
-                <body class="mobile-frontend" data-page="%s">
+                <body class="mobile-frontend" data-page="__PAGE__">
                   <main class="container section page-shell services-browser">
                     <div class="page-hero page-hero-compact service-browser-hero">
                       <h1>手机前端布局</h1>
@@ -77,7 +77,7 @@ class MobileFlatOverflowPlaywrightTest {
                   </main>
                 </body>
                 </html>
-                """.formatted(pageName);
+                """.replace("__PAGE__", pageName);
     }
 
     private static void addLegacyConflictStyles(Page page) {

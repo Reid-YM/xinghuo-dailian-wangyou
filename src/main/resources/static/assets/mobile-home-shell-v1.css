@@ -1,4 +1,4 @@
-/* Mobile homepage hero-shell refinement v2.2.
+/* Mobile homepage hero-shell refinement v2.3.
    The artwork owns a real 16:9 slot; header/status live above it, and CTA
    hugs the artwork below it. This removes the old 540px glass/black shell. */
 :root[data-frontend="mobile"] body.mobile-frontend[data-page="home"] {
@@ -88,19 +88,37 @@ body.mobile-frontend[data-page="home"] .xh-v4-appbar-actions a {
   -webkit-backdrop-filter:blur(4px)!important;
 }
 
-body.mobile-frontend[data-page="home"] .xh-v4-hero-copy {
+/* High-specificity reset for legacy app.css rules that force .hero-copy back
+   into normal flow and center it. Those rules caused the mobile status chip to
+   land around the middle of the hero even after the new shell was loaded. */
+body.mobile-frontend[data-page="home"] #homeHero .hero-copy.xh-v4-hero-copy {
   position:absolute!important;
   z-index:4!important;
   inset:0!important;
   width:100%!important;
+  max-width:none!important;
   height:100%!important;
   min-height:0!important;
+  align-self:stretch!important;
+  justify-self:stretch!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  align-items:stretch!important;
+  transform:none!important;
   padding:61px 14px 72px!important;
   overflow:hidden!important;
   background:transparent!important;
   border:0!important;
+  border-radius:0!important;
   box-shadow:none!important;
   backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+body.mobile-frontend[data-page="home"] #homeHero .hero-copy.xh-v4-hero-copy::before {
+  content:none!important;
+  display:none!important;
 }
 
 body.mobile-frontend[data-page="home"] .xh-v4-status {
@@ -224,7 +242,7 @@ body.mobile-frontend[data-page="home"] .floating-customer-service-icon svg {
     padding-left:12px!important;
     padding-right:12px!important;
   }
-  body.mobile-frontend[data-page="home"] .xh-v4-hero-copy {
+  body.mobile-frontend[data-page="home"] #homeHero .hero-copy.xh-v4-hero-copy {
     padding-left:12px!important;
     padding-right:12px!important;
   }

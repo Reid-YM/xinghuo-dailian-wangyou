@@ -21,6 +21,7 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 @Order(Ordered.HIGHEST_PRECEDENCE + 50)
 public class MobileFrontendAssetFilter extends OncePerRequestFilter {
     private static final String MARKER = "<meta name=\"xh-frontend\" content=\"mobile\">";
+    private static final String V2_HOME_MARKER = "data-mobile-home=\"v2\"";
     private static final String SHARED_MOBILE_ASSETS = MARKER
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-app.css?v=20261009m2\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-compact.css?v=20261009mc1\">"
@@ -57,12 +58,13 @@ public class MobileFrontendAssetFilter extends OncePerRequestFilter {
         }
 
         String html = new String(wrapper.getContentAsByteArray(), charset);
-        // The new mobile homepage declares MARKER itself and therefore stays completely isolated.
-        // Other mobile templates keep the shared mobile shell until they are independently rebuilt.
         if (!html.contains(MARKER)) {
             int headEnd = html.toLowerCase(Locale.ROOT).indexOf("</head>");
             if (headEnd >= 0) {
-                html = html.substring(0, headEnd) + SHARED_MOBILE_ASSETS + html.substring(headEnd);
+                // V2 owns its complete mobile homepage shell. It receives only the frontend marker,
+                // never the shared mobile CSS/JS bundle. Other mobile pages keep the shared bundle.
+                String injection = html.contains(V2_HOME_MARKER) ? MARKER : SHARED_MOBILE_ASSETS;
+                html = html.substring(0, headEnd) + injection + html.substring(headEnd);
             }
         }
 

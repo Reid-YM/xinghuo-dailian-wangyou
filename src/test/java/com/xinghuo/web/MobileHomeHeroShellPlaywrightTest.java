@@ -15,10 +15,10 @@ class MobileHomeHeroShellPlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
 
     @Test
-    void chromiumPhoneWidthsKeepLandscapeKeyArtWithTitleOverlayAndCompactActions() {
+    void chromiumPhoneWidthsMakeHeroEndExactlyAtKeyArtAndRenderActionsAfterIt() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
-            verifyWidth(browser, 390, 844, 340.0, 347.0);
-            verifyWidth(browser, 430, 932, 362.0, 369.0);
+            verifyWidth(browser, 390, 844, 270.0, 273.0);
+            verifyWidth(browser, 430, 932, 293.0, 296.0);
         }
     }
 
@@ -52,17 +52,19 @@ class MobileHomeHeroShellPlaywrightTest {
 
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.mobile-hero-backdrop')).display"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('#homeHero'),'::after').display"));
+        assertEquals("none", string(page, "getComputedStyle(document.querySelector('#homeHero'),'::before').display"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('#heroBackground')).filter"));
         assertEquals("cover", string(page, "getComputedStyle(document.querySelector('#heroBackground')).backgroundSize"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.xh-v4-subtitle')).display"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.xh-v4-eyebrow')).display"));
         assertTrue(string(page, "getComputedStyle(document.querySelector('.xh-v4-logo')).backgroundImage").contains("brand-logo.svg"));
+        assertEquals("70px", string(page, "getComputedStyle(document.querySelector('#homeHero')).marginBottom"));
 
         double heroTop = number(page, "document.querySelector('#homeHero').getBoundingClientRect().top").doubleValue();
         double heroBottom = number(page, "document.querySelector('#homeHero').getBoundingClientRect().bottom").doubleValue();
         double heroHeight = heroBottom - heroTop;
         assertTrue(heroHeight >= minHero && heroHeight <= maxHero,
-            () -> width + "px compact Hero height out of range: " + heroHeight);
+            () -> width + "px image-only Hero height out of range: " + heroHeight);
 
         double appbarTop = number(page, "document.querySelector('.xh-v4-appbar').getBoundingClientRect().top").doubleValue();
         double appbarBottom = number(page, "document.querySelector('.xh-v4-appbar').getBoundingClientRect().bottom").doubleValue();
@@ -78,8 +80,8 @@ class MobileHomeHeroShellPlaywrightTest {
             () -> width + "px key art must begin directly below site chrome");
         assertTrue(width / artworkHeight >= 1.76 && width / artworkHeight <= 1.79,
             () -> width + "px key art should stay near 16:9, ratio=" + (width / artworkHeight));
-        assertTrue(heroBottom - artworkBottom >= 70.0 && heroBottom - artworkBottom <= 74.0,
-            () -> width + "px compact CTA deck height is wrong: " + (heroBottom - artworkBottom));
+        assertTrue(Math.abs(heroBottom - artworkBottom) <= 1.0,
+            () -> width + "px Hero must end exactly where the key art ends: " + (heroBottom - artworkBottom));
 
         double statusTop = number(page, "document.querySelector('.xh-v4-status').getBoundingClientRect().top").doubleValue();
         double statusBottom = number(page, "document.querySelector('.xh-v4-status').getBoundingClientRect().bottom").doubleValue();
@@ -92,15 +94,15 @@ class MobileHomeHeroShellPlaywrightTest {
         double titleBottom = number(page, "document.querySelector('#mobileHeroTitle').getBoundingClientRect().bottom").doubleValue();
         assertTrue(titleTop > artworkTop,
             () -> width + "px title must be inside key art");
-        assertTrue(artworkBottom - titleBottom >= 11.0 && artworkBottom - titleBottom <= 15.0,
-            () -> width + "px title should float near key art bottom: " + (artworkBottom - titleBottom));
+        assertTrue(artworkBottom - titleBottom >= 10.0 && artworkBottom - titleBottom <= 14.0,
+            () -> width + "px title should float at key art bottom: " + (artworkBottom - titleBottom));
 
         double actionsTop = number(page, "document.querySelector('.xh-v4-hero-actions').getBoundingClientRect().top").doubleValue();
         double actionsBottom = number(page, "document.querySelector('.xh-v4-hero-actions').getBoundingClientRect().bottom").doubleValue();
-        assertTrue(actionsTop - artworkBottom >= 10.0 && actionsTop - artworkBottom <= 14.0,
-            () -> width + "px CTA row should begin immediately below key art: " + (actionsTop - artworkBottom));
-        assertTrue(heroBottom - actionsBottom >= 11.0 && heroBottom - actionsBottom <= 13.0,
-            () -> width + "px CTA bottom spacing is wrong: " + (heroBottom - actionsBottom));
+        assertTrue(actionsTop - heroBottom >= 9.0 && actionsTop - heroBottom <= 11.0,
+            () -> width + "px CTA row should start immediately after Hero: " + (actionsTop - heroBottom));
+        assertTrue(actionsBottom > heroBottom,
+            () -> width + "px CTA row must be outside the image-only Hero");
 
         double firstLeft = number(page, "document.querySelector('.xh-v4-hero-actions .btn:first-child').getBoundingClientRect().left").doubleValue();
         double firstRight = number(page, "document.querySelector('.xh-v4-hero-actions .btn:first-child').getBoundingClientRect().right").doubleValue();

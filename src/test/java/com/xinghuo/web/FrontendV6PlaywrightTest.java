@@ -21,6 +21,7 @@ class FrontendV6PlaywrightTest {
             page.setContent(desktopMarkup());
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("app.css")));
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("frontend-v6.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("frontend-v6-geometry.css")));
 
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth"));
             assertEquals("sticky", css(page, ".site-header", "position"));
@@ -91,6 +92,7 @@ class FrontendV6PlaywrightTest {
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-runtime-fixes.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-home-v4.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("frontend-v6.css")));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("frontend-v6-geometry.css")));
     }
 
     private static String css(Page page, String selector, String property) {

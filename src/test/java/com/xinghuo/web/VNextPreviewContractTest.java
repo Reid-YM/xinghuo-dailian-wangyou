@@ -5,13 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class VNextPreviewContractTest {
     private static final Path ROOT = Path.of("");
 
     @Test
-    void vnextBuildIsIsolatedFromCurrentProductionEntry() throws Exception {
+    void approvedVnextBuildOwnsCoreProductionShellsWithoutChangingServerRoutes() throws Exception {
         String pom = Files.readString(ROOT.resolve("pom.xml"));
         String vite = Files.readString(ROOT.resolve("frontend-vnext/vite.config.ts"));
         String controller = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/controller/VNextPreviewController.java"));
@@ -21,17 +22,29 @@ class VNextPreviewContractTest {
         assertTrue(pom.contains("frontend-vnext"));
         assertTrue(vite.contains("base: '/vnext/'"));
         assertTrue(vite.contains("../target/classes/static/vnext"));
+        assertTrue(vite.contains("entryFileNames: 'assets/app.js'"));
+        assertTrue(vite.contains("'assets/app.css'"));
         assertTrue(controller.contains("forward:/vnext/index.html"));
         assertTrue(security.contains("\"/vnext\", \"/vnext/**\""));
         assertFalse(controller.contains("@GetMapping(\"/\")"),
-                "VNext preview must not replace the production home route before UI approval");
+                "Production route ownership must remain in PageController so SEO/auth behavior is preserved");
+
+        for (String name : List.of("index.html", "services.html", "quote.html", "records.html", "account.html")) {
+            String html = Files.readString(ROOT.resolve("src/main/resources/templates/" + name));
+            assertTrue(html.contains("id=\"root\""), name + " must expose the React mount point");
+            assertTrue(html.contains("/vnext/assets/app.css"), name + " must load the VNext production CSS");
+            assertTrue(html.contains("/vnext/assets/app.js"), name + " must load the VNext production JS");
+            assertTrue(html.contains("/assets/vnext-formal-ui.css"), name + " must load the approved theme bridge");
+            assertFalse(html.contains("/assets/public.js"), name + " must not double-bind the legacy public runtime");
+        }
     }
 
     @Test
-    void responsiveAndWechatContractsAreExplicit() throws Exception {
+    void responsiveWechatAndRealQuoteContractsAreExplicit() throws Exception {
         String css = Files.readString(ROOT.resolve("frontend-vnext/src/styles.css"));
         String environment = Files.readString(ROOT.resolve("frontend-vnext/src/lib/environment.ts"));
         String main = Files.readString(ROOT.resolve("frontend-vnext/src/main.tsx"));
+        String api = Files.readString(ROOT.resolve("frontend-vnext/src/lib/api.ts"));
 
         assertTrue(css.contains("env(safe-area-inset-top"));
         assertTrue(css.contains("env(safe-area-inset-bottom"));
@@ -45,8 +58,26 @@ class VNextPreviewContractTest {
         assertTrue(css.contains("@media (forced-colors: active)"));
         assertTrue(environment.contains("MicroMessenger"));
         assertTrue(environment.contains("visualViewport"));
-        assertTrue(main.contains("/api/services" ) || Files.readString(ROOT.resolve("frontend-vnext/src/lib/api.ts")).contains("/api/services"));
-        assertFalse(main.contains("fetch('/api/quote'"),
-                "UI review preview must not create real quotes before approval");
+        assertTrue(api.contains("'/api/services'"));
+        assertTrue(api.contains("'/api/quote'"));
+        assertTrue(api.contains("'Idempotency-Key': idempotencyKey"));
+        assertTrue(api.contains("'/api/uploads/quote'"));
+        assertTrue(main.contains("privacyConsent: true"));
+        assertTrue(main.contains("loadAccountMe"));
+        assertTrue(main.contains("/record/${encodeURIComponent(success.businessNo)}"));
+    }
+
+    @Test
+    void legacyDeepBusinessPagesAndAdminFunctionalityRemainAvailable() throws Exception {
+        String pageController = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/controller/PageController.java"));
+        String admin = Files.readString(ROOT.resolve("src/main/resources/templates/admin.html"));
+        String adminThemeLoader = Files.readString(ROOT.resolve("src/main/resources/static/assets/admin-image-editor.js"));
+
+        assertTrue(pageController.contains("return \"service-detail\""));
+        assertTrue(pageController.contains("return \"record-detail\""));
+        assertTrue(pageController.contains("return \"admin\""));
+        assertTrue(admin.contains("data-nav=\"quotes\""));
+        assertTrue(admin.contains("data-nav=\"orders\""));
+        assertTrue(adminThemeLoader.contains("vnext-formal-ui.css"));
     }
 }

@@ -19,7 +19,7 @@
   const pathActive = (href, path) => {
     if (href === '/') return path === '/';
     if (href === '/quote') return path === '/quote';
-    if (href === '/services') return path === '/services' || path.startsWith('/services/');
+    if (href === '/services') return path === '/services' || path.startsWith('/service/') || path.startsWith('/game/') || path === '/mastery';
     if (href === '/records') return path === '/records' || path.startsWith('/record') || path.startsWith('/order');
     if (href === '/account') return path === '/account' || path.startsWith('/account/') || path.startsWith('/console');
     return path === href;

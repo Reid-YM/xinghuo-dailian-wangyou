@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="title">
-  <title id="title">Spark Team favicon</title>
-  <rect width="64" height="64" rx="15" fill="#0A0C0F"/>
-  <g transform="translate(2.82 2.8) scale(0.228)">
-    <path fill="#FFD24A" d="M44 125 L128 41 L212 125 L212 169 L128 85 L44 169 Z"/>
-    <path fill="#D89A00" d="M76 187 L128 135 L180 187 L180 215 L128 163 L76 215 Z"/>
-  </g>
-</svg>

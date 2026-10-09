@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
-  <rect width="28" height="28" rx="6" fill="#0A0C0F"/>
-  <!-- 28px 专用：下箭头加厚到 40（原 28），否则小尺寸下会糊 -->
-  <g transform="translate(0.29 -0.34) scale(0.1071)">
-    <path fill="#FFD24A" d="M44 125 L128 41 L212 125 L212 169 L128 85 L44 169 Z"/>
-    <path fill="#D89A00" d="M76 187 L128 135 L180 187 L180 227 L128 175 L76 227 Z"/>
-  </g>
-</svg>

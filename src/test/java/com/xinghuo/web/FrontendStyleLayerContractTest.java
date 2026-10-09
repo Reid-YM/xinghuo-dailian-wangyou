@@ -11,20 +11,19 @@ class FrontendStyleLayerContractTest {
     private static final Path MAIN = Path.of("src/main");
 
     @Test
-    void sharedSiteUsesNovaShellWithoutLegacyExperienceRuntime() throws Exception {
+    void sharedSiteUsesSingleAuthoritativeExperienceLayer() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
-        assertTrue(site.contains("class=\"nv-header\""));
-        assertTrue(site.contains("data-shell=\"nova\""));
-        assertTrue(site.contains("data-nv-menu-toggle"));
-        assertTrue(site.contains("class=\"nv-footer\""));
+        assertTrue(site.contains("/assets/site-experience-v2.css?v=20261007ux03"));
+        assertTrue(site.contains("/assets/site-shell.js?v=20261009ss08"));
         assertTrue(site.contains("/assets/brand-logo.svg?v=20261008logo01"));
-        assertFalse(site.contains("site-experience-v2.css"));
-        assertFalse(site.contains("site-shell.js"));
-        assertFalse(site.contains("mobile-home"));
+        assertFalse(site.contains("brand-dot"));
+        assertFalse(site.contains("site-shell.css"));
+        assertFalse(site.contains("site-surface-refine.css"));
+        assertFalse(site.contains("site-surface-refine.js"));
     }
 
     @Test
-    void guideAndLoginAdminKeepDedicatedAdminTheme() throws Exception {
+    void guideAndLoginAdminUseUnifiedWhiteTheme() throws Exception {
         String guides = Files.readString(MAIN.resolve("resources/templates/admin-guides.html"));
         String login = Files.readString(MAIN.resolve("resources/templates/admin-login.html"));
         assertTrue(guides.contains("/assets/admin-guides-workspace.css"));
@@ -35,17 +34,24 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
-    void novaOwnsPublicTokensShellComponentsAndResponsiveNavigation() throws Exception {
-        String css = Files.readString(MAIN.resolve("resources/static/assets/nova-ui.css"));
-        String js = Files.readString(MAIN.resolve("resources/static/assets/nova-shell.js"));
-        assertTrue(css.contains("--nv-accent:#ff7a1a"));
-        assertTrue(css.contains(".nv-header"));
-        assertTrue(css.contains(".nv-home-hero"));
-        assertTrue(css.contains(".nv-mobile-dock"));
-        assertTrue(css.contains("input,select,textarea{font-size:16px"));
-        assertTrue(js.contains("document.documentElement.dataset.publicUi = 'nova'"));
-        assertTrue(js.contains("data-nv-route"));
-        assertFalse(css.contains("cyGridDrift"));
-        assertFalse(css.contains(".xh-v4"));
+    void experienceLayerOwnsZIndexFloatingSupportSecurityAndBrandAssets() throws Exception {
+        String css = Files.readString(MAIN.resolve("resources/static/assets/site-experience-v2.css"));
+        String js = Files.readString(MAIN.resolve("resources/static/assets/site-shell.js"));
+        String logo = Files.readString(MAIN.resolve("resources/static/assets/brand-logo.svg"));
+        assertTrue(css.contains("--xh-z-header:40"));
+        assertTrue(css.contains("--xh-z-floating:70"));
+        assertTrue(css.contains("--xh-z-modal:100"));
+        assertTrue(css.contains("--xh-z-toast:120"));
+        assertTrue(css.contains(".floating-customer-service"));
+        assertTrue(css.contains(".account-settings-view[data-settings-view=\"security\"]"));
+        assertTrue(js.contains("floatingCustomerService"));
+        assertTrue(js.contains("href = '/contact'"));
+        assertTrue(js.contains("#07c160"));
+        assertTrue(js.contains("/assets/icons.svg#i-support"));
+        assertTrue(js.contains("data-xh-brand-favicon"));
+        assertTrue(js.contains("/assets/brand-logo.svg?v=20261008logo01"));
+        assertTrue(logo.contains("fill=\"#0A0C0F\""));
+        assertTrue(logo.contains("fill=\"#FFD24A\""));
+        assertTrue(logo.contains("fill=\"#D89A00\""));
     }
 }

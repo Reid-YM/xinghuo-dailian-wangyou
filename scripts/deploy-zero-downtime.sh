@@ -6,7 +6,7 @@
 # 它不再使用 /srv/xinghuo-dev/base/xinghuo-v2-base.jar，也不在发布阶段重新构建源码。
 #
 # 正式流程：
-#   1. GitHub main -> /opt/xinghuo-v2/source-current
+#   1. GitHub main -> /srv/xinghuo-dev/work/xinghuo-v2（唯一正式 Git 工作区）
 #   2. mvn clean package
 #   3. 候选 JAR 在 18080 启动并执行 scripts/smoke_test.sh 18080
 #   4. 将该 JAR 的 SHA256 通过 PREDEPLOY_SMOKE_SHA256 传入本脚本

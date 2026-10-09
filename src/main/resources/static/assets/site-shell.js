@@ -1,6 +1,7 @@
 (() => {
   const getBar = () => document.getElementById('announcementBar');
   const brandLogoHref = '/assets/brand-logo.svg?v=20261008logo01';
+  const mobileMedia = '(max-width: 760px)';
   let frame = 0;
 
   function ensureBrandAssets() {
@@ -15,6 +16,44 @@
       document.head.appendChild(icon);
     }
     icon.href = brandLogoHref;
+  }
+
+  function ensureStylesheet(href, key) {
+    if (!document.head) return;
+    if (document.head.querySelector(`link[data-${key}]`)) return;
+    if ([...document.styleSheets].some(sheet => String(sheet.href || '').includes(href.split('?')[0]))) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    link.setAttribute(`data-${key}`, 'true');
+    document.head.appendChild(link);
+  }
+
+  function ensureMobileFrontend() {
+    const body = document.body;
+    if (!body) return;
+    const root = document.documentElement;
+    const forcedMobile = root.dataset.frontend === 'mobile' || body.dataset.frontend === 'mobile';
+    const compactViewport = typeof window.matchMedia === 'function'
+      ? window.matchMedia(mobileMedia).matches
+      : window.innerWidth <= 760;
+    if (!forcedMobile && !compactViewport) return;
+
+    root.dataset.frontend = 'mobile';
+    body.dataset.frontend = 'mobile';
+    body.classList.add('mobile-frontend');
+
+    ensureStylesheet('/assets/mobile-app.css?v=20261009m02', 'xh-mobile-app-css');
+    ensureStylesheet('/assets/mobile-pages-v1.css?v=20261009m02', 'xh-mobile-pages-css');
+
+    const existingScript = document.querySelector('script[src*="/assets/mobile-app.js"]');
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.src = '/assets/mobile-app.js?v=20261009m02';
+      script.async = false;
+      script.setAttribute('data-xh-mobile-app-js', 'true');
+      document.body.appendChild(script);
+    }
   }
 
   function ensureFloatingSupport() {
@@ -77,6 +116,7 @@
 
   function start() {
     ensureBrandAssets();
+    ensureMobileFrontend();
     ensureFloatingSupport();
     const bar = getBar();
     if (!bar) return;

@@ -1,4 +1,4 @@
-/* Mobile homepage hero-shell refinement v2.
+/* Mobile homepage hero-shell refinement v2.1.
    The artwork owns a real 16:9 slot; header/status live above it, and CTA
    hugs the artwork below it. This removes the old 540px glass/black shell. */
 :root[data-frontend="mobile"] body.mobile-frontend[data-page="home"] {

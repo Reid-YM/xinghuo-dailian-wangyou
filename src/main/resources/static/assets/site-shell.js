@@ -46,6 +46,7 @@
     ensureStylesheet('/assets/mobile-app.css?v=20261009m02', 'xh-mobile-app-css');
     ensureStylesheet('/assets/mobile-pages-v1.css?v=20261009m04', 'xh-mobile-pages-css');
     ensureStylesheet('/assets/mobile-flows-v1.css?v=20261009m01', 'xh-mobile-flows-css');
+    ensureStylesheet('/assets/mobile-content-v1.css?v=20261009m01', 'xh-mobile-content-css');
 
     const existingScript = document.querySelector('script[src*="/assets/mobile-app.js"]');
     if (!existingScript) {

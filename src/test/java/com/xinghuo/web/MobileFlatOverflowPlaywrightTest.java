@@ -27,6 +27,7 @@ class MobileFlatOverflowPlaywrightTest {
             assertEquals("none", normalizedBackdrop(page, ".page-shell"));
             assertEquals("rgb(16, 20, 26)", css(page, ".service-browser-console", "backgroundColor"));
             assertEquals("visible", css(page, ".service-browser-console", "overflow"));
+            assertEquals("visible", css(page, ".wide-card", "overflow"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('.wide-card').getBoundingClientRect().right <= innerWidth + 0.5"));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth"));
         }
@@ -44,6 +45,31 @@ class MobileFlatOverflowPlaywrightTest {
             assertTrue(overflowX.equals("auto") || overflowX.equals("scroll"));
             assertTrue((Boolean) page.evaluate("() => { const el=document.querySelector('.filters'); return el.scrollWidth > el.clientWidth; }"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('.service-browser-console').getBoundingClientRect().right <= innerWidth + 0.5"));
+            assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth"));
+        }
+    }
+
+    @Test
+    void webkit390LocksHomeSecondaryActionsToSameRowAndFlattensAnnouncement() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.webkit().launch()) {
+            Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(390, 844));
+            page.setContent(homeMarkup());
+            page.addStyleTag(new Page.AddStyleTagOptions().setContent("""
+                    @media (max-width:390px) {
+                      .hero-actions { display:grid !important; grid-template-columns:1fr !important; }
+                      .hero-progress-link { grid-column:1/-1 !important; }
+                    }
+                    .announcement { background:rgba(20,20,20,.7); border-radius:16px; backdrop-filter:blur(16px); box-shadow:0 20px 50px #000; }
+                    .card { overflow:hidden; }
+                    """));
+            addMobileStyles(page);
+
+            assertEquals("rgb(9, 12, 16)", css(page, ".announcement", "backgroundColor"));
+            assertEquals("0px", css(page, ".announcement", "borderRadius"));
+            assertEquals("none", normalizedBackdrop(page, ".announcement"));
+
+            assertTrue((Boolean) page.evaluate("() => { const a=[...document.querySelectorAll('.hero-actions .btn')]; if(a.length!==3)return false; const r2=a[1].getBoundingClientRect(); const r3=a[2].getBoundingClientRect(); return Math.abs(r2.top-r3.top)<1 && r2.width < innerWidth*0.6 && r3.width < innerWidth*0.6; }"));
+            assertEquals("visible", css(page, ".card", "overflow"));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth"));
         }
     }
@@ -80,6 +106,29 @@ class MobileFlatOverflowPlaywrightTest {
                 """.formatted(pageName);
     }
 
+    private static String homeMarkup() {
+        return """
+                <!doctype html>
+                <html data-frontend="mobile">
+                <body class="mobile-frontend" data-page="home">
+                  <div class="announcement">MW4 公告内容</div>
+                  <main class="container">
+                    <section id="homeHero" class="hero hero-r3">
+                      <div class="hero-copy">
+                        <div class="actions hero-actions">
+                          <a class="btn primary">提前询价</a>
+                          <a class="btn ghost">查看服务大厅</a>
+                          <a class="btn ghost hero-progress-link">查业务进度</a>
+                        </div>
+                      </div>
+                    </section>
+                    <article class="card"><div>动态内容必须显示</div></article>
+                  </main>
+                </body>
+                </html>
+                """;
+    }
+
     private static void addLegacyConflictStyles(Page page) {
         page.addStyleTag(new Page.AddStyleTagOptions().setContent("""
                 .page-shell,.page-hero,.service-browser-console,.card {
@@ -99,6 +148,7 @@ class MobileFlatOverflowPlaywrightTest {
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-compact.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-screenshot-fixes.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-flat-overflow.css")));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-runtime-fixes.css")));
     }
 
     private static String css(Page page, String selector, String property) {

@@ -27,6 +27,7 @@ public class MobileFrontendAssetFilter extends OncePerRequestFilter {
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-screenshot-fixes.css?v=20261009msf2\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-flat-overflow.css?v=20261009mfo1\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-runtime-fixes.css?v=20261009mrf1\">"
+            + "<link rel=\"stylesheet\" href=\"/assets/mobile-home-v3.css?v=20261009mh3\">"
             + "<script defer src=\"/assets/mobile-app.js?v=20261009m2\"></script>"
             + "<script defer src=\"/assets/mobile-visual-runtime.js?v=20261009mv1\"></script>";
 

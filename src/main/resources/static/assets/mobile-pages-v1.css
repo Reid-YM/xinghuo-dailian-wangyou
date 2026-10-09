@@ -191,7 +191,6 @@ body.mobile-frontend[data-page="services"] .service-card {
 }
 
 body.mobile-frontend[data-page="services"] .service-card .service-cover {
-  width:100%!important;
   height:auto!important;
   aspect-ratio:16/9!important;
   margin:-12px -12px 12px!important;

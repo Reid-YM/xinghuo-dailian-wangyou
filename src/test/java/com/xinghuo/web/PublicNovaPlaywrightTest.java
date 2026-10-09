@@ -12,7 +12,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 @EnabledIfEnvironmentVariable(named = "PLAYWRIGHT_UI_TESTS", matches = "1")
 class PublicNovaPlaywrightTest {
-    private static final Path CSS = Path.of("src/main/resources/static/assets/nova-ui.css");
+    private static final Path ASSETS = Path.of("src/main/resources/static/assets");
 
     @Test
     void chromiumDesktopUsesTwoColumnHeroAndReadableControls() {
@@ -35,7 +35,7 @@ class PublicNovaPlaywrightTest {
     }
 
     @Test
-    void webkit360HasSafeGuttersAndNoHorizontalOverflow() {
+    void webkit360HasSafeGuttersAndStableHeroMedia() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.webkit().launch()) {
             verifyMobile(browser, 360, 780);
         }
@@ -58,14 +58,16 @@ class PublicNovaPlaywrightTest {
         assertEquals(5, number(page, "document.querySelectorAll('.nv-mobile-dock > a').length").intValue());
         assertTrue(number(page, "document.querySelector('.nv-mobile-dock > a').getBoundingClientRect().height").doubleValue() >= 44);
         assertTrue(bool(page, "(() => { const a=[...document.querySelectorAll('.nv-task')]; const r0=a[0].getBoundingClientRect(), r1=a[1].getBoundingClientRect(), r2=a[2].getBoundingClientRect(); return a.length===4 && Math.abs(r0.top-r1.top)<1 && r2.top>r0.top+20; })()"));
-        assertTrue(number(page, "document.querySelector('.nv-home-media').getBoundingClientRect().height").doubleValue() > 160);
+        assertTrue(number(page, "document.querySelector('.nv-home-media').getBoundingClientRect().height").doubleValue() >= 180);
         page.close();
     }
 
     private static Page render(Browser browser, int width, int height) {
         Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(width, height));
         page.setContent(markup());
-        page.addStyleTag(new Page.AddStyleTagOptions().setPath(CSS));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("nova-ui.css")));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("nova-pages.css")));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("nova-responsive.css")));
         return page;
     }
 

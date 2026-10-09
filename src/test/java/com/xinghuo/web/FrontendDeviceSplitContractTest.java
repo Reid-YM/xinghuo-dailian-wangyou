@@ -79,7 +79,7 @@ class FrontendDeviceSplitContractTest {
         assertTrue(mobileHtml.contains("/assets/mobile-screenshot-fixes.css?v=20261009msf2"));
         assertTrue(mobileHtml.contains("/assets/mobile-flat-overflow.css?v=20261009mfo1"));
         assertTrue(mobileHtml.contains("/assets/mobile-runtime-fixes.css?v=20261009mrf1"));
-        assertTrue(mobileHtml.contains("/assets/mobile-home-v4.css?v=20261009mh4"));
+        assertTrue(mobileHtml.contains("/assets/mobile-home-v4.css?v=20261009mh5"));
         assertFalse(mobileHtml.contains("mobile-home-v3.css"));
         assertTrue(mobileHtml.contains("/assets/mobile-app.js?v=20261009m2"));
 

@@ -50,6 +50,7 @@
     ensureStylesheet('/assets/mobile-account-v1.css?v=20261009m01', 'xh-mobile-account-css');
     ensureStylesheet('/assets/mobile-tune-v1.css?v=20261009m01', 'xh-mobile-tune-css');
     ensureStylesheet('/assets/mobile-mastery-v1.css?v=20261009m01', 'xh-mobile-mastery-css');
+    ensureStylesheet('/assets/mobile-home-shell-v1.css?v=20261009mh01', 'xh-mobile-home-shell-css');
 
     const existingScript = document.querySelector('script[src*="/assets/mobile-app.js"]');
     if (!existingScript) {

@@ -18,7 +18,7 @@ class MobileVisualPhase3PlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
 
     @Test
-    void mobileRuntimeAppliesIndependentOpacityAndBlurWithoutChangingFit() {
+    void nonHomeMobileRuntimeStillAppliesIndependentOpacityAndBlurWithoutChangingFit() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(390, 844));
             page.route("**/api/public/mobile-visual-config", route -> route.fulfill(
@@ -26,8 +26,10 @@ class MobileVisualPhase3PlaywrightTest {
                             .setStatus(200)
                             .setContentType("application/json")
                             .setBody("{\"heroBackgroundMobileOpacity\":42,\"heroBackgroundMobileBlur\":7}")));
+            // Keep the legacy independent blur/opacity contract covered on a non-home
+            // mobile surface. The homepage Hero has its own no-blur geometry contract.
             page.setContent("""
-                    <html data-frontend="mobile"><head><base href="https://test.local/"></head><body data-page="home" class="mobile-frontend">
+                    <html data-frontend="mobile"><head><base href="https://test.local/"></head><body data-page="services" class="mobile-frontend">
                       <section id="homeHero" style="--image-text-dim:.22">
                         <div class="mobile-hero-backdrop" style="background-image:url('/x.jpg');opacity:.55"></div>
                         <div id="heroBackground" style="background-image:url('/x.jpg');background-size:contain!important;background-position:61% 35%!important;opacity:.9!important;filter:brightness(1.1) blur(0px)!important"></div>

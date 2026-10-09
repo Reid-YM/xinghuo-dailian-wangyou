@@ -26,10 +26,34 @@ class MobileHomeHeroShellPlaywrightTest {
         Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(width, height));
         page.setContent(markup());
         addStyles(page);
+        page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("mobile-visual-runtime.js")));
+
+        /* Reproduce the production race: shared image controls write inline
+           !important contain/blur/full-Hero geometry after the Hero CSS. The
+           mobile Hero runtime must immediately restore the existing compact UI. */
+        page.evaluate("""
+            () => {
+              const layer = document.querySelector('#heroBackground');
+              const backdrop = document.querySelector('.mobile-hero-backdrop');
+              layer.style.setProperty('inset', '0', 'important');
+              layer.style.setProperty('height', '520px', 'important');
+              layer.style.setProperty('min-height', '520px', 'important');
+              layer.style.setProperty('max-height', 'none', 'important');
+              layer.style.setProperty('background-size', 'contain', 'important');
+              layer.style.setProperty('background-position', '50% 50%', 'important');
+              layer.style.setProperty('filter', 'brightness(1.2) blur(24px)', 'important');
+              layer.style.setProperty('opacity', '.9', 'important');
+              backdrop.style.setProperty('display', 'block', 'important');
+              backdrop.style.setProperty('filter', 'blur(24px)', 'important');
+              backdrop.style.setProperty('opacity', '.55', 'important');
+            }
+            """);
+        page.waitForTimeout(80);
 
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.mobile-hero-backdrop')).display"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('#homeHero'),'::after').display"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('#heroBackground')).filter"));
+        assertEquals("cover", string(page, "getComputedStyle(document.querySelector('#heroBackground')).backgroundSize"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.xh-v4-subtitle')).display"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.xh-v4-eyebrow')).display"));
 

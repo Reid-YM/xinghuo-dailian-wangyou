@@ -61,67 +61,26 @@ class FrontendDeviceSplitContractTest {
     }
 
     @Test
-    void sharedMobilePagesLoadSharedAssetsButNeverHomepageAssets() throws Exception {
+    void mobileFilterInjectsOnlyDeviceMarker() throws Exception {
         var filter = new MobileFrontendAssetFilter();
         FilterChain html = (request, response) -> {
             var http = (jakarta.servlet.http.HttpServletResponse) response;
             http.setContentType("text/html;charset=UTF-8");
             http.getWriter().write("<!doctype html><html><head><title>x</title></head><body>ok</body></html>");
         };
-
         var mobileRequest = new MockHttpServletRequest("GET", "/services");
         mobileRequest.addHeader("User-Agent", "Mozilla/5.0 (iPhone) Mobile");
         var mobileResponse = new MockHttpServletResponse();
         filter.doFilter(mobileRequest, mobileResponse, html);
-        String mobileHtml = mobileResponse.getContentAsString();
-        assertTrue(mobileHtml.contains("name=\"xh-frontend\" content=\"mobile\""));
-        assertTrue(mobileHtml.contains("/assets/mobile-app.css?v=20261009m2"));
-        assertTrue(mobileHtml.contains("/assets/mobile-compact.css?v=20261009mc1"));
-        assertTrue(mobileHtml.contains("/assets/mobile-screenshot-fixes.css?v=20261009msf2"));
-        assertTrue(mobileHtml.contains("/assets/mobile-flat-overflow.css?v=20261009mfo1"));
-        assertTrue(mobileHtml.contains("/assets/mobile-runtime-fixes.css?v=20261009mrf1"));
-        assertTrue(mobileHtml.contains("/assets/mobile-app.js?v=20261009m2"));
-        assertFalse(mobileHtml.contains("mobile-home-v4.css"));
-        assertFalse(mobileHtml.contains("mobile-home-shell-v1.css"));
-        assertFalse(mobileHtml.contains("mobile-visual-runtime.js"));
-
-        var desktopRequest = new MockHttpServletRequest("GET", "/services");
-        desktopRequest.addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X) Chrome Safari");
-        var desktopResponse = new MockHttpServletResponse();
-        filter.doFilter(desktopRequest, desktopResponse, html);
-        String desktopHtml = desktopResponse.getContentAsString();
-        assertFalse(desktopHtml.contains("mobile-app.css"));
-        assertFalse(desktopHtml.contains("mobile-compact.css"));
-        assertFalse(desktopHtml.contains("mobile-screenshot-fixes.css"));
-        assertFalse(desktopHtml.contains("mobile-flat-overflow.css"));
-        assertFalse(desktopHtml.contains("mobile-runtime-fixes.css"));
-        assertFalse(desktopHtml.contains("mobile-app.js"));
+        String output = mobileResponse.getContentAsString();
+        assertTrue(output.contains("name=\"xh-frontend\" content=\"mobile\""));
+        assertFalse(output.contains("mobile-app.css"));
+        assertFalse(output.contains("mobile-app.js"));
+        assertFalse(output.contains("mobile-runtime-fixes.css"));
     }
 
     @Test
-    void mobileHomeV2IsNotPollutedBySharedMobileBundle() throws Exception {
-        var filter = new MobileFrontendAssetFilter();
-        FilterChain v2Home = (request, response) -> {
-            var http = (jakarta.servlet.http.HttpServletResponse) response;
-            http.setContentType("text/html;charset=UTF-8");
-            http.getWriter().write("<!doctype html><html data-mobile-home=\"v2\"><head><title>x</title></head><body data-mobile-home=\"v2\">ok</body></html>");
-        };
-        var request = new MockHttpServletRequest("GET", "/");
-        request.addHeader("User-Agent", "Mozilla/5.0 (iPhone) Mobile");
-        var response = new MockHttpServletResponse();
-        filter.doFilter(request, response, v2Home);
-        String html = response.getContentAsString();
-        assertTrue(html.contains("name=\"xh-frontend\" content=\"mobile\""));
-        assertFalse(html.contains("mobile-app.css"));
-        assertFalse(html.contains("mobile-app.js"));
-        assertFalse(html.contains("mobile-compact.css"));
-        assertFalse(html.contains("mobile-runtime-fixes.css"));
-        assertFalse(html.contains("mobile-home-v4.css"));
-        assertFalse(html.contains("mobile-home-shell-v1.css"));
-    }
-
-    @Test
-    void mobileTemplateSetAndAssetsExistIndependently() {
+    void mobileTemplateSetAndNovaAssetsExist() {
         List<String> required = List.of(
                 "index.html", "services.html", "service-detail.html", "quote.html", "records.html",
                 "record-detail.html", "contact.html", "trust.html", "rules.html", "privacy.html",
@@ -129,15 +88,8 @@ class FrontendDeviceSplitContractTest {
                 "guides.html", "guide.html", "game.html", "mw4-camo-tracker.html"
         );
         required.forEach(file -> assertTrue(Files.isRegularFile(TEMPLATES.resolve(file)), "missing mobile template: " + file));
-        assertTrue(Files.isRegularFile(ASSETS.resolve("mobile-home-v2.css")));
-        assertTrue(Files.isRegularFile(ASSETS.resolve("mobile-app.css")));
-        assertTrue(Files.isRegularFile(ASSETS.resolve("mobile-compact.css")));
-        assertTrue(Files.isRegularFile(ASSETS.resolve("mobile-screenshot-fixes.css")));
-        assertTrue(Files.isRegularFile(ASSETS.resolve("mobile-flat-overflow.css")));
-        assertTrue(Files.isRegularFile(ASSETS.resolve("mobile-runtime-fixes.css")));
-        assertTrue(Files.isRegularFile(ASSETS.resolve("mobile-app.js")));
-        assertFalse(Files.exists(ASSETS.resolve("mobile-home-v4.css")));
-        assertFalse(Files.exists(ASSETS.resolve("mobile-home-shell-v1.css")));
+        assertTrue(Files.isRegularFile(ASSETS.resolve("nova-ui.css")));
+        assertTrue(Files.isRegularFile(ASSETS.resolve("nova-shell.js")));
         assertFalse(TEMPLATES.resolve("index.html").equals(Path.of("src/main/resources/templates/index.html")));
     }
 }

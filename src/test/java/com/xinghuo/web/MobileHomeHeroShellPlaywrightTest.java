@@ -15,10 +15,10 @@ class MobileHomeHeroShellPlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
 
     @Test
-    void chromiumPhoneWidthsKeepHeroAsOneFullBleedArtworkWithFloatingCopyAndCta() {
+    void chromiumPhoneWidthsKeepLandscapeKeyArtSeparateFromSolidActionDeck() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
-            verifyWidth(browser, 390, 844, 395.0, 401.0);
-            verifyWidth(browser, 430, 932, 436.0, 441.0);
+            verifyWidth(browser, 390, 844, 395.0, 400.0);
+            verifyWidth(browser, 430, 932, 418.0, 422.0);
         }
     }
 
@@ -30,45 +30,58 @@ class MobileHomeHeroShellPlaywrightTest {
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.mobile-hero-backdrop')).display"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('#homeHero'),'::after').display"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('#heroBackground')).filter"));
+        assertEquals("none", string(page, "getComputedStyle(document.querySelector('.xh-v4-subtitle')).display"));
+        assertEquals("none", string(page, "getComputedStyle(document.querySelector('.xh-v4-eyebrow')).display"));
 
         double heroTop = number(page, "document.querySelector('#homeHero').getBoundingClientRect().top").doubleValue();
         double heroBottom = number(page, "document.querySelector('#homeHero').getBoundingClientRect().bottom").doubleValue();
         double heroHeight = heroBottom - heroTop;
         assertTrue(heroHeight >= minHero && heroHeight <= maxHero,
-            () -> width + "px full-bleed hero height out of range: " + heroHeight);
-
-        double artworkTop = number(page, "document.querySelector('#heroBackground').getBoundingClientRect().top").doubleValue();
-        double artworkBottom = number(page, "document.querySelector('#heroBackground').getBoundingClientRect().bottom").doubleValue();
-        assertTrue(Math.abs(artworkTop - heroTop) <= 1.0,
-            () -> width + "px artwork should begin at hero top: " + (artworkTop - heroTop));
-        assertTrue(Math.abs(artworkBottom - heroBottom) <= 1.0,
-            () -> width + "px artwork should fill hero bottom: " + (heroBottom - artworkBottom));
+            () -> width + "px compact Hero height out of range: " + heroHeight);
 
         double appbarTop = number(page, "document.querySelector('.xh-v4-appbar').getBoundingClientRect().top").doubleValue();
         double appbarBottom = number(page, "document.querySelector('.xh-v4-appbar').getBoundingClientRect().bottom").doubleValue();
         assertTrue(Math.abs(appbarTop - heroTop) <= 1.0,
-            () -> width + "px floating app bar must start inside artwork");
-        assertTrue(appbarBottom - appbarTop >= 56.0 && appbarBottom - appbarTop <= 60.0,
-            () -> width + "px floating app bar height is wrong: " + (appbarBottom - appbarTop));
+            () -> width + "px app bar must start at Hero top");
+        assertTrue(appbarBottom - appbarTop >= 51.0 && appbarBottom - appbarTop <= 53.0,
+            () -> width + "px app bar height is wrong: " + (appbarBottom - appbarTop));
+
+        double artworkTop = number(page, "document.querySelector('#heroBackground').getBoundingClientRect().top").doubleValue();
+        double artworkBottom = number(page, "document.querySelector('#heroBackground').getBoundingClientRect().bottom").doubleValue();
+        double artworkHeight = artworkBottom - artworkTop;
+        assertTrue(Math.abs(artworkTop - appbarBottom) <= 1.0,
+            () -> width + "px key art must begin directly below site chrome");
+        assertTrue(width / artworkHeight >= 1.76 && width / artworkHeight <= 1.79,
+            () -> width + "px key art should stay near 16:9, ratio=" + (width / artworkHeight));
+        assertTrue(heroBottom - artworkBottom >= 124.0 && heroBottom - artworkBottom <= 128.0,
+            () -> width + "px solid action deck height is wrong: " + (heroBottom - artworkBottom));
 
         double statusTop = number(page, "document.querySelector('.xh-v4-status').getBoundingClientRect().top").doubleValue();
-        assertTrue(statusTop >= appbarBottom + 8.0 && statusTop <= appbarBottom + 12.0,
-            () -> width + "px status chip should float just below app bar: " + (statusTop - appbarBottom));
+        double statusBottom = number(page, "document.querySelector('.xh-v4-status').getBoundingClientRect().bottom").doubleValue();
+        assertTrue(statusTop >= artworkTop + 11.0 && statusTop <= artworkTop + 13.0,
+            () -> width + "px status chip should sit just inside key art top");
+        assertTrue(statusBottom < artworkBottom,
+            () -> width + "px status chip must stay inside key art");
 
         double titleTop = number(page, "document.querySelector('#mobileHeroTitle').getBoundingClientRect().top").doubleValue();
         double titleBottom = number(page, "document.querySelector('#mobileHeroTitle').getBoundingClientRect().bottom").doubleValue();
-        assertTrue(titleTop > heroTop && titleBottom < heroBottom,
-            () -> width + "px title must stay over the artwork");
+        assertTrue(titleTop >= artworkBottom + 13.0 && titleTop <= artworkBottom + 15.0,
+            () -> width + "px title must live in solid action deck, not over key art");
 
-        double subtitleBottom = number(page, "document.querySelector('.xh-v4-subtitle').getBoundingClientRect().bottom").doubleValue();
         double actionsTop = number(page, "document.querySelector('.xh-v4-hero-actions').getBoundingClientRect().top").doubleValue();
         double actionsBottom = number(page, "document.querySelector('.xh-v4-hero-actions').getBoundingClientRect().bottom").doubleValue();
-        assertTrue(actionsTop > titleBottom,
-            () -> width + "px CTA should sit below the floating title");
-        assertTrue(actionsTop - subtitleBottom >= 24.0 && actionsTop - subtitleBottom <= 28.0,
-            () -> width + "px subtitle-to-CTA breathing room is wrong: " + (actionsTop - subtitleBottom));
+        assertTrue(actionsTop - titleBottom >= 24.0 && actionsTop - titleBottom <= 34.0,
+            () -> width + "px title-to-CTA spacing is wrong: " + (actionsTop - titleBottom));
         assertTrue(heroBottom - actionsBottom >= 13.0 && heroBottom - actionsBottom <= 15.0,
-            () -> width + "px CTA must float inside artwork bottom edge: " + (heroBottom - actionsBottom));
+            () -> width + "px CTA bottom spacing is wrong: " + (heroBottom - actionsBottom));
+
+        double firstLeft = number(page, "document.querySelector('.xh-v4-hero-actions .btn:first-child').getBoundingClientRect().left").doubleValue();
+        double firstRight = number(page, "document.querySelector('.xh-v4-hero-actions .btn:first-child').getBoundingClientRect().right").doubleValue();
+        double secondLeft = number(page, "document.querySelector('.xh-v4-hero-actions .btn:nth-child(2)').getBoundingClientRect().left").doubleValue();
+        assertTrue(secondLeft > firstRight,
+            () -> width + "px CTA buttons must remain two clean columns: " + (secondLeft - firstRight));
+        assertTrue(firstLeft >= 11.0,
+            () -> width + "px primary CTA must respect side gutter");
 
         assertNoOverflow(page);
         page.close();
@@ -94,7 +107,7 @@ class MobileHomeHeroShellPlaywrightTest {
                     <h1 id="mobileHeroTitle">使命召唤 MW4 任务代练</h1>
                     <p class="xh-v4-subtitle">武器升级 · 迷彩解锁 · DMZ · 活动任务</p>
                     <div class="xh-v4-meta"><div class="xh-v4-price"><small>参考起步</small><strong>¥20 起</strong><span>人工确认为准</span></div><div class="xh-v4-trust"><span>可靠手打</span><span>进度可查</span></div></div>
-                    <div class="actions hero-actions xh-v4-hero-actions"><a class="btn primary xh-v4-primary">提前询价</a><a class="btn ghost xh-v4-progress">查看服务大厅</a></div>
+                    <div class="actions hero-actions xh-v4-hero-actions"><a class="btn primary xh-v4-primary">立即询价</a><a class="btn ghost xh-v4-progress">查询进度</a></div>
                   </div>
                 </section>
               </main>
@@ -109,7 +122,7 @@ class MobileHomeHeroShellPlaywrightTest {
             "mobile-app.css",
             "mobile-home-v4.css",
             "mobile-tune-v1.css",
-            "mobile-home-hero-r2.css"
+            "mobile-home-hero-r4.css"
         }) {
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve(file)));
         }

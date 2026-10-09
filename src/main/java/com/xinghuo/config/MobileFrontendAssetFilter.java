@@ -29,7 +29,7 @@ public class MobileFrontendAssetFilter extends OncePerRequestFilter {
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-runtime-fixes.css?v=20261009mrf1\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-home-v4.css?v=20261009mh5\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-home-hero-r4.css?v=20261010r4ui1\">"
-            + "<link rel=\"stylesheet\" href=\"/assets/mobile-home-hero-r5.css?v=20261010r5ui1\">"
+            + "<link rel=\"stylesheet\" href=\"/assets/mobile-home-hero-r5.css?v=20261010r5ui2\">"
             + "<script defer src=\"/assets/mobile-app.js?v=20261009m2\"></script>"
             + "<script defer src=\"/assets/mobile-visual-runtime.js?v=20261010mv2\"></script>";
 

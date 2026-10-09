@@ -1,13 +1,17 @@
-/* Mobile homepage Hero R5 — remove the empty black deck, overlay title on key art,
-   and restore the supplied brand mark in the compact mobile header. */
+/* Mobile homepage Hero R5 — Hero container ends exactly with the 16:9 key art.
+   Title stays on the artwork; CTA row is rendered just below it without extending
+   the Hero with an empty black panel. */
 :root[data-frontend="mobile"] body.mobile-frontend[data-page="home"] {
-  --xh-r5-panel-h:72px;
+  --xh-r5-actions-gap:10px;
+  --xh-r5-actions-space:70px;
 }
 
 body.mobile-frontend[data-page="home"] #homeHero.xh-v4-hero {
-  height:calc(var(--xh-r4-nav-h) + var(--xh-r4-media-h) + var(--xh-r5-panel-h))!important;
-  min-height:calc(var(--xh-r4-nav-h) + var(--xh-r4-media-h) + var(--xh-r5-panel-h))!important;
-  max-height:calc(var(--xh-r4-nav-h) + var(--xh-r4-media-h) + var(--xh-r5-panel-h))!important;
+  height:calc(var(--xh-r4-nav-h) + var(--xh-r4-media-h))!important;
+  min-height:calc(var(--xh-r4-nav-h) + var(--xh-r4-media-h))!important;
+  max-height:calc(var(--xh-r4-nav-h) + var(--xh-r4-media-h))!important;
+  margin:0 calc(50% - 50vw) var(--xh-r5-actions-space)!important;
+  overflow:visible!important;
 }
 
 /* Restore the actual supplied site logo instead of the temporary “火” glyph. */
@@ -25,12 +29,17 @@ body.mobile-frontend[data-page="home"] #homeHero .xh-v4-logo {
   box-shadow:none!important;
 }
 
-/* Put the H1 on the artwork itself, above the compact action row. */
+/* The copy wrapper may let the CTA row flow outside the image-only Hero. */
+body.mobile-frontend[data-page="home"] #homeHero .hero-copy.xh-v4-hero-copy {
+  overflow:visible!important;
+}
+
+/* Title sits directly on the bottom of the artwork. */
 body.mobile-frontend[data-page="home"] #homeHero #mobileHeroTitle {
   top:auto!important;
   left:var(--xh-r4-side)!important;
   right:var(--xh-r4-side)!important;
-  bottom:calc(var(--xh-r5-panel-h) + 13px)!important;
+  bottom:12px!important;
   max-width:calc(100% - (var(--xh-r4-side) * 2))!important;
   padding:0!important;
   color:#fff!important;
@@ -44,23 +53,24 @@ body.mobile-frontend[data-page="home"] #homeHero #mobileHeroTitle {
   text-overflow:ellipsis!important;
 }
 
-/* Keep only the space needed by the two CTAs; remove the large empty black region. */
+/* Remove the old action-deck surface completely. */
 body.mobile-frontend[data-page="home"] #homeHero::before {
-  height:var(--xh-r5-panel-h)!important;
-  background:#080a0d!important;
-  border-top:1px solid rgba(255,255,255,.07)!important;
+  display:none!important;
+  content:none!important;
 }
 
+/* CTA row starts immediately after the image; it no longer consumes Hero height. */
 body.mobile-frontend[data-page="home"] #homeHero .hero-copy.xh-v4-hero-copy > .actions.hero-actions.xh-v4-hero-actions {
-  bottom:12px!important;
+  top:calc(100% + var(--xh-r5-actions-gap))!important;
+  bottom:auto!important;
 }
 
 @media (max-width:370px) {
   :root[data-frontend="mobile"] body.mobile-frontend[data-page="home"] {
-    --xh-r5-panel-h:70px;
+    --xh-r5-actions-space:68px;
   }
   body.mobile-frontend[data-page="home"] #homeHero #mobileHeroTitle {
-    bottom:calc(var(--xh-r5-panel-h) + 11px)!important;
+    bottom:10px!important;
     font-size:17px!important;
   }
 }

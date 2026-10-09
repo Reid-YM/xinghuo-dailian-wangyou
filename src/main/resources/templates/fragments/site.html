@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
 <body>
 <header th:fragment="header" class="nv-header" data-shell="nova">
+  <script defer src="/assets/public-field-sanitizer.js?v=20261007pfs01"></script>
   <div class="nv-topbar">
     <a class="nv-brand" href="/" aria-label="星火网游首页">
       <img src="/assets/brand-logo.svg?v=20261008logo01" alt="" aria-hidden="true" width="34" height="34" decoding="async">
@@ -13,7 +14,7 @@
       <a href="/guides" data-nv-route data-global-ui="nav-guides" data-global-visible="navGuidesVisible">攻略</a>
       <a href="/records" data-nv-route data-global-ui="nav-records" data-global-visible="navRecordsVisible">业务记录</a>
       <a href="/contact" data-nv-route data-global-ui="nav-contact" data-global-visible="navContactVisible">联系客服</a>
-      <a href="/account" data-nv-route data-account-entry data-global-visible="navAccountVisible"><span data-account-entry-text data-global-ui="nav-account">个人中心</span></a>
+      <a href="/account" data-account-entry data-nv-route data-global-visible="navAccountVisible"><span data-account-entry-text data-global-ui="nav-account">个人中心</span></a>
       <a class="nv-btn nv-btn--primary" href="/quote" data-nv-route data-track="header_quote_click" data-primary-cta data-global-visible="headerQuoteVisible">提前询价</a>
     </nav>
     <button class="nv-menu-button" type="button" data-nv-menu-toggle aria-label="打开导航" aria-controls="novaDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -24,7 +25,7 @@
     <a href="/mastery" data-nv-route>MW4 工具</a>
     <a href="/records" data-nv-route>业务记录</a>
     <a href="/contact" data-nv-route>联系客服</a>
-    <a href="/account" data-nv-route>个人中心</a>
+    <a href="/account" data-account-entry data-nv-route>个人中心</a>
   </nav>
 </header>
 

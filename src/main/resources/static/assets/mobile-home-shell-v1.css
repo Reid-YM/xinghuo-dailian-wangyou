@@ -183,6 +183,8 @@ body.mobile-frontend[data-page="home"] .xh-v4-hero-actions {
   bottom:12px!important;
   width:auto!important;
   height:var(--xh-home-cta-height)!important;
+  min-height:0!important;
+  box-sizing:border-box!important;
   margin:0!important;
   padding:0!important;
   grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)!important;
@@ -190,8 +192,11 @@ body.mobile-frontend[data-page="home"] .xh-v4-hero-actions {
 }
 
 body.mobile-frontend[data-page="home"] .xh-v4-hero-actions .btn {
+  box-sizing:border-box!important;
   min-height:var(--xh-home-cta-height)!important;
   height:var(--xh-home-cta-height)!important;
+  padding:0 10px!important;
+  line-height:1.15!important;
   border-radius:11px!important;
 }
 

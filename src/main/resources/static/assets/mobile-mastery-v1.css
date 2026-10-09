@@ -1,0 +1,151 @@
+/* MW4 mastery tracker mobile refinement. Loaded only by the shared mobile bootstrap. */
+body.mobile-frontend[data-page="mw4-camo-tracker"]{
+  --camo-gold:#f4bd34;
+  --camo-mobile-card:#0d1218;
+  --camo-mobile-line:rgba(255,255,255,.09);
+  padding-bottom:calc(86px + env(safe-area-inset-bottom));
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-shell{
+  gap:11px!important;
+  padding-top:10px!important;
+  padding-bottom:24px!important;
+  overflow:visible!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-crumb{
+  min-height:28px;
+  overflow-x:auto;
+  white-space:nowrap;
+  scrollbar-width:none;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-crumb::-webkit-scrollbar,
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-tabs::-webkit-scrollbar{display:none}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-hero{
+  gap:14px!important;
+  padding:16px!important;
+  border-color:rgba(244,189,52,.18)!important;
+  border-radius:17px!important;
+  background:radial-gradient(120% 120% at 0 0,rgba(244,189,52,.14),transparent 54%),linear-gradient(180deg,#11171e,#0b1016)!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-hero h1{
+  margin-bottom:8px!important;
+  font-size:clamp(28px,8vw,34px)!important;
+  line-height:1.02!important;
+  letter-spacing:-.045em!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-hero p{font-size:12px!important;line-height:1.65!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-hero-note{
+  display:block!important;
+  margin-top:10px!important;
+  padding:9px 10px!important;
+  border-radius:10px!important;
+  line-height:1.55!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-hero .btn{
+  min-height:48px!important;
+  border-radius:12px!important;
+  font-size:14px!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-progress-card,
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-mode-panel,
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-pyro-panel,
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-class-group,
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-note{
+  border-color:var(--camo-mobile-line)!important;
+  border-radius:15px!important;
+  background:var(--camo-mobile-card)!important;
+  box-shadow:none!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-progress-card{padding:15px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-progress-row strong{font-size:38px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-progress-row span{font-size:11px!important;text-align:right!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-overall-track{height:9px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-sync-bar{
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr)!important;
+  gap:8px 10px!important;
+  padding:12px!important;
+  border-radius:14px!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-sync-bar p{font-size:11px!important;line-height:1.5!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-sync-bar p b{display:block!important;margin:0 0 2px!important;font-size:12px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-sync-action{
+  grid-column:1/-1!important;
+  min-height:44px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:9px 12px!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-tabs{
+  gap:7px!important;
+  margin:0 -2px!important;
+  padding:5px!important;
+  overflow-x:auto!important;
+  scroll-snap-type:x proximity;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-tab{
+  flex:0 0 auto!important;
+  min-width:104px!important;
+  min-height:44px!important;
+  padding:9px 12px!important;
+  scroll-snap-align:start;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-mode-panel,
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-pyro-panel{gap:11px!important;padding:13px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-mode-final{width:auto!important;max-width:100%!important;text-align:left!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-tier-grid{grid-template-columns:1fr!important;gap:8px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-tier-card{
+  grid-template-columns:70px minmax(0,1fr)!important;
+  gap:10px!important;
+  padding:10px!important;
+  border-radius:12px!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-pyro-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-pyro-card{padding:9px!important;border-radius:12px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-pyro-check{width:24px!important;height:24px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-filters{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px 8px!important;
+  padding:12px!important;
+  border-radius:14px!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-search-field,
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-filter-actions{grid-column:1/-1!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-filters select,
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-filters input{width:100%!important;min-height:46px!important;font-size:16px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-filter-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-filter-actions .btn{width:100%!important;min-width:0!important;font-size:11px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-hint{padding:0 2px!important;line-height:1.55!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-groups{gap:10px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-class-group{gap:7px!important;padding:10px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .weapon-tracker{border-radius:12px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .weapon-tracker-head{min-height:58px!important;padding:3px 5px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-fav{width:44px!important;height:44px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .weapon-tracker-main{
+  grid-template-columns:42px minmax(0,1fr) auto!important;
+  gap:8px!important;
+  min-height:52px!important;
+  padding:5px!important;
+}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .weapon-thumb{width:42px!important;height:42px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .weapon-text strong{font-size:14px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .weapon-text small,
+body.mobile-frontend[data-page="mw4-camo-tracker"] .weapon-progress-mini{font-size:10px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .weapon-tracker-body{padding:0 8px 9px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-check-item{min-height:48px!important;padding:10px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-check-box{width:26px!important;height:26px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-secret-card{grid-template-columns:64px minmax(0,1fr)!important;padding:12px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-note{align-items:stretch!important;padding:14px!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-note h2{font-size:18px!important;line-height:1.25!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-note .btn{width:100%!important}
+body.mobile-frontend[data-page="mw4-camo-tracker"] .mobile-dock{display:none!important}
+
+@media(max-width:370px){
+  body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-hero h1{font-size:27px!important}
+  body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-tab{min-width:94px!important}
+  body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-tier-card{grid-template-columns:62px minmax(0,1fr)!important}
+  body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-pyro-grid{grid-template-columns:1fr 1fr!important}
+  body.mobile-frontend[data-page="mw4-camo-tracker"] .camo-filter-actions{grid-template-columns:1fr!important}
+  body.mobile-frontend[data-page="mw4-camo-tracker"] .weapon-tracker-main{grid-template-columns:38px minmax(0,1fr) auto!important}
+  body.mobile-frontend[data-page="mw4-camo-tracker"] .weapon-thumb{width:38px!important;height:38px!important}
+}

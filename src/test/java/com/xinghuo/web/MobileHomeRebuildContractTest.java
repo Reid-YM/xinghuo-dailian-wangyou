@@ -48,7 +48,7 @@ class MobileHomeRebuildContractTest {
     }
 
     @Test
-    void mobileHomeV4CssIsStrictlyScopedAndAppLike() throws Exception {
+    void mobileHomeVisualLayerKeepsOriginalLogoAndFullBleedBackdrop() throws Exception {
         String css = Files.readString(MOBILE_HOME_CSS);
         assertTrue(css.contains("body.mobile-frontend[data-page=\"home\"]"));
         assertTrue(css.contains("> header"));
@@ -59,5 +59,9 @@ class MobileHomeRebuildContractTest {
         assertTrue(css.contains("overflow-x:auto!important"));
         assertTrue(css.contains(".xh-v4-bottom-nav"));
         assertTrue(css.contains("position:fixed"));
+        assertTrue(css.contains("/assets/brand-logo.svg?v=20261008logo01"));
+        assertTrue(css.contains("#homeHero .mobile-hero-backdrop"));
+        assertTrue(css.contains("background-size:cover!important"));
+        assertFalse(css.contains("#06080b 100%"));
     }
 }

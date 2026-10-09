@@ -40,6 +40,9 @@ class MobileHomeRebuildPlaywrightTest {
         assertTrue((Boolean) page.evaluate("() => Math.abs(document.querySelector('#homeHero').getBoundingClientRect().width - innerWidth) < 1"));
         assertTrue((Boolean) page.evaluate("() => { const h=document.querySelector('#homeHero').getBoundingClientRect().height; return h >= 530 && h <= 590; }"));
         assertTrue((Boolean) page.evaluate("() => document.querySelector('.xh-v4-appbar').getBoundingClientRect().height >= 50"));
+        assertEquals("block", css(page, "#homeHero .mobile-hero-backdrop", "display"));
+        assertEquals("cover", css(page, "#homeHero .mobile-hero-backdrop", "backgroundSize"));
+        assertTrue(css(page, ".xh-v4-logo", "backgroundImage").contains("brand-logo.svg"));
 
         String ctaMetrics = (String) page.evaluate("""
                 () => {
@@ -72,7 +75,7 @@ class MobileHomeRebuildPlaywrightTest {
             <header>legacy header</header>
             <main class="xh-v4" id="mobileHomeV4">
               <section class="xh-v4-hero hero" id="homeHero">
-                <div id="heroBackground" class="hero-bg-layer"></div><div class="xh-v4-hero-shade"></div>
+                <div class="mobile-hero-backdrop" style="background-image:linear-gradient(#555,#222)"></div><div id="heroBackground" class="hero-bg-layer"></div><div class="xh-v4-hero-shade"></div>
                 <nav class="xh-v4-appbar"><a class="xh-v4-brand"><span class="xh-v4-logo">火</span><span class="xh-v4-brand-text"><strong>星火网游</strong><small>GAME SERVICE</small></span></a><div class="xh-v4-appbar-actions"><a>客服</a><a>我的</a></div></nav>
                 <div class="xh-v4-hero-copy hero-copy"><div class="xh-v4-status">● 可提前询价</div><div class="xh-v4-eyebrow">CALL OF DUTY · MW4</div><h1 id="mobileHeroTitle">使命召唤 MW4 任务代练</h1><p class="xh-v4-subtitle">武器升级 · 迷彩解锁 · 活动任务</p><div class="xh-v4-meta"><div class="xh-v4-price"><small>参考起步</small><strong>¥20 起</strong><span>人工确认</span></div><div class="xh-v4-trust"><span>可靠手打</span><span>纯绿服务</span><span>进度可查</span></div></div><div class="actions hero-actions xh-v4-hero-actions"><a class="btn primary xh-v4-primary">立即询价</a><a class="btn ghost xh-v4-progress">查询进度</a></div></div>
               </section>

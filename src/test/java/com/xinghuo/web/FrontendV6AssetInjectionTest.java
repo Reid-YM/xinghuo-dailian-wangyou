@@ -27,8 +27,10 @@ class FrontendV6AssetInjectionTest {
 
         assertTrue(body.contains("<meta name=\"xh-ui\" content=\"v6\">"));
         assertTrue(body.contains("frontend-v6.css?v=20261009v6a"));
+        assertTrue(body.contains("frontend-v6-geometry.css?v=20261009v6b"));
         assertTrue(body.contains("frontend-v6.js?v=20261009v6a"));
         assertTrue(body.indexOf("frontend-v6.css") == body.lastIndexOf("frontend-v6.css"));
+        assertTrue(body.indexOf("frontend-v6-geometry.css") == body.lastIndexOf("frontend-v6-geometry.css"));
     }
 
     @Test
@@ -45,6 +47,7 @@ class FrontendV6AssetInjectionTest {
             var response = new MockHttpServletResponse();
             filter.doFilter(request, response, html);
             assertFalse(response.getContentAsString().contains("frontend-v6.css"), uri);
+            assertFalse(response.getContentAsString().contains("frontend-v6-geometry.css"), uri);
         }
     }
 }

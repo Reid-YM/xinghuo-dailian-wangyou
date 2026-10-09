@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-frontend="mobile">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -18,16 +18,21 @@
   <meta property="og:image" content="https://wydlgf.cn/og.png">
   <link rel="stylesheet" href="/assets/app.css?v=20261005v031">
   <link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008r2">
+  <link rel="stylesheet" href="/assets/mobile-app.css?v=20261009m02">
+  <link rel="stylesheet" href="/assets/mobile-home-v4.css?v=20261009m01">
+  <style>body.mobile-frontend[data-page="home"] .mobile-primary-nav{display:none!important}</style>
   <script defer src="/assets/ui-fixes.js?v=20261008audit01"></script>
   <script defer src="/assets/site-image-controls.js?v=20261008r2"></script>
   <script defer src="/assets/public.js?v=20261008r2"></script>
   <script defer src="/assets/ui-refresh.js?v=20261003rv2"></script>
   <script defer src="/assets/pages.js?v=20260928v016"></script>
   <script defer src="/assets/quote-steps.js?v=20261006qs18"></script>
+  <script defer src="/assets/mobile-app.js?v=20261009m02"></script>
+  <script defer src="/assets/mobile-visual-runtime.js?v=20261009m01"></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"星火网游代练平台","url":"https://wydlgf.cn/","logo":"https://wydlgf.cn/og.png","contactPoint":{"@type":"ContactPoint","contactType":"customer service","availableLanguage":["zh-CN"]}}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"星火网游代练平台","url":"https://wydlgf.cn/","inLanguage":"zh-CN"}</script>
 </head>
-<body data-page="home">
+<body class="mobile-frontend" data-page="home" data-frontend="mobile">
 <header th:replace="~{fragments/site :: header}"></header>
 <div id="announcementBar" class="announcement hidden" role="status"></div>
 

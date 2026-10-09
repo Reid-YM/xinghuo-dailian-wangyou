@@ -1,0 +1,257 @@
+/* Mobile account center refinement. Scoped so desktop/account logic is untouched. */
+body.mobile-frontend.account-center-page {
+  --ma-line:rgba(255,255,255,.09);
+  --ma-card:#0d141d;
+  --ma-card-2:#101923;
+  --ma-muted:#8d99a8;
+  --ma-accent:#f3c623;
+}
+
+body.mobile-frontend.account-center-page .account-center-main,
+body.mobile-frontend.account-center-page .account-center-card,
+body.mobile-frontend.account-center-page .account-center-card *,
+body.mobile-frontend.account-center-page .nexus-module,
+body.mobile-frontend.account-center-page .nexus-module * {
+  min-width:0;
+  box-sizing:border-box;
+}
+
+body.mobile-frontend.account-center-page .account-center-hero {
+  display:grid!important;
+  gap:14px!important;
+  padding:17px!important;
+  border-radius:16px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-hero h1 {
+  margin:4px 0 6px!important;
+  font-size:clamp(23px,7vw,31px)!important;
+  line-height:1.08!important;
+  letter-spacing:-.035em!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-hero p {
+  font-size:11px!important;
+  line-height:1.6!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-actions,
+body.mobile-frontend.account-center-page .nexus-actions {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  width:100%!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-actions .btn,
+body.mobile-frontend.account-center-page .nexus-actions .btn {
+  width:100%!important;
+  min-height:44px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-settings-nav,
+body.mobile-frontend.account-center-page [data-account-filter],
+body.mobile-frontend.account-center-page .account-center-filters,
+body.mobile-frontend.account-center-page .account-filterbar {
+  display:flex!important;
+  gap:7px!important;
+  width:auto!important;
+  margin-inline:-2px!important;
+  padding:2px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  flex-wrap:nowrap!important;
+  scrollbar-width:none!important;
+  -webkit-overflow-scrolling:touch;
+}
+
+body.mobile-frontend.account-center-page .account-center-settings-nav::-webkit-scrollbar,
+body.mobile-frontend.account-center-page .account-center-filters::-webkit-scrollbar,
+body.mobile-frontend.account-center-page .account-filterbar::-webkit-scrollbar { display:none; }
+
+body.mobile-frontend.account-center-page .account-center-settings-nav a,
+body.mobile-frontend.account-center-page .account-center-filters .btn,
+body.mobile-frontend.account-center-page .account-filterbar .btn {
+  flex:0 0 auto!important;
+  min-height:40px!important;
+  padding:8px 12px!important;
+  border-radius:999px!important;
+  white-space:nowrap!important;
+  font-size:11px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-card > header,
+body.mobile-frontend.account-center-page .nexus-module > header {
+  display:grid!important;
+  gap:9px!important;
+  padding:15px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-card > header h2,
+body.mobile-frontend.account-center-page .nexus-module > header h2 {
+  font-size:17px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-item {
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:11px!important;
+  padding:14px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-item-actions {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important;
+  width:100%!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-item-actions .btn,
+body.mobile-frontend.account-center-page .account-center-item-actions a {
+  width:100%!important;
+  min-height:42px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-detail {
+  margin:0 12px 12px!important;
+  padding:13px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-detail header {
+  display:grid!important;
+  gap:8px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-kpis {
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-kpi {
+  min-height:96px!important;
+  padding:12px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-grid,
+body.mobile-frontend.account-center-page .account-center-quick,
+body.mobile-frontend.account-center-page .account-info-grid,
+body.mobile-frontend.account-center-page .nexus-status-grid,
+body.mobile-frontend.account-center-page .nexus-task-grid {
+  grid-template-columns:1fr!important;
+  gap:9px!important;
+}
+
+body.mobile-frontend.account-center-page .account-center-quick a,
+body.mobile-frontend.account-center-page .account-info-item,
+body.mobile-frontend.account-center-page .nexus-status,
+body.mobile-frontend.account-center-page .nexus-task-grid > a,
+body.mobile-frontend.account-center-page .nexus-task-grid > button {
+  min-height:0!important;
+  padding:14px!important;
+}
+
+body.mobile-frontend.account-center-page form,
+body.mobile-frontend.account-center-page .account-form,
+body.mobile-frontend.account-center-page .account-form-row,
+body.mobile-frontend.account-center-page .account-block,
+body.mobile-frontend.account-center-page .nexus-form-grid,
+body.mobile-frontend.account-center-page .nexus-form-row {
+  min-width:0!important;
+  max-width:100%!important;
+}
+
+body.mobile-frontend.account-center-page .account-form-row,
+body.mobile-frontend.account-center-page .nexus-form-grid,
+body.mobile-frontend.account-center-page .nexus-form-row {
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:10px!important;
+}
+
+body.mobile-frontend.account-center-page input,
+body.mobile-frontend.account-center-page select,
+body.mobile-frontend.account-center-page textarea {
+  width:100%!important;
+  max-width:100%!important;
+  min-height:44px!important;
+  font-size:16px!important;
+}
+
+body.mobile-frontend.account-center-page textarea {
+  min-height:132px!important;
+  resize:vertical;
+}
+
+body.mobile-frontend.account-center-page .account-form .btn,
+body.mobile-frontend.account-center-page form > .btn,
+body.mobile-frontend.account-center-page .nexus-module form .btn.primary {
+  min-height:44px!important;
+}
+
+body.mobile-frontend.account-center-page .account-register-code-row,
+body.mobile-frontend.account-center-page .verification-row,
+body.mobile-frontend.account-center-page [class*="code-row"] {
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:8px!important;
+}
+
+body.mobile-frontend.account-center-page .account-register-code-row .btn,
+body.mobile-frontend.account-center-page .verification-row .btn,
+body.mobile-frontend.account-center-page [class*="code-row"] .btn {
+  width:100%!important;
+}
+
+body.mobile-frontend.account-center-page [class*="device"],
+body.mobile-frontend.account-center-page [class*="session"] {
+  max-width:100%!important;
+}
+
+body.mobile-frontend.account-center-page [class*="device-row"],
+body.mobile-frontend.account-center-page [class*="session-row"],
+body.mobile-frontend.account-center-page [class*="device-item"],
+body.mobile-frontend.account-center-page [class*="session-item"] {
+  grid-template-columns:1fr!important;
+  gap:8px!important;
+}
+
+body.mobile-frontend.account-center-page [class*="danger"] .actions,
+body.mobile-frontend.account-center-page [class*="danger"] .btn {
+  width:100%!important;
+}
+
+body.mobile-frontend.account-center-page [id] {
+  scroll-margin-top:76px;
+}
+
+body.mobile-frontend[data-page="account-center-submit"] .account-center-card,
+body.mobile-frontend[data-page="account-center-settings"] .account-center-card {
+  overflow:visible!important;
+}
+
+body.mobile-frontend[data-page="account-center-submit"] textarea {
+  min-height:180px!important;
+}
+
+body.mobile-frontend[data-page="account-center-submit"] input[type="file"] {
+  padding:10px!important;
+}
+
+body.mobile-frontend[data-page="account-center-progress"] .account-center-progress,
+body.mobile-frontend[data-page="account-center-orders"] .account-center-progress {
+  height:8px!important;
+}
+
+@media (max-width:370px) {
+  body.mobile-frontend.account-center-page .account-center-actions,
+  body.mobile-frontend.account-center-page .nexus-actions,
+  body.mobile-frontend.account-center-page .account-center-item-actions {
+    grid-template-columns:1fr!important;
+  }
+  body.mobile-frontend.account-center-page .account-center-kpis {
+    grid-template-columns:1fr 1fr!important;
+  }
+  body.mobile-frontend.account-center-page .account-center-kpi small {
+    display:none!important;
+  }
+}

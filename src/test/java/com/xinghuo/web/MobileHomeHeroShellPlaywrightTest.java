@@ -65,7 +65,7 @@ class MobileHomeHeroShellPlaywrightTest {
         double actionsBottom = number(page, "document.querySelector('.xh-v4-hero-actions').getBoundingClientRect().bottom").doubleValue();
         assertTrue(actionsTop > titleBottom,
             () -> width + "px CTA should sit below the floating title");
-        assertTrue(actionsTop - subtitleBottom >= 23.0 && actionsTop - subtitleBottom <= 29.0,
+        assertTrue(actionsTop - subtitleBottom >= 12.0 && actionsTop - subtitleBottom <= 16.0,
             () -> width + "px subtitle-to-CTA breathing room is wrong: " + (actionsTop - subtitleBottom));
         assertTrue(heroBottom - actionsBottom >= 13.0 && heroBottom - actionsBottom <= 15.0,
             () -> width + "px CTA must float inside artwork bottom edge: " + (heroBottom - actionsBottom));

@@ -29,7 +29,7 @@ class MobileVisualAssetInjectionTest {
         assertTrue(mobileHtml.contains("mobile-visual-runtime.js?v=20261010mv2"));
         assertTrue(mobileHtml.contains("mobile-compact.css?v=20261009mc1"));
         assertTrue(mobileHtml.contains("mobile-home-hero-r4.css?v=20261010r4ui1"));
-        assertTrue(mobileHtml.contains("mobile-home-hero-r5.css?v=20261010r5ui1"));
+        assertTrue(mobileHtml.contains("mobile-home-hero-r5.css?v=20261010r5ui2"));
 
         var desktopRequest = new MockHttpServletRequest("GET", "/");
         desktopRequest.addHeader("User-Agent", "Mozilla/5.0 (Macintosh) Chrome Safari");

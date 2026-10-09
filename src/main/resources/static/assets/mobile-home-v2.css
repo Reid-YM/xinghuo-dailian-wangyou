@@ -1,4 +1,4 @@
-/* Mobile Home V2 — isolated mobile homepage. No legacy xh-v4/mobile-app/mobile-home-shell dependency. */
+/* Mobile Home V2 — isolated mobile homepage. */
 :root {
   --mh2-bg: #080a0e;
   --mh2-surface: #0f1218;
@@ -44,7 +44,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 .mh2-shell { width: min(100%, 760px); margin: 0 auto; }
 .mh2-stack { display: grid; gap: 14px; padding: 14px var(--mh2-gutter) 0; }
 
-/* Announcement */
 #announcementBar.mh2-announcement {
   display: flex;
   align-items: center;
@@ -69,7 +68,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
   font-size: 11px;
 }
 
-/* New app header */
 .mh2-topbar {
   display: flex;
   align-items: center;
@@ -99,7 +97,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
   font-weight: 800;
 }
 
-/* Hero */
 #homeHero.mh2-hero {
   position: relative;
   width: 100%;
@@ -161,6 +158,9 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
   max-height: none !important;
   background-color: #11151c;
   background-repeat: no-repeat !important;
+  background-size: cover !important;
+  filter: none !important;
+  opacity: 1 !important;
   transform: none !important;
   transition: none !important;
 }
@@ -198,7 +198,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 .mh2-button--ghost { background: #0d1016; color: #d3d7df; }
 .mh2-button--small { min-height: 42px; padding: 0 14px; font-size: 13px; }
 
-/* Section system */
 .mh2-section {
   min-width: 0;
   padding: 18px;
@@ -214,7 +213,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 .mh2-section-head > a,
 .mh2-section-head > span { color: var(--mh2-muted); font-size: 12px; white-space: nowrap; }
 
-/* Quick task launcher */
 .mh2-launcher { padding: 18px; }
 .mh2-launcher-title { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
 .mh2-launcher-title strong { font-size: 22px; line-height: 1.1; }
@@ -235,7 +233,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 .mh2-task strong { font-size: 15px; line-height: 1.2; }
 .mh2-task small { color: var(--mh2-muted); font-size: 11px; line-height: 1.35; }
 
-/* Dynamic service cards */
 #hotServices { display: grid; gap: 10px; }
 #hotServices .service-card,
 #hotServices .card {
@@ -254,7 +251,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 #hotServices button { min-height: 42px; border-radius: 11px; }
 #hotServices .empty { padding: 16px; border: 1px dashed var(--mh2-line); border-radius: 14px; color: var(--mh2-muted); text-align: center; }
 
-/* Games */
 #homeGameRail { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 3px; scrollbar-width: none; scroll-snap-type: x proximity; }
 #homeGameRail::-webkit-scrollbar { display: none; }
 #homeGameRail .home-game-chip { min-width: 172px; flex: 0 0 172px; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--mh2-line); border-radius: 14px; background: #0c1016; scroll-snap-align: start; }
@@ -263,13 +259,11 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 #homeGameRail b { display: block; font-size: 13px; }
 #homeGameRail small { display: block; margin-top: 2px; color: var(--mh2-muted); font-size: 10px; }
 
-/* Trust proof */
 .mh2-proof { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1px; overflow: hidden; padding: 0; border: 1px solid var(--mh2-line); border-radius: var(--mh2-radius); background: var(--mh2-line); }
 .mh2-proof a { min-width: 0; min-height: 76px; display: grid; place-content: center; gap: 5px; padding: 10px 4px; background: #0f131a; text-align: center; }
 .mh2-proof b { color: var(--mh2-accent); font-size: 13px; }
 .mh2-proof span { color: var(--mh2-muted); font-size: 9px; white-space: nowrap; }
 
-/* Quote */
 .mh2-quote-form { display: grid; gap: 14px; }
 .mh2-form-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
 .mh2-field { min-width: 0; display: grid; gap: 7px; }
@@ -308,7 +302,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 .mh2-submit { width: 100%; min-height: 52px; border: 0; cursor: pointer; }
 #quoteMsg { min-height: 0; font-size: 12px; }
 
-/* Process / tool / contact */
 .mh2-process { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; padding: 0; margin: 0; }
 .mh2-process li { min-width: 0; display: grid; gap: 6px; padding: 12px 9px; border: 1px solid var(--mh2-line); border-radius: 14px; background: #0b0f15; }
 .mh2-process b { color: var(--mh2-accent); font-size: 11px; }
@@ -328,7 +321,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 .mh2-service-time { display: flex; justify-content: space-between; gap: 10px; margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.035); color: var(--mh2-muted); font-size: 11px; }
 .mh2-service-time strong { color: #d8dbe2; }
 
-/* Cases / FAQ */
 #publicCaseGrid { display: grid; gap: 10px; }
 #publicCaseGrid > * { min-width: 0; border: 1px solid var(--mh2-line); border-radius: 14px; background: #0b0f15; }
 .mh2-faq { display: grid; gap: 8px; }
@@ -336,7 +328,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 .mh2-faq summary { min-height: 50px; display: flex; align-items: center; padding: 0 13px; cursor: pointer; font-size: 13px; font-weight: 800; }
 .mh2-faq p { margin: 0; padding: 0 13px 13px; color: var(--mh2-muted); font-size: 12px; line-height: 1.65; }
 
-/* Floating support */
 .mh2-support {
   position: fixed;
   right: max(14px, env(safe-area-inset-right));
@@ -354,7 +345,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 }
 .mh2-support svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.9; }
 
-/* New bottom nav */
 .mh2-bottom-nav {
   position: fixed;
   left: 50%;
@@ -376,7 +366,6 @@ body[data-mobile-home="v2"] .hidden { display: none !important; }
 .mh2-bottom-nav a[aria-current="page"] { color: var(--mh2-accent); background: rgba(245,190,46,.09); }
 .mh2-bottom-nav .mh2-bottom-quote { margin: -6px 4px 2px; background: var(--mh2-accent); color: #111; box-shadow: 0 10px 24px rgba(224,161,22,.18); }
 
-/* Footer only; shared footer content remains, homepage chrome is new. */
 body[data-mobile-home="v2"] .site-footer { margin-top: 18px; padding: 20px var(--mh2-gutter) 14px; border-top: 1px solid var(--mh2-line); background: #090c11; }
 body[data-mobile-home="v2"] .site-footer .container { width: 100%; max-width: none; padding: 0; }
 body[data-mobile-home="v2"] .footer-row { display: grid; gap: 12px; }

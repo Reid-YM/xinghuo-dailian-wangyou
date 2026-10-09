@@ -44,7 +44,7 @@
     body.classList.add('mobile-frontend');
 
     ensureStylesheet('/assets/mobile-app.css?v=20261009m02', 'xh-mobile-app-css');
-    ensureStylesheet('/assets/mobile-pages-v1.css?v=20261009m02', 'xh-mobile-pages-css');
+    ensureStylesheet('/assets/mobile-pages-v1.css?v=20261009m03', 'xh-mobile-pages-css');
 
     const existingScript = document.querySelector('script[src*="/assets/mobile-app.js"]');
     if (!existingScript) {

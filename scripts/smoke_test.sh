@@ -14,6 +14,16 @@ check_code() {
     echo "OK   $path $code"
   fi
 }
+check_contains() {
+  local path=$1 needle=$2 body
+  body=$(curl -fsS "$BASE$path" || true)
+  if [[ "$body" != *"$needle"* ]]; then
+    echo "FAIL $path missing=$needle"
+    fail=1
+  else
+    echo "OK   $path contains=$needle"
+  fi
+}
 check_code / 200
 check_code /services 200
 check_code /guides 200
@@ -21,6 +31,26 @@ check_code /mastery 200
 check_code /api/site-config 200
 check_code /api/guides 200
 check_code /api/tool-station 200
+
+# VNext 是隔离预览入口：必须随生产包可访问，但在 UI 审核通过前不替换根路径。
+check_code /vnext/ 200
+check_contains /vnext/ '<div id="root"></div>'
+VNEXT_HTML=$(curl -fsS "$BASE/vnext/" || true)
+VNEXT_JS=$(printf '%s' "$VNEXT_HTML" | grep -oE '/vnext/assets/[^" ]+\.js' | head -n 1 || true)
+VNEXT_CSS=$(printf '%s' "$VNEXT_HTML" | grep -oE '/vnext/assets/[^" ]+\.css' | head -n 1 || true)
+if [ -z "$VNEXT_JS" ]; then
+  echo "FAIL /vnext/ missing bundled JavaScript asset"
+  fail=1
+else
+  check_code "$VNEXT_JS" 200
+fi
+if [ -z "$VNEXT_CSS" ]; then
+  echo "FAIL /vnext/ missing bundled CSS asset"
+  fail=1
+else
+  check_code "$VNEXT_CSS" 200
+fi
+
 # 用户中心所有真实页面都必须存在并要求登录。未登录时应跳转登录页，绝不能 404。
 check_code /account 302
 check_code /account/requests 302

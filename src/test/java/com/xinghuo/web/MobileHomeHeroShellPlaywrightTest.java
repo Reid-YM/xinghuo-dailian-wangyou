@@ -15,10 +15,10 @@ class MobileHomeHeroShellPlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
 
     @Test
-    void chromiumPhoneWidthsKeepLandscapeKeyArtSeparateFromSolidActionDeck() {
+    void chromiumPhoneWidthsKeepLandscapeKeyArtWithTitleOverlayAndCompactActions() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
-            verifyWidth(browser, 390, 844, 395.0, 400.0);
-            verifyWidth(browser, 430, 932, 418.0, 422.0);
+            verifyWidth(browser, 390, 844, 340.0, 347.0);
+            verifyWidth(browser, 430, 932, 362.0, 369.0);
         }
     }
 
@@ -30,7 +30,7 @@ class MobileHomeHeroShellPlaywrightTest {
 
         /* Reproduce the production race: shared image controls write inline
            !important contain/blur/full-Hero geometry after the Hero CSS. The
-           mobile Hero runtime must immediately restore the existing compact UI. */
+           mobile Hero runtime must immediately restore the compact key-art UI. */
         page.evaluate("""
             () => {
               const layer = document.querySelector('#heroBackground');
@@ -56,6 +56,7 @@ class MobileHomeHeroShellPlaywrightTest {
         assertEquals("cover", string(page, "getComputedStyle(document.querySelector('#heroBackground')).backgroundSize"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.xh-v4-subtitle')).display"));
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.xh-v4-eyebrow')).display"));
+        assertTrue(string(page, "getComputedStyle(document.querySelector('.xh-v4-logo')).backgroundImage").contains("brand-logo.svg"));
 
         double heroTop = number(page, "document.querySelector('#homeHero').getBoundingClientRect().top").doubleValue();
         double heroBottom = number(page, "document.querySelector('#homeHero').getBoundingClientRect().bottom").doubleValue();
@@ -77,8 +78,8 @@ class MobileHomeHeroShellPlaywrightTest {
             () -> width + "px key art must begin directly below site chrome");
         assertTrue(width / artworkHeight >= 1.76 && width / artworkHeight <= 1.79,
             () -> width + "px key art should stay near 16:9, ratio=" + (width / artworkHeight));
-        assertTrue(heroBottom - artworkBottom >= 124.0 && heroBottom - artworkBottom <= 128.0,
-            () -> width + "px solid action deck height is wrong: " + (heroBottom - artworkBottom));
+        assertTrue(heroBottom - artworkBottom >= 70.0 && heroBottom - artworkBottom <= 74.0,
+            () -> width + "px compact CTA deck height is wrong: " + (heroBottom - artworkBottom));
 
         double statusTop = number(page, "document.querySelector('.xh-v4-status').getBoundingClientRect().top").doubleValue();
         double statusBottom = number(page, "document.querySelector('.xh-v4-status').getBoundingClientRect().bottom").doubleValue();
@@ -89,14 +90,16 @@ class MobileHomeHeroShellPlaywrightTest {
 
         double titleTop = number(page, "document.querySelector('#mobileHeroTitle').getBoundingClientRect().top").doubleValue();
         double titleBottom = number(page, "document.querySelector('#mobileHeroTitle').getBoundingClientRect().bottom").doubleValue();
-        assertTrue(titleTop >= artworkBottom + 13.0 && titleTop <= artworkBottom + 15.0,
-            () -> width + "px title must live in solid action deck, not over key art");
+        assertTrue(titleTop > artworkTop,
+            () -> width + "px title must be inside key art");
+        assertTrue(artworkBottom - titleBottom >= 11.0 && artworkBottom - titleBottom <= 15.0,
+            () -> width + "px title should float near key art bottom: " + (artworkBottom - titleBottom));
 
         double actionsTop = number(page, "document.querySelector('.xh-v4-hero-actions').getBoundingClientRect().top").doubleValue();
         double actionsBottom = number(page, "document.querySelector('.xh-v4-hero-actions').getBoundingClientRect().bottom").doubleValue();
-        assertTrue(actionsTop - titleBottom >= 24.0 && actionsTop - titleBottom <= 34.0,
-            () -> width + "px title-to-CTA spacing is wrong: " + (actionsTop - titleBottom));
-        assertTrue(heroBottom - actionsBottom >= 13.0 && heroBottom - actionsBottom <= 15.0,
+        assertTrue(actionsTop - artworkBottom >= 10.0 && actionsTop - artworkBottom <= 14.0,
+            () -> width + "px CTA row should begin immediately below key art: " + (actionsTop - artworkBottom));
+        assertTrue(heroBottom - actionsBottom >= 11.0 && heroBottom - actionsBottom <= 13.0,
             () -> width + "px CTA bottom spacing is wrong: " + (heroBottom - actionsBottom));
 
         double firstLeft = number(page, "document.querySelector('.xh-v4-hero-actions .btn:first-child').getBoundingClientRect().left").doubleValue();
@@ -128,10 +131,10 @@ class MobileHomeHeroShellPlaywrightTest {
                   <div class="xh-v4-hero-copy hero-copy">
                     <div class="xh-v4-status">● MW4 正式版预约中</div>
                     <div class="xh-v4-eyebrow">CALL OF DUTY · MW4</div>
-                    <h1 id="mobileHeroTitle">使命召唤 MW4 任务代练</h1>
+                    <h1 id="mobileHeroTitle">使命召唤 MW4 代练服务</h1>
                     <p class="xh-v4-subtitle">武器升级 · 迷彩解锁 · DMZ · 活动任务</p>
                     <div class="xh-v4-meta"><div class="xh-v4-price"><small>参考起步</small><strong>¥20 起</strong><span>人工确认为准</span></div><div class="xh-v4-trust"><span>可靠手打</span><span>进度可查</span></div></div>
-                    <div class="actions hero-actions xh-v4-hero-actions"><a class="btn primary xh-v4-primary">立即询价</a><a class="btn ghost xh-v4-progress">查询进度</a></div>
+                    <div class="actions hero-actions xh-v4-hero-actions"><a class="btn primary xh-v4-primary">提前询价</a><a class="btn ghost xh-v4-progress">查看服务大厅</a></div>
                   </div>
                 </section>
               </main>
@@ -146,7 +149,8 @@ class MobileHomeHeroShellPlaywrightTest {
             "mobile-app.css",
             "mobile-home-v4.css",
             "mobile-tune-v1.css",
-            "mobile-home-hero-r4.css"
+            "mobile-home-hero-r4.css",
+            "mobile-home-hero-r5.css"
         }) {
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve(file)));
         }

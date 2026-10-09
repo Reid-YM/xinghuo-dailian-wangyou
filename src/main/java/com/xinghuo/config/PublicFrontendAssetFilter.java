@@ -24,10 +24,11 @@ public class PublicFrontendAssetFilter extends OncePerRequestFilter {
     static final String MARKER = "<meta name=\"xh-public-ui\" content=\"nova\">";
     static final String NOVA_CORE = "<link rel=\"stylesheet\" href=\"/assets/nova-ui.css?v=20261009nova01\">";
     static final String NOVA_PAGES = "<link rel=\"stylesheet\" href=\"/assets/nova-pages.css?v=20261009nova01\">";
+    static final String NOVA_RESPONSIVE = "<link rel=\"stylesheet\" href=\"/assets/nova-responsive.css?v=20261009nova01\">";
     static final String NOVA_SHELL = "<script defer src=\"/assets/nova-shell.js?v=20261009nova01\"></script>";
 
     private static final Pattern LEGACY_ASSET_STYLES = Pattern.compile(
-            "(?is)<link\\b(?=[^>]*\\brel\\s*=\\s*['\"]stylesheet['\"])(?=[^>]*\\bhref\\s*=\\s*['\"]/assets/(?!nova-(?:ui|pages)\\.css)[^'\"]+\\.css(?:\\?[^'\"]*)?['\"])[^>]*>");
+            "(?is)<link\\b(?=[^>]*\\brel\\s*=\\s*['\"]stylesheet['\"])(?=[^>]*\\bhref\\s*=\\s*['\"]/assets/(?!nova-(?:ui|pages|responsive)\\.css)[^'\"]+\\.css(?:\\?[^'\"]*)?['\"])[^>]*>");
 
     private static final Pattern LEGACY_VISUAL_SCRIPTS = Pattern.compile(
             "(?is)<script\\b[^>]*\\bsrc\\s*=\\s*['\"]/assets/(?:site-shell|mobile-app|mobile-visual-runtime|ui-refresh|ui-fixes|account-center-refine)\\.js(?:\\?[^'\"]*)?['\"][^>]*>\\s*</script>");
@@ -83,6 +84,7 @@ public class PublicFrontendAssetFilter extends OncePerRequestFilter {
             if (!html.contains(MARKER)) missing.append(MARKER);
             if (!html.contains("/assets/nova-ui.css")) missing.append(NOVA_CORE);
             if (!html.contains("/assets/nova-pages.css")) missing.append(NOVA_PAGES);
+            if (!html.contains("/assets/nova-responsive.css")) missing.append(NOVA_RESPONSIVE);
             if (!html.contains("/assets/nova-shell.js")) missing.append(NOVA_SHELL);
             if (!missing.isEmpty()) html = html.substring(0, headEnd) + missing + html.substring(headEnd);
         }

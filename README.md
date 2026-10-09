@@ -1,108 +1,163 @@
-# 星火网游代练平台源码包
+# 星火网游代练平台
 
-本包是服务器当前线上版本整理出的纯净源码包，用于后续本地开发、上传服务器、构建并部署。
+本仓库是星火网站唯一正式源码基线。生产代码必须通过 GitHub 分支、Pull Request、CI 和 `Deploy Production` 工作流进入线上环境。
 
 ## 目录说明
 
-- `src/main/java/`：Java 覆盖源码，包含用户系统、攻略系统、上传、页面控制器、安全配置等后续维护代码。
-- `src/main/resources/templates/`：Thymeleaf 页面模板，前台、后台、用户中心、攻略、工具站页面都在这里。
-- `src/main/resources/static/assets/`：CSS、JS、图片、MW4 工具站资源、游戏封面、服务封面等静态资源。
-- `src/main/resources/db/migration/`：Flyway 数据库迁移脚本，新增表、字段、初始化攻略和服务数据都在这里。
-- `scripts/`：构建、部署、冒烟测试、图片抓取、CSS 清理等脚本。
-- `.env.example`：环境变量示例，不含真实密码。
-- `开发手册.md`：字段、页面、接口、部署、资源维护说明。
+- `src/main/java/`：Spring Boot / Java 业务、账号、后台、安全配置与控制器。
+- `src/main/resources/templates/`：当前生产 Thymeleaf 页面。
+- `src/main/resources/static/`：当前生产静态资源。
+- `frontend-vnext/`：VNext React + TypeScript + Vite 响应式前端；UI 审核前仅通过 `/vnext/` 隔离预览。
+- `src/main/resources/db/migration/`：Flyway 数据库迁移。
+- `scripts/`：构建、冒烟、GitHub 部署和零停机发布脚本。
+- `docs/VNEXT_REBUILD_AND_DEPLOY.md`：VNext 重构范围、构建、发布、验证和回滚的统一 SOP。
+- `.env.example`：环境变量示例，不包含真实密钥。
 
-## 不包含的内容
+## 正式源码与服务器目录
 
-- 不包含真实 `.env` 密钥。
-- 不包含 `build/` 临时构建产物。
-- 不包含 `/tmp` 验证文件。
-- 不包含线上 `uploads/` 用户上传目录。
-- 不包含旧 release JAR。
-
-## 当前部署模式
-
-当前项目采用：
+GitHub 正式分支：
 
 ```text
-服务器基线 JAR + 本源码包覆盖编译 = 新线上 JAR
+Reid-YM/xinghuo-dailian-wangyou
+main
 ```
 
-服务器基线 JAR 路径：
+服务器正式 Git 工作区：
 
-```bash
-/srv/xinghuo-dev/base/xinghuo-v2-base.jar
+```text
+/srv/xinghuo-dev/work/xinghuo-v2
 ```
 
-构建脚本：
+生产运行目录：
 
-```bash
-scripts/dev_build.sh
+```text
+/opt/xinghuo-v2
 ```
 
-部署时需要在服务器上设置 `BASE_JAR` 指向基线 JAR。
+生产服务：
 
-## 从本地源码包部署到服务器
-
-下面假设本地目录是 `xinghuo-v2-source`，服务器是 `ubuntu@82.156.209.250`。
-
-1. 本地修改源码。
-
-2. 上传源码到服务器工作目录：
-
-```bash
-rsync -av --delete \
-  --exclude build/ \
-  --exclude .env \
-  --exclude '*.jar' \
-  ./xinghuo-v2-source/ \
-  ubuntu@82.156.209.250:/srv/xinghuo-dev/work/xinghuo-v2/
+```text
+xinghuo-v2.service
 ```
 
-3. 在服务器构建新 JAR：
+> `/opt/xinghuo-v2/source-current`、旧 base JAR 覆盖构建、`scripts/dev_build.sh` 手工发布均不再是正式生产流程，不得作为日常发布入口。
+
+## 本地 / CI 构建
+
+统一使用 Maven：
 
 ```bash
-ssh ubuntu@82.156.209.250
+mvn -B -ntp clean package
+```
+
+VNext 已接入 Maven 生命周期。该命令会同时完成：
+
+1. Java / Spring Boot 构建与测试
+2. 项目固定 Node 环境准备
+3. `frontend-vnext/` 依赖安装、TypeScript typecheck、Vite production build
+4. VNext 输出到 JAR 内 `/vnext/`
+5. 生成 `target/xinghuo-v2-1.0.0.jar`
+
+服务器无需手工全局安装 Node，也不要单独复制 Vite `dist`。
+
+## 正式开发与合并流程
+
+```text
+feature branch
+  ↓
+Pull Request
+  ↓
+CI（Java/Maven + Chromium/WebKit）
+  ↓
+merge main
+  ↓
+main CI 全绿
+  ↓
+Deploy Production
+```
+
+禁止直接 push `main`，禁止从 feature branch 直接上生产，禁止在服务器直接修改正式源码后部署。
+
+## 正式生产发布
+
+生产发布统一由：
+
+```text
+.github/workflows/deploy-production.yml
+```
+
+发起。工作流会确认：
+
+- 发布目标是当前 `main`
+- commit 来自已合并 PR
+- 对应 main CI 成功
+- 生产 SSH 配置可用
+
+随后在服务器执行标准部署入口：
+
+```text
+deploy <MAIN_GIT_SHA>
+```
+
+部署链：
+
+```text
+GitHub main
+  ↓
+/srv/xinghuo-dev/work/xinghuo-v2
+  ↓
+Flyway 安全阀
+  ↓
+mvn clean package
+  ↓
+18080 预发布完整冒烟
+  ↓
+8081 金丝雀完整冒烟
+  ↓
+Nginx 热切流
+  ↓
+原子切换 /opt/xinghuo-v2/current.jar
+  ↓
+8080 正式完整冒烟
+  ↓
+Nginx 切回 8080
+```
+
+发布失败时会优先保持旧版本；新正式实例失败时会尝试自动回滚到部署前 JAR。
+
+完整命令、检查条件和人工回滚步骤见：
+
+```text
+docs/VNEXT_REBUILD_AND_DEPLOY.md
+```
+
+## 生产冒烟
+
+服务器本机：
+
+```bash
 cd /srv/xinghuo-dev/work/xinghuo-v2
-BASE_JAR=/srv/xinghuo-dev/base/xinghuo-v2-base.jar \
-  bash scripts/dev_build.sh build/xinghuo-v2-$(date +%Y%m%d%H%M%S).jar
-```
-
-4. 安装为 release 并重启：
-
-```bash
-cd /srv/xinghuo-dev/work/xinghuo-v2
-NEW_BUILD=$(ls -t build/xinghuo-v2-*.jar | head -n 1)
-STAMP=$(date +%Y%m%d%H%M%S)
-sudo install -o xinghuo -g xinghuo -m 0640 "$NEW_BUILD" "/opt/xinghuo-v2/releases/xinghuo-v2-source-${STAMP}.jar"
-sudo ln -sfn "/opt/xinghuo-v2/releases/xinghuo-v2-source-${STAMP}.jar" /opt/xinghuo-v2/current.jar
-sudo systemctl restart xinghuo-v2
-sleep 15
-systemctl is-active xinghuo-v2
-curl -I https://wydlgf.cn/
-```
-
-5. 冒烟测试：
-
-```bash
 bash scripts/smoke_test.sh 8080
-journalctl -u xinghuo-v2 -n 80 --no-pager
 ```
 
-## 回滚
+冒烟范围包括现有公开页面、账号权限、后台权限，以及 VNext `/vnext/` 和其 Vite JS/CSS bundle。
 
-查看最近 release：
+## VNext 当前边界
 
-```bash
-ls -lt /opt/xinghuo-v2/releases/*.jar | head
+当前 VNext 只作为架构和 UI 审核预览：
+
+```text
+/vnext/
 ```
 
-切回某个旧版本：
+在 UI 体系确认前：
 
-```bash
-sudo ln -sfn /opt/xinghuo-v2/releases/目标版本.jar /opt/xinghuo-v2/current.jar
-sudo systemctl restart xinghuo-v2
-```
+- `/` 不切换到 React
+- 现有 Thymeleaf 生产 UI 不替换
+- VNext 询价不会写入真实 `/api/quote`
+- 用户中心和后台仍保留现有正式业务页面
+
+UI 审核完成后，正式根路由迁移必须走独立 PR 和独立生产发布。
 
 ## 2026-10-04 v024 补充
 

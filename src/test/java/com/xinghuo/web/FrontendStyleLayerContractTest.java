@@ -14,7 +14,7 @@ class FrontendStyleLayerContractTest {
     void sharedSiteUsesSingleAuthoritativeExperienceLayer() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
         assertTrue(site.contains("/assets/site-experience-v2.css?v=20261007ux03"));
-        assertTrue(site.contains("/assets/site-shell.js?v=20261009ss08"));
+        assertTrue(site.contains("/assets/site-shell.js?v=20261009ss09"));
         assertTrue(site.contains("/assets/brand-logo.svg?v=20261008logo01"));
         assertFalse(site.contains("brand-dot"));
         assertFalse(site.contains("site-shell.css"));
@@ -50,6 +50,8 @@ class FrontendStyleLayerContractTest {
         assertTrue(js.contains("/assets/icons.svg#i-support"));
         assertTrue(js.contains("data-xh-brand-favicon"));
         assertTrue(js.contains("/assets/brand-logo.svg?v=20261008logo01"));
+        assertTrue(js.contains("body.dataset.mobileHome === 'v2'"));
+        assertFalse(js.contains("mobile-home-shell-v1.css"));
         assertTrue(logo.contains("fill=\"#0A0C0F\""));
         assertTrue(logo.contains("fill=\"#FFD24A\""));
         assertTrue(logo.contains("fill=\"#D89A00\""));

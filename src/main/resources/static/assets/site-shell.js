@@ -31,7 +31,7 @@
 
   function ensureMobileFrontend() {
     const body = document.body;
-    if (!body) return;
+    if (!body || body.dataset.mobileHome === 'v2') return;
     const root = document.documentElement;
     const forcedMobile = root.dataset.frontend === 'mobile' || body.dataset.frontend === 'mobile';
     const compactViewport = typeof window.matchMedia === 'function'
@@ -50,7 +50,6 @@
     ensureStylesheet('/assets/mobile-account-v1.css?v=20261009m01', 'xh-mobile-account-css');
     ensureStylesheet('/assets/mobile-tune-v1.css?v=20261009m01', 'xh-mobile-tune-css');
     ensureStylesheet('/assets/mobile-mastery-v1.css?v=20261009m01', 'xh-mobile-mastery-css');
-    ensureStylesheet('/assets/mobile-home-shell-v1.css?v=20261009mh04', 'xh-mobile-home-shell-css');
 
     const existingScript = document.querySelector('script[src*="/assets/mobile-app.js"]');
     if (!existingScript) {
@@ -63,6 +62,7 @@
   }
 
   function ensureFloatingSupport() {
+    if (document.body?.dataset.mobileHome === 'v2') return;
     if (document.getElementById('floatingCustomerService')) return;
     const link = document.createElement('a');
     link.id = 'floatingCustomerService';
@@ -125,7 +125,7 @@
     ensureMobileFrontend();
     ensureFloatingSupport();
     const bar = getBar();
-    if (!bar) return;
+    if (!bar || document.body?.dataset.mobileHome === 'v2') return;
     enhanceAnnouncement();
     const observer = new MutationObserver(scheduleEnhance);
     observer.observe(bar, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class'] });

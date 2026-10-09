@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="t">
+  <title id="t">星链 - four connected nodes joined through a spark core</title>
+  <g stroke="#0B0D10" stroke-width="22" stroke-linecap="round">
+    <path d="M70 70 L186 186"/>
+    <path d="M186 70 L70 186"/>
+  </g>
+  <circle cx="70" cy="70" r="24" fill="#0B0D10"/>
+  <circle cx="186" cy="70" r="24" fill="#0B0D10"/>
+  <circle cx="186" cy="186" r="24" fill="#0B0D10"/>
+  <circle cx="70" cy="186" r="24" fill="#0B0D10"/>
+  <path fill="#0B0D10" d="M128 100 L156 128 L128 156 L100 128 Z"/>
+</svg>

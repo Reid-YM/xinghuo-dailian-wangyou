@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 256" width="780" height="256" role="img" aria-labelledby="t">
+  <title id="t">火核组合标 - spark symbol locked up with the XINGHUO wordmark</title>
+  <g transform="translate(20 46) scale(0.60)">
+    <path fill="#0B0D10" d="M206 50 Q167 101 164 128 Q167 155 206 206 Q155 167 128 164 Q101 167 50 206 Q89 155 92 128 Q89 101 50 50 Q101 89 128 92 Q155 89 206 50 Z"/>
+  </g>
+  <text x="196" y="132" font-family="Inter, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="104" font-weight="800" letter-spacing="2" fill="#0B0D10">XINGHUO</text>
+  <text x="200" y="196" font-family="'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif" font-size="52" font-weight="600" letter-spacing="14" fill="#5B6068">星火网游</text>
+</svg>

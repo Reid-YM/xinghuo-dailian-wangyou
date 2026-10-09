@@ -16,20 +16,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
-/** Injects assets that belong exclusively to the mobile frontend template set. */
+/** Injects the shared mobile shell only for mobile templates that still use it. */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 50)
 public class MobileFrontendAssetFilter extends OncePerRequestFilter {
     private static final String MARKER = "<meta name=\"xh-frontend\" content=\"mobile\">";
-    private static final String ASSETS = MARKER
+    private static final String SHARED_MOBILE_ASSETS = MARKER
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-app.css?v=20261009m2\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-compact.css?v=20261009mc1\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-screenshot-fixes.css?v=20261009msf2\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-flat-overflow.css?v=20261009mfo1\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-runtime-fixes.css?v=20261009mrf1\">"
-            + "<link rel=\"stylesheet\" href=\"/assets/mobile-home-v4.css?v=20261009mh5\">"
-            + "<script defer src=\"/assets/mobile-app.js?v=20261009m2\"></script>"
-            + "<script defer src=\"/assets/mobile-visual-runtime.js?v=20261009mv1\"></script>";
+            + "<script defer src=\"/assets/mobile-app.js?v=20261009m2\"></script>";
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -57,10 +55,15 @@ public class MobileFrontendAssetFilter extends OncePerRequestFilter {
         if (encoding != null && !encoding.isBlank()) {
             try { charset = Charset.forName(encoding); } catch (Exception ignored) { }
         }
+
         String html = new String(wrapper.getContentAsByteArray(), charset);
+        // The new mobile homepage declares MARKER itself and therefore stays completely isolated.
+        // Other mobile templates keep the shared mobile shell until they are independently rebuilt.
         if (!html.contains(MARKER)) {
             int headEnd = html.toLowerCase(Locale.ROOT).indexOf("</head>");
-            if (headEnd >= 0) html = html.substring(0, headEnd) + ASSETS + html.substring(headEnd);
+            if (headEnd >= 0) {
+                html = html.substring(0, headEnd) + SHARED_MOBILE_ASSETS + html.substring(headEnd);
+            }
         }
 
         byte[] output = html.getBytes(charset);

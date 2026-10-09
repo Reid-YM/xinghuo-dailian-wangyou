@@ -41,7 +41,23 @@ class MobileHomeRebuildPlaywrightTest {
         assertTrue((Boolean) page.evaluate("() => { const h=document.querySelector('#homeHero').getBoundingClientRect().height; return h >= 530 && h <= 590; }"));
         assertTrue((Boolean) page.evaluate("() => document.querySelector('.xh-v4-appbar').getBoundingClientRect().height >= 50"));
 
-        assertTrue((Boolean) page.evaluate("() => { const a=[...document.querySelectorAll('.xh-v4-hero-actions .btn')]; const p=a[0].getBoundingClientRect(), s=a[1].getBoundingClientRect(); return Math.abs(p.top-s.top)<1 && p.width>s.width && p.height>=46 && s.height>=46; }"));
+        String ctaMetrics = (String) page.evaluate("""
+                () => {
+                  const a=[...document.querySelectorAll('.xh-v4-hero-actions .btn')];
+                  const p=a[0].getBoundingClientRect(), s=a[1].getBoundingClientRect();
+                  const g=getComputedStyle(document.querySelector('.xh-v4-hero-actions'));
+                  const ps=getComputedStyle(a[0]), ss=getComputedStyle(a[1]);
+                  return JSON.stringify({
+                    pTop:p.top,sTop:s.top,pWidth:p.width,sWidth:s.width,
+                    pHeight:p.height,sHeight:s.height,grid:g.gridTemplateColumns,
+                    pColumn:ps.gridColumn,sColumn:ss.gridColumn,
+                    pWidthCss:ps.width,sWidthCss:ss.width,pHeightCss:ps.height,sHeightCss:ss.height
+                  });
+                }
+                """);
+        assertTrue((Boolean) page.evaluate("() => { const a=[...document.querySelectorAll('.xh-v4-hero-actions .btn')]; const p=a[0].getBoundingClientRect(), s=a[1].getBoundingClientRect(); return Math.abs(p.top-s.top)<1; }"), "hero CTAs should share one row: " + ctaMetrics);
+        assertTrue((Boolean) page.evaluate("() => { const a=[...document.querySelectorAll('.xh-v4-hero-actions .btn')]; const p=a[0].getBoundingClientRect(), s=a[1].getBoundingClientRect(); return p.width>s.width; }"), "primary CTA should be wider than progress CTA: " + ctaMetrics);
+        assertTrue((Boolean) page.evaluate("() => { const a=[...document.querySelectorAll('.xh-v4-hero-actions .btn')]; const p=a[0].getBoundingClientRect(), s=a[1].getBoundingClientRect(); return p.height>=46 && s.height>=46; }"), "hero CTAs should be at least 46px high: " + ctaMetrics);
         assertTrue((Boolean) page.evaluate("() => { const a=[...document.querySelectorAll('.xh-v4-task')]; const r0=a[0].getBoundingClientRect(),r1=a[1].getBoundingClientRect(),r2=a[2].getBoundingClientRect(); return a.length===4 && Math.abs(r0.top-r1.top)<1 && r2.top>r0.top+20; }"));
         assertTrue((Boolean) page.evaluate("() => { const s=document.querySelector('#home-game'); const h=s.getBoundingClientRect().height; return h >= 39 && h <= 41; }"));
         assertEquals("2", (String) page.evaluate("() => getComputedStyle(document.querySelector('.xh-v4-form-grid')).gridTemplateColumns.split(' ').length.toString()"));

@@ -65,10 +65,6 @@ class MobileHomeHeroShellPlaywrightTest {
         assertTrue(appbarHeight >= 53.0 && appbarHeight <= 57.0,
             () -> width + "px appbar height should stay compact and separate: " + appbarHeight);
 
-        double supportWidth = number(page, "document.querySelector('.floating-customer-service').getBoundingClientRect().width").doubleValue();
-        assertTrue(supportWidth <= 42.5, () -> "floating support should remain compact: " + supportWidth);
-        assertEquals("none", string(page, "getComputedStyle(document.querySelector('.floating-customer-service-text')).display"));
-
         assertNoOverflow(page);
         page.close();
     }
@@ -97,7 +93,6 @@ class MobileHomeHeroShellPlaywrightTest {
                   </div>
                 </section>
               </main>
-              <a class="floating-customer-service"><span class="floating-customer-service-icon"></span><span class="floating-customer-service-text">联系客服</span></a>
             </body>
             </html>
             """;

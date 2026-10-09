@@ -26,6 +26,8 @@ class MobileVisualPhase3PlaywrightTest {
                             .setStatus(200)
                             .setContentType("application/json")
                             .setBody("{\"heroBackgroundMobileOpacity\":42,\"heroBackgroundMobileBlur\":7}")));
+            // Keep the legacy independent blur/opacity contract covered on a non-home
+            // mobile surface. The homepage Hero has its own no-blur geometry contract.
             page.setContent("""
                     <html data-frontend="mobile"><head><base href="https://test.local/"></head><body data-page="services" class="mobile-frontend">
                       <section id="homeHero" style="--image-text-dim:.22">

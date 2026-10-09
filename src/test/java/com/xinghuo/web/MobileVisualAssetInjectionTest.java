@@ -26,9 +26,9 @@ class MobileVisualAssetInjectionTest {
         var mobileResponse = new MockHttpServletResponse();
         filter.doFilter(mobileRequest, mobileResponse, html);
         String mobileHtml = mobileResponse.getContentAsString();
-        assertTrue(mobileHtml.contains("mobile-visual-runtime.js?v=20261009mv1"));
+        assertTrue(mobileHtml.contains("mobile-visual-runtime.js?v=20261010mv2"));
         assertTrue(mobileHtml.contains("mobile-compact.css?v=20261009mc1"));
-        assertTrue(mobileHtml.contains("mobile-home-hero-r4.css?v=20261010r4"));
+        assertTrue(mobileHtml.contains("mobile-home-hero-r4.css?v=20261010r4ui1"));
 
         var desktopRequest = new MockHttpServletRequest("GET", "/");
         desktopRequest.addHeader("User-Agent", "Mozilla/5.0 (Macintosh) Chrome Safari");

@@ -20,21 +20,17 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
  * Adds the V6 presentation layer to every public HTML page.
  *
  * This is deliberately presentation-only: no controller, DTO, API, database or business-flow changes.
- * It runs outside the mobile asset filter so the V6 stylesheet is emitted after legacy/mobile styles and
+ * It runs outside the mobile asset filter so the V6 stylesheets are emitted after legacy/mobile styles and
  * can act as the single visual source of truth while retaining the existing functional DOM.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 40)
 public class FrontendV6AssetFilter extends OncePerRequestFilter {
     private static final String MARKER = "<meta name=\"xh-ui\" content=\"v6\">";
-    private static final String GEOMETRY_LOCK = "<style id=\"xh-v6-geometry-lock\">"
-            + ":root[data-xh-ui=\"v6\"] .container{width:min(var(--v6-max),calc(100% - var(--v6-gutter) - var(--v6-gutter)))!important;}"
-            + ":root[data-xh-ui=\"v6\"] body:not(.mobile-frontend)[data-page=\"home\"] #homeHero{width:100%!important;max-width:var(--v6-max)!important;margin-left:auto!important;margin-right:auto!important;}"
-            + "</style>";
     private static final String ASSETS = MARKER
             + "<script>document.documentElement.dataset.xhUi='v6';</script>"
             + "<link rel=\"stylesheet\" href=\"/assets/frontend-v6.css?v=20261009v6a\">"
-            + GEOMETRY_LOCK
+            + "<link rel=\"stylesheet\" href=\"/assets/frontend-v6-geometry.css?v=20261009v6b\">"
             + "<script defer src=\"/assets/frontend-v6.js?v=20261009v6a\"></script>";
 
     @Override

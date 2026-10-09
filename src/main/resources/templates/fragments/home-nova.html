@@ -1,0 +1,133 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+<div th:fragment="content">
+  <div id="announcementBar" class="hidden" role="status"></div>
+  <main class="nv-home">
+    <section class="nv-home-hero" id="homeHero" aria-labelledby="novaHomeTitle">
+      <div class="nv-home-copy">
+        <div class="nv-status" data-config="status">● 当前状态确认中</div>
+        <span class="nv-eyebrow" style="margin-top:18px">CALL OF DUTY · MW4</span>
+        <h1 id="novaHomeTitle" data-config="heroTitle">任务服务，先把目标说清楚。</h1>
+        <p data-config="heroSubtitle">选择游戏与目标，获取业务编号；价格、排期和交付范围由客服人工确认。</p>
+        <div class="nv-home-actions">
+          <a class="nv-btn nv-btn--primary" href="#quick-actions" data-track="hero_quote_click" data-primary-cta>提前询价</a>
+          <a class="nv-btn nv-btn--ghost" href="/services" data-track="hero_services_click">浏览全部服务</a>
+          <a class="nv-btn nv-btn--ghost" href="/records" data-track="hero_order_click">查询业务进度</a>
+        </div>
+        <div class="nv-home-proof" id="trustTags" aria-label="服务特点">
+          <span><b>人工确认</b><small>价格与排期说清再开始</small></span>
+          <span><b>业务编号</b><small>询价与履约统一追踪</small></span>
+          <span><b>进度可查</b><small>关键节点有记录</small></span>
+          <span><b>担保交易</b><small>按公开渠道完成付款</small></span>
+        </div>
+      </div>
+      <aside class="nv-home-media" aria-label="当前主视觉">
+        <div id="heroBackground" class="nv-home-art" data-nv-hero-art aria-hidden="true"></div>
+        <div id="heroVisual" class="nv-home-visual" aria-hidden="true"></div>
+        <div class="nv-home-media-copy">
+          <small>CURRENT FOCUS</small>
+          <strong>MW4 · 武器 / 迷彩 / 活动 / 排位</strong>
+        </div>
+      </aside>
+    </section>
+
+    <div class="nv-home-grid">
+      <section class="nv-panel" aria-label="常用服务入口">
+        <div class="nv-panel-head"><div><span class="nv-eyebrow">START HERE</span><h2>直接从目标开始</h2></div><a class="text-link" href="/services">全部服务 →</a></div>
+        <div class="nv-task-grid">
+          <a class="nv-task" href="/services"><b>武器升级</b><span>等级 · 配件 · 解锁</span></a>
+          <a class="nv-task" href="/mastery"><b>迷彩任务</b><span>先用工具核对剩余进度</span></a>
+          <a class="nv-task" href="/services"><b>活动任务</b><span>赛季 · 挑战 · 收集</span></a>
+          <a class="nv-task" href="/quote"><b>自定义需求</b><span>描述目标后人工确认</span></a>
+        </div>
+      </section>
+
+      <section class="nv-panel" aria-label="当前报价入口">
+        <div class="nv-panel-head"><div><span class="nv-eyebrow">QUOTE</span><h2>先拿到参考范围</h2></div><span data-config="priceRow"><strong data-config="price">按需求报价</strong></span></div>
+        <div class="nv-quote-compact">
+          <p class="muted" style="margin:0">不需要先找客服聊天。选择游戏和任务，留下回访方式，系统生成统一业务编号。</p>
+          <a class="nv-btn nv-btn--primary" href="#quick-actions" data-primary-cta>开始 30 秒询价</a>
+          <a class="nv-btn nv-btn--ghost" href="/contact">我想直接找客服</a>
+        </div>
+      </section>
+    </div>
+
+    <nav class="nv-safety" aria-label="服务边界">
+      <a href="/records"><strong>业务有编号</strong><span>查询状态与客服备注</span></a>
+      <a href="/rules"><strong>规则先公开</strong><span>范围、退款与争议处理</span></a>
+      <a href="/privacy"><strong>网页不收密码</strong><span>验证码、令牌也不要提交</span></a>
+      <a href="/trust"><strong>信息可核对</strong><span>主体、备案与服务说明</span></a>
+    </nav>
+
+    <div class="nv-home-grid" style="grid-template-columns:1fr">
+      <section class="nv-panel" aria-label="热门服务">
+        <div class="nv-panel-head"><div><span class="nv-eyebrow">POPULAR</span><h2>当前热门服务</h2></div><a class="text-link" href="/services">进入服务大厅 →</a></div>
+        <div id="hotServices" class="grid4"></div>
+      </section>
+    </div>
+
+    <div class="nv-home-grid" id="quick-actions">
+      <section class="nv-panel" aria-labelledby="novaQuoteTitle">
+        <div class="nv-panel-head"><div><span class="nv-eyebrow">QUICK QUOTE</span><h2 id="novaQuoteTitle">30 秒快速询价</h2></div><span class="muted">提交后生成业务编号</span></div>
+        <form id="quoteForm" data-linked-quote>
+          <div class="linked-selects four-step">
+            <div class="field"><label for="home-game">游戏 *</label><select id="home-game" name="game" required data-link-game><option value="">请选择游戏</option></select></div>
+            <div class="field"><label for="home-platform">平台</label><select id="home-platform" name="platform" data-link-platform><option value="">不确定 / 请选择</option><option value="Steam">Steam</option><option value="Battle.net">Battle.net</option><option value="PlayStation">PlayStation</option><option value="Xbox">Xbox</option><option value="Nintendo Switch 2">Switch 2</option></select><div class="platform-select" data-platform-picker></div></div>
+            <div class="field"><label for="home-category">需求类型 *</label><select id="home-category" required data-link-category disabled><option value="">请先选择游戏</option></select></div>
+            <div class="field"><label for="home-demand">具体服务 *</label><select id="home-demand" name="demand" required data-link-service disabled><option value="">请先选择需求类型</option></select></div>
+          </div>
+          <div class="quote-extras-content" style="margin-top:12px">
+            <div class="field"><label for="home-progress">当前进度</label><select id="home-progress" name="currentProgress"><option value="">不确定</option><option value="未开始">未开始</option><option value="刚开始">刚开始</option><option value="进行中">进行中</option><option value="接近完成">接近完成</option><option value="已有部分进度，截图为准">已有部分进度</option></select></div>
+            <div class="field upload-field"><label for="home-file">任务截图（可选）</label><input id="home-file" class="upload-input" name="file" type="file" accept="image/jpeg,image/png,image/*" data-upload-input><label class="upload-zone" for="home-file"><span class="upload-copy"><strong data-file-name>上传任务截图</strong><span>JPG / PNG · ≤5MB</span></span><span class="upload-action">选择图片</span></label></div>
+          </div>
+          <div class="contact-combo" style="margin-top:12px">
+            <div class="contact-combo-head"><b>联系方式 *</b><small class="contact-required-hint">仅用于客服确认报价和排期</small></div>
+            <div class="contact-combo-grid">
+              <div class="contact-combo-field"><label for="home-contact-method">方式</label><select id="home-contact-method" name="contactMethod" required><option value="">请选择</option><option value="微信">微信</option><option value="QQ">QQ</option><option value="手机">手机</option><option value="其他">其他</option></select></div>
+              <div class="contact-combo-field"><label for="home-contact">联系号</label><div class="contact-number-row"><select class="phone-code-select hidden" data-phone-code aria-label="国家区号"></select><input id="home-contact" name="customerContact" maxlength="120" required placeholder="微信 / 手机 / QQ"></div></div>
+            </div>
+          </div>
+          <label class="legal-consent" style="margin-top:12px"><input type="checkbox" name="privacyConsent" required><span>我已阅读并同意 <a href="/rules" target="_blank" rel="noopener">服务规则</a> 和 <a href="/privacy" target="_blank" rel="noopener">隐私说明</a>，不会提交账号密码、验证码或令牌。</span></label>
+          <button class="nv-btn nv-btn--primary btn-wide quote-submit" type="submit" style="margin-top:12px">提交需求并获取业务编号</button>
+          <div id="quoteMsg" aria-live="polite"></div>
+        </form>
+      </section>
+
+      <aside class="nv-panel" aria-label="联系方式">
+        <div class="nv-panel-head"><div><span class="nv-eyebrow" data-config="quickContactTitle">CONTACT</span><h2>需要人工确认？</h2></div><a class="text-link" href="/contact">全部方式 →</a></div>
+        <div id="homeContactList"><div class="quick-contact-item"><div class="quick-contact-row"><span>微信</span><strong id="homeWechatQuick" data-contact="wechat" th:text="${contactFallback}">AAC9878</strong><button class="nv-btn small-btn" type="button" data-copy="#homeWechatQuick">复制</button></div></div></div>
+        <div class="quick-contact-time"><span>在线时间</span><strong data-config="serviceHours">10:00–24:00</strong></div>
+        <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--nv-line)">
+          <span class="nv-eyebrow">PROCESS</span>
+          <div class="detail-list" style="margin-top:10px"><strong>01</strong><span>提交需求与当前进度</span><strong>02</strong><span>客服确认范围、价格和排期</span><strong>03</strong><span>按业务编号持续查询进度</span></div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="nv-home-grid" id="gameEntrySection" style="grid-template-columns:1fr" hidden>
+      <section class="nv-panel"><div class="nv-panel-head"><div><span class="nv-eyebrow">ALL GAMES</span><h2>其他游戏</h2></div><a class="text-link" href="/services">查看全部 →</a></div><div id="homeGameRail"></div></section>
+    </div>
+
+    <div class="nv-home-grid" id="publicCaseSection" style="grid-template-columns:1fr" hidden>
+      <section class="nv-panel"><div class="nv-panel-head"><div><span class="nv-eyebrow">RECENT</span><h2>近期完成</h2></div><a class="text-link" href="/trust">服务说明 →</a></div><div id="publicCaseGrid" class="grid4"></div></section>
+    </div>
+
+    <div class="nv-home-grid" style="grid-template-columns:1fr">
+      <section class="nv-panel">
+        <div class="nv-panel-head"><div><span class="nv-eyebrow">FAQ</span><h2>下单前先看</h2></div><a class="text-link" href="/rules">完整规则 →</a></div>
+        <div class="grid2">
+          <details><summary>报价怎么计算？</summary><p class="muted">按当前进度、目标、平台和任务难度确认。页面价格仅作参考，最终金额以人工确认结果为准。</p></details>
+          <details><summary>需要提供账号密码吗？</summary><p class="muted">网页不会收账号密码、验证码或令牌。具体操作方式由客服在确认服务时单独沟通。</p></details>
+          <details><summary>怎么查进度？</summary><p class="muted">提交后会生成统一业务编号，在业务记录页查询当前阶段与客服备注。</p></details>
+          <details><summary>怎么付款？</summary><p class="muted">确认报价后按页面公开的担保渠道交易，网站页面本身不要求直接转账。</p></details>
+        </div>
+      </section>
+    </div>
+  </main>
+  <nav class="nv-mobile-dock" aria-label="手机快捷操作">
+    <a href="/" data-nv-route>首页</a><a href="/services" data-nv-route>服务</a><a class="nv-dock-primary" href="/quote" data-nv-route>询价</a><a href="/records" data-nv-route>进度</a><a href="/account" data-nv-route>我的</a>
+  </nav>
+</div>
+</body>
+</html>

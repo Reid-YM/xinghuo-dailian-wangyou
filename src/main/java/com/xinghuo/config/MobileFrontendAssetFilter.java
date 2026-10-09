@@ -24,8 +24,9 @@ public class MobileFrontendAssetFilter extends OncePerRequestFilter {
     private static final String ASSETS = MARKER
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-app.css?v=20261009m2\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-compact.css?v=20261009mc1\">"
-            + "<link rel=\"stylesheet\" href=\"/assets/mobile-screenshot-fixes.css?v=20261009msf1\">"
+            + "<link rel=\"stylesheet\" href=\"/assets/mobile-screenshot-fixes.css?v=20261009msf2\">"
             + "<link rel=\"stylesheet\" href=\"/assets/mobile-flat-overflow.css?v=20261009mfo1\">"
+            + "<link rel=\"stylesheet\" href=\"/assets/mobile-runtime-fixes.css?v=20261009mrf1\">"
             + "<script defer src=\"/assets/mobile-app.js?v=20261009m2\"></script>"
             + "<script defer src=\"/assets/mobile-visual-runtime.js?v=20261009mv1\"></script>";
 

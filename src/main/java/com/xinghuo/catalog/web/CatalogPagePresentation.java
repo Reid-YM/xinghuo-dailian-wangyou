@@ -1,6 +1,5 @@
 package com.xinghuo.catalog.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -123,7 +122,7 @@ public class CatalogPagePresentation {
         if (image == null || image.isBlank()) {
             return "https://wydlgf.cn/og.png";
         }
-        String lower = image.toLowerCase(Locale.ROOT);
+        String lower = image.toLowerCase();
         if (!(lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".webp"))) {
             return "https://wydlgf.cn/og.png";
         }

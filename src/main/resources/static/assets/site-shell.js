@@ -1,6 +1,7 @@
 (() => {
   const getBar = () => document.getElementById('announcementBar');
   const brandLogoHref = '/assets/brand-logo.svg?v=20261008logo01';
+  const mobileFocusHref = '/assets/vnext-mobile-focus-v7.css?v=20261010ui07';
   let frame = 0;
 
   function ensureBrandAssets() {
@@ -15,6 +16,15 @@
       document.head.appendChild(icon);
     }
     icon.href = brandLogoHref;
+  }
+
+  function ensureMobileFocusStyles() {
+    if (!document.head || document.head.querySelector('link[data-vnext-mobile-focus]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = mobileFocusHref;
+    link.setAttribute('data-vnext-mobile-focus', '1');
+    document.head.appendChild(link);
   }
 
   function ensureFloatingSupport() {
@@ -77,6 +87,7 @@
 
   function start() {
     ensureBrandAssets();
+    ensureMobileFocusStyles();
     ensureFloatingSupport();
     const bar = getBar();
     if (!bar) return;

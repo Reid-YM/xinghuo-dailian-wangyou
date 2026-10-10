@@ -7,14 +7,14 @@ import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.GameStatus;
-import com.xinghuo.model.Quote;
 import com.xinghuo.model.UploadAsset;
+import com.xinghuo.quote.application.QuoteApplicationService;
+import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.service.AdminTestFeedbackService;
 import com.xinghuo.service.DashboardService;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.OrderService;
-import com.xinghuo.service.QuoteService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SlotService;
 import com.xinghuo.service.TaxonomyService;
@@ -52,7 +52,7 @@ public class AdminApiController {
     private final DashboardService dashboard;
     private final SiteConfigService config;
     private final CatalogApplicationService services;
-    private final QuoteService quotes;
+    private final QuoteApplicationService quotes;
     private final OrderService orders;
     private final SlotService slots;
     private final UploadService uploads;
@@ -114,7 +114,7 @@ public class AdminApiController {
             case "BACKGROUND_MOBILE" -> UploadAsset.Kind.SITE_BACKGROUND;
             case "WECHAT_QR" -> UploadAsset.Kind.SITE_WECHAT_QR;
             case "CONTACT_QR" -> UploadAsset.Kind.SITE_WECHAT_QR;
-            default -> throw new BadRequestException("\u975e\u6cd5\u56fe\u7247\u4f4d\u7f6e");
+            default -> throw new BadRequestException("非法图片位置");
         };
         UploadAsset asset = this.uploads.storeImage(file, kind);
         this.uploads.bind(asset.getId(), "SITE_CONFIG", key);
@@ -177,7 +177,7 @@ public class AdminApiController {
         UploadAsset.Kind imageKind = switch (kind.trim().toUpperCase(Locale.ROOT)) {
             case "LOGO" -> UploadAsset.Kind.GAME_LOGO;
             case "COVER" -> UploadAsset.Kind.GAME_COVER;
-            default -> throw new BadRequestException("\u975e\u6cd5\u6e38\u620f\u56fe\u7247\u7c7b\u578b");
+            default -> throw new BadRequestException("非法游戏图片类型");
         };
         UploadAsset asset = this.uploads.storeImage(file, imageKind);
         return new ApiDtos.SiteImageUploadResponse("/api/site-assets/" + String.valueOf(asset.getId()));
@@ -246,33 +246,35 @@ public class AdminApiController {
 
     @GetMapping(value={"/quotes"})
     List<ApiDtos.QuoteAdminResponse> quotes() {
-        return this.quotes.list();
+        return QuoteWebMapper.toAdminResponses(this.quotes.list());
     }
 
     @PatchMapping(value={"/quotes/{id}/status"})
     ApiDtos.QuoteAdminResponse quoteStatus(@PathVariable UUID id, @Valid @RequestBody ApiDtos.QuoteStatusUpdate r, Authentication a, HttpServletRequest req) {
-        return this.quotes.updateStatus(id, r, a.getName(), req);
+        return QuoteWebMapper.toResponse(
+                this.quotes.updateStatus(id, QuoteWebMapper.toCommand(r), a.getName()));
     }
 
     @DeleteMapping(value={"/quotes/{id}"})
     @PreAuthorize(value="hasRole('ADMIN')")
     ResponseEntity<Void> deleteQuote(@PathVariable UUID id, Authentication a, HttpServletRequest req) {
-        this.quotes.delete(id, a.getName(), req);
+        this.quotes.delete(id, a.getName());
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value={"/quotes/{id}/convert"})
     ApiDtos.AdminOrderResponse convertQuote(@PathVariable UUID id, @Valid @RequestBody ApiDtos.QuoteConvertRequest r, Authentication a, HttpServletRequest req) {
-        return this.quotes.convertToOrder(id, r, a.getName(), req);
+        return QuoteWebMapper.toResponse(
+                this.quotes.convertToOrder(id, QuoteWebMapper.toCommand(r), a.getName()));
     }
 
     @GetMapping(value={"/quotes/{id}/image"})
     ResponseEntity<Resource> quoteImage(@PathVariable UUID id) {
-        Quote q = this.quotes.find(id);
-        if (q.getScreenshotAssetId() == null) {
+        var q = this.quotes.find(id);
+        if (q.screenshotAssetId() == null) {
             throw new NotFoundException();
         }
-        return ResponseEntity.ok().contentType(this.uploads.mediaType(q.getScreenshotAssetId())).cacheControl(CacheControl.noStore()).body(this.uploads.load(q.getScreenshotAssetId(), "QUOTE", q.getId().toString()));
+        return ResponseEntity.ok().contentType(this.uploads.mediaType(q.screenshotAssetId())).cacheControl(CacheControl.noStore()).body(this.uploads.load(q.screenshotAssetId(), "QUOTE", q.id().toString()));
     }
 
     @GetMapping(value={"/orders"})
@@ -350,7 +352,7 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteService quotes, OrderService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
+    public AdminApiController(DashboardService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
         this.dashboard = dashboard;
         this.config = config;
         this.services = services;
@@ -366,4 +368,3 @@ public class AdminApiController {
         this.gameStatuses = gameStatuses;
     }
 }
-

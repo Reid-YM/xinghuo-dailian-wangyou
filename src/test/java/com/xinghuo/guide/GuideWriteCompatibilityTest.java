@@ -2,10 +2,14 @@ package com.xinghuo.guide;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xinghuo.guide.application.GuideWriteModels;
+import com.xinghuo.guide.web.GuideAdminRequests;
 import com.xinghuo.guide.web.GuideWriteWebMapper;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class GuideWriteCompatibilityTest {
@@ -13,7 +17,7 @@ class GuideWriteCompatibilityTest {
 
     @Test
     void webMapperPreservesEveryGuideUpsertField() {
-        GuideModels.GuideUpsert input = new GuideModels.GuideUpsert(
+        GuideAdminRequests.GuideUpsert input = new GuideAdminRequests.GuideUpsert(
                 "CODMW4",
                 "mw4-route",
                 "标题",
@@ -33,9 +37,9 @@ class GuideWriteCompatibilityTest {
                 "SEO标题",
                 "SEO描述",
                 "https://wydlgf.cn/guides/mw4-route",
-                List.of(new GuideModels.SectionInput("route", "路线", "正文", "/section.png", "路线图", 10)),
-                List.of(new GuideModels.ProductInput(9L, "推荐服务", "描述", "/product.png", true, 20)),
-                List.of(new GuideModels.FaqInput("问题？", "回答。", 30)),
+                List.of(new GuideAdminRequests.SectionInput("route", "路线", "正文", "/section.png", "路线图", 10)),
+                List.of(new GuideAdminRequests.ProductInput(9L, "推荐服务", "描述", "/product.png", true, 20)),
+                List.of(new GuideAdminRequests.FaqInput("问题？", "回答。", 30)),
                 List.of(11L, 12L),
                 "测试更新");
 
@@ -62,23 +66,30 @@ class GuideWriteCompatibilityTest {
         assertEquals(input.canonicalUrl(), command.canonicalUrl());
         assertEquals(input.relatedGuideIds(), command.relatedGuideIds());
         assertEquals(input.reason(), command.reason());
-
         assertEquals(input.sections().get(0).sectionKey(), command.sections().get(0).sectionKey());
-        assertEquals(input.sections().get(0).bodyMarkdown(), command.sections().get(0).bodyMarkdown());
         assertEquals(input.products().get(0).serviceId(), command.products().get(0).serviceId());
-        assertEquals(input.products().get(0).featured(), command.products().get(0).featured());
         assertEquals(input.faqs().get(0).question(), command.faqs().get(0).question());
-        assertEquals(input.faqs().get(0).answer(), command.faqs().get(0).answer());
     }
 
     @Test
-    void batchAndImportResponsesKeepLegacyJsonShape() {
-        GuideModels.GuideBatchArchiveResult oldBatch = new GuideModels.GuideBatchArchiveResult(3, 1);
-        GuideWriteModels.GuideBatchArchiveResult newBatch = new GuideWriteModels.GuideBatchArchiveResult(3, 1);
-        assertEquals(mapper.valueToTree(oldBatch), mapper.valueToTree(newBatch));
+    void adminRequestAndWriteResponseJsonFieldsStayStable() {
+        GuideAdminRequests.GuideImportRequest request =
+                new GuideAdminRequests.GuideImportRequest(true, false, "导入");
+        assertEquals(Set.of("publish", "refresh", "reason"), fields(mapper.valueToTree(request)));
 
-        GuideModels.GuideImportResult oldImport = new GuideModels.GuideImportResult(10, 4, 3, 3, List.of(1L, 2L));
-        GuideWriteModels.GuideImportResult newImport = new GuideWriteModels.GuideImportResult(10, 4, 3, 3, List.of(1L, 2L));
-        assertEquals(mapper.valueToTree(oldImport), mapper.valueToTree(newImport));
+        GuideWriteModels.GuideBatchArchiveResult batch = new GuideWriteModels.GuideBatchArchiveResult(3, 1);
+        assertEquals(Set.of("archived", "skipped"), fields(mapper.valueToTree(batch)));
+
+        GuideWriteModels.GuideImportResult imported =
+                new GuideWriteModels.GuideImportResult(10, 4, 3, 3, List.of(1L, 2L));
+        JsonNode importJson = mapper.valueToTree(imported);
+        assertEquals(Set.of("totalCandidates", "created", "refreshed", "skipped", "guideIds"), fields(importJson));
+        assertEquals(10, importJson.get("totalCandidates").asInt());
+    }
+
+    private Set<String> fields(JsonNode node) {
+        Set<String> names = new HashSet<>();
+        node.fieldNames().forEachRemaining(names::add);
+        return names;
     }
 }

@@ -120,7 +120,7 @@ class AccountInformationArchitectureContractTest {
     @Test
     void sharedNavigationUsesCanonicalAccountEntry() throws IOException {
         String site = read("resources/templates/fragments/site.html");
-        String settings = read("java/com/xinghuo/service/SiteSettingService.java");
+        String settings = read("java/com/xinghuo/sitesetting/application/SiteSettingApplicationService.java");
         String controls = read("resources/static/assets/global-ui-controls.js");
         assertTrue(site.contains("href=\"/account\" data-account-entry"));
         assertTrue(site.contains("href=\"/account\" data-global-ui=\"footer-console\""));

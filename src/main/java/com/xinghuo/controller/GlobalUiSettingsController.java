@@ -3,7 +3,8 @@ package com.xinghuo.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xinghuo.model.AuditLog;
 import com.xinghuo.repository.AuditLogRepository;
-import com.xinghuo.service.SiteSettingService;
+import com.xinghuo.sitesetting.application.SiteSettingApplicationService;
+import com.xinghuo.sitesetting.web.SiteSettingWebMapper;
 import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
@@ -19,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/global-ui-settings")
 public class GlobalUiSettingsController {
-    private final SiteSettingService settings;
+    private final SiteSettingApplicationService settings;
     private final AuditLogRepository audits;
     private final ObjectMapper mapper;
 
-    public GlobalUiSettingsController(SiteSettingService settings, AuditLogRepository audits, ObjectMapper mapper) {
+    public GlobalUiSettingsController(SiteSettingApplicationService settings, AuditLogRepository audits, ObjectMapper mapper) {
         this.settings = settings;
         this.audits = audits;
         this.mapper = mapper;
@@ -41,7 +42,8 @@ public class GlobalUiSettingsController {
         Map<String, String> before = settings.globalUiSettings();
         LinkedHashMap<String, Object> values = new LinkedHashMap<>(body == null ? Map.of() : body);
         String reason = cleanReason(values.remove("reason"));
-        Map<String, String> after = settings.updateGlobalUiSettings(values);
+        Map<String, String> after = settings.updateGlobalUiSettings(
+                SiteSettingWebMapper.toGlobalUiCommand(values));
 
         audits.save(AuditLog.builder()
                 .action("GLOBAL_UI_SETTINGS_UPDATE")

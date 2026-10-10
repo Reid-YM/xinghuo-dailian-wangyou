@@ -1,18 +1,13 @@
-package com.xinghuo.service;
+package com.xinghuo.sitesetting.application;
 
 import com.xinghuo.exception.BadRequestException;
-import com.xinghuo.model.SiteSetting;
-import com.xinghuo.repository.SiteSettingRepository;
-import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import lombok.Generated;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class SiteSettingService {
+public class SiteSettingApplicationService {
     private static final Map<String, String> GLOBAL_UI_DEFAULTS = Map.ofEntries(
             Map.entry("navServicesLabel", "服务"),
             Map.entry("navServicesVisible", "true"),
@@ -53,9 +48,7 @@ public class SiteSettingService {
             "footerRulesVisible", "footerPrivacyVisible", "footerContactVisible",
             "homeQuickContactVisible", "icpVisible", "publicSecurityVisible"
     );
-
     private static final Set<String> GLOBAL_UI_KEYS = GLOBAL_UI_DEFAULTS.keySet();
-
     private static final Set<String> PUBLIC_KEYS = Set.of(
             "legalEntityName", "brandName", "wechat", "serviceHours", "icpNumber",
             "publicSecurityNumber", "siteTitleSuffix", "defaultOgImage", "faviconPath",
@@ -69,54 +62,44 @@ public class SiteSettingService {
             "icpVisible", "publicSecurityVisible"
     );
 
-    private final SiteSettingRepository repo;
+    private final SiteSettingPort port;
 
-    @Transactional(readOnly=true)
+    public SiteSettingApplicationService(SiteSettingPort port) {
+        this.port = port;
+    }
+
     public Map<String, String> publicSettings() {
         LinkedHashMap<String, String> out = new LinkedHashMap<>();
         out.putAll(GLOBAL_UI_DEFAULTS);
-        for (SiteSetting s : this.repo.findAll()) {
-            if (!PUBLIC_KEYS.contains(s.getSettingKey())) continue;
-            String value = s.getSettingValue();
-            if (value != null && !value.isBlank()) out.put(s.getSettingKey(), value);
+        for (Map.Entry<String, String> entry : port.loadAll().entrySet()) {
+            if (!PUBLIC_KEYS.contains(entry.getKey())) continue;
+            String value = entry.getValue();
+            if (value != null && !value.isBlank()) out.put(entry.getKey(), value);
         }
         normalizeLegacyAccountLabels(out);
         return out;
     }
 
-    @Transactional(readOnly=true)
     public Map<String, String> globalUiSettings() {
         LinkedHashMap<String, String> out = new LinkedHashMap<>();
         out.putAll(GLOBAL_UI_DEFAULTS);
-        for (SiteSetting s : this.repo.findAll()) {
-            if (!GLOBAL_UI_KEYS.contains(s.getSettingKey())) continue;
-            String value = s.getSettingValue();
-            if (value != null && !value.isBlank()) out.put(s.getSettingKey(), value);
+        for (Map.Entry<String, String> entry : port.loadAll().entrySet()) {
+            if (!GLOBAL_UI_KEYS.contains(entry.getKey())) continue;
+            String value = entry.getValue();
+            if (value != null && !value.isBlank()) out.put(entry.getKey(), value);
         }
         normalizeLegacyAccountLabels(out);
         return out;
     }
 
-    /**
-     * 旧版本把同一账号体系暴露成“登录”和“用户控制台”两个概念。
-     * 新信息架构统一为“个人中心”；仅对这两个精确的历史默认值做读取期归一，
-     * 其他管理员自定义文案仍原样保留。
-     */
-    private static void normalizeLegacyAccountLabels(Map<String, String> settings) {
-        if ("登录".equals(settings.get("navAccountLabel"))) {
-            settings.put("navAccountLabel", "个人中心");
+    public Map<String, String> updateGlobalUiSettings(GlobalUiSettingsUpdateCommand command) {
+        if (command == null || command.values() == null) {
+            throw new BadRequestException("全局前端配置不能为空");
         }
-        if ("用户控制台".equals(settings.get("footerConsoleLabel"))) {
-            settings.put("footerConsoleLabel", "个人中心");
-        }
-    }
-
-    @Transactional
-    public Map<String, String> updateGlobalUiSettings(Map<String, Object> values) {
-        if (values == null) throw new BadRequestException("全局前端配置不能为空");
+        LinkedHashMap<String, String> normalizedValues = new LinkedHashMap<>();
         for (String key : GLOBAL_UI_KEYS) {
-            if (!values.containsKey(key)) continue;
-            String raw = values.get(key) == null ? "" : String.valueOf(values.get(key)).trim();
+            if (!command.values().containsKey(key)) continue;
+            String raw = command.values().get(key) == null ? "" : command.values().get(key).trim();
             String normalized;
             if (BOOLEAN_KEYS.contains(key)) {
                 if (!"true".equalsIgnoreCase(raw) && !"false".equalsIgnoreCase(raw)) {
@@ -124,35 +107,33 @@ public class SiteSettingService {
                 }
                 normalized = String.valueOf(Boolean.parseBoolean(raw));
             } else {
-                if (raw.length() > 120) throw new BadRequestException("全局前端配置内容过长：" + key);
+                if (raw.length() > 120) {
+                    throw new BadRequestException("全局前端配置内容过长：" + key);
+                }
                 normalized = raw.isBlank() ? GLOBAL_UI_DEFAULTS.get(key) : raw;
             }
-            this.putInternal(key, normalized);
+            normalizedValues.put(key, normalized);
         }
-        return this.globalUiSettings();
+        port.putAll(normalizedValues);
+        return globalUiSettings();
     }
 
-    @Transactional(readOnly=true)
     public String get(String key, String fallback) {
-        String v = this.repo.findById(key).map(SiteSetting::getSettingValue).orElse(null);
-        return v == null || v.isBlank() ? fallback : v;
+        String value = port.get(key);
+        return value == null || value.isBlank() ? fallback : value;
     }
 
-    @Transactional
     public void put(String key, String value) {
         if (!PUBLIC_KEYS.contains(key)) return;
-        this.putInternal(key, value);
+        port.put(key, value);
     }
 
-    private void putInternal(String key, String value) {
-        SiteSetting s = this.repo.findById(key).orElseGet(() -> SiteSetting.builder().settingKey(key).build());
-        s.setSettingValue(value);
-        s.setUpdatedAt(Instant.now());
-        this.repo.save(s);
-    }
-
-    @Generated
-    public SiteSettingService(SiteSettingRepository repo) {
-        this.repo = repo;
+    private static void normalizeLegacyAccountLabels(Map<String, String> settings) {
+        if ("登录".equals(settings.get("navAccountLabel"))) {
+            settings.put("navAccountLabel", "个人中心");
+        }
+        if ("用户控制台".equals(settings.get("footerConsoleLabel"))) {
+            settings.put("footerConsoleLabel", "个人中心");
+        }
     }
 }

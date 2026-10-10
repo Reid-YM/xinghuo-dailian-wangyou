@@ -2,13 +2,13 @@ package com.xinghuo.service;
 
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
-import com.xinghuo.gamestatus.application.GameStatusApplicationService;
-import com.xinghuo.gamestatus.application.GameStatusView;
 import com.xinghuo.model.ServiceItem;
 import com.xinghuo.model.SiteConfig;
 import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.repository.SiteConfigRepository;
 import com.xinghuo.service.AuditService;
+import com.xinghuo.siteconfig.application.SiteOperatingStatusView;
+import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
 import com.xinghuo.sitesetting.application.SiteSettingApplicationService;
 import com.xinghuo.slot.application.SlotApplicationService;
 import com.xinghuo.slot.web.SlotWebMapper;
@@ -32,13 +32,14 @@ public class SiteConfigService {
     private final ServiceItemRepository serviceRepo;
     private final SlotApplicationService slotService;
     private final AuditService audit;
-    private final GameStatusApplicationService gameStatuses;
+    private final SiteRuntimeApplicationService runtimeConfig;
     private final SiteSettingApplicationService siteSettings;
 
     @Transactional(readOnly=true)
     public ApiDtos.SiteConfigResponse publicConfig() {
         SiteConfig c = this.get();
-        return new ApiDtos.SiteConfigResponse(c.getBrandName(), c.getLegalEntityName(), this.mw4Status().name().toLowerCase(Locale.ROOT), this.mw4ShortText(c), this.mw4CtaLabel(c), c.isQuoteEnabled(), c.isOrderQueryEnabled(), c.getHeroTitle(), c.getHeroSubtitle(), c.getStartingPriceMode().name().toLowerCase(Locale.ROOT), this.displayStartingPrice(c), c.isShowStartingPrice(), c.getHomeServiceLimit(), c.getHomeServiceMobileLimit(), c.getHomeServiceDesktopColumns(), c.getHomeServiceMobileColumns(), this.normalizeDensity(c.getServiceCardDensity()).toLowerCase(Locale.ROOT), this.normalizeDensity(c.getServiceCardMobileDensity()).toLowerCase(Locale.ROOT), c.getHeroImage(), c.getHeroImageHeight(), c.getHeroImageFit().toLowerCase(Locale.ROOT), c.getHeroImagePositionX(), c.getHeroImagePositionY(), c.getHeroImageMobileHeight(), c.getHeroImageMobileFit().toLowerCase(Locale.ROOT), c.getHeroImageMobilePositionX(), c.getHeroImageMobilePositionY(), c.getHeroBackgroundImage(), c.getHeroBackgroundMobileImage(), c.getHeroBackgroundMobileHeight(), c.getHeroBackgroundOpacity(), c.getHeroBackgroundFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundPositionX(), c.getHeroBackgroundPositionY(), c.getHeroBackgroundBlur(), c.getHeroBackgroundMobileFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundMobilePositionX(), c.getHeroBackgroundMobilePositionY(), c.getServiceCoverHeight(), c.getServiceCoverFit().toLowerCase(Locale.ROOT), c.getServiceCoverPositionX(), c.getServiceCoverPositionY(), c.getServiceCoverMobileHeight(), c.getServiceCoverMobileFit().toLowerCase(Locale.ROOT), c.getServiceCoverMobilePositionX(), c.getServiceCoverMobilePositionY(), this.splitTags(c.getTrustTags()), this.parseTrustCases(c), c.getTrustCaseHomeLimit(), c.getTrustCaseHomeMobileLimit(), this.parseTrustFaq(c), c.getTrustFaqHomeLimit(), c.getTrustFaqHomeMobileLimit(), c.isAnnouncementEnabled(), c.getAnnouncementText(), c.getContactTitle(), c.getContactIntro(), c.getWechatId(), c.getWechatQrImage(), c.getWechatQrSize(), this.parseContactChannels(c), c.getHomeContactLimit(), c.getHomeContactMobileLimit(), c.getQqId(), c.getQqLink(), c.getPhone(), c.getServiceHours(), c.getTaobaoUrl(), c.getXianyuUrl(), c.getContactNotice(), c.getWecomKefuUrl(), c.getWecomKefuNote(), c.getQuickContactTitle(), c.getTaobaoLabel(), c.getXianyuLabel(), c.getWecomKefuLabel(), c.getWecomKefuButton(), c.getQuoteSuccessText(), c.getOrderHelpText(), c.getFooterText(), c.getSeoTitle(), c.getSeoDescription(), c.getToolUpdatedNote(), c.isToolPublicEnabled(), SlotWebMapper.toPublicResponses(this.slotService.publicHotServices()));
+        SiteOperatingStatusView operating = this.runtimeConfig.operatingStatus();
+        return new ApiDtos.SiteConfigResponse(c.getBrandName(), c.getLegalEntityName(), operating.publicCode(), operating.shortText(), operating.ctaLabel(), c.isQuoteEnabled(), c.isOrderQueryEnabled(), c.getHeroTitle(), c.getHeroSubtitle(), c.getStartingPriceMode().name().toLowerCase(Locale.ROOT), this.displayStartingPrice(c), c.isShowStartingPrice(), c.getHomeServiceLimit(), c.getHomeServiceMobileLimit(), c.getHomeServiceDesktopColumns(), c.getHomeServiceMobileColumns(), this.normalizeDensity(c.getServiceCardDensity()).toLowerCase(Locale.ROOT), this.normalizeDensity(c.getServiceCardMobileDensity()).toLowerCase(Locale.ROOT), c.getHeroImage(), c.getHeroImageHeight(), c.getHeroImageFit().toLowerCase(Locale.ROOT), c.getHeroImagePositionX(), c.getHeroImagePositionY(), c.getHeroImageMobileHeight(), c.getHeroImageMobileFit().toLowerCase(Locale.ROOT), c.getHeroImageMobilePositionX(), c.getHeroImageMobilePositionY(), c.getHeroBackgroundImage(), c.getHeroBackgroundMobileImage(), c.getHeroBackgroundMobileHeight(), c.getHeroBackgroundOpacity(), c.getHeroBackgroundFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundPositionX(), c.getHeroBackgroundPositionY(), c.getHeroBackgroundBlur(), c.getHeroBackgroundMobileFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundMobilePositionX(), c.getHeroBackgroundMobilePositionY(), c.getServiceCoverHeight(), c.getServiceCoverFit().toLowerCase(Locale.ROOT), c.getServiceCoverPositionX(), c.getServiceCoverPositionY(), c.getServiceCoverMobileHeight(), c.getServiceCoverMobileFit().toLowerCase(Locale.ROOT), c.getServiceCoverMobilePositionX(), c.getServiceCoverMobilePositionY(), this.splitTags(c.getTrustTags()), this.parseTrustCases(c), c.getTrustCaseHomeLimit(), c.getTrustCaseHomeMobileLimit(), this.parseTrustFaq(c), c.getTrustFaqHomeLimit(), c.getTrustFaqHomeMobileLimit(), c.isAnnouncementEnabled(), c.getAnnouncementText(), c.getContactTitle(), c.getContactIntro(), c.getWechatId(), c.getWechatQrImage(), c.getWechatQrSize(), this.parseContactChannels(c), c.getHomeContactLimit(), c.getHomeContactMobileLimit(), c.getQqId(), c.getQqLink(), c.getPhone(), c.getServiceHours(), c.getTaobaoUrl(), c.getXianyuUrl(), c.getContactNotice(), c.getWecomKefuUrl(), c.getWecomKefuNote(), c.getQuickContactTitle(), c.getTaobaoLabel(), c.getXianyuLabel(), c.getWecomKefuLabel(), c.getWecomKefuButton(), c.getQuoteSuccessText(), c.getOrderHelpText(), c.getFooterText(), c.getSeoTitle(), c.getSeoDescription(), c.getToolUpdatedNote(), c.isToolPublicEnabled(), SlotWebMapper.toPublicResponses(this.slotService.publicHotServices()));
     }
 
     @Transactional(readOnly=true)
@@ -385,46 +386,6 @@ public class SiteConfigService {
         return null;
     }
 
-    private SiteConfig.ServiceStatus mw4Status() {
-        SiteConfig.ServiceStatus serviceStatus;
-        if (this.gameStatuses.resolve("CODMW4", null) == null) {
-            serviceStatus = this.get().getServiceStatus();
-        } else {
-            switch (this.gameStatuses.require("CODMW4").getStatusCode()) {
-                default: {
-                    throw new MatchException(null, null);
-                }
-                case OPEN: {
-                    serviceStatus = SiteConfig.ServiceStatus.OPEN;
-                    break;
-                }
-                case PAUSED: {
-                    serviceStatus = SiteConfig.ServiceStatus.SUSPENDED;
-                    break;
-                }
-                case MAINTENANCE: {
-                    serviceStatus = SiteConfig.ServiceStatus.MAINTENANCE;
-                    break;
-                }
-                case LIMITED:
-                case PREORDER: {
-                    serviceStatus = SiteConfig.ServiceStatus.RESERVATION;
-                }
-            }
-        }
-        return serviceStatus;
-    }
-
-    private String mw4ShortText(SiteConfig fallback) {
-        GameStatusView g = this.gameStatuses.resolve("CODMW4", null);
-        return g == null ? fallback.getStatusShortText() : g.getPublicLabel();
-    }
-
-    private String mw4CtaLabel(SiteConfig fallback) {
-        GameStatusView g = this.gameStatuses.resolve("CODMW4", null);
-        return g == null || g.getCtaLabel() == null ? fallback.getPrimaryButtonLabel() : g.getCtaLabel();
-    }
-
     private SiteConfig.ServiceStatus parseStatus(String s) {
         try {
             return SiteConfig.ServiceStatus.valueOf((String)s.toUpperCase(Locale.ROOT));
@@ -653,12 +614,12 @@ public class SiteConfigService {
     }
 
     @Generated
-    public SiteConfigService(SiteConfigRepository repo, ServiceItemRepository serviceRepo, SlotApplicationService slotService, AuditService audit, GameStatusApplicationService gameStatuses, SiteSettingApplicationService siteSettings) {
+    public SiteConfigService(SiteConfigRepository repo, ServiceItemRepository serviceRepo, SlotApplicationService slotService, AuditService audit, SiteRuntimeApplicationService runtimeConfig, SiteSettingApplicationService siteSettings) {
         this.repo = repo;
         this.serviceRepo = serviceRepo;
         this.slotService = slotService;
         this.audit = audit;
-        this.gameStatuses = gameStatuses;
+        this.runtimeConfig = runtimeConfig;
         this.siteSettings = siteSettings;
     }
 }

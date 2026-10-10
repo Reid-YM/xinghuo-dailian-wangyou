@@ -2,6 +2,7 @@ package com.xinghuo.siteconfig.application;
 
 import com.xinghuo.gamestatus.application.GameStatusApplicationService;
 import com.xinghuo.gamestatus.application.GameStatusView;
+import com.xinghuo.siteconfig.domain.SiteOperatingStatusCode;
 import com.xinghuo.siteconfig.domain.SiteRuntimeState;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +28,28 @@ public class SiteRuntimeApplicationService {
     }
 
     public boolean acceptingOrders() {
+        return operatingStatus().acceptingOrders();
+    }
+
+    public SiteOperatingStatusView operatingStatus() {
         SiteRuntimeState runtime = port.load();
         GameStatusView mw4 = gameStatuses.resolve("CODMW4", null);
-        return mw4 == null ? runtime.acceptingOrders() : mw4.getStatusCode().acceptingOrders();
+        if (mw4 == null) {
+            return new SiteOperatingStatusView(
+                    runtime.operatingStatus(),
+                    runtime.statusShortText(),
+                    runtime.primaryButtonLabel());
+        }
+
+        SiteOperatingStatusCode status = switch (mw4.getStatusCode()) {
+            case OPEN -> SiteOperatingStatusCode.OPEN;
+            case PAUSED -> SiteOperatingStatusCode.SUSPENDED;
+            case MAINTENANCE -> SiteOperatingStatusCode.MAINTENANCE;
+            case LIMITED, PREORDER -> SiteOperatingStatusCode.RESERVATION;
+        };
+        String ctaLabel = mw4.getCtaLabel() == null
+                ? runtime.primaryButtonLabel()
+                : mw4.getCtaLabel();
+        return new SiteOperatingStatusView(status, mw4.getPublicLabel(), ctaLabel);
     }
 }

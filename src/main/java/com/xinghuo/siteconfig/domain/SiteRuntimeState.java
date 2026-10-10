@@ -4,5 +4,7 @@ package com.xinghuo.siteconfig.domain;
 public record SiteRuntimeState(
         boolean quoteEnabled,
         boolean orderQueryEnabled,
-        boolean acceptingOrders) {
+        SiteOperatingStatusCode operatingStatus,
+        String statusShortText,
+        String primaryButtonLabel) {
 }

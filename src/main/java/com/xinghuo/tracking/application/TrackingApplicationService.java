@@ -14,4 +14,8 @@ public class TrackingApplicationService {
     public void track(TrackingCommand command) {
         port.track(command);
     }
+
+    public long totalCount() {
+        return port.totalCount();
+    }
 }

@@ -2,13 +2,13 @@ package com.xinghuo.service;
 
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
-import com.xinghuo.model.GameStatus;
+import com.xinghuo.gamestatus.application.GameStatusApplicationService;
+import com.xinghuo.gamestatus.application.GameStatusView;
 import com.xinghuo.model.ServiceItem;
 import com.xinghuo.model.SiteConfig;
 import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.repository.SiteConfigRepository;
 import com.xinghuo.service.AuditService;
-import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.SiteSettingService;
 import com.xinghuo.slot.application.SlotApplicationService;
 import com.xinghuo.slot.web.SlotWebMapper;
@@ -32,7 +32,7 @@ public class SiteConfigService {
     private final ServiceItemRepository serviceRepo;
     private final SlotApplicationService slotService;
     private final AuditService audit;
-    private final GameStatusService gameStatuses;
+    private final GameStatusApplicationService gameStatuses;
     private final SiteSettingService siteSettings;
 
     @Transactional(readOnly=true)
@@ -416,12 +416,12 @@ public class SiteConfigService {
     }
 
     private String mw4ShortText(SiteConfig fallback) {
-        GameStatus g = this.gameStatuses.resolve("CODMW4", null);
+        GameStatusView g = this.gameStatuses.resolve("CODMW4", null);
         return g == null ? fallback.getStatusShortText() : g.getPublicLabel();
     }
 
     private String mw4CtaLabel(SiteConfig fallback) {
-        GameStatus g = this.gameStatuses.resolve("CODMW4", null);
+        GameStatusView g = this.gameStatuses.resolve("CODMW4", null);
         return g == null || g.getCtaLabel() == null ? fallback.getPrimaryButtonLabel() : g.getCtaLabel();
     }
 
@@ -653,7 +653,7 @@ public class SiteConfigService {
     }
 
     @Generated
-    public SiteConfigService(SiteConfigRepository repo, ServiceItemRepository serviceRepo, SlotApplicationService slotService, AuditService audit, GameStatusService gameStatuses, SiteSettingService siteSettings) {
+    public SiteConfigService(SiteConfigRepository repo, ServiceItemRepository serviceRepo, SlotApplicationService slotService, AuditService audit, GameStatusApplicationService gameStatuses, SiteSettingService siteSettings) {
         this.repo = repo;
         this.serviceRepo = serviceRepo;
         this.slotService = slotService;
@@ -662,5 +662,4 @@ public class SiteConfigService {
         this.siteSettings = siteSettings;
     }
 }
-
 

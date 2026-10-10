@@ -10,14 +10,14 @@ import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.feedback.application.FeedbackApplicationService;
 import com.xinghuo.feedback.web.FeedbackWebMapper;
-import com.xinghuo.model.GameStatus;
+import com.xinghuo.gamestatus.application.GameStatusApplicationService;
+import com.xinghuo.gamestatus.web.GameStatusWebMapper;
 import com.xinghuo.model.UploadAsset;
 import com.xinghuo.order.application.OrderApplicationService;
 import com.xinghuo.order.web.OrderWebMapper;
 import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
-import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.ToolStationService;
 import com.xinghuo.service.UploadService;
@@ -27,7 +27,6 @@ import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -66,7 +65,7 @@ public class AdminApiController {
     private final FeedbackApplicationService feedback;
 
     private final ToolStationService toolStation;
-    private final GameStatusService gameStatuses;
+    private final GameStatusApplicationService gameStatuses;
 
     @GetMapping(value={"/dashboard"})
     ApiDtos.DashboardResponse dashboard() {
@@ -80,13 +79,11 @@ public class AdminApiController {
 
     @PutMapping(value={"/game-status/{gameCode}"})
     Map<String, Object> updateGameStatus(@PathVariable String gameCode, @RequestBody Map<String, Object> body, Authentication auth, HttpServletRequest request) {
-        GameStatus s = this.gameStatuses.update(gameCode, this.str(body.get("status")), this.str(body.get("label")), this.str(body.get("detail")), this.str(body.get("ctaLabel")), auth == null ? "admin" : auth.getName(), request);
-        LinkedHashMap<String, Object> out = new LinkedHashMap<String, Object>();
-        out.put("game", s.getGameCode());
-        out.put("status", s.getStatusCode().name().toLowerCase(Locale.ROOT));
-        out.put("label", s.getPublicLabel());
-        out.put("updatedAt", s.getUpdatedAt());
-        return out;
+        return GameStatusWebMapper.toAdminResponse(
+                this.gameStatuses.update(GameStatusWebMapper.toCommand(
+                        gameCode,
+                        body,
+                        auth == null ? "admin" : auth.getName())));
     }
 
     @PatchMapping(value={"/orders/{orderNo}/public-case"})
@@ -369,7 +366,7 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotApplicationService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
+    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotApplicationService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationService toolStation, GameStatusApplicationService gameStatuses) {
         this.dashboard = dashboard;
         this.config = config;
         this.services = services;

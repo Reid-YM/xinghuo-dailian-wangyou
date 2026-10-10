@@ -23,7 +23,6 @@ import com.xinghuo.record.web.RecordWebMapper;
 import com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService;
 import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
 import com.xinghuo.siteconfig.web.SiteConfigWebMapper;
-import com.xinghuo.sitesetting.application.SiteSettingApplicationService;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
 import com.xinghuo.toolstation.application.ToolStationApplicationService;
@@ -74,18 +73,12 @@ public class PublicApiController {
     private final AccountSessionService accountSessions;
     private final ToolStationApplicationService toolStation;
     private final ToolStationWebMapper toolStationMapper;
-    private final SiteSettingApplicationService siteSettings;
     private final RateLimiter rateLimiter;
     private final QuoteContactService quoteContacts;
 
     @GetMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse config() {
         return SiteConfigWebMapper.toResponse(this.siteConfig.get());
-    }
-
-    @GetMapping(value={"/public/site-settings"})
-    Map<String, String> siteSettings() {
-        return this.siteSettings.publicSettings();
     }
 
     @GetMapping(value={"/public/cases"})
@@ -218,7 +211,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigPublicApplicationService siteConfig, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, SiteSettingApplicationService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigPublicApplicationService siteConfig, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.siteConfig = siteConfig;
         this.runtimeConfig = runtimeConfig;
         this.services = services;
@@ -231,7 +224,6 @@ public class PublicApiController {
         this.accountSessions = accountSessions;
         this.toolStation = toolStation;
         this.toolStationMapper = toolStationMapper;
-        this.siteSettings = siteSettings;
         this.rateLimiter = rateLimiter;
         this.quoteContacts = quoteContacts;
     }

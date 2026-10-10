@@ -18,7 +18,7 @@ class ApiApplicationBoundaryContractTest {
 
     @Test
     void featureApplicationPackagesOwnTheirContracts() throws IOException {
-        for (String feature : new String[] {"quote", "order", "catalog", "record", "dashboard"}) {
+        for (String feature : new String[] {"quote", "order", "catalog", "record", "dashboard", "feedback"}) {
             Path application = ROOT.resolve("src/main/java/com/xinghuo/" + feature + "/application");
             try (Stream<Path> files = Files.list(application)) {
                 for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
@@ -41,6 +41,7 @@ class ApiApplicationBoundaryContractTest {
         String orderMapper = read("src/main/java/com/xinghuo/order/web/OrderWebMapper.java");
         String recordMapper = read("src/main/java/com/xinghuo/record/web/RecordWebMapper.java");
         String dashboardMapper = read("src/main/java/com/xinghuo/dashboard/web/DashboardWebMapper.java");
+        String feedbackMapper = read("src/main/java/com/xinghuo/feedback/web/FeedbackWebMapper.java");
         String catalogMapper = read("src/main/java/com/xinghuo/catalog/web/CatalogWebMapper.java");
         String catalogAdminMapper = read("src/main/java/com/xinghuo/catalog/web/CatalogAdminWebMapper.java");
 
@@ -51,6 +52,8 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(publicController.contains("RecordWebMapper.toResponse"));
         assertTrue(publicController.contains("CatalogWebMapper.toResponses"));
         assertTrue(adminController.contains("DashboardWebMapper.toResponse"));
+        assertTrue(adminController.contains("FeedbackWebMapper.toCommand"));
+        assertTrue(adminController.contains("FeedbackWebMapper.toResponse"));
 
         assertTrue(quoteMapper.contains("PublicQuoteRequest"));
         assertTrue(quoteMapper.contains("ApiDtos.QuoteResponse"));
@@ -71,6 +74,13 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(dashboardMapper.contains("ApiDtos.DashboardResponse"));
         assertTrue(dashboardMapper.contains("DashboardView"));
 
+        assertTrue(feedbackMapper.contains("ApiDtos.TestFeedbackCreateRequest"));
+        assertTrue(feedbackMapper.contains("ApiDtos.TestFeedbackUpdateRequest"));
+        assertTrue(feedbackMapper.contains("ApiDtos.TestFeedbackResponse"));
+        assertTrue(feedbackMapper.contains("CreateTestFeedbackCommand"));
+        assertTrue(feedbackMapper.contains("UpdateTestFeedbackCommand"));
+        assertTrue(feedbackMapper.contains("TestFeedbackView"));
+
         assertTrue(catalogMapper.contains("ApiDtos.ServiceResponse"));
         assertTrue(catalogAdminMapper.contains("ApiDtos.ServiceUpsert"));
         assertTrue(catalogAdminMapper.contains("ApiDtos.AdminServiceResponse"));
@@ -82,6 +92,7 @@ class ApiApplicationBoundaryContractTest {
         String order = read("src/main/java/com/xinghuo/order/infrastructure/OrderPersistenceAdapter.java");
         String record = read("src/main/java/com/xinghuo/record/infrastructure/RecordPersistenceAdapter.java");
         String dashboard = read("src/main/java/com/xinghuo/dashboard/infrastructure/DashboardPersistenceAdapter.java");
+        String feedback = read("src/main/java/com/xinghuo/feedback/infrastructure/FeedbackPersistenceAdapter.java");
         String catalog = read("src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java");
 
         assertTrue(quote.contains("com.xinghuo.repository.QuoteRepository"));
@@ -106,6 +117,13 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(dashboard.contains("DashboardView"));
         assertFalse(dashboard.contains("com.xinghuo.dto"));
         assertFalse(dashboard.contains("com.xinghuo.service"));
+
+        assertTrue(feedback.contains("com.xinghuo.repository.AdminTestFeedbackRepository"));
+        assertTrue(feedback.contains("com.xinghuo.service.AuditService"));
+        assertTrue(feedback.contains("TestFeedbackView"));
+        assertTrue(feedback.contains("ServletRequestAttributes"));
+        assertFalse(feedback.contains("com.xinghuo.dto"));
+        assertFalse(feedback.contains("AdminTestFeedbackService"));
 
         assertTrue(catalog.contains("com.xinghuo.model.ServiceItem"));
         assertTrue(catalog.contains("com.xinghuo.repository.ServiceItemRepository"));
@@ -150,6 +168,13 @@ class ApiApplicationBoundaryContractTest {
 
         assertTrue(read("src/main/java/com/xinghuo/dashboard/application/DashboardView.java")
                 .contains("record DashboardView"));
+
+        assertTrue(read("src/main/java/com/xinghuo/feedback/application/TestFeedbackView.java")
+                .contains("record TestFeedbackView"));
+        assertTrue(read("src/main/java/com/xinghuo/feedback/application/CreateTestFeedbackCommand.java")
+                .contains("record CreateTestFeedbackCommand"));
+        assertTrue(read("src/main/java/com/xinghuo/feedback/application/UpdateTestFeedbackCommand.java")
+                .contains("record UpdateTestFeedbackCommand"));
 
         assertTrue(read("src/main/java/com/xinghuo/catalog/application/CatalogServiceView.java")
                 .contains("record CatalogServiceView"));

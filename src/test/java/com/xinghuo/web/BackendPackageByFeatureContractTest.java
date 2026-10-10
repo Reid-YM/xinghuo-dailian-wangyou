@@ -17,7 +17,7 @@ class BackendPackageByFeatureContractTest {
 
     @Test
     void featureModulesHaveExplicitBoundaries() {
-        for (String feature : new String[] {"quote", "order", "catalog", "record", "dashboard"}) {
+        for (String feature : new String[] {"quote", "order", "catalog", "record", "dashboard", "feedback"}) {
             Path base = ROOT.resolve("src/main/java/com/xinghuo/" + feature);
             assertTrue(Files.isDirectory(base.resolve("application")), feature + " application boundary must exist");
             assertTrue(Files.isDirectory(base.resolve("domain")), feature + " domain boundary must exist");
@@ -51,6 +51,17 @@ class BackendPackageByFeatureContractTest {
         assertTrue(controller.contains("com.xinghuo.dashboard.application.DashboardApplicationService"));
         assertTrue(controller.contains("DashboardWebMapper.toResponse"));
         assertFalse(controller.contains("import com.xinghuo.service.DashboardService;"));
+    }
+
+    @Test
+    void adminFeedbackConsumesApplicationBoundary() throws IOException {
+        String controller = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
+
+        assertTrue(controller.contains("com.xinghuo.feedback.application.FeedbackApplicationService"));
+        assertTrue(controller.contains("FeedbackWebMapper.toCommand"));
+        assertTrue(controller.contains("FeedbackWebMapper.toResponse"));
+        assertTrue(controller.contains("FeedbackWebMapper.toResponses"));
+        assertFalse(controller.contains("import com.xinghuo.service.AdminTestFeedbackService;"));
     }
 
     @Test
@@ -115,7 +126,8 @@ class BackendPackageByFeatureContractTest {
                 "src/main/java/com/xinghuo/order/application/OrderApplicationService.java",
                 "src/main/java/com/xinghuo/catalog/application/CatalogApplicationService.java",
                 "src/main/java/com/xinghuo/record/application/RecordApplicationService.java",
-                "src/main/java/com/xinghuo/dashboard/application/DashboardApplicationService.java"
+                "src/main/java/com/xinghuo/dashboard/application/DashboardApplicationService.java",
+                "src/main/java/com/xinghuo/feedback/application/FeedbackApplicationService.java"
         }) {
             String source = read(file);
             assertFalse(source.contains("com.xinghuo.repository."), file + " must not depend on legacy repositories");
@@ -132,7 +144,8 @@ class BackendPackageByFeatureContractTest {
                 "src/main/java/com/xinghuo/order/domain/OrderProgressAsset.java",
                 "src/main/java/com/xinghuo/catalog/domain/package-info.java",
                 "src/main/java/com/xinghuo/record/domain/package-info.java",
-                "src/main/java/com/xinghuo/dashboard/domain/package-info.java"
+                "src/main/java/com/xinghuo/dashboard/domain/package-info.java",
+                "src/main/java/com/xinghuo/feedback/domain/package-info.java"
         }) {
             String source = read(file);
             assertFalse(source.contains("org.springframework"), file + " must stay framework independent");
@@ -174,5 +187,12 @@ class BackendPackageByFeatureContractTest {
         assertTrue(dashboard.contains("com.xinghuo.repository.AdminTestFeedbackRepository"));
         assertFalse(dashboard.contains("com.xinghuo.service.DashboardService"));
         assertFalse(dashboard.contains("com.xinghuo.service.AdminTestFeedbackService"));
+
+        String feedback = read("src/main/java/com/xinghuo/feedback/infrastructure/FeedbackPersistenceAdapter.java");
+        assertTrue(feedback.contains("implements FeedbackPort"));
+        assertTrue(feedback.contains("com.xinghuo.repository.AdminTestFeedbackRepository"));
+        assertTrue(feedback.contains("com.xinghuo.service.AuditService"));
+        assertFalse(feedback.contains("com.xinghuo.service.AdminTestFeedbackService"));
+        assertFalse(feedback.contains("com.xinghuo.dto"));
     }
 }

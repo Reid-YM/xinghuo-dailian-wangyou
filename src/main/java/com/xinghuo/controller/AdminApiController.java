@@ -8,6 +8,8 @@ import com.xinghuo.dashboard.web.DashboardWebMapper;
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
+import com.xinghuo.feedback.application.FeedbackApplicationService;
+import com.xinghuo.feedback.web.FeedbackWebMapper;
 import com.xinghuo.model.GameStatus;
 import com.xinghuo.model.UploadAsset;
 import com.xinghuo.order.application.OrderApplicationService;
@@ -15,7 +17,6 @@ import com.xinghuo.order.web.OrderWebMapper;
 import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
-import com.xinghuo.service.AdminTestFeedbackService;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SlotService;
@@ -60,7 +61,7 @@ public class AdminApiController {
     private final UploadService uploads;
     private final AuditLogRepository audits;
     private final TaxonomyService taxonomy;
-    private final AdminTestFeedbackService feedback;
+    private final FeedbackApplicationService feedback;
 
     private final ToolStationService toolStation;
     private final GameStatusService gameStatuses;
@@ -327,29 +328,31 @@ public class AdminApiController {
 
     @GetMapping(value={"/test-feedback"})
     List<ApiDtos.TestFeedbackResponse> feedback() {
-        return this.feedback.list();
+        return FeedbackWebMapper.toResponses(this.feedback.list());
     }
 
     @PostMapping(value={"/test-feedback"})
     ApiDtos.TestFeedbackResponse createFeedback(@Valid @RequestBody ApiDtos.TestFeedbackCreateRequest r, Authentication a, HttpServletRequest req) {
-        return this.feedback.create(r, a.getName(), req);
+        return FeedbackWebMapper.toResponse(
+                this.feedback.create(FeedbackWebMapper.toCommand(r), a.getName()));
     }
 
     @PutMapping(value={"/test-feedback/{id}"})
     ApiDtos.TestFeedbackResponse updateFeedback(@PathVariable Long id, @Valid @RequestBody ApiDtos.TestFeedbackUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return this.feedback.update(id, r, a.getName(), req);
+        return FeedbackWebMapper.toResponse(
+                this.feedback.update(id, FeedbackWebMapper.toCommand(r), a.getName()));
     }
 
     @PostMapping(value={"/test-feedback/{id}/attachment"})
     ApiDtos.TestFeedbackResponse uploadFeedbackAttachment(@PathVariable Long id, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
         UploadAsset asset = this.uploads.storeImage(file, UploadAsset.Kind.TEST_FEEDBACK_ATTACHMENT);
         this.uploads.bind(asset.getId(), "TEST_FEEDBACK", String.valueOf(id));
-        return this.feedback.attach(id, asset.getId(), a.getName(), req);
+        return FeedbackWebMapper.toResponse(this.feedback.attach(id, asset.getId(), a.getName()));
     }
 
     @GetMapping(value={"/test-feedback/{id}/attachment"})
     ResponseEntity<Resource> feedbackAttachment(@PathVariable Long id) {
-        ApiDtos.TestFeedbackResponse item = this.feedback.get(id);
+        var item = this.feedback.get(id);
         if (item.attachmentAssetId() == null) {
             throw new NotFoundException();
         }
@@ -357,7 +360,7 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
+    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, FeedbackApplicationService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
         this.dashboard = dashboard;
         this.config = config;
         this.services = services;

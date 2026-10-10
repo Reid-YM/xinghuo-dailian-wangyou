@@ -1,4 +1,4 @@
-package com.xinghuo.controller;
+package com.xinghuo.publicapi.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,13 +14,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
- * Keeps persistence/admin-only identifiers out of JSON consumed by public pages.
+ * Keeps persistence/admin-only identifiers out of JSON consumed by selected public API paths.
  *
- * <p>The underlying DTOs stay unchanged because the admin console legitimately needs
- * database ids and version/source metadata. Public pages should use stable public keys
- * such as slug, game/category code and business number instead.</p>
+ * <p>The advice is path-scoped instead of controller-scoped so public routes can move into
+ * feature-owned web packages without losing the sanitization contract.</p>
  */
-@RestControllerAdvice(assignableTypes = PublicApiController.class)
+@RestControllerAdvice
 public class PublicResponseSanitizerAdvice implements ResponseBodyAdvice<Object> {
     private static final Set<String> SANITIZED_PATHS = Set.of(
             "/api/site-config",

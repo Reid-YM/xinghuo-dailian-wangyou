@@ -1,8 +1,7 @@
 package com.xinghuo.controller;
 
 import com.xinghuo.dto.QuoteLeadDtos;
-import com.xinghuo.service.QuoteService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.xinghuo.quote.application.QuoteApplicationService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.Generated;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value={"/api/admin/leads"})
 public class AdminLeadController {
-    private final QuoteService quotes;
+    private final QuoteApplicationService quotes;
 
     @GetMapping
     QuoteLeadDtos.QuoteLeadPageResponse leads(@RequestParam(value="q", required=false) String q, @RequestParam(value="status", required=false) String status, @RequestParam(value="intent", required=false) String intent, @RequestParam(value="source", required=false) String source, @RequestParam(value="page", required=false, defaultValue="0") int page, @RequestParam(value="size", required=false, defaultValue="20") int size) {
@@ -27,18 +26,17 @@ public class AdminLeadController {
     }
 
     @PatchMapping(value={"/{id}/crm"})
-    QuoteLeadDtos.QuoteLeadResponse updateCrm(@PathVariable UUID id, @Valid @RequestBody QuoteLeadDtos.QuoteCrmUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return this.quotes.updateCrm(id, r, a == null ? "admin" : a.getName(), req);
+    QuoteLeadDtos.QuoteLeadResponse updateCrm(@PathVariable UUID id, @Valid @RequestBody QuoteLeadDtos.QuoteCrmUpdateRequest r, Authentication a) {
+        return this.quotes.updateCrm(id, r, a == null ? "admin" : a.getName());
     }
 
     @PostMapping(value={"/{id}/ai-suggestion"})
-    QuoteLeadDtos.QuoteAiSuggestionResponse aiSuggestion(@PathVariable UUID id, Authentication a, HttpServletRequest req) {
-        return this.quotes.generateLeadSuggestion(id, a == null ? "admin" : a.getName(), req);
+    QuoteLeadDtos.QuoteAiSuggestionResponse aiSuggestion(@PathVariable UUID id, Authentication a) {
+        return this.quotes.generateLeadSuggestion(id, a == null ? "admin" : a.getName());
     }
 
     @Generated
-    public AdminLeadController(QuoteService quotes) {
+    public AdminLeadController(QuoteApplicationService quotes) {
         this.quotes = quotes;
     }
 }
-

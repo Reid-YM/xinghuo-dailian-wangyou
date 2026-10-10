@@ -1,7 +1,7 @@
 package com.xinghuo.siteconfig.web;
 
+import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.service.AuditService;
 import com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService;
 import com.xinghuo.siteconfig.application.SiteConfigWriteApplicationService;
 import jakarta.servlet.http.HttpServletRequest;

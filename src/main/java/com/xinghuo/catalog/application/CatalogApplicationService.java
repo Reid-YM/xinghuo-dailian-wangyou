@@ -3,7 +3,7 @@ package com.xinghuo.catalog.application;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
-/** Application boundary for public catalog reads and service administration. */
+/** Application boundary for public catalog reads, page rendering, and service administration. */
 @Service
 public class CatalogApplicationService {
     private final CatalogLegacyPort legacy;
@@ -14,6 +14,14 @@ public class CatalogApplicationService {
 
     public List<CatalogServiceView> publicList() {
         return legacy.publicList();
+    }
+
+    public List<CatalogPageServiceView> publicPageItems() {
+        return legacy.publicPageItems();
+    }
+
+    public CatalogPageServiceView publicPageBySlug(String slug) {
+        return legacy.publicPageBySlug(slug);
     }
 
     public List<CatalogAdminServiceView> adminList() {

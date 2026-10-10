@@ -32,6 +32,7 @@ class SiteConfigRuntimeBoundaryContractTest {
             try (Stream<Path> files = Files.list(directory)) {
                 for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
                     String source = Files.readString(file);
+                    assertFalse(source.contains("com.xinghuo.dto"));
                     assertFalse(source.contains("com.xinghuo.model"));
                     assertFalse(source.contains("com.xinghuo.repository"));
                     assertFalse(source.contains("com.xinghuo.service"));
@@ -43,7 +44,7 @@ class SiteConfigRuntimeBoundaryContractTest {
     }
 
     @Test
-    void persistenceAdapterOwnsSiteConfigJpaAccess() throws IOException {
+    void runtimePersistenceAdapterOwnsRuntimeJpaAccess() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/siteconfig/infrastructure/SiteRuntimePersistenceAdapter.java");
         assertTrue(adapter.contains("implements SiteRuntimePort"));
         assertTrue(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
@@ -53,6 +54,20 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(adapter.contains("config.getStatusShortText()"));
         assertTrue(adapter.contains("config.getPrimaryButtonLabel()"));
         assertTrue(adapter.contains("@Transactional(readOnly = true)"));
+    }
+
+    @Test
+    void publicQueryPersistenceAdapterOwnsProjectionParsingAndPricing() throws IOException {
+        String adapter = read("src/main/java/com/xinghuo/siteconfig/infrastructure/SiteConfigPublicPersistenceAdapter.java");
+        assertTrue(adapter.contains("implements SiteConfigPublicPort"));
+        assertTrue(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
+        assertTrue(adapter.contains("com.xinghuo.repository.ServiceItemRepository"));
+        assertTrue(adapter.contains("displayStartingPrice"));
+        assertTrue(adapter.contains("parseContactChannels"));
+        assertTrue(adapter.contains("parseTrustCases"));
+        assertTrue(adapter.contains("parseTrustFaq"));
+        assertTrue(adapter.contains("@Transactional(readOnly = true)"));
+        assertFalse(adapter.contains("com.xinghuo.dto"));
     }
 
     @Test
@@ -72,22 +87,29 @@ class SiteConfigRuntimeBoundaryContractTest {
     }
 
     @Test
-    void legacyPublicProjectionDelegatesOperatingStatusToRuntimeBoundary() throws IOException {
-        String legacy = read("src/main/java/com/xinghuo/service/SiteConfigService.java");
-        assertTrue(legacy.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
-        assertTrue(legacy.contains("runtimeConfig.operatingStatus()"));
-        assertFalse(legacy.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
-        assertFalse(legacy.contains("com.xinghuo.gamestatus.application.GameStatusView"));
-        assertFalse(legacy.contains("mw4Status("));
-        assertFalse(legacy.contains("mw4ShortText("));
-        assertFalse(legacy.contains("mw4CtaLabel("));
+    void publicSiteConfigEndpointUsesQueryBoundaryAndWebMapper() throws IOException {
+        String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        assertTrue(publicApi.contains("com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService"));
+        assertTrue(publicApi.contains("com.xinghuo.siteconfig.web.SiteConfigWebMapper"));
+        assertTrue(publicApi.contains("SiteConfigWebMapper.toResponse(this.siteConfig.get())"));
+        assertFalse(publicApi.contains("com.xinghuo.service.SiteConfigService"));
+        assertFalse(publicApi.contains("config.publicConfig()"));
+
+        String mapper = read("src/main/java/com/xinghuo/siteconfig/web/SiteConfigWebMapper.java");
+        assertTrue(mapper.contains("com.xinghuo.dto.ApiDtos"));
+        assertTrue(mapper.contains("ApiDtos.SiteConfigResponse"));
     }
 
     @Test
-    void largePublicConfigProjectionRemainsOnLegacyServiceForThisPhase() throws IOException {
-        String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
-        assertTrue(publicApi.contains("com.xinghuo.service.SiteConfigService"));
-        assertTrue(publicApi.contains("config.publicConfig()"));
+    void legacyProjectionStillSupportsAdminWritesForThisPhase() throws IOException {
+        String legacy = read("src/main/java/com/xinghuo/service/SiteConfigService.java");
+        assertTrue(legacy.contains("runtimeConfig.operatingStatus()"));
+        assertFalse(legacy.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
+        assertFalse(legacy.contains("com.xinghuo.gamestatus.application.GameStatusView"));
         assertTrue(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/service/SiteConfigService.java")));
+
+        String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
+        assertTrue(admin.contains("com.xinghuo.service.SiteConfigService"));
+        assertTrue(admin.contains("config.publicConfig()"));
     }
 }

@@ -24,10 +24,11 @@ import com.xinghuo.record.web.RecordWebMapper;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SiteSettingService;
-import com.xinghuo.service.TaxonomyService;
 import com.xinghuo.service.ToolStationService;
 import com.xinghuo.service.TrackingService;
 import com.xinghuo.service.UploadService;
+import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
+import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
 import com.xinghuo.util.HashUtil;
 import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,7 +68,7 @@ public class PublicApiController {
     private final RecordApplicationService records;
     private final UploadService uploads;
     private final TrackingService tracking;
-    private final TaxonomyService taxonomy;
+    private final TaxonomyApplicationService taxonomy;
     private final AccountSessionService accountSessions;
     private final ToolStationService toolStation;
     private final GameStatusService gameStatuses;
@@ -138,7 +139,7 @@ public class PublicApiController {
 
     @GetMapping(value={"/catalog"})
     ApiDtos.CatalogResponse catalog() {
-        return this.taxonomy.catalog(false);
+        return TaxonomyWebMapper.toResponse(this.taxonomy.catalog(false));
     }
 
     @GetMapping(value={"/tool-station"})
@@ -164,8 +165,6 @@ public class PublicApiController {
         }
         Optional<Account> current = this.accountSessions.current(req);
         Long accountId = current.map(Account::getId).orElse(null);
-        // 已登录且账号里有可用联系方式时，用它补齐表单没填的部分，避免让用户重复填写；
-        // 表单里自己填了就以表单为准，用户可以临时换成别的联系方式。
         PublicQuoteRequest payload = body;
         if (current.isPresent() && this.isBlankContact(body)) {
             Optional<QuoteContactService.StoredContact> preferred = this.quoteContacts.preferred(current.get());
@@ -186,7 +185,6 @@ public class PublicApiController {
         return body.customerContact() == null || body.customerContact().isBlank();
     }
 
-    /** 询价表单的「联系方式」取值是中文：微信 / QQ / 手机。 */
     private static String quoteContactMethod(String typeName) {
         if (typeName == null) {
             return null;
@@ -245,11 +243,6 @@ public class PublicApiController {
         return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(asset.assetId())).cacheControl(CacheControl.noStore())).body(r);
     }
 
-    /**
-     * 修复 C-1：公开进度/订单/图片端点加 IP 限流，避免把「按业务编号查进度」的
-     * 信任能力变成无节流枚举口。按键取 {@code X-Real-IP}/XFF 末段（可信来源），
-     * 超限抛 429（由 ApiExceptionHandler 统一兜底成 RATE_LIMITED）。
-     */
     private void limitByIp(HttpServletRequest req, String bucket) {
         String ip = RequestUtils.clientIp(req);
         this.rateLimiter.check(bucket + ":" + (ip == null ? "unknown" : ip),
@@ -263,7 +256,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;

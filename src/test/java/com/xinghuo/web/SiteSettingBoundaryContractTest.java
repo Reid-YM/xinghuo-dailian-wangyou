@@ -66,9 +66,14 @@ class SiteSettingBoundaryContractTest {
         assertTrue(publicApi.contains("com.xinghuo.sitesetting.application.SiteSettingApplicationService"));
         assertFalse(publicApi.contains("com.xinghuo.service.SiteSettingService"));
 
-        String siteConfig = read("src/main/java/com/xinghuo/service/SiteConfigService.java");
-        assertTrue(siteConfig.contains("com.xinghuo.sitesetting.application.SiteSettingApplicationService"));
-        assertFalse(siteConfig.contains("com.xinghuo.service.SiteSettingService"));
+        String siteConfigWrites = read("src/main/java/com/xinghuo/siteconfig/application/SiteConfigWriteApplicationService.java");
+        assertTrue(siteConfigWrites.contains("com.xinghuo.sitesetting.application.SiteSettingApplicationService"));
+        assertTrue(siteConfigWrites.contains("siteSettings.put(\"brandName\""));
+        assertTrue(siteConfigWrites.contains("siteSettings.put(\"legalEntityName\""));
+        assertTrue(siteConfigWrites.contains("siteSettings.put(\"wechat\""));
+        assertTrue(siteConfigWrites.contains("siteSettings.put(\"serviceHours\""));
+        assertTrue(siteConfigWrites.contains("siteSettings.put(\"siteTitleSuffix\""));
+        assertFalse(siteConfigWrites.contains("com.xinghuo.service.SiteSettingService"));
     }
 
     @Test

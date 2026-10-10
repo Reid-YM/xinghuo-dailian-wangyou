@@ -1,4 +1,4 @@
-package com.xinghuo.model;
+package com.xinghuo.slot.infrastructure;
 
 import com.xinghuo.model.ServiceItem;
 import jakarta.persistence.Column;

@@ -56,12 +56,31 @@ class SiteSettingBoundaryContractTest {
     }
 
     @Test
-    void allKnownConsumersUseSiteSettingApplicationBoundary() throws IOException {
-        String globalUi = read("src/main/java/com/xinghuo/controller/GlobalUiSettingsController.java");
-        assertTrue(globalUi.contains("com.xinghuo.sitesetting.application.SiteSettingApplicationService"));
-        assertTrue(globalUi.contains("com.xinghuo.sitesetting.web.SiteSettingWebMapper"));
-        assertFalse(globalUi.contains("com.xinghuo.service.SiteSettingService"));
+    void globalUiControllerLivesInFeatureWebBoundaryAndUsesApplicationFacade() throws IOException {
+        String globalUi = read("src/main/java/com/xinghuo/sitesetting/web/GlobalUiSettingsController.java");
+        assertTrue(globalUi.contains("GlobalUiSettingsAdminApplicationService"));
+        assertTrue(globalUi.contains("GlobalUiSettingsAuditContext"));
+        assertTrue(globalUi.contains("SiteSettingWebMapper.toGlobalUiCommand"));
+        assertTrue(globalUi.contains("/api/admin/global-ui-settings"));
+        assertTrue(globalUi.contains("request.getHeader(\"X-Request-Id\")"));
+        assertFalse(globalUi.contains("AuditLogRepository"));
+        assertFalse(globalUi.contains("ObjectMapper"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/GlobalUiSettingsController.java")));
+    }
 
+    @Test
+    void globalUiAuditPersistenceOwnsRepositoryAndStableAction() throws IOException {
+        String adapter = read("src/main/java/com/xinghuo/sitesetting/infrastructure/GlobalUiSettingsAuditPersistenceAdapter.java");
+        assertTrue(adapter.contains("implements GlobalUiSettingsAuditPort"));
+        assertTrue(adapter.contains("AuditLogRepository"));
+        assertTrue(adapter.contains("GLOBAL_UI_SETTINGS_UPDATE"));
+        assertTrue(adapter.contains("SITE_SETTINGS"));
+        assertTrue(adapter.contains("global-ui"));
+        assertFalse(adapter.contains("jakarta.servlet"));
+    }
+
+    @Test
+    void allOtherKnownConsumersUseSiteSettingApplicationBoundary() throws IOException {
         String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
         assertTrue(publicApi.contains("com.xinghuo.sitesetting.application.SiteSettingApplicationService"));
         assertFalse(publicApi.contains("com.xinghuo.service.SiteSettingService"));
@@ -77,8 +96,9 @@ class SiteSettingBoundaryContractTest {
     }
 
     @Test
-    void legacySiteSettingServiceStaysRetired() throws IOException {
+    void legacySiteSettingServiceAndGlobalControllerStayRetired() throws IOException {
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/service/SiteSettingService.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/GlobalUiSettingsController.java")));
         try (Stream<Path> files = Files.walk(ROOT.resolve("src/main/java"))) {
             for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
                 assertFalse(Files.readString(file).contains("com.xinghuo.service.SiteSettingService"),

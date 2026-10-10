@@ -105,4 +105,24 @@ class FinalLegacyRetirementContractTest {
         assertTrue(application.contains("QuotePort"));
         assertFalse(application.contains("QuoteLegacyPort"));
     }
+
+    @Test
+    void orderLegacyServiceIsRemovedAfterOwnedPortAndPersistenceAdapterLanded() throws IOException {
+        Path legacyService = ROOT.resolve("src/main/java/com/xinghuo/service/OrderService.java");
+        Path legacyAdapter = ROOT.resolve("src/main/java/com/xinghuo/order/infrastructure/LegacyOrderAdapter.java");
+        Path legacyPort = ROOT.resolve("src/main/java/com/xinghuo/order/application/OrderLegacyPort.java");
+        Path port = ROOT.resolve("src/main/java/com/xinghuo/order/application/OrderPort.java");
+        Path adapter = ROOT.resolve("src/main/java/com/xinghuo/order/infrastructure/OrderPersistenceAdapter.java");
+
+        assertFalse(Files.exists(legacyService));
+        assertFalse(Files.exists(legacyAdapter));
+        assertFalse(Files.exists(legacyPort));
+        assertTrue(Files.exists(port));
+        assertTrue(Files.exists(adapter));
+
+        String application = Files.readString(ROOT.resolve(
+                "src/main/java/com/xinghuo/order/application/OrderApplicationService.java"));
+        assertTrue(application.contains("OrderPort"));
+        assertFalse(application.contains("OrderLegacyPort"));
+    }
 }

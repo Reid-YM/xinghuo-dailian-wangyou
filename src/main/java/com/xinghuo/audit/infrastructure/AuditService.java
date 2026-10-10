@@ -1,4 +1,4 @@
-package com.xinghuo.service;
+package com.xinghuo.audit.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xinghuo.model.AuditLog;
@@ -9,13 +9,14 @@ import java.time.Instant;
 import lombok.Generated;
 import org.springframework.stereotype.Service;
 
+/** Shared audit infrastructure service. */
 @Service
 public class AuditService {
     private final AuditLogRepository repo;
     private final ObjectMapper mapper;
 
     public void log(String action, String targetType, String targetId, String operator, Object before, Object after, String reason, HttpServletRequest req) {
-        this.repo.save(AuditLog.builder().action(action).targetType(targetType).targetId(targetId).operatorName(operator).beforeJson(this.json(before)).afterJson(this.json(after)).reason(reason).ipAddress(req == null ? null : RequestUtil.clientIp((HttpServletRequest)req)).requestId(this.requestIdOf(req)).createdAt(Instant.now()).build());
+        this.repo.save(AuditLog.builder().action(action).targetType(targetType).targetId(targetId).operatorName(operator).beforeJson(this.json(before)).afterJson(this.json(after)).reason(reason).ipAddress(req == null ? null : RequestUtil.clientIp(req)).requestId(this.requestIdOf(req)).createdAt(Instant.now()).build());
     }
 
     private String requestIdOf(HttpServletRequest req) {
@@ -44,4 +45,3 @@ public class AuditService {
         this.mapper = mapper;
     }
 }
-

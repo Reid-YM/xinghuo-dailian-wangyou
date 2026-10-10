@@ -2,9 +2,9 @@ package com.xinghuo.guide;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
-import com.xinghuo.service.AuditService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.sql.PreparedStatement;
 import java.sql.Statement;

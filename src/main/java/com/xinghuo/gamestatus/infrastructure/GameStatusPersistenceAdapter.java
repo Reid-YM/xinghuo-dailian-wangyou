@@ -1,5 +1,6 @@
 package com.xinghuo.gamestatus.infrastructure;
 
+import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.gamestatus.application.GameStatusCode;
@@ -8,7 +9,6 @@ import com.xinghuo.gamestatus.application.GameStatusView;
 import com.xinghuo.gamestatus.application.UpdateGameStatusCommand;
 import com.xinghuo.model.GameStatus;
 import com.xinghuo.repository.GameStatusRepository;
-import com.xinghuo.service.AuditService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.List;

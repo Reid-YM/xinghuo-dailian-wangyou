@@ -1,12 +1,12 @@
 package com.xinghuo.slot.infrastructure;
 
+import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.HotSlot;
 import com.xinghuo.model.ServiceItem;
 import com.xinghuo.repository.HotSlotRepository;
 import com.xinghuo.repository.ServiceItemRepository;
-import com.xinghuo.service.AuditService;
 import com.xinghuo.slot.application.SlotPort;
 import com.xinghuo.slot.application.SlotPublicServiceView;
 import com.xinghuo.slot.application.SlotView;

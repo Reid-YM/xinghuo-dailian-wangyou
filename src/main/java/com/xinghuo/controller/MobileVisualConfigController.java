@@ -1,10 +1,10 @@
 package com.xinghuo.controller;
 
+import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.mobilevisual.application.MobileVisualConfigApplicationService;
 import com.xinghuo.mobilevisual.application.MobileVisualConfigView;
 import com.xinghuo.mobilevisual.web.MobileVisualConfigWebMapper;
 import com.xinghuo.mobilevisual.web.MobileVisualConfigWebMapper.Response;
-import com.xinghuo.service.AuditService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;

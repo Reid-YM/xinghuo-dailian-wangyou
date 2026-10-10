@@ -32,4 +32,8 @@ public class FeedbackApplicationService {
     public TestFeedbackView attach(Long id, UUID assetId, String operator) {
         return port.attach(id, assetId, operator);
     }
+
+    public long countNew() {
+        return port.countNew();
+    }
 }

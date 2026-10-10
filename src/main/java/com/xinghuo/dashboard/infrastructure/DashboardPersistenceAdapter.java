@@ -2,10 +2,9 @@ package com.xinghuo.dashboard.infrastructure;
 
 import com.xinghuo.dashboard.application.DashboardPort;
 import com.xinghuo.dashboard.application.DashboardView;
-import com.xinghuo.model.AdminTestFeedback;
+import com.xinghuo.feedback.application.FeedbackApplicationService;
 import com.xinghuo.model.CustomerOrder;
 import com.xinghuo.model.Quote;
-import com.xinghuo.repository.AdminTestFeedbackRepository;
 import com.xinghuo.repository.CustomerOrderRepository;
 import com.xinghuo.repository.QuoteRepository;
 import com.xinghuo.repository.ServiceItemRepository;
@@ -20,14 +19,14 @@ public class DashboardPersistenceAdapter implements DashboardPort {
     private final QuoteRepository quotes;
     private final CustomerOrderRepository orders;
     private final TrackingEventRepository events;
-    private final AdminTestFeedbackRepository feedback;
+    private final FeedbackApplicationService feedback;
 
     public DashboardPersistenceAdapter(
             ServiceItemRepository services,
             QuoteRepository quotes,
             CustomerOrderRepository orders,
             TrackingEventRepository events,
-            AdminTestFeedbackRepository feedback) {
+            FeedbackApplicationService feedback) {
         this.services = services;
         this.quotes = quotes;
         this.orders = orders;
@@ -44,6 +43,6 @@ public class DashboardPersistenceAdapter implements DashboardPort {
                 orders.countByStatus(CustomerOrder.Status.IN_PROGRESS),
                 orders.countByStatus(CustomerOrder.Status.COMPLETED),
                 events.count(),
-                feedback.countByStatus(AdminTestFeedback.Status.NEW));
+                feedback.countNew());
     }
 }

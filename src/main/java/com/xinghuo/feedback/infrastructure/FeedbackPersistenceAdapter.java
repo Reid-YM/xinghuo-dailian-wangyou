@@ -7,8 +7,6 @@ import com.xinghuo.feedback.application.CreateTestFeedbackCommand;
 import com.xinghuo.feedback.application.FeedbackPort;
 import com.xinghuo.feedback.application.TestFeedbackView;
 import com.xinghuo.feedback.application.UpdateTestFeedbackCommand;
-import com.xinghuo.model.AdminTestFeedback;
-import com.xinghuo.repository.AdminTestFeedbackRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.List;
@@ -117,6 +115,12 @@ public class FeedbackPersistenceAdapter implements FeedbackPort {
                 "上传网页测试反馈附件",
                 currentRequest());
         return after;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countNew() {
+        return repo.countByStatus(AdminTestFeedback.Status.NEW);
     }
 
     private TestFeedbackView view(AdminTestFeedback item) {

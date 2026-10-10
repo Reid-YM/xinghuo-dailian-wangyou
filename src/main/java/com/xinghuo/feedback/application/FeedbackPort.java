@@ -14,4 +14,6 @@ public interface FeedbackPort {
     TestFeedbackView update(Long id, UpdateTestFeedbackCommand command, String operator);
 
     TestFeedbackView attach(Long id, UUID assetId, String operator);
+
+    long countNew();
 }

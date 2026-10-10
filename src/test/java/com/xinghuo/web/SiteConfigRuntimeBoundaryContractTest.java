@@ -132,7 +132,7 @@ class SiteConfigRuntimeBoundaryContractTest {
     void webWriteOrchestratorOwnsProtocolAuditAndTransactionalSnapshots() throws IOException {
         String web = read("src/main/java/com/xinghuo/siteconfig/web/SiteConfigWriteWebService.java");
         assertTrue(web.contains("com.xinghuo.dto.ApiDtos"));
-        assertTrue(web.contains("com.xinghuo.service.AuditService"));
+        assertTrue(web.contains("com.xinghuo.audit.infrastructure.AuditService"));
         assertTrue(web.contains("jakarta.servlet.http.HttpServletRequest"));
         assertTrue(web.contains("@Transactional"));
         assertTrue(web.contains("SITE_IMAGE_UPDATE"));

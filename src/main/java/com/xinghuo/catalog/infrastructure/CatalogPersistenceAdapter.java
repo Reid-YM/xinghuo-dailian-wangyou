@@ -25,7 +25,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-/** Direct Catalog persistence adapter; owns the behavior retired from ServiceCatalogService. */
+/** Catalog-owned persistence adapter for service discovery and administration. */
 @Component
 public class CatalogPersistenceAdapter implements CatalogPort {
     private final ServiceItemRepository repo;

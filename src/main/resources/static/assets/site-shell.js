@@ -1,8 +1,6 @@
 (() => {
   const getBar = () => document.getElementById('announcementBar');
   const brandLogoHref = '/assets/brand-logo.svg?v=20261008logo01';
-  const mobileFocusHref = '/assets/vnext-mobile-focus-v7.css?v=20261010ui07';
-  const mobilePolishHref = '/assets/vnext-mobile-polish-v8.css?v=20261010ui08';
   let frame = 0;
 
   function ensureBrandAssets() {
@@ -17,24 +15,6 @@
       document.head.appendChild(icon);
     }
     icon.href = brandLogoHref;
-  }
-
-  function ensureMobileFocusStyles() {
-    if (!document.head) return;
-    if (!document.head.querySelector('link[data-vnext-mobile-focus]')) {
-      const focus = document.createElement('link');
-      focus.rel = 'stylesheet';
-      focus.href = mobileFocusHref;
-      focus.setAttribute('data-vnext-mobile-focus', '1');
-      document.head.appendChild(focus);
-    }
-    if (!document.head.querySelector('link[data-vnext-mobile-polish]')) {
-      const polish = document.createElement('link');
-      polish.rel = 'stylesheet';
-      polish.href = mobilePolishHref;
-      polish.setAttribute('data-vnext-mobile-polish', '1');
-      document.head.appendChild(polish);
-    }
   }
 
   function ensureFloatingSupport() {
@@ -97,7 +77,6 @@
 
   function start() {
     ensureBrandAssets();
-    ensureMobileFocusStyles();
     ensureFloatingSupport();
     const bar = getBar();
     if (!bar) return;

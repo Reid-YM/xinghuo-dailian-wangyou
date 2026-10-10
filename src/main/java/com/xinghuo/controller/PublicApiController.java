@@ -1,6 +1,5 @@
 package com.xinghuo.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountSessionService;
 import com.xinghuo.account.service.QuoteContactService;
@@ -25,8 +24,6 @@ import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
 import com.xinghuo.siteconfig.web.SiteConfigWebMapper;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
-import com.xinghuo.toolstation.application.ToolStationApplicationService;
-import com.xinghuo.toolstation.web.ToolStationWebMapper;
 import com.xinghuo.tracking.application.TrackingApplicationService;
 import com.xinghuo.tracking.web.TrackingWebMapper;
 import com.xinghuo.upload.infrastructure.UploadService;
@@ -71,8 +68,6 @@ public class PublicApiController {
     private final TrackingApplicationService tracking;
     private final TaxonomyApplicationService taxonomy;
     private final AccountSessionService accountSessions;
-    private final ToolStationApplicationService toolStation;
-    private final ToolStationWebMapper toolStationMapper;
     private final RateLimiter rateLimiter;
     private final QuoteContactService quoteContacts;
 
@@ -94,11 +89,6 @@ public class PublicApiController {
     @GetMapping(value={"/catalog"})
     ApiDtos.CatalogResponse catalog() {
         return TaxonomyWebMapper.toResponse(this.taxonomy.catalog(false));
-    }
-
-    @GetMapping(value={"/tool-station"})
-    JsonNode toolStation() {
-        return this.toolStationMapper.toResponse(this.toolStation.publicData());
     }
 
     @GetMapping(value={"/site-assets/{assetId}"})
@@ -211,7 +201,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigPublicApplicationService siteConfig, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigPublicApplicationService siteConfig, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.siteConfig = siteConfig;
         this.runtimeConfig = runtimeConfig;
         this.services = services;
@@ -222,8 +212,6 @@ public class PublicApiController {
         this.tracking = tracking;
         this.taxonomy = taxonomy;
         this.accountSessions = accountSessions;
-        this.toolStation = toolStation;
-        this.toolStationMapper = toolStationMapper;
         this.rateLimiter = rateLimiter;
         this.quoteContacts = quoteContacts;
     }

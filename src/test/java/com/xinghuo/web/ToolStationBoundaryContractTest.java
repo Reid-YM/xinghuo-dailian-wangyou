@@ -52,11 +52,17 @@ class ToolStationBoundaryContractTest {
 
     @Test
     void publicAndAdminConsumeToolStationApplicationAndWebBoundaries() throws IOException {
-        String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        String publicApi = read("src/main/java/com/xinghuo/toolstation/web/PublicToolStationController.java");
+        assertTrue(publicApi.contains("package com.xinghuo.toolstation.web;"));
         assertTrue(publicApi.contains("com.xinghuo.toolstation.application.ToolStationApplicationService"));
-        assertTrue(publicApi.contains("com.xinghuo.toolstation.web.ToolStationWebMapper"));
+        assertTrue(publicApi.contains("@RequestMapping(value={\"/api/tool-station\"})"));
         assertTrue(publicApi.contains("toolStationMapper.toResponse"));
         assertFalse(publicApi.contains("import com.xinghuo.service.ToolStationService;"));
+
+        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        assertFalse(legacyPublicApi.contains("ToolStationApplicationService"));
+        assertFalse(legacyPublicApi.contains("ToolStationWebMapper"));
+        assertFalse(legacyPublicApi.contains("/tool-station"));
 
         String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
         assertTrue(admin.contains("com.xinghuo.toolstation.application.ToolStationApplicationService"));

@@ -5,8 +5,6 @@ import com.xinghuo.account.service.AccountSessionService;
 import com.xinghuo.account.service.QuoteContactService;
 import com.xinghuo.account.service.RateLimiter;
 import com.xinghuo.account.service.RequestUtils;
-import com.xinghuo.catalog.application.CatalogApplicationService;
-import com.xinghuo.catalog.web.CatalogWebMapper;
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.dto.PublicQuoteRequest;
 import com.xinghuo.exception.BadRequestException;
@@ -28,7 +26,6 @@ import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.time.Duration;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,7 +50,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class PublicApiController {
     private static final int REQUEST_BUCKET_PER_MINUTE = 60;
     private final SiteRuntimeApplicationService runtimeConfig;
-    private final CatalogApplicationService services;
     private final QuoteApplicationService quotes;
     private final OrderApplicationService orders;
     private final RecordApplicationService records;
@@ -62,11 +58,6 @@ public class PublicApiController {
     private final AccountSessionService accountSessions;
     private final RateLimiter rateLimiter;
     private final QuoteContactService quoteContacts;
-
-    @GetMapping(value={"/services"})
-    List<ApiDtos.ServiceResponse> services() {
-        return CatalogWebMapper.toResponses(this.services.publicList());
-    }
 
     @GetMapping(value={"/catalog"})
     ApiDtos.CatalogResponse catalog() {
@@ -176,9 +167,8 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteRuntimeApplicationService runtimeConfig, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.runtimeConfig = runtimeConfig;
-        this.services = services;
         this.quotes = quotes;
         this.orders = orders;
         this.records = records;

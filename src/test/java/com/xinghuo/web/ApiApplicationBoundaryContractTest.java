@@ -36,6 +36,7 @@ class ApiApplicationBoundaryContractTest {
     @Test
     void webLayerOwnsProtocolMapping() throws IOException {
         String publicController = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        String publicOrderCases = read("src/main/java/com/xinghuo/order/web/PublicOrderCaseController.java");
         String adminController = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
         String quoteMapper = read("src/main/java/com/xinghuo/quote/web/QuoteWebMapper.java");
         String orderMapper = read("src/main/java/com/xinghuo/order/web/OrderWebMapper.java");
@@ -49,7 +50,7 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(publicController.contains("QuoteWebMapper.toCommand"));
         assertTrue(publicController.contains("QuoteWebMapper.toResponse"));
         assertTrue(publicController.contains("OrderWebMapper.toResponse"));
-        assertTrue(publicController.contains("OrderWebMapper.toCaseResponses"));
+        assertTrue(publicOrderCases.contains("OrderWebMapper.toCaseResponses"));
         assertTrue(publicController.contains("RecordWebMapper.toResponse"));
         assertTrue(publicController.contains("CatalogWebMapper.toResponses"));
         assertTrue(publicController.contains("TaxonomyWebMapper.toResponse"));
@@ -130,7 +131,7 @@ class ApiApplicationBoundaryContractTest {
         assertFalse(dashboard.contains("com.xinghuo.service"));
 
         assertTrue(feedback.contains("com.xinghuo.repository.AdminTestFeedbackRepository"));
-        assertTrue(feedback.contains("com.xinghuo.service.AuditService"));
+        assertTrue(feedback.contains("com.xinghuo.audit.infrastructure.AuditService"));
         assertTrue(feedback.contains("TestFeedbackView"));
         assertTrue(feedback.contains("ServletRequestAttributes"));
         assertFalse(feedback.contains("com.xinghuo.dto"));

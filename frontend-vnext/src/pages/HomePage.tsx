@@ -1,7 +1,9 @@
 import type { CSSProperties } from 'react';
 import { ArrowRight, BadgeCheck, MonitorSmartphone, Search, ShieldCheck, Smartphone, Sparkles } from 'lucide-react';
 import { Button, Card, Skeleton } from '../components/ui';
-import { EmptyState, ServiceCard, serviceKey } from '../components/public-content';
+import { EmptyState } from '../components/public-content';
+import { ServiceCard } from '../features/services/ServiceCard';
+import { serviceKey } from '../features/services/model';
 import { pickBoolean, pickNumber, pickText, type PublicBootstrap } from '../lib/api';
 import type { PageKey } from '../app/navigation';
 

@@ -224,7 +224,7 @@ class BackendPackageByFeatureContractTest {
         assertTrue(taxonomy.contains("com.xinghuo.repository.ServiceCategoryCatalogRepository"));
         assertTrue(taxonomy.contains("com.xinghuo.repository.PlatformCatalogRepository"));
         assertTrue(taxonomy.contains("com.xinghuo.repository.GamePlatformRepository"));
-        assertTrue(taxonomy.contains("com.xinghuo.service.AuditService"));
+        assertTrue(taxonomy.contains("com.xinghuo.audit.infrastructure.AuditService"));
         assertFalse(taxonomy.contains("com.xinghuo.service.TaxonomyService"));
         assertFalse(taxonomy.contains("com.xinghuo.dto"));
 

@@ -7,6 +7,7 @@ import com.xinghuo.account.service.QuoteContactService;
 import com.xinghuo.account.service.RateLimiter;
 import com.xinghuo.account.service.RequestUtils;
 import com.xinghuo.catalog.application.CatalogApplicationService;
+import com.xinghuo.catalog.web.CatalogWebMapper;
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.dto.PublicQuoteRequest;
 import com.xinghuo.exception.BadRequestException;
@@ -15,7 +16,9 @@ import com.xinghuo.model.GameStatus;
 import com.xinghuo.model.UploadAsset;
 import com.xinghuo.order.application.OrderApplicationService;
 import com.xinghuo.order.domain.OrderProgressAsset;
+import com.xinghuo.order.web.OrderWebMapper;
 import com.xinghuo.quote.application.QuoteApplicationService;
+import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.RecordService;
 import com.xinghuo.service.SiteConfigService;
@@ -124,12 +127,12 @@ public class PublicApiController {
 
     @GetMapping(value={"/public/cases"})
     List<Map<String, Object>> publicCases() {
-        return this.orders.publicCases();
+        return OrderWebMapper.toCaseResponses(this.orders.publicCases());
     }
 
     @GetMapping(value={"/services"})
     List<ApiDtos.ServiceResponse> services() {
-        return this.services.publicList();
+        return CatalogWebMapper.toResponses(this.services.publicList());
     }
 
     @GetMapping(value={"/catalog"})
@@ -170,7 +173,11 @@ public class PublicApiController {
                 payload = body.withCustomerContact(contact.value(), quoteContactMethod(contact.type()));
             }
         }
-        ApiDtos.QuoteResponse out = this.quotes.create(payload, key, HashUtil.sha256(RequestUtil.clientIp(req)), accountId);
+        ApiDtos.QuoteResponse out = QuoteWebMapper.toResponse(this.quotes.create(QuoteWebMapper.toCommand(
+                payload,
+                key,
+                HashUtil.sha256(RequestUtil.clientIp(req)),
+                accountId)));
         return ResponseEntity.status((HttpStatusCode)HttpStatus.CREATED).body(out);
     }
 
@@ -220,7 +227,7 @@ public class PublicApiController {
             throw new BadRequestException("进度查询正在维护，请联系客服查询");
         }
         this.limitByIp(req, "pub:order");
-        return this.orders.getPublic(orderNo);
+        return OrderWebMapper.toResponse(this.orders.getPublic(orderNo));
     }
 
     @GetMapping(value={"/orders/{orderNo}/image"})

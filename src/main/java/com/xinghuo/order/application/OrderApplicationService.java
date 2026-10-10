@@ -1,9 +1,7 @@
 package com.xinghuo.order.application;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.order.domain.OrderProgressAsset;
 import java.util.List;
-import java.util.Map;
 import org.springframework.stereotype.Service;
 
 /** Application boundary for public order/query use cases. */
@@ -15,11 +13,11 @@ public class OrderApplicationService {
         this.legacy = legacy;
     }
 
-    public List<Map<String, Object>> publicCases() {
+    public List<PublicCaseView> publicCases() {
         return legacy.publicCases();
     }
 
-    public ApiDtos.OrderPublicResponse getPublic(String publicNo) {
+    public OrderPublicView getPublic(String publicNo) {
         return legacy.getPublic(publicNo);
     }
 

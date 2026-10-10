@@ -49,11 +49,19 @@ class GameStatusBoundaryContractTest {
 
     @Test
     void publicAdminAndSiteConfigRuntimeConsumeGameStatusBoundary() throws IOException {
-        String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        String publicApi = read("src/main/java/com/xinghuo/gamestatus/web/PublicGameStatusController.java");
+        assertTrue(publicApi.contains("package com.xinghuo.gamestatus.web;"));
         assertTrue(publicApi.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
-        assertTrue(publicApi.contains("com.xinghuo.gamestatus.web.GameStatusWebMapper"));
+        assertTrue(publicApi.contains("GameStatusWebMapper.toPublicResponse"));
+        assertTrue(publicApi.contains("GameStatusWebMapper::toSummaryResponse"));
+        assertTrue(publicApi.contains("@RequestMapping(value={\"/api/public/game-status\"})"));
+        assertTrue(publicApi.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
         assertFalse(publicApi.contains("import com.xinghuo.model.GameStatus;"));
         assertFalse(publicApi.contains("import com.xinghuo.service.GameStatusService;"));
+
+        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        assertFalse(legacyPublicApi.contains("GameStatusApplicationService"));
+        assertFalse(legacyPublicApi.contains("/public/game-status"));
 
         String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
         assertTrue(admin.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));

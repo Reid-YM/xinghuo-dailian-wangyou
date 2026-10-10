@@ -7,9 +7,8 @@ import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import lombok.Generated;
-import org.springframework.stereotype.Service;
 
-@Service
+/** Shared audit implementation. Legacy wiring delegates here until all consumers migrate. */
 public class AuditService {
     private final AuditLogRepository repo;
     private final ObjectMapper mapper;

@@ -104,11 +104,17 @@ class SiteConfigRuntimeBoundaryContractTest {
 
     @Test
     void publicSiteConfigEndpointUsesQueryBoundaryAndWebMapper() throws IOException {
-        String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        String publicApi = read("src/main/java/com/xinghuo/siteconfig/web/PublicSiteConfigController.java");
+        assertTrue(publicApi.contains("package com.xinghuo.siteconfig.web;"));
         assertTrue(publicApi.contains("com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService"));
-        assertTrue(publicApi.contains("com.xinghuo.siteconfig.web.SiteConfigWebMapper"));
+        assertTrue(publicApi.contains("@RequestMapping(value={\"/api/site-config\"})"));
         assertTrue(publicApi.contains("SiteConfigWebMapper.toResponse(this.siteConfig.get())"));
         assertFalse(publicApi.contains("com.xinghuo.service.SiteConfigService"));
+
+        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        assertFalse(legacyPublicApi.contains("SiteConfigPublicApplicationService"));
+        assertFalse(legacyPublicApi.contains("SiteConfigWebMapper"));
+        assertFalse(legacyPublicApi.contains("@GetMapping(value={\"/site-config\"})"));
 
         String mapper = read("src/main/java/com/xinghuo/siteconfig/web/SiteConfigWebMapper.java");
         assertTrue(mapper.contains("com.xinghuo.dto.ApiDtos"));

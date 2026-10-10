@@ -88,11 +88,15 @@ class SiteConfigRuntimeBoundaryContractTest {
 
     @Test
     void publicRuntimeDecisionsUseApplicationBoundary() throws IOException {
+        String publicQuote = read("src/main/java/com/xinghuo/quote/web/PublicQuoteController.java");
+        assertTrue(publicQuote.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
+        assertTrue(publicQuote.contains("runtimeConfig.quoteEnabled()"));
+        assertFalse(publicQuote.contains("config.isQuoteEnabled()"));
+
         String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
         assertTrue(publicApi.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
-        assertTrue(publicApi.contains("runtimeConfig.quoteEnabled()"));
         assertTrue(publicApi.contains("runtimeConfig.orderQueryEnabled()"));
-        assertFalse(publicApi.contains("config.isQuoteEnabled()"));
+        assertFalse(publicApi.contains("runtimeConfig.quoteEnabled()"));
         assertFalse(publicApi.contains("config.isOrderQueryEnabled()"));
 
         String page = read("src/main/java/com/xinghuo/controller/PageController.java");

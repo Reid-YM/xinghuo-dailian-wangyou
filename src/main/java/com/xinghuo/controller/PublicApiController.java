@@ -18,8 +18,6 @@ import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.record.application.RecordApplicationService;
 import com.xinghuo.record.web.RecordWebMapper;
 import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
-import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
-import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
 import com.xinghuo.upload.infrastructure.UploadService;
 import com.xinghuo.util.HashUtil;
 import com.xinghuo.util.RequestUtil;
@@ -54,15 +52,9 @@ public class PublicApiController {
     private final OrderApplicationService orders;
     private final RecordApplicationService records;
     private final UploadService uploads;
-    private final TaxonomyApplicationService taxonomy;
     private final AccountSessionService accountSessions;
     private final RateLimiter rateLimiter;
     private final QuoteContactService quoteContacts;
-
-    @GetMapping(value={"/catalog"})
-    ApiDtos.CatalogResponse catalog() {
-        return TaxonomyWebMapper.toResponse(this.taxonomy.catalog(false));
-    }
 
     @GetMapping(value={"/site-assets/{assetId}"})
     ResponseEntity<Resource> siteAsset(@PathVariable UUID assetId) {
@@ -167,13 +159,12 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteRuntimeApplicationService runtimeConfig, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteRuntimeApplicationService runtimeConfig, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, AccountSessionService accountSessions, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.runtimeConfig = runtimeConfig;
         this.quotes = quotes;
         this.orders = orders;
         this.records = records;
         this.uploads = uploads;
-        this.taxonomy = taxonomy;
         this.accountSessions = accountSessions;
         this.rateLimiter = rateLimiter;
         this.quoteContacts = quoteContacts;

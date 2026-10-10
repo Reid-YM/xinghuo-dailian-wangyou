@@ -17,7 +17,7 @@ class BackendPackageByFeatureContractTest {
 
     @Test
     void featureModulesHaveExplicitBoundaries() {
-        for (String feature : new String[] {"quote", "order", "catalog", "record", "dashboard", "feedback"}) {
+        for (String feature : new String[] {"quote", "order", "catalog", "record", "dashboard", "feedback", "taxonomy"}) {
             Path base = ROOT.resolve("src/main/java/com/xinghuo/" + feature);
             assertTrue(Files.isDirectory(base.resolve("application")), feature + " application boundary must exist");
             assertTrue(Files.isDirectory(base.resolve("domain")), feature + " domain boundary must exist");
@@ -34,6 +34,8 @@ class BackendPackageByFeatureContractTest {
         assertTrue(controller.contains("com.xinghuo.order.application.OrderApplicationService"));
         assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
         assertTrue(controller.contains("com.xinghuo.record.application.RecordApplicationService"));
+        assertTrue(controller.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
+        assertTrue(controller.contains("TaxonomyWebMapper.toResponse"));
         assertTrue(controller.contains("RecordWebMapper.toResponse"));
         assertTrue(controller.contains("OrderProgressAsset"));
 
@@ -41,6 +43,7 @@ class BackendPackageByFeatureContractTest {
         assertFalse(controller.contains("import com.xinghuo.service.OrderService;"));
         assertFalse(controller.contains("import com.xinghuo.service.ServiceCatalogService;"));
         assertFalse(controller.contains("import com.xinghuo.service.RecordService;"));
+        assertFalse(controller.contains("import com.xinghuo.service.TaxonomyService;"));
         assertFalse(controller.contains("import com.xinghuo.model.CustomerOrder;"));
     }
 
@@ -62,6 +65,17 @@ class BackendPackageByFeatureContractTest {
         assertTrue(controller.contains("FeedbackWebMapper.toResponse"));
         assertTrue(controller.contains("FeedbackWebMapper.toResponses"));
         assertFalse(controller.contains("import com.xinghuo.service.AdminTestFeedbackService;"));
+    }
+
+    @Test
+    void adminTaxonomyConsumesApplicationBoundary() throws IOException {
+        String controller = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
+
+        assertTrue(controller.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
+        assertTrue(controller.contains("TaxonomyWebMapper.toCommand"));
+        assertTrue(controller.contains("TaxonomyWebMapper.toResponse"));
+        assertTrue(controller.contains("TaxonomyWebMapper.toGameResponses"));
+        assertFalse(controller.contains("import com.xinghuo.service.TaxonomyService;"));
     }
 
     @Test
@@ -97,15 +111,19 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
-    void pageControllerConsumesCatalogApplicationProjection() throws IOException {
+    void pageControllerConsumesApplicationProjections() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/PageController.java");
 
         assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
         assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogPageServiceView"));
+        assertTrue(controller.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
+        assertTrue(controller.contains("com.xinghuo.taxonomy.application.TaxonomyCatalogView"));
         assertTrue(controller.contains("publicPageItems()"));
         assertTrue(controller.contains("publicPageBySlug(slug)"));
         assertFalse(controller.contains("import com.xinghuo.service.ServiceCatalogService;"));
+        assertFalse(controller.contains("import com.xinghuo.service.TaxonomyService;"));
         assertFalse(controller.contains("import com.xinghuo.model.ServiceItem;"));
+        assertFalse(controller.contains("import com.xinghuo.model.GameCatalog;"));
     }
 
     @Test
@@ -127,7 +145,8 @@ class BackendPackageByFeatureContractTest {
                 "src/main/java/com/xinghuo/catalog/application/CatalogApplicationService.java",
                 "src/main/java/com/xinghuo/record/application/RecordApplicationService.java",
                 "src/main/java/com/xinghuo/dashboard/application/DashboardApplicationService.java",
-                "src/main/java/com/xinghuo/feedback/application/FeedbackApplicationService.java"
+                "src/main/java/com/xinghuo/feedback/application/FeedbackApplicationService.java",
+                "src/main/java/com/xinghuo/taxonomy/application/TaxonomyApplicationService.java"
         }) {
             String source = read(file);
             assertFalse(source.contains("com.xinghuo.repository."), file + " must not depend on legacy repositories");
@@ -145,7 +164,8 @@ class BackendPackageByFeatureContractTest {
                 "src/main/java/com/xinghuo/catalog/domain/package-info.java",
                 "src/main/java/com/xinghuo/record/domain/package-info.java",
                 "src/main/java/com/xinghuo/dashboard/domain/package-info.java",
-                "src/main/java/com/xinghuo/feedback/domain/package-info.java"
+                "src/main/java/com/xinghuo/feedback/domain/package-info.java",
+                "src/main/java/com/xinghuo/taxonomy/domain/package-info.java"
         }) {
             String source = read(file);
             assertFalse(source.contains("org.springframework"), file + " must stay framework independent");
@@ -173,7 +193,9 @@ class BackendPackageByFeatureContractTest {
         String catalog = read("src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java");
         assertTrue(catalog.contains("implements CatalogPort"));
         assertTrue(catalog.contains("com.xinghuo.repository.ServiceItemRepository"));
+        assertTrue(catalog.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
         assertFalse(catalog.contains("com.xinghuo.service.ServiceCatalogService"));
+        assertFalse(catalog.contains("com.xinghuo.service.TaxonomyService"));
 
         String record = read("src/main/java/com/xinghuo/record/infrastructure/RecordPersistenceAdapter.java");
         assertTrue(record.contains("implements RecordPort"));
@@ -194,5 +216,19 @@ class BackendPackageByFeatureContractTest {
         assertTrue(feedback.contains("com.xinghuo.service.AuditService"));
         assertFalse(feedback.contains("com.xinghuo.service.AdminTestFeedbackService"));
         assertFalse(feedback.contains("com.xinghuo.dto"));
+
+        String taxonomy = read("src/main/java/com/xinghuo/taxonomy/infrastructure/TaxonomyPersistenceAdapter.java");
+        assertTrue(taxonomy.contains("implements TaxonomyPort"));
+        assertTrue(taxonomy.contains("com.xinghuo.repository.GameCatalogRepository"));
+        assertTrue(taxonomy.contains("com.xinghuo.repository.ServiceCategoryCatalogRepository"));
+        assertTrue(taxonomy.contains("com.xinghuo.repository.PlatformCatalogRepository"));
+        assertTrue(taxonomy.contains("com.xinghuo.repository.GamePlatformRepository"));
+        assertTrue(taxonomy.contains("com.xinghuo.service.AuditService"));
+        assertFalse(taxonomy.contains("com.xinghuo.service.TaxonomyService"));
+        assertFalse(taxonomy.contains("com.xinghuo.dto"));
+
+        String slot = read("src/main/java/com/xinghuo/service/SlotService.java");
+        assertTrue(slot.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
+        assertFalse(slot.contains("com.xinghuo.service.TaxonomyService"));
     }
 }

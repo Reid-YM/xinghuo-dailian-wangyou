@@ -6,6 +6,10 @@ import java.util.List;
 public interface CatalogLegacyPort {
     List<CatalogServiceView> publicList();
 
+    List<CatalogPageServiceView> publicPageItems();
+
+    CatalogPageServiceView publicPageBySlug(String slug);
+
     List<CatalogAdminServiceView> adminList();
 
     CatalogAdminServiceView create(CatalogServiceCommand command, String operator);

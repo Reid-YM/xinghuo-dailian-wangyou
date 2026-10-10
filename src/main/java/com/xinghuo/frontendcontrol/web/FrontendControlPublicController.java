@@ -1,4 +1,4 @@
-package com.xinghuo.controller;
+package com.xinghuo.frontendcontrol.web;
 
 import com.xinghuo.frontendcontrol.application.FrontendControlApplicationService;
 import java.util.Map;

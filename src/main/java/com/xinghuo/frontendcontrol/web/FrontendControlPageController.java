@@ -1,4 +1,4 @@
-package com.xinghuo.controller;
+package com.xinghuo.frontendcontrol.web;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;

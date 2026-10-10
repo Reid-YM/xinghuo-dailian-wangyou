@@ -46,23 +46,32 @@ class FrontendControlBoundaryContractTest {
     }
 
     @Test
-    void publicAndAdminControllersUseNewBoundary() throws IOException {
-        String admin = read("src/main/java/com/xinghuo/controller/FrontendControlApiController.java");
-        assertTrue(admin.contains("com.xinghuo.frontendcontrol.application.FrontendControlApplicationService"));
-        assertTrue(admin.contains("com.xinghuo.frontendcontrol.web.FrontendControlWebMapper"));
-        assertTrue(admin.contains("FrontendControlWebMapper.toCommand"));
-        assertFalse(admin.contains("import com.xinghuo.service.FrontendControlService;"));
+    void controllersLiveInFeatureWebBoundaryAndKeepRoutes() throws IOException {
+        String admin = read("src/main/java/com/xinghuo/frontendcontrol/web/FrontendControlApiController.java");
+        String page = read("src/main/java/com/xinghuo/frontendcontrol/web/FrontendControlPageController.java");
+        String publicApi = read("src/main/java/com/xinghuo/frontendcontrol/web/FrontendControlPublicController.java");
 
-        String publicApi = read("src/main/java/com/xinghuo/controller/FrontendControlPublicController.java");
-        assertTrue(publicApi.contains("com.xinghuo.frontendcontrol.application.FrontendControlApplicationService"));
-        assertFalse(publicApi.contains("import com.xinghuo.service.FrontendControlService;"));
+        assertTrue(admin.contains("/api/admin/frontend-controls"));
+        assertTrue(page.contains("/admin/frontend-controls"));
+        assertTrue(publicApi.contains("/api/public/frontend-controls"));
+        assertTrue(admin.contains("FrontendControlAdminApplicationService"));
+        assertTrue(admin.contains("FrontendControlAuditContext"));
+        assertTrue(admin.contains("FrontendControlWebMapper.toCommand"));
+        assertTrue(publicApi.contains("FrontendControlApplicationService"));
+        assertFalse(admin.contains("AuditLogRepository"));
+        assertFalse(admin.contains("ObjectMapper"));
+        assertFalse(admin.contains("com.xinghuo.model.AuditLog"));
+
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/FrontendControlApiController.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/FrontendControlPageController.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/FrontendControlPublicController.java")));
     }
 
     @Test
     void applicationOwnsWhitelistValidationAndAtomicBatchPort() throws IOException {
         String application = read("src/main/java/com/xinghuo/frontendcontrol/application/FrontendControlApplicationService.java");
         assertTrue(application.contains("themeAccentColor"));
-        assertTrue(application.contains("javascript" ) || application.contains("isSafeHref"));
+        assertTrue(application.contains("javascript") || application.contains("isSafeHref"));
         assertTrue(application.contains("port.putAll(normalized)"));
         assertTrue(application.contains("主题数值超出允许范围"));
 
@@ -72,18 +81,27 @@ class FrontendControlBoundaryContractTest {
     }
 
     @Test
-    void persistenceAdapterOwnsSiteSettingRepositoryAndTransaction() throws IOException {
-        String adapter = read("src/main/java/com/xinghuo/frontendcontrol/infrastructure/FrontendControlPersistenceAdapter.java");
-        assertTrue(adapter.contains("implements FrontendControlPort"));
-        assertTrue(adapter.contains("com.xinghuo.repository.SiteSettingRepository"));
-        assertTrue(adapter.contains("@Transactional"));
-        assertTrue(adapter.contains("void putAll"));
-        assertFalse(adapter.contains("com.xinghuo.service.FrontendControlService"));
+    void persistenceAdaptersOwnSettingsAndAuditRepositories() throws IOException {
+        String settings = read("src/main/java/com/xinghuo/frontendcontrol/infrastructure/FrontendControlPersistenceAdapter.java");
+        assertTrue(settings.contains("implements FrontendControlPort"));
+        assertTrue(settings.contains("com.xinghuo.repository.SiteSettingRepository"));
+        assertTrue(settings.contains("@Transactional"));
+        assertTrue(settings.contains("void putAll"));
+
+        String audit = read("src/main/java/com/xinghuo/frontendcontrol/infrastructure/FrontendControlAuditPersistenceAdapter.java");
+        assertTrue(audit.contains("implements FrontendControlAuditPort"));
+        assertTrue(audit.contains("AuditLogRepository"));
+        assertTrue(audit.contains("FRONTEND_CONTROLS_UPDATE"));
+        assertTrue(audit.contains("SITE_SETTINGS"));
+        assertFalse(audit.contains("jakarta.servlet"));
     }
 
     @Test
-    void legacyFrontendControlServiceStaysRetired() throws IOException {
+    void legacyFrontendControlServiceAndGlobalControllersStayRetired() throws IOException {
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/service/FrontendControlService.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/FrontendControlApiController.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/FrontendControlPageController.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/FrontendControlPublicController.java")));
         try (Stream<Path> files = Files.walk(ROOT.resolve("src/main/java"))) {
             for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
                 assertFalse(Files.readString(file).contains("com.xinghuo.service.FrontendControlService"),

@@ -32,7 +32,6 @@ import jakarta.validation.Valid;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.Generated;
@@ -71,11 +70,6 @@ public class PublicApiController {
     @GetMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse config() {
         return SiteConfigWebMapper.toResponse(this.siteConfig.get());
-    }
-
-    @GetMapping(value={"/public/cases"})
-    List<Map<String, Object>> publicCases() {
-        return OrderWebMapper.toCaseResponses(this.orders.publicCases());
     }
 
     @GetMapping(value={"/services"})

@@ -1,7 +1,5 @@
 package com.xinghuo.tracking.infrastructure;
 
-import com.xinghuo.model.TrackingEvent;
-import com.xinghuo.repository.TrackingEventRepository;
 import com.xinghuo.tracking.application.TrackingCommand;
 import com.xinghuo.tracking.application.TrackingPort;
 import java.time.Instant;
@@ -41,5 +39,10 @@ public class TrackingPersistenceAdapter implements TrackingPort {
                 .ipHash(command.ipHash())
                 .createdAt(Instant.now())
                 .build());
+    }
+
+    @Override
+    public long totalCount() {
+        return repo.count();
     }
 }

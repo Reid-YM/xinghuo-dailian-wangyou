@@ -16,12 +16,16 @@ class GuideBoundaryContractTest {
     }
 
     @Test
-    void guideFeatureHasExplicitBoundaries() {
+    void guideFeatureHasExplicitBoundariesAndNoFlatBusinessClasses() throws Exception {
         Path base = ROOT.resolve("src/main/java/com/xinghuo/guide");
         assertTrue(Files.isDirectory(base.resolve("application")));
         assertTrue(Files.isDirectory(base.resolve("domain")));
         assertTrue(Files.isDirectory(base.resolve("infrastructure")));
         assertTrue(Files.isDirectory(base.resolve("web")));
+        try (Stream<Path> files = Files.list(base)) {
+            assertFalse(files.anyMatch(path -> path.toString().endsWith(".java")),
+                    "guide root must contain boundary directories only");
+        }
     }
 
     @Test
@@ -71,7 +75,7 @@ class GuideBoundaryContractTest {
         assertTrue(adapter.contains("DELETE FROM guide_sections"));
         assertTrue(adapter.contains("发布攻略前至少需要一个内容段落"));
         assertTrue(adapter.contains("推荐商品不属于当前游戏"));
-        assertFalse(adapter.contains("com.xinghuo.guide.GuideModels"));
+        assertFalse(adapter.contains("GuideAdminRequests"));
     }
 
     @Test
@@ -85,15 +89,17 @@ class GuideBoundaryContractTest {
     }
 
     @Test
-    void adminReadsAndWritesUseApplicationBoundaries() throws Exception {
+    void adminReadsAndWritesUseApplicationAndWebBoundaries() throws Exception {
         String admin = read("src/main/java/com/xinghuo/guide/web/AdminGuideController.java");
         assertTrue(admin.contains("GuideQueryApplicationService queries"));
         assertTrue(admin.contains("GuideWriteApplicationService writes"));
+        assertTrue(admin.contains("GuideAdminRequests.GuideUpsert"));
         assertTrue(admin.contains("GuideWriteWebMapper.toCommand"));
         assertTrue(admin.contains("return queries.adminList()"));
         assertTrue(admin.contains("return queries.adminDetail(id)"));
         assertFalse(admin.contains("JdbcTemplate"));
         assertFalse(admin.contains("GuideContentService"));
+        assertFalse(admin.contains("GuideModels"));
         assertFalse(admin.contains("jakarta.servlet"));
     }
 
@@ -109,16 +115,19 @@ class GuideBoundaryContractTest {
     }
 
     @Test
-    void legacyGuideContentServiceAndFlatControllersStayRetired() throws Exception {
+    void legacyGuideTypesStayRetiredAcrossProductionSources() throws Exception {
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/guide/GuideContentService.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/guide/GuideModels.java")));
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/guide/PublicGuideController.java")));
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/guide/AdminGuideController.java")));
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/guide/GuidePageController.java")));
         try (Stream<Path> files = Files.walk(ROOT.resolve("src/main/java"))) {
             for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
-                assertFalse(
-                        Files.readString(file).contains("GuideContentService"),
+                String source = Files.readString(file);
+                assertFalse(source.contains("GuideContentService"),
                         file + " still references retired GuideContentService");
+                assertFalse(source.contains("com.xinghuo.guide.GuideModels"),
+                        file + " still references retired GuideModels");
             }
         }
     }

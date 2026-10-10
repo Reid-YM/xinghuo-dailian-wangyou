@@ -34,6 +34,8 @@ spring:
   thymeleaf:
     cache: true
 logging:
+  pattern:
+    level: "%5p [requestId:%X{requestId:-none}]"
   level:
     root: INFO
     org.springframework.security: INFO

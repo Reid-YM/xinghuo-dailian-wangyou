@@ -1,4 +1,4 @@
-package com.xinghuo.controller;
+package com.xinghuo.language.web;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

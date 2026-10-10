@@ -80,6 +80,16 @@ class GuideBoundaryContractTest {
     }
 
     @Test
+    void bootstrapLivesInInfrastructureAndUsesQueryBoundaryForExistenceCheck() throws Exception {
+        String bootstrap = read("src/main/java/com/xinghuo/guide/infrastructure/GuideBootstrapConfig.java");
+        assertTrue(bootstrap.contains("GuideQueryApplicationService queries"));
+        assertTrue(bootstrap.contains("GuideContentService writes"));
+        assertTrue(bootstrap.contains("queries.adminList().isEmpty()"));
+        assertTrue(bootstrap.contains("writes.importGames"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/guide/GuideBootstrapConfig.java")));
+    }
+
+    @Test
     void flatGuideControllersStayRetired() {
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/guide/PublicGuideController.java")));
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/guide/AdminGuideController.java")));

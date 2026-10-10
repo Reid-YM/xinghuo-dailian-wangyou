@@ -2,10 +2,12 @@ package com.xinghuo.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import com.xinghuo.dto.ApiDtos;
+
 import com.xinghuo.exception.ConflictException;
 import com.xinghuo.model.CustomerOrder;
 import com.xinghuo.model.UploadAsset;
+import com.xinghuo.order.application.UpdateOrderCommand;
+import com.xinghuo.order.infrastructure.OrderPersistenceAdapter;
 import com.xinghuo.repository.CustomerOrderRepository;
 import com.xinghuo.repository.UploadAssetRepository;
 import java.awt.image.BufferedImage;
@@ -37,9 +39,9 @@ class AuditFixRegressionTest {
   var repo=mock(CustomerOrderRepository.class);
   var order=new CustomerOrder();order.setVersion(4L);order.setProgressText("new progress");
   when(repo.findByOrderNo("XH1234567890")).thenReturn(Optional.of(order));
-  var service=new OrderService(repo,mock(UploadService.class),mock(AuditService.class));
-  var request=new ApiDtos.UpdateOrderRequest(3L,"IN_PROGRESS",10,"stale progress",null,null,"test");
-  assertThrows(ConflictException.class,()->service.update("XH1234567890",request,"admin",null));
+  var service=new OrderPersistenceAdapter(repo,mock(UploadService.class),mock(AuditService.class));
+  var command=new UpdateOrderCommand(3L,"IN_PROGRESS",10,"stale progress",null,null,"test");
+  assertThrows(ConflictException.class,()->service.update("XH1234567890",command,"admin"));
   assertEquals("new progress",order.getProgressText());
  }
 }

@@ -1,10 +1,11 @@
-package com.xinghuo.controller;
+package com.xinghuo.mobilevisual.web;
 
-import com.xinghuo.audit.infrastructure.AuditService;
+import com.xinghuo.mobilevisual.application.MobileVisualConfigAdminApplicationService;
+import com.xinghuo.mobilevisual.application.MobileVisualConfigAuditContext;
 import com.xinghuo.mobilevisual.application.MobileVisualConfigApplicationService;
 import com.xinghuo.mobilevisual.application.MobileVisualConfigView;
-import com.xinghuo.mobilevisual.web.MobileVisualConfigWebMapper;
 import com.xinghuo.mobilevisual.web.MobileVisualConfigWebMapper.Response;
+import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -19,33 +20,44 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class MobileVisualConfigController {
-    private final MobileVisualConfigApplicationService service;
-    private final AuditService audit;
+    private final MobileVisualConfigApplicationService publicConfigs;
+    private final MobileVisualConfigAdminApplicationService adminConfigs;
 
-    public MobileVisualConfigController(MobileVisualConfigApplicationService service, AuditService audit) {
-        this.service = service;
-        this.audit = audit;
+    public MobileVisualConfigController(
+            MobileVisualConfigApplicationService publicConfigs,
+            MobileVisualConfigAdminApplicationService adminConfigs) {
+        this.publicConfigs = publicConfigs;
+        this.adminConfigs = adminConfigs;
     }
 
     @GetMapping({"/api/public/mobile-visual-config", "/api/admin/mobile-visual-config"})
     Response get() {
-        return MobileVisualConfigWebMapper.toResponse(service.get());
+        return MobileVisualConfigWebMapper.toResponse(publicConfigs.get());
     }
 
     @PatchMapping("/api/admin/mobile-visual-config")
-    Response update(@Valid @RequestBody UpdateRequest body,
-                    Authentication authentication,
-                    HttpServletRequest request) {
-        MobileVisualConfigView before = service.get();
-        MobileVisualConfigView after = service.update(MobileVisualConfigWebMapper.toCommand(
-                body.heroBackgroundMobileOpacity(),
-                body.heroBackgroundMobileBlur()));
+    Response update(
+            @Valid @RequestBody UpdateRequest body,
+            Authentication authentication,
+            HttpServletRequest request) {
         String operator = authentication == null ? "admin" : authentication.getName();
         String reason = body.reason() == null || body.reason().isBlank()
                 ? "后台手机背景参数保存"
                 : body.reason().trim();
-        audit.log("MOBILE_VISUAL_CONFIG_UPDATE", "SITE_SETTINGS", "mobile-background",
-                operator, before, after, reason, request);
+        Object requestIdAttribute = request.getAttribute("requestId");
+        String requestId = requestIdAttribute != null
+                ? String.valueOf(requestIdAttribute)
+                : request.getHeader("X-Request-Id");
+        MobileVisualConfigAuditContext audit = new MobileVisualConfigAuditContext(
+                operator,
+                reason,
+                RequestUtil.clientIp(request),
+                requestId);
+        MobileVisualConfigView after = adminConfigs.update(
+                MobileVisualConfigWebMapper.toCommand(
+                        body.heroBackgroundMobileOpacity(),
+                        body.heroBackgroundMobileBlur()),
+                audit);
         return MobileVisualConfigWebMapper.toResponse(after);
     }
 

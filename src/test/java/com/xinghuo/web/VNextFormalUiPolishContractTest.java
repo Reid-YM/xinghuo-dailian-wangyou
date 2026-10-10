@@ -1,5 +1,6 @@
 package com.xinghuo.web;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -9,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 class VNextFormalUiPolishContractTest {
     private static final Path CSS = Path.of("src/main/resources/static/assets/vnext-formal-ui.css");
+    private static final Path INDEX = Path.of("frontend-vnext/index.html");
+    private static final Path BUILD_ENTRY = Path.of("frontend-vnext/src/formal-entry.css");
 
     @Test
     void formalThemeHidesPreviewEnvironmentBadge() throws IOException {
@@ -31,5 +34,15 @@ class VNextFormalUiPolishContractTest {
         assertTrue(css.contains("html.is-wechat"));
         assertTrue(css.contains("html.is-ios"));
         assertTrue(css.contains("env(safe-area-inset-bottom"));
+    }
+
+    @Test
+    void formalThemeIsBundledByViteInsteadOfRuntimeResolvedFromSpring() throws IOException {
+        String index = Files.readString(INDEX);
+        String entry = Files.readString(BUILD_ENTRY);
+
+        assertTrue(index.contains("href=\"/src/formal-entry.css\""));
+        assertFalse(index.contains("/assets/vnext-formal-ui.css"));
+        assertTrue(entry.contains("../../src/main/resources/static/assets/vnext-formal-ui.css"));
     }
 }

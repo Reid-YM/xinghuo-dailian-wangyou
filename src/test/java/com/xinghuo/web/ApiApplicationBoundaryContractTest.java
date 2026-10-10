@@ -38,6 +38,7 @@ class ApiApplicationBoundaryContractTest {
         String publicController = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
         String publicQuote = read("src/main/java/com/xinghuo/quote/web/PublicQuoteController.java");
         String publicRecord = read("src/main/java/com/xinghuo/record/web/PublicRecordController.java");
+        String publicOrder = read("src/main/java/com/xinghuo/order/web/PublicOrderController.java");
         String publicServices = read("src/main/java/com/xinghuo/catalog/web/PublicCatalogServiceController.java");
         String publicCatalog = read("src/main/java/com/xinghuo/taxonomy/web/PublicTaxonomyCatalogController.java");
         String publicOrderCases = read("src/main/java/com/xinghuo/order/web/PublicOrderCaseController.java");
@@ -53,7 +54,7 @@ class ApiApplicationBoundaryContractTest {
 
         assertTrue(publicQuote.contains("QuoteWebMapper.toCommand"));
         assertTrue(publicQuote.contains("QuoteWebMapper.toResponse"));
-        assertTrue(publicController.contains("OrderWebMapper.toResponse"));
+        assertTrue(publicOrder.contains("OrderWebMapper.toResponse"));
         assertTrue(publicOrderCases.contains("OrderWebMapper.toCaseResponses"));
         assertTrue(publicRecord.contains("RecordWebMapper.toResponse"));
         assertTrue(publicServices.contains("CatalogWebMapper.toResponses"));

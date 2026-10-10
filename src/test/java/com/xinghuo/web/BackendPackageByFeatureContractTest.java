@@ -30,12 +30,11 @@ class BackendPackageByFeatureContractTest {
     void publicApiConsumesFeatureApplicationServices() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
         String publicServices = read("src/main/java/com/xinghuo/catalog/web/PublicCatalogServiceController.java");
+        String publicCatalog = read("src/main/java/com/xinghuo/taxonomy/web/PublicTaxonomyCatalogController.java");
 
         assertTrue(controller.contains("com.xinghuo.quote.application.QuoteApplicationService"));
         assertTrue(controller.contains("com.xinghuo.order.application.OrderApplicationService"));
         assertTrue(controller.contains("com.xinghuo.record.application.RecordApplicationService"));
-        assertTrue(controller.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
-        assertTrue(controller.contains("TaxonomyWebMapper.toResponse"));
         assertTrue(controller.contains("RecordWebMapper.toResponse"));
         assertTrue(controller.contains("OrderProgressAsset"));
 
@@ -44,9 +43,17 @@ class BackendPackageByFeatureContractTest {
         assertTrue(publicServices.contains("CatalogWebMapper.toResponses"));
         assertTrue(publicServices.contains("@RequestMapping(value={\"/api/services\"})"));
 
+        assertTrue(publicCatalog.contains("package com.xinghuo.taxonomy.web;"));
+        assertTrue(publicCatalog.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
+        assertTrue(publicCatalog.contains("TaxonomyWebMapper.toResponse"));
+        assertTrue(publicCatalog.contains("@RequestMapping(value={\"/api/catalog\"})"));
+
         assertFalse(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
         assertFalse(controller.contains("CatalogWebMapper"));
         assertFalse(controller.contains("@GetMapping(value={\"/services\"})"));
+        assertFalse(controller.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
+        assertFalse(controller.contains("TaxonomyWebMapper"));
+        assertFalse(controller.contains("@GetMapping(value={\"/catalog\"})"));
         assertFalse(controller.contains("import com.xinghuo.service.QuoteService;"));
         assertFalse(controller.contains("import com.xinghuo.service.OrderService;"));
         assertFalse(controller.contains("import com.xinghuo.service.ServiceCatalogService;"));

@@ -194,6 +194,7 @@ class BackendPackageByFeatureContractTest {
         assertTrue(catalog.contains("implements CatalogPort"));
         assertTrue(catalog.contains("com.xinghuo.repository.ServiceItemRepository"));
         assertTrue(catalog.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
+        assertTrue(catalog.contains("com.xinghuo.audit.infrastructure.AuditService"));
         assertFalse(catalog.contains("com.xinghuo.service.ServiceCatalogService"));
         assertFalse(catalog.contains("com.xinghuo.service.TaxonomyService"));
 
@@ -213,7 +214,7 @@ class BackendPackageByFeatureContractTest {
         String feedback = read("src/main/java/com/xinghuo/feedback/infrastructure/FeedbackPersistenceAdapter.java");
         assertTrue(feedback.contains("implements FeedbackPort"));
         assertTrue(feedback.contains("com.xinghuo.repository.AdminTestFeedbackRepository"));
-        assertTrue(feedback.contains("com.xinghuo.service.AuditService"));
+        assertTrue(feedback.contains("com.xinghuo.audit.infrastructure.AuditService"));
         assertFalse(feedback.contains("com.xinghuo.service.AdminTestFeedbackService"));
         assertFalse(feedback.contains("com.xinghuo.dto"));
 
@@ -232,6 +233,7 @@ class BackendPackageByFeatureContractTest {
         assertTrue(slot.contains("com.xinghuo.repository.HotSlotRepository"));
         assertTrue(slot.contains("com.xinghuo.repository.ServiceItemRepository"));
         assertTrue(slot.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
+        assertTrue(slot.contains("com.xinghuo.audit.infrastructure.AuditService"));
         assertFalse(slot.contains("com.xinghuo.service.SlotService"));
         assertFalse(slot.contains("com.xinghuo.service.TaxonomyService"));
     }

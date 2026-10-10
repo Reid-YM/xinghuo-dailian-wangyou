@@ -1,0 +1,20 @@
+/* VNext final QA v5: ultra-wide shell correction only.
+   Keeps the v4 1940px design target independent from legacy percentage containing blocks. */
+@media(min-width:2400px){
+  body[data-page="account-login"] .container,
+  body[data-page="account-register"] .container,
+  body[data-page="account-reset"] .container,
+  body[data-page="guides"] .container,
+  body[data-page="guide-detail"] .container,
+  body[data-page="mastery"] .container,
+  body[data-page="tool-station"] .container,
+  body[data-page="mw4-mastery"] .container,
+  body[data-page="rules"] .container,
+  body[data-page="privacy"] .container,
+  body[data-page="contact"] .container,
+  body[data-page="trust"] .container,
+  body[data-page="order"] .container{
+    width:min(1940px,calc(100vw - 120px))!important;
+    max-width:none!important;
+  }
+}

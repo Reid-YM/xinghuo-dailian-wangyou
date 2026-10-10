@@ -20,6 +20,8 @@ import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.UploadService;
+import com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService;
+import com.xinghuo.siteconfig.web.SiteConfigWebMapper;
 import com.xinghuo.slot.application.SlotApplicationService;
 import com.xinghuo.slot.web.SlotWebMapper;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
@@ -56,6 +58,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class AdminApiController {
     private final DashboardApplicationService dashboard;
     private final SiteConfigService config;
+    private final SiteConfigPublicApplicationService siteConfigQuery;
     private final CatalogApplicationService services;
     private final QuoteApplicationService quotes;
     private final OrderApplicationService orders;
@@ -76,7 +79,7 @@ public class AdminApiController {
 
     @GetMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse getConfig() {
-        return this.config.publicConfig();
+        return SiteConfigWebMapper.toResponse(this.siteConfigQuery.get());
     }
 
     @PutMapping(value={"/game-status/{gameCode}"})
@@ -369,9 +372,10 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotApplicationService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses) {
+    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, SiteConfigPublicApplicationService siteConfigQuery, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotApplicationService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses) {
         this.dashboard = dashboard;
         this.config = config;
+        this.siteConfigQuery = siteConfigQuery;
         this.services = services;
         this.quotes = quotes;
         this.orders = orders;

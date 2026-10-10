@@ -24,6 +24,7 @@ import com.xinghuo.record.application.RecordApplicationService;
 import com.xinghuo.record.web.RecordWebMapper;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.UploadService;
+import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
 import com.xinghuo.sitesetting.application.SiteSettingApplicationService;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
@@ -63,6 +64,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class PublicApiController {
     private static final int REQUEST_BUCKET_PER_MINUTE = 60;
     private final SiteConfigService config;
+    private final SiteRuntimeApplicationService runtimeConfig;
     private final CatalogApplicationService services;
     private final QuoteApplicationService quotes;
     private final OrderApplicationService orders;
@@ -147,7 +149,7 @@ public class PublicApiController {
 
     @PostMapping(value={"/quote"})
     ResponseEntity<ApiDtos.QuoteResponse> quote(@Valid @RequestBody PublicQuoteRequest body, @RequestHeader(value="Idempotency-Key") String key, HttpServletRequest req) {
-        if (!this.config.isQuoteEnabled()) {
+        if (!this.runtimeConfig.quoteEnabled()) {
             throw new BadRequestException("当前已关闭网页询价，请通过客服渠道联系");
         }
         Optional<Account> current = this.accountSessions.current(req);
@@ -186,7 +188,7 @@ public class PublicApiController {
 
     @GetMapping(value={"/records/{businessNo}"})
     ApiDtos.RecordPublicResponse record(@PathVariable String businessNo, HttpServletRequest req) {
-        if (!this.config.isOrderQueryEnabled()) {
+        if (!this.runtimeConfig.orderQueryEnabled()) {
             throw new BadRequestException("进度查询正在维护，请联系客服查询");
         }
         this.limitByIp(req, "pub:record");
@@ -195,7 +197,7 @@ public class PublicApiController {
 
     @GetMapping(value={"/records/{businessNo}/image"})
     ResponseEntity<Resource> recordImage(@PathVariable String businessNo, HttpServletRequest req) {
-        if (!this.config.isOrderQueryEnabled()) {
+        if (!this.runtimeConfig.orderQueryEnabled()) {
             throw new BadRequestException("进度查询正在维护，请联系客服查询");
         }
         this.limitByIp(req, "pub:recordimg");
@@ -209,7 +211,7 @@ public class PublicApiController {
 
     @GetMapping(value={"/orders/{orderNo}"})
     ApiDtos.OrderPublicResponse order(@PathVariable String orderNo, HttpServletRequest req) {
-        if (!this.config.isOrderQueryEnabled()) {
+        if (!this.runtimeConfig.orderQueryEnabled()) {
             throw new BadRequestException("进度查询正在维护，请联系客服查询");
         }
         this.limitByIp(req, "pub:order");
@@ -218,7 +220,7 @@ public class PublicApiController {
 
     @GetMapping(value={"/orders/{orderNo}/image"})
     ResponseEntity<Resource> orderImage(@PathVariable String orderNo, HttpServletRequest req) {
-        if (!this.config.isOrderQueryEnabled()) {
+        if (!this.runtimeConfig.orderQueryEnabled()) {
             throw new BadRequestException("进度查询正在维护，请联系客服查询");
         }
         this.limitByIp(req, "pub:orderimg");
@@ -244,8 +246,9 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses, SiteSettingApplicationService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses, SiteSettingApplicationService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.config = config;
+        this.runtimeConfig = runtimeConfig;
         this.services = services;
         this.quotes = quotes;
         this.orders = orders;

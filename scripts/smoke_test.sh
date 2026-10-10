@@ -44,6 +44,7 @@ check_code /vnext/assets/app.css 200
 check_code /assets/vnext-formal-ui.css 200
 check_code /assets/vnext-public-finish-v4.css 200
 check_code /assets/vnext-final-qa-fix-v5.css 200
+check_code /assets/vnext-mobile-focus-v7.css 200
 
 # /vnext/ 继续作为 noindex 的直接预览入口和故障排查入口。
 check_code /vnext/ 200

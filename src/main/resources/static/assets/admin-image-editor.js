@@ -1,8 +1,13 @@
 (function(){
  if(!document.querySelector('link[data-vnext-formal-theme]')){
    const link=document.createElement('link');
-   link.rel='stylesheet';link.href='/assets/vnext-formal-ui.css?v=20261010ui01';link.dataset.vnextFormalTheme='1';
+   link.rel='stylesheet';link.href='/assets/vnext-formal-ui.css?v=20261010ui03';link.dataset.vnextFormalTheme='1';
    document.head.append(link);
+ }
+ if(!document.querySelector('link[data-vnext-legacy-bridge]')){
+   const bridge=document.createElement('link');
+   bridge.rel='stylesheet';bridge.href='/assets/vnext-legacy-bridge-v3.css?v=20261010ui03';bridge.dataset.vnextLegacyBridge='1';
+   document.head.append(bridge);
  }
 })();
 (function(){

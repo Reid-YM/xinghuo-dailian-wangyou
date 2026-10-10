@@ -2,6 +2,7 @@ package com.xinghuo.controller;
 
 import com.xinghuo.dto.QuoteLeadDtos;
 import com.xinghuo.quote.application.QuoteApplicationService;
+import com.xinghuo.quote.web.QuoteWebMapper;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.Generated;
@@ -22,17 +23,19 @@ public class AdminLeadController {
 
     @GetMapping
     QuoteLeadDtos.QuoteLeadPageResponse leads(@RequestParam(value="q", required=false) String q, @RequestParam(value="status", required=false) String status, @RequestParam(value="intent", required=false) String intent, @RequestParam(value="source", required=false) String source, @RequestParam(value="page", required=false, defaultValue="0") int page, @RequestParam(value="size", required=false, defaultValue="20") int size) {
-        return this.quotes.listLeads(q, status, intent, source, page, size);
+        return QuoteWebMapper.toResponse(this.quotes.listLeads(q, status, intent, source, page, size));
     }
 
     @PatchMapping(value={"/{id}/crm"})
     QuoteLeadDtos.QuoteLeadResponse updateCrm(@PathVariable UUID id, @Valid @RequestBody QuoteLeadDtos.QuoteCrmUpdateRequest r, Authentication a) {
-        return this.quotes.updateCrm(id, r, a == null ? "admin" : a.getName());
+        return QuoteWebMapper.toResponse(this.quotes.updateCrm(
+                id, QuoteWebMapper.toCommand(r), a == null ? "admin" : a.getName()));
     }
 
     @PostMapping(value={"/{id}/ai-suggestion"})
     QuoteLeadDtos.QuoteAiSuggestionResponse aiSuggestion(@PathVariable UUID id, Authentication a) {
-        return this.quotes.generateLeadSuggestion(id, a == null ? "admin" : a.getName());
+        return QuoteWebMapper.toResponse(
+                this.quotes.generateLeadSuggestion(id, a == null ? "admin" : a.getName()));
     }
 
     @Generated

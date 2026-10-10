@@ -35,11 +35,13 @@ class VNextMobileFocusContractTest {
     @Test
     void reactBuildAndLegacyShellLoadTheSameCanonicalMobileLayer() throws IOException {
         String buildEntry = read("frontend-vnext/src/formal-entry.css");
+        String siteFragment = read("src/main/resources/templates/fragments/site.html");
         String shell = read("src/main/resources/static/assets/site-shell.js");
 
         assertTrue(buildEntry.contains("../../src/main/resources/static/assets/vnext-mobile-focus-v7.css"));
-        assertTrue(shell.contains("/assets/vnext-mobile-focus-v7.css?v=20261010ui07"));
-        assertTrue(shell.contains("data-vnext-mobile-focus"));
-        assertTrue(shell.contains("ensureMobileFocusStyles();"));
+        assertTrue(siteFragment.contains("/assets/vnext-mobile-focus-v7.css?v=20261010ui07"));
+        assertTrue(siteFragment.contains("data-vnext-mobile-focus=\"1\""));
+        assertFalse(shell.contains("vnext-mobile-focus-v7.css"), "shell JS must not own CSS loading");
+        assertFalse(shell.contains("ensureMobileFocusStyles"), "shell JS must remain behavior-only");
     }
 }

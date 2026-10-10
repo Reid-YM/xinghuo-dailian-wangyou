@@ -1,8 +1,10 @@
-package com.xinghuo.guide;
+package com.xinghuo.guide.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.xinghuo.guide.application.GuideQueryApplicationService;
+import com.xinghuo.guide.application.GuideQueryModels;
 import java.util.List;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -14,17 +16,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class GuidePageController {
-    private final GuideContentService guides;
+    private final GuideQueryApplicationService guides;
     private final ObjectMapper mapper;
 
-    public GuidePageController(GuideContentService guides, ObjectMapper mapper) {
+    public GuidePageController(GuideQueryApplicationService guides, ObjectMapper mapper) {
         this.guides = guides;
         this.mapper = mapper;
     }
 
     @GetMapping("/guides")
     String list(@RequestParam(required = false) String game, @RequestParam(required = false) String q, Model model) {
-        List<GuideModels.GuideSummary> rows = guides.publicList(game, q, 200);
+        List<GuideQueryModels.GuideSummary> rows = guides.publicList(game, q, 200);
         model.addAttribute("guides", rows);
         model.addAttribute("guideCount", rows.size());
         model.addAttribute("activeGame", game == null ? "" : game);
@@ -39,10 +41,10 @@ public class GuidePageController {
     }
 
     /** 攻略列表的 ItemList 结构化数据，让搜索引擎识别这是一个攻略合集。 */
-    private String listJsonLd(List<GuideModels.GuideSummary> rows) {
+    private String listJsonLd(List<GuideQueryModels.GuideSummary> rows) {
         ArrayNode items = mapper.createArrayNode();
         int pos = 1;
-        for (GuideModels.GuideSummary g : rows) {
+        for (GuideQueryModels.GuideSummary g : rows) {
             ObjectNode item = items.addObject();
             item.put("@type", "ListItem");
             item.put("position", pos++);
@@ -60,16 +62,22 @@ public class GuidePageController {
 
     @GetMapping("/guides/{slug}")
     String detail(@PathVariable String slug, Model model) {
-        GuideModels.GuideDetail detail = guides.publicDetail(slug);
-        GuideModels.GuideSummary guide = detail.guide();
+        GuideQueryModels.GuideDetail detail = guides.publicDetail(slug);
+        GuideQueryModels.GuideSummary guide = detail.guide();
         model.addAttribute("guide", guide);
         model.addAttribute("sections", detail.sections());
         model.addAttribute("products", detail.products());
         model.addAttribute("faqs", detail.faqs());
         model.addAttribute("relatedGuides", detail.relatedGuides());
-        model.addAttribute("canonicalUrl", guide.canonicalUrl() == null || guide.canonicalUrl().isBlank() ? "https://wydlgf.cn/guides/" + guide.slug() : guide.canonicalUrl());
-        model.addAttribute("pageTitle", guide.seoTitle() == null || guide.seoTitle().isBlank() ? guide.title() + " | 星火网游代练平台" : guide.seoTitle());
-        model.addAttribute("pageDescription", guide.seoDescription() == null || guide.seoDescription().isBlank() ? guide.summary() : guide.seoDescription());
+        model.addAttribute("canonicalUrl", guide.canonicalUrl() == null || guide.canonicalUrl().isBlank()
+                ? "https://wydlgf.cn/guides/" + guide.slug()
+                : guide.canonicalUrl());
+        model.addAttribute("pageTitle", guide.seoTitle() == null || guide.seoTitle().isBlank()
+                ? guide.title() + " | 星火网游代练平台"
+                : guide.seoTitle());
+        model.addAttribute("pageDescription", guide.seoDescription() == null || guide.seoDescription().isBlank()
+                ? guide.summary()
+                : guide.seoDescription());
         model.addAttribute("ogImage", absolute(guide.coverImage()));
         model.addAttribute("articleJsonLd", jsonLdSafe(articleJsonLd(guide)));
         model.addAttribute("breadcrumbJsonLd", jsonLdSafe(breadcrumbJsonLd(guide)));
@@ -84,7 +92,7 @@ public class GuidePageController {
         return "admin-guides";
     }
 
-    private String articleJsonLd(GuideModels.GuideSummary guide) {
+    private String articleJsonLd(GuideQueryModels.GuideSummary guide) {
         ObjectNode root = mapper.createObjectNode();
         root.put("@context", "https://schema.org");
         root.put("@type", "Article");
@@ -102,15 +110,19 @@ public class GuidePageController {
         ObjectNode image = root.putObject("image");
         image.put("@type", "ImageObject");
         image.put("url", absolute(guide.coverImage()));
-        root.put("mainEntityOfPage", absolute(guide.canonicalUrl() == null ? "/guides/" + guide.slug() : guide.canonicalUrl()));
+        root.put("mainEntityOfPage", absolute(guide.canonicalUrl() == null
+                ? "/guides/" + guide.slug()
+                : guide.canonicalUrl()));
         return root.toString();
     }
 
-    private String breadcrumbJsonLd(GuideModels.GuideSummary guide) {
+    private String breadcrumbJsonLd(GuideQueryModels.GuideSummary guide) {
         ArrayNode items = mapper.createArrayNode();
         items.add(crumb(1, "首页", "https://wydlgf.cn/"));
         items.add(crumb(2, "攻略中心", "https://wydlgf.cn/guides"));
-        items.add(crumb(3, guide.title(), absolute(guide.canonicalUrl() == null ? "/guides/" + guide.slug() : guide.canonicalUrl())));
+        items.add(crumb(3, guide.title(), absolute(guide.canonicalUrl() == null
+                ? "/guides/" + guide.slug()
+                : guide.canonicalUrl())));
         ObjectNode root = mapper.createObjectNode();
         root.put("@context", "https://schema.org");
         root.put("@type", "BreadcrumbList");
@@ -118,12 +130,12 @@ public class GuidePageController {
         return root.toString();
     }
 
-    private String faqJsonLd(List<GuideModels.GuideFaq> faqs) {
+    private String faqJsonLd(List<GuideQueryModels.GuideFaq> faqs) {
         if (faqs == null || faqs.isEmpty()) {
             return "{}";
         }
         ArrayNode items = mapper.createArrayNode();
-        for (GuideModels.GuideFaq faq : faqs) {
+        for (GuideQueryModels.GuideFaq faq : faqs) {
             ObjectNode question = mapper.createObjectNode();
             question.put("@type", "Question");
             question.put("name", faq.question());
@@ -158,24 +170,12 @@ public class GuidePageController {
         return value.startsWith("/") ? "https://wydlgf.cn" + value : "https://wydlgf.cn/" + value;
     }
 
-    /**
-     * JSON-LD 安全化。
-     *
-     * <p>这些值经 {@code th:utext} 不转义写入 {@code <script type="application/ld+json">}，
-     * 而 Jackson 的 {@code toString()} 只转义引号、反斜杠与控制字符，<b>不转义 {@code <}</b>。
-     * 只要标题、摘要或 FAQ 里出现 {@code </script>}，就能提前闭合脚本元素并注入 HTML。
-     * CSP 会挡掉注入的内联脚本执行，但 {@code meta refresh} 跳转与样式注入仍然生效。
-     *
-     * <p>把三个 HTML 敏感字符换成 JSON 的 Unicode 转义（反斜杠 + u + 四位十六进制）：
-     * JSON 语义完全不变，
-     * 但内容再也无法闭合标签。
-     */
     private static String jsonLdSafe(String json) {
         if (json == null || json.isBlank()) {
             return "{}";
         }
         return json.replace("<", "\\u003c")
-                   .replace(">", "\\u003e")
-                   .replace("&", "\\u0026");
+                .replace(">", "\\u003e")
+                .replace("&", "\\u0026");
     }
 }

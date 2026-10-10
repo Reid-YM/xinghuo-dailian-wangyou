@@ -1,5 +1,9 @@
-package com.xinghuo.guide;
+package com.xinghuo.guide.web;
 
+import com.xinghuo.guide.GuideContentService;
+import com.xinghuo.guide.GuideModels;
+import com.xinghuo.guide.application.GuideQueryApplicationService;
+import com.xinghuo.guide.application.GuideQueryModels;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.springframework.security.core.Authentication;
@@ -16,40 +20,42 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/guides")
 public class AdminGuideController {
-    private final GuideContentService guides;
+    private final GuideQueryApplicationService queries;
+    private final GuideContentService writes;
 
-    public AdminGuideController(GuideContentService guides) {
-        this.guides = guides;
+    public AdminGuideController(GuideQueryApplicationService queries, GuideContentService writes) {
+        this.queries = queries;
+        this.writes = writes;
     }
 
     @GetMapping
-    List<GuideModels.GuideSummary> list() {
-        return guides.adminList();
+    List<GuideQueryModels.GuideSummary> list() {
+        return queries.adminList();
     }
 
     @GetMapping("/{id}")
-    GuideModels.GuideDetail detail(@PathVariable Long id) {
-        return guides.adminDetail(id);
+    GuideQueryModels.GuideDetail detail(@PathVariable Long id) {
+        return queries.adminDetail(id);
     }
 
     @PostMapping
     GuideModels.GuideDetail create(@RequestBody GuideModels.GuideUpsert body, Authentication auth, HttpServletRequest request) {
-        return guides.create(body, operator(auth), request);
+        return writes.create(body, operator(auth), request);
     }
 
     @PutMapping("/{id}")
     GuideModels.GuideDetail update(@PathVariable Long id, @RequestBody GuideModels.GuideUpsert body, Authentication auth, HttpServletRequest request) {
-        return guides.update(id, body, operator(auth), request);
+        return writes.update(id, body, operator(auth), request);
     }
 
     @PatchMapping("/{id}/status")
     GuideModels.GuideDetail status(@PathVariable Long id, @RequestBody GuideModels.GuideStatusInput body, Authentication auth, HttpServletRequest request) {
-        return guides.setStatus(id, body.status(), body.reason(), operator(auth), request);
+        return writes.setStatus(id, body.status(), body.reason(), operator(auth), request);
     }
 
     @DeleteMapping("/{id}")
     void archive(@PathVariable Long id, Authentication auth, HttpServletRequest request) {
-        guides.archive(id, "后台归档攻略", operator(auth), request);
+        writes.archive(id, "后台归档攻略", operator(auth), request);
     }
 
     @DeleteMapping("/batch")
@@ -58,7 +64,7 @@ public class AdminGuideController {
                 ? "后台批量归档攻略"
                 : body.reason().trim();
         List<Long> ids = body == null ? List.of() : body.ids();
-        return guides.archiveBatch(ids, reason, operator(auth), request);
+        return writes.archiveBatch(ids, reason, operator(auth), request);
     }
 
     @PostMapping("/archive-all")
@@ -66,13 +72,15 @@ public class AdminGuideController {
         String reason = body == null || body.reason() == null || body.reason().isBlank()
                 ? "后台全部归档攻略"
                 : body.reason().trim();
-        return guides.archiveAll(reason, operator(auth), request);
+        return writes.archiveAll(reason, operator(auth), request);
     }
 
     @PostMapping("/import-games")
     GuideModels.GuideImportResult importGames(@RequestBody(required = false) GuideModels.GuideImportRequest body, Authentication auth, HttpServletRequest request) {
-        GuideModels.GuideImportRequest actual = body == null ? new GuideModels.GuideImportRequest(true, false, "批量生成多游戏攻略") : body;
-        return guides.importGames(actual, operator(auth), request);
+        GuideModels.GuideImportRequest actual = body == null
+                ? new GuideModels.GuideImportRequest(true, false, "批量生成多游戏攻略")
+                : body;
+        return writes.importGames(actual, operator(auth), request);
     }
 
     private String operator(Authentication auth) {

@@ -1,7 +1,5 @@
 package com.xinghuo.sitesetting.infrastructure;
 
-import com.xinghuo.model.SiteSetting;
-import com.xinghuo.repository.SiteSettingRepository;
 import com.xinghuo.sitesetting.application.SiteSettingPort;
 import java.time.Instant;
 import java.util.LinkedHashMap;

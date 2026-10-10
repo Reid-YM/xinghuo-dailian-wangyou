@@ -1,13 +1,9 @@
 package com.xinghuo.quote.application;
 
-import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.dto.PublicQuoteRequest;
-import com.xinghuo.quote.domain.QuoteSubmissionMetadata;
-
 /**
- * Temporary migration port between the quote application layer and the legacy
- * implementation. #128 can replace the adapter without changing web callers.
+ * Temporary migration port between the quote application layer and legacy
+ * persistence/orchestration. It exposes only application-owned contracts.
  */
 public interface QuoteLegacyPort {
-    ApiDtos.QuoteResponse create(PublicQuoteRequest request, QuoteSubmissionMetadata metadata);
+    QuoteSubmissionResult create(QuoteSubmissionCommand command);
 }

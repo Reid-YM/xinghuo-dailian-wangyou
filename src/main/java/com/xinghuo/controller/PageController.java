@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.xinghuo.account.web.RequireAccount;
 import com.xinghuo.catalog.application.CatalogApplicationService;
 import com.xinghuo.catalog.application.CatalogPageServiceView;
-import com.xinghuo.service.SiteConfigService;
+import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.application.TaxonomyCatalogView;
 import java.time.LocalDate;
@@ -29,7 +29,7 @@ public class PageController {
     private final CatalogApplicationService services;
     private final TaxonomyApplicationService taxonomy;
     private final ObjectMapper objectMapper;
-    private final SiteConfigService config;
+    private final SiteRuntimeApplicationService runtimeConfig;
     private static final String DEFAULT_WECHAT = "AAC9878";
     private static final List<String> PLATFORM_LABELS = List.of("Steam", "Battle.net", "PlayStation", "Xbox", "Switch 2");
 
@@ -50,7 +50,7 @@ public class PageController {
     }
 
     private boolean acceptingOrders() {
-        return "open".equals(this.config.publicConfig().serviceStatus());
+        return this.runtimeConfig.acceptingOrders();
     }
 
     @GetMapping(value={"/services"})
@@ -388,11 +388,11 @@ public class PageController {
     }
 
     @Generated
-    public PageController(CatalogApplicationService services, TaxonomyApplicationService taxonomy, ObjectMapper objectMapper, SiteConfigService config) {
+    public PageController(CatalogApplicationService services, TaxonomyApplicationService taxonomy, ObjectMapper objectMapper, SiteRuntimeApplicationService runtimeConfig) {
         this.services = services;
         this.taxonomy = taxonomy;
         this.objectMapper = objectMapper;
-        this.config = config;
+        this.runtimeConfig = runtimeConfig;
     }
 
     public record FaqItem(String question, String answer) {
@@ -402,7 +402,7 @@ public class PageController {
      * JSON-LD 安全化。
      *
      * <p>这些值经 {@code th:utext} 不转义写入 {@code <script type="application/ld+json">}，
-     * 而 Jackson 的 {@code toString()} 只转义引号、反斜杠与控制字符，<b>不转义 {@code <}</b>。
+     * 而 Jackson 的 {@code toString()} 只转义引号、反斜杠与控制字符，<b>不转义 {@code <></b>。
      * 只要标题、摘要或 FAQ 里出现 {@code </script>}，就能提前闭合脚本元素并注入 HTML。
      * CSP 会挡掉注入的内联脚本执行，但 {@code meta refresh} 跳转与样式注入仍然生效。
      *

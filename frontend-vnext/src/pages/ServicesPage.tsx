@@ -1,17 +1,14 @@
 import { useMemo, useState } from 'react';
 import { ArrowRight, Search } from 'lucide-react';
 import { Badge, Button, Card, Skeleton } from '../components/ui';
-import { EmptyState, PageIntro, ServiceCard, serviceKey } from '../components/public-content';
-import type { JsonRecord } from '../lib/api';
+import { EmptyState, PageIntro } from '../components/public-content';
+import { ServiceCard } from '../features/services/ServiceCard';
+import { filterServices, serviceKey, type ServiceRecord } from '../features/services/model';
 import type { PageKey } from '../app/navigation';
 
-export function ServicesPage({ loading, services, onNavigate }: { loading: boolean; services: JsonRecord[]; onNavigate: (page: PageKey) => void }) {
+export function ServicesPage({ loading, services, onNavigate }: { loading: boolean; services: ServiceRecord[]; onNavigate: (page: PageKey) => void }) {
   const [query, setQuery] = useState('');
-  const filtered = useMemo(() => {
-    const value = query.trim().toLowerCase();
-    if (!value) return services;
-    return services.filter(service => [service.name, service.shortDesc, service.gameCode, service.category].some(item => String(item ?? '').toLowerCase().includes(value)));
-  }, [query, services]);
+  const filtered = useMemo(() => filterServices(services, query), [query, services]);
 
   return <section className="v-page v-shell">
     <PageIntro eyebrow="SERVICE BROWSER" title="服务中心" text="按游戏、目标与当前进度选择服务。页面价格用于参考，最终方案以客服确认结果为准。" />

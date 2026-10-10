@@ -44,6 +44,7 @@ class VNextPreviewContractTest {
         String css = Files.readString(ROOT.resolve("frontend-vnext/src/styles.css"));
         String environment = Files.readString(ROOT.resolve("frontend-vnext/src/lib/environment.ts"));
         String quotePage = Files.readString(ROOT.resolve("frontend-vnext/src/pages/QuotePage.tsx"));
+        String quoteFlow = Files.readString(ROOT.resolve("frontend-vnext/src/features/quote/useQuoteFlow.ts"));
         String api = Files.readString(ROOT.resolve("frontend-vnext/src/lib/api.ts"));
 
         assertTrue(css.contains("env(safe-area-inset-top"));
@@ -62,8 +63,8 @@ class VNextPreviewContractTest {
         assertTrue(api.contains("'/api/quote'"));
         assertTrue(api.contains("'Idempotency-Key': idempotencyKey"));
         assertTrue(api.contains("'/api/uploads/quote'"));
-        assertTrue(quotePage.contains("privacyConsent: true"));
-        assertTrue(quotePage.contains("loadAccountMe"));
+        assertTrue(quoteFlow.contains("privacyConsent: true"));
+        assertTrue(quoteFlow.contains("loadAccountMe"));
         assertTrue(quotePage.contains("/record/${encodeURIComponent(success.businessNo)}"));
     }
 

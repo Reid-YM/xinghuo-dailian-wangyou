@@ -1,6 +1,8 @@
 package com.xinghuo.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.xinghuo.catalog.application.CatalogApplicationService;
+import com.xinghuo.catalog.web.CatalogAdminWebMapper;
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
@@ -13,7 +15,6 @@ import com.xinghuo.service.DashboardService;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.OrderService;
 import com.xinghuo.service.QuoteService;
-import com.xinghuo.service.ServiceCatalogService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SlotService;
 import com.xinghuo.service.TaxonomyService;
@@ -50,7 +51,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class AdminApiController {
     private final DashboardService dashboard;
     private final SiteConfigService config;
-    private final ServiceCatalogService services;
+    private final CatalogApplicationService services;
     private final QuoteService quotes;
     private final OrderService orders;
     private final SlotService slots;
@@ -203,23 +204,23 @@ public class AdminApiController {
 
     @GetMapping(value={"/services"})
     List<ApiDtos.AdminServiceResponse> listServices() {
-        return this.services.adminList();
+        return CatalogAdminWebMapper.toResponses(this.services.adminList());
     }
 
     @PostMapping(value={"/services"})
     ApiDtos.AdminServiceResponse createService(@Valid @RequestBody ApiDtos.ServiceUpsert r, Authentication a, HttpServletRequest req) {
-        return this.services.create(r, a.getName(), req);
+        return CatalogAdminWebMapper.toResponse(this.services.create(CatalogAdminWebMapper.toCommand(r), a.getName()));
     }
 
     @PutMapping(value={"/services/{id}"})
     ApiDtos.AdminServiceResponse updateService(@PathVariable Long id, @Valid @RequestBody ApiDtos.ServiceUpsert r, Authentication a, HttpServletRequest req) {
-        return this.services.update(id, r, a.getName(), req);
+        return CatalogAdminWebMapper.toResponse(this.services.update(id, CatalogAdminWebMapper.toCommand(r), a.getName()));
     }
 
     @DeleteMapping(value={"/services/{id}"})
     @PreAuthorize(value="hasRole('ADMIN')")
     ResponseEntity<Void> deleteService(@PathVariable Long id, Authentication a, HttpServletRequest req) {
-        this.services.delete(id, a.getName(), req);
+        this.services.delete(id, a.getName());
         return ResponseEntity.noContent().build();
     }
 
@@ -240,7 +241,7 @@ public class AdminApiController {
 
     @PostMapping(value={"/services/{id}/restore"})
     ApiDtos.AdminServiceResponse restoreService(@PathVariable Long id, Authentication a, HttpServletRequest req) {
-        return this.services.restore(id, a.getName(), req);
+        return CatalogAdminWebMapper.toResponse(this.services.restore(id, a.getName()));
     }
 
     @GetMapping(value={"/quotes"})
@@ -349,7 +350,7 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardService dashboard, SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
+    public AdminApiController(DashboardService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteService quotes, OrderService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
         this.dashboard = dashboard;
         this.config = config;
         this.services = services;
@@ -365,5 +366,4 @@ public class AdminApiController {
         this.gameStatuses = gameStatuses;
     }
 }
-
 

@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.xinghuo.account.web.RequireAccount;
 import com.xinghuo.catalog.application.CatalogApplicationService;
 import com.xinghuo.catalog.application.CatalogPageServiceView;
-import com.xinghuo.model.GameCatalog;
 import com.xinghuo.service.SiteConfigService;
-import com.xinghuo.service.TaxonomyService;
+import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
+import com.xinghuo.taxonomy.application.TaxonomyCatalogView;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class PageController {
     private final CatalogApplicationService services;
-    private final TaxonomyService taxonomy;
+    private final TaxonomyApplicationService taxonomy;
     private final ObjectMapper objectMapper;
     private final SiteConfigService config;
     private static final String DEFAULT_WECHAT = "AAC9878";
@@ -68,7 +68,7 @@ public class PageController {
     @GetMapping(value={"/service/{slug}"})
     String serviceDetail(@PathVariable String slug, Model m) {
         CatalogPageServiceView service = this.services.publicPageBySlug(slug);
-        GameCatalog game = this.taxonomy.publicGames().stream().filter(x -> x.getCode().equals(service.getGameCode())).findFirst().orElse(null);
+        TaxonomyCatalogView.GameView game = this.taxonomy.publicGames().stream().filter(x -> x.getCode().equals(service.getGameCode())).findFirst().orElse(null);
         String gameName = game == null ? service.getGameCode() : game.getName();
         String h1 = gameName + " " + service.getName();
         m.addAttribute("serviceSlug", slug);
@@ -236,7 +236,7 @@ public class PageController {
 
     @GetMapping(value={"/game/{seoSlug}"})
     String gameDetail(@PathVariable String seoSlug, Model m) {
-        GameCatalog game = this.taxonomy.publicGameBySeoSlug(seoSlug);
+        TaxonomyCatalogView.GameView game = this.taxonomy.publicGameBySeoSlug(seoSlug);
         m.addAttribute("game", game);
         m.addAttribute("gameServices", this.services.publicPageItems().stream().filter(x -> x.getGameCode().equals(game.getCode())).toList());
         m.addAttribute("canonicalUrl", ("https://wydlgf.cn/game/" + seoSlug));
@@ -248,7 +248,7 @@ public class PageController {
     }
 
     /** SEO-K：游戏页面包屑，与 service-detail 的 BreadcrumbList 同构。 */
-    private String gameBreadcrumbJsonLd(GameCatalog game) {
+    private String gameBreadcrumbJsonLd(TaxonomyCatalogView.GameView game) {
         ArrayNode items = this.objectMapper.createArrayNode();
         items.add((JsonNode)this.crumb(1, "\u9996\u9875", "https://wydlgf.cn/"));
         items.add((JsonNode)this.crumb(2, "\u670d\u52a1\u5927\u5385", "https://wydlgf.cn/services"));
@@ -388,7 +388,7 @@ public class PageController {
     }
 
     @Generated
-    public PageController(CatalogApplicationService services, TaxonomyService taxonomy, ObjectMapper objectMapper, SiteConfigService config) {
+    public PageController(CatalogApplicationService services, TaxonomyApplicationService taxonomy, ObjectMapper objectMapper, SiteConfigService config) {
         this.services = services;
         this.taxonomy = taxonomy;
         this.objectMapper = objectMapper;

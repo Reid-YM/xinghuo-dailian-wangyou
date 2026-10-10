@@ -20,9 +20,10 @@ import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SlotService;
-import com.xinghuo.service.TaxonomyService;
 import com.xinghuo.service.ToolStationService;
 import com.xinghuo.service.UploadService;
+import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
+import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.LinkedHashMap;
@@ -60,7 +61,7 @@ public class AdminApiController {
     private final SlotService slots;
     private final UploadService uploads;
     private final AuditLogRepository audits;
-    private final TaxonomyService taxonomy;
+    private final TaxonomyApplicationService taxonomy;
     private final FeedbackApplicationService feedback;
 
     private final ToolStationService toolStation;
@@ -148,32 +149,37 @@ public class AdminApiController {
 
     @GetMapping(value={"/catalog"})
     ApiDtos.CatalogResponse catalog() {
-        return this.taxonomy.catalog(true);
+        return TaxonomyWebMapper.toResponse(this.taxonomy.catalog(true));
     }
 
     @PostMapping(value={"/catalog/games"})
     ApiDtos.GameOptionResponse addGame(@Valid @RequestBody ApiDtos.CatalogNameRequest r, Authentication a, HttpServletRequest req) {
-        return this.taxonomy.addGame(r, a.getName(), req);
+        return TaxonomyWebMapper.toResponse(
+                this.taxonomy.addGame(TaxonomyWebMapper.toCommand(r), a.getName()));
     }
 
     @PostMapping(value={"/catalog/categories"})
     ApiDtos.CategoryOptionResponse addCategory(@Valid @RequestBody ApiDtos.CategoryCreateRequest r, Authentication a, HttpServletRequest req) {
-        return this.taxonomy.addCategory(r, a.getName(), req);
+        return TaxonomyWebMapper.toResponse(
+                this.taxonomy.addCategory(TaxonomyWebMapper.toCommand(r), a.getName()));
     }
 
     @PutMapping(value={"/catalog/games/{code}"})
     ApiDtos.GameOptionResponse updateGame(@PathVariable String code, @Valid @RequestBody ApiDtos.CatalogUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return this.taxonomy.updateGame(code, r, a.getName(), req);
+        return TaxonomyWebMapper.toResponse(
+                this.taxonomy.updateGame(code, TaxonomyWebMapper.toCommand(r), a.getName()));
     }
 
     @PutMapping(value={"/catalog/games/{code}/profile"})
     ApiDtos.GameOptionResponse updateGameProfile(@PathVariable String code, @Valid @RequestBody ApiDtos.GameProfileUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return this.taxonomy.updateGameProfile(code, r, a.getName(), req);
+        return TaxonomyWebMapper.toResponse(
+                this.taxonomy.updateGameProfile(code, TaxonomyWebMapper.toCommand(r), a.getName()));
     }
 
     @PatchMapping(value={"/catalog/games/bulk"})
     List<ApiDtos.GameOptionResponse> bulkUpdateGames(@Valid @RequestBody ApiDtos.GameBulkUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return this.taxonomy.bulkUpdateGames(r, a.getName(), req);
+        return TaxonomyWebMapper.toGameResponses(
+                this.taxonomy.bulkUpdateGames(TaxonomyWebMapper.toCommand(r), a.getName()));
     }
 
     @PostMapping(value={"/catalog/games/image/{kind}"})
@@ -190,19 +196,20 @@ public class AdminApiController {
     @DeleteMapping(value={"/catalog/games/{code}"})
     @PreAuthorize(value="hasRole('ADMIN')")
     ResponseEntity<Void> deleteGame(@PathVariable String code, Authentication a, HttpServletRequest req) {
-        this.taxonomy.deleteGame(code, a.getName(), req);
+        this.taxonomy.deleteGame(code, a.getName());
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value={"/catalog/categories/{id}"})
     ApiDtos.CategoryOptionResponse updateCategory(@PathVariable Long id, @Valid @RequestBody ApiDtos.CategoryUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return this.taxonomy.updateCategory(id, r, a.getName(), req);
+        return TaxonomyWebMapper.toResponse(
+                this.taxonomy.updateCategory(id, TaxonomyWebMapper.toCommand(r), a.getName()));
     }
 
     @DeleteMapping(value={"/catalog/categories/{id}"})
     @PreAuthorize(value="hasRole('ADMIN')")
     ResponseEntity<Void> deleteCategory(@PathVariable Long id, Authentication a, HttpServletRequest req) {
-        this.taxonomy.deleteCategory(id, a.getName(), req);
+        this.taxonomy.deleteCategory(id, a.getName());
         return ResponseEntity.noContent().build();
     }
 
@@ -360,7 +367,7 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, FeedbackApplicationService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
+    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
         this.dashboard = dashboard;
         this.config = config;
         this.services = services;

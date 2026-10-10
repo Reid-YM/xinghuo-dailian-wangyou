@@ -18,7 +18,7 @@ class ApiApplicationBoundaryContractTest {
 
     @Test
     void featureApplicationPackagesOwnTheirContracts() throws IOException {
-        for (String feature : new String[] {"quote", "order", "catalog", "record", "dashboard", "feedback"}) {
+        for (String feature : new String[] {"quote", "order", "catalog", "record", "dashboard", "feedback", "taxonomy"}) {
             Path application = ROOT.resolve("src/main/java/com/xinghuo/" + feature + "/application");
             try (Stream<Path> files = Files.list(application)) {
                 for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
@@ -42,6 +42,7 @@ class ApiApplicationBoundaryContractTest {
         String recordMapper = read("src/main/java/com/xinghuo/record/web/RecordWebMapper.java");
         String dashboardMapper = read("src/main/java/com/xinghuo/dashboard/web/DashboardWebMapper.java");
         String feedbackMapper = read("src/main/java/com/xinghuo/feedback/web/FeedbackWebMapper.java");
+        String taxonomyMapper = read("src/main/java/com/xinghuo/taxonomy/web/TaxonomyWebMapper.java");
         String catalogMapper = read("src/main/java/com/xinghuo/catalog/web/CatalogWebMapper.java");
         String catalogAdminMapper = read("src/main/java/com/xinghuo/catalog/web/CatalogAdminWebMapper.java");
 
@@ -51,9 +52,12 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(publicController.contains("OrderWebMapper.toCaseResponses"));
         assertTrue(publicController.contains("RecordWebMapper.toResponse"));
         assertTrue(publicController.contains("CatalogWebMapper.toResponses"));
+        assertTrue(publicController.contains("TaxonomyWebMapper.toResponse"));
         assertTrue(adminController.contains("DashboardWebMapper.toResponse"));
         assertTrue(adminController.contains("FeedbackWebMapper.toCommand"));
         assertTrue(adminController.contains("FeedbackWebMapper.toResponse"));
+        assertTrue(adminController.contains("TaxonomyWebMapper.toCommand"));
+        assertTrue(adminController.contains("TaxonomyWebMapper.toResponse"));
 
         assertTrue(quoteMapper.contains("PublicQuoteRequest"));
         assertTrue(quoteMapper.contains("ApiDtos.QuoteResponse"));
@@ -81,6 +85,12 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(feedbackMapper.contains("UpdateTestFeedbackCommand"));
         assertTrue(feedbackMapper.contains("TestFeedbackView"));
 
+        assertTrue(taxonomyMapper.contains("ApiDtos.CatalogResponse"));
+        assertTrue(taxonomyMapper.contains("ApiDtos.CatalogNameRequest"));
+        assertTrue(taxonomyMapper.contains("ApiDtos.GameProfileUpdateRequest"));
+        assertTrue(taxonomyMapper.contains("TaxonomyCatalogView"));
+        assertTrue(taxonomyMapper.contains("TaxonomyCommands"));
+
         assertTrue(catalogMapper.contains("ApiDtos.ServiceResponse"));
         assertTrue(catalogAdminMapper.contains("ApiDtos.ServiceUpsert"));
         assertTrue(catalogAdminMapper.contains("ApiDtos.AdminServiceResponse"));
@@ -93,6 +103,7 @@ class ApiApplicationBoundaryContractTest {
         String record = read("src/main/java/com/xinghuo/record/infrastructure/RecordPersistenceAdapter.java");
         String dashboard = read("src/main/java/com/xinghuo/dashboard/infrastructure/DashboardPersistenceAdapter.java");
         String feedback = read("src/main/java/com/xinghuo/feedback/infrastructure/FeedbackPersistenceAdapter.java");
+        String taxonomy = read("src/main/java/com/xinghuo/taxonomy/infrastructure/TaxonomyPersistenceAdapter.java");
         String catalog = read("src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java");
 
         assertTrue(quote.contains("com.xinghuo.repository.QuoteRepository"));
@@ -124,6 +135,16 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(feedback.contains("ServletRequestAttributes"));
         assertFalse(feedback.contains("com.xinghuo.dto"));
         assertFalse(feedback.contains("AdminTestFeedbackService"));
+
+        assertTrue(taxonomy.contains("com.xinghuo.repository.GameCatalogRepository"));
+        assertTrue(taxonomy.contains("com.xinghuo.repository.ServiceCategoryCatalogRepository"));
+        assertTrue(taxonomy.contains("com.xinghuo.repository.PlatformCatalogRepository"));
+        assertTrue(taxonomy.contains("com.xinghuo.repository.GamePlatformRepository"));
+        assertTrue(taxonomy.contains("TaxonomyCatalogView"));
+        assertTrue(taxonomy.contains("TaxonomyCommands"));
+        assertTrue(taxonomy.contains("ServletRequestAttributes"));
+        assertFalse(taxonomy.contains("com.xinghuo.dto"));
+        assertFalse(taxonomy.contains("TaxonomyService"));
 
         assertTrue(catalog.contains("com.xinghuo.model.ServiceItem"));
         assertTrue(catalog.contains("com.xinghuo.repository.ServiceItemRepository"));
@@ -175,6 +196,17 @@ class ApiApplicationBoundaryContractTest {
                 .contains("record CreateTestFeedbackCommand"));
         assertTrue(read("src/main/java/com/xinghuo/feedback/application/UpdateTestFeedbackCommand.java")
                 .contains("record UpdateTestFeedbackCommand"));
+
+        assertTrue(read("src/main/java/com/xinghuo/taxonomy/application/TaxonomyCatalogView.java")
+                .contains("record TaxonomyCatalogView"));
+        assertTrue(read("src/main/java/com/xinghuo/taxonomy/application/TaxonomyCatalogView.java")
+                .contains("record GameView"));
+        assertTrue(read("src/main/java/com/xinghuo/taxonomy/application/TaxonomyCommands.java")
+                .contains("record CreateGame"));
+        assertTrue(read("src/main/java/com/xinghuo/taxonomy/application/TaxonomyCommands.java")
+                .contains("record UpdateGameProfile"));
+        assertTrue(read("src/main/java/com/xinghuo/taxonomy/application/TaxonomyCommands.java")
+                .contains("record CreateCategory"));
 
         assertTrue(read("src/main/java/com/xinghuo/catalog/application/CatalogServiceView.java")
                 .contains("record CatalogServiceView"));

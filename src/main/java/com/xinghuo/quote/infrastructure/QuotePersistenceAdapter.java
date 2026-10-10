@@ -1,18 +1,23 @@
 package com.xinghuo.quote.infrastructure;
 
-import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.dto.QuoteLeadDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.Quote;
+import com.xinghuo.quote.application.ConvertedOrderView;
+import com.xinghuo.quote.application.QuoteAdminView;
+import com.xinghuo.quote.application.QuoteAiSuggestionView;
+import com.xinghuo.quote.application.QuoteConvertCommand;
+import com.xinghuo.quote.application.QuoteCrmUpdateCommand;
+import com.xinghuo.quote.application.QuoteLeadPageView;
+import com.xinghuo.quote.application.QuoteLeadView;
 import com.xinghuo.quote.application.QuotePort;
+import com.xinghuo.quote.application.QuoteStatusUpdateCommand;
 import com.xinghuo.quote.application.QuoteSubmissionCommand;
 import com.xinghuo.quote.application.QuoteSubmissionResult;
 import com.xinghuo.repository.QuoteRepository;
 import com.xinghuo.service.AuditService;
 import com.xinghuo.service.OrderService;
 import com.xinghuo.service.UploadService;
-import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
@@ -100,13 +105,13 @@ public class QuotePersistenceAdapter implements QuotePort {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ApiDtos.QuoteAdminResponse> list() {
+    public List<QuoteAdminView> list() {
         return repo.findTop100ByOrderByCreatedAtDesc().stream().map(this::admin).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public QuoteLeadDtos.QuoteLeadPageResponse listLeads(
+    public QuoteLeadPageView listLeads(
             String keyword, String status, String intent, String source, int page, int size) {
         int safePage = Math.max(0, page);
         int safeSize = Math.max(1, Math.min(100, size));
@@ -118,23 +123,23 @@ public class QuotePersistenceAdapter implements QuotePort {
         Specification<Quote> spec = (root, query, cb) -> {
             ArrayList<Predicate> predicates = new ArrayList<>();
             if (statusFilter != null) {
-                predicates.add(cb.equal(root.get("status"), statusFilter));
+                predicates.add(cb.equal(root.<Quote.Status>get("status"), statusFilter));
             }
             if (intentFilter != null) {
-                predicates.add(cb.equal(root.get("leadIntentLevel"), intentFilter));
+                predicates.add(cb.equal(root.<String>get("leadIntentLevel"), intentFilter));
             }
             if (sourceFilter != null) {
                 predicates.add(cb.or(
-                        cb.equal(root.get("utmSource"), sourceFilter),
-                        cb.equal(root.get("firstTouchSource"), sourceFilter)));
+                        cb.equal(root.<String>get("utmSource"), sourceFilter),
+                        cb.equal(root.<String>get("firstTouchSource"), sourceFilter)));
             }
             if (kw != null) {
                 String like = "%" + kw.toLowerCase(Locale.ROOT) + "%";
                 predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("businessNo")), like),
-                        cb.like(cb.lower(root.get("game")), like),
-                        cb.like(cb.lower(root.get("demand")), like),
-                        cb.like(cb.lower(cb.coalesce(root.get("customerContact"), "")), like)));
+                        cb.like(cb.lower(root.<String>get("businessNo")), like),
+                        cb.like(cb.lower(root.<String>get("game")), like),
+                        cb.like(cb.lower(root.<String>get("demand")), like),
+                        cb.like(cb.lower(cb.coalesce(root.<String>get("customerContact"), "")), like)));
             }
             return predicates.isEmpty()
                     ? cb.conjunction()
@@ -144,9 +149,8 @@ public class QuotePersistenceAdapter implements QuotePort {
         Page<Quote> result = repo.findAll(
                 spec,
                 PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "createdAt")));
-        List<QuoteLeadDtos.QuoteLeadResponse> items =
-                result.getContent().stream().map(this::leadAdmin).toList();
-        return new QuoteLeadDtos.QuoteLeadPageResponse(
+        List<QuoteLeadView> items = result.getContent().stream().map(this::leadAdmin).toList();
+        return new QuoteLeadPageView(
                 items,
                 safePage,
                 safeSize,
@@ -157,17 +161,17 @@ public class QuotePersistenceAdapter implements QuotePort {
 
     @Override
     @Transactional
-    public ApiDtos.QuoteAdminResponse updateStatus(
-            UUID id, ApiDtos.QuoteStatusUpdate request, String operator) {
+    public QuoteAdminView updateStatus(
+            UUID id, QuoteStatusUpdateCommand command, String operator) {
         Quote quote = repo.findById(id).orElseThrow(NotFoundException::new);
-        ApiDtos.QuoteAdminResponse before = admin(quote);
-        Quote.Status next = parseStatus(request.status());
+        QuoteAdminView before = admin(quote);
+        Quote.Status next = parseStatus(command.status());
         if (quote.getStatus() == Quote.Status.CONVERTED && next != Quote.Status.CONVERTED) {
             throw new BadRequestException("已转为订单的询价不能改回其他状态");
         }
         quote.setStatus(next);
         quote.setUpdatedAt(Instant.now());
-        ApiDtos.QuoteAdminResponse after = admin(quote);
+        QuoteAdminView after = admin(quote);
         audit.log(
                 "QUOTE_STATUS_UPDATE",
                 "QUOTE",
@@ -175,24 +179,23 @@ public class QuotePersistenceAdapter implements QuotePort {
                 operator,
                 before,
                 after,
-                request.reason(),
+                command.reason(),
                 currentRequest());
         return after;
     }
 
     @Override
     @Transactional
-    public QuoteLeadDtos.QuoteLeadResponse updateCrm(
-            UUID id, QuoteLeadDtos.QuoteCrmUpdateRequest request, String operator) {
+    public QuoteLeadView updateCrm(UUID id, QuoteCrmUpdateCommand command, String operator) {
         Quote quote = repo.findById(id).orElseThrow(NotFoundException::new);
-        QuoteLeadDtos.QuoteLeadResponse before = leadAdmin(quote);
-        quote.setLeadScore(request.leadScore());
-        quote.setLeadIntentLevel(trimNull(request.leadIntentLevel()));
-        quote.setNextAction(trimNull(request.nextAction()));
-        quote.setFollowUpNote(trimNull(request.followUpNote()));
+        QuoteLeadView before = leadAdmin(quote);
+        quote.setLeadScore(command.leadScore());
+        quote.setLeadIntentLevel(trimNull(command.leadIntentLevel()));
+        quote.setNextAction(trimNull(command.nextAction()));
+        quote.setFollowUpNote(trimNull(command.followUpNote()));
         quote.setLastContactedAt(Instant.now());
         quote.setUpdatedAt(Instant.now());
-        QuoteLeadDtos.QuoteLeadResponse after = leadAdmin(quote);
+        QuoteLeadView after = leadAdmin(quote);
         audit.log(
                 "QUOTE_CRM_UPDATE",
                 "QUOTE",
@@ -200,18 +203,18 @@ public class QuotePersistenceAdapter implements QuotePort {
                 operator,
                 before,
                 after,
-                request.reason() == null || request.reason().isBlank()
+                command.reason() == null || command.reason().isBlank()
                         ? "更新线索跟进信息"
-                        : request.reason(),
+                        : command.reason(),
                 currentRequest());
         return after;
     }
 
     @Override
     @Transactional
-    public QuoteLeadDtos.QuoteAiSuggestionResponse generateLeadSuggestion(UUID id, String operator) {
+    public QuoteAiSuggestionView generateLeadSuggestion(UUID id, String operator) {
         Quote quote = repo.findById(id).orElseThrow(NotFoundException::new);
-        QuoteLeadDtos.QuoteLeadResponse before = leadAdmin(quote);
+        QuoteLeadView before = leadAdmin(quote);
         int score = scoreLead(quote);
         String level = score >= 75 ? "HIGH" : (score >= 45 ? "MEDIUM" : "LOW");
         String next = switch (level) {
@@ -235,21 +238,19 @@ public class QuotePersistenceAdapter implements QuotePort {
                 leadAdmin(quote),
                 "生成AI线索建议",
                 currentRequest());
-        return new QuoteLeadDtos.QuoteAiSuggestionResponse(score, level, next, reply, reason);
+        return new QuoteAiSuggestionView(score, level, next, reply, reason);
     }
 
     @Override
     @Transactional
-    public ApiDtos.AdminOrderResponse convertToOrder(
-            UUID id, ApiDtos.QuoteConvertRequest request, String operator) {
+    public ConvertedOrderView convertToOrder(UUID id, QuoteConvertCommand command, String operator) {
         Quote quote = repo.findById(id).orElseThrow(NotFoundException::new);
         if (quote.getStatus() == Quote.Status.CLOSED || quote.getStatus() == Quote.Status.CANCELLED) {
             throw new BadRequestException("已关闭或已取消的询价不能转为订单");
         }
         ensureBusinessNo(quote);
-        ApiDtos.QuoteAdminResponse before = admin(quote);
-        ApiDtos.AdminOrderResponse order =
-                orders.createFromQuote(quote, operator, currentRequest(), request.reason());
+        QuoteAdminView before = admin(quote);
+        var order = orders.createFromQuote(quote, operator, currentRequest(), command.reason());
         if (quote.getStatus() != Quote.Status.CONVERTED) {
             quote.setStatus(Quote.Status.CONVERTED);
             quote.setUpdatedAt(Instant.now());
@@ -260,25 +261,37 @@ public class QuotePersistenceAdapter implements QuotePort {
                     operator,
                     before,
                     admin(quote),
-                    request.reason() == null || request.reason().isBlank()
+                    command.reason() == null || command.reason().isBlank()
                             ? "询价转订单"
-                            : request.reason(),
+                            : command.reason(),
                     currentRequest());
         }
-        return order;
+        return new ConvertedOrderView(
+                order.id(),
+                order.orderNo(),
+                order.businessNo(),
+                order.sourceQuoteId(),
+                order.status(),
+                order.progressPercent(),
+                order.progressText(),
+                order.hasProgressImage(),
+                order.customerNote(),
+                order.internalNote(),
+                order.updatedAt(),
+                order.version());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Quote find(UUID id) {
-        return repo.findById(id).orElseThrow(NotFoundException::new);
+    public QuoteAdminView find(UUID id) {
+        return admin(repo.findById(id).orElseThrow(NotFoundException::new));
     }
 
     @Override
     @Transactional
     public void delete(UUID id, String operator) {
         Quote quote = repo.findById(id).orElseThrow(NotFoundException::new);
-        ApiDtos.QuoteAdminResponse before = admin(quote);
+        QuoteAdminView before = admin(quote);
         repo.delete(quote);
         audit.log(
                 "QUOTE_DELETE",
@@ -319,8 +332,8 @@ public class QuotePersistenceAdapter implements QuotePort {
                         : "\n客户补充：" + quote.getCustomerSupplement());
     }
 
-    private ApiDtos.QuoteAdminResponse admin(Quote quote) {
-        return new ApiDtos.QuoteAdminResponse(
+    private QuoteAdminView admin(Quote quote) {
+        return new QuoteAdminView(
                 quote.getId(),
                 quote.getBusinessNo(),
                 quote.getGame(),
@@ -336,8 +349,8 @@ public class QuotePersistenceAdapter implements QuotePort {
                 quote.getCreatedAt());
     }
 
-    private QuoteLeadDtos.QuoteLeadResponse leadAdmin(Quote quote) {
-        return new QuoteLeadDtos.QuoteLeadResponse(
+    private QuoteLeadView leadAdmin(Quote quote) {
+        return new QuoteLeadView(
                 quote.getId(),
                 quote.getBusinessNo(),
                 quote.getGame(),

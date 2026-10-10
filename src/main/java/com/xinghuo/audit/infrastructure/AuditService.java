@@ -1,8 +1,6 @@
 package com.xinghuo.audit.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xinghuo.model.AuditLog;
-import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
@@ -33,8 +31,7 @@ public class AuditService {
         }
         try {
             return this.mapper.writeValueAsString(o);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return String.valueOf(o);
         }
     }

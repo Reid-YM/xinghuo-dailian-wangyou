@@ -34,18 +34,20 @@ class VNextMobilePolishContractTest {
     }
 
     @Test
-    void v8LoadsAfterV7InReactBuildAndLegacyRuntime() throws IOException {
+    void v8LoadsAfterV7InReactBuildAndLegacyMarkup() throws IOException {
         String buildEntry = read("frontend-vnext/src/formal-entry.css");
+        String siteFragment = read("src/main/resources/templates/fragments/site.html");
         String shell = read("src/main/resources/static/assets/site-shell.js");
 
         int buildV7 = buildEntry.indexOf("vnext-mobile-focus-v7.css");
         int buildV8 = buildEntry.indexOf("vnext-mobile-polish-v8.css");
         assertTrue(buildV7 >= 0 && buildV8 > buildV7, "React must bundle v8 after v7");
 
-        int shellV7 = shell.indexOf("vnext-mobile-focus-v7.css?v=20261010ui07");
-        int shellV8 = shell.indexOf("vnext-mobile-polish-v8.css?v=20261010ui08");
-        assertTrue(shellV7 >= 0 && shellV8 > shellV7, "legacy runtime must declare v8 after v7");
-        assertTrue(shell.contains("data-vnext-mobile-polish"));
-        assertTrue(shell.contains("ensureMobileFocusStyles();"));
+        int legacyV7 = siteFragment.indexOf("vnext-mobile-focus-v7.css?v=20261010ui07");
+        int legacyV8 = siteFragment.indexOf("vnext-mobile-polish-v8.css?v=20261010ui08");
+        assertTrue(legacyV7 >= 0 && legacyV8 > legacyV7, "legacy markup must load v8 after v7");
+        assertTrue(siteFragment.contains("data-vnext-mobile-polish=\"1\""));
+        assertFalse(shell.contains("vnext-mobile-polish-v8.css"), "shell JS must not own CSS loading");
+        assertFalse(shell.contains("ensureMobileFocusStyles"), "shell JS must remain behavior-only");
     }
 }

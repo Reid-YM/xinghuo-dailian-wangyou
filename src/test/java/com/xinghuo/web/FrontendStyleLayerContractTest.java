@@ -14,8 +14,10 @@ class FrontendStyleLayerContractTest {
     void sharedSiteUsesSingleAuthoritativeExperienceLayer() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
         assertTrue(site.contains("/assets/site-experience-v2.css?v=20261007ux03"));
-        assertTrue(site.contains("/assets/site-shell.js?v=20261008ss04"));
+        assertTrue(site.contains("/assets/site-shell.js?v=20261010ss05"));
         assertTrue(site.contains("/assets/brand-logo.svg?v=20261008logo01"));
+        assertTrue(site.contains("/assets/vnext-mobile-focus-v7.css?v=20261010ui07"));
+        assertTrue(site.contains("/assets/vnext-mobile-polish-v8.css?v=20261010ui08"));
         assertFalse(site.contains("brand-dot"));
         assertFalse(site.contains("site-shell.css"));
         assertFalse(site.contains("site-surface-refine.css"));
@@ -50,6 +52,8 @@ class FrontendStyleLayerContractTest {
         assertTrue(js.contains("/assets/icons.svg#i-support"));
         assertTrue(js.contains("data-xh-brand-favicon"));
         assertTrue(js.contains("/assets/brand-logo.svg?v=20261008logo01"));
+        assertFalse(js.contains("vnext-mobile-focus-v7.css"));
+        assertFalse(js.contains("vnext-mobile-polish-v8.css"));
         assertTrue(logo.contains("fill=\"#0A0C0F\""));
         assertTrue(logo.contains("fill=\"#FFD24A\""));
         assertTrue(logo.contains("fill=\"#D89A00\""));

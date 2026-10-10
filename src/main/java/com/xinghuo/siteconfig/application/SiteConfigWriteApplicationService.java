@@ -38,7 +38,7 @@ public class SiteConfigWriteApplicationService {
     }
 
     private void syncSiteSettings() {
-        SiteConfigPublicSnapshot snapshot = query.get().snapshot();
+        SiteConfigPublicSnapshot snapshot = query.get().config();
         siteSettings.put("brandName", snapshot.brandName());
         siteSettings.put("legalEntityName", snapshot.legalEntityName());
         siteSettings.put("wechat", snapshot.wechatId());

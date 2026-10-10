@@ -24,6 +24,18 @@ check_contains() {
     echo "OK   $path contains=$needle"
   fi
 }
+check_request_id() {
+  local path=$1 requested=$2 returned
+  returned=$(curl -sS -D - -o /dev/null -H "X-Request-Id: $requested" "$BASE$path" \
+    | tr -d '\r' \
+    | awk 'BEGIN{IGNORECASE=1} /^X-Request-Id:/ {print $2; exit}')
+  if [ "$returned" != "$requested" ]; then
+    echo "FAIL $path request-id expected=$requested actual=${returned:-missing}"
+    fail=1
+  else
+    echo "OK   $path request-id=$returned"
+  fi
+}
 check_code / 200
 check_code /services 200
 check_code /quote 200
@@ -33,6 +45,7 @@ check_code /mastery 200
 check_code /api/site-config 200
 check_code /api/guides 200
 check_code /api/tool-station 200
+check_request_id /api/site-config smoke-request-1300
 
 # 已批准的 VNext 正式接管核心页面壳：路由仍由 Spring/Thymeleaf 控制，页面挂载 React。
 check_contains / '<div id="root"></div>'
@@ -46,7 +59,6 @@ check_code /assets/vnext-public-finish-v4.css 200
 check_code /assets/vnext-final-qa-fix-v5.css 200
 check_code /assets/vnext-mobile-focus-v7.css 200
 check_code /assets/vnext-mobile-polish-v8.css 200
-check_contains /assets/site-shell.js 'vnext-mobile-polish-v8.css?v=20261010ui08'
 
 # /vnext/ 继续作为 noindex 的直接预览入口和故障排查入口。
 check_code /vnext/ 200
@@ -88,8 +100,12 @@ check_code /account/register 200
 check_code /account/reset 200
 check_contains /account/login 'vnext-public-finish-v4.css?v=20261010ui04'
 check_contains /account/login 'vnext-final-qa-fix-v5.css?v=20261010ui05'
+check_contains /account/login 'vnext-mobile-focus-v7.css?v=20261010ui07'
+check_contains /account/login 'vnext-mobile-polish-v8.css?v=20261010ui08'
 check_contains /guides 'vnext-public-finish-v4.css?v=20261010ui04'
 check_contains /guides 'vnext-final-qa-fix-v5.css?v=20261010ui05'
+check_contains /guides 'vnext-mobile-focus-v7.css?v=20261010ui07'
+check_contains /guides 'vnext-mobile-polish-v8.css?v=20261010ui08'
 check_code /rules 200
 check_code /privacy 200
 check_code /contact 200

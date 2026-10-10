@@ -41,37 +41,122 @@ public class AuditLog {
         return new AuditLogBuilder();
     }
 
-    @Generated public Long getId() { return this.id; }
-    @Generated public String getAction() { return this.action; }
-    @Generated public String getTargetType() { return this.targetType; }
-    @Generated public String getTargetId() { return this.targetId; }
-    @Generated public String getOperatorName() { return this.operatorName; }
-    @Generated public String getBeforeJson() { return this.beforeJson; }
-    @Generated public String getAfterJson() { return this.afterJson; }
-    @Generated public String getReason() { return this.reason; }
-    @Generated public String getIpAddress() { return this.ipAddress; }
-    @Generated public String getRequestId() { return this.requestId; }
-    @Generated public Instant getCreatedAt() { return this.createdAt; }
-    @Generated public void setId(Long id) { this.id = id; }
-    @Generated public void setAction(String action) { this.action = action; }
-    @Generated public void setTargetType(String targetType) { this.targetType = targetType; }
-    @Generated public void setTargetId(String targetId) { this.targetId = targetId; }
-    @Generated public void setOperatorName(String operatorName) { this.operatorName = operatorName; }
-    @Generated public void setBeforeJson(String beforeJson) { this.beforeJson = beforeJson; }
-    @Generated public void setAfterJson(String afterJson) { this.afterJson = afterJson; }
-    @Generated public void setReason(String reason) { this.reason = reason; }
-    @Generated public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
-    @Generated public void setRequestId(String requestId) { this.requestId = requestId; }
-    @Generated public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    @Generated
+    public Long getId() {
+        return this.id;
+    }
+
+    @Generated
+    public String getAction() {
+        return this.action;
+    }
+
+    @Generated
+    public String getTargetType() {
+        return this.targetType;
+    }
+
+    @Generated
+    public String getTargetId() {
+        return this.targetId;
+    }
+
+    @Generated
+    public String getOperatorName() {
+        return this.operatorName;
+    }
+
+    @Generated
+    public String getBeforeJson() {
+        return this.beforeJson;
+    }
+
+    @Generated
+    public String getAfterJson() {
+        return this.afterJson;
+    }
+
+    @Generated
+    public String getReason() {
+        return this.reason;
+    }
+
+    @Generated
+    public String getIpAddress() {
+        return this.ipAddress;
+    }
+
+    @Generated
+    public String getRequestId() {
+        return this.requestId;
+    }
+
+    @Generated
+    public Instant getCreatedAt() {
+        return this.createdAt;
+    }
+
+    @Generated
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Generated
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    @Generated
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
+    }
+
+    @Generated
+    public void setTargetId(String targetId) {
+        this.targetId = targetId;
+    }
+
+    @Generated
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
+    }
+
+    @Generated
+    public void setBeforeJson(String beforeJson) {
+        this.beforeJson = beforeJson;
+    }
+
+    @Generated
+    public void setAfterJson(String afterJson) {
+        this.afterJson = afterJson;
+    }
+
+    @Generated
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    @Generated
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    @Generated
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    @Generated
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 
     @Generated
     public AuditLog() {
     }
 
     @Generated
-    public AuditLog(Long id, String action, String targetType, String targetId, String operatorName,
-                    String beforeJson, String afterJson, String reason, String ipAddress,
-                    String requestId, Instant createdAt) {
+    public AuditLog(Long id, String action, String targetType, String targetId, String operatorName, String beforeJson, String afterJson, String reason, String ipAddress, String requestId, Instant createdAt) {
         this.id = id;
         this.action = action;
         this.targetType = targetType;
@@ -87,35 +172,107 @@ public class AuditLog {
 
     @Generated
     public static class AuditLogBuilder {
+        @Generated
         private Long id;
+        @Generated
         private String action;
+        @Generated
         private String targetType;
+        @Generated
         private String targetId;
+        @Generated
         private String operatorName;
+        @Generated
         private String beforeJson;
+        @Generated
         private String afterJson;
+        @Generated
         private String reason;
+        @Generated
         private String ipAddress;
+        @Generated
         private String requestId;
+        @Generated
         private Instant createdAt;
 
-        @Generated AuditLogBuilder() {}
-        @Generated public AuditLogBuilder id(Long id) { this.id = id; return this; }
-        @Generated public AuditLogBuilder action(String action) { this.action = action; return this; }
-        @Generated public AuditLogBuilder targetType(String targetType) { this.targetType = targetType; return this; }
-        @Generated public AuditLogBuilder targetId(String targetId) { this.targetId = targetId; return this; }
-        @Generated public AuditLogBuilder operatorName(String operatorName) { this.operatorName = operatorName; return this; }
-        @Generated public AuditLogBuilder beforeJson(String beforeJson) { this.beforeJson = beforeJson; return this; }
-        @Generated public AuditLogBuilder afterJson(String afterJson) { this.afterJson = afterJson; return this; }
-        @Generated public AuditLogBuilder reason(String reason) { this.reason = reason; return this; }
-        @Generated public AuditLogBuilder ipAddress(String ipAddress) { this.ipAddress = ipAddress; return this; }
-        @Generated public AuditLogBuilder requestId(String requestId) { this.requestId = requestId; return this; }
-        @Generated public AuditLogBuilder createdAt(Instant createdAt) { this.createdAt = createdAt; return this; }
+        @Generated
+        AuditLogBuilder() {
+        }
+
+        @Generated
+        public AuditLogBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        @Generated
+        public AuditLogBuilder action(String action) {
+            this.action = action;
+            return this;
+        }
+
+        @Generated
+        public AuditLogBuilder targetType(String targetType) {
+            this.targetType = targetType;
+            return this;
+        }
+
+        @Generated
+        public AuditLogBuilder targetId(String targetId) {
+            this.targetId = targetId;
+            return this;
+        }
+
+        @Generated
+        public AuditLogBuilder operatorName(String operatorName) {
+            this.operatorName = operatorName;
+            return this;
+        }
+
+        @Generated
+        public AuditLogBuilder beforeJson(String beforeJson) {
+            this.beforeJson = beforeJson;
+            return this;
+        }
+
+        @Generated
+        public AuditLogBuilder afterJson(String afterJson) {
+            this.afterJson = afterJson;
+            return this;
+        }
+
+        @Generated
+        public AuditLogBuilder reason(String reason) {
+            this.reason = reason;
+            return this;
+        }
+
+        @Generated
+        public AuditLogBuilder ipAddress(String ipAddress) {
+            this.ipAddress = ipAddress;
+            return this;
+        }
+
+        @Generated
+        public AuditLogBuilder requestId(String requestId) {
+            this.requestId = requestId;
+            return this;
+        }
+
+        @Generated
+        public AuditLogBuilder createdAt(Instant createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
 
         @Generated
         public AuditLog build() {
-            return new AuditLog(this.id, this.action, this.targetType, this.targetId, this.operatorName,
-                    this.beforeJson, this.afterJson, this.reason, this.ipAddress, this.requestId, this.createdAt);
+            return new AuditLog(this.id, this.action, this.targetType, this.targetId, this.operatorName, this.beforeJson, this.afterJson, this.reason, this.ipAddress, this.requestId, this.createdAt);
+        }
+
+        @Generated
+        public String toString() {
+            return "AuditLogBuilder(id=" + this.id + ", action=" + this.action + ", targetType=" + this.targetType + ", targetId=" + this.targetId + ", operatorName=" + this.operatorName + ", beforeJson=" + this.beforeJson + ", afterJson=" + this.afterJson + ", reason=" + this.reason + ", ipAddress=" + this.ipAddress + ", requestId=" + this.requestId + ", createdAt=" + String.valueOf(this.createdAt) + ")";
         }
     }
 }

@@ -2,7 +2,7 @@ package com.xinghuo.controller;
 
 import com.xinghuo.catalog.application.CatalogApplicationService;
 import com.xinghuo.catalog.application.CatalogPageServiceView;
-import com.xinghuo.guide.GuideContentService;
+import com.xinghuo.guide.application.GuideQueryApplicationService;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.application.TaxonomyCatalogView;
 import java.time.LocalDate;
@@ -17,7 +17,7 @@ public class SeoController {
     private static final String LAST_MOD = LocalDate.now().toString();
     private final CatalogApplicationService services;
     private final TaxonomyApplicationService taxonomy;
-    private final GuideContentService guides;
+    private final GuideQueryApplicationService guides;
 
     @GetMapping(value={"/robots.txt"}, produces={"text/plain; charset=UTF-8"})
     ResponseEntity<String> robots() {
@@ -77,7 +77,7 @@ public class SeoController {
     }
 
     @Generated
-    public SeoController(CatalogApplicationService services, TaxonomyApplicationService taxonomy, GuideContentService guides) {
+    public SeoController(CatalogApplicationService services, TaxonomyApplicationService taxonomy, GuideQueryApplicationService guides) {
         this.services = services;
         this.taxonomy = taxonomy;
         this.guides = guides;

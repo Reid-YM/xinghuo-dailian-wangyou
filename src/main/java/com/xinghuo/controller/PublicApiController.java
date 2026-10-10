@@ -25,10 +25,11 @@ import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SiteSettingService;
 import com.xinghuo.service.ToolStationService;
-import com.xinghuo.service.TrackingService;
 import com.xinghuo.service.UploadService;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
+import com.xinghuo.tracking.application.TrackingApplicationService;
+import com.xinghuo.tracking.web.TrackingWebMapper;
 import com.xinghuo.util.HashUtil;
 import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,7 +68,7 @@ public class PublicApiController {
     private final OrderApplicationService orders;
     private final RecordApplicationService records;
     private final UploadService uploads;
-    private final TrackingService tracking;
+    private final TrackingApplicationService tracking;
     private final TaxonomyApplicationService taxonomy;
     private final AccountSessionService accountSessions;
     private final ToolStationService toolStation;
@@ -251,12 +252,13 @@ public class PublicApiController {
 
     @PostMapping(value={"/track"})
     ResponseEntity<Void> track(@Valid @RequestBody ApiDtos.TrackRequest body, HttpServletRequest req) {
-        this.tracking.track(body, HashUtil.sha256(RequestUtil.clientIp(req)));
+        this.tracking.track(TrackingWebMapper.toCommand(
+                body, HashUtil.sha256(RequestUtil.clientIp(req))));
         return ResponseEntity.noContent().build();
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;

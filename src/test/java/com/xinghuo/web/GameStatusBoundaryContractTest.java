@@ -80,7 +80,7 @@ class GameStatusBoundaryContractTest {
         assertTrue(adapter.contains("implements GameStatusPort"));
         assertTrue(adapter.contains("com.xinghuo.repository.GameStatusRepository"));
         assertTrue(adapter.contains("com.xinghuo.model.GameStatus"));
-        assertTrue(adapter.contains("com.xinghuo.service.AuditService"));
+        assertTrue(adapter.contains("com.xinghuo.audit.infrastructure.AuditService"));
         assertTrue(adapter.contains("GAME_STATUS_UPDATE"));
         assertFalse(adapter.contains("com.xinghuo.dto"));
         assertFalse(adapter.contains("com.xinghuo.service.GameStatusService"));

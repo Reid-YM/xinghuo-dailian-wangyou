@@ -67,6 +67,8 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(catalog.contains("ApiDtos.ServiceResponse"));
         assertTrue(catalog.contains("ApiDtos.ServiceUpsert"));
         assertTrue(catalog.contains("ApiDtos.AdminServiceResponse"));
+        assertTrue(catalog.contains("com.xinghuo.model.ServiceItem"));
+        assertTrue(catalog.contains("CatalogPageServiceView"));
         assertTrue(catalog.contains("ServletRequestAttributes"));
     }
 
@@ -86,5 +88,11 @@ class ApiApplicationBoundaryContractTest {
                 .contains("record CatalogServiceCommand"));
         assertTrue(read("src/main/java/com/xinghuo/catalog/application/CatalogAdminServiceView.java")
                 .contains("record CatalogAdminServiceView"));
+        String pageView = read("src/main/java/com/xinghuo/catalog/application/CatalogPageServiceView.java");
+        assertTrue(pageView.contains("record CatalogPageServiceView"));
+        assertTrue(pageView.contains("enum PriceMode"));
+        assertTrue(pageView.contains("enum Status"));
+        assertTrue(pageView.contains("getPriceMode()"));
+        assertTrue(pageView.contains("getStatus()"));
     }
 }

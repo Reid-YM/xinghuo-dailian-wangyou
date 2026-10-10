@@ -112,11 +112,21 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(admin.contains("config.updateSection("));
         assertTrue(admin.contains("config.update("));
         assertTrue(admin.contains("config.updateSiteImage("));
+    }
 
+    @Test
+    void legacyWriteFacadeDelegatesAllReadsToQueryBoundary() throws IOException {
         String legacy = read("src/main/java/com/xinghuo/service/SiteConfigService.java");
-        assertTrue(legacy.contains("runtimeConfig.operatingStatus()"));
-        assertFalse(legacy.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
-        assertFalse(legacy.contains("com.xinghuo.gamestatus.application.GameStatusView"));
+        assertTrue(legacy.contains("com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService"));
+        assertTrue(legacy.contains("com.xinghuo.siteconfig.web.SiteConfigWebMapper"));
+        assertTrue(legacy.contains("SiteConfigWebMapper.toResponse(this.siteConfigQuery.get())"));
+        assertFalse(legacy.contains("com.xinghuo.repository.ServiceItemRepository"));
+        assertFalse(legacy.contains("com.xinghuo.slot.application.SlotApplicationService"));
+        assertFalse(legacy.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
+        assertFalse(legacy.contains("displayStartingPrice("));
+        assertFalse(legacy.contains("parseContactChannels("));
+        assertFalse(legacy.contains("parseTrustCases("));
+        assertFalse(legacy.contains("parseTrustFaq("));
         assertTrue(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/service/SiteConfigService.java")));
     }
 }

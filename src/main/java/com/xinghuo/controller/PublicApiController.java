@@ -24,8 +24,6 @@ import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
 import com.xinghuo.siteconfig.web.SiteConfigWebMapper;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
-import com.xinghuo.tracking.application.TrackingApplicationService;
-import com.xinghuo.tracking.web.TrackingWebMapper;
 import com.xinghuo.upload.infrastructure.UploadService;
 import com.xinghuo.util.HashUtil;
 import com.xinghuo.util.RequestUtil;
@@ -65,7 +63,6 @@ public class PublicApiController {
     private final OrderApplicationService orders;
     private final RecordApplicationService records;
     private final UploadService uploads;
-    private final TrackingApplicationService tracking;
     private final TaxonomyApplicationService taxonomy;
     private final AccountSessionService accountSessions;
     private final RateLimiter rateLimiter;
@@ -193,15 +190,8 @@ public class PublicApiController {
                 REQUEST_BUCKET_PER_MINUTE, Duration.ofMinutes(1L));
     }
 
-    @PostMapping(value={"/track"})
-    ResponseEntity<Void> track(@Valid @RequestBody ApiDtos.TrackRequest body, HttpServletRequest req) {
-        this.tracking.track(TrackingWebMapper.toCommand(
-                body, HashUtil.sha256(RequestUtil.clientIp(req))));
-        return ResponseEntity.noContent().build();
-    }
-
     @Generated
-    public PublicApiController(SiteConfigPublicApplicationService siteConfig, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigPublicApplicationService siteConfig, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.siteConfig = siteConfig;
         this.runtimeConfig = runtimeConfig;
         this.services = services;
@@ -209,7 +199,6 @@ public class PublicApiController {
         this.orders = orders;
         this.records = records;
         this.uploads = uploads;
-        this.tracking = tracking;
         this.taxonomy = taxonomy;
         this.accountSessions = accountSessions;
         this.rateLimiter = rateLimiter;

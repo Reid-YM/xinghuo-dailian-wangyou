@@ -3,6 +3,8 @@ package com.xinghuo.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.xinghuo.catalog.application.CatalogApplicationService;
 import com.xinghuo.catalog.web.CatalogAdminWebMapper;
+import com.xinghuo.dashboard.application.DashboardApplicationService;
+import com.xinghuo.dashboard.web.DashboardWebMapper;
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
@@ -14,7 +16,6 @@ import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.service.AdminTestFeedbackService;
-import com.xinghuo.service.DashboardService;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SlotService;
@@ -50,7 +51,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping(value={"/api/admin"})
 public class AdminApiController {
-    private final DashboardService dashboard;
+    private final DashboardApplicationService dashboard;
     private final SiteConfigService config;
     private final CatalogApplicationService services;
     private final QuoteApplicationService quotes;
@@ -66,7 +67,7 @@ public class AdminApiController {
 
     @GetMapping(value={"/dashboard"})
     ApiDtos.DashboardResponse dashboard() {
-        return this.dashboard.get();
+        return DashboardWebMapper.toResponse(this.dashboard.get());
     }
 
     @GetMapping(value={"/site-config"})
@@ -356,7 +357,7 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
+    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
         this.dashboard = dashboard;
         this.config = config;
         this.services = services;

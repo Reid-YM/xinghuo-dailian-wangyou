@@ -93,11 +93,17 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(publicQuote.contains("runtimeConfig.quoteEnabled()"));
         assertFalse(publicQuote.contains("config.isQuoteEnabled()"));
 
-        String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
-        assertTrue(publicApi.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
-        assertTrue(publicApi.contains("runtimeConfig.orderQueryEnabled()"));
-        assertFalse(publicApi.contains("runtimeConfig.quoteEnabled()"));
-        assertFalse(publicApi.contains("config.isOrderQueryEnabled()"));
+        String publicOrder = read("src/main/java/com/xinghuo/order/web/PublicOrderController.java");
+        assertTrue(publicOrder.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
+        assertTrue(publicOrder.contains("runtimeConfig.orderQueryEnabled()"));
+        assertFalse(publicOrder.contains("config.isOrderQueryEnabled()"));
+
+        String publicRecord = read("src/main/java/com/xinghuo/record/web/PublicRecordController.java");
+        assertTrue(publicRecord.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
+        assertTrue(publicRecord.contains("runtimeConfig.orderQueryEnabled()"));
+        assertFalse(publicRecord.contains("config.isOrderQueryEnabled()"));
+
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/PublicApiController.java")));
 
         String page = read("src/main/java/com/xinghuo/controller/PageController.java");
         assertTrue(page.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
@@ -115,10 +121,7 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(publicApi.contains("SiteConfigWebMapper.toResponse(this.siteConfig.get())"));
         assertFalse(publicApi.contains("com.xinghuo.service.SiteConfigService"));
 
-        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
-        assertFalse(legacyPublicApi.contains("SiteConfigPublicApplicationService"));
-        assertFalse(legacyPublicApi.contains("SiteConfigWebMapper"));
-        assertFalse(legacyPublicApi.contains("@GetMapping(value={\"/site-config\"})"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/PublicApiController.java")));
 
         String mapper = read("src/main/java/com/xinghuo/siteconfig/web/SiteConfigWebMapper.java");
         assertTrue(mapper.contains("com.xinghuo.dto.ApiDtos"));

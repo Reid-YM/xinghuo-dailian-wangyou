@@ -3,10 +3,12 @@ package com.xinghuo.frontendcontrol.application;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.xinghuo.exception.BadRequestException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,8 +59,19 @@ class FrontendControlApplicationServiceTest {
     }
 
     @Test
-    void persistsValidatedSetting() {
+    void persistsValidatedSettingsAsOneBatch() {
         service.update(new FrontendControlUpdateCommand(Map.of("themeRadius", "22")));
-        verify(port).put("themeRadius", "22");
+        verify(port).putAll(Map.of("themeRadius", "22"));
+    }
+
+    @Test
+    void validatesWholeBatchBeforePersistence() {
+        LinkedHashMap<String, String> values = new LinkedHashMap<>();
+        values.put("themeRadius", "22");
+        values.put("themeAccentColor", "yellow");
+
+        assertThrows(BadRequestException.class,
+                () -> service.update(new FrontendControlUpdateCommand(values)));
+        verify(port, never()).putAll(org.mockito.ArgumentMatchers.anyMap());
     }
 }

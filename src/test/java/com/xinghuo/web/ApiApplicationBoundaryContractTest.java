@@ -39,6 +39,7 @@ class ApiApplicationBoundaryContractTest {
         String quoteMapper = read("src/main/java/com/xinghuo/quote/web/QuoteWebMapper.java");
         String orderMapper = read("src/main/java/com/xinghuo/order/web/OrderWebMapper.java");
         String catalogMapper = read("src/main/java/com/xinghuo/catalog/web/CatalogWebMapper.java");
+        String catalogAdminMapper = read("src/main/java/com/xinghuo/catalog/web/CatalogAdminWebMapper.java");
 
         assertTrue(controller.contains("QuoteWebMapper.toCommand"));
         assertTrue(controller.contains("QuoteWebMapper.toResponse"));
@@ -50,6 +51,8 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(quoteMapper.contains("ApiDtos.QuoteResponse"));
         assertTrue(orderMapper.contains("ApiDtos.OrderPublicResponse"));
         assertTrue(catalogMapper.contains("ApiDtos.ServiceResponse"));
+        assertTrue(catalogAdminMapper.contains("ApiDtos.ServiceUpsert"));
+        assertTrue(catalogAdminMapper.contains("ApiDtos.AdminServiceResponse"));
     }
 
     @Test
@@ -62,6 +65,9 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(quote.contains("ApiDtos.QuoteResponse"));
         assertTrue(order.contains("ApiDtos.OrderPublicResponse"));
         assertTrue(catalog.contains("ApiDtos.ServiceResponse"));
+        assertTrue(catalog.contains("ApiDtos.ServiceUpsert"));
+        assertTrue(catalog.contains("ApiDtos.AdminServiceResponse"));
+        assertTrue(catalog.contains("ServletRequestAttributes"));
     }
 
     @Test
@@ -76,5 +82,9 @@ class ApiApplicationBoundaryContractTest {
                 .contains("record PublicCaseView"));
         assertTrue(read("src/main/java/com/xinghuo/catalog/application/CatalogServiceView.java")
                 .contains("record CatalogServiceView"));
+        assertTrue(read("src/main/java/com/xinghuo/catalog/application/CatalogServiceCommand.java")
+                .contains("record CatalogServiceCommand"));
+        assertTrue(read("src/main/java/com/xinghuo/catalog/application/CatalogAdminServiceView.java")
+                .contains("record CatalogAdminServiceView"));
     }
 }

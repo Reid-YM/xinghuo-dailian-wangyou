@@ -1,6 +1,6 @@
 package com.xinghuo.security;
 
-import com.xinghuo.service.AdminUserService;
+import com.xinghuo.security.infrastructure.AdminUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -61,7 +61,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain chain(HttpSecurity http, AdminUserService users) throws Exception {
+    SecurityFilterChain chain(HttpSecurity http, AdminUserDetailsService users) throws Exception {
         return http
                 .userDetailsService((UserDetailsService) users)
                 .authorizeHttpRequests(a -> a

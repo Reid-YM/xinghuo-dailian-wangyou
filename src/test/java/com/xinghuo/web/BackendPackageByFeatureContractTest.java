@@ -53,6 +53,17 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
+    void adminQuoteFlowsConsumeQuoteApplicationBoundary() throws IOException {
+        String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
+        String leads = read("src/main/java/com/xinghuo/controller/AdminLeadController.java");
+
+        assertTrue(admin.contains("com.xinghuo.quote.application.QuoteApplicationService"));
+        assertTrue(leads.contains("com.xinghuo.quote.application.QuoteApplicationService"));
+        assertFalse(admin.contains("import com.xinghuo.service.QuoteService;"));
+        assertFalse(leads.contains("import com.xinghuo.service.QuoteService;"));
+    }
+
+    @Test
     void pageControllerConsumesCatalogApplicationProjection() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/PageController.java");
 
@@ -107,9 +118,12 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
-    void remainingLegacyServicesAreConfinedAndCatalogUsesOwnedPersistenceAdapter() throws IOException {
-        assertTrue(read("src/main/java/com/xinghuo/quote/infrastructure/LegacyQuoteAdapter.java")
-                .contains("com.xinghuo.service.QuoteService"));
+    void remainingLegacyServicesAreConfinedAndOwnedPersistenceAdaptersAreUsed() throws IOException {
+        String quote = read("src/main/java/com/xinghuo/quote/infrastructure/QuotePersistenceAdapter.java");
+        assertTrue(quote.contains("implements QuotePort"));
+        assertTrue(quote.contains("com.xinghuo.repository.QuoteRepository"));
+        assertFalse(quote.contains("com.xinghuo.service.QuoteService"));
+
         assertTrue(read("src/main/java/com/xinghuo/order/infrastructure/LegacyOrderAdapter.java")
                 .contains("com.xinghuo.service.OrderService"));
 

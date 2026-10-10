@@ -12,8 +12,6 @@ import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.dto.PublicQuoteRequest;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
-import com.xinghuo.gamestatus.application.GameStatusApplicationService;
-import com.xinghuo.gamestatus.web.GameStatusWebMapper;
 import com.xinghuo.model.UploadAsset;
 import com.xinghuo.order.application.OrderApplicationService;
 import com.xinghuo.order.domain.OrderProgressAsset;
@@ -76,7 +74,6 @@ public class PublicApiController {
     private final AccountSessionService accountSessions;
     private final ToolStationApplicationService toolStation;
     private final ToolStationWebMapper toolStationMapper;
-    private final GameStatusApplicationService gameStatuses;
     private final SiteSettingApplicationService siteSettings;
     private final RateLimiter rateLimiter;
     private final QuoteContactService quoteContacts;
@@ -84,32 +81,6 @@ public class PublicApiController {
     @GetMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse config() {
         return SiteConfigWebMapper.toResponse(this.siteConfig.get());
-    }
-
-    @GetMapping(value={"/public/game-status"})
-    Map<String, Object> gameStatus(@RequestParam(value="game", required=false) String game) {
-        return GameStatusWebMapper.toPublicResponse(
-                this.gameStatuses.require(this.resolveGameCode(game)));
-    }
-
-    @GetMapping(value={"/public/game-status/all"})
-    List<Map<String, Object>> gameStatusAll() {
-        return this.gameStatuses.all().stream()
-                .map(GameStatusWebMapper::toSummaryResponse)
-                .toList();
-    }
-
-    private String resolveGameCode(String raw) {
-        if (raw == null || raw.isBlank()) {
-            return "CODMW4";
-        }
-        String v = raw.trim();
-        try {
-            return this.taxonomy.publicGameBySeoSlug(v.toLowerCase(Locale.ROOT)).getCode();
-        }
-        catch (Exception ignore) {
-            return v.toUpperCase(Locale.ROOT);
-        }
     }
 
     @GetMapping(value={"/public/site-settings"})
@@ -247,7 +218,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigPublicApplicationService siteConfig, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses, SiteSettingApplicationService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigPublicApplicationService siteConfig, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, SiteSettingApplicationService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.siteConfig = siteConfig;
         this.runtimeConfig = runtimeConfig;
         this.services = services;
@@ -260,7 +231,6 @@ public class PublicApiController {
         this.accountSessions = accountSessions;
         this.toolStation = toolStation;
         this.toolStationMapper = toolStationMapper;
-        this.gameStatuses = gameStatuses;
         this.siteSettings = siteSettings;
         this.rateLimiter = rateLimiter;
         this.quoteContacts = quoteContacts;

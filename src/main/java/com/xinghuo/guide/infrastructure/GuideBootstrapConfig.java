@@ -1,8 +1,8 @@
 package com.xinghuo.guide.infrastructure;
 
-import com.xinghuo.guide.GuideContentService;
-import com.xinghuo.guide.GuideModels;
 import com.xinghuo.guide.application.GuideQueryApplicationService;
+import com.xinghuo.guide.application.GuideWriteApplicationService;
+import com.xinghuo.guide.application.GuideWriteModels;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -16,15 +16,17 @@ public class GuideBootstrapConfig {
     @Bean
     CommandLineRunner bootstrapMultiGameGuides(
             GuideQueryApplicationService queries,
-            GuideContentService writes) {
+            GuideWriteApplicationService writes) {
         return args -> {
             if (!queries.adminList().isEmpty()) {
                 return;
             }
-            GuideModels.GuideImportResult result = writes.importGames(
-                    new GuideModels.GuideImportRequest(true, false, "P0-03 首次启动自动生成多游戏攻略"),
-                    "system",
-                    null);
+            GuideWriteModels.GuideImportResult result = writes.importGames(
+                    new GuideWriteModels.GuideImportCommand(
+                            true,
+                            false,
+                            "P0-03 首次启动自动生成多游戏攻略"),
+                    "system");
             log.info("P0-03 guide bootstrap complete: candidates={}, created={}, refreshed={}, skipped={}",
                     result.totalCandidates(), result.created(), result.refreshed(), result.skipped());
         };

@@ -3,8 +3,8 @@ package com.xinghuo.controller;
 import com.xinghuo.catalog.application.CatalogApplicationService;
 import com.xinghuo.catalog.application.CatalogPageServiceView;
 import com.xinghuo.guide.GuideContentService;
-import com.xinghuo.model.GameCatalog;
-import com.xinghuo.service.TaxonomyService;
+import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
+import com.xinghuo.taxonomy.application.TaxonomyCatalogView;
 import java.time.LocalDate;
 import lombok.Generated;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ public class SeoController {
     private static final String SITE_URL = "https://wydlgf.cn";
     private static final String LAST_MOD = LocalDate.now().toString();
     private final CatalogApplicationService services;
-    private final TaxonomyService taxonomy;
+    private final TaxonomyApplicationService taxonomy;
     private final GuideContentService guides;
 
     @GetMapping(value={"/robots.txt"}, produces={"text/plain; charset=UTF-8"})
@@ -49,7 +49,7 @@ public class SeoController {
         this.appendUrl(xml, "/mastery", "weekly", "0.7");
         // SEO-h：补齐可索引漏斗页。
         this.appendUrl(xml, "/quote", "daily", "0.7");
-        for (GameCatalog game : this.taxonomy.publicGames()) {
+        for (TaxonomyCatalogView.GameView game : this.taxonomy.publicGames()) {
             if (game.getSeoSlug() == null || game.getSeoSlug().isBlank()) continue;
             this.appendUrl(xml, "/game/" + game.getSeoSlug(), "weekly", "0.8");
         }
@@ -77,7 +77,7 @@ public class SeoController {
     }
 
     @Generated
-    public SeoController(CatalogApplicationService services, TaxonomyService taxonomy, GuideContentService guides) {
+    public SeoController(CatalogApplicationService services, TaxonomyApplicationService taxonomy, GuideContentService guides) {
         this.services = services;
         this.taxonomy = taxonomy;
         this.guides = guides;

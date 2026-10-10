@@ -8,7 +8,7 @@ import com.xinghuo.model.Quote;
 import com.xinghuo.repository.CustomerOrderRepository;
 import com.xinghuo.repository.QuoteRepository;
 import com.xinghuo.repository.ServiceItemRepository;
-import com.xinghuo.repository.TrackingEventRepository;
+import com.xinghuo.tracking.application.TrackingApplicationService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,19 +18,19 @@ public class DashboardPersistenceAdapter implements DashboardPort {
     private final ServiceItemRepository services;
     private final QuoteRepository quotes;
     private final CustomerOrderRepository orders;
-    private final TrackingEventRepository events;
+    private final TrackingApplicationService tracking;
     private final FeedbackApplicationService feedback;
 
     public DashboardPersistenceAdapter(
             ServiceItemRepository services,
             QuoteRepository quotes,
             CustomerOrderRepository orders,
-            TrackingEventRepository events,
+            TrackingApplicationService tracking,
             FeedbackApplicationService feedback) {
         this.services = services;
         this.quotes = quotes;
         this.orders = orders;
-        this.events = events;
+        this.tracking = tracking;
         this.feedback = feedback;
     }
 
@@ -42,7 +42,7 @@ public class DashboardPersistenceAdapter implements DashboardPort {
                 quotes.countByStatus(Quote.Status.NEW),
                 orders.countByStatus(CustomerOrder.Status.IN_PROGRESS),
                 orders.countByStatus(CustomerOrder.Status.COMPLETED),
-                events.count(),
+                tracking.totalCount(),
                 feedback.countNew());
     }
 }

@@ -9,7 +9,7 @@ import com.xinghuo.model.SiteConfig;
 import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.repository.SiteConfigRepository;
 import com.xinghuo.service.AuditService;
-import com.xinghuo.service.SiteSettingService;
+import com.xinghuo.sitesetting.application.SiteSettingApplicationService;
 import com.xinghuo.slot.application.SlotApplicationService;
 import com.xinghuo.slot.web.SlotWebMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +33,7 @@ public class SiteConfigService {
     private final SlotApplicationService slotService;
     private final AuditService audit;
     private final GameStatusApplicationService gameStatuses;
-    private final SiteSettingService siteSettings;
+    private final SiteSettingApplicationService siteSettings;
 
     @Transactional(readOnly=true)
     public ApiDtos.SiteConfigResponse publicConfig() {
@@ -653,7 +653,7 @@ public class SiteConfigService {
     }
 
     @Generated
-    public SiteConfigService(SiteConfigRepository repo, ServiceItemRepository serviceRepo, SlotApplicationService slotService, AuditService audit, GameStatusApplicationService gameStatuses, SiteSettingService siteSettings) {
+    public SiteConfigService(SiteConfigRepository repo, ServiceItemRepository serviceRepo, SlotApplicationService slotService, AuditService audit, GameStatusApplicationService gameStatuses, SiteSettingApplicationService siteSettings) {
         this.repo = repo;
         this.serviceRepo = serviceRepo;
         this.slotService = slotService;

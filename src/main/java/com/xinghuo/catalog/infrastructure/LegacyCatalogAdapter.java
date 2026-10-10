@@ -2,9 +2,11 @@ package com.xinghuo.catalog.infrastructure;
 
 import com.xinghuo.catalog.application.CatalogAdminServiceView;
 import com.xinghuo.catalog.application.CatalogLegacyPort;
+import com.xinghuo.catalog.application.CatalogPageServiceView;
 import com.xinghuo.catalog.application.CatalogServiceCommand;
 import com.xinghuo.catalog.application.CatalogServiceView;
 import com.xinghuo.dto.ApiDtos;
+import com.xinghuo.model.ServiceItem;
 import com.xinghuo.service.ServiceCatalogService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -25,6 +27,16 @@ public class LegacyCatalogAdapter implements CatalogLegacyPort {
     @Override
     public List<CatalogServiceView> publicList() {
         return legacy.publicList().stream().map(this::view).toList();
+    }
+
+    @Override
+    public List<CatalogPageServiceView> publicPageItems() {
+        return legacy.publicItems().stream().map(this::pageView).toList();
+    }
+
+    @Override
+    public CatalogPageServiceView publicPageBySlug(String slug) {
+        return pageView(legacy.publicBySlug(slug));
     }
 
     @Override
@@ -89,6 +101,23 @@ public class LegacyCatalogAdapter implements CatalogLegacyPort {
                 source.durationText(),
                 source.status(),
                 source.coverImage());
+    }
+
+    private CatalogPageServiceView pageView(ServiceItem source) {
+        return new CatalogPageServiceView(
+                source.getId(),
+                source.getSlug(),
+                source.getGameCode(),
+                source.getName(),
+                source.getCategory(),
+                source.getShortDesc(),
+                CatalogPageServiceView.PriceMode.valueOf(source.getPriceMode().name()),
+                source.getPriceFixed(),
+                source.getPriceMin(),
+                source.getPriceMax(),
+                source.getDurationText(),
+                CatalogPageServiceView.Status.valueOf(source.getStatus().name()),
+                source.getCoverImage());
     }
 
     private CatalogAdminServiceView adminView(ApiDtos.AdminServiceResponse source) {

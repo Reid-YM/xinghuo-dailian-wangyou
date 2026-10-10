@@ -23,8 +23,8 @@ import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.record.application.RecordApplicationService;
 import com.xinghuo.record.web.RecordWebMapper;
 import com.xinghuo.service.SiteConfigService;
-import com.xinghuo.service.SiteSettingService;
 import com.xinghuo.service.UploadService;
+import com.xinghuo.sitesetting.application.SiteSettingApplicationService;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
 import com.xinghuo.toolstation.application.ToolStationApplicationService;
@@ -74,7 +74,7 @@ public class PublicApiController {
     private final ToolStationApplicationService toolStation;
     private final ToolStationWebMapper toolStationMapper;
     private final GameStatusApplicationService gameStatuses;
-    private final SiteSettingService siteSettings;
+    private final SiteSettingApplicationService siteSettings;
     private final RateLimiter rateLimiter;
     private final QuoteContactService quoteContacts;
 
@@ -244,7 +244,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses, SiteSettingApplicationService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;

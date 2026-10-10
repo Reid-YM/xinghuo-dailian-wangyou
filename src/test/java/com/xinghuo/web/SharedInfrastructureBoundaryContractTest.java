@@ -1,10 +1,13 @@
 package com.xinghuo.web;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class SharedInfrastructureBoundaryContractTest {
@@ -62,5 +65,26 @@ class SharedInfrastructureBoundaryContractTest {
             assertFalse(source.contains("com.xinghuo.service.AuditService"), path);
             assertFalse(source.contains("com.xinghuo.service.UploadService"), path);
         }
+    }
+
+    @Test
+    void onlyFourLargeConsumersMayStillUseCompatibilityBridges() throws Exception {
+        Set<String> expected = Set.of(
+                "src/main/java/com/xinghuo/guide/GuideContentService.java",
+                "src/main/java/com/xinghuo/taxonomy/infrastructure/TaxonomyPersistenceAdapter.java",
+                "src/main/java/com/xinghuo/controller/AdminApiController.java",
+                "src/main/java/com/xinghuo/controller/PublicApiController.java");
+        Set<String> actual = new HashSet<>();
+        Path sourceRoot = ROOT.resolve("src/main/java");
+        try (var files = Files.walk(sourceRoot)) {
+            for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
+                String source = Files.readString(file);
+                if (source.contains("import com.xinghuo.service.AuditService;")
+                        || source.contains("import com.xinghuo.service.UploadService;")) {
+                    actual.add(ROOT.relativize(file).toString().replace('\\', '/'));
+                }
+            }
+        }
+        assertEquals(expected, actual);
     }
 }

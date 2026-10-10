@@ -1,12 +1,14 @@
-package com.xinghuo.service;
+package com.xinghuo.mobilevisual.infrastructure;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.xinghuo.mobilevisual.application.UpdateMobileVisualConfigCommand;
 import com.xinghuo.model.SiteConfig;
 import com.xinghuo.model.SiteSetting;
+import com.xinghuo.repository.SiteConfigRepository;
 import com.xinghuo.repository.SiteSettingRepository;
 import java.time.Instant;
 import java.util.HashMap;
@@ -14,17 +16,17 @@ import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
-class MobileVisualConfigServiceTest {
+class MobileVisualConfigPersistenceAdapterTest {
 
     @Test
     void missingMobileValuesInheritDesktopThenPersistIndependently() {
-        SiteSettingRepository repository = mock(SiteSettingRepository.class);
-        SiteConfigService siteConfigService = mock(SiteConfigService.class);
+        SiteSettingRepository settings = mock(SiteSettingRepository.class);
+        SiteConfigRepository siteConfigs = mock(SiteConfigRepository.class);
         Map<String, SiteSetting> stored = new HashMap<>();
 
-        when(repository.findById(any(String.class)))
+        when(settings.findById(any(String.class)))
                 .thenAnswer(invocation -> Optional.ofNullable(stored.get(invocation.getArgument(0))));
-        when(repository.save(any(SiteSetting.class))).thenAnswer(invocation -> {
+        when(settings.save(any(SiteSetting.class))).thenAnswer(invocation -> {
             SiteSetting value = invocation.getArgument(0);
             stored.put(value.getSettingKey(), value);
             return value;
@@ -33,15 +35,16 @@ class MobileVisualConfigServiceTest {
         SiteConfig desktop = new SiteConfig();
         desktop.setHeroBackgroundOpacity(82);
         desktop.setHeroBackgroundBlur(4);
-        when(siteConfigService.get()).thenReturn(desktop);
+        when(siteConfigs.findById(1L)).thenReturn(Optional.of(desktop));
 
-        MobileVisualConfigService service = new MobileVisualConfigService(repository, siteConfigService);
+        MobileVisualConfigPersistenceAdapter adapter =
+                new MobileVisualConfigPersistenceAdapter(settings, siteConfigs);
 
-        var inherited = service.get();
+        var inherited = adapter.get();
         assertEquals(82, inherited.heroBackgroundMobileOpacity());
         assertEquals(4, inherited.heroBackgroundMobileBlur());
 
-        var saved = service.update(47, 9);
+        var saved = adapter.update(new UpdateMobileVisualConfigCommand(47, 9));
         assertEquals(47, saved.heroBackgroundMobileOpacity());
         assertEquals(9, saved.heroBackgroundMobileBlur());
         assertEquals("47", stored.get("heroBackgroundMobileOpacity").getSettingValue());
@@ -49,26 +52,27 @@ class MobileVisualConfigServiceTest {
 
         desktop.setHeroBackgroundOpacity(15);
         desktop.setHeroBackgroundBlur(1);
-        var independent = service.get();
+        var independent = adapter.get();
         assertEquals(47, independent.heroBackgroundMobileOpacity());
         assertEquals(9, independent.heroBackgroundMobileBlur());
     }
 
     @Test
     void corruptStoredValuesFailOpenToCurrentDesktopValues() {
-        SiteSettingRepository repository = mock(SiteSettingRepository.class);
-        SiteConfigService siteConfigService = mock(SiteConfigService.class);
+        SiteSettingRepository settings = mock(SiteSettingRepository.class);
+        SiteConfigRepository siteConfigs = mock(SiteConfigRepository.class);
         SiteConfig desktop = new SiteConfig();
         desktop.setHeroBackgroundOpacity(76);
         desktop.setHeroBackgroundBlur(6);
-        when(siteConfigService.get()).thenReturn(desktop);
-        when(repository.findById("heroBackgroundMobileOpacity"))
+        when(siteConfigs.findById(1L)).thenReturn(Optional.of(desktop));
+        when(settings.findById("heroBackgroundMobileOpacity"))
                 .thenReturn(Optional.of(new SiteSetting("heroBackgroundMobileOpacity", "bad", Instant.now())));
-        when(repository.findById("heroBackgroundMobileBlur"))
+        when(settings.findById("heroBackgroundMobileBlur"))
                 .thenReturn(Optional.of(new SiteSetting("heroBackgroundMobileBlur", "999", Instant.now())));
 
-        MobileVisualConfigService service = new MobileVisualConfigService(repository, siteConfigService);
-        var result = service.get();
+        MobileVisualConfigPersistenceAdapter adapter =
+                new MobileVisualConfigPersistenceAdapter(settings, siteConfigs);
+        var result = adapter.get();
         assertEquals(76, result.heroBackgroundMobileOpacity());
         assertEquals(24, result.heroBackgroundMobileBlur());
     }

@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -115,6 +114,7 @@ class VNextFinalVisualQaPlaywrightTest {
         }
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v2.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("vnext-public-finish-v4.css")));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("vnext-final-qa-fix-v5.css")));
     }
 
     private static void assertNoHorizontalOverflow(Page page, String label) {

@@ -8,13 +8,14 @@ import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.GameStatus;
 import com.xinghuo.model.UploadAsset;
+import com.xinghuo.order.application.OrderApplicationService;
+import com.xinghuo.order.web.OrderWebMapper;
 import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.service.AdminTestFeedbackService;
 import com.xinghuo.service.DashboardService;
 import com.xinghuo.service.GameStatusService;
-import com.xinghuo.service.OrderService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SlotService;
 import com.xinghuo.service.TaxonomyService;
@@ -53,7 +54,7 @@ public class AdminApiController {
     private final SiteConfigService config;
     private final CatalogApplicationService services;
     private final QuoteApplicationService quotes;
-    private final OrderService orders;
+    private final OrderApplicationService orders;
     private final SlotService slots;
     private final UploadService uploads;
     private final AuditLogRepository audits;
@@ -88,7 +89,8 @@ public class AdminApiController {
     Map<String, Object> setPublicCase(@PathVariable String orderNo, @RequestBody Map<String, Object> body, Authentication auth) {
         boolean enabled = Boolean.parseBoolean(String.valueOf(body.getOrDefault("enabled", "false")));
         String summary = this.str(body.get("summary"));
-        return this.orders.setPublicCase(orderNo, enabled, summary, auth == null ? "admin" : auth.getName());
+        return OrderWebMapper.toResponse(this.orders.setPublicCase(
+                orderNo, enabled, summary, auth == null ? "admin" : auth.getName()));
     }
 
     private String str(Object v) {
@@ -279,29 +281,31 @@ public class AdminApiController {
 
     @GetMapping(value={"/orders"})
     List<ApiDtos.AdminOrderResponse> orders() {
-        return this.orders.list();
+        return OrderWebMapper.toAdminResponses(this.orders.list());
     }
 
     @PostMapping(value={"/orders"})
     ApiDtos.AdminOrderResponse createOrder(@Valid @RequestBody ApiDtos.CreateOrderRequest r, Authentication a, HttpServletRequest req) {
-        return this.orders.create(r, a.getName(), req);
+        return OrderWebMapper.toResponse(
+                this.orders.create(OrderWebMapper.toCommand(r), a.getName()));
     }
 
     @PatchMapping(value={"/orders/{orderNo}"})
     ApiDtos.AdminOrderResponse updateOrder(@PathVariable String orderNo, @Valid @RequestBody ApiDtos.UpdateOrderRequest r, Authentication a, HttpServletRequest req) {
-        return this.orders.update(orderNo, r, a.getName(), req);
+        return OrderWebMapper.toResponse(
+                this.orders.update(orderNo, OrderWebMapper.toCommand(r), a.getName()));
     }
 
     @PostMapping(value={"/orders/{orderNo}/image"})
     ApiDtos.AdminOrderResponse orderImage(@PathVariable String orderNo, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
         UploadAsset x = this.uploads.storeImage(file, UploadAsset.Kind.ORDER_PROGRESS);
-        return this.orders.attachImage(orderNo, x.getId(), a.getName(), req);
+        return OrderWebMapper.toResponse(this.orders.attachImage(orderNo, x.getId(), a.getName()));
     }
 
     @DeleteMapping(value={"/orders/{orderNo}"})
     @PreAuthorize(value="hasRole('ADMIN')")
     ResponseEntity<Void> deleteOrder(@PathVariable String orderNo, Authentication a, HttpServletRequest req) {
-        this.orders.delete(orderNo, a.getName(), req);
+        this.orders.delete(orderNo, a.getName());
         return ResponseEntity.noContent().build();
     }
 
@@ -352,7 +356,7 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
+    public AdminApiController(DashboardService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
         this.dashboard = dashboard;
         this.config = config;
         this.services = services;

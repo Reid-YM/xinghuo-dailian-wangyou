@@ -19,12 +19,13 @@ import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.service.SiteConfigService;
-import com.xinghuo.service.ToolStationService;
 import com.xinghuo.service.UploadService;
 import com.xinghuo.slot.application.SlotApplicationService;
 import com.xinghuo.slot.web.SlotWebMapper;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
+import com.xinghuo.toolstation.application.ToolStationApplicationService;
+import com.xinghuo.toolstation.web.ToolStationWebMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -64,7 +65,8 @@ public class AdminApiController {
     private final TaxonomyApplicationService taxonomy;
     private final FeedbackApplicationService feedback;
 
-    private final ToolStationService toolStation;
+    private final ToolStationApplicationService toolStation;
+    private final ToolStationWebMapper toolStationMapper;
     private final GameStatusApplicationService gameStatuses;
 
     @GetMapping(value={"/dashboard"})
@@ -235,17 +237,18 @@ public class AdminApiController {
 
     @GetMapping(value={"/tool-station"})
     JsonNode toolStation() {
-        return this.toolStation.publicData();
+        return this.toolStationMapper.toResponse(this.toolStation.publicData());
     }
 
     @PutMapping(value={"/tool-station"})
     JsonNode saveToolStation(@RequestBody JsonNode data) {
-        return this.toolStation.save(data);
+        return this.toolStationMapper.toResponse(
+                this.toolStation.save(this.toolStationMapper.toJson(data)));
     }
 
     @PostMapping(value={"/tool-station/reset"})
     JsonNode resetToolStation() {
-        return this.toolStation.reset();
+        return this.toolStationMapper.toResponse(this.toolStation.reset());
     }
 
     @PostMapping(value={"/services/{id}/restore"})
@@ -366,7 +369,7 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotApplicationService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationService toolStation, GameStatusApplicationService gameStatuses) {
+    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotApplicationService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses) {
         this.dashboard = dashboard;
         this.config = config;
         this.services = services;
@@ -379,6 +382,7 @@ public class AdminApiController {
         this.feedback = feedback;
 
         this.toolStation = toolStation;
+        this.toolStationMapper = toolStationMapper;
         this.gameStatuses = gameStatuses;
     }
 }

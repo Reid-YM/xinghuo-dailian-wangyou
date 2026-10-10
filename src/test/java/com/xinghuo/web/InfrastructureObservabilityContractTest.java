@@ -1,5 +1,6 @@
 package com.xinghuo.web;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -38,5 +39,15 @@ class InfrastructureObservabilityContractTest {
         assertTrue(deploy.contains("sudo mv -Tf \"$RELEASE_MANIFEST.next\" \"$RELEASE_MANIFEST\""));
         assertTrue(deploy.contains("release manifest Git SHA 校验失败"));
         assertTrue(deploy.contains("release manifest JAR SHA256 校验失败"));
+    }
+
+    @Test
+    void productionSmokeMatchesDeclarativeCssOwnershipAndChecksCorrelation() throws Exception {
+        String smoke = Files.readString(ROOT.resolve("scripts/smoke_test.sh"));
+
+        assertTrue(smoke.contains("check_request_id /api/site-config smoke-request-1300"));
+        assertTrue(smoke.contains("vnext-mobile-focus-v7.css?v=20261010ui07"));
+        assertTrue(smoke.contains("vnext-mobile-polish-v8.css?v=20261010ui08"));
+        assertFalse(smoke.contains("check_contains /assets/site-shell.js 'vnext-mobile-polish-v8.css"));
     }
 }

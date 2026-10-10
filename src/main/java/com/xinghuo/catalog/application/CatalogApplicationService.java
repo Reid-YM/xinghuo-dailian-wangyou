@@ -1,6 +1,5 @@
 package com.xinghuo.catalog.application;
 
-import com.xinghuo.dto.ApiDtos;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +12,7 @@ public class CatalogApplicationService {
         this.legacy = legacy;
     }
 
-    public List<ApiDtos.ServiceResponse> publicList() {
+    public List<CatalogServiceView> publicList() {
         return legacy.publicList();
     }
 }

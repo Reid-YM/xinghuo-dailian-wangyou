@@ -12,7 +12,7 @@ class PublicInternalFieldExposureContractTest {
 
     @Test
     void publicApiSanitizerCoversFrontendPayloadsAndInternalKeys() throws Exception {
-        String advice = Files.readString(MAIN.resolve("java/com/xinghuo/controller/PublicResponseSanitizerAdvice.java"));
+        String advice = Files.readString(MAIN.resolve("java/com/xinghuo/publicapi/web/PublicResponseSanitizerAdvice.java"));
 
         assertTrue(advice.contains("\"/api/site-config\""));
         assertTrue(advice.contains("\"/api/services\""));

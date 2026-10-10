@@ -8,7 +8,6 @@ import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.UploadAsset;
 import com.xinghuo.order.application.OrderApplicationService;
 import com.xinghuo.order.domain.OrderProgressAsset;
-import com.xinghuo.order.web.OrderWebMapper;
 import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
 import com.xinghuo.upload.infrastructure.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,15 +57,6 @@ public class PublicApiController {
         }
         Resource r = this.uploads.load(asset.assetId(), "ORDER", asset.storageOwnerId());
         return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(asset.assetId())).cacheControl(CacheControl.noStore())).body(r);
-    }
-
-    @GetMapping(value={"/orders/{orderNo}"})
-    ApiDtos.OrderPublicResponse order(@PathVariable String orderNo, HttpServletRequest req) {
-        if (!this.runtimeConfig.orderQueryEnabled()) {
-            throw new BadRequestException("进度查询正在维护，请联系客服查询");
-        }
-        this.limitByIp(req, "pub:order");
-        return OrderWebMapper.toResponse(this.orders.getPublic(orderNo));
     }
 
     @GetMapping(value={"/orders/{orderNo}/image"})

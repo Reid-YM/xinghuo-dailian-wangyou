@@ -15,7 +15,7 @@ class VNextPreviewContractTest {
     void approvedVnextBuildOwnsCoreProductionShellsWithoutChangingServerRoutes() throws Exception {
         String pom = Files.readString(ROOT.resolve("pom.xml"));
         String vite = Files.readString(ROOT.resolve("frontend-vnext/vite.config.ts"));
-        String controller = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/controller/VNextPreviewController.java"));
+        String controller = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/vnext/web/VNextPreviewController.java"));
         String security = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/security/SecurityConfig.java"));
 
         assertTrue(pom.contains("frontend-maven-plugin"));
@@ -24,10 +24,14 @@ class VNextPreviewContractTest {
         assertTrue(vite.contains("../target/classes/static/vnext"));
         assertTrue(vite.contains("entryFileNames: 'assets/app.js'"));
         assertTrue(vite.contains("'assets/app.css'"));
+        assertTrue(controller.contains("package com.xinghuo.vnext.web;"));
+        assertTrue(controller.contains("@RequestMapping({\"/__preview\"})"));
         assertTrue(controller.contains("forward:/vnext/index.html"));
         assertTrue(security.contains("\"/vnext\", \"/vnext/**\""));
         assertFalse(controller.contains("@GetMapping(\"/\")"),
                 "Production route ownership must remain in PageController so SEO/auth behavior is preserved");
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/VNextPreviewController.java")),
+                "VNext preview entrypoint must remain owned by the vnext feature web boundary");
 
         for (String name : List.of("index.html", "services.html", "quote.html", "records.html", "account.html")) {
             String html = Files.readString(ROOT.resolve("src/main/resources/templates/" + name));

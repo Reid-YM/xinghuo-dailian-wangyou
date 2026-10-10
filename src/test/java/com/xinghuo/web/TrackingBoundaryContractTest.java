@@ -50,11 +50,19 @@ class TrackingBoundaryContractTest {
 
     @Test
     void publicApiConsumesTrackingApplicationAndWebBoundary() throws IOException {
-        String controller = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        String controller = read("src/main/java/com/xinghuo/tracking/web/PublicTrackingController.java");
+        assertTrue(controller.contains("package com.xinghuo.tracking.web;"));
         assertTrue(controller.contains("com.xinghuo.tracking.application.TrackingApplicationService"));
-        assertTrue(controller.contains("com.xinghuo.tracking.web.TrackingWebMapper"));
+        assertTrue(controller.contains("@RequestMapping(value={\"/api/track\"})"));
         assertTrue(controller.contains("TrackingWebMapper.toCommand"));
+        assertTrue(controller.contains("HashUtil.sha256(RequestUtil.clientIp(req))"));
+        assertTrue(controller.contains("ResponseEntity.noContent().build()"));
         assertFalse(controller.contains("import com.xinghuo.service.TrackingService;"));
+
+        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        assertFalse(legacyPublicApi.contains("TrackingApplicationService"));
+        assertFalse(legacyPublicApi.contains("TrackingWebMapper"));
+        assertFalse(legacyPublicApi.contains("@PostMapping(value={\"/track\"})"));
     }
 
     @Test

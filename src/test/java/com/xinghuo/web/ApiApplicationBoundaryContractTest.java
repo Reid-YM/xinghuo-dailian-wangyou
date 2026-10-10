@@ -126,6 +126,7 @@ class ApiApplicationBoundaryContractTest {
 
         assertTrue(dashboard.contains("com.xinghuo.repository.ServiceItemRepository"));
         assertTrue(dashboard.contains("com.xinghuo.repository.AdminTestFeedbackRepository"));
+        assertTrue(dashboard.contains("DashboardView"));
         assertFalse(dashboard.contains("com.xinghuo.dto"));
         assertFalse(dashboard.contains("com.xinghuo.service"));
 

@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VNextLegacyUiBridgeContractTest {
@@ -39,10 +40,17 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void legacyPublicAndAccountPagesLoadTheBridgeThroughSharedCss() throws IOException {
-        String shared = read("src/main/resources/static/assets/site-image-controls.css");
-        assertTrue(shared.startsWith("@import url(\"/assets/vnext-legacy-bridge-v3.css?v=20261010ui03\");"));
-        assertTrue(shared.contains("@import url(\"/assets/vnext-account-submit-v3.css?v=20261010ui03\");"));
+    void legacyPublicAndAccountPagesLoadTheBridgeThroughRuntimeLoader() throws IOException {
+        String sharedCss = read("src/main/resources/static/assets/site-image-controls.css");
+        String sharedRuntime = read("src/main/resources/static/assets/site-image-controls.js");
+
+        assertFalse(sharedCss.contains("@import url(\"/assets/vnext-legacy-bridge-v3.css"));
+        assertFalse(sharedCss.contains("@import url(\"/assets/vnext-account-submit-v3.css"));
+        assertTrue(sharedRuntime.contains("page === 'service-detail'"));
+        assertTrue(sharedRuntime.contains("page === 'record-detail'"));
+        assertTrue(sharedRuntime.contains("body?.classList.contains('account-center-page')"));
+        assertTrue(sharedRuntime.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
+        assertTrue(sharedRuntime.contains("/assets/vnext-account-submit-v3.css?v=20261010ui03"));
 
         for (String name : List.of(
                 "service-detail.html",
@@ -53,7 +61,8 @@ class VNextLegacyUiBridgeContractTest {
                 "account-settings.html",
                 "account-submit.html")) {
             String html = read("src/main/resources/templates/" + name);
-            assertTrue(html.contains("/assets/site-image-controls.css"), name + " must keep the shared deep-page bridge loader");
+            assertTrue(html.contains("/assets/site-image-controls.js"), name + " must keep the runtime bridge loader");
+            assertTrue(html.contains("/assets/site-image-controls.css"), name + " must keep image control styling");
         }
     }
 

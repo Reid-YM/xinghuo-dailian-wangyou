@@ -19,8 +19,9 @@ import com.xinghuo.order.domain.OrderProgressAsset;
 import com.xinghuo.order.web.OrderWebMapper;
 import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.quote.web.QuoteWebMapper;
+import com.xinghuo.record.application.RecordApplicationService;
+import com.xinghuo.record.web.RecordWebMapper;
 import com.xinghuo.service.GameStatusService;
-import com.xinghuo.service.RecordService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SiteSettingService;
 import com.xinghuo.service.TaxonomyService;
@@ -63,7 +64,7 @@ public class PublicApiController {
     private final CatalogApplicationService services;
     private final QuoteApplicationService quotes;
     private final OrderApplicationService orders;
-    private final RecordService records;
+    private final RecordApplicationService records;
     private final UploadService uploads;
     private final TrackingService tracking;
     private final TaxonomyService taxonomy;
@@ -204,7 +205,7 @@ public class PublicApiController {
             throw new BadRequestException("进度查询正在维护，请联系客服查询");
         }
         this.limitByIp(req, "pub:record");
-        return this.records.get(businessNo);
+        return RecordWebMapper.toResponse(this.records.get(businessNo));
     }
 
     @GetMapping(value={"/records/{businessNo}/image"})
@@ -262,7 +263,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;

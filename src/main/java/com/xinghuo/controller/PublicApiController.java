@@ -12,7 +12,8 @@ import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.dto.PublicQuoteRequest;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
-import com.xinghuo.model.GameStatus;
+import com.xinghuo.gamestatus.application.GameStatusApplicationService;
+import com.xinghuo.gamestatus.web.GameStatusWebMapper;
 import com.xinghuo.model.UploadAsset;
 import com.xinghuo.order.application.OrderApplicationService;
 import com.xinghuo.order.domain.OrderProgressAsset;
@@ -21,7 +22,6 @@ import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.record.application.RecordApplicationService;
 import com.xinghuo.record.web.RecordWebMapper;
-import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SiteSettingService;
 import com.xinghuo.service.ToolStationService;
@@ -35,7 +35,6 @@ import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.time.Duration;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -72,7 +71,7 @@ public class PublicApiController {
     private final TaxonomyApplicationService taxonomy;
     private final AccountSessionService accountSessions;
     private final ToolStationService toolStation;
-    private final GameStatusService gameStatuses;
+    private final GameStatusApplicationService gameStatuses;
     private final SiteSettingService siteSettings;
     private final RateLimiter rateLimiter;
     private final QuoteContactService quoteContacts;
@@ -84,30 +83,15 @@ public class PublicApiController {
 
     @GetMapping(value={"/public/game-status"})
     Map<String, Object> gameStatus(@RequestParam(value="game", required=false) String game) {
-        GameStatus s = this.gameStatuses.require(this.resolveGameCode(game));
-        LinkedHashMap<String, Object> out = new LinkedHashMap<String, Object>();
-        out.put("game", s.getGameCode());
-        out.put("status", s.getStatusCode().name().toLowerCase(Locale.ROOT));
-        out.put("label", s.getPublicLabel());
-        out.put("detail", s.getPublicDetail());
-        out.put("ctaLabel", s.getCtaLabel());
-        out.put("acceptingOrders", s.getStatusCode().acceptingOrders());
-        out.put("effectiveAt", s.getEffectiveAt());
-        out.put("updatedAt", s.getUpdatedAt());
-        return out;
+        return GameStatusWebMapper.toPublicResponse(
+                this.gameStatuses.require(this.resolveGameCode(game)));
     }
 
     @GetMapping(value={"/public/game-status/all"})
     List<Map<String, Object>> gameStatusAll() {
-        return this.gameStatuses.all().stream().map(s -> {
-            Map<String, Object> m = new LinkedHashMap<String, Object>();
-            m.put("game", s.getGameCode());
-            m.put("status", s.getStatusCode().name().toLowerCase(Locale.ROOT));
-            m.put("label", s.getPublicLabel());
-            m.put("ctaLabel", s.getCtaLabel());
-            m.put("acceptingOrders", s.getStatusCode().acceptingOrders());
-            return m;
-        }).toList();
+        return this.gameStatuses.all().stream()
+                .map(GameStatusWebMapper::toSummaryResponse)
+                .toList();
     }
 
     private String resolveGameCode(String raw) {
@@ -258,7 +242,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusApplicationService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;

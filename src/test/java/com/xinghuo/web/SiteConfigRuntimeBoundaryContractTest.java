@@ -49,6 +49,7 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
         assertTrue(adapter.contains("com.xinghuo.model.SiteConfig"));
         assertTrue(adapter.contains("findById(1L)"));
+        assertTrue(adapter.contains("getServiceStatus() == SiteConfig.ServiceStatus.OPEN"));
         assertTrue(adapter.contains("@Transactional(readOnly = true)"));
     }
 
@@ -60,6 +61,12 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(publicApi.contains("runtimeConfig.orderQueryEnabled()"));
         assertFalse(publicApi.contains("config.isQuoteEnabled()"));
         assertFalse(publicApi.contains("config.isOrderQueryEnabled()"));
+
+        String page = read("src/main/java/com/xinghuo/controller/PageController.java");
+        assertTrue(page.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
+        assertTrue(page.contains("runtimeConfig.acceptingOrders()"));
+        assertFalse(page.contains("com.xinghuo.service.SiteConfigService"));
+        assertFalse(page.contains("config.publicConfig()"));
     }
 
     @Test

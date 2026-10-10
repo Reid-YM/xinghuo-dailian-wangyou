@@ -19,6 +19,9 @@ public class SiteRuntimePersistenceAdapter implements SiteRuntimePort {
     @Transactional(readOnly = true)
     public SiteRuntimeState load() {
         SiteConfig config = repo.findById(1L).orElseThrow();
-        return new SiteRuntimeState(config.isQuoteEnabled(), config.isOrderQueryEnabled());
+        return new SiteRuntimeState(
+                config.isQuoteEnabled(),
+                config.isOrderQueryEnabled(),
+                config.getServiceStatus() == SiteConfig.ServiceStatus.OPEN);
     }
 }

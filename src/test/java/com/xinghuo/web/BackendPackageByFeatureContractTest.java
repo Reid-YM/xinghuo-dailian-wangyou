@@ -127,14 +127,20 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
-    void seoControllerConsumesCatalogApplicationProjection() throws IOException {
-        String controller = read("src/main/java/com/xinghuo/controller/SeoController.java");
+    void seoControllerConsumesFeatureApplicationProjections() throws IOException {
+        String controller = read("src/main/java/com/xinghuo/seo/web/SeoController.java");
 
+        assertTrue(controller.contains("package com.xinghuo.seo.web;"));
         assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
         assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogPageServiceView"));
+        assertTrue(controller.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
+        assertTrue(controller.contains("com.xinghuo.guide.application.GuideQueryApplicationService"));
         assertTrue(controller.contains("publicPageItems()"));
+        assertTrue(controller.contains("guides.publicList(null, null, 200)"));
         assertFalse(controller.contains("import com.xinghuo.service.ServiceCatalogService;"));
         assertFalse(controller.contains("import com.xinghuo.model.ServiceItem;"));
+        assertFalse(controller.contains("GuideContentService"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/SeoController.java")));
     }
 
     @Test

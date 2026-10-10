@@ -1,4 +1,4 @@
-package com.xinghuo.controller;
+package com.xinghuo.seo.web;
 
 import com.xinghuo.catalog.application.CatalogApplicationService;
 import com.xinghuo.catalog.application.CatalogPageServiceView;

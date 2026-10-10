@@ -7,7 +7,6 @@ import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.GameCatalog;
 import com.xinghuo.model.ServiceCategoryCatalog;
 import com.xinghuo.repository.GameCatalogRepository;
-import com.xinghuo.repository.PlatformCatalogRepository;
 import com.xinghuo.repository.ServiceCategoryCatalogRepository;
 import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.taxonomy.application.TaxonomyCatalogView;

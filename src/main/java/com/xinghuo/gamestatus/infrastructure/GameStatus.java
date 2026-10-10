@@ -1,4 +1,4 @@
-package com.xinghuo.model;
+package com.xinghuo.gamestatus.infrastructure;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

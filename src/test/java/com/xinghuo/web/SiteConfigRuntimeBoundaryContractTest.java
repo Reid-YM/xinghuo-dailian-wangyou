@@ -49,7 +49,9 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
         assertTrue(adapter.contains("com.xinghuo.model.SiteConfig"));
         assertTrue(adapter.contains("findById(1L)"));
-        assertTrue(adapter.contains("getServiceStatus() == SiteConfig.ServiceStatus.OPEN"));
+        assertTrue(adapter.contains("SiteOperatingStatusCode.valueOf(config.getServiceStatus().name())"));
+        assertTrue(adapter.contains("config.getStatusShortText()"));
+        assertTrue(adapter.contains("config.getPrimaryButtonLabel()"));
         assertTrue(adapter.contains("@Transactional(readOnly = true)"));
     }
 
@@ -67,6 +69,18 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(page.contains("runtimeConfig.acceptingOrders()"));
         assertFalse(page.contains("com.xinghuo.service.SiteConfigService"));
         assertFalse(page.contains("config.publicConfig()"));
+    }
+
+    @Test
+    void legacyPublicProjectionDelegatesOperatingStatusToRuntimeBoundary() throws IOException {
+        String legacy = read("src/main/java/com/xinghuo/service/SiteConfigService.java");
+        assertTrue(legacy.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
+        assertTrue(legacy.contains("runtimeConfig.operatingStatus()"));
+        assertFalse(legacy.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
+        assertFalse(legacy.contains("com.xinghuo.gamestatus.application.GameStatusView"));
+        assertFalse(legacy.contains("mw4Status("));
+        assertFalse(legacy.contains("mw4ShortText("));
+        assertFalse(legacy.contains("mw4CtaLabel("));
     }
 
     @Test

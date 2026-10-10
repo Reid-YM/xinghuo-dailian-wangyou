@@ -67,9 +67,12 @@ class GameStatusBoundaryContractTest {
         assertTrue(runtime.contains("com.xinghuo.gamestatus.application.GameStatusView"));
         assertTrue(runtime.contains("gameStatuses.resolve(\"CODMW4\", null)"));
 
+        String publicQuery = read("src/main/java/com/xinghuo/siteconfig/application/SiteConfigPublicApplicationService.java");
+        assertTrue(publicQuery.contains("SiteRuntimeApplicationService"));
+        assertTrue(publicQuery.contains("runtimeConfig.operatingStatus()"));
+
         String siteConfig = read("src/main/java/com/xinghuo/service/SiteConfigService.java");
-        assertTrue(siteConfig.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
-        assertTrue(siteConfig.contains("runtimeConfig.operatingStatus()"));
+        assertTrue(siteConfig.contains("com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService"));
         assertFalse(siteConfig.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
         assertFalse(siteConfig.contains("com.xinghuo.gamestatus.application.GameStatusView"));
         assertFalse(siteConfig.contains("import com.xinghuo.model.GameStatus;"));

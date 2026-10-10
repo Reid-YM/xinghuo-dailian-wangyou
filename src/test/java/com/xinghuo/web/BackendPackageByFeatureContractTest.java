@@ -96,12 +96,15 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
-    void legacyServicesAreConfinedToInfrastructureAdapters() throws IOException {
+    void remainingLegacyServicesAreConfinedAndCatalogUsesOwnedPersistenceAdapter() throws IOException {
         assertTrue(read("src/main/java/com/xinghuo/quote/infrastructure/LegacyQuoteAdapter.java")
                 .contains("com.xinghuo.service.QuoteService"));
         assertTrue(read("src/main/java/com/xinghuo/order/infrastructure/LegacyOrderAdapter.java")
                 .contains("com.xinghuo.service.OrderService"));
-        assertTrue(read("src/main/java/com/xinghuo/catalog/infrastructure/LegacyCatalogAdapter.java")
-                .contains("com.xinghuo.service.ServiceCatalogService"));
+
+        String catalog = read("src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java");
+        assertTrue(catalog.contains("implements CatalogPort"));
+        assertTrue(catalog.contains("com.xinghuo.repository.ServiceItemRepository"));
+        assertFalse(catalog.contains("com.xinghuo.service.ServiceCatalogService"));
     }
 }

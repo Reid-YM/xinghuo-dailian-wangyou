@@ -64,6 +64,16 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
+    void adminOrderFlowsConsumeOrderApplicationBoundary() throws IOException {
+        String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
+
+        assertTrue(admin.contains("com.xinghuo.order.application.OrderApplicationService"));
+        assertTrue(admin.contains("OrderWebMapper.toCommand"));
+        assertTrue(admin.contains("OrderWebMapper.toAdminResponses"));
+        assertFalse(admin.contains("import com.xinghuo.service.OrderService;"));
+    }
+
+    @Test
     void pageControllerConsumesCatalogApplicationProjection() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/PageController.java");
 
@@ -118,14 +128,18 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
-    void remainingLegacyServicesAreConfinedAndOwnedPersistenceAdaptersAreUsed() throws IOException {
+    void retiredLegacyServicesStayRemovedAndOwnedPersistenceAdaptersAreUsed() throws IOException {
         String quote = read("src/main/java/com/xinghuo/quote/infrastructure/QuotePersistenceAdapter.java");
         assertTrue(quote.contains("implements QuotePort"));
         assertTrue(quote.contains("com.xinghuo.repository.QuoteRepository"));
+        assertTrue(quote.contains("com.xinghuo.order.application.OrderApplicationService"));
         assertFalse(quote.contains("com.xinghuo.service.QuoteService"));
+        assertFalse(quote.contains("com.xinghuo.service.OrderService"));
 
-        assertTrue(read("src/main/java/com/xinghuo/order/infrastructure/LegacyOrderAdapter.java")
-                .contains("com.xinghuo.service.OrderService"));
+        String order = read("src/main/java/com/xinghuo/order/infrastructure/OrderPersistenceAdapter.java");
+        assertTrue(order.contains("implements OrderPort"));
+        assertTrue(order.contains("com.xinghuo.repository.CustomerOrderRepository"));
+        assertFalse(order.contains("com.xinghuo.service.OrderService"));
 
         String catalog = read("src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java");
         assertTrue(catalog.contains("implements CatalogPort"));

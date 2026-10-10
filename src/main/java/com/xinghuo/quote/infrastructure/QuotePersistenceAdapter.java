@@ -3,6 +3,8 @@ package com.xinghuo.quote.infrastructure;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.Quote;
+import com.xinghuo.order.application.OrderApplicationService;
+import com.xinghuo.order.application.OrderFromQuoteCommand;
 import com.xinghuo.quote.application.ConvertedOrderView;
 import com.xinghuo.quote.application.QuoteAdminView;
 import com.xinghuo.quote.application.QuoteAiSuggestionView;
@@ -16,7 +18,6 @@ import com.xinghuo.quote.application.QuoteSubmissionCommand;
 import com.xinghuo.quote.application.QuoteSubmissionResult;
 import com.xinghuo.repository.QuoteRepository;
 import com.xinghuo.service.AuditService;
-import com.xinghuo.service.OrderService;
 import com.xinghuo.service.UploadService;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,10 +47,13 @@ public class QuotePersistenceAdapter implements QuotePort {
     private final QuoteRepository repo;
     private final UploadService uploads;
     private final AuditService audit;
-    private final OrderService orders;
+    private final OrderApplicationService orders;
 
     public QuotePersistenceAdapter(
-            QuoteRepository repo, UploadService uploads, AuditService audit, OrderService orders) {
+            QuoteRepository repo,
+            UploadService uploads,
+            AuditService audit,
+            OrderApplicationService orders) {
         this.repo = repo;
         this.uploads = uploads;
         this.audit = audit;
@@ -250,7 +254,18 @@ public class QuotePersistenceAdapter implements QuotePort {
         }
         ensureBusinessNo(quote);
         QuoteAdminView before = admin(quote);
-        var order = orders.createFromQuote(quote, operator, currentRequest(), command.reason());
+        var order = orders.createFromQuote(
+                new OrderFromQuoteCommand(
+                        quote.getId(),
+                        quote.getBusinessNo(),
+                        quote.getCustomerAccountId(),
+                        quote.getGame(),
+                        quote.getDemand(),
+                        quote.getCurrentProgress(),
+                        quote.getPlatform(),
+                        quote.getExpectedTime(),
+                        command.reason()),
+                operator);
         if (quote.getStatus() != Quote.Status.CONVERTED) {
             quote.setStatus(Quote.Status.CONVERTED);
             quote.setUpdatedAt(Instant.now());

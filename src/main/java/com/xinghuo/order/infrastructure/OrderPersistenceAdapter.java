@@ -1,5 +1,6 @@
 package com.xinghuo.order.infrastructure;
 
+import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.ConflictException;
 import com.xinghuo.exception.NotFoundException;
@@ -14,8 +15,7 @@ import com.xinghuo.order.application.PublicCaseView;
 import com.xinghuo.order.application.UpdateOrderCommand;
 import com.xinghuo.order.domain.OrderProgressAsset;
 import com.xinghuo.repository.CustomerOrderRepository;
-import com.xinghuo.service.AuditService;
-import com.xinghuo.service.UploadService;
+import com.xinghuo.upload.infrastructure.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
 import java.time.Instant;

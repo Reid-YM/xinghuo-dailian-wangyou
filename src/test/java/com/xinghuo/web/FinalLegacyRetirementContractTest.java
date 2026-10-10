@@ -179,4 +179,29 @@ class FinalLegacyRetirementContractTest {
         assertTrue(application.contains("FeedbackPort"));
         assertFalse(application.contains("AdminTestFeedbackService"));
     }
+
+    @Test
+    void taxonomyLegacyServiceIsRemovedAfterOwnedPortAndPersistenceAdapterLanded() throws IOException {
+        Path legacyService = ROOT.resolve("src/main/java/com/xinghuo/service/TaxonomyService.java");
+        Path port = ROOT.resolve("src/main/java/com/xinghuo/taxonomy/application/TaxonomyPort.java");
+        Path adapter = ROOT.resolve("src/main/java/com/xinghuo/taxonomy/infrastructure/TaxonomyPersistenceAdapter.java");
+        Path mapper = ROOT.resolve("src/main/java/com/xinghuo/taxonomy/web/TaxonomyWebMapper.java");
+
+        assertFalse(Files.exists(legacyService));
+        assertTrue(Files.exists(port));
+        assertTrue(Files.exists(adapter));
+        assertTrue(Files.exists(mapper));
+
+        String application = Files.readString(ROOT.resolve(
+                "src/main/java/com/xinghuo/taxonomy/application/TaxonomyApplicationService.java"));
+        assertTrue(application.contains("TaxonomyPort"));
+        assertFalse(application.contains("TaxonomyService"));
+
+        try (Stream<Path> files = Files.walk(ROOT.resolve("src/main/java"))) {
+            for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
+                assertFalse(Files.readString(file).contains("com.xinghuo.service.TaxonomyService"),
+                        file + " still references retired TaxonomyService");
+            }
+        }
+    }
 }

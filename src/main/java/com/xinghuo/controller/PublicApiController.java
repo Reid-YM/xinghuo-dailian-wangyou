@@ -24,10 +24,11 @@ import com.xinghuo.record.application.RecordApplicationService;
 import com.xinghuo.record.web.RecordWebMapper;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SiteSettingService;
-import com.xinghuo.service.ToolStationService;
 import com.xinghuo.service.UploadService;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
+import com.xinghuo.toolstation.application.ToolStationApplicationService;
+import com.xinghuo.toolstation.web.ToolStationWebMapper;
 import com.xinghuo.tracking.application.TrackingApplicationService;
 import com.xinghuo.tracking.web.TrackingWebMapper;
 import com.xinghuo.util.HashUtil;
@@ -70,7 +71,8 @@ public class PublicApiController {
     private final TrackingApplicationService tracking;
     private final TaxonomyApplicationService taxonomy;
     private final AccountSessionService accountSessions;
-    private final ToolStationService toolStation;
+    private final ToolStationApplicationService toolStation;
+    private final ToolStationWebMapper toolStationMapper;
     private final GameStatusApplicationService gameStatuses;
     private final SiteSettingService siteSettings;
     private final RateLimiter rateLimiter;
@@ -129,7 +131,7 @@ public class PublicApiController {
 
     @GetMapping(value={"/tool-station"})
     JsonNode toolStation() {
-        return this.toolStation.publicData();
+        return this.toolStationMapper.toResponse(this.toolStation.publicData());
     }
 
     @GetMapping(value={"/site-assets/{assetId}"})
@@ -242,7 +244,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusApplicationService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;
@@ -253,6 +255,7 @@ public class PublicApiController {
         this.taxonomy = taxonomy;
         this.accountSessions = accountSessions;
         this.toolStation = toolStation;
+        this.toolStationMapper = toolStationMapper;
         this.gameStatuses = gameStatuses;
         this.siteSettings = siteSettings;
         this.rateLimiter = rateLimiter;

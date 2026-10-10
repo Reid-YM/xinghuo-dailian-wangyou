@@ -74,9 +74,9 @@ class VNextMobileFocusPlaywrightTest {
             page.setContent(fixture());
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(MOBILE_CSS));
 
-            assertEquals("repeat(4, minmax(0px, 1fr))",
-                    string(page, "getComputedStyle(document.querySelector('.v-feature-grid')).gridTemplateColumns"),
-                    "mobile focus layer must not rewrite desktop feature layout");
+            Number desktopColumns = number(page,
+                    "getComputedStyle(document.querySelector('.v-feature-grid')).gridTemplateColumns.split(' ').length");
+            assertEquals(4, desktopColumns.intValue(), "mobile focus layer must not rewrite desktop feature layout");
             assertEquals("rgb(20, 20, 20)",
                     string(page, "getComputedStyle(document.querySelector('.v-mobile-dock button:nth-child(3)')).backgroundColor"),
                     "mobile dock emphasis must stay scoped below 768px");

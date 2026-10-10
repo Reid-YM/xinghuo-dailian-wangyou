@@ -29,14 +29,20 @@ class BackendPackageByFeatureContractTest {
     @Test
     void publicApiConsumesFeatureApplicationServices() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        String publicQuote = read("src/main/java/com/xinghuo/quote/web/PublicQuoteController.java");
         String publicServices = read("src/main/java/com/xinghuo/catalog/web/PublicCatalogServiceController.java");
         String publicCatalog = read("src/main/java/com/xinghuo/taxonomy/web/PublicTaxonomyCatalogController.java");
 
-        assertTrue(controller.contains("com.xinghuo.quote.application.QuoteApplicationService"));
         assertTrue(controller.contains("com.xinghuo.order.application.OrderApplicationService"));
         assertTrue(controller.contains("com.xinghuo.record.application.RecordApplicationService"));
         assertTrue(controller.contains("RecordWebMapper.toResponse"));
         assertTrue(controller.contains("OrderProgressAsset"));
+
+        assertTrue(publicQuote.contains("package com.xinghuo.quote.web;"));
+        assertTrue(publicQuote.contains("com.xinghuo.quote.application.QuoteApplicationService"));
+        assertTrue(publicQuote.contains("QuoteWebMapper.toCommand"));
+        assertTrue(publicQuote.contains("QuoteWebMapper.toResponse"));
+        assertTrue(publicQuote.contains("@RequestMapping(value={\"/api/quote\"})"));
 
         assertTrue(publicServices.contains("package com.xinghuo.catalog.web;"));
         assertTrue(publicServices.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
@@ -48,6 +54,9 @@ class BackendPackageByFeatureContractTest {
         assertTrue(publicCatalog.contains("TaxonomyWebMapper.toResponse"));
         assertTrue(publicCatalog.contains("@RequestMapping(value={\"/api/catalog\"})"));
 
+        assertFalse(controller.contains("com.xinghuo.quote.application.QuoteApplicationService"));
+        assertFalse(controller.contains("QuoteWebMapper"));
+        assertFalse(controller.contains("@PostMapping(value={\"/quote\"})"));
         assertFalse(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
         assertFalse(controller.contains("CatalogWebMapper"));
         assertFalse(controller.contains("@GetMapping(value={\"/services\"})"));

@@ -36,6 +36,7 @@ class ApiApplicationBoundaryContractTest {
     @Test
     void webLayerOwnsProtocolMapping() throws IOException {
         String publicController = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        String publicQuote = read("src/main/java/com/xinghuo/quote/web/PublicQuoteController.java");
         String publicServices = read("src/main/java/com/xinghuo/catalog/web/PublicCatalogServiceController.java");
         String publicCatalog = read("src/main/java/com/xinghuo/taxonomy/web/PublicTaxonomyCatalogController.java");
         String publicOrderCases = read("src/main/java/com/xinghuo/order/web/PublicOrderCaseController.java");
@@ -49,8 +50,8 @@ class ApiApplicationBoundaryContractTest {
         String catalogMapper = read("src/main/java/com/xinghuo/catalog/web/CatalogWebMapper.java");
         String catalogAdminMapper = read("src/main/java/com/xinghuo/catalog/web/CatalogAdminWebMapper.java");
 
-        assertTrue(publicController.contains("QuoteWebMapper.toCommand"));
-        assertTrue(publicController.contains("QuoteWebMapper.toResponse"));
+        assertTrue(publicQuote.contains("QuoteWebMapper.toCommand"));
+        assertTrue(publicQuote.contains("QuoteWebMapper.toResponse"));
         assertTrue(publicController.contains("OrderWebMapper.toResponse"));
         assertTrue(publicOrderCases.contains("OrderWebMapper.toCaseResponses"));
         assertTrue(publicController.contains("RecordWebMapper.toResponse"));

@@ -227,8 +227,12 @@ class BackendPackageByFeatureContractTest {
         assertFalse(taxonomy.contains("com.xinghuo.service.TaxonomyService"));
         assertFalse(taxonomy.contains("com.xinghuo.dto"));
 
-        String slot = read("src/main/java/com/xinghuo/service/SlotService.java");
+        String slot = read("src/main/java/com/xinghuo/slot/infrastructure/SlotPersistenceAdapter.java");
+        assertTrue(slot.contains("implements SlotPort"));
+        assertTrue(slot.contains("com.xinghuo.repository.HotSlotRepository"));
+        assertTrue(slot.contains("com.xinghuo.repository.ServiceItemRepository"));
         assertTrue(slot.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
+        assertFalse(slot.contains("com.xinghuo.service.SlotService"));
         assertFalse(slot.contains("com.xinghuo.service.TaxonomyService"));
     }
 }

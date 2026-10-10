@@ -10,7 +10,8 @@ import com.xinghuo.repository.SiteConfigRepository;
 import com.xinghuo.service.AuditService;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.SiteSettingService;
-import com.xinghuo.service.SlotService;
+import com.xinghuo.slot.application.SlotApplicationService;
+import com.xinghuo.slot.web.SlotWebMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -29,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SiteConfigService {
     private final SiteConfigRepository repo;
     private final ServiceItemRepository serviceRepo;
-    private final SlotService slotService;
+    private final SlotApplicationService slotService;
     private final AuditService audit;
     private final GameStatusService gameStatuses;
     private final SiteSettingService siteSettings;
@@ -37,7 +38,7 @@ public class SiteConfigService {
     @Transactional(readOnly=true)
     public ApiDtos.SiteConfigResponse publicConfig() {
         SiteConfig c = this.get();
-        return new ApiDtos.SiteConfigResponse(c.getBrandName(), c.getLegalEntityName(), this.mw4Status().name().toLowerCase(Locale.ROOT), this.mw4ShortText(c), this.mw4CtaLabel(c), c.isQuoteEnabled(), c.isOrderQueryEnabled(), c.getHeroTitle(), c.getHeroSubtitle(), c.getStartingPriceMode().name().toLowerCase(Locale.ROOT), this.displayStartingPrice(c), c.isShowStartingPrice(), c.getHomeServiceLimit(), c.getHomeServiceMobileLimit(), c.getHomeServiceDesktopColumns(), c.getHomeServiceMobileColumns(), this.normalizeDensity(c.getServiceCardDensity()).toLowerCase(Locale.ROOT), this.normalizeDensity(c.getServiceCardMobileDensity()).toLowerCase(Locale.ROOT), c.getHeroImage(), c.getHeroImageHeight(), c.getHeroImageFit().toLowerCase(Locale.ROOT), c.getHeroImagePositionX(), c.getHeroImagePositionY(), c.getHeroImageMobileHeight(), c.getHeroImageMobileFit().toLowerCase(Locale.ROOT), c.getHeroImageMobilePositionX(), c.getHeroImageMobilePositionY(), c.getHeroBackgroundImage(), c.getHeroBackgroundMobileImage(), c.getHeroBackgroundMobileHeight(), c.getHeroBackgroundOpacity(), c.getHeroBackgroundFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundPositionX(), c.getHeroBackgroundPositionY(), c.getHeroBackgroundBlur(), c.getHeroBackgroundMobileFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundMobilePositionX(), c.getHeroBackgroundMobilePositionY(), c.getServiceCoverHeight(), c.getServiceCoverFit().toLowerCase(Locale.ROOT), c.getServiceCoverPositionX(), c.getServiceCoverPositionY(), c.getServiceCoverMobileHeight(), c.getServiceCoverMobileFit().toLowerCase(Locale.ROOT), c.getServiceCoverMobilePositionX(), c.getServiceCoverMobilePositionY(), this.splitTags(c.getTrustTags()), this.parseTrustCases(c), c.getTrustCaseHomeLimit(), c.getTrustCaseHomeMobileLimit(), this.parseTrustFaq(c), c.getTrustFaqHomeLimit(), c.getTrustFaqHomeMobileLimit(), c.isAnnouncementEnabled(), c.getAnnouncementText(), c.getContactTitle(), c.getContactIntro(), c.getWechatId(), c.getWechatQrImage(), c.getWechatQrSize(), this.parseContactChannels(c), c.getHomeContactLimit(), c.getHomeContactMobileLimit(), c.getQqId(), c.getQqLink(), c.getPhone(), c.getServiceHours(), c.getTaobaoUrl(), c.getXianyuUrl(), c.getContactNotice(), c.getWecomKefuUrl(), c.getWecomKefuNote(), c.getQuickContactTitle(), c.getTaobaoLabel(), c.getXianyuLabel(), c.getWecomKefuLabel(), c.getWecomKefuButton(), c.getQuoteSuccessText(), c.getOrderHelpText(), c.getFooterText(), c.getSeoTitle(), c.getSeoDescription(), c.getToolUpdatedNote(), c.isToolPublicEnabled(), this.slotService.publicHotServices());
+        return new ApiDtos.SiteConfigResponse(c.getBrandName(), c.getLegalEntityName(), this.mw4Status().name().toLowerCase(Locale.ROOT), this.mw4ShortText(c), this.mw4CtaLabel(c), c.isQuoteEnabled(), c.isOrderQueryEnabled(), c.getHeroTitle(), c.getHeroSubtitle(), c.getStartingPriceMode().name().toLowerCase(Locale.ROOT), this.displayStartingPrice(c), c.isShowStartingPrice(), c.getHomeServiceLimit(), c.getHomeServiceMobileLimit(), c.getHomeServiceDesktopColumns(), c.getHomeServiceMobileColumns(), this.normalizeDensity(c.getServiceCardDensity()).toLowerCase(Locale.ROOT), this.normalizeDensity(c.getServiceCardMobileDensity()).toLowerCase(Locale.ROOT), c.getHeroImage(), c.getHeroImageHeight(), c.getHeroImageFit().toLowerCase(Locale.ROOT), c.getHeroImagePositionX(), c.getHeroImagePositionY(), c.getHeroImageMobileHeight(), c.getHeroImageMobileFit().toLowerCase(Locale.ROOT), c.getHeroImageMobilePositionX(), c.getHeroImageMobilePositionY(), c.getHeroBackgroundImage(), c.getHeroBackgroundMobileImage(), c.getHeroBackgroundMobileHeight(), c.getHeroBackgroundOpacity(), c.getHeroBackgroundFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundPositionX(), c.getHeroBackgroundPositionY(), c.getHeroBackgroundBlur(), c.getHeroBackgroundMobileFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundMobilePositionX(), c.getHeroBackgroundMobilePositionY(), c.getServiceCoverHeight(), c.getServiceCoverFit().toLowerCase(Locale.ROOT), c.getServiceCoverPositionX(), c.getServiceCoverPositionY(), c.getServiceCoverMobileHeight(), c.getServiceCoverMobileFit().toLowerCase(Locale.ROOT), c.getServiceCoverMobilePositionX(), c.getServiceCoverMobilePositionY(), this.splitTags(c.getTrustTags()), this.parseTrustCases(c), c.getTrustCaseHomeLimit(), c.getTrustCaseHomeMobileLimit(), this.parseTrustFaq(c), c.getTrustFaqHomeLimit(), c.getTrustFaqHomeMobileLimit(), c.isAnnouncementEnabled(), c.getAnnouncementText(), c.getContactTitle(), c.getContactIntro(), c.getWechatId(), c.getWechatQrImage(), c.getWechatQrSize(), this.parseContactChannels(c), c.getHomeContactLimit(), c.getHomeContactMobileLimit(), c.getQqId(), c.getQqLink(), c.getPhone(), c.getServiceHours(), c.getTaobaoUrl(), c.getXianyuUrl(), c.getContactNotice(), c.getWecomKefuUrl(), c.getWecomKefuNote(), c.getQuickContactTitle(), c.getTaobaoLabel(), c.getXianyuLabel(), c.getWecomKefuLabel(), c.getWecomKefuButton(), c.getQuoteSuccessText(), c.getOrderHelpText(), c.getFooterText(), c.getSeoTitle(), c.getSeoDescription(), c.getToolUpdatedNote(), c.isToolPublicEnabled(), SlotWebMapper.toPublicResponses(this.slotService.publicHotServices()));
     }
 
     @Transactional(readOnly=true)
@@ -78,12 +79,12 @@ public class SiteConfigService {
                 break;
             }
             default: {
-                throw new BadRequestException("\u975e\u6cd5\u56fe\u7247\u4f4d\u7f6e");
+                throw new BadRequestException("非法图片位置");
             }
         }
         c.setUpdatedAt(Instant.now());
         ApiDtos.SiteConfigResponse after = this.publicConfig();
-        this.audit.log("SITE_IMAGE_UPDATE", "SITE_CONFIG", key, operator, before, after, "\u66f4\u65b0\u7ad9\u70b9\u56fe\u7247", req);
+        this.audit.log("SITE_IMAGE_UPDATE", "SITE_CONFIG", key, operator, before, after, "更新站点图片", req);
         return after;
     }
 
@@ -292,13 +293,13 @@ public class SiteConfigService {
                 break;
             }
             default: {
-                throw new BadRequestException("\u975e\u6cd5\u914d\u7f6e\u5206\u533a");
+                throw new BadRequestException("非法配置分区");
             }
         }
         this.syncSiteSettings(c);
         c.setUpdatedAt(Instant.now());
         ApiDtos.SiteConfigResponse after = this.publicConfig();
-        this.audit.log("SITE_CONFIG_" + key.toUpperCase(Locale.ROOT), "SITE_CONFIG", key, operator, before, after, String.valueOf(r.getOrDefault("reason", "\u540e\u53f0\u5206\u533a\u4fdd\u5b58")), req);
+        this.audit.log("SITE_CONFIG_" + key.toUpperCase(Locale.ROOT), "SITE_CONFIG", key, operator, before, after, String.valueOf(r.getOrDefault("reason", "后台分区保存")), req);
         return after;
     }
 
@@ -315,7 +316,7 @@ public class SiteConfigService {
         Object v = m.get(k);
         String string = x = v == null ? def : String.valueOf(v).trim();
         if (x == null || x.isBlank() || x.length() > max) {
-            throw new BadRequestException("\u5b57\u6bb5 " + k + " \u4e0d\u5408\u6cd5");
+            throw new BadRequestException("字段 " + k + " 不合法");
         }
         return x;
     }
@@ -330,7 +331,7 @@ public class SiteConfigService {
             return null;
         }
         if (x.length() > max) {
-            throw new BadRequestException("\u5b57\u6bb5 " + k + " \u8fc7\u957f");
+            throw new BadRequestException("字段 " + k + " 过长");
         }
         return x;
     }
@@ -345,7 +346,7 @@ public class SiteConfigService {
         Object v = m.get(k);
         int n = x = v == null ? def : Integer.parseInt(String.valueOf(v));
         if (x < min || x > max) {
-            throw new BadRequestException("\u5b57\u6bb5 " + k + " \u8d85\u51fa\u8303\u56f4");
+            throw new BadRequestException("字段 " + k + " 超出范围");
         }
         return x;
     }
@@ -363,7 +364,7 @@ public class SiteConfigService {
             return x;
         }
         catch (Exception e) {
-            throw new BadRequestException("\u4ef7\u683c\u4e0d\u5408\u6cd5");
+            throw new BadRequestException("价格不合法");
         }
     }
 
@@ -429,7 +430,7 @@ public class SiteConfigService {
             return SiteConfig.ServiceStatus.valueOf((String)s.toUpperCase(Locale.ROOT));
         }
         catch (Exception e) {
-            throw new BadRequestException("\u975e\u6cd5\u63a5\u5355\u72b6\u6001");
+            throw new BadRequestException("非法接单状态");
         }
     }
 
@@ -438,7 +439,7 @@ public class SiteConfigService {
             return SiteConfig.StartingPriceMode.valueOf((String)s.toUpperCase(Locale.ROOT));
         }
         catch (Exception e) {
-            throw new BadRequestException("\u975e\u6cd5\u8d77\u6b65\u4ef7\u6a21\u5f0f");
+            throw new BadRequestException("非法起步价模式");
         }
     }
 
@@ -459,15 +460,15 @@ public class SiteConfigService {
                 String note = this.clean(parts.length > 3 ? parts[3] : "", 120);
                 String jump = this.clean(parts.length > 4 ? parts[4] : "", 500);
                 if (label == null && wechat == null && qr == null) continue;
-                rows.add(new ApiDtos.ContactChannelResponse((String)(label == null ? "\u5ba2\u670d" + (rows.size() + 1) : label), wechat, qr, note, jump));
+                rows.add(new ApiDtos.ContactChannelResponse((String)(label == null ? "客服" + (rows.size() + 1) : label), wechat, qr, note, jump));
                 if (rows.size() >= 6) break;
             }
         }
         if (rows.isEmpty() && (c.getWechatId() != null || c.getWechatQrImage() != null)) {
-            rows.add(new ApiDtos.ContactChannelResponse("\u4e3b\u5ba2\u670d", c.getWechatId(), c.getWechatQrImage(), "\u53d1\u9001\u4e1a\u52a1\u7f16\u53f7\u786e\u8ba4\u62a5\u4ef7", null));
+            rows.add(new ApiDtos.ContactChannelResponse("主客服", c.getWechatId(), c.getWechatQrImage(), "发送业务编号确认报价", null));
         }
         if (rows.isEmpty()) {
-            rows.add(new ApiDtos.ContactChannelResponse("\u4e3b\u5ba2\u670d", "AAC9878", null, "\u53d1\u9001\u4e1a\u52a1\u7f16\u53f7\u786e\u8ba4\u62a5\u4ef7", null));
+            rows.add(new ApiDtos.ContactChannelResponse("主客服", "AAC9878", null, "发送业务编号确认报价", null));
         }
         return rows;
     }
@@ -484,7 +485,7 @@ public class SiteConfigService {
                 String metric = this.clean(parts.length > 2 ? parts[2] : "", 120);
                 String detail = this.clean(parts.length > 3 ? parts[3] : "", 240);
                 if (title == null && metric == null && detail == null) continue;
-                rows.add(new ApiDtos.TrustCaseResponse(tag == null ? "\u670d\u52a1\u793a\u4f8b" : tag, title == null ? "\u670d\u52a1\u793a\u4f8b" : title, metric == null ? "\u6309\u8fdb\u5ea6\u786e\u8ba4" : metric, detail == null ? "" : detail));
+                rows.add(new ApiDtos.TrustCaseResponse(tag == null ? "服务示例" : tag, title == null ? "服务示例" : title, metric == null ? "按进度确认" : metric, detail == null ? "" : detail));
                 if (rows.size() >= 8) break;
             }
         }
@@ -534,7 +535,7 @@ public class SiteConfigService {
             String note = this.clean(row.note(), 120);
             String jump = this.clean(row.jumpUrl(), 500);
             if (label == null && wechat == null && qr == null) continue;
-            lines.add(String.join((CharSequence)"\t", new CharSequence[]{label == null ? "\u5ba2\u670d" + (lines.size() + 1) : label, wechat == null ? "" : wechat, qr == null ? "" : qr, note == null ? "" : note, jump == null ? "" : jump}));
+            lines.add(String.join((CharSequence)"\t", new CharSequence[]{label == null ? "客服" + (lines.size() + 1) : label, wechat == null ? "" : wechat, qr == null ? "" : qr, note == null ? "" : note, jump == null ? "" : jump}));
             if (lines.size() < 6) continue;
             break;
         }
@@ -566,7 +567,7 @@ public class SiteConfigService {
             String metric = this.clean(row.metric(), 120);
             String detail = this.clean(row.detail(), 240);
             if (title == null && metric == null && detail == null) continue;
-            lines.add(String.join((CharSequence)"\t", tag == null ? "\u6848\u4f8b" : tag, title == null ? "\u670d\u52a1\u6848\u4f8b" : title, metric == null ? "\u6309\u8fdb\u5ea6\u786e\u8ba4" : metric, detail == null ? "" : detail));
+            lines.add(String.join((CharSequence)"\t", tag == null ? "案例" : tag, title == null ? "服务案例" : title, metric == null ? "按进度确认" : metric, detail == null ? "" : detail));
             if (lines.size() < 8) continue;
             break;
         }
@@ -604,11 +605,11 @@ public class SiteConfigService {
     }
 
     private List<ApiDtos.TrustCaseResponse> defaultTrustCases() {
-        return List.of(new ApiDtos.TrustCaseResponse("\u6b66\u5668\u5347\u7ea7", "MW4 \u6b66\u5668 1\u2192\u6ee1\u7ea7\u914d\u4ef6", "\u7ea6 50\u201390 \u5206\u949f \u00b7 \u00a535\u201360", "\u6309\u5f53\u524d\u7b49\u7ea7\u62b5\u6263\uff0c\u5b8c\u6210\u540e\u53ef\u5728\u4e1a\u52a1\u8bb0\u5f55\u67e5\u770b\u8fdb\u5ea6\u8bf4\u660e\u3002"), new ApiDtos.TrustCaseResponse("\u6d3b\u52a8\u4efb\u52a1", "\u8d5b\u5b63\u9650\u65f6\u4efb\u52a1\u6e05\u5355", "\u7ea6 3\u20136 \u5c0f\u65f6 \u00b7 \u6309\u4efb\u52a1\u62a5\u4ef7", "\u5148\u6838\u5bf9\u5269\u4f59\u4efb\u52a1\u4e0e\u622a\u6b62\u65f6\u95f4\uff0c\u518d\u786e\u8ba4\u662f\u5426\u5f00\u5de5\u3002"), new ApiDtos.TrustCaseResponse("\u8ff7\u5f69\u6311\u6218", "\u5269\u4f59\u6311\u6218\u8865\u9f50", "\u5f53\u5929\u53ef\u4ea4\u4ed8 \u00b7 \u6309\u622a\u56fe\u4f30\u4ef7", "\u6309\u5269\u4f59\u8ff7\u5f69\u6311\u6218\u9879\u76ee\u786e\u8ba4\uff0c\u6b63\u5f0f\u540d\u79f0\u4ee5\u5b98\u65b9\u516c\u5e03\u4e3a\u51c6\uff1b\u7f51\u9875\u4e0d\u6536\u5bc6\u7801\u3002"), new ApiDtos.TrustCaseResponse("\u6392\u4f4d/\u6bb5\u4f4d", "\u5f53\u524d\u6bb5\u5230\u76ee\u6807\u6bb5", "\u6309\u6bb5\u5dee\u62a5\u4ef7 \u00b7 \u5f02\u5e38\u5373\u505c", "\u5f00\u5de5\u524d\u786e\u8ba4\u76ee\u6807\u3001\u5e73\u53f0\u4e0e\u53ef\u64cd\u4f5c\u65f6\u95f4\uff0c\u5f02\u5e38\u53ca\u65f6\u6c9f\u901a\u3002"));
+        return List.of(new ApiDtos.TrustCaseResponse("武器升级", "MW4 武器 1→满级配件", "约 50–90 分钟 · ¥35–60", "按当前等级抵扣，完成后可在业务记录查看进度说明。"), new ApiDtos.TrustCaseResponse("活动任务", "赛季限时任务清单", "约 3–6 小时 · 按任务报价", "先核对剩余任务与截止时间，再确认是否开工。"), new ApiDtos.TrustCaseResponse("迷彩挑战", "剩余挑战补齐", "当天可交付 · 按截图估价", "按剩余迷彩挑战项目确认，正式名称以官方公布为准；网页不收密码。"), new ApiDtos.TrustCaseResponse("排位/段位", "当前段到目标段", "按段差报价 · 异常即停", "开工前确认目标、平台与可操作时间，异常及时沟通。"));
     }
 
     private List<ApiDtos.TrustFaqResponse> defaultTrustFaq() {
-        return List.of(new ApiDtos.TrustFaqResponse("\u600e\u4e48\u67e5\u8fdb\u5ea6\uff1f", "\u63d0\u4ea4\u540e\u4f1a\u751f\u6210\u4e1a\u52a1\u7f16\u53f7\uff0c\u5728\u300c\u4e1a\u52a1\u8bb0\u5f55\u300d\u8f93\u5165\u5373\u53ef\u67e5\u770b\u5f53\u524d\u72b6\u6001\u548c\u5ba2\u670d\u5907\u6ce8\u3002"), new ApiDtos.TrustFaqResponse("\u8981\u4e0d\u8981\u7ed9\u5bc6\u7801\uff1f", "\u7f51\u9875\u3001\u67e5\u8be2\u9875\u3001\u622a\u56fe\u90fd\u4e0d\u8981\u53d1\u5bc6\u7801\u3001\u9a8c\u8bc1\u7801\u6216\u4ee4\u724c\u3002\u5177\u4f53\u4e0a\u53f7\u65b9\u5f0f\u52a0\u5fae\u4fe1\u540e\u5355\u72ec\u786e\u8ba4\u3002"), new ApiDtos.TrustFaqResponse("\u600e\u4e48\u4ed8\u6b3e\uff1f", "\u786e\u8ba4\u62a5\u4ef7\u540e\u8d70\u6dd8\u5b9d\u6216\u95f2\u9c7c\u62c5\u4fdd\uff0c\u7f51\u9875\u4e0d\u6536\u94b1\u3002"), new ApiDtos.TrustFaqResponse("\u80fd\u53d6\u6d88\u5417\uff1f", "\u672a\u5f00\u5de5\u53ef\u53d6\u6d88\uff1b\u5df2\u5f00\u5de5\u6309\u5b8c\u6210\u8fdb\u5ea6\u6838\u5bf9\u540e\u9000\u5269\u4f59\u90e8\u5206\u3002"), new ApiDtos.TrustFaqResponse("\u652f\u6301\u54ea\u4e9b\u5e73\u53f0\uff1f", "Steam\u3001Battle.net\u3001PlayStation\u3001Xbox\u3001Switch 2 \u7b49\u5e73\u53f0\u6309\u5177\u4f53\u6e38\u620f\u786e\u8ba4\u3002"), new ApiDtos.TrustFaqResponse("\u6392\u4f4d\u4f1a\u4e0d\u4f1a\u6389\uff1f", "\u5f02\u5e38\u7acb\u5373\u505c\u5355\u5e76\u6c9f\u901a\uff0c\u4e0d\u786c\u51b2\u3002\u6392\u4f4d\u7c7b\u670d\u52a1\u4f1a\u5148\u786e\u8ba4\u5f53\u524d\u6bb5\u4f4d\u3001\u76ee\u6807\u6bb5\u4f4d\u548c\u98ce\u9669\u3002"), new ApiDtos.TrustFaqResponse("\u622a\u56fe\u600e\u4e48\u53d1\uff1f", "\u8be2\u4ef7\u9875\u53ef\u4e0a\u4f20\u4efb\u52a1\u622a\u56fe\uff0c\u4e5f\u53ef\u4ee5\u590d\u5236\u4e1a\u52a1\u7f16\u53f7\u540e\u52a0\u5fae\u4fe1\u8865\u53d1\u3002\u622a\u56fe\u91cc\u4e0d\u8981\u5305\u542b\u5bc6\u7801\u6216\u9a8c\u8bc1\u7801\u3002"), new ApiDtos.TrustFaqResponse("\u591a\u4e45\u56de\u590d\uff1f", "\u5ba2\u670d\u65f6\u95f4\u901a\u5e38\u4e3a 10:00\u201324:00\uff0c\u9ad8\u5cf0\u671f\u4f1a\u6309\u4e1a\u52a1\u7f16\u53f7\u987a\u5e8f\u5904\u7406\u3002"));
+        return List.of(new ApiDtos.TrustFaqResponse("怎么查进度？", "提交后会生成业务编号，在「业务记录」输入即可查看当前状态和客服备注。"), new ApiDtos.TrustFaqResponse("要不要给密码？", "网页、查询页、截图都不要发密码、验证码或令牌。具体上号方式加微信后单独确认。"), new ApiDtos.TrustFaqResponse("怎么付款？", "确认报价后走淘宝或闲鱼担保，网页不收钱。"), new ApiDtos.TrustFaqResponse("能取消吗？", "未开工可取消；已开工按完成进度核对后退剩余部分。"), new ApiDtos.TrustFaqResponse("支持哪些平台？", "Steam、Battle.net、PlayStation、Xbox、Switch 2 等平台按具体游戏确认。"), new ApiDtos.TrustFaqResponse("排位会不会掉？", "异常立即停单并沟通，不硬冲。排位类服务会先确认当前段位、目标段位和风险。"), new ApiDtos.TrustFaqResponse("截图怎么发？", "询价页可上传任务截图，也可以复制业务编号后加微信补发。截图里不要包含密码或验证码。"), new ApiDtos.TrustFaqResponse("多久回复？", "客服时间通常为 10:00–24:00，高峰期会按业务编号顺序处理。"));
     }
 
     private String stringValue(Object value) {
@@ -624,7 +625,7 @@ public class SiteConfigService {
             return null;
         }
         if (out.length() > max) {
-            throw new BadRequestException("\u5ba2\u670d\u6e20\u9053\u5b57\u6bb5\u8fc7\u957f");
+            throw new BadRequestException("客服渠道字段过长");
         }
         return out;
     }
@@ -633,7 +634,7 @@ public class SiteConfigService {
         String v;
         String string = v = s == null ? "COVER" : s.trim().toUpperCase(Locale.ROOT);
         if (!Set.of("COVER", "CONTAIN", "FILL").contains(v)) {
-            throw new BadRequestException("\u975e\u6cd5\u56fe\u7247\u9002\u914d\u6a21\u5f0f");
+            throw new BadRequestException("非法图片适配模式");
         }
         return v;
     }
@@ -642,7 +643,7 @@ public class SiteConfigService {
         String v;
         String string = v = s == null ? "COMFORTABLE" : s.trim().toUpperCase(Locale.ROOT);
         if (!Set.of("COMPACT", "COMFORTABLE", "SPACIOUS").contains(v)) {
-            throw new BadRequestException("\u975e\u6cd5\u7ec4\u4ef6\u5bc6\u5ea6");
+            throw new BadRequestException("非法组件密度");
         }
         return v;
     }
@@ -652,7 +653,7 @@ public class SiteConfigService {
     }
 
     @Generated
-    public SiteConfigService(SiteConfigRepository repo, ServiceItemRepository serviceRepo, SlotService slotService, AuditService audit, GameStatusService gameStatuses, SiteSettingService siteSettings) {
+    public SiteConfigService(SiteConfigRepository repo, ServiceItemRepository serviceRepo, SlotApplicationService slotService, AuditService audit, GameStatusService gameStatuses, SiteSettingService siteSettings) {
         this.repo = repo;
         this.serviceRepo = serviceRepo;
         this.slotService = slotService;

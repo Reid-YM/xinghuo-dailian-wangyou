@@ -19,9 +19,10 @@ import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.SiteConfigService;
-import com.xinghuo.service.SlotService;
 import com.xinghuo.service.ToolStationService;
 import com.xinghuo.service.UploadService;
+import com.xinghuo.slot.application.SlotApplicationService;
+import com.xinghuo.slot.web.SlotWebMapper;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,7 +59,7 @@ public class AdminApiController {
     private final CatalogApplicationService services;
     private final QuoteApplicationService quotes;
     private final OrderApplicationService orders;
-    private final SlotService slots;
+    private final SlotApplicationService slots;
     private final UploadService uploads;
     private final AuditLogRepository audits;
     private final TaxonomyApplicationService taxonomy;
@@ -320,12 +321,13 @@ public class AdminApiController {
 
     @GetMapping(value={"/slots"})
     List<ApiDtos.SlotResponse> slots() {
-        return this.slots.list();
+        return SlotWebMapper.toSlotResponses(this.slots.list());
     }
 
     @PatchMapping(value={"/slots"})
     ApiDtos.SlotResponse updateSlot(@Valid @RequestBody ApiDtos.SlotUpdate r, Authentication a, HttpServletRequest req) {
-        return this.slots.update(r, a.getName(), req);
+        return SlotWebMapper.toResponse(
+                this.slots.update(SlotWebMapper.toCommand(r), a.getName()));
     }
 
     @GetMapping(value={"/audits"})
@@ -367,7 +369,7 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
+    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotApplicationService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
         this.dashboard = dashboard;
         this.config = config;
         this.services = services;

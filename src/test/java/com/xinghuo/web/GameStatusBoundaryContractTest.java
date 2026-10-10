@@ -48,7 +48,7 @@ class GameStatusBoundaryContractTest {
     }
 
     @Test
-    void publicAdminAndSiteConfigConsumeGameStatusBoundary() throws IOException {
+    void publicAdminAndSiteConfigRuntimeConsumeGameStatusBoundary() throws IOException {
         String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
         assertTrue(publicApi.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
         assertTrue(publicApi.contains("com.xinghuo.gamestatus.web.GameStatusWebMapper"));
@@ -62,9 +62,16 @@ class GameStatusBoundaryContractTest {
         assertFalse(admin.contains("import com.xinghuo.model.GameStatus;"));
         assertFalse(admin.contains("import com.xinghuo.service.GameStatusService;"));
 
+        String runtime = read("src/main/java/com/xinghuo/siteconfig/application/SiteRuntimeApplicationService.java");
+        assertTrue(runtime.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
+        assertTrue(runtime.contains("com.xinghuo.gamestatus.application.GameStatusView"));
+        assertTrue(runtime.contains("gameStatuses.resolve(\"CODMW4\", null)"));
+
         String siteConfig = read("src/main/java/com/xinghuo/service/SiteConfigService.java");
-        assertTrue(siteConfig.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
-        assertTrue(siteConfig.contains("com.xinghuo.gamestatus.application.GameStatusView"));
+        assertTrue(siteConfig.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
+        assertTrue(siteConfig.contains("runtimeConfig.operatingStatus()"));
+        assertFalse(siteConfig.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
+        assertFalse(siteConfig.contains("com.xinghuo.gamestatus.application.GameStatusView"));
         assertFalse(siteConfig.contains("import com.xinghuo.model.GameStatus;"));
         assertFalse(siteConfig.contains("import com.xinghuo.service.GameStatusService;"));
     }

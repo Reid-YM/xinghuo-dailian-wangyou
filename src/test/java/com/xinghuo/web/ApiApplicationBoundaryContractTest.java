@@ -49,6 +49,11 @@ class ApiApplicationBoundaryContractTest {
 
         assertTrue(quoteMapper.contains("PublicQuoteRequest"));
         assertTrue(quoteMapper.contains("ApiDtos.QuoteResponse"));
+        assertTrue(quoteMapper.contains("ApiDtos.QuoteAdminResponse"));
+        assertTrue(quoteMapper.contains("QuoteLeadDtos.QuoteLeadResponse"));
+        assertTrue(quoteMapper.contains("QuoteStatusUpdateCommand"));
+        assertTrue(quoteMapper.contains("QuoteCrmUpdateCommand"));
+        assertTrue(quoteMapper.contains("QuoteConvertCommand"));
         assertTrue(orderMapper.contains("ApiDtos.OrderPublicResponse"));
         assertTrue(catalogMapper.contains("ApiDtos.ServiceResponse"));
         assertTrue(catalogAdminMapper.contains("ApiDtos.ServiceUpsert"));
@@ -56,13 +61,16 @@ class ApiApplicationBoundaryContractTest {
     }
 
     @Test
-    void infrastructureContainsProtocolAndPersistenceTranslation() throws IOException {
-        String quote = read("src/main/java/com/xinghuo/quote/infrastructure/LegacyQuoteAdapter.java");
+    void infrastructureContainsPersistenceTranslationWhileProtocolDtosStayAtWebBoundary() throws IOException {
+        String quote = read("src/main/java/com/xinghuo/quote/infrastructure/QuotePersistenceAdapter.java");
         String order = read("src/main/java/com/xinghuo/order/infrastructure/LegacyOrderAdapter.java");
         String catalog = read("src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java");
 
-        assertTrue(quote.contains("PublicQuoteRequest"));
-        assertTrue(quote.contains("ApiDtos.QuoteResponse"));
+        assertTrue(quote.contains("com.xinghuo.repository.QuoteRepository"));
+        assertTrue(quote.contains("QuoteAdminView"));
+        assertTrue(quote.contains("QuoteLeadView"));
+        assertTrue(quote.contains("ServletRequestAttributes"));
+        assertFalse(quote.contains("com.xinghuo.dto"));
         assertTrue(order.contains("ApiDtos.OrderPublicResponse"));
 
         assertTrue(catalog.contains("com.xinghuo.model.ServiceItem"));
@@ -79,6 +87,16 @@ class ApiApplicationBoundaryContractTest {
                 .contains("record QuoteSubmissionCommand"));
         assertTrue(read("src/main/java/com/xinghuo/quote/application/QuoteSubmissionResult.java")
                 .contains("record QuoteSubmissionResult"));
+        assertTrue(read("src/main/java/com/xinghuo/quote/application/QuoteAdminView.java")
+                .contains("record QuoteAdminView"));
+        assertTrue(read("src/main/java/com/xinghuo/quote/application/QuoteLeadView.java")
+                .contains("record QuoteLeadView"));
+        assertTrue(read("src/main/java/com/xinghuo/quote/application/QuoteCrmUpdateCommand.java")
+                .contains("record QuoteCrmUpdateCommand"));
+        assertTrue(read("src/main/java/com/xinghuo/quote/application/QuoteStatusUpdateCommand.java")
+                .contains("record QuoteStatusUpdateCommand"));
+        assertTrue(read("src/main/java/com/xinghuo/quote/application/QuoteConvertCommand.java")
+                .contains("record QuoteConvertCommand"));
         assertTrue(read("src/main/java/com/xinghuo/order/application/OrderPublicView.java")
                 .contains("record OrderPublicView"));
         assertTrue(read("src/main/java/com/xinghuo/order/application/PublicCaseView.java")

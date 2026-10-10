@@ -11,7 +11,7 @@ import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.ServiceItem;
 import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.service.AuditService;
-import com.xinghuo.service.TaxonomyService;
+import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -30,9 +30,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class CatalogPersistenceAdapter implements CatalogPort {
     private final ServiceItemRepository repo;
     private final AuditService audit;
-    private final TaxonomyService taxonomy;
+    private final TaxonomyApplicationService taxonomy;
 
-    public CatalogPersistenceAdapter(ServiceItemRepository repo, AuditService audit, TaxonomyService taxonomy) {
+    public CatalogPersistenceAdapter(
+            ServiceItemRepository repo, AuditService audit, TaxonomyApplicationService taxonomy) {
         this.repo = repo;
         this.audit = audit;
         this.taxonomy = taxonomy;
@@ -86,7 +87,7 @@ public class CatalogPersistenceAdapter implements CatalogPort {
     public CatalogAdminServiceView create(CatalogServiceCommand command, String operator) {
         validatePrice(command);
         if (repo.findBySlug(command.slug()).isPresent()) {
-            throw new ConflictException("\u670d\u52a1\u6807\u8bc6\u5df2\u5b58\u5728");
+            throw new ConflictException("服务标识已存在");
         }
 
         Instant now = Instant.now();
@@ -131,7 +132,7 @@ public class CatalogPersistenceAdapter implements CatalogPort {
         repo.findBySlug(command.slug())
                 .filter(existing -> !existing.getId().equals(id))
                 .ifPresent(existing -> {
-                    throw new ConflictException("\u670d\u52a1\u6807\u8bc6\u5df2\u5b58\u5728");
+                    throw new ConflictException("服务标识已存在");
                 });
 
         ServiceItem.PriceMode priceMode = mode(command.priceMode());
@@ -169,7 +170,7 @@ public class CatalogPersistenceAdapter implements CatalogPort {
         item.setStatus(ServiceItem.Status.OFFLINE);
         item.setUpdatedAt(Instant.now());
         audit.log("SERVICE_OFFLINE", "SERVICE", id.toString(), operator,
-                before, adminView(item), "\u540e\u53f0\u4e0b\u7ebf", currentRequest());
+                before, adminView(item), "后台下线", currentRequest());
     }
 
     @Override
@@ -185,24 +186,24 @@ public class CatalogPersistenceAdapter implements CatalogPort {
         item.setUpdatedAt(Instant.now());
         CatalogAdminServiceView after = adminView(item);
         audit.log("SERVICE_RESTORE", "SERVICE", id.toString(), operator,
-                before, after, "\u6062\u590d\u670d\u52a1\u9879\u76ee\u4e0a\u67b6", currentRequest());
+                before, after, "恢复服务项目上架", currentRequest());
         return after;
     }
 
     private void validatePrice(CatalogServiceCommand command) {
         ServiceItem.PriceMode priceMode = mode(command.priceMode());
         if (priceMode == ServiceItem.PriceMode.FIXED && command.priceFixed() == null) {
-            throw new BadRequestException("\u56fa\u5b9a\u4ef7\u683c\u6a21\u5f0f\u5fc5\u987b\u586b\u5199\u56fa\u5b9a\u4ef7");
+            throw new BadRequestException("固定价格模式必须填写固定价");
         }
         if (priceMode == ServiceItem.PriceMode.RANGE
                 && (command.priceMin() == null
                 || command.priceMax() == null
                 || command.priceMin().compareTo(command.priceMax()) > 0)) {
-            throw new BadRequestException("\u533a\u95f4\u4ef7\u683c\u5fc5\u987b\u586b\u5199\u5408\u6cd5\u7684\u6700\u4f4e\u4ef7\u548c\u6700\u9ad8\u4ef7");
+            throw new BadRequestException("区间价格必须填写合法的最低价和最高价");
         }
         for (BigDecimal price : Arrays.asList(command.priceFixed(), command.priceMin(), command.priceMax())) {
             if (price != null && price.signum() < 0) {
-                throw new BadRequestException("\u4ef7\u683c\u4e0d\u80fd\u4e3a\u8d1f\u6570");
+                throw new BadRequestException("价格不能为负数");
             }
         }
     }
@@ -274,7 +275,7 @@ public class CatalogPersistenceAdapter implements CatalogPort {
         try {
             return ServiceItem.PriceMode.valueOf(value.toUpperCase(Locale.ROOT));
         } catch (Exception e) {
-            throw new BadRequestException("\u975e\u6cd5\u4ef7\u683c\u6a21\u5f0f");
+            throw new BadRequestException("非法价格模式");
         }
     }
 
@@ -282,7 +283,7 @@ public class CatalogPersistenceAdapter implements CatalogPort {
         try {
             return ServiceItem.Status.valueOf(value.toUpperCase(Locale.ROOT));
         } catch (Exception e) {
-            throw new BadRequestException("\u975e\u6cd5\u670d\u52a1\u72b6\u6001");
+            throw new BadRequestException("非法服务状态");
         }
     }
 

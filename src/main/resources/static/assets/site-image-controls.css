@@ -1,4 +1,5 @@
 @import url("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03");
+@import url("/assets/vnext-account-submit-v3.css?v=20261010ui03");
 /* One shared mask for the front page and the editor. */
 body[data-page="home"] #homeHero.image-controlled-background.has-background::after,
 body:is(.admin-solid-ui,.admin-control-center-v2) #heroBackgroundLivePreview.image-controlled-background::after {

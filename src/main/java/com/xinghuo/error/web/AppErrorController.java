@@ -1,4 +1,4 @@
-package com.xinghuo.controller;
+package com.xinghuo.error.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

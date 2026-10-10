@@ -1,8 +1,7 @@
-package com.xinghuo.controller;
+package com.xinghuo.quote.web;
 
 import com.xinghuo.dto.QuoteLeadDtos;
 import com.xinghuo.quote.application.QuoteApplicationService;
-import com.xinghuo.quote.web.QuoteWebMapper;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.Generated;

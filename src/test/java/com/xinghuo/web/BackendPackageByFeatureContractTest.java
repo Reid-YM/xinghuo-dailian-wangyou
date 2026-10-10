@@ -92,12 +92,16 @@ class BackendPackageByFeatureContractTest {
     @Test
     void adminQuoteFlowsConsumeQuoteApplicationBoundary() throws IOException {
         String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
-        String leads = read("src/main/java/com/xinghuo/controller/AdminLeadController.java");
+        String leads = read("src/main/java/com/xinghuo/quote/web/AdminLeadController.java");
 
         assertTrue(admin.contains("com.xinghuo.quote.application.QuoteApplicationService"));
+        assertTrue(leads.contains("package com.xinghuo.quote.web;"));
         assertTrue(leads.contains("com.xinghuo.quote.application.QuoteApplicationService"));
+        assertTrue(leads.contains("@RequestMapping(value={\"/api/admin/leads\"})"));
+        assertTrue(leads.contains("QuoteWebMapper.toResponse"));
         assertFalse(admin.contains("import com.xinghuo.service.QuoteService;"));
         assertFalse(leads.contains("import com.xinghuo.service.QuoteService;"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/AdminLeadController.java")));
     }
 
     @Test

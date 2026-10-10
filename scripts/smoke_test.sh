@@ -42,6 +42,7 @@ check_contains /records '<div id="root"></div>'
 check_code /vnext/assets/app.js 200
 check_code /vnext/assets/app.css 200
 check_code /assets/vnext-formal-ui.css 200
+check_code /assets/vnext-public-finish-v4.css 200
 
 # /vnext/ 继续作为 noindex 的直接预览入口和故障排查入口。
 check_code /vnext/ 200
@@ -80,6 +81,9 @@ check_code /console/orders 302
 check_code /console/security 302
 check_code /account/login 200
 check_code /account/register 200
+check_code /account/reset 200
+check_contains /account/login 'vnext-public-finish-v4.css?v=20261010ui04'
+check_contains /guides 'vnext-public-finish-v4.css?v=20261010ui04'
 check_code /rules 200
 check_code /privacy 200
 check_code /contact 200

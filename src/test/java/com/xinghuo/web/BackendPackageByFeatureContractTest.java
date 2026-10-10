@@ -42,6 +42,17 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
+    void adminServiceCrudConsumesCatalogApplicationBoundary() throws IOException {
+        String controller = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
+
+        assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
+        assertTrue(controller.contains("CatalogAdminWebMapper.toCommand"));
+        assertTrue(controller.contains("CatalogAdminWebMapper.toResponse"));
+        assertTrue(controller.contains("CatalogAdminWebMapper.toResponses"));
+        assertFalse(controller.contains("import com.xinghuo.service.ServiceCatalogService;"));
+    }
+
+    @Test
     void applicationLayerDoesNotReachIntoLegacyPersistence() throws IOException {
         for (String file : new String[] {
                 "src/main/java/com/xinghuo/quote/application/QuoteApplicationService.java",

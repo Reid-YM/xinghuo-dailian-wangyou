@@ -48,17 +48,26 @@ class MobileVisualBoundaryContractTest {
     }
 
     @Test
-    void controllerConsumesApplicationAndWebBoundary() throws IOException {
-        String controller = read("src/main/java/com/xinghuo/controller/MobileVisualConfigController.java");
-        assertTrue(controller.contains("com.xinghuo.mobilevisual.application.MobileVisualConfigApplicationService"));
-        assertTrue(controller.contains("com.xinghuo.mobilevisual.web.MobileVisualConfigWebMapper"));
+    void controllerLivesInFeatureWebBoundaryAndKeepsRoutesAndValidation() throws IOException {
+        String controller = read("src/main/java/com/xinghuo/mobilevisual/web/MobileVisualConfigController.java");
+        assertTrue(controller.contains("/api/public/mobile-visual-config"));
+        assertTrue(controller.contains("/api/admin/mobile-visual-config"));
+        assertTrue(controller.contains("MobileVisualConfigApplicationService publicConfigs"));
+        assertTrue(controller.contains("MobileVisualConfigAdminApplicationService adminConfigs"));
         assertTrue(controller.contains("MobileVisualConfigWebMapper.toCommand"));
         assertTrue(controller.contains("MobileVisualConfigWebMapper.toResponse"));
-        assertFalse(controller.contains("import com.xinghuo.service.MobileVisualConfigService;"));
+        assertTrue(controller.contains("@NotNull @Min(0) @Max(100)"));
+        assertTrue(controller.contains("@NotNull @Min(0) @Max(24)"));
+        assertTrue(controller.contains("@Size(max = 500)"));
+        assertTrue(controller.contains("request.getAttribute(\"requestId\")"));
+        assertTrue(controller.contains("request.getHeader(\"X-Request-Id\")"));
+        assertFalse(controller.contains("AuditService"));
+        assertFalse(controller.contains("AuditLogRepository"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/MobileVisualConfigController.java")));
     }
 
     @Test
-    void persistenceAdapterOwnsFallbackAndSettingsPersistence() throws IOException {
+    void settingsPersistenceAdapterOwnsFallbackAndSettingsPersistence() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/mobilevisual/infrastructure/MobileVisualConfigPersistenceAdapter.java");
         assertTrue(adapter.contains("implements MobileVisualConfigPort"));
         assertTrue(adapter.contains("com.xinghuo.repository.SiteSettingRepository"));
@@ -72,8 +81,20 @@ class MobileVisualBoundaryContractTest {
     }
 
     @Test
-    void legacyMobileVisualServiceStaysRetired() throws IOException {
+    void auditPersistenceAdapterOwnsAuditRepositoryAndStableAction() throws IOException {
+        String adapter = read("src/main/java/com/xinghuo/mobilevisual/infrastructure/MobileVisualConfigAuditPersistenceAdapter.java");
+        assertTrue(adapter.contains("implements MobileVisualConfigAuditPort"));
+        assertTrue(adapter.contains("AuditLogRepository"));
+        assertTrue(adapter.contains("MOBILE_VISUAL_CONFIG_UPDATE"));
+        assertTrue(adapter.contains("SITE_SETTINGS"));
+        assertTrue(adapter.contains("mobile-background"));
+        assertFalse(adapter.contains("jakarta.servlet"));
+    }
+
+    @Test
+    void legacyMobileVisualServiceAndGlobalControllerStayRetired() throws IOException {
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/service/MobileVisualConfigService.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/MobileVisualConfigController.java")));
         try (Stream<Path> files = Files.walk(ROOT.resolve("src/main/java"))) {
             for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
                 assertFalse(Files.readString(file).contains("com.xinghuo.service.MobileVisualConfigService"),

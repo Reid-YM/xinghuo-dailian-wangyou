@@ -81,9 +81,16 @@ class SiteSettingBoundaryContractTest {
 
     @Test
     void allOtherKnownConsumersUseSiteSettingApplicationBoundary() throws IOException {
-        String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        String publicApi = read("src/main/java/com/xinghuo/sitesetting/web/PublicSiteSettingController.java");
+        assertTrue(publicApi.contains("package com.xinghuo.sitesetting.web;"));
         assertTrue(publicApi.contains("com.xinghuo.sitesetting.application.SiteSettingApplicationService"));
+        assertTrue(publicApi.contains("@RequestMapping(value={\"/api/public/site-settings\"})"));
+        assertTrue(publicApi.contains("siteSettings.publicSettings()"));
         assertFalse(publicApi.contains("com.xinghuo.service.SiteSettingService"));
+
+        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
+        assertFalse(legacyPublicApi.contains("SiteSettingApplicationService"));
+        assertFalse(legacyPublicApi.contains("/public/site-settings"));
 
         String siteConfigWrites = read("src/main/java/com/xinghuo/siteconfig/application/SiteConfigWriteApplicationService.java");
         assertTrue(siteConfigWrites.contains("com.xinghuo.sitesetting.application.SiteSettingApplicationService"));

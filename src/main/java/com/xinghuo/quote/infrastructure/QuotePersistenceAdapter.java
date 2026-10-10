@@ -1,5 +1,6 @@
 package com.xinghuo.quote.infrastructure;
 
+import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.Quote;
@@ -17,8 +18,7 @@ import com.xinghuo.quote.application.QuoteStatusUpdateCommand;
 import com.xinghuo.quote.application.QuoteSubmissionCommand;
 import com.xinghuo.quote.application.QuoteSubmissionResult;
 import com.xinghuo.repository.QuoteRepository;
-import com.xinghuo.service.AuditService;
-import com.xinghuo.service.UploadService;
+import com.xinghuo.upload.infrastructure.UploadService;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;

@@ -53,6 +53,18 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
+    void pageControllerConsumesCatalogApplicationProjection() throws IOException {
+        String controller = read("src/main/java/com/xinghuo/controller/PageController.java");
+
+        assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
+        assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogPageServiceView"));
+        assertTrue(controller.contains("publicPageItems()"));
+        assertTrue(controller.contains("publicPageBySlug(slug)"));
+        assertFalse(controller.contains("import com.xinghuo.service.ServiceCatalogService;"));
+        assertFalse(controller.contains("import com.xinghuo.model.ServiceItem;"));
+    }
+
+    @Test
     void applicationLayerDoesNotReachIntoLegacyPersistence() throws IOException {
         for (String file : new String[] {
                 "src/main/java/com/xinghuo/quote/application/QuoteApplicationService.java",

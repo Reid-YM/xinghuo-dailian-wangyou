@@ -2,25 +2,18 @@ package com.xinghuo.service;
 
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
-import com.xinghuo.model.ServiceItem;
 import com.xinghuo.model.SiteConfig;
-import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.repository.SiteConfigRepository;
-import com.xinghuo.service.AuditService;
-import com.xinghuo.siteconfig.application.SiteOperatingStatusView;
-import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
+import com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService;
+import com.xinghuo.siteconfig.web.SiteConfigWebMapper;
 import com.xinghuo.sitesetting.application.SiteSettingApplicationService;
-import com.xinghuo.slot.application.SlotApplicationService;
-import com.xinghuo.slot.web.SlotWebMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import lombok.Generated;
 import org.springframework.stereotype.Service;
@@ -29,17 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SiteConfigService {
     private final SiteConfigRepository repo;
-    private final ServiceItemRepository serviceRepo;
-    private final SlotApplicationService slotService;
     private final AuditService audit;
-    private final SiteRuntimeApplicationService runtimeConfig;
     private final SiteSettingApplicationService siteSettings;
+    private final SiteConfigPublicApplicationService siteConfigQuery;
 
     @Transactional(readOnly=true)
     public ApiDtos.SiteConfigResponse publicConfig() {
-        SiteConfig c = this.get();
-        SiteOperatingStatusView operating = this.runtimeConfig.operatingStatus();
-        return new ApiDtos.SiteConfigResponse(c.getBrandName(), c.getLegalEntityName(), operating.publicCode(), operating.shortText(), operating.ctaLabel(), c.isQuoteEnabled(), c.isOrderQueryEnabled(), c.getHeroTitle(), c.getHeroSubtitle(), c.getStartingPriceMode().name().toLowerCase(Locale.ROOT), this.displayStartingPrice(c), c.isShowStartingPrice(), c.getHomeServiceLimit(), c.getHomeServiceMobileLimit(), c.getHomeServiceDesktopColumns(), c.getHomeServiceMobileColumns(), this.normalizeDensity(c.getServiceCardDensity()).toLowerCase(Locale.ROOT), this.normalizeDensity(c.getServiceCardMobileDensity()).toLowerCase(Locale.ROOT), c.getHeroImage(), c.getHeroImageHeight(), c.getHeroImageFit().toLowerCase(Locale.ROOT), c.getHeroImagePositionX(), c.getHeroImagePositionY(), c.getHeroImageMobileHeight(), c.getHeroImageMobileFit().toLowerCase(Locale.ROOT), c.getHeroImageMobilePositionX(), c.getHeroImageMobilePositionY(), c.getHeroBackgroundImage(), c.getHeroBackgroundMobileImage(), c.getHeroBackgroundMobileHeight(), c.getHeroBackgroundOpacity(), c.getHeroBackgroundFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundPositionX(), c.getHeroBackgroundPositionY(), c.getHeroBackgroundBlur(), c.getHeroBackgroundMobileFit().toLowerCase(Locale.ROOT), c.getHeroBackgroundMobilePositionX(), c.getHeroBackgroundMobilePositionY(), c.getServiceCoverHeight(), c.getServiceCoverFit().toLowerCase(Locale.ROOT), c.getServiceCoverPositionX(), c.getServiceCoverPositionY(), c.getServiceCoverMobileHeight(), c.getServiceCoverMobileFit().toLowerCase(Locale.ROOT), c.getServiceCoverMobilePositionX(), c.getServiceCoverMobilePositionY(), this.splitTags(c.getTrustTags()), this.parseTrustCases(c), c.getTrustCaseHomeLimit(), c.getTrustCaseHomeMobileLimit(), this.parseTrustFaq(c), c.getTrustFaqHomeLimit(), c.getTrustFaqHomeMobileLimit(), c.isAnnouncementEnabled(), c.getAnnouncementText(), c.getContactTitle(), c.getContactIntro(), c.getWechatId(), c.getWechatQrImage(), c.getWechatQrSize(), this.parseContactChannels(c), c.getHomeContactLimit(), c.getHomeContactMobileLimit(), c.getQqId(), c.getQqLink(), c.getPhone(), c.getServiceHours(), c.getTaobaoUrl(), c.getXianyuUrl(), c.getContactNotice(), c.getWecomKefuUrl(), c.getWecomKefuNote(), c.getQuickContactTitle(), c.getTaobaoLabel(), c.getXianyuLabel(), c.getWecomKefuLabel(), c.getWecomKefuButton(), c.getQuoteSuccessText(), c.getOrderHelpText(), c.getFooterText(), c.getSeoTitle(), c.getSeoDescription(), c.getToolUpdatedNote(), c.isToolPublicEnabled(), SlotWebMapper.toPublicResponses(this.slotService.publicHotServices()));
+        return SiteConfigWebMapper.toResponse(this.siteConfigQuery.get());
     }
 
     @Transactional(readOnly=true)
@@ -369,23 +358,6 @@ public class SiteConfigService {
         }
     }
 
-    private BigDecimal displayStartingPrice(SiteConfig c) {
-        if (c.getStartingPriceMode() != SiteConfig.StartingPriceMode.AUTO) {
-            return c.getStartingPrice();
-        }
-        return this.serviceRepo.findPublic(Instant.now()).stream().map(this::entryPrice).filter(Objects::nonNull).min(BigDecimal::compareTo).orElse(c.getStartingPrice());
-    }
-
-    private BigDecimal entryPrice(ServiceItem s) {
-        if (s.getPriceMode() == ServiceItem.PriceMode.FIXED) {
-            return s.getPriceFixed();
-        }
-        if (s.getPriceMode() == ServiceItem.PriceMode.RANGE) {
-            return s.getPriceMin();
-        }
-        return null;
-    }
-
     private SiteConfig.ServiceStatus parseStatus(String s) {
         try {
             return SiteConfig.ServiceStatus.valueOf((String)s.toUpperCase(Locale.ROOT));
@@ -402,72 +374,6 @@ public class SiteConfigService {
         catch (Exception e) {
             throw new BadRequestException("非法起步价模式");
         }
-    }
-
-    private List<String> splitTags(String x) {
-        return x == null || x.isBlank() ? List.of() : Arrays.stream(x.split("\\|")).map(String::trim).filter(s -> !s.isBlank()).toList();
-    }
-
-    private List<ApiDtos.ContactChannelResponse> parseContactChannels(SiteConfig c) {
-        String raw = c.getContactChannels();
-        ArrayList<ApiDtos.ContactChannelResponse> rows = new ArrayList<ApiDtos.ContactChannelResponse>();
-        if (raw != null && !raw.isBlank()) {
-            for (String line : raw.split("\\R")) {
-                if (line == null || line.isBlank()) continue;
-                String[] parts = line.split("\\t", -1);
-                String label = this.clean(parts.length > 0 ? parts[0] : "", 40);
-                String wechat = this.clean(parts.length > 1 ? parts[1] : "", 100);
-                String qr = this.clean(parts.length > 2 ? parts[2] : "", 500);
-                String note = this.clean(parts.length > 3 ? parts[3] : "", 120);
-                String jump = this.clean(parts.length > 4 ? parts[4] : "", 500);
-                if (label == null && wechat == null && qr == null) continue;
-                rows.add(new ApiDtos.ContactChannelResponse((String)(label == null ? "客服" + (rows.size() + 1) : label), wechat, qr, note, jump));
-                if (rows.size() >= 6) break;
-            }
-        }
-        if (rows.isEmpty() && (c.getWechatId() != null || c.getWechatQrImage() != null)) {
-            rows.add(new ApiDtos.ContactChannelResponse("主客服", c.getWechatId(), c.getWechatQrImage(), "发送业务编号确认报价", null));
-        }
-        if (rows.isEmpty()) {
-            rows.add(new ApiDtos.ContactChannelResponse("主客服", "AAC9878", null, "发送业务编号确认报价", null));
-        }
-        return rows;
-    }
-
-    private List<ApiDtos.TrustCaseResponse> parseTrustCases(SiteConfig c) {
-        String raw = c.getTrustCases();
-        ArrayList<ApiDtos.TrustCaseResponse> rows = new ArrayList<ApiDtos.TrustCaseResponse>();
-        if (raw != null && !raw.isBlank()) {
-            for (String line : raw.split("\\R")) {
-                if (line == null || line.isBlank()) continue;
-                String[] parts = line.split("\\t", -1);
-                String tag = this.clean(parts.length > 0 ? parts[0] : "", 40);
-                String title = this.clean(parts.length > 1 ? parts[1] : "", 100);
-                String metric = this.clean(parts.length > 2 ? parts[2] : "", 120);
-                String detail = this.clean(parts.length > 3 ? parts[3] : "", 240);
-                if (title == null && metric == null && detail == null) continue;
-                rows.add(new ApiDtos.TrustCaseResponse(tag == null ? "服务示例" : tag, title == null ? "服务示例" : title, metric == null ? "按进度确认" : metric, detail == null ? "" : detail));
-                if (rows.size() >= 8) break;
-            }
-        }
-        return rows.isEmpty() ? this.defaultTrustCases() : rows;
-    }
-
-    private List<ApiDtos.TrustFaqResponse> parseTrustFaq(SiteConfig c) {
-        String raw = c.getTrustFaq();
-        ArrayList<ApiDtos.TrustFaqResponse> rows = new ArrayList<ApiDtos.TrustFaqResponse>();
-        if (raw != null && !raw.isBlank()) {
-            for (String line : raw.split("\\R")) {
-                if (line == null || line.isBlank()) continue;
-                String[] parts = line.split("\\t", -1);
-                String question = this.clean(parts.length > 0 ? parts[0] : "", 100);
-                String answer = this.clean(parts.length > 1 ? parts[1] : "", 400);
-                if (question == null || answer == null) continue;
-                rows.add(new ApiDtos.TrustFaqResponse(question, answer));
-                if (rows.size() >= 12) break;
-            }
-        }
-        return rows.isEmpty() ? this.defaultTrustFaq() : rows;
     }
 
     private String serializeContactChannels(Object value, SiteConfig fallback) {
@@ -565,14 +471,6 @@ public class SiteConfigService {
         return lines.isEmpty() ? null : String.join("\n", lines);
     }
 
-    private List<ApiDtos.TrustCaseResponse> defaultTrustCases() {
-        return List.of(new ApiDtos.TrustCaseResponse("武器升级", "MW4 武器 1→满级配件", "约 50–90 分钟 · ¥35–60", "按当前等级抵扣，完成后可在业务记录查看进度说明。"), new ApiDtos.TrustCaseResponse("活动任务", "赛季限时任务清单", "约 3–6 小时 · 按任务报价", "先核对剩余任务与截止时间，再确认是否开工。"), new ApiDtos.TrustCaseResponse("迷彩挑战", "剩余挑战补齐", "当天可交付 · 按截图估价", "按剩余迷彩挑战项目确认，正式名称以官方公布为准；网页不收密码。"), new ApiDtos.TrustCaseResponse("排位/段位", "当前段到目标段", "按段差报价 · 异常即停", "开工前确认目标、平台与可操作时间，异常及时沟通。"));
-    }
-
-    private List<ApiDtos.TrustFaqResponse> defaultTrustFaq() {
-        return List.of(new ApiDtos.TrustFaqResponse("怎么查进度？", "提交后会生成业务编号，在「业务记录」输入即可查看当前状态和客服备注。"), new ApiDtos.TrustFaqResponse("要不要给密码？", "网页、查询页、截图都不要发密码、验证码或令牌。具体上号方式加微信后单独确认。"), new ApiDtos.TrustFaqResponse("怎么付款？", "确认报价后走淘宝或闲鱼担保，网页不收钱。"), new ApiDtos.TrustFaqResponse("能取消吗？", "未开工可取消；已开工按完成进度核对后退剩余部分。"), new ApiDtos.TrustFaqResponse("支持哪些平台？", "Steam、Battle.net、PlayStation、Xbox、Switch 2 等平台按具体游戏确认。"), new ApiDtos.TrustFaqResponse("排位会不会掉？", "异常立即停单并沟通，不硬冲。排位类服务会先确认当前段位、目标段位和风险。"), new ApiDtos.TrustFaqResponse("截图怎么发？", "询价页可上传任务截图，也可以复制业务编号后加微信补发。截图里不要包含密码或验证码。"), new ApiDtos.TrustFaqResponse("多久回复？", "客服时间通常为 10:00–24:00，高峰期会按业务编号顺序处理。"));
-    }
-
     private String stringValue(Object value) {
         return value == null ? null : String.valueOf(value);
     }
@@ -614,13 +512,10 @@ public class SiteConfigService {
     }
 
     @Generated
-    public SiteConfigService(SiteConfigRepository repo, ServiceItemRepository serviceRepo, SlotApplicationService slotService, AuditService audit, SiteRuntimeApplicationService runtimeConfig, SiteSettingApplicationService siteSettings) {
+    public SiteConfigService(SiteConfigRepository repo, AuditService audit, SiteSettingApplicationService siteSettings, SiteConfigPublicApplicationService siteConfigQuery) {
         this.repo = repo;
-        this.serviceRepo = serviceRepo;
-        this.slotService = slotService;
         this.audit = audit;
-        this.runtimeConfig = runtimeConfig;
         this.siteSettings = siteSettings;
+        this.siteConfigQuery = siteConfigQuery;
     }
 }
-

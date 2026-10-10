@@ -16,8 +16,7 @@ import com.xinghuo.model.HotSlot;
 import com.xinghuo.model.ServiceItem;
 import com.xinghuo.repository.HotSlotRepository;
 import com.xinghuo.repository.ServiceItemRepository;
-import com.xinghuo.service.AuditService;
-import com.xinghuo.service.TaxonomyService;
+import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class SlotService {
     private final HotSlotRepository repo;
     private final ServiceItemRepository services;
     private final AuditService audit;
-    private final TaxonomyService taxonomy;
+    private final TaxonomyApplicationService taxonomy;
 
     @Transactional(readOnly=true)
     public List<ApiDtos.ServiceResponse> publicHotServices() {
@@ -72,10 +71,10 @@ public class SlotService {
             item = null;
         }
         if (mode == HotSlot.Mode.MANUAL && item == null) {
-            throw new BadRequestException("\u624b\u52a8\u6307\u5b9a\u6a21\u5f0f\u5fc5\u987b\u9009\u62e9\u670d\u52a1");
+            throw new BadRequestException("手动指定模式必须选择服务");
         }
         if (!(item == null || item.isActive() && item.getStatus() != ServiceItem.Status.OFFLINE && this.taxonomy.publicAllowed(item.getGameCode(), item.getCategory()) && (item.getExpiresAt() == null || item.getExpiresAt().isAfter(Instant.now())))) {
-            throw new BadRequestException("\u8be5\u670d\u52a1\u5f53\u524d\u4e0d\u53ef\u7528\u4e8e\u9996\u9875\u5c55\u793a");
+            throw new BadRequestException("该服务当前不可用于首页展示");
         }
         s.setMode(mode);
         s.setService(item);
@@ -94,7 +93,7 @@ public class SlotService {
             return HotSlot.Mode.valueOf(s.toUpperCase(Locale.ROOT));
         }
         catch (Exception e) {
-            throw new BadRequestException("\u975e\u6cd5\u5c55\u793a\u4f4d\u6a21\u5f0f");
+            throw new BadRequestException("非法展示位模式");
         }
     }
 
@@ -103,12 +102,10 @@ public class SlotService {
     }
 
     @Generated
-    public SlotService(HotSlotRepository repo, ServiceItemRepository services, AuditService audit, TaxonomyService taxonomy) {
+    public SlotService(HotSlotRepository repo, ServiceItemRepository services, AuditService audit, TaxonomyApplicationService taxonomy) {
         this.repo = repo;
         this.services = services;
         this.audit = audit;
         this.taxonomy = taxonomy;
     }
 }
-
-

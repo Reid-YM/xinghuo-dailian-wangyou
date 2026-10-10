@@ -22,9 +22,10 @@ import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.record.application.RecordApplicationService;
 import com.xinghuo.record.web.RecordWebMapper;
-import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.UploadService;
+import com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService;
 import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
+import com.xinghuo.siteconfig.web.SiteConfigWebMapper;
 import com.xinghuo.sitesetting.application.SiteSettingApplicationService;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
@@ -63,7 +64,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping(value={"/api"})
 public class PublicApiController {
     private static final int REQUEST_BUCKET_PER_MINUTE = 60;
-    private final SiteConfigService config;
+    private final SiteConfigPublicApplicationService siteConfig;
     private final SiteRuntimeApplicationService runtimeConfig;
     private final CatalogApplicationService services;
     private final QuoteApplicationService quotes;
@@ -82,7 +83,7 @@ public class PublicApiController {
 
     @GetMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse config() {
-        return this.config.publicConfig();
+        return SiteConfigWebMapper.toResponse(this.siteConfig.get());
     }
 
     @GetMapping(value={"/public/game-status"})
@@ -246,8 +247,8 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses, SiteSettingApplicationService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
-        this.config = config;
+    public PublicApiController(SiteConfigPublicApplicationService siteConfig, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TrackingApplicationService tracking, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses, SiteSettingApplicationService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+        this.siteConfig = siteConfig;
         this.runtimeConfig = runtimeConfig;
         this.services = services;
         this.quotes = quotes;

@@ -65,4 +65,24 @@ class FinalLegacyRetirementContractTest {
             }
         }
     }
+
+    @Test
+    void catalogLegacyServiceIsRemovedAfterOwnedPortAndPersistenceAdapterLanded() throws IOException {
+        Path legacyService = ROOT.resolve("src/main/java/com/xinghuo/service/ServiceCatalogService.java");
+        Path legacyAdapter = ROOT.resolve("src/main/java/com/xinghuo/catalog/infrastructure/LegacyCatalogAdapter.java");
+        Path legacyPort = ROOT.resolve("src/main/java/com/xinghuo/catalog/application/CatalogLegacyPort.java");
+        Path port = ROOT.resolve("src/main/java/com/xinghuo/catalog/application/CatalogPort.java");
+        Path adapter = ROOT.resolve("src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java");
+
+        assertFalse(Files.exists(legacyService));
+        assertFalse(Files.exists(legacyAdapter));
+        assertFalse(Files.exists(legacyPort));
+        assertTrue(Files.exists(port));
+        assertTrue(Files.exists(adapter));
+
+        String application = Files.readString(ROOT.resolve(
+                "src/main/java/com/xinghuo/catalog/application/CatalogApplicationService.java"));
+        assertTrue(application.contains("CatalogPort"));
+        assertFalse(application.contains("CatalogLegacyPort"));
+    }
 }

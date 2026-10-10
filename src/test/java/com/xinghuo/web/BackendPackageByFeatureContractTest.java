@@ -65,6 +65,17 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
+    void seoControllerConsumesCatalogApplicationProjection() throws IOException {
+        String controller = read("src/main/java/com/xinghuo/controller/SeoController.java");
+
+        assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
+        assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogPageServiceView"));
+        assertTrue(controller.contains("publicPageItems()"));
+        assertFalse(controller.contains("import com.xinghuo.service.ServiceCatalogService;"));
+        assertFalse(controller.contains("import com.xinghuo.model.ServiceItem;"));
+    }
+
+    @Test
     void applicationLayerDoesNotReachIntoLegacyPersistence() throws IOException {
         for (String file : new String[] {
                 "src/main/java/com/xinghuo/quote/application/QuoteApplicationService.java",
@@ -96,12 +107,15 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
-    void legacyServicesAreConfinedToInfrastructureAdapters() throws IOException {
+    void remainingLegacyServicesAreConfinedAndCatalogUsesOwnedPersistenceAdapter() throws IOException {
         assertTrue(read("src/main/java/com/xinghuo/quote/infrastructure/LegacyQuoteAdapter.java")
                 .contains("com.xinghuo.service.QuoteService"));
         assertTrue(read("src/main/java/com/xinghuo/order/infrastructure/LegacyOrderAdapter.java")
                 .contains("com.xinghuo.service.OrderService"));
-        assertTrue(read("src/main/java/com/xinghuo/catalog/infrastructure/LegacyCatalogAdapter.java")
-                .contains("com.xinghuo.service.ServiceCatalogService"));
+
+        String catalog = read("src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java");
+        assertTrue(catalog.contains("implements CatalogPort"));
+        assertTrue(catalog.contains("com.xinghuo.repository.ServiceItemRepository"));
+        assertFalse(catalog.contains("com.xinghuo.service.ServiceCatalogService"));
     }
 }

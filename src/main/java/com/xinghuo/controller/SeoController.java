@@ -1,9 +1,9 @@
 package com.xinghuo.controller;
 
-import com.xinghuo.model.GameCatalog;
-import com.xinghuo.model.ServiceItem;
+import com.xinghuo.catalog.application.CatalogApplicationService;
+import com.xinghuo.catalog.application.CatalogPageServiceView;
 import com.xinghuo.guide.GuideContentService;
-import com.xinghuo.service.ServiceCatalogService;
+import com.xinghuo.model.GameCatalog;
 import com.xinghuo.service.TaxonomyService;
 import java.time.LocalDate;
 import lombok.Generated;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SeoController {
     private static final String SITE_URL = "https://wydlgf.cn";
     private static final String LAST_MOD = LocalDate.now().toString();
-    private final ServiceCatalogService services;
+    private final CatalogApplicationService services;
     private final TaxonomyService taxonomy;
     private final GuideContentService guides;
 
@@ -53,7 +53,7 @@ public class SeoController {
             if (game.getSeoSlug() == null || game.getSeoSlug().isBlank()) continue;
             this.appendUrl(xml, "/game/" + game.getSeoSlug(), "weekly", "0.8");
         }
-        for (ServiceItem service : this.services.publicItems()) {
+        for (CatalogPageServiceView service : this.services.publicPageItems()) {
             this.appendUrl(xml, "/service/" + service.getSlug(), "weekly", "0.8");
         }
         for (var guide : this.guides.publicList(null, null, 200)) {
@@ -77,7 +77,7 @@ public class SeoController {
     }
 
     @Generated
-    public SeoController(ServiceCatalogService services, TaxonomyService taxonomy, GuideContentService guides) {
+    public SeoController(CatalogApplicationService services, TaxonomyService taxonomy, GuideContentService guides) {
         this.services = services;
         this.taxonomy = taxonomy;
         this.guides = guides;

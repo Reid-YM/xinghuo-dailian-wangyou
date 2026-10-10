@@ -2,8 +2,8 @@ package com.xinghuo.catalog.application;
 
 import java.util.List;
 
-/** Temporary migration port while catalog behavior is moved out of the legacy service. */
-public interface CatalogLegacyPort {
+/** Catalog-owned persistence and integration boundary. */
+public interface CatalogPort {
     List<CatalogServiceView> publicList();
 
     List<CatalogPageServiceView> publicPageItems();

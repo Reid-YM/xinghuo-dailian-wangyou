@@ -1,5 +1,6 @@
 package com.xinghuo.taxonomy.infrastructure;
 
+import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.ConflictException;
 import com.xinghuo.exception.NotFoundException;
@@ -11,7 +12,6 @@ import com.xinghuo.repository.GamePlatformRepository;
 import com.xinghuo.repository.PlatformCatalogRepository;
 import com.xinghuo.repository.ServiceCategoryCatalogRepository;
 import com.xinghuo.repository.ServiceItemRepository;
-import com.xinghuo.service.AuditService;
 import com.xinghuo.taxonomy.application.TaxonomyCatalogView;
 import com.xinghuo.taxonomy.application.TaxonomyCommands;
 import com.xinghuo.taxonomy.application.TaxonomyPort;

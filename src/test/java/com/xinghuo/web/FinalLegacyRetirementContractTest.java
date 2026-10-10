@@ -143,4 +143,22 @@ class FinalLegacyRetirementContractTest {
         assertTrue(application.contains("RecordPort"));
         assertFalse(application.contains("RecordService"));
     }
+
+    @Test
+    void dashboardLegacyServiceIsRemovedAfterOwnedPortAndPersistenceAdapterLanded() throws IOException {
+        Path legacyService = ROOT.resolve("src/main/java/com/xinghuo/service/DashboardService.java");
+        Path port = ROOT.resolve("src/main/java/com/xinghuo/dashboard/application/DashboardPort.java");
+        Path adapter = ROOT.resolve("src/main/java/com/xinghuo/dashboard/infrastructure/DashboardPersistenceAdapter.java");
+        Path mapper = ROOT.resolve("src/main/java/com/xinghuo/dashboard/web/DashboardWebMapper.java");
+
+        assertFalse(Files.exists(legacyService));
+        assertTrue(Files.exists(port));
+        assertTrue(Files.exists(adapter));
+        assertTrue(Files.exists(mapper));
+
+        String application = Files.readString(ROOT.resolve(
+                "src/main/java/com/xinghuo/dashboard/application/DashboardApplicationService.java"));
+        assertTrue(application.contains("DashboardPort"));
+        assertFalse(application.contains("DashboardService"));
+    }
 }

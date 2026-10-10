@@ -7,9 +7,9 @@ import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.GameStatus;
-import com.xinghuo.model.Quote;
 import com.xinghuo.model.UploadAsset;
 import com.xinghuo.quote.application.QuoteApplicationService;
+import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.service.AdminTestFeedbackService;
 import com.xinghuo.service.DashboardService;
@@ -246,12 +246,13 @@ public class AdminApiController {
 
     @GetMapping(value={"/quotes"})
     List<ApiDtos.QuoteAdminResponse> quotes() {
-        return this.quotes.list();
+        return QuoteWebMapper.toAdminResponses(this.quotes.list());
     }
 
     @PatchMapping(value={"/quotes/{id}/status"})
     ApiDtos.QuoteAdminResponse quoteStatus(@PathVariable UUID id, @Valid @RequestBody ApiDtos.QuoteStatusUpdate r, Authentication a, HttpServletRequest req) {
-        return this.quotes.updateStatus(id, r, a.getName());
+        return QuoteWebMapper.toResponse(
+                this.quotes.updateStatus(id, QuoteWebMapper.toCommand(r), a.getName()));
     }
 
     @DeleteMapping(value={"/quotes/{id}"})
@@ -263,16 +264,17 @@ public class AdminApiController {
 
     @PostMapping(value={"/quotes/{id}/convert"})
     ApiDtos.AdminOrderResponse convertQuote(@PathVariable UUID id, @Valid @RequestBody ApiDtos.QuoteConvertRequest r, Authentication a, HttpServletRequest req) {
-        return this.quotes.convertToOrder(id, r, a.getName());
+        return QuoteWebMapper.toResponse(
+                this.quotes.convertToOrder(id, QuoteWebMapper.toCommand(r), a.getName()));
     }
 
     @GetMapping(value={"/quotes/{id}/image"})
     ResponseEntity<Resource> quoteImage(@PathVariable UUID id) {
-        Quote q = this.quotes.find(id);
-        if (q.getScreenshotAssetId() == null) {
+        var q = this.quotes.find(id);
+        if (q.screenshotAssetId() == null) {
             throw new NotFoundException();
         }
-        return ResponseEntity.ok().contentType(this.uploads.mediaType(q.getScreenshotAssetId())).cacheControl(CacheControl.noStore()).body(this.uploads.load(q.getScreenshotAssetId(), "QUOTE", q.getId().toString()));
+        return ResponseEntity.ok().contentType(this.uploads.mediaType(q.screenshotAssetId())).cacheControl(CacheControl.noStore()).body(this.uploads.load(q.screenshotAssetId(), "QUOTE", q.id().toString()));
     }
 
     @GetMapping(value={"/orders"})

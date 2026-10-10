@@ -1,6 +1,5 @@
 package com.xinghuo.guide.web;
 
-import com.xinghuo.guide.GuideModels;
 import com.xinghuo.guide.application.GuideQueryApplicationService;
 import com.xinghuo.guide.application.GuideQueryModels;
 import com.xinghuo.guide.application.GuideWriteApplicationService;
@@ -41,14 +40,14 @@ public class AdminGuideController {
     }
 
     @PostMapping
-    GuideQueryModels.GuideDetail create(@RequestBody GuideModels.GuideUpsert body, Authentication auth) {
+    GuideQueryModels.GuideDetail create(@RequestBody GuideAdminRequests.GuideUpsert body, Authentication auth) {
         return writes.create(GuideWriteWebMapper.toCommand(body), operator(auth));
     }
 
     @PutMapping("/{id}")
     GuideQueryModels.GuideDetail update(
             @PathVariable Long id,
-            @RequestBody GuideModels.GuideUpsert body,
+            @RequestBody GuideAdminRequests.GuideUpsert body,
             Authentication auth) {
         return writes.update(id, GuideWriteWebMapper.toCommand(body), operator(auth));
     }
@@ -56,7 +55,7 @@ public class AdminGuideController {
     @PatchMapping("/{id}/status")
     GuideQueryModels.GuideDetail status(
             @PathVariable Long id,
-            @RequestBody GuideModels.GuideStatusInput body,
+            @RequestBody GuideAdminRequests.GuideStatusInput body,
             Authentication auth) {
         return writes.setStatus(id, body.status(), body.reason(), operator(auth));
     }
@@ -68,7 +67,7 @@ public class AdminGuideController {
 
     @DeleteMapping("/batch")
     GuideWriteModels.GuideBatchArchiveResult archiveBatch(
-            @RequestBody GuideModels.GuideBatchArchiveRequest body,
+            @RequestBody GuideAdminRequests.GuideBatchArchiveRequest body,
             Authentication auth) {
         String reason = body == null || body.reason() == null || body.reason().isBlank()
                 ? "后台批量归档攻略"
@@ -79,7 +78,7 @@ public class AdminGuideController {
 
     @PostMapping("/archive-all")
     GuideWriteModels.GuideBatchArchiveResult archiveAll(
-            @RequestBody(required = false) GuideModels.GuideBatchArchiveRequest body,
+            @RequestBody(required = false) GuideAdminRequests.GuideBatchArchiveRequest body,
             Authentication auth) {
         String reason = body == null || body.reason() == null || body.reason().isBlank()
                 ? "后台全部归档攻略"
@@ -89,10 +88,10 @@ public class AdminGuideController {
 
     @PostMapping("/import-games")
     GuideWriteModels.GuideImportResult importGames(
-            @RequestBody(required = false) GuideModels.GuideImportRequest body,
+            @RequestBody(required = false) GuideAdminRequests.GuideImportRequest body,
             Authentication auth) {
-        GuideModels.GuideImportRequest actual = body == null
-                ? new GuideModels.GuideImportRequest(true, false, "批量生成多游戏攻略")
+        GuideAdminRequests.GuideImportRequest actual = body == null
+                ? new GuideAdminRequests.GuideImportRequest(true, false, "批量生成多游戏攻略")
                 : body;
         return writes.importGames(GuideWriteWebMapper.toCommand(actual), operator(auth));
     }

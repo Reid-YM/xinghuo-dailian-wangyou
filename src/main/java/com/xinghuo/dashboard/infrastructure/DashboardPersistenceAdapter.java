@@ -4,9 +4,8 @@ import com.xinghuo.dashboard.application.DashboardPort;
 import com.xinghuo.dashboard.application.DashboardView;
 import com.xinghuo.feedback.application.FeedbackApplicationService;
 import com.xinghuo.model.CustomerOrder;
-import com.xinghuo.model.Quote;
+import com.xinghuo.quote.application.QuoteMetricsApplicationService;
 import com.xinghuo.repository.CustomerOrderRepository;
-import com.xinghuo.repository.QuoteRepository;
 import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.tracking.application.TrackingApplicationService;
 import org.springframework.stereotype.Component;
@@ -16,14 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class DashboardPersistenceAdapter implements DashboardPort {
     private final ServiceItemRepository services;
-    private final QuoteRepository quotes;
+    private final QuoteMetricsApplicationService quotes;
     private final CustomerOrderRepository orders;
     private final TrackingApplicationService tracking;
     private final FeedbackApplicationService feedback;
 
     public DashboardPersistenceAdapter(
             ServiceItemRepository services,
-            QuoteRepository quotes,
+            QuoteMetricsApplicationService quotes,
             CustomerOrderRepository orders,
             TrackingApplicationService tracking,
             FeedbackApplicationService feedback) {
@@ -39,7 +38,7 @@ public class DashboardPersistenceAdapter implements DashboardPort {
     public DashboardView get() {
         return new DashboardView(
                 services.count(),
-                quotes.countByStatus(Quote.Status.NEW),
+                quotes.countNew(),
                 orders.countByStatus(CustomerOrder.Status.IN_PROGRESS),
                 orders.countByStatus(CustomerOrder.Status.COMPLETED),
                 tracking.totalCount(),

@@ -13,8 +13,9 @@ class SeoGuideBoundaryContractTest {
 
     @Test
     void seoUsesGuideQueryApplicationBoundary() throws IOException {
-        String source = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/controller/SeoController.java"));
+        String source = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/seo/web/SeoController.java"));
 
+        assertTrue(source.contains("package com.xinghuo.seo.web;"));
         assertTrue(source.contains("com.xinghuo.guide.application.GuideQueryApplicationService"));
         assertTrue(source.contains("guides.publicList(null, null, 200)"));
         assertFalse(source.contains("GuideContentService"));

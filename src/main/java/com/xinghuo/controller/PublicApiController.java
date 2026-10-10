@@ -19,9 +19,7 @@ import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.record.application.RecordApplicationService;
 import com.xinghuo.record.web.RecordWebMapper;
-import com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService;
 import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
-import com.xinghuo.siteconfig.web.SiteConfigWebMapper;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
 import com.xinghuo.upload.infrastructure.UploadService;
@@ -39,7 +37,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,7 +52,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping(value={"/api"})
 public class PublicApiController {
     private static final int REQUEST_BUCKET_PER_MINUTE = 60;
-    private final SiteConfigPublicApplicationService siteConfig;
     private final SiteRuntimeApplicationService runtimeConfig;
     private final CatalogApplicationService services;
     private final QuoteApplicationService quotes;
@@ -66,11 +62,6 @@ public class PublicApiController {
     private final AccountSessionService accountSessions;
     private final RateLimiter rateLimiter;
     private final QuoteContactService quoteContacts;
-
-    @GetMapping(value={"/site-config"})
-    ApiDtos.SiteConfigResponse config() {
-        return SiteConfigWebMapper.toResponse(this.siteConfig.get());
-    }
 
     @GetMapping(value={"/services"})
     List<ApiDtos.ServiceResponse> services() {
@@ -185,8 +176,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigPublicApplicationService siteConfig, SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
-        this.siteConfig = siteConfig;
+    public PublicApiController(SiteRuntimeApplicationService runtimeConfig, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordApplicationService records, UploadService uploads, TaxonomyApplicationService taxonomy, AccountSessionService accountSessions, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.runtimeConfig = runtimeConfig;
         this.services = services;
         this.quotes = quotes;

@@ -1,6 +1,5 @@
 package com.xinghuo.guide.web;
 
-import com.xinghuo.guide.GuideModels;
 import com.xinghuo.guide.application.GuideWriteModels;
 import java.util.List;
 
@@ -8,7 +7,7 @@ public final class GuideWriteWebMapper {
     private GuideWriteWebMapper() {
     }
 
-    public static GuideWriteModels.GuideUpsertCommand toCommand(GuideModels.GuideUpsert input) {
+    public static GuideWriteModels.GuideUpsertCommand toCommand(GuideAdminRequests.GuideUpsert input) {
         if (input == null) {
             return null;
         }
@@ -39,13 +38,13 @@ public final class GuideWriteWebMapper {
                 input.reason());
     }
 
-    public static GuideWriteModels.GuideImportCommand toCommand(GuideModels.GuideImportRequest input) {
+    public static GuideWriteModels.GuideImportCommand toCommand(GuideAdminRequests.GuideImportRequest input) {
         return input == null
                 ? null
                 : new GuideWriteModels.GuideImportCommand(input.publish(), input.refresh(), input.reason());
     }
 
-    private static List<GuideWriteModels.SectionInput> sections(List<GuideModels.SectionInput> values) {
+    private static List<GuideWriteModels.SectionInput> sections(List<GuideAdminRequests.SectionInput> values) {
         return values == null
                 ? null
                 : values.stream()
@@ -61,7 +60,7 @@ public final class GuideWriteWebMapper {
                         .toList();
     }
 
-    private static List<GuideWriteModels.ProductInput> products(List<GuideModels.ProductInput> values) {
+    private static List<GuideWriteModels.ProductInput> products(List<GuideAdminRequests.ProductInput> values) {
         return values == null
                 ? null
                 : values.stream()
@@ -77,7 +76,7 @@ public final class GuideWriteWebMapper {
                         .toList();
     }
 
-    private static List<GuideWriteModels.FaqInput> faqs(List<GuideModels.FaqInput> values) {
+    private static List<GuideWriteModels.FaqInput> faqs(List<GuideAdminRequests.FaqInput> values) {
         return values == null
                 ? null
                 : values.stream()

@@ -13,7 +13,7 @@ class ComponentResponsiveControlsContractTest {
     void backendExposesDesktopAndMobileComponentControls() throws Exception {
         String migration = Files.readString(ROOT.resolve("src/main/resources/db/migration/V60__responsive_component_controls.sql"));
         String dto = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/dto/ApiDtos.java"));
-        String service = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/service/SiteConfigService.java"));
+        String writes = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/siteconfig/infrastructure/SiteConfigWritePersistenceAdapter.java"));
 
         assertTrue(migration.contains("home_service_mobile_limit"));
         assertTrue(migration.contains("home_service_desktop_columns"));
@@ -22,9 +22,9 @@ class ComponentResponsiveControlsContractTest {
         assertTrue(dto.contains("int homeServiceMobileLimit"));
         assertTrue(dto.contains("String serviceCardMobileDensity"));
         assertTrue(dto.contains("String heroBackgroundMobileImage"));
-        assertTrue(service.contains("setHomeServiceMobileLimit"));
-        assertTrue(service.contains("setHeroBackgroundMobileImage"));
-        assertTrue(service.contains("normalizeDensity"));
+        assertTrue(writes.contains("setHomeServiceMobileLimit"));
+        assertTrue(writes.contains("setHeroBackgroundMobileImage"));
+        assertTrue(writes.contains("normalizeDensity"));
     }
 
     @Test

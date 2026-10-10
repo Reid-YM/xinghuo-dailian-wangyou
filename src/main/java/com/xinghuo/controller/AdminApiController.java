@@ -18,10 +18,10 @@ import com.xinghuo.order.web.OrderWebMapper;
 import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
-import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.UploadService;
 import com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService;
 import com.xinghuo.siteconfig.web.SiteConfigWebMapper;
+import com.xinghuo.siteconfig.web.SiteConfigWriteWebService;
 import com.xinghuo.slot.application.SlotApplicationService;
 import com.xinghuo.slot.web.SlotWebMapper;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
@@ -57,7 +57,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping(value={"/api/admin"})
 public class AdminApiController {
     private final DashboardApplicationService dashboard;
-    private final SiteConfigService config;
+    private final SiteConfigWriteWebService configWrites;
     private final SiteConfigPublicApplicationService siteConfigQuery;
     private final CatalogApplicationService services;
     private final QuoteApplicationService quotes;
@@ -105,12 +105,12 @@ public class AdminApiController {
 
     @PatchMapping(value={"/site-config/section/{section}"})
     ApiDtos.SiteConfigResponse updateConfigSection(@PathVariable String section, @RequestBody Map<String, Object> body, Authentication a, HttpServletRequest req) {
-        return this.config.updateSection(section, body, a.getName(), req);
+        return this.configWrites.updateSection(section, body, a.getName(), req);
     }
 
     @PatchMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse updateConfig(@Valid @RequestBody ApiDtos.SiteConfigUpdate r, Authentication a, HttpServletRequest req) {
-        return this.config.update(r, a.getName(), req);
+        return this.configWrites.update(r, a.getName(), req);
     }
 
     @PostMapping(value={"/site-config/image/{slot}"})
@@ -128,14 +128,14 @@ public class AdminApiController {
         this.uploads.bind(asset.getId(), "SITE_CONFIG", key);
         String url = "/api/site-assets/" + String.valueOf(asset.getId());
         if (!"CONTACT_QR".equals(key)) {
-            this.config.updateSiteImage(key, url, a.getName(), req);
+            this.configWrites.updateSiteImage(key, url, a.getName(), req);
         }
         return new ApiDtos.SiteImageUploadResponse(url);
     }
 
     @DeleteMapping(value={"/site-config/image/{slot}"})
     ApiDtos.SiteConfigResponse clearSiteImage(@PathVariable String slot, Authentication a, HttpServletRequest req) {
-        return this.config.updateSiteImage(slot, null, a.getName(), req);
+        return this.configWrites.updateSiteImage(slot, null, a.getName(), req);
     }
 
     @PostMapping(value={"/services/cover-image"})
@@ -372,9 +372,9 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardApplicationService dashboard, SiteConfigService config, SiteConfigPublicApplicationService siteConfigQuery, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotApplicationService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses) {
+    public AdminApiController(DashboardApplicationService dashboard, SiteConfigWriteWebService configWrites, SiteConfigPublicApplicationService siteConfigQuery, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotApplicationService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses) {
         this.dashboard = dashboard;
-        this.config = config;
+        this.configWrites = configWrites;
         this.siteConfigQuery = siteConfigQuery;
         this.services = services;
         this.quotes = quotes;

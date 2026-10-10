@@ -71,12 +71,7 @@ class GameStatusBoundaryContractTest {
         assertTrue(publicQuery.contains("SiteRuntimeApplicationService"));
         assertTrue(publicQuery.contains("runtimeConfig.operatingStatus()"));
 
-        String siteConfig = read("src/main/java/com/xinghuo/service/SiteConfigService.java");
-        assertTrue(siteConfig.contains("com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService"));
-        assertFalse(siteConfig.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
-        assertFalse(siteConfig.contains("com.xinghuo.gamestatus.application.GameStatusView"));
-        assertFalse(siteConfig.contains("import com.xinghuo.model.GameStatus;"));
-        assertFalse(siteConfig.contains("import com.xinghuo.service.GameStatusService;"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/service/SiteConfigService.java")));
     }
 
     @Test

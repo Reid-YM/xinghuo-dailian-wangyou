@@ -402,7 +402,7 @@ public class PageController {
      * JSON-LD 安全化。
      *
      * <p>这些值经 {@code th:utext} 不转义写入 {@code <script type="application/ld+json">}，
-     * 而 Jackson 的 {@code toString()} 只转义引号、反斜杠与控制字符，<b>不转义 {@code <></b>。
+     * 而 Jackson 的 {@code toString()} 只转义引号、反斜杠与控制字符，<b>不转义 {@code <}</b>。
      * 只要标题、摘要或 FAQ 里出现 {@code </script>}，就能提前闭合脚本元素并注入 HTML。
      * CSP 会挡掉注入的内联脚本执行，但 {@code meta refresh} 跳转与样式注入仍然生效。
      *

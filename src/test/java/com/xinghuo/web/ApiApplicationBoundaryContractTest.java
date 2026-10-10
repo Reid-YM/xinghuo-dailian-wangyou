@@ -56,20 +56,21 @@ class ApiApplicationBoundaryContractTest {
     }
 
     @Test
-    void infrastructureContainsLegacyTranslation() throws IOException {
+    void infrastructureContainsProtocolAndPersistenceTranslation() throws IOException {
         String quote = read("src/main/java/com/xinghuo/quote/infrastructure/LegacyQuoteAdapter.java");
         String order = read("src/main/java/com/xinghuo/order/infrastructure/LegacyOrderAdapter.java");
-        String catalog = read("src/main/java/com/xinghuo/catalog/infrastructure/LegacyCatalogAdapter.java");
+        String catalog = read("src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java");
 
         assertTrue(quote.contains("PublicQuoteRequest"));
         assertTrue(quote.contains("ApiDtos.QuoteResponse"));
         assertTrue(order.contains("ApiDtos.OrderPublicResponse"));
-        assertTrue(catalog.contains("ApiDtos.ServiceResponse"));
-        assertTrue(catalog.contains("ApiDtos.ServiceUpsert"));
-        assertTrue(catalog.contains("ApiDtos.AdminServiceResponse"));
+
         assertTrue(catalog.contains("com.xinghuo.model.ServiceItem"));
+        assertTrue(catalog.contains("com.xinghuo.repository.ServiceItemRepository"));
         assertTrue(catalog.contains("CatalogPageServiceView"));
+        assertTrue(catalog.contains("CatalogServiceCommand"));
         assertTrue(catalog.contains("ServletRequestAttributes"));
+        assertFalse(catalog.contains("com.xinghuo.dto"));
     }
 
     @Test

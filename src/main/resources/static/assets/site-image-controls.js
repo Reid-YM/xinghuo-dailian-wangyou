@@ -1,5 +1,23 @@
 /* Shared image layout engine for public rendering. Admin previews consume the pure resolvers only. */
 (function () {
+  function ensureStylesheet(marker, href) {
+    if (!document.head || document.querySelector(`link[${marker}]`)) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    link.setAttribute(marker, '1');
+    document.head.appendChild(link);
+  }
+
+  const body = document.body;
+  const page = body?.dataset?.page || '';
+  const deepPublic = page === 'service-detail' || page === 'record-detail' || body?.classList.contains('account-center-page');
+  if (deepPublic) ensureStylesheet('data-vnext-legacy-bridge', '/assets/vnext-legacy-bridge-v3.css?v=20261010ui03');
+  if (page === 'account-submit') {
+    ensureStylesheet('data-vnext-legacy-bridge', '/assets/vnext-legacy-bridge-v3.css?v=20261010ui03');
+    ensureStylesheet('data-vnext-account-submit-bridge', '/assets/vnext-account-submit-v3.css?v=20261010ui03');
+  }
+
   const number = (v, min, max, fallback) => Number.isFinite(Number(v)) && v !== '' && v != null
     ? Math.max(min, Math.min(max, Number(v))) : fallback;
   const fit = v => ['cover', 'contain', 'fill'].includes(String(v).toLowerCase()) ? String(v).toLowerCase() : 'cover';

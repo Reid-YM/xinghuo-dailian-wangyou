@@ -45,6 +45,8 @@ check_code /assets/vnext-formal-ui.css 200
 check_code /assets/vnext-public-finish-v4.css 200
 check_code /assets/vnext-final-qa-fix-v5.css 200
 check_code /assets/vnext-mobile-focus-v7.css 200
+check_code /assets/vnext-mobile-polish-v8.css 200
+check_contains /assets/site-shell.js 'vnext-mobile-polish-v8.css?v=20261010ui08'
 
 # /vnext/ 继续作为 noindex 的直接预览入口和故障排查入口。
 check_code /vnext/ 200

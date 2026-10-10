@@ -4,5 +4,5 @@ import java.util.Map;
 
 public interface FrontendControlPort {
     Map<String, String> loadAll();
-    void put(String key, String value);
+    void putAll(Map<String, String> values);
 }

@@ -1,5 +1,6 @@
 package com.xinghuo.catalog.infrastructure;
 
+import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.catalog.application.CatalogAdminServiceView;
 import com.xinghuo.catalog.application.CatalogPageServiceView;
 import com.xinghuo.catalog.application.CatalogPort;
@@ -10,7 +11,6 @@ import com.xinghuo.exception.ConflictException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.ServiceItem;
 import com.xinghuo.repository.ServiceItemRepository;
-import com.xinghuo.service.AuditService;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;

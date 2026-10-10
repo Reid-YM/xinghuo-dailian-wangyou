@@ -9,8 +9,6 @@ import com.xinghuo.model.UploadAsset;
 import com.xinghuo.order.application.OrderApplicationService;
 import com.xinghuo.order.domain.OrderProgressAsset;
 import com.xinghuo.order.web.OrderWebMapper;
-import com.xinghuo.record.application.RecordApplicationService;
-import com.xinghuo.record.web.RecordWebMapper;
 import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
 import com.xinghuo.upload.infrastructure.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +32,6 @@ public class PublicApiController {
     private static final int REQUEST_BUCKET_PER_MINUTE = 60;
     private final SiteRuntimeApplicationService runtimeConfig;
     private final OrderApplicationService orders;
-    private final RecordApplicationService records;
     private final UploadService uploads;
     private final RateLimiter rateLimiter;
 
@@ -47,15 +44,6 @@ public class PublicApiController {
     @PostMapping(value={"/uploads/quote"})
     ApiDtos.UploadResponse quoteUpload(@RequestParam(value="file") MultipartFile file) {
         return new ApiDtos.UploadResponse(this.uploads.storeImage(file, UploadAsset.Kind.QUOTE_SCREENSHOT).getId());
-    }
-
-    @GetMapping(value={"/records/{businessNo}"})
-    ApiDtos.RecordPublicResponse record(@PathVariable String businessNo, HttpServletRequest req) {
-        if (!this.runtimeConfig.orderQueryEnabled()) {
-            throw new BadRequestException("进度查询正在维护，请联系客服查询");
-        }
-        this.limitByIp(req, "pub:record");
-        return RecordWebMapper.toResponse(this.records.get(businessNo));
     }
 
     @GetMapping(value={"/records/{businessNo}/image"})
@@ -104,12 +92,10 @@ public class PublicApiController {
     @Generated
     public PublicApiController(SiteRuntimeApplicationService runtimeConfig,
                                OrderApplicationService orders,
-                               RecordApplicationService records,
                                UploadService uploads,
                                RateLimiter rateLimiter) {
         this.runtimeConfig = runtimeConfig;
         this.orders = orders;
-        this.records = records;
         this.uploads = uploads;
         this.rateLimiter = rateLimiter;
     }

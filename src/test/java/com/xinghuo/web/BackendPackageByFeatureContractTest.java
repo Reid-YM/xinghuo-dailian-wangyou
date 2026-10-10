@@ -30,12 +30,11 @@ class BackendPackageByFeatureContractTest {
     void publicApiConsumesFeatureApplicationServices() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
         String publicQuote = read("src/main/java/com/xinghuo/quote/web/PublicQuoteController.java");
+        String publicRecord = read("src/main/java/com/xinghuo/record/web/PublicRecordController.java");
         String publicServices = read("src/main/java/com/xinghuo/catalog/web/PublicCatalogServiceController.java");
         String publicCatalog = read("src/main/java/com/xinghuo/taxonomy/web/PublicTaxonomyCatalogController.java");
 
         assertTrue(controller.contains("com.xinghuo.order.application.OrderApplicationService"));
-        assertTrue(controller.contains("com.xinghuo.record.application.RecordApplicationService"));
-        assertTrue(controller.contains("RecordWebMapper.toResponse"));
         assertTrue(controller.contains("OrderProgressAsset"));
 
         assertTrue(publicQuote.contains("package com.xinghuo.quote.web;"));
@@ -43,6 +42,13 @@ class BackendPackageByFeatureContractTest {
         assertTrue(publicQuote.contains("QuoteWebMapper.toCommand"));
         assertTrue(publicQuote.contains("QuoteWebMapper.toResponse"));
         assertTrue(publicQuote.contains("@RequestMapping(value={\"/api/quote\"})"));
+
+        assertTrue(publicRecord.contains("package com.xinghuo.record.web;"));
+        assertTrue(publicRecord.contains("com.xinghuo.record.application.RecordApplicationService"));
+        assertTrue(publicRecord.contains("RecordWebMapper.toResponse"));
+        assertTrue(publicRecord.contains("@RequestMapping(value={\"/api/records\"})"));
+        assertTrue(publicRecord.contains("@GetMapping(value={\"/{businessNo}\"})"));
+        assertTrue(publicRecord.contains("pub:record"));
 
         assertTrue(publicServices.contains("package com.xinghuo.catalog.web;"));
         assertTrue(publicServices.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
@@ -57,6 +63,9 @@ class BackendPackageByFeatureContractTest {
         assertFalse(controller.contains("com.xinghuo.quote.application.QuoteApplicationService"));
         assertFalse(controller.contains("QuoteWebMapper"));
         assertFalse(controller.contains("@PostMapping(value={\"/quote\"})"));
+        assertFalse(controller.contains("com.xinghuo.record.application.RecordApplicationService"));
+        assertFalse(controller.contains("RecordWebMapper"));
+        assertFalse(controller.contains("@GetMapping(value={\"/records/{businessNo}\"})"));
         assertFalse(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
         assertFalse(controller.contains("CatalogWebMapper"));
         assertFalse(controller.contains("@GetMapping(value={\"/services\"})"));
@@ -74,7 +83,6 @@ class BackendPackageByFeatureContractTest {
     @Test
     void adminDashboardConsumesApplicationBoundary() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
-
         assertTrue(controller.contains("com.xinghuo.dashboard.application.DashboardApplicationService"));
         assertTrue(controller.contains("DashboardWebMapper.toResponse"));
         assertFalse(controller.contains("import com.xinghuo.service.DashboardService;"));
@@ -83,7 +91,6 @@ class BackendPackageByFeatureContractTest {
     @Test
     void adminFeedbackConsumesApplicationBoundary() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
-
         assertTrue(controller.contains("com.xinghuo.feedback.application.FeedbackApplicationService"));
         assertTrue(controller.contains("FeedbackWebMapper.toCommand"));
         assertTrue(controller.contains("FeedbackWebMapper.toResponse"));
@@ -94,7 +101,6 @@ class BackendPackageByFeatureContractTest {
     @Test
     void adminTaxonomyConsumesApplicationBoundary() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
-
         assertTrue(controller.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
         assertTrue(controller.contains("TaxonomyWebMapper.toCommand"));
         assertTrue(controller.contains("TaxonomyWebMapper.toResponse"));
@@ -105,7 +111,6 @@ class BackendPackageByFeatureContractTest {
     @Test
     void adminServiceCrudConsumesCatalogApplicationBoundary() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
-
         assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
         assertTrue(controller.contains("CatalogAdminWebMapper.toCommand"));
         assertTrue(controller.contains("CatalogAdminWebMapper.toResponse"));
@@ -117,7 +122,6 @@ class BackendPackageByFeatureContractTest {
     void adminQuoteFlowsConsumeQuoteApplicationBoundary() throws IOException {
         String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
         String leads = read("src/main/java/com/xinghuo/quote/web/AdminLeadController.java");
-
         assertTrue(admin.contains("com.xinghuo.quote.application.QuoteApplicationService"));
         assertTrue(leads.contains("package com.xinghuo.quote.web;"));
         assertTrue(leads.contains("com.xinghuo.quote.application.QuoteApplicationService"));
@@ -131,7 +135,6 @@ class BackendPackageByFeatureContractTest {
     @Test
     void adminOrderFlowsConsumeOrderApplicationBoundary() throws IOException {
         String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
-
         assertTrue(admin.contains("com.xinghuo.order.application.OrderApplicationService"));
         assertTrue(admin.contains("OrderWebMapper.toCommand"));
         assertTrue(admin.contains("OrderWebMapper.toAdminResponses"));
@@ -141,7 +144,6 @@ class BackendPackageByFeatureContractTest {
     @Test
     void pageControllerConsumesApplicationProjections() throws IOException {
         String controller = read("src/main/java/com/xinghuo/controller/PageController.java");
-
         assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
         assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogPageServiceView"));
         assertTrue(controller.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
@@ -157,7 +159,6 @@ class BackendPackageByFeatureContractTest {
     @Test
     void seoControllerConsumesFeatureApplicationProjections() throws IOException {
         String controller = read("src/main/java/com/xinghuo/seo/web/SeoController.java");
-
         assertTrue(controller.contains("package com.xinghuo.seo.web;"));
         assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogApplicationService"));
         assertTrue(controller.contains("com.xinghuo.catalog.application.CatalogPageServiceView"));

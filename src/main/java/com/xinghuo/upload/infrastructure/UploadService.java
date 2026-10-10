@@ -23,11 +23,10 @@ import lombok.Generated;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
+/** Shared upload implementation. Legacy wiring delegates here until all consumers migrate. */
 public class UploadService {
     /** 单边像素上限。 */
     private static final int MAX_DIMENSION = 12000;

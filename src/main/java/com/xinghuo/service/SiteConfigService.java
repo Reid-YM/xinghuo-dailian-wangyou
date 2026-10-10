@@ -36,16 +36,6 @@ public class SiteConfigService {
         return (SiteConfig)this.repo.findById(1L).orElseThrow();
     }
 
-    @Transactional(readOnly=true)
-    public boolean isQuoteEnabled() {
-        return this.get().isQuoteEnabled();
-    }
-
-    @Transactional(readOnly=true)
-    public boolean isOrderQueryEnabled() {
-        return this.get().isOrderQueryEnabled();
-    }
-
     @Transactional
     public ApiDtos.SiteConfigResponse updateSiteImage(String slot, String url, String operator, HttpServletRequest req) {
         String key;

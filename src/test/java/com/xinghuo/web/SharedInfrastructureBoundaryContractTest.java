@@ -1,31 +1,28 @@
 package com.xinghuo.web;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class SharedInfrastructureBoundaryContractTest {
     private static final Path ROOT = Path.of(System.getProperty("user.dir"));
 
     @Test
-    void auditAndUploadImplementationsLiveOutsideLegacyServicePackage() throws Exception {
+    void auditAndUploadImplementationsAreOwnedSpringInfrastructureServices() throws Exception {
         String audit = Files.readString(ROOT.resolve(
                 "src/main/java/com/xinghuo/audit/infrastructure/AuditService.java"));
         String upload = Files.readString(ROOT.resolve(
                 "src/main/java/com/xinghuo/upload/infrastructure/UploadService.java"));
 
-        assertTrue(audit.contains("class AuditService"));
+        assertTrue(audit.contains("@Service"));
         assertTrue(audit.contains("AuditLog.builder()"));
         assertTrue(audit.contains("RequestUtil.clientIp"));
         assertFalse(audit.contains("package com.xinghuo.service"));
 
-        assertTrue(upload.contains("class UploadService"));
+        assertTrue(upload.contains("@Service"));
         assertTrue(upload.contains("MAX_PIXELS"));
         assertTrue(upload.contains("ImageIO.createImageInputStream"));
         assertTrue(upload.contains("loadPublicSiteAsset"));
@@ -33,23 +30,22 @@ class SharedInfrastructureBoundaryContractTest {
     }
 
     @Test
-    void compatibilityBridgesContainNoBusinessImplementation() throws Exception {
-        String auditBridge = Files.readString(ROOT.resolve(
-                "src/main/java/com/xinghuo/service/AuditService.java"));
-        String uploadBridge = Files.readString(ROOT.resolve(
-                "src/main/java/com/xinghuo/service/UploadService.java"));
+    void legacySharedServicePackageIsFullyRetired() throws Exception {
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/service/AuditService.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/service/UploadService.java")));
 
-        assertTrue(auditBridge.contains("extends com.xinghuo.audit.infrastructure.AuditService"));
-        assertTrue(uploadBridge.contains("extends com.xinghuo.upload.infrastructure.UploadService"));
-        assertTrue(auditBridge.contains("@Deprecated(forRemoval = true)"));
-        assertTrue(uploadBridge.contains("@Deprecated(forRemoval = true)"));
-        assertFalse(auditBridge.contains("AuditLog.builder()"));
-        assertFalse(uploadBridge.contains("ImageIO"));
-        assertFalse(uploadBridge.contains("MAX_PIXELS"));
+        Path sourceRoot = ROOT.resolve("src/main/java");
+        try (var files = Files.walk(sourceRoot)) {
+            for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
+                String source = Files.readString(file);
+                assertFalse(source.contains("com.xinghuo.service.AuditService"), file.toString());
+                assertFalse(source.contains("com.xinghuo.service.UploadService"), file.toString());
+            }
+        }
     }
 
     @Test
-    void migratedConsumersBypassCompatibilityBridges() throws Exception {
+    void keyConsumersUseOwnedInfrastructureTypes() throws Exception {
         for (String path : new String[] {
                 "src/main/java/com/xinghuo/siteconfig/web/SiteConfigWriteWebService.java",
                 "src/main/java/com/xinghuo/controller/MobileVisualConfigController.java",
@@ -59,32 +55,15 @@ class SharedInfrastructureBoundaryContractTest {
                 "src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java",
                 "src/main/java/com/xinghuo/order/infrastructure/OrderPersistenceAdapter.java",
                 "src/main/java/com/xinghuo/quote/infrastructure/QuotePersistenceAdapter.java",
-                "src/main/java/com/xinghuo/account/web/AccountApiController.java"
+                "src/main/java/com/xinghuo/taxonomy/infrastructure/TaxonomyPersistenceAdapter.java",
+                "src/main/java/com/xinghuo/guide/GuideContentService.java",
+                "src/main/java/com/xinghuo/account/web/AccountApiController.java",
+                "src/main/java/com/xinghuo/controller/AdminApiController.java",
+                "src/main/java/com/xinghuo/controller/PublicApiController.java"
         }) {
             String source = Files.readString(ROOT.resolve(path));
             assertFalse(source.contains("com.xinghuo.service.AuditService"), path);
             assertFalse(source.contains("com.xinghuo.service.UploadService"), path);
         }
-    }
-
-    @Test
-    void onlyFourLargeConsumersMayStillUseCompatibilityBridges() throws Exception {
-        Set<String> expected = Set.of(
-                "src/main/java/com/xinghuo/guide/GuideContentService.java",
-                "src/main/java/com/xinghuo/taxonomy/infrastructure/TaxonomyPersistenceAdapter.java",
-                "src/main/java/com/xinghuo/controller/AdminApiController.java",
-                "src/main/java/com/xinghuo/controller/PublicApiController.java");
-        Set<String> actual = new HashSet<>();
-        Path sourceRoot = ROOT.resolve("src/main/java");
-        try (var files = Files.walk(sourceRoot)) {
-            for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
-                String source = Files.readString(file);
-                if (source.contains("import com.xinghuo.service.AuditService;")
-                        || source.contains("import com.xinghuo.service.UploadService;")) {
-                    actual.add(ROOT.relativize(file).toString().replace('\\', '/'));
-                }
-            }
-        }
-        assertEquals(expected, actual);
     }
 }

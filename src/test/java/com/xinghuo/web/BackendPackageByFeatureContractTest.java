@@ -59,7 +59,7 @@ class BackendPackageByFeatureContractTest {
     @Test
     void domainLayerRemainsFrameworkIndependent() throws IOException {
         for (String file : new String[] {
-                "src/main/java/com/xinghuo/quote/domain/QuoteSubmissionMetadata.java",
+                "src/main/java/com/xinghuo/quote/domain/package-info.java",
                 "src/main/java/com/xinghuo/order/domain/OrderProgressAsset.java",
                 "src/main/java/com/xinghuo/catalog/domain/package-info.java"
         }) {

@@ -1,10 +1,10 @@
 package com.xinghuo.guide.web;
 
-import com.xinghuo.guide.GuideContentService;
 import com.xinghuo.guide.GuideModels;
 import com.xinghuo.guide.application.GuideQueryApplicationService;
 import com.xinghuo.guide.application.GuideQueryModels;
-import jakarta.servlet.http.HttpServletRequest;
+import com.xinghuo.guide.application.GuideWriteApplicationService;
+import com.xinghuo.guide.application.GuideWriteModels;
 import java.util.List;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/guides")
 public class AdminGuideController {
     private final GuideQueryApplicationService queries;
-    private final GuideContentService writes;
+    private final GuideWriteApplicationService writes;
 
-    public AdminGuideController(GuideQueryApplicationService queries, GuideContentService writes) {
+    public AdminGuideController(
+            GuideQueryApplicationService queries,
+            GuideWriteApplicationService writes) {
         this.queries = queries;
         this.writes = writes;
     }
@@ -39,48 +41,60 @@ public class AdminGuideController {
     }
 
     @PostMapping
-    GuideModels.GuideDetail create(@RequestBody GuideModels.GuideUpsert body, Authentication auth, HttpServletRequest request) {
-        return writes.create(body, operator(auth), request);
+    GuideQueryModels.GuideDetail create(@RequestBody GuideModels.GuideUpsert body, Authentication auth) {
+        return writes.create(GuideWriteWebMapper.toCommand(body), operator(auth));
     }
 
     @PutMapping("/{id}")
-    GuideModels.GuideDetail update(@PathVariable Long id, @RequestBody GuideModels.GuideUpsert body, Authentication auth, HttpServletRequest request) {
-        return writes.update(id, body, operator(auth), request);
+    GuideQueryModels.GuideDetail update(
+            @PathVariable Long id,
+            @RequestBody GuideModels.GuideUpsert body,
+            Authentication auth) {
+        return writes.update(id, GuideWriteWebMapper.toCommand(body), operator(auth));
     }
 
     @PatchMapping("/{id}/status")
-    GuideModels.GuideDetail status(@PathVariable Long id, @RequestBody GuideModels.GuideStatusInput body, Authentication auth, HttpServletRequest request) {
-        return writes.setStatus(id, body.status(), body.reason(), operator(auth), request);
+    GuideQueryModels.GuideDetail status(
+            @PathVariable Long id,
+            @RequestBody GuideModels.GuideStatusInput body,
+            Authentication auth) {
+        return writes.setStatus(id, body.status(), body.reason(), operator(auth));
     }
 
     @DeleteMapping("/{id}")
-    void archive(@PathVariable Long id, Authentication auth, HttpServletRequest request) {
-        writes.archive(id, "后台归档攻略", operator(auth), request);
+    void archive(@PathVariable Long id, Authentication auth) {
+        writes.archive(id, "后台归档攻略", operator(auth));
     }
 
     @DeleteMapping("/batch")
-    GuideModels.GuideBatchArchiveResult archiveBatch(@RequestBody GuideModels.GuideBatchArchiveRequest body, Authentication auth, HttpServletRequest request) {
+    GuideWriteModels.GuideBatchArchiveResult archiveBatch(
+            @RequestBody GuideModels.GuideBatchArchiveRequest body,
+            Authentication auth) {
         String reason = body == null || body.reason() == null || body.reason().isBlank()
                 ? "后台批量归档攻略"
                 : body.reason().trim();
         List<Long> ids = body == null ? List.of() : body.ids();
-        return writes.archiveBatch(ids, reason, operator(auth), request);
+        return writes.archiveBatch(ids, reason, operator(auth));
     }
 
     @PostMapping("/archive-all")
-    GuideModels.GuideBatchArchiveResult archiveAll(@RequestBody(required = false) GuideModels.GuideBatchArchiveRequest body, Authentication auth, HttpServletRequest request) {
+    GuideWriteModels.GuideBatchArchiveResult archiveAll(
+            @RequestBody(required = false) GuideModels.GuideBatchArchiveRequest body,
+            Authentication auth) {
         String reason = body == null || body.reason() == null || body.reason().isBlank()
                 ? "后台全部归档攻略"
                 : body.reason().trim();
-        return writes.archiveAll(reason, operator(auth), request);
+        return writes.archiveAll(reason, operator(auth));
     }
 
     @PostMapping("/import-games")
-    GuideModels.GuideImportResult importGames(@RequestBody(required = false) GuideModels.GuideImportRequest body, Authentication auth, HttpServletRequest request) {
+    GuideWriteModels.GuideImportResult importGames(
+            @RequestBody(required = false) GuideModels.GuideImportRequest body,
+            Authentication auth) {
         GuideModels.GuideImportRequest actual = body == null
                 ? new GuideModels.GuideImportRequest(true, false, "批量生成多游戏攻略")
                 : body;
-        return writes.importGames(actual, operator(auth), request);
+        return writes.importGames(GuideWriteWebMapper.toCommand(actual), operator(auth));
     }
 
     private String operator(Authentication auth) {

@@ -123,7 +123,7 @@ class VNextMobilePolishPlaywrightTest {
                   .v-feature-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.v-feature-card{min-height:180px}.v-card{min-width:0}.v-form-card{padding:17px}.v-form-actions{position:sticky;bottom:68px}.v-choice{min-height:76px}.v-page{padding-bottom:96px}
                 </style></head>
                 <body>
-                  <div class="v-app" data-page="%s">
+                  <div class="v-app" data-page="__DATA_PAGE__">
                     <header class="v-header"><div class="v-shell v-header-inner"><div class="v-brand"><span class="v-brand-mark">XH</span><span class="v-brand-copy"><strong>星火网游代练平台</strong><small>可靠手打 · 进度可查</small></span></div><button class="v-menu-button">M</button></div></header>
                     <section class="v-hero"><div class="v-shell v-hero-grid"><div class="v-hero-copy"><div class="v-kicker">CODMW4</div><h1>使命召唤 MW4 任务服务</h1><p class="v-lead">手机端专项视觉验证</p><div class="v-hero-actions"><button class="v-button v-primary">立即询价</button><button class="v-button">查看全部服务</button></div><div class="v-trust-row"><span>可靠手打</span><span>纯绿服务</span><span>进度可查</span><span>一对一咨询</span></div></div><div class="v-live-panel"><div class="v-live-panel-inner"><strong>服务在线</strong><p>业务编号查询进度</p><div class="v-flow-list"><span><b>01</b>目标</span><span><b>02</b>报价</span><span><b>03</b>进度</span></div></div><div class="v-status-strip">在线</div></div></div></section>
                     <section class="v-shell"><div class="v-feature-grid"><div class="v-card v-feature-card">A</div><div class="v-card v-feature-card">B</div><div class="v-card v-feature-card">C</div><div class="v-card v-feature-card">D</div></div><div class="v-service-preview-grid"><div class="v-service-card">服务A</div><div class="v-service-card">服务B</div></div><div class="v-service-toolbar"><div class="v-search-box">搜索</div><span>4 项服务</span></div></section>
@@ -131,6 +131,6 @@ class VNextMobilePolishPlaywrightTest {
                     <nav class="v-mobile-dock"><button>首页</button><button>服务</button><button>询价</button><button>进度</button><button>我的</button></nav>
                   </div>
                 </body></html>
-                """.formatted(dataPage);
+                """.replace("__DATA_PAGE__", dataPage);
     }
 }

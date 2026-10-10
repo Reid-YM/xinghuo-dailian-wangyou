@@ -29,11 +29,13 @@ public class FrontendControlPersistenceAdapter implements FrontendControlPort {
 
     @Override
     @Transactional
-    public void put(String key, String value) {
-        SiteSetting setting = repo.findById(key)
-                .orElseGet(() -> SiteSetting.builder().settingKey(key).build());
-        setting.setSettingValue(value);
-        setting.setUpdatedAt(Instant.now());
-        repo.save(setting);
+    public void putAll(Map<String, String> values) {
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            SiteSetting setting = repo.findById(entry.getKey())
+                    .orElseGet(() -> SiteSetting.builder().settingKey(entry.getKey()).build());
+            setting.setSettingValue(entry.getValue());
+            setting.setUpdatedAt(Instant.now());
+            repo.save(setting);
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.xinghuo.audit.infrastructure;
 
 import com.xinghuo.audit.application.AuditEntryView;
 import com.xinghuo.audit.application.AuditQueryPort;
-import com.xinghuo.repository.AuditLogRepository;
 import java.util.List;
 import lombok.Generated;
 import org.springframework.stereotype.Component;

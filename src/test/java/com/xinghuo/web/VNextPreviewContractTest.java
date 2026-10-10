@@ -25,7 +25,7 @@ class VNextPreviewContractTest {
         assertTrue(vite.contains("entryFileNames: 'assets/app.js'"));
         assertTrue(vite.contains("'assets/app.css'"));
         assertTrue(controller.contains("package com.xinghuo.vnext.web;"));
-        assertTrue(controller.contains("@RequestMapping({\"/__preview\"})"));
+        assertTrue(controller.contains("@GetMapping({\"/vnext\", \"/vnext/\"})"));
         assertTrue(controller.contains("forward:/vnext/index.html"));
         assertTrue(security.contains("\"/vnext\", \"/vnext/**\""));
         assertFalse(controller.contains("@GetMapping(\"/\")"),

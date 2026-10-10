@@ -1,4 +1,4 @@
-package com.xinghuo.controller;
+package com.xinghuo.vnext.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

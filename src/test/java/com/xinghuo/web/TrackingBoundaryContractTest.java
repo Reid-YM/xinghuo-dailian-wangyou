@@ -34,6 +34,7 @@ class TrackingBoundaryContractTest {
                 assertFalse(source.contains("com.xinghuo.dto"));
                 assertFalse(source.contains("com.xinghuo.model"));
                 assertFalse(source.contains("com.xinghuo.repository"));
+                assertFalse(source.contains("JdbcTemplate"));
                 assertFalse(source.contains("jakarta.servlet"));
                 assertFalse(source.contains("jakarta.persistence"));
             }
@@ -57,28 +58,55 @@ class TrackingBoundaryContractTest {
     }
 
     @Test
-    void webMapperOwnsTrackRequestAndInfrastructureOwnsAllowListPersistence() throws IOException {
-        String mapper = read("src/main/java/com/xinghuo/tracking/web/TrackingWebMapper.java");
-        assertTrue(mapper.contains("ApiDtos.TrackRequest"));
-        assertTrue(mapper.contains("TrackingCommand"));
+    void adminTrackingUsesApplicationBoundaryAndFeatureWebController() throws IOException {
+        String controller = read("src/main/java/com/xinghuo/tracking/web/AdminTrackingController.java");
+        assertTrue(controller.contains("TrackingAdminApplicationService"));
+        assertTrue(controller.contains("/api/admin/tracking"));
+        assertTrue(controller.contains("/summary"));
+        assertFalse(controller.contains("JdbcTemplate"));
+        assertFalse(controller.contains("tracking_events"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/AdminTrackingController.java")));
 
-        String adapter = read("src/main/java/com/xinghuo/tracking/infrastructure/TrackingPersistenceAdapter.java");
-        assertTrue(adapter.contains("implements TrackingPort"));
-        assertTrue(adapter.contains("com.xinghuo.repository.TrackingEventRepository"));
-        assertTrue(adapter.contains("com.xinghuo.model.TrackingEvent"));
-        assertTrue(adapter.contains("hero_quote_click"));
-        assertTrue(adapter.contains("rule_open"));
-        assertFalse(adapter.contains("com.xinghuo.dto"));
-        assertFalse(adapter.contains("com.xinghuo.service.TrackingService"));
+        String application = read("src/main/java/com/xinghuo/tracking/application/TrackingAdminApplicationService.java");
+        assertTrue(application.contains("Math.max(1, Math.min(90, days))"));
+        assertTrue(application.contains("TrackingSummaryPort"));
     }
 
     @Test
-    void legacyTrackingServiceStaysRetired() throws IOException {
+    void infrastructureOwnsTrackingWriteAndAdminSummaryPersistence() throws IOException {
+        String writeMapper = read("src/main/java/com/xinghuo/tracking/web/TrackingWebMapper.java");
+        assertTrue(writeMapper.contains("ApiDtos.TrackRequest"));
+        assertTrue(writeMapper.contains("TrackingCommand"));
+
+        String write = read("src/main/java/com/xinghuo/tracking/infrastructure/TrackingPersistenceAdapter.java");
+        assertTrue(write.contains("implements TrackingPort"));
+        assertTrue(write.contains("com.xinghuo.repository.TrackingEventRepository"));
+        assertTrue(write.contains("com.xinghuo.model.TrackingEvent"));
+        assertTrue(write.contains("hero_quote_click"));
+        assertTrue(write.contains("rule_open"));
+        assertFalse(write.contains("com.xinghuo.dto"));
+        assertFalse(write.contains("com.xinghuo.service.TrackingService"));
+
+        String summary = read("src/main/java/com/xinghuo/tracking/infrastructure/TrackingSummaryJdbcAdapter.java");
+        assertTrue(summary.contains("implements TrackingSummaryPort"));
+        assertTrue(summary.contains("JdbcTemplate"));
+        assertTrue(summary.contains("tracking_events"));
+        assertTrue(summary.contains("quote_started"));
+        assertTrue(summary.contains("order_search_success"));
+        assertTrue(summary.contains("Math.round(count * 1000.0 / first) / 10.0"));
+        assertTrue(summary.contains("GROUP BY d ORDER BY d"));
+    }
+
+    @Test
+    void legacyTrackingServiceAndGlobalAdminControllerStayRetired() throws IOException {
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/service/TrackingService.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/AdminTrackingController.java")));
         assertTrue(read("src/main/java/com/xinghuo/tracking/application/TrackingCommand.java")
                 .contains("record TrackingCommand"));
         assertTrue(read("src/main/java/com/xinghuo/tracking/application/TrackingApplicationService.java")
                 .contains("TrackingPort"));
+        assertTrue(read("src/main/java/com/xinghuo/tracking/application/TrackingSummaryView.java")
+                .contains("record TrackingSummaryView"));
 
         try (Stream<Path> files = Files.walk(ROOT.resolve("src/main/java"))) {
             for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {

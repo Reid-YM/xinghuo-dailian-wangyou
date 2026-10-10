@@ -1,8 +1,5 @@
 package com.xinghuo.quote.application;
 
-import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.dto.QuoteLeadDtos;
-import com.xinghuo.model.Quote;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,22 +7,20 @@ import java.util.UUID;
 public interface QuotePort {
     QuoteSubmissionResult create(QuoteSubmissionCommand command);
 
-    List<ApiDtos.QuoteAdminResponse> list();
+    List<QuoteAdminView> list();
 
-    QuoteLeadDtos.QuoteLeadPageResponse listLeads(
+    QuoteLeadPageView listLeads(
             String keyword, String status, String intent, String source, int page, int size);
 
-    ApiDtos.QuoteAdminResponse updateStatus(UUID id, ApiDtos.QuoteStatusUpdate request, String operator);
+    QuoteAdminView updateStatus(UUID id, QuoteStatusUpdateCommand command, String operator);
 
-    QuoteLeadDtos.QuoteLeadResponse updateCrm(
-            UUID id, QuoteLeadDtos.QuoteCrmUpdateRequest request, String operator);
+    QuoteLeadView updateCrm(UUID id, QuoteCrmUpdateCommand command, String operator);
 
-    QuoteLeadDtos.QuoteAiSuggestionResponse generateLeadSuggestion(UUID id, String operator);
+    QuoteAiSuggestionView generateLeadSuggestion(UUID id, String operator);
 
-    ApiDtos.AdminOrderResponse convertToOrder(
-            UUID id, ApiDtos.QuoteConvertRequest request, String operator);
+    ConvertedOrderView convertToOrder(UUID id, QuoteConvertCommand command, String operator);
 
-    Quote find(UUID id);
+    QuoteAdminView find(UUID id);
 
     void delete(UUID id, String operator);
 }

@@ -29,7 +29,7 @@ class VNextPreviewContractTest {
         assertTrue(controller.contains("forward:/vnext/index.html"));
         assertTrue(security.contains("\"/vnext\", \"/vnext/**\""));
         assertFalse(controller.contains("@GetMapping(\"/\")"),
-                "Production route ownership must remain in PageController so SEO/auth behavior is preserved");
+                "Production route ownership must remain with feature page controllers so SEO/auth behavior is preserved");
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/VNextPreviewController.java")),
                 "VNext preview entrypoint must remain owned by the vnext feature web boundary");
 
@@ -74,13 +74,16 @@ class VNextPreviewContractTest {
 
     @Test
     void legacyDeepBusinessPagesAndAdminFunctionalityRemainAvailable() throws Exception {
-        String pageController = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/controller/PageController.java"));
+        String catalogPages = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/catalog/web/PublicCatalogPageController.java"));
+        String orderPages = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/order/web/OrderPageController.java"));
+        String adminPages = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/dashboard/web/AdminPageController.java"));
         String admin = Files.readString(ROOT.resolve("src/main/resources/templates/admin.html"));
         String adminThemeLoader = Files.readString(ROOT.resolve("src/main/resources/static/assets/admin-image-editor.js"));
 
-        assertTrue(pageController.contains("return \"service-detail\""));
-        assertTrue(pageController.contains("return \"record-detail\""));
-        assertTrue(pageController.contains("return \"admin\""));
+        assertTrue(catalogPages.contains("return \"service-detail\""));
+        assertTrue(orderPages.contains("return \"record-detail\""));
+        assertTrue(adminPages.contains("return \"admin\""));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/PageController.java")));
         assertTrue(admin.contains("data-nav=\"quotes\""));
         assertTrue(admin.contains("data-nav=\"orders\""));
         assertTrue(adminThemeLoader.contains("vnext-formal-ui.css"));

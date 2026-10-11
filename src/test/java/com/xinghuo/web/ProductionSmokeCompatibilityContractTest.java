@@ -1,5 +1,6 @@
 package com.xinghuo.web;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -10,11 +11,12 @@ class ProductionSmokeCompatibilityContractTest {
     private static final Path ROOT = Path.of(".");
 
     @Test
-    void activeCompatibilityBridgesArePartOfTheSharedSmokeContract() throws Exception {
+    void activeSharedBridgeAndCanonicalAccountSubmitStyleArePartOfTheSmokeContract() throws Exception {
         String smoke = Files.readString(ROOT.resolve("scripts/smoke_test.sh"));
 
         assertTrue(smoke.contains("check_code /assets/vnext-legacy-bridge-v3.css 200"));
-        assertTrue(smoke.contains("check_code /assets/vnext-account-submit-v3.css 200"));
+        assertTrue(smoke.contains("check_code /assets/account-submit.css 200"));
+        assertFalse(smoke.contains("check_code /assets/vnext-account-submit-v3.css 200"));
     }
 
     @Test

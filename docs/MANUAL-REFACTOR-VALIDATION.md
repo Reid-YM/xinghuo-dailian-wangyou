@@ -4,9 +4,25 @@
 >
 > 原则：代码结构收口不等于生产验收完成。兼容 CSS 本体只有在浏览器与生产端口门禁全部通过后才允许继续退役。
 
+## 0. 已完成的生产基线
+
+2026-10-11，`main` SHA `73dd113bc52b4ddf1c4d80b602f510ee036cde65` 已完成：
+
+- `Java 21 / Maven Build`；
+- `Chromium + WebKit UI Regression`；
+- 18080 候选完整 smoke；
+- 8081 金丝雀完整 smoke；
+- 8080 正式实例完整 smoke；
+- nginx 最终回到 8080；
+- 8081 金丝雀停止；
+- release SHA256 与 release manifest 校验；
+- 上一正式 JAR 与回滚路径确认。
+
+因此项目已从“等待生产验收”进入 **#131 小批次兼容资产退役阶段**。后续每一个删除/迁移 PR 都必须重新建立自己的同 SHA 证据，不能把上述基线结果当成新提交的最终验收结果。
+
 ## 1. 锁定唯一验收 SHA
 
-验收前先确认 GitHub 当前 `main` 的 40 位 SHA，并在整个验收过程中保持不变。
+验收前先确认 GitHub 当前 `main` 或待验收清理分支的 40 位 SHA，并在整个验收过程中保持不变。
 
 所有后续证据都必须指向同一个 SHA：
 
@@ -20,7 +36,7 @@
 
 ## 2. 手动 CI 门禁
 
-在 GitHub Actions 中，从 `main` 手动运行 `CI` workflow。
+在 GitHub Actions 中，从目标分支手动运行 `CI` workflow；合并到 `main` 后用于生产发布时，必须再以最终 `main` SHA 为准。
 
 必须同时成功：
 
@@ -40,7 +56,7 @@
 
 ## 3. 浏览器兼容重点
 
-当前 legacy bridge 仍是生产依赖，不得仅凭静态搜索删除。
+共享 `vnext-legacy-bridge-v3.css` 仍是生产依赖，不得仅凭静态搜索删除。
 
 重点验证：
 
@@ -51,7 +67,9 @@
 - 后台：`admin-brand-layout-fixes.css` 单一路径仍能提供 legacy bridge；
 - 微信 / Safari / WebKit 下安全区与底部固定区域无遮挡。
 
-`vnext-legacy-bridge-v3.css` 与 `vnext-account-submit-v3.css` 在这些门禁全部通过前继续保留。
+`vnext-account-submit-v3.css` 已进入首批退役：其视觉规则不删除，而是原样迁移为业务页面自有的 `/assets/account-submit.css`。这一迁移只有在新的 Maven + Chromium + WebKit + production smoke 全部通过后才算正式完成。
+
+`vnext-legacy-bridge-v3.css` 仍继续保留，必须单独建立替代 owner 和无 bridge 浏览器证据后才能进入下一批删除。
 
 ## 4. 生产 SSH 只读安全验证
 
@@ -61,7 +79,9 @@
 
 ## 5. 生产发布入口
 
-推荐且当前有效的发布路径：
+当前有两条受控入口，最终都会执行同一套生产门禁：
+
+### A. `main` 手动入口
 
 1. 当前 `main` SHA 已完成第 2 节手动 CI，两个 job 全绿；
 2. 从 `main` 手动运行 `Deploy Production`；
@@ -72,19 +92,24 @@
    - 同一个 SHA 存在成功的 `CI` `workflow_dispatch` run；
    - 生产 SSH secrets 可用。
 
+### B. `deploy/production` 受控发布请求入口
+
+`deploy/production` 可通过只修改 `.deploy-request` 的单父提交触发发布。请求中的 `deploy_sha` 必须等于当前 `main`，并同样要求已合并 PR 来源和同 SHA 成功的手动 CI。
+
 不要用其他 SHA 的旧 CI 结果替代当前 SHA。
 
-## 6. `deploy/production` 备用入口注意事项
+## 6. `deploy/production` 入口注意事项
 
 `deploy/production` 是长期受控发布请求分支，不是正式源码分支。
 
-重要限制：GitHub 对该分支的 push 会使用该分支自己保存的 workflow 定义。只要 `main` 上的 `.github/workflows/deploy-production.yml` 发生过变更，就必须先确认 `deploy/production` 已按受控流程刷新到同一版本，才能继续使用该备用入口。
+重要限制：GitHub 对该分支的 push 会使用该分支自己保存的 workflow 定义。只要 `main` 上的 `.github/workflows/deploy-production.yml` 发生过变更，就必须先确认 `deploy/production` 已按受控流程刷新到同一版本，才能继续使用发布请求入口。
 
 在 workflow 定义未同步时：
 
-- 不要向 `deploy/production` 推送 `.deploy-request`；
-- 不要为了“同步一下”直接随意修改该分支，因为 push 本身会触发生产部署 workflow；
-- 优先使用第 5 节的 `main` 手动 Deploy Production 路径。
+- 不要直接提交 `.deploy-request`；
+- 先受控同步 workflow 定义；
+- 同步本身不应满足 `.deploy-request` 校验，因此不会进入实际服务器部署；
+- 确认安全失败后，再单独提交只修改 `.deploy-request` 的正常发布请求。
 
 ## 7. 服务器三端口门禁
 
@@ -115,10 +140,12 @@
 - 通过后 nginx 切回 8080；
 - 停止 8081 金丝雀。
 
-共享 smoke 当前也验证仍在使用的：
+共享 smoke 当前验证：
 
-- `/assets/vnext-legacy-bridge-v3.css`；
-- `/assets/vnext-account-submit-v3.css`。
+- `/assets/vnext-legacy-bridge-v3.css`：仍在使用的共享兼容层；
+- `/assets/account-submit.css`：攻略投稿页业务自有 canonical style。
+
+旧 `/assets/vnext-account-submit-v3.css` 不应再成为 smoke 依赖。
 
 ## 8. 发布后必须确认
 
@@ -153,3 +180,5 @@
 - 替代样式 owner 与受影响路由有明确清单。
 
 删除必须继续小批次进行，不能把 bridge CSS 删除与 API、鉴权、数据库迁移或生产路由切换混在同一个 PR。
+
+第一批策略是“先改 owner、后删共享层”：页面专属规则迁到业务命名资产并保持规则等价，再由 Playwright 和三端口 smoke 证明路径变更没有造成视觉/运行回归。共享 `vnext-legacy-bridge-v3.css` 最后处理。

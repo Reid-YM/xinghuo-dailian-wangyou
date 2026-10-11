@@ -19,7 +19,7 @@ public class GeoLanguageResolver {
     private static final Set<String> ZH_REGIONS = Set.of("CN", "TW", "HK", "MO", "SG");
     private static final int CACHE_LIMIT = 5000;
     private static final long CACHE_TTL_MS = 43200000L;
-    private final Map<String, Entry> cache = new ConcurrentHashMap();
+    private final Map<String, Entry> cache = new ConcurrentHashMap<>();
 
     public String detectLanguage(String ip) {
         String country = this.lookupCountry(ip);
@@ -33,13 +33,13 @@ public class GeoLanguageResolver {
         if (ip == null || ip.isBlank()) {
             return null;
         }
-        Entry cached = (Entry)this.cache.get(ip);
+        Entry cached = this.cache.get(ip);
         if (cached != null && !cached.expired()) {
             return cached.country();
         }
         String country = this.query(ip);
         if (country != null) {
-            if (this.cache.size() > 5000) {
+            if (this.cache.size() > CACHE_LIMIT) {
                 this.cache.clear();
             }
             this.cache.put(ip, new Entry(country, System.currentTimeMillis()));
@@ -83,8 +83,7 @@ public class GeoLanguageResolver {
 
     private record Entry(String country, long at) {
         boolean expired() {
-            return System.currentTimeMillis() - this.at > 43200000L;
+            return System.currentTimeMillis() - this.at > CACHE_TTL_MS;
         }
     }
 }
-

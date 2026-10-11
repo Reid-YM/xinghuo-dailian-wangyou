@@ -1,7 +1,6 @@
 package com.xinghuo.catalog.web;
 
 import com.xinghuo.catalog.application.CatalogApplicationService;
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.upload.infrastructure.UploadAsset;
 import com.xinghuo.upload.infrastructure.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,9 +28,9 @@ public class AdminCatalogServiceController {
     private final UploadService uploads;
 
     @PostMapping(value={"/cover-image"})
-    ApiDtos.SiteImageUploadResponse uploadServiceCover(@RequestParam(value="file") MultipartFile file) {
+    SiteImageUploadResponse uploadServiceCover(@RequestParam(value="file") MultipartFile file) {
         UploadAsset asset = this.uploads.storeImage(file, UploadAsset.Kind.SERVICE_COVER);
-        return new ApiDtos.SiteImageUploadResponse("/api/site-assets/" + asset.getId());
+        return new SiteImageUploadResponse("/api/site-assets/" + asset.getId());
     }
 
     @GetMapping

@@ -1,7 +1,6 @@
 package com.xinghuo.toolstation.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.toolstation.application.ToolStationApplicationService;
 import com.xinghuo.upload.infrastructure.UploadAsset;
 import com.xinghuo.upload.infrastructure.UploadService;
@@ -23,9 +22,9 @@ public class AdminToolStationController {
     private final UploadService uploads;
 
     @PostMapping(value={"/image"})
-    ApiDtos.SiteImageUploadResponse uploadToolStationImage(@RequestParam(value="file") MultipartFile file) {
+    SiteImageUploadResponse uploadToolStationImage(@RequestParam(value="file") MultipartFile file) {
         UploadAsset asset = this.uploads.storeImage(file, UploadAsset.Kind.TOOL_STATION_COVER);
-        return new ApiDtos.SiteImageUploadResponse("/api/site-assets/" + asset.getId());
+        return new SiteImageUploadResponse("/api/site-assets/" + asset.getId());
     }
 
     @GetMapping

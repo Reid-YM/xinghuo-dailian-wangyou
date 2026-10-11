@@ -1,6 +1,5 @@
 package com.xinghuo.taxonomy.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import com.xinghuo.upload.infrastructure.UploadAsset;
@@ -67,14 +66,14 @@ public class AdminTaxonomyController {
     }
 
     @PostMapping(value={"/games/image/{kind}"})
-    ApiDtos.SiteImageUploadResponse uploadGameImage(@PathVariable String kind, @RequestParam(value="file") MultipartFile file) {
+    SiteImageUploadResponse uploadGameImage(@PathVariable String kind, @RequestParam(value="file") MultipartFile file) {
         UploadAsset.Kind imageKind = switch (kind.trim().toUpperCase(Locale.ROOT)) {
             case "LOGO" -> UploadAsset.Kind.GAME_LOGO;
             case "COVER" -> UploadAsset.Kind.GAME_COVER;
             default -> throw new BadRequestException("非法游戏图片类型");
         };
         UploadAsset asset = this.uploads.storeImage(file, imageKind);
-        return new ApiDtos.SiteImageUploadResponse("/api/site-assets/" + asset.getId());
+        return new SiteImageUploadResponse("/api/site-assets/" + asset.getId());
     }
 
     @DeleteMapping(value={"/games/{code}"})

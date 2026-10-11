@@ -14,6 +14,19 @@ check_code() {
     echo "OK   $path $code"
   fi
 }
+check_redirect() {
+  local path=$1 expected_location=$2
+  local headers code location
+  headers=$(curl -sS -D - -o /dev/null "$BASE$path" || true)
+  code=$(printf '%s\n' "$headers" | awk 'NR==1 {print $2}')
+  location=$(printf '%s\n' "$headers" | awk 'BEGIN{IGNORECASE=1} /^Location:/ {sub(/\r$/, ""); sub(/^[^:]*:[[:space:]]*/, ""); print; exit}')
+  if [ "$code" != "302" ] || [[ "$location" != *"$expected_location" ]]; then
+    echo "FAIL $path expected=302->$expected_location actual=${code:-none}->${location:-none}"
+    fail=1
+  else
+    echo "OK   $path 302 -> $location"
+  fi
+}
 check_code / 200
 check_code /services 200
 check_code /guides 200
@@ -39,6 +52,9 @@ check_code /console/orders 302
 check_code /console/security 302
 check_code /account/login 200
 check_code /account/register 200
+# 后台入口是生产关键路径：登录页必须可访问，未登录访问 /admin 必须明确回登录页。
+check_code /admin/login 200
+check_redirect /admin /admin/login
 check_code /rules 200
 check_code /privacy 200
 check_code /contact 200

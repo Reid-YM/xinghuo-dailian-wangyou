@@ -1,7 +1,7 @@
 package com.xinghuo.quote.web;
 
 import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.model.UploadAsset;
+import com.xinghuo.upload.infrastructure.UploadAsset;
 import com.xinghuo.upload.infrastructure.UploadService;
 import lombok.Generated;
 import org.springframework.web.bind.annotation.PostMapping;

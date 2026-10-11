@@ -67,7 +67,7 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void adminEntrypointsLoadUi03BridgeWithoutChangingBusinessApis() throws IOException {
+    void adminEntrypointsUseSingleBridgePathWithoutChangingBusinessApis() throws IOException {
         String editor = read("src/main/resources/static/assets/admin-image-editor.js");
         String controls = read("src/main/resources/static/assets/admin-frontend-controls.js");
         String brandFixes = read("src/main/resources/static/assets/admin-brand-layout-fixes.css");
@@ -75,7 +75,9 @@ class VNextLegacyUiBridgeContractTest {
 
         assertTrue(editor.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
         assertTrue(editor.contains("/assets/vnext-formal-ui.css?v=20261010ui03"));
-        assertTrue(controls.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
+        assertFalse(controls.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
+        assertFalse(controls.contains("ensureVNextBridge"));
+        assertTrue(controls.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
         assertTrue(brandFixes.startsWith("@import url(\"/assets/vnext-legacy-bridge-v3.css?v=20261010ui03\");"));
         assertTrue(guideAdmin.contains("/assets/admin-brand-layout-fixes.css"));
 

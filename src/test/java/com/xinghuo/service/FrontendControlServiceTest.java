@@ -46,6 +46,9 @@ class FrontendControlServiceTest {
         assertEquals("false", values.get("homeHeroVisible"));
         assertEquals("#112233", values.get("themeAccentColor"));
         assertEquals("#0b0d10", values.get("themeBackgroundColor"));
+        assertEquals("0", values.get("homeHeroHeight"));
+        assertEquals("0", values.get("homeCardScale"));
+        assertEquals("询价", values.get("mobileDockQuoteLabel"));
     }
 
     @Test
@@ -53,7 +56,8 @@ class FrontendControlServiceTest {
         when(repo.findAll()).thenReturn(List.of(
                 setting("homeHeroVisible", "true"),
                 setting("frontend.mobile.homeHeroVisible", "false"),
-                setting("frontend.mobile.themeFontScale", "108")
+                setting("frontend.mobile.themeFontScale", "108"),
+                setting("frontend.mobile.homeHeroHeight", "420")
         ));
 
         Map<String, String> mobile = service.effectiveSettings(DeviceMode.MOBILE);
@@ -61,8 +65,10 @@ class FrontendControlServiceTest {
 
         assertEquals("false", mobile.get("homeHeroVisible"));
         assertEquals("108", mobile.get("themeFontScale"));
+        assertEquals("420", mobile.get("homeHeroHeight"));
         assertEquals("true", desktop.get("homeHeroVisible"));
         assertEquals("100", desktop.get("themeFontScale"));
+        assertEquals("0", desktop.get("homeHeroHeight"));
     }
 
     @Test
@@ -74,11 +80,25 @@ class FrontendControlServiceTest {
     }
 
     @Test
-    void rejectsOutOfRangeThemeValues() {
+    void rejectsOutOfRangeThemeAndLayoutValues() {
         assertThrows(BadRequestException.class,
                 () -> service.update(Map.of("themeFontScale", "200")));
         assertThrows(BadRequestException.class,
                 () -> service.update(Map.of("themeAccentColor", "yellow")));
+        assertThrows(BadRequestException.class,
+                () -> service.update(Map.of("homeHeroHeight", "901")));
+        assertThrows(BadRequestException.class,
+                () -> service.update(Map.of("homeCardScale", "50")));
+        assertThrows(BadRequestException.class,
+                () -> service.update(Map.of("homeCardScale", "141")));
+    }
+
+    @Test
+    void rejectsUnknownOrDuplicateHomeModules() {
+        assertThrows(BadRequestException.class,
+                () -> service.update("desktop", Map.of("homeModuleOrder", "hero,script,faq")));
+        assertThrows(BadRequestException.class,
+                () -> service.update("mobile", Map.of("homeModuleOrder", "hero,quote,hero")));
     }
 
     @Test
@@ -107,6 +127,20 @@ class FrontendControlServiceTest {
         verify(repo).save(captor.capture());
         assertEquals("frontend.mobile.mobileDockVisible", captor.getValue().getSettingKey());
         assertEquals("false", captor.getValue().getSettingValue());
+    }
+
+    @Test
+    void persistsValidatedDesktopModuleOrder() {
+        when(repo.findById("frontend.desktop.homeModuleOrder")).thenReturn(Optional.empty());
+        when(repo.save(any(SiteSetting.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repo.findAll()).thenReturn(List.of());
+
+        service.update("desktop", Map.of("homeModuleOrder", " hero,command,services,faq "));
+
+        ArgumentCaptor<SiteSetting> captor = ArgumentCaptor.forClass(SiteSetting.class);
+        verify(repo).save(captor.capture());
+        assertEquals("frontend.desktop.homeModuleOrder", captor.getValue().getSettingKey());
+        assertEquals("hero,command,services,faq", captor.getValue().getSettingValue());
     }
 
     @Test

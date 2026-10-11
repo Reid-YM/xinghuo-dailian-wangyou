@@ -41,11 +41,19 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
-    void frontendControlRuntimeTargetsBothHomeRootsAndUsesFreshCacheKey() throws Exception {
+    void frontendControlRuntimeTargetsBothHomeRootsAndUsesStableStructuralHooks() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
         String runtime = Files.readString(MAIN.resolve("resources/static/assets/frontend-controls-runtime.js"));
-        assertTrue(site.contains("/assets/frontend-controls-runtime.js?v=20261011fc20"));
-        assertTrue(runtime.contains("document.querySelector('main section[aria-label=\"为什么选择星火\"]')"));
+        assertTrue(site.contains("/assets/frontend-controls-runtime.js?v=20261011fc30"));
+        assertTrue(runtime.contains("'.xh-desktop-proof-grid'"));
+        assertTrue(runtime.contains("'.xh-mobile-proof-grid'"));
+        assertTrue(runtime.contains("function resolveHomeModule"));
+        assertTrue(runtime.contains("main.querySelector(selector)"));
+        assertTrue(runtime.contains("candidate.closest('section')"));
+        assertTrue(runtime.contains("main.xh-desktop-home"));
+        assertTrue(runtime.contains("main.xh-mobile-home"));
+        assertFalse(runtime.contains("main section[aria-label=\"为什么选择星火\"]"),
+                "V3 ordering must use stable structural hooks instead of localized display text");
         assertFalse(runtime.contains("main.container section[aria-label=\"为什么选择星火\"]"),
                 "mobile home controls must not depend on a desktop-only container class");
     }
@@ -60,6 +68,8 @@ class FrontendStyleLayerContractTest {
         assertTrue(mobile.contains("xh-mobile-home"));
         assertTrue(desktop.contains("xh-desktop-command"));
         assertTrue(mobile.contains("xh-mobile-launcher"));
+        assertTrue(desktop.contains("xh-desktop-proof-grid"));
+        assertTrue(mobile.contains("xh-mobile-proof-grid"));
         assertFalse(desktop.contains("xh-mobile-launcher"));
         assertFalse(mobile.contains("xh-desktop-command"));
         for (String hook : new String[]{"id=\"homeHero\"", "id=\"quoteForm\"", "id=\"orderForm\"", "id=\"gameEntrySection\"", "id=\"homeGameRail\"", "id=\"serviceGrid\"", "id=\"hotServices\"", "name=\"privacyConsent\""}) {

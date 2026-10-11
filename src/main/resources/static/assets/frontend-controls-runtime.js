@@ -18,6 +18,32 @@
     if (safe) $$(selector, root).forEach(node => node.setAttribute('href', safe));
   };
 
+  const DESKTOP_HOME_MODULES = {
+    hero: '#homeHero',
+    command: '.xh-desktop-command',
+    game: '#gameEntrySection',
+    why: '.xh-desktop-proof-grid',
+    hot: '.xh-desktop-hot',
+    services: '.home-service-showcase',
+    tool: '.xh-desktop-lower-grid',
+    cases: '#publicCaseSection',
+    faq: '.xh-desktop-faq'
+  };
+
+  const MOBILE_HOME_MODULES = {
+    hero: '#homeHero',
+    launcher: '.xh-mobile-launcher',
+    game: '#gameEntrySection',
+    quote: '.xh-mobile-quote-card',
+    support: '.xh-mobile-two-up',
+    hot: '.xh-mobile-hot',
+    services: '.xh-mobile-services',
+    why: '.xh-mobile-proof-grid',
+    tool: '.xh-mobile-tool',
+    cases: '#publicCaseSection',
+    faq: '.xh-mobile-faq'
+  };
+
   function rgb(hex) {
     const match = /^#([0-9a-f]{6})$/i.exec(String(hex || '').trim());
     if (!match) return null;
@@ -32,6 +58,12 @@
     visible('a[href="/quote"], [data-primary-cta]', bool(control.quoteEntryVisible));
     visible('a[href="/records"], .hero-progress-link', bool(control.recordsEntryVisible));
     visible('.mobile-dock', bool(control.mobileDockVisible));
+
+    text('.mobile-dock a[href="/services"]', control.mobileDockServicesLabel);
+    text('.mobile-dock a[href="/guides"]', control.mobileDockGuidesLabel);
+    text('.mobile-dock a[href="/records"]', control.mobileDockRecordsLabel);
+    text('.mobile-dock a[href="/contact"]', control.mobileDockContactLabel);
+    text('.mobile-dock [data-primary-cta]', control.mobileDockQuoteLabel);
   }
 
   function applyTheme(control = {}) {
@@ -65,13 +97,96 @@
     root.classList.toggle('frontend-motion-off', !bool(control.motionEnabled));
   }
 
-  function applyHome(control = {}) {
-    if (location.pathname !== '/') return;
+  function homeMode() {
+    if (document.body.classList.contains('xh-mobile-home-page')) return 'mobile';
+    if (document.body.classList.contains('xh-desktop-home-page')) return 'desktop';
+    return document.documentElement.dataset.deviceMode === 'mobile' ? 'mobile' : 'desktop';
+  }
+
+  function resolveHomeModule(main, selector) {
+    const candidate = main.querySelector(selector);
+    if (!candidate) return null;
+    if (candidate.parentElement === main) return candidate;
+    const section = candidate.closest('section');
+    return section && section.parentElement === main ? section : null;
+  }
+
+  function applyHomeModuleOrder(control = {}) {
+    const raw = String(control.homeModuleOrder || '').trim();
+    if (!raw) return;
+    const mode = homeMode();
+    const map = mode === 'mobile' ? MOBILE_HOME_MODULES : DESKTOP_HOME_MODULES;
+    const main = document.querySelector(mode === 'mobile' ? 'main.xh-mobile-home' : 'main.xh-desktop-home');
+    if (!main) return;
+
+    const nodes = new Map(Object.entries(map).map(([id, selector]) => [id, resolveHomeModule(main, selector)]));
+    const requested = raw.split(',').map(value => value.trim()).filter(id => nodes.get(id));
+    const orderedIds = [...new Set([...requested, ...Object.keys(map)])];
+    orderedIds.forEach(id => {
+      const node = nodes.get(id);
+      if (node && node.parentElement === main) main.appendChild(node);
+    });
+  }
+
+  function applyHomeSizing(control = {}) {
+    const hero = document.querySelector('#homeHero');
+    const heroHeight = Number(control.homeHeroHeight || 0);
+    if (hero) {
+      if (heroHeight > 0 && heroHeight <= 900) hero.style.minHeight = `${heroHeight}px`;
+      else hero.style.removeProperty('min-height');
+    }
+
+    const root = document.documentElement;
+    const cardScale = Number(control.homeCardScale || 0);
+    if (!document.getElementById('frontendHomeLayoutControlStyle')) {
+      const style = document.createElement('style');
+      style.id = 'frontendHomeLayoutControlStyle';
+      style.textContent = '.frontend-card-scale-active .xh-desktop-home .service-card,.frontend-card-scale-active .xh-mobile-home .service-card,.frontend-card-scale-active .xh-desktop-proof-grid .card,.frontend-card-scale-active .xh-mobile-proof-grid .card{padding:var(--xh-home-card-padding)!important}';
+      document.head.appendChild(style);
+    }
+    const active = cardScale >= 70 && cardScale <= 140;
+    root.classList.toggle('frontend-card-scale-active', active);
+    if (active) root.style.setProperty('--xh-home-card-padding', `${Math.round(16 * cardScale / 100)}px`);
+    else root.style.removeProperty('--xh-home-card-padding');
+  }
+
+  function applyHomeVisibility(control = {}) {
     visible('#homeHero', bool(control.homeHeroVisible));
-    text('#homeHero .hero-kicker', control.homeHeroKicker);
     visible('#homeHero .hero-promise', bool(control.homeHeroPromisesVisible));
     visible('#homeHero .hero-media-panel', bool(control.homeHeroMediaVisible));
+    visible('.xh-mobile-launcher', bool(control.homeLauncherVisible));
+    visible('.quote-card-home', bool(control.homeQuotePanelVisible));
+    visible('.desktop-secondary-panel', bool(control.homeRecordPanelVisible));
+    visible('.xh-desktop-hot, .xh-mobile-hot', bool(control.homeHotVisible));
+    visible('.home-service-showcase, .xh-mobile-services', bool(control.homeServicesVisible));
+    visible('.xh-desktop-lower-grid, .xh-mobile-tool', bool(control.homeToolVisible));
+    visible('.xh-desktop-faq, .xh-mobile-faq', bool(control.homeFaqVisible));
 
+    if (!bool(control.homeGameEntryVisible)) visible('#gameEntrySection', false);
+    if (!bool(control.homeCasesVisible)) visible('#publicCaseSection', false);
+
+    const desktopContact = document.querySelector('.xh-desktop-command .quick-contact-card');
+    const desktopCommand = document.querySelector('.xh-desktop-command');
+    if (desktopCommand) {
+      desktopCommand.hidden = !bool(control.homeQuotePanelVisible)
+        && !bool(control.homeRecordPanelVisible)
+        && !(desktopContact && !desktopContact.hidden);
+    }
+    const mobileContact = document.querySelector('.xh-mobile-two-up .quick-contact-card');
+    const mobileSupport = document.querySelector('.xh-mobile-two-up');
+    if (mobileSupport) {
+      mobileSupport.hidden = !bool(control.homeRecordPanelVisible)
+        && !(mobileContact && !mobileContact.hidden);
+    }
+  }
+
+  function applyHome(control = {}) {
+    if (location.pathname !== '/') return;
+    applyHomeVisibility(control);
+    applyHomeSizing(control);
+    applyHomeModuleOrder(control);
+
+    text('#homeHero .hero-kicker', control.homeHeroKicker);
     text('#homeHero [data-primary-cta]', control.homePrimaryCtaLabel);
     href('#homeHero [data-primary-cta]', control.homePrimaryCtaHref);
     const secondary = '#homeHero .hero-actions .btn.ghost:not(.hero-progress-link)';
@@ -82,20 +197,18 @@
     text('#homeHero .hero-progress-link', control.homeProgressCtaLabel);
     href('#homeHero .hero-progress-link', control.homeProgressCtaHref);
 
-    visible('.quote-card-home', bool(control.homeQuotePanelVisible));
     text('.quote-card-home .quote-card-head .eyebrow', control.homeQuoteEyebrow);
     text('.quote-card-home .quote-card-head h2', control.homeQuoteTitle);
-    visible('.desktop-secondary-panel', bool(control.homeRecordPanelVisible));
     text('.desktop-secondary-panel .quote-card-head .eyebrow', control.homeRecordEyebrow);
     text('.desktop-secondary-panel .quote-card-head h2', control.homeRecordTitle);
 
-    visible('#gameEntrySection', bool(control.homeGameEntryVisible));
     text('#gameEntrySection .game-entry-head .eyebrow', control.homeGameEyebrow);
     text('#gameEntrySection .game-entry-head h2', control.homeGameTitle);
     text('#gameEntrySection .game-entry-head .text-link', control.homeGameLinkLabel);
     href('#gameEntrySection .game-entry-head .text-link', control.homeGameLinkHref);
 
-    const why = document.querySelector('main section[aria-label="为什么选择星火"]');
+    const proofGrid = document.querySelector('.xh-desktop-proof-grid, .xh-mobile-proof-grid');
+    const why = proofGrid?.closest('section');
     if (why) {
       why.hidden = !bool(control.homeWhyVisible);
       text('.section-title .eyebrow', control.homeWhyEyebrow, why);

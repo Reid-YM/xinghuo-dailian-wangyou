@@ -6,6 +6,7 @@ import com.xinghuo.repository.SiteSettingRepository;
 import com.xinghuo.web.DeviceModeResolver.DeviceMode;
 import java.time.Instant;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,6 +40,12 @@ public class FrontendControlService {
             Map.entry("homeRecordPanelVisible", "true"),
             Map.entry("homeGameEntryVisible", "true"),
             Map.entry("homeWhyVisible", "true"),
+            Map.entry("homeLauncherVisible", "true"),
+            Map.entry("homeHotVisible", "true"),
+            Map.entry("homeServicesVisible", "true"),
+            Map.entry("homeToolVisible", "true"),
+            Map.entry("homeCasesVisible", "true"),
+            Map.entry("homeFaqVisible", "true"),
             Map.entry("motionEnabled", "true"),
             Map.entry("homeHeroKicker", "CODMW4 · 可靠手打 · 纯绿服务 · 进度可查"),
             Map.entry("homePrimaryCtaLabel", "提前询价"),
@@ -59,6 +66,14 @@ public class FrontendControlService {
             Map.entry("homeWhyTitle", "四件可以被验证的事"),
             Map.entry("homeWhyLinkLabel", "更多说明"),
             Map.entry("homeWhyLinkHref", "/trust"),
+            Map.entry("homeModuleOrder", ""),
+            Map.entry("homeHeroHeight", "0"),
+            Map.entry("homeCardScale", "0"),
+            Map.entry("mobileDockServicesLabel", "服务"),
+            Map.entry("mobileDockGuidesLabel", "攻略"),
+            Map.entry("mobileDockRecordsLabel", "记录"),
+            Map.entry("mobileDockContactLabel", "客服"),
+            Map.entry("mobileDockQuoteLabel", "询价"),
             Map.entry("themeAccentColor", "#f4bd34"),
             Map.entry("themeBackgroundColor", "#0b0d10"),
             Map.entry("themeSurfaceColor", "#171b21"),
@@ -73,7 +88,8 @@ public class FrontendControlService {
             "recordsEntryVisible", "mobileDockVisible", "homeHeroVisible", "homeHeroPromisesVisible",
             "homeHeroMediaVisible", "homeSecondaryCtaVisible", "homeProgressCtaVisible",
             "homeQuotePanelVisible", "homeRecordPanelVisible", "homeGameEntryVisible",
-            "homeWhyVisible", "motionEnabled"
+            "homeWhyVisible", "homeLauncherVisible", "homeHotVisible", "homeServicesVisible",
+            "homeToolVisible", "homeCasesVisible", "homeFaqVisible", "motionEnabled"
     );
 
     private static final Set<String> URL_KEYS = Set.of(
@@ -85,10 +101,17 @@ public class FrontendControlService {
             "themeAccentColor", "themeBackgroundColor", "themeSurfaceColor", "themeTextColor"
     );
 
-    private static final Map<String, IntRange> INTEGER_KEYS = Map.of(
-            "themeRadius", new IntRange(6, 30),
-            "themeContentWidth", new IntRange(960, 1440),
-            "themeFontScale", new IntRange(90, 115)
+    private static final Map<String, IntRange> INTEGER_KEYS = Map.ofEntries(
+            Map.entry("themeRadius", new IntRange(6, 30)),
+            Map.entry("themeContentWidth", new IntRange(960, 1440)),
+            Map.entry("themeFontScale", new IntRange(90, 115)),
+            Map.entry("homeHeroHeight", new IntRange(0, 900)),
+            Map.entry("homeCardScale", new IntRange(0, 140))
+    );
+
+    private static final Set<String> HOME_MODULE_IDS = Set.of(
+            "hero", "launcher", "game", "command", "quote", "support", "why", "hot",
+            "services", "tool", "cases", "faq"
     );
 
     private final SiteSettingRepository repo;
@@ -207,6 +230,9 @@ public class FrontendControlService {
             }
             return String.valueOf(Boolean.parseBoolean(raw));
         }
+        if ("homeModuleOrder".equals(key)) {
+            return normalizeModuleOrder(raw);
+        }
         if (COLOR_KEYS.contains(key)) {
             if (!raw.matches("#[0-9a-fA-F]{6}")) throw new BadRequestException("主题颜色必须使用 #RRGGBB 格式：" + key);
             return raw.toLowerCase(Locale.ROOT);
@@ -216,9 +242,10 @@ public class FrontendControlService {
             try {
                 int value = Integer.parseInt(raw);
                 if (value < range.min() || value > range.max()) throw new NumberFormatException();
+                if ("homeCardScale".equals(key) && value != 0 && value < 70) throw new NumberFormatException();
                 return String.valueOf(value);
             } catch (NumberFormatException ex) {
-                throw new BadRequestException("主题数值超出允许范围：" + key);
+                throw new BadRequestException("前端数值超出允许范围：" + key);
             }
         }
         if (URL_KEYS.contains(key)) {
@@ -230,6 +257,21 @@ public class FrontendControlService {
         int max = "homeHeroKicker".equals(key) ? 240 : (key.endsWith("Title") ? 160 : 120);
         if (value.length() > max) throw new BadRequestException("前端文案内容过长：" + key);
         return value;
+    }
+
+    private String normalizeModuleOrder(String raw) {
+        if (raw == null || raw.isBlank()) return "";
+        LinkedHashSet<String> ordered = new LinkedHashSet<>();
+        for (String token : raw.split(",")) {
+            String id = token.trim().toLowerCase(Locale.ROOT);
+            if (id.isBlank() || !HOME_MODULE_IDS.contains(id)) {
+                throw new BadRequestException("首页模块排序包含未知模块：" + token.trim());
+            }
+            if (!ordered.add(id)) {
+                throw new BadRequestException("首页模块排序不能重复：" + id);
+            }
+        }
+        return String.join(",", ordered);
     }
 
     private boolean isSafeHref(String value) {

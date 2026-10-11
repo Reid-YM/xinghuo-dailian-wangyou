@@ -18,14 +18,15 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void sharedBridgeCoversRemainingSurfacesWhileFeatureStylesOwnRetiredSurfaces() throws IOException {
+    void sharedBridgeIsAdminOnlyWhileFeatureStylesOwnPublicRetiredSurfaces() throws IOException {
         String css = read("src/main/resources/static/assets/vnext-legacy-bridge-v3.css");
         String serviceCss = read("src/main/resources/static/assets/service-detail.css");
+        String recordCss = read("src/main/resources/static/assets/record-detail.css");
         String submissionCss = read("src/main/resources/static/assets/account-submit.css");
         String accountCenterRefine = read("src/main/resources/static/assets/account-center-refine.css");
 
         assertFalse(css.contains("body[data-page=\"service-detail\"]"));
-        assertTrue(css.contains("body[data-page=\"record-detail\"]"));
+        assertFalse(css.contains("body[data-page=\"record-detail\"]"));
         assertFalse(css.contains("body.account-center-page"));
         assertTrue(css.contains("body.admin-solid-ui"));
         assertTrue(css.contains("body.frontend-control-admin"));
@@ -38,6 +39,11 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(serviceCss.contains(".contact-cta"));
         assertTrue(serviceCss.contains("@media(min-width:1920px)"));
         assertTrue(serviceCss.contains("env(safe-area-inset-bottom"));
+
+        assertTrue(recordCss.contains("body[data-page=\"record-detail\"]"));
+        assertTrue(recordCss.contains(".record-meta-grid"));
+        assertTrue(recordCss.contains("@media(min-width:1920px)"));
+        assertTrue(recordCss.contains("env(safe-area-inset-bottom"));
 
         assertTrue(submissionCss.contains("body[data-page=\"account-submit\"]"));
         assertTrue(submissionCss.contains(".nexus-commandbar"));
@@ -69,6 +75,7 @@ class VNextLegacyUiBridgeContractTest {
 
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-legacy-bridge-v3.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/service-detail.css"));
+        assertFalse(sharedCss.contains("@import url(\"/assets/record-detail.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/account-submit.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-account-submit-v3.css"));
         assertTrue(bridgeFragment.contains("th:fragment=\"deepPageBridge\""));
@@ -85,10 +92,16 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(serviceMobile.contains("/assets/service-detail.css?v=20261011refactor02"));
         assertFalse(serviceDesktop.contains("fragments/vnext-legacy :: deepPageBridge"));
         assertFalse(serviceMobile.contains("fragments/vnext-legacy :: deepPageBridge"));
-        assertTrue(recordDesktop.indexOf("fragments/site :: header") < recordDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
-        assertTrue(recordMobile.indexOf("fragments/site :: header") < recordMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
-        assertTrue(orderDesktop.indexOf("</header>") < orderDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
-        assertTrue(orderMobile.indexOf("</header>") < orderMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
+
+        assertTrue(recordDesktop.contains("/assets/record-detail.css?v=20261011refactor03"));
+        assertTrue(recordMobile.contains("/assets/record-detail.css?v=20261011refactor03"));
+        assertTrue(orderDesktop.contains("/assets/record-detail.css?v=20261011refactor03"));
+        assertTrue(orderMobile.contains("/assets/record-detail.css?v=20261011refactor03"));
+        assertFalse(recordDesktop.contains("fragments/vnext-legacy :: deepPageBridge"));
+        assertFalse(recordMobile.contains("fragments/vnext-legacy :: deepPageBridge"));
+        assertFalse(orderDesktop.contains("fragments/vnext-legacy :: deepPageBridge"));
+        assertFalse(orderMobile.contains("fragments/vnext-legacy :: deepPageBridge"));
+
         assertTrue(submitDesktop.indexOf("fragments/site :: header") < submitDesktop.indexOf("fragments/vnext-legacy :: accountSubmitBridge"));
         assertTrue(submitMobile.indexOf("fragments/site :: header") < submitMobile.indexOf("fragments/vnext-legacy :: accountSubmitBridge"));
 
@@ -116,6 +129,7 @@ class VNextLegacyUiBridgeContractTest {
         assertFalse(imageRuntime.contains("vnext-account-submit-v3.css"));
         assertFalse(imageRuntime.contains("account-submit.css"));
         assertFalse(imageRuntime.contains("service-detail.css"));
+        assertFalse(imageRuntime.contains("record-detail.css"));
         assertFalse(imageRuntime.contains("data-vnext-legacy-bridge"));
         assertFalse(imageRuntime.contains("data-account-submit-style"));
         assertTrue(imageRuntime.contains("window.SiteImageControls = { resolveBackground, resolveMain, background, main, serviceCoverVars }"));

@@ -18,6 +18,7 @@ class LegacyBridgePlaywrightTest {
     void chromiumWideLegacySurfacesUseTheDesktopCanvasWithoutOverflow() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             assertWideServiceDetail(browser);
+            assertWideRecordDetail(browser);
             assertWideAccountCenter(browser);
             assertWideAccountSubmit(browser);
         }
@@ -27,6 +28,7 @@ class LegacyBridgePlaywrightTest {
     void webkitMobileLegacySurfacesStayOverflowFreeAndFormSafe() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.webkit().launch()) {
             assertMobileServiceDetail(browser);
+            assertMobileRecordDetail(browser);
             assertMobileAccountCenter(browser);
             assertMobileAccountSubmit(browser);
         }
@@ -51,6 +53,20 @@ class LegacyBridgePlaywrightTest {
         Number width = number(page, "document.querySelector('main.container').getBoundingClientRect().width");
         assertTrue(width.doubleValue() >= 1650.0,
                 () -> "service-detail did not use the wide desktop canvas: " + width + "px");
+        page.close();
+    }
+
+    private static void assertWideRecordDetail(Browser browser) {
+        Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(1920, 1080));
+        page.setContent(recordDetailFixture());
+        addStyle(page, "app.css");
+        addStyle(page, "record-detail.css");
+
+        assertBridgeBackground(page, "record-detail desktop");
+        assertNoHorizontalOverflow(page, "record-detail desktop");
+        Number width = number(page, "document.querySelector('main.container').getBoundingClientRect().width");
+        assertTrue(width.doubleValue() >= 1650.0,
+                () -> "record-detail did not use the wide desktop canvas: " + width + "px");
         page.close();
     }
 
@@ -103,6 +119,17 @@ class LegacyBridgePlaywrightTest {
         page.close();
     }
 
+    private static void assertMobileRecordDetail(Browser browser) {
+        Page page = mobilePage(browser);
+        page.setContent(recordDetailFixture());
+        addStyle(page, "app.css");
+        addStyle(page, "record-detail.css");
+
+        assertBridgeBackground(page, "record-detail iPhone");
+        assertNoHorizontalOverflow(page, "record-detail iPhone");
+        page.close();
+    }
+
     private static void assertMobileAccountCenter(Browser browser) {
         Page page = mobilePage(browser);
         page.setContent(accountCenterFixture());
@@ -139,6 +166,22 @@ class LegacyBridgePlaywrightTest {
         return browser.newPage(new Browser.NewPageOptions()
                 .setViewportSize(390, 844)
                 .setUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 19_0 like Mac OS X) AppleWebKit/605.1.15 Version/19.0 Mobile/15E148 Safari/604.1"));
+    }
+
+    private static String recordDetailFixture() {
+        return """
+                <body data-page="record-detail">
+                  <main class="container section page-shell">
+                    <section class="card record-detail-card">
+                      <h1>业务进度</h1>
+                      <div class="record-meta-grid">
+                        <div class="record-meta-item"><span>业务编号</span><strong>XH2026</strong></div>
+                      </div>
+                    </section>
+                  </main>
+                  <nav class="mobile-dock"><a>业务记录</a></nav>
+                </body>
+                """;
     }
 
     private static String accountCenterFixture() {
@@ -183,7 +226,7 @@ class LegacyBridgePlaywrightTest {
 
     private static void assertBridgeBackground(Page page, String label) {
         String background = string(page, "getComputedStyle(document.body).backgroundColor");
-        assertEquals("rgb(11, 12, 15)", background, label + " must receive the bridge background");
+        assertEquals("rgb(11, 12, 15)", background, label + " must receive the expected dark surface background");
     }
 
     private static void assertNoHorizontalOverflow(Page page, String label) {

@@ -18,23 +18,18 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void sharedBridgeIsMainAdminOnlyWhileFeatureStylesOwnRetiredSurfaces() throws IOException {
-        String css = read("src/main/resources/static/assets/vnext-legacy-bridge-v3.css");
+    void sharedBridgeIsRetiredAndCanonicalStylesOwnEveryFormerSurface() throws IOException {
+        Path retiredBridge = ROOT.resolve("src/main/resources/static/assets/vnext-legacy-bridge-v3.css");
         String serviceCss = read("src/main/resources/static/assets/service-detail.css");
         String recordCss = read("src/main/resources/static/assets/record-detail.css");
         String submissionCss = read("src/main/resources/static/assets/account-submit.css");
         String accountCenterRefine = read("src/main/resources/static/assets/account-center-refine.css");
         String frontendControlCss = read("src/main/resources/static/assets/admin-frontend-controls.css");
+        String adminControlCss = read("src/main/resources/static/assets/admin-control-center-v2.css");
+        String adminLightCss = read("src/main/resources/static/assets/admin-light-theme.css");
+        String guideCss = read("src/main/resources/static/assets/admin-guides-workspace.css");
 
-        assertFalse(css.contains("body[data-page=\"service-detail\"]"));
-        assertFalse(css.contains("body[data-page=\"record-detail\"]"));
-        assertFalse(css.contains("body.account-center-page"));
-        assertTrue(css.contains("body.admin-solid-ui"));
-        assertFalse(css.contains("body.frontend-control-admin"));
-        assertFalse(css.contains("@media(min-width:1920px)"));
-        assertFalse(css.contains("@media(min-width:2400px)"));
-        assertFalse(css.contains("env(safe-area-inset-bottom"));
-        assertFalse(css.contains("prefers-reduced-motion"));
+        assertFalse(Files.exists(retiredBridge));
 
         assertTrue(serviceCss.contains("body[data-page=\"service-detail\"]"));
         assertTrue(serviceCss.contains(".contact-cta"));
@@ -64,6 +59,12 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(frontendControlCss.contains("@media(min-width:2400px)"));
         assertTrue(frontendControlCss.contains("env(safe-area-inset-bottom"));
         assertTrue(frontendControlCss.contains("prefers-reduced-motion"));
+
+        assertTrue(adminControlCss.contains("body.admin-control-center-v2"));
+        assertTrue(adminLightCss.contains("body.admin-control-center-v2"));
+        assertTrue(adminLightCss.contains("body.admin-solid-ui"));
+        assertTrue(guideCss.contains("body.admin-solid-ui"));
+        assertTrue(guideCss.contains(".guide-admin-toolbar"));
     }
 
     @Test
@@ -86,13 +87,12 @@ class VNextLegacyUiBridgeContractTest {
         assertFalse(sharedCss.contains("@import url(\"/assets/record-detail.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/account-submit.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-account-submit-v3.css"));
-        assertTrue(bridgeFragment.contains("th:fragment=\"deepPageBridge\""));
+        assertFalse(bridgeFragment.contains("th:fragment=\"deepPageBridge\""));
         assertTrue(bridgeFragment.contains("th:fragment=\"accountSubmitBridge\""));
-        assertTrue(bridgeFragment.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
-        assertTrue(bridgeFragment.contains("data-vnext-legacy-bridge=\"1\""));
+        assertFalse(bridgeFragment.contains("vnext-legacy-bridge-v3.css"));
+        assertFalse(bridgeFragment.contains("data-vnext-legacy-bridge"));
         assertTrue(bridgeFragment.contains("/assets/account-submit.css?v=20261011refactor01"));
         assertTrue(bridgeFragment.contains("data-account-submit-style=\"1\""));
-        assertFalse(bridgeFragment.contains("vnext-account-submit-v3.css"));
         assertTrue(accountCenterFragment.contains("th:fragment=\"bar\""));
         assertFalse(accountCenterFragment.contains("fragments/vnext-legacy :: deepPageBridge"));
 
@@ -158,22 +158,24 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void adminEntrypointsUseSingleBridgePathWithoutChangingBusinessApis() throws IOException {
+    void adminEntrypointsUseCanonicalStylesWithoutLegacyBridgeAndKeepBusinessApis() throws IOException {
         String editor = read("src/main/resources/static/assets/admin-image-editor.js");
         String controls = read("src/main/resources/static/assets/admin-frontend-controls.js");
         String frontendControlCss = read("src/main/resources/static/assets/admin-frontend-controls.css");
         String brandFixes = read("src/main/resources/static/assets/admin-brand-layout-fixes.css");
         String guideAdmin = read("src/main/resources/templates/admin-guides.html");
 
-        assertFalse(editor.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
+        assertFalse(editor.contains("/assets/vnext-legacy-bridge-v3.css"));
         assertTrue(editor.contains("/assets/vnext-formal-ui.css?v=20261010ui03"));
         assertTrue(editor.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
         assertTrue(editor.contains("data-admin-brand-layout-fixes"));
-        assertFalse(controls.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
+        assertFalse(controls.contains("/assets/vnext-legacy-bridge-v3.css"));
         assertFalse(controls.contains("ensureVNextBridge"));
         assertTrue(controls.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
         assertTrue(frontendControlCss.contains("原共享 vnext legacy bridge 中的前端控制中心视觉规则迁移到业务自有资产"));
-        assertTrue(brandFixes.startsWith("@import url(\"/assets/vnext-legacy-bridge-v3.css?v=20261010ui03\");"));
+        assertFalse(brandFixes.contains("vnext-legacy-bridge-v3.css"));
+        assertTrue(guideAdmin.contains("/assets/admin-guides-workspace.css"));
+        assertTrue(guideAdmin.contains("/assets/admin-light-theme.css"));
         assertTrue(guideAdmin.contains("/assets/admin-brand-layout-fixes.css"));
 
         assertTrue(controls.contains("api('/api/admin/global-ui-settings')"));

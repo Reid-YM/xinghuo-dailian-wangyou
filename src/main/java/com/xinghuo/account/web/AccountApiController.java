@@ -12,7 +12,7 @@ import com.xinghuo.account.service.AccountService;
 import com.xinghuo.account.service.AccountSessionService;
 import com.xinghuo.account.repo.AccountRepository;
 import com.xinghuo.model.UploadAsset;
-import com.xinghuo.upload.infrastructure.UploadService;
+import com.xinghuo.service.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

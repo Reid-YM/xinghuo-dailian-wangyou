@@ -121,7 +121,7 @@ class FrontendInteractionPlaywrightTest {
                     </div>
                     <div class="account-settings-view" data-settings-view="security"><section class="nexus-module" id="password">P</section></div>
                     """);
-            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v2.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-shell.css")));
 
             int headerZ = Integer.parseInt((String) page.evaluate("() => getComputedStyle(document.querySelector('.site-header')).zIndex"));
             int modalZ = Integer.parseInt((String) page.evaluate("() => getComputedStyle(document.querySelector('.modal')).zIndex"));
@@ -130,7 +130,7 @@ class FrontendInteractionPlaywrightTest {
             assertTrue(toastZ > modalZ);
             assertEquals("normal", page.evaluate("() => getComputedStyle(document.querySelector('.announcement-ticker span:not([aria-hidden=true])')).whiteSpace"));
             assertEquals("none", page.evaluate("() => getComputedStyle(document.querySelector('.announcement-ticker span[aria-hidden=true]')).display"));
-            assertEquals("92px", page.evaluate("() => getComputedStyle(document.querySelector('#password')).scrollMarginTop"));
+            assertEquals("88px", page.evaluate("() => getComputedStyle(document.querySelector('#password')).scrollMarginTop"));
         }
     }
 

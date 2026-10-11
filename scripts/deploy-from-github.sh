@@ -7,7 +7,6 @@ set -Eeuo pipefail
 WORK=${WORK:-/srv/xinghuo-dev/work/xinghuo-v2}
 APP_DIR=${APP_DIR:-/opt/xinghuo-v2}
 CANDIDATE_DIR=${CANDIDATE_DIR:-$APP_DIR/candidates}
-RELEASE_MANIFEST=${RELEASE_MANIFEST:-$APP_DIR/current-release.env}
 SMOKE_UNIT=${SMOKE_UNIT:-xinghuo-smoke-18080}
 SMOKE_PORT=${SMOKE_PORT:-18080}
 EXPECTED_SHA=${1:-}
@@ -178,23 +177,8 @@ CURRENT_JAR=$(readlink -f "$APP_DIR/current.jar")
 CURRENT_SHA=$(sudo sha256sum "$CURRENT_JAR" | awk '{print $1}')
 [ "$CURRENT_SHA" = "$CANDIDATE_SHA" ] || fail "发布后的 current.jar SHA256 与候选包不一致"
 
-MANIFEST_TMP=$(mktemp)
-cat > "$MANIFEST_TMP" <<EOF
-DEPLOY_GIT_SHA=$HEAD_SHA
-JAR_SHA256=$CURRENT_SHA
-JAR_PATH=$CURRENT_JAR
-DEPLOY_SOURCE=github-main
-DEPLOYED_AT=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
-EOF
-sudo install -o root -g xinghuo -m 0640 "$MANIFEST_TMP" "$RELEASE_MANIFEST.next"
-sudo mv -Tf "$RELEASE_MANIFEST.next" "$RELEASE_MANIFEST"
-rm -f "$MANIFEST_TMP"
-sudo grep -qx "DEPLOY_GIT_SHA=$HEAD_SHA" "$RELEASE_MANIFEST" || fail "release manifest Git SHA 校验失败"
-sudo grep -qx "JAR_SHA256=$CURRENT_SHA" "$RELEASE_MANIFEST" || fail "release manifest JAR SHA256 校验失败"
-
 log "✅ GitHub 一键生产发布完成"
 log "   Git SHA: $HEAD_SHA"
 log "   JAR SHA256: $CANDIDATE_SHA"
 log "   Current: $CURRENT_JAR"
-log "   Release manifest: $RELEASE_MANIFEST"
 log "   Nginx: 8080"

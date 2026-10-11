@@ -1,35 +1,27 @@
 package com.xinghuo.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.xinghuo.catalog.application.CatalogApplicationService;
-import com.xinghuo.catalog.web.CatalogAdminWebMapper;
-import com.xinghuo.dashboard.application.DashboardApplicationService;
-import com.xinghuo.dashboard.web.DashboardWebMapper;
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
-import com.xinghuo.feedback.application.FeedbackApplicationService;
-import com.xinghuo.feedback.web.FeedbackWebMapper;
-import com.xinghuo.gamestatus.application.GameStatusApplicationService;
-import com.xinghuo.gamestatus.web.GameStatusWebMapper;
+import com.xinghuo.model.GameStatus;
+import com.xinghuo.model.Quote;
 import com.xinghuo.model.UploadAsset;
-import com.xinghuo.order.application.OrderApplicationService;
-import com.xinghuo.order.web.OrderWebMapper;
-import com.xinghuo.quote.application.QuoteApplicationService;
-import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.repository.AuditLogRepository;
-import com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService;
-import com.xinghuo.siteconfig.web.SiteConfigWebMapper;
-import com.xinghuo.siteconfig.web.SiteConfigWriteWebService;
-import com.xinghuo.slot.application.SlotApplicationService;
-import com.xinghuo.slot.web.SlotWebMapper;
-import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
-import com.xinghuo.taxonomy.web.TaxonomyWebMapper;
-import com.xinghuo.toolstation.application.ToolStationApplicationService;
-import com.xinghuo.toolstation.web.ToolStationWebMapper;
-import com.xinghuo.upload.infrastructure.UploadService;
+import com.xinghuo.service.AdminTestFeedbackService;
+import com.xinghuo.service.DashboardService;
+import com.xinghuo.service.GameStatusService;
+import com.xinghuo.service.OrderService;
+import com.xinghuo.service.QuoteService;
+import com.xinghuo.service.ServiceCatalogService;
+import com.xinghuo.service.SiteConfigService;
+import com.xinghuo.service.SlotService;
+import com.xinghuo.service.TaxonomyService;
+import com.xinghuo.service.ToolStationService;
+import com.xinghuo.service.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -56,47 +48,46 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping(value={"/api/admin"})
 public class AdminApiController {
-    private final DashboardApplicationService dashboard;
-    private final SiteConfigWriteWebService configWrites;
-    private final SiteConfigPublicApplicationService siteConfigQuery;
-    private final CatalogApplicationService services;
-    private final QuoteApplicationService quotes;
-    private final OrderApplicationService orders;
-    private final SlotApplicationService slots;
+    private final DashboardService dashboard;
+    private final SiteConfigService config;
+    private final ServiceCatalogService services;
+    private final QuoteService quotes;
+    private final OrderService orders;
+    private final SlotService slots;
     private final UploadService uploads;
     private final AuditLogRepository audits;
-    private final TaxonomyApplicationService taxonomy;
-    private final FeedbackApplicationService feedback;
+    private final TaxonomyService taxonomy;
+    private final AdminTestFeedbackService feedback;
 
-    private final ToolStationApplicationService toolStation;
-    private final ToolStationWebMapper toolStationMapper;
-    private final GameStatusApplicationService gameStatuses;
+    private final ToolStationService toolStation;
+    private final GameStatusService gameStatuses;
 
     @GetMapping(value={"/dashboard"})
     ApiDtos.DashboardResponse dashboard() {
-        return DashboardWebMapper.toResponse(this.dashboard.get());
+        return this.dashboard.get();
     }
 
     @GetMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse getConfig() {
-        return SiteConfigWebMapper.toResponse(this.siteConfigQuery.get());
+        return this.config.publicConfig();
     }
 
     @PutMapping(value={"/game-status/{gameCode}"})
     Map<String, Object> updateGameStatus(@PathVariable String gameCode, @RequestBody Map<String, Object> body, Authentication auth, HttpServletRequest request) {
-        return GameStatusWebMapper.toAdminResponse(
-                this.gameStatuses.update(GameStatusWebMapper.toCommand(
-                        gameCode,
-                        body,
-                        auth == null ? "admin" : auth.getName())));
+        GameStatus s = this.gameStatuses.update(gameCode, this.str(body.get("status")), this.str(body.get("label")), this.str(body.get("detail")), this.str(body.get("ctaLabel")), auth == null ? "admin" : auth.getName(), request);
+        LinkedHashMap<String, Object> out = new LinkedHashMap<String, Object>();
+        out.put("game", s.getGameCode());
+        out.put("status", s.getStatusCode().name().toLowerCase(Locale.ROOT));
+        out.put("label", s.getPublicLabel());
+        out.put("updatedAt", s.getUpdatedAt());
+        return out;
     }
 
     @PatchMapping(value={"/orders/{orderNo}/public-case"})
     Map<String, Object> setPublicCase(@PathVariable String orderNo, @RequestBody Map<String, Object> body, Authentication auth) {
         boolean enabled = Boolean.parseBoolean(String.valueOf(body.getOrDefault("enabled", "false")));
         String summary = this.str(body.get("summary"));
-        return OrderWebMapper.toResponse(this.orders.setPublicCase(
-                orderNo, enabled, summary, auth == null ? "admin" : auth.getName()));
+        return this.orders.setPublicCase(orderNo, enabled, summary, auth == null ? "admin" : auth.getName());
     }
 
     private String str(Object v) {
@@ -105,12 +96,12 @@ public class AdminApiController {
 
     @PatchMapping(value={"/site-config/section/{section}"})
     ApiDtos.SiteConfigResponse updateConfigSection(@PathVariable String section, @RequestBody Map<String, Object> body, Authentication a, HttpServletRequest req) {
-        return this.configWrites.updateSection(section, body, a.getName(), req);
+        return this.config.updateSection(section, body, a.getName(), req);
     }
 
     @PatchMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse updateConfig(@Valid @RequestBody ApiDtos.SiteConfigUpdate r, Authentication a, HttpServletRequest req) {
-        return this.configWrites.update(r, a.getName(), req);
+        return this.config.update(r, a.getName(), req);
     }
 
     @PostMapping(value={"/site-config/image/{slot}"})
@@ -119,23 +110,22 @@ public class AdminApiController {
         UploadAsset.Kind kind = switch (key = slot.trim().toUpperCase(Locale.ROOT)) {
             case "HERO" -> UploadAsset.Kind.SITE_HERO;
             case "BACKGROUND" -> UploadAsset.Kind.SITE_BACKGROUND;
-            case "BACKGROUND_MOBILE" -> UploadAsset.Kind.SITE_BACKGROUND;
             case "WECHAT_QR" -> UploadAsset.Kind.SITE_WECHAT_QR;
             case "CONTACT_QR" -> UploadAsset.Kind.SITE_WECHAT_QR;
-            default -> throw new BadRequestException("非法图片位置");
+            default -> throw new BadRequestException("\u975e\u6cd5\u56fe\u7247\u4f4d\u7f6e");
         };
         UploadAsset asset = this.uploads.storeImage(file, kind);
         this.uploads.bind(asset.getId(), "SITE_CONFIG", key);
         String url = "/api/site-assets/" + String.valueOf(asset.getId());
         if (!"CONTACT_QR".equals(key)) {
-            this.configWrites.updateSiteImage(key, url, a.getName(), req);
+            this.config.updateSiteImage(key, url, a.getName(), req);
         }
         return new ApiDtos.SiteImageUploadResponse(url);
     }
 
     @DeleteMapping(value={"/site-config/image/{slot}"})
     ApiDtos.SiteConfigResponse clearSiteImage(@PathVariable String slot, Authentication a, HttpServletRequest req) {
-        return this.configWrites.updateSiteImage(slot, null, a.getName(), req);
+        return this.config.updateSiteImage(slot, null, a.getName(), req);
     }
 
     @PostMapping(value={"/services/cover-image"})
@@ -152,37 +142,32 @@ public class AdminApiController {
 
     @GetMapping(value={"/catalog"})
     ApiDtos.CatalogResponse catalog() {
-        return TaxonomyWebMapper.toResponse(this.taxonomy.catalog(true));
+        return this.taxonomy.catalog(true);
     }
 
     @PostMapping(value={"/catalog/games"})
     ApiDtos.GameOptionResponse addGame(@Valid @RequestBody ApiDtos.CatalogNameRequest r, Authentication a, HttpServletRequest req) {
-        return TaxonomyWebMapper.toResponse(
-                this.taxonomy.addGame(TaxonomyWebMapper.toCommand(r), a.getName()));
+        return this.taxonomy.addGame(r, a.getName(), req);
     }
 
     @PostMapping(value={"/catalog/categories"})
     ApiDtos.CategoryOptionResponse addCategory(@Valid @RequestBody ApiDtos.CategoryCreateRequest r, Authentication a, HttpServletRequest req) {
-        return TaxonomyWebMapper.toResponse(
-                this.taxonomy.addCategory(TaxonomyWebMapper.toCommand(r), a.getName()));
+        return this.taxonomy.addCategory(r, a.getName(), req);
     }
 
     @PutMapping(value={"/catalog/games/{code}"})
     ApiDtos.GameOptionResponse updateGame(@PathVariable String code, @Valid @RequestBody ApiDtos.CatalogUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return TaxonomyWebMapper.toResponse(
-                this.taxonomy.updateGame(code, TaxonomyWebMapper.toCommand(r), a.getName()));
+        return this.taxonomy.updateGame(code, r, a.getName(), req);
     }
 
     @PutMapping(value={"/catalog/games/{code}/profile"})
     ApiDtos.GameOptionResponse updateGameProfile(@PathVariable String code, @Valid @RequestBody ApiDtos.GameProfileUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return TaxonomyWebMapper.toResponse(
-                this.taxonomy.updateGameProfile(code, TaxonomyWebMapper.toCommand(r), a.getName()));
+        return this.taxonomy.updateGameProfile(code, r, a.getName(), req);
     }
 
     @PatchMapping(value={"/catalog/games/bulk"})
     List<ApiDtos.GameOptionResponse> bulkUpdateGames(@Valid @RequestBody ApiDtos.GameBulkUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return TaxonomyWebMapper.toGameResponses(
-                this.taxonomy.bulkUpdateGames(TaxonomyWebMapper.toCommand(r), a.getName()));
+        return this.taxonomy.bulkUpdateGames(r, a.getName(), req);
     }
 
     @PostMapping(value={"/catalog/games/image/{kind}"})
@@ -190,7 +175,7 @@ public class AdminApiController {
         UploadAsset.Kind imageKind = switch (kind.trim().toUpperCase(Locale.ROOT)) {
             case "LOGO" -> UploadAsset.Kind.GAME_LOGO;
             case "COVER" -> UploadAsset.Kind.GAME_COVER;
-            default -> throw new BadRequestException("非法游戏图片类型");
+            default -> throw new BadRequestException("\u975e\u6cd5\u6e38\u620f\u56fe\u7247\u7c7b\u578b");
         };
         UploadAsset asset = this.uploads.storeImage(file, imageKind);
         return new ApiDtos.SiteImageUploadResponse("/api/site-assets/" + String.valueOf(asset.getId()));
@@ -199,138 +184,131 @@ public class AdminApiController {
     @DeleteMapping(value={"/catalog/games/{code}"})
     @PreAuthorize(value="hasRole('ADMIN')")
     ResponseEntity<Void> deleteGame(@PathVariable String code, Authentication a, HttpServletRequest req) {
-        this.taxonomy.deleteGame(code, a.getName());
+        this.taxonomy.deleteGame(code, a.getName(), req);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value={"/catalog/categories/{id}"})
     ApiDtos.CategoryOptionResponse updateCategory(@PathVariable Long id, @Valid @RequestBody ApiDtos.CategoryUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return TaxonomyWebMapper.toResponse(
-                this.taxonomy.updateCategory(id, TaxonomyWebMapper.toCommand(r), a.getName()));
+        return this.taxonomy.updateCategory(id, r, a.getName(), req);
     }
 
     @DeleteMapping(value={"/catalog/categories/{id}"})
     @PreAuthorize(value="hasRole('ADMIN')")
     ResponseEntity<Void> deleteCategory(@PathVariable Long id, Authentication a, HttpServletRequest req) {
-        this.taxonomy.deleteCategory(id, a.getName());
+        this.taxonomy.deleteCategory(id, a.getName(), req);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping(value={"/services"})
     List<ApiDtos.AdminServiceResponse> listServices() {
-        return CatalogAdminWebMapper.toResponses(this.services.adminList());
+        return this.services.adminList();
     }
 
     @PostMapping(value={"/services"})
     ApiDtos.AdminServiceResponse createService(@Valid @RequestBody ApiDtos.ServiceUpsert r, Authentication a, HttpServletRequest req) {
-        return CatalogAdminWebMapper.toResponse(this.services.create(CatalogAdminWebMapper.toCommand(r), a.getName()));
+        return this.services.create(r, a.getName(), req);
     }
 
     @PutMapping(value={"/services/{id}"})
     ApiDtos.AdminServiceResponse updateService(@PathVariable Long id, @Valid @RequestBody ApiDtos.ServiceUpsert r, Authentication a, HttpServletRequest req) {
-        return CatalogAdminWebMapper.toResponse(this.services.update(id, CatalogAdminWebMapper.toCommand(r), a.getName()));
+        return this.services.update(id, r, a.getName(), req);
     }
 
     @DeleteMapping(value={"/services/{id}"})
     @PreAuthorize(value="hasRole('ADMIN')")
     ResponseEntity<Void> deleteService(@PathVariable Long id, Authentication a, HttpServletRequest req) {
-        this.services.delete(id, a.getName());
+        this.services.delete(id, a.getName(), req);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping(value={"/tool-station"})
     JsonNode toolStation() {
-        return this.toolStationMapper.toResponse(this.toolStation.publicData());
+        return this.toolStation.publicData();
     }
 
     @PutMapping(value={"/tool-station"})
     JsonNode saveToolStation(@RequestBody JsonNode data) {
-        return this.toolStationMapper.toResponse(
-                this.toolStation.save(this.toolStationMapper.toJson(data)));
+        return this.toolStation.save(data);
     }
 
     @PostMapping(value={"/tool-station/reset"})
     JsonNode resetToolStation() {
-        return this.toolStationMapper.toResponse(this.toolStation.reset());
+        return this.toolStation.reset();
     }
 
     @PostMapping(value={"/services/{id}/restore"})
     ApiDtos.AdminServiceResponse restoreService(@PathVariable Long id, Authentication a, HttpServletRequest req) {
-        return CatalogAdminWebMapper.toResponse(this.services.restore(id, a.getName()));
+        return this.services.restore(id, a.getName(), req);
     }
 
     @GetMapping(value={"/quotes"})
     List<ApiDtos.QuoteAdminResponse> quotes() {
-        return QuoteWebMapper.toAdminResponses(this.quotes.list());
+        return this.quotes.list();
     }
 
     @PatchMapping(value={"/quotes/{id}/status"})
     ApiDtos.QuoteAdminResponse quoteStatus(@PathVariable UUID id, @Valid @RequestBody ApiDtos.QuoteStatusUpdate r, Authentication a, HttpServletRequest req) {
-        return QuoteWebMapper.toResponse(
-                this.quotes.updateStatus(id, QuoteWebMapper.toCommand(r), a.getName()));
+        return this.quotes.updateStatus(id, r, a.getName(), req);
     }
 
     @DeleteMapping(value={"/quotes/{id}"})
     @PreAuthorize(value="hasRole('ADMIN')")
     ResponseEntity<Void> deleteQuote(@PathVariable UUID id, Authentication a, HttpServletRequest req) {
-        this.quotes.delete(id, a.getName());
+        this.quotes.delete(id, a.getName(), req);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value={"/quotes/{id}/convert"})
     ApiDtos.AdminOrderResponse convertQuote(@PathVariable UUID id, @Valid @RequestBody ApiDtos.QuoteConvertRequest r, Authentication a, HttpServletRequest req) {
-        return QuoteWebMapper.toResponse(
-                this.quotes.convertToOrder(id, QuoteWebMapper.toCommand(r), a.getName()));
+        return this.quotes.convertToOrder(id, r, a.getName(), req);
     }
 
     @GetMapping(value={"/quotes/{id}/image"})
     ResponseEntity<Resource> quoteImage(@PathVariable UUID id) {
-        var q = this.quotes.find(id);
-        if (q.screenshotAssetId() == null) {
+        Quote q = this.quotes.find(id);
+        if (q.getScreenshotAssetId() == null) {
             throw new NotFoundException();
         }
-        return ResponseEntity.ok().contentType(this.uploads.mediaType(q.screenshotAssetId())).cacheControl(CacheControl.noStore()).body(this.uploads.load(q.screenshotAssetId(), "QUOTE", q.id().toString()));
+        return ResponseEntity.ok().contentType(this.uploads.mediaType(q.getScreenshotAssetId())).cacheControl(CacheControl.noStore()).body(this.uploads.load(q.getScreenshotAssetId(), "QUOTE", q.getId().toString()));
     }
 
     @GetMapping(value={"/orders"})
     List<ApiDtos.AdminOrderResponse> orders() {
-        return OrderWebMapper.toAdminResponses(this.orders.list());
+        return this.orders.list();
     }
 
     @PostMapping(value={"/orders"})
     ApiDtos.AdminOrderResponse createOrder(@Valid @RequestBody ApiDtos.CreateOrderRequest r, Authentication a, HttpServletRequest req) {
-        return OrderWebMapper.toResponse(
-                this.orders.create(OrderWebMapper.toCommand(r), a.getName()));
+        return this.orders.create(r, a.getName(), req);
     }
 
     @PatchMapping(value={"/orders/{orderNo}"})
     ApiDtos.AdminOrderResponse updateOrder(@PathVariable String orderNo, @Valid @RequestBody ApiDtos.UpdateOrderRequest r, Authentication a, HttpServletRequest req) {
-        return OrderWebMapper.toResponse(
-                this.orders.update(orderNo, OrderWebMapper.toCommand(r), a.getName()));
+        return this.orders.update(orderNo, r, a.getName(), req);
     }
 
     @PostMapping(value={"/orders/{orderNo}/image"})
     ApiDtos.AdminOrderResponse orderImage(@PathVariable String orderNo, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
         UploadAsset x = this.uploads.storeImage(file, UploadAsset.Kind.ORDER_PROGRESS);
-        return OrderWebMapper.toResponse(this.orders.attachImage(orderNo, x.getId(), a.getName()));
+        return this.orders.attachImage(orderNo, x.getId(), a.getName(), req);
     }
 
     @DeleteMapping(value={"/orders/{orderNo}"})
     @PreAuthorize(value="hasRole('ADMIN')")
     ResponseEntity<Void> deleteOrder(@PathVariable String orderNo, Authentication a, HttpServletRequest req) {
-        this.orders.delete(orderNo, a.getName());
+        this.orders.delete(orderNo, a.getName(), req);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping(value={"/slots"})
     List<ApiDtos.SlotResponse> slots() {
-        return SlotWebMapper.toSlotResponses(this.slots.list());
+        return this.slots.list();
     }
 
     @PatchMapping(value={"/slots"})
     ApiDtos.SlotResponse updateSlot(@Valid @RequestBody ApiDtos.SlotUpdate r, Authentication a, HttpServletRequest req) {
-        return SlotWebMapper.toResponse(
-                this.slots.update(SlotWebMapper.toCommand(r), a.getName()));
+        return this.slots.update(r, a.getName(), req);
     }
 
     @GetMapping(value={"/audits"})
@@ -340,31 +318,29 @@ public class AdminApiController {
 
     @GetMapping(value={"/test-feedback"})
     List<ApiDtos.TestFeedbackResponse> feedback() {
-        return FeedbackWebMapper.toResponses(this.feedback.list());
+        return this.feedback.list();
     }
 
     @PostMapping(value={"/test-feedback"})
     ApiDtos.TestFeedbackResponse createFeedback(@Valid @RequestBody ApiDtos.TestFeedbackCreateRequest r, Authentication a, HttpServletRequest req) {
-        return FeedbackWebMapper.toResponse(
-                this.feedback.create(FeedbackWebMapper.toCommand(r), a.getName()));
+        return this.feedback.create(r, a.getName(), req);
     }
 
     @PutMapping(value={"/test-feedback/{id}"})
     ApiDtos.TestFeedbackResponse updateFeedback(@PathVariable Long id, @Valid @RequestBody ApiDtos.TestFeedbackUpdateRequest r, Authentication a, HttpServletRequest req) {
-        return FeedbackWebMapper.toResponse(
-                this.feedback.update(id, FeedbackWebMapper.toCommand(r), a.getName()));
+        return this.feedback.update(id, r, a.getName(), req);
     }
 
     @PostMapping(value={"/test-feedback/{id}/attachment"})
     ApiDtos.TestFeedbackResponse uploadFeedbackAttachment(@PathVariable Long id, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
         UploadAsset asset = this.uploads.storeImage(file, UploadAsset.Kind.TEST_FEEDBACK_ATTACHMENT);
         this.uploads.bind(asset.getId(), "TEST_FEEDBACK", String.valueOf(id));
-        return FeedbackWebMapper.toResponse(this.feedback.attach(id, asset.getId(), a.getName()));
+        return this.feedback.attach(id, asset.getId(), a.getName(), req);
     }
 
     @GetMapping(value={"/test-feedback/{id}/attachment"})
     ResponseEntity<Resource> feedbackAttachment(@PathVariable Long id) {
-        var item = this.feedback.get(id);
+        ApiDtos.TestFeedbackResponse item = this.feedback.get(id);
         if (item.attachmentAssetId() == null) {
             throw new NotFoundException();
         }
@@ -372,10 +348,9 @@ public class AdminApiController {
     }
 
     @Generated
-    public AdminApiController(DashboardApplicationService dashboard, SiteConfigWriteWebService configWrites, SiteConfigPublicApplicationService siteConfigQuery, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, SlotApplicationService slots, UploadService uploads, AuditLogRepository audits, TaxonomyApplicationService taxonomy, FeedbackApplicationService feedback, ToolStationApplicationService toolStation, ToolStationWebMapper toolStationMapper, GameStatusApplicationService gameStatuses) {
+    public AdminApiController(DashboardService dashboard, SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
         this.dashboard = dashboard;
-        this.configWrites = configWrites;
-        this.siteConfigQuery = siteConfigQuery;
+        this.config = config;
         this.services = services;
         this.quotes = quotes;
         this.orders = orders;
@@ -386,7 +361,8 @@ public class AdminApiController {
         this.feedback = feedback;
 
         this.toolStation = toolStation;
-        this.toolStationMapper = toolStationMapper;
         this.gameStatuses = gameStatuses;
     }
 }
+
+

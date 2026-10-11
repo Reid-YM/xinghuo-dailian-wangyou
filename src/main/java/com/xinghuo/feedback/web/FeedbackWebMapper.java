@@ -1,6 +1,5 @@
 package com.xinghuo.feedback.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.feedback.application.CreateTestFeedbackCommand;
 import com.xinghuo.feedback.application.TestFeedbackView;
 import com.xinghuo.feedback.application.UpdateTestFeedbackCommand;
@@ -11,7 +10,7 @@ public final class FeedbackWebMapper {
     private FeedbackWebMapper() {
     }
 
-    public static CreateTestFeedbackCommand toCommand(ApiDtos.TestFeedbackCreateRequest request) {
+    public static CreateTestFeedbackCommand toCommand(TestFeedbackCreateRequest request) {
         return new CreateTestFeedbackCommand(
                 request.title(),
                 request.pagePath(),
@@ -20,7 +19,7 @@ public final class FeedbackWebMapper {
                 request.operatorNote());
     }
 
-    public static UpdateTestFeedbackCommand toCommand(ApiDtos.TestFeedbackUpdateRequest request) {
+    public static UpdateTestFeedbackCommand toCommand(TestFeedbackUpdateRequest request) {
         return new UpdateTestFeedbackCommand(
                 request.title(),
                 request.pagePath(),
@@ -30,8 +29,8 @@ public final class FeedbackWebMapper {
                 request.operatorNote());
     }
 
-    public static ApiDtos.TestFeedbackResponse toResponse(TestFeedbackView view) {
-        return new ApiDtos.TestFeedbackResponse(
+    public static TestFeedbackResponse toResponse(TestFeedbackView view) {
+        return new TestFeedbackResponse(
                 view.id(),
                 view.title(),
                 view.pagePath(),
@@ -45,7 +44,7 @@ public final class FeedbackWebMapper {
                 view.updatedAt());
     }
 
-    public static List<ApiDtos.TestFeedbackResponse> toResponses(List<TestFeedbackView> views) {
+    public static List<TestFeedbackResponse> toResponses(List<TestFeedbackView> views) {
         return views.stream().map(FeedbackWebMapper::toResponse).toList();
     }
 }

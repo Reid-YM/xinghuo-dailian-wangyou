@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xinghuo.model.AuditLog;
 import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.service.FrontendControlService;
+import com.xinghuo.service.FrontendControlService.Workspace;
 import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
@@ -13,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +38,11 @@ public class FrontendControlApiController {
         return controls.settings(scope);
     }
 
+    @GetMapping("/workspace")
+    Workspace workspace(@RequestParam(defaultValue = "global") String scope) {
+        return controls.workspace(scope);
+    }
+
     @PatchMapping
     Map<String, String> update(@RequestParam(defaultValue = "global") String scope,
                                @RequestBody Map<String, Object> body,
@@ -46,6 +53,52 @@ public class FrontendControlApiController {
         String reason = cleanReason(values.remove("reason"));
         Map<String, String> after = controls.update(scope, values);
         audit("FRONTEND_CONTROLS_UPDATE", scope, before, after, reason, authentication, request);
+        return after;
+    }
+
+    @PatchMapping("/draft")
+    Workspace saveDraft(@RequestParam(defaultValue = "global") String scope,
+                        @RequestBody Map<String, Object> body,
+                        Authentication authentication,
+                        HttpServletRequest request) throws Exception {
+        Workspace before = controls.workspace(scope);
+        LinkedHashMap<String, Object> values = new LinkedHashMap<>(body == null ? Map.of() : body);
+        String reason = cleanReason(values.remove("reason"));
+        Workspace after = controls.saveDraft(scope, values);
+        audit("FRONTEND_CONTROLS_DRAFT_SAVE", scope, before.draft(), after.draft(), reason, authentication, request);
+        return after;
+    }
+
+    @PostMapping("/publish")
+    Workspace publish(@RequestParam(defaultValue = "global") String scope,
+                      Authentication authentication,
+                      HttpServletRequest request) throws Exception {
+        Workspace before = controls.workspace(scope);
+        Workspace after = controls.publishDraft(scope);
+        audit("FRONTEND_CONTROLS_PUBLISH", scope, before.published(), after.published(),
+                "发布前端控制中心草稿", authentication, request);
+        return after;
+    }
+
+    @PostMapping("/restore-previous")
+    Workspace restorePrevious(@RequestParam(defaultValue = "global") String scope,
+                              Authentication authentication,
+                              HttpServletRequest request) throws Exception {
+        Workspace before = controls.workspace(scope);
+        Workspace after = controls.restorePrevious(scope);
+        audit("FRONTEND_CONTROLS_RESTORE_PREVIOUS", scope, before.published(), after.published(),
+                "恢复前端控制中心上一版", authentication, request);
+        return after;
+    }
+
+    @DeleteMapping("/draft")
+    Workspace discardDraft(@RequestParam(defaultValue = "global") String scope,
+                           Authentication authentication,
+                           HttpServletRequest request) throws Exception {
+        Workspace before = controls.workspace(scope);
+        Workspace after = controls.discardDraft(scope);
+        audit("FRONTEND_CONTROLS_DRAFT_DISCARD", scope, before.draft(), after.draft(),
+                "丢弃前端控制中心草稿", authentication, request);
         return after;
     }
 

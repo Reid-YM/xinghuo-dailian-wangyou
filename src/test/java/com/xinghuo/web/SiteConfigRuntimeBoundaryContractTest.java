@@ -29,7 +29,7 @@ class SiteConfigRuntimeBoundaryContractTest {
     void applicationAndDomainStayPersistenceIndependent() throws IOException {
         for (String layer : new String[] {"application", "domain"}) {
             Path directory = ROOT.resolve("src/main/java/com/xinghuo/siteconfig/" + layer);
-            try (Stream<Path> files = Files.list(directory)) {
+            try (Stream<Path> files = Files.walk(directory)) {
                 for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
                     String source = Files.readString(file);
                     assertFalse(source.contains("com.xinghuo.dto"));
@@ -38,6 +38,7 @@ class SiteConfigRuntimeBoundaryContractTest {
                     assertFalse(source.contains("com.xinghuo.service"));
                     assertFalse(source.contains("jakarta.persistence"));
                     assertFalse(source.contains("jakarta.servlet"));
+                    assertFalse(source.contains("org.springframework.data."));
                 }
             }
         }
@@ -47,34 +48,36 @@ class SiteConfigRuntimeBoundaryContractTest {
     void runtimePersistenceAdapterOwnsRuntimeJpaAccess() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/siteconfig/infrastructure/SiteRuntimePersistenceAdapter.java");
         assertTrue(adapter.contains("implements SiteRuntimePort"));
-        assertTrue(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
+        assertTrue(adapter.contains("private final SiteConfigRepository repo;"));
         assertTrue(adapter.contains("com.xinghuo.model.SiteConfig"));
         assertTrue(adapter.contains("findById(1L)"));
         assertTrue(adapter.contains("SiteOperatingStatusCode.valueOf(config.getServiceStatus().name())"));
         assertTrue(adapter.contains("config.getStatusShortText()"));
         assertTrue(adapter.contains("config.getPrimaryButtonLabel()"));
         assertTrue(adapter.contains("@Transactional(readOnly = true)"));
+        assertFalse(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
     }
 
     @Test
     void publicQueryPersistenceAdapterOwnsProjectionParsingAndPricing() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/siteconfig/infrastructure/SiteConfigPublicPersistenceAdapter.java");
         assertTrue(adapter.contains("implements SiteConfigPublicPort"));
-        assertTrue(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
-        assertTrue(adapter.contains("com.xinghuo.repository.ServiceItemRepository"));
+        assertTrue(adapter.contains("private final SiteConfigRepository repo;"));
+        assertTrue(adapter.contains("com.xinghuo.catalog.infrastructure.ServiceItemRepository"));
         assertTrue(adapter.contains("displayStartingPrice"));
         assertTrue(adapter.contains("parseContactChannels"));
         assertTrue(adapter.contains("parseTrustCases"));
         assertTrue(adapter.contains("parseTrustFaq"));
         assertTrue(adapter.contains("@Transactional(readOnly = true)"));
         assertFalse(adapter.contains("com.xinghuo.dto"));
+        assertFalse(adapter.contains("com.xinghuo.repository."));
     }
 
     @Test
     void writePersistenceAdapterOwnsJpaMutationRules() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/siteconfig/infrastructure/SiteConfigWritePersistenceAdapter.java");
         assertTrue(adapter.contains("implements SiteConfigWritePort"));
-        assertTrue(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
+        assertTrue(adapter.contains("private final SiteConfigRepository repo;"));
         assertTrue(adapter.contains("com.xinghuo.model.SiteConfig"));
         assertTrue(adapter.contains("updateSiteImage"));
         assertTrue(adapter.contains("updateSection"));
@@ -83,27 +86,21 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(adapter.contains("serializeTrustFaq"));
         assertFalse(adapter.contains("com.xinghuo.dto"));
         assertFalse(adapter.contains("jakarta.servlet"));
-        assertFalse(adapter.contains("com.xinghuo.service.AuditService"));
+        assertFalse(adapter.contains("com.xinghuo.repository."));
+        assertFalse(adapter.contains("com.xinghuo.service."));
     }
 
     @Test
-    void publicRuntimeDecisionsUseApplicationBoundary() throws IOException {
+    void publicRuntimeDecisionsUseSiteConfigApplicationBoundary() throws IOException {
         String publicQuote = read("src/main/java/com/xinghuo/quote/web/PublicQuoteController.java");
         assertTrue(publicQuote.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
         assertTrue(publicQuote.contains("runtimeConfig.quoteEnabled()"));
         assertFalse(publicQuote.contains("config.isQuoteEnabled()"));
 
-        String publicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
-        assertTrue(publicApi.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
-        assertTrue(publicApi.contains("runtimeConfig.orderQueryEnabled()"));
-        assertFalse(publicApi.contains("runtimeConfig.quoteEnabled()"));
-        assertFalse(publicApi.contains("config.isOrderQueryEnabled()"));
-
-        String page = read("src/main/java/com/xinghuo/controller/PageController.java");
-        assertTrue(page.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
-        assertTrue(page.contains("runtimeConfig.acceptingOrders()"));
-        assertFalse(page.contains("com.xinghuo.service.SiteConfigService"));
-        assertFalse(page.contains("config.publicConfig()"));
+        String publicOrder = read("src/main/java/com/xinghuo/order/web/PublicOrderController.java");
+        assertTrue(publicOrder.contains("com.xinghuo.siteconfig.application.SiteRuntimeApplicationService"));
+        assertTrue(publicOrder.contains("runtimeConfig.orderQueryEnabled()"));
+        assertFalse(publicOrder.contains("config.isOrderQueryEnabled()"));
     }
 
     @Test
@@ -113,12 +110,6 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(publicApi.contains("com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService"));
         assertTrue(publicApi.contains("@RequestMapping(value={\"/api/site-config\"})"));
         assertTrue(publicApi.contains("SiteConfigWebMapper.toResponse(this.siteConfig.get())"));
-        assertFalse(publicApi.contains("com.xinghuo.service.SiteConfigService"));
-
-        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
-        assertFalse(legacyPublicApi.contains("SiteConfigPublicApplicationService"));
-        assertFalse(legacyPublicApi.contains("SiteConfigWebMapper"));
-        assertFalse(legacyPublicApi.contains("@GetMapping(value={\"/site-config\"})"));
 
         String mapper = read("src/main/java/com/xinghuo/siteconfig/web/SiteConfigWebMapper.java");
         assertTrue(mapper.contains("com.xinghuo.dto.ApiDtos"));
@@ -127,14 +118,15 @@ class SiteConfigRuntimeBoundaryContractTest {
 
     @Test
     void adminReadAndWriteFlowsUseSiteConfigFeatureBoundaries() throws IOException {
-        String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
-        assertTrue(admin.contains("com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService"));
-        assertTrue(admin.contains("com.xinghuo.siteconfig.web.SiteConfigWebMapper"));
-        assertTrue(admin.contains("com.xinghuo.siteconfig.web.SiteConfigWriteWebService"));
+        String admin = read("src/main/java/com/xinghuo/siteconfig/web/AdminSiteConfigController.java");
+        assertTrue(admin.contains("package com.xinghuo.siteconfig.web;"));
+        assertTrue(admin.contains("SiteConfigPublicApplicationService"));
+        assertTrue(admin.contains("SiteConfigWriteWebService"));
         assertTrue(admin.contains("SiteConfigWebMapper.toResponse(this.siteConfigQuery.get())"));
         assertTrue(admin.contains("configWrites.updateSection("));
         assertTrue(admin.contains("configWrites.update("));
         assertTrue(admin.contains("configWrites.updateSiteImage("));
+        assertTrue(admin.contains("@RequestMapping(value={\"/api/admin/site-config\"})"));
         assertFalse(admin.contains("com.xinghuo.service.SiteConfigService"));
     }
 
@@ -151,7 +143,7 @@ class SiteConfigRuntimeBoundaryContractTest {
     }
 
     @Test
-    void legacySiteConfigServiceIsPhysicallyRetired() throws IOException {
+    void legacySiteConfigServiceStaysRetired() throws IOException {
         Path legacy = ROOT.resolve("src/main/java/com/xinghuo/service/SiteConfigService.java");
         assertFalse(Files.exists(legacy));
         try (Stream<Path> files = Files.walk(ROOT.resolve("src/main/java"))) {

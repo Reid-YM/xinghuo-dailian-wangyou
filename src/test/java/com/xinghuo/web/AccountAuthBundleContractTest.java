@@ -13,10 +13,14 @@ class AccountAuthBundleContractTest {
     private static final Path ASSETS = MAIN.resolve("resources/static/assets");
 
     @Test
-    void authPagesLoadDedicatedBundleInsteadOfAccountMonolith() throws Exception {
+    void authPagesLoadCoreBeforeDedicatedBundleInsteadOfAccountMonolith() throws Exception {
         for (String name : new String[]{"account-login.html", "account-register.html", "account-reset.html"}) {
             String html = Files.readString(TEMPLATES.resolve(name));
-            assertTrue(html.contains("/assets/account-auth.js?v=20261012aa01"), name + " must load account-auth.js");
+            String core = "/assets/account-core.js?v=20261012ac01";
+            String auth = "/assets/account-auth.js?v=20261012aa02";
+            assertTrue(html.contains(core), name + " must load account-core.js");
+            assertTrue(html.contains(auth), name + " must load account-auth.js");
+            assertTrue(html.indexOf(core) < html.indexOf(auth), name + " must load account-core.js before account-auth.js");
             assertFalse(html.contains("/assets/account.js"), name + " must not load the account monolith");
         }
     }
@@ -36,18 +40,29 @@ class AccountAuthBundleContractTest {
     }
 
     @Test
-    void authBundlePreservesSecurityAndCompatibilityContracts() throws Exception {
-        String js = Files.readString(ASSETS.resolve("account-auth.js"));
-        assertTrue(js.contains("'X-Requested-With': 'fetch'"));
-        assertTrue(js.contains("credentials: 'same-origin'"));
-        assertTrue(js.contains("url.origin !== location.origin"));
-        assertTrue(js.contains("/api/account/login"));
-        assertTrue(js.contains("/api/account/register/verify/request"));
-        assertTrue(js.contains("/api/account/register"));
-        assertTrue(js.contains("/api/account/password/reset/request"));
-        assertTrue(js.contains("/api/account/password/reset"));
-        assertTrue(js.contains("bytes > 72"));
-        assertTrue(js.contains("window.XHAccount = publicApi"));
-        assertFalse(js.contains("innerHTML"));
+    void accountCoreOwnsSharedSecurityAndPasswordContracts() throws Exception {
+        String core = Files.readString(ASSETS.resolve("account-core.js"));
+        assertTrue(core.contains("'X-Requested-With': 'fetch'"));
+        assertTrue(core.contains("credentials: 'same-origin'"));
+        assertTrue(core.contains("url.origin !== location.origin"));
+        assertTrue(core.contains("bytes > 72"));
+        assertTrue(core.contains("window.XHAccountCore = Object.freeze"));
+        assertFalse(core.contains("innerHTML"));
+    }
+
+    @Test
+    void authBundleOwnsOnlyAuthFlowsAndUsesCore() throws Exception {
+        String auth = Files.readString(ASSETS.resolve("account-auth.js"));
+        assertTrue(auth.contains("window.XHAccountCore"));
+        assertTrue(auth.contains("/api/account/login"));
+        assertTrue(auth.contains("/api/account/register/verify/request"));
+        assertTrue(auth.contains("/api/account/register"));
+        assertTrue(auth.contains("/api/account/password/reset/request"));
+        assertTrue(auth.contains("/api/account/password/reset"));
+        assertTrue(auth.contains("window.XHAccount = publicApi"));
+        assertFalse(auth.contains("'X-Requested-With': 'fetch'"));
+        assertFalse(auth.contains("async function request("));
+        assertFalse(auth.contains("function passwordStrength("));
+        assertFalse(auth.contains("innerHTML"));
     }
 }

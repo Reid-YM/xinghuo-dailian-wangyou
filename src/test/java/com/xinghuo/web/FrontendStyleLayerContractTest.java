@@ -28,20 +28,23 @@ class FrontendStyleLayerContractTest {
         assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" rel=\"stylesheet\" href=\"/assets/desktop-storefront.css?v=20261011ds20\""));
         assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" rel=\"stylesheet\" href=\"/assets/mobile-storefront.css?v=20261011ds20\""));
         assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" rel=\"stylesheet\" href=\"/assets/mobile-home-v4.css?v=20261012mv401\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" rel=\"stylesheet\" href=\"/assets/mobile-floating-dock-v4.css?v=20261012mv402\""));
         assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" defer src=\"/assets/desktop-storefront.js?v=20261011ds20\""));
         assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" defer src=\"/assets/mobile-storefront.js?v=20261011ds20\""));
         int sharedCss = site.indexOf("site-experience-v2.css?v=20261007ux03");
         int desktopCss = site.indexOf("desktop-storefront.css?v=20261011ds20");
         int mobileCss = site.indexOf("mobile-storefront.css?v=20261011ds20");
         int mobileV4 = site.indexOf("mobile-home-v4.css?v=20261012mv401");
+        int dockV4 = site.indexOf("mobile-floating-dock-v4.css?v=20261012mv402");
         int overflow = site.indexOf("site-overflow-guard.css?v=20261011of01");
         assertTrue(sharedCss >= 0 && desktopCss > sharedCss && mobileCss > sharedCss,
                 "device-specific CSS must load after the shared experience foundation");
-        assertTrue(mobileV4 > mobileCss && overflow > mobileV4,
-                "mobile V4 must override the mobile base while the global overflow guard stays final");
+        assertTrue(mobileV4 > mobileCss && dockV4 > mobileV4 && overflow > dockV4,
+                "mobile V4, dock hardening and global overflow guard must remain in deterministic order");
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/desktop-storefront.css")));
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/mobile-storefront.css")));
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/mobile-home-v4.css")));
+        assertTrue(Files.exists(MAIN.resolve("resources/static/assets/mobile-floating-dock-v4.css")));
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/desktop-storefront.js")));
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/mobile-storefront.js")));
     }

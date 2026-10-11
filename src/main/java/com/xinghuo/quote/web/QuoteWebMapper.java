@@ -1,6 +1,5 @@
 package com.xinghuo.quote.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.quote.application.ConvertedOrderView;
 import com.xinghuo.quote.application.QuoteAdminView;
 import com.xinghuo.quote.application.QuoteAiSuggestionView;
@@ -43,7 +42,7 @@ public final class QuoteWebMapper {
                 customerAccountId);
     }
 
-    public static QuoteStatusUpdateCommand toCommand(ApiDtos.QuoteStatusUpdate request) {
+    public static QuoteStatusUpdateCommand toCommand(QuoteStatusUpdate request) {
         return new QuoteStatusUpdateCommand(request.status(), request.reason());
     }
 
@@ -56,17 +55,17 @@ public final class QuoteWebMapper {
                 request.reason());
     }
 
-    public static QuoteConvertCommand toCommand(ApiDtos.QuoteConvertRequest request) {
+    public static QuoteConvertCommand toCommand(QuoteConvertRequest request) {
         return new QuoteConvertCommand(request.reason());
     }
 
-    public static ApiDtos.QuoteResponse toResponse(QuoteSubmissionResult result) {
-        return new ApiDtos.QuoteResponse(
+    public static QuoteResponse toResponse(QuoteSubmissionResult result) {
+        return new QuoteResponse(
                 result.id(), result.businessNo(), result.status(), result.createdAt());
     }
 
-    public static ApiDtos.QuoteAdminResponse toResponse(QuoteAdminView view) {
-        return new ApiDtos.QuoteAdminResponse(
+    public static QuoteAdminResponse toResponse(QuoteAdminView view) {
+        return new QuoteAdminResponse(
                 view.id(),
                 view.businessNo(),
                 view.game(),
@@ -82,7 +81,7 @@ public final class QuoteWebMapper {
                 view.createdAt());
     }
 
-    public static List<ApiDtos.QuoteAdminResponse> toAdminResponses(List<QuoteAdminView> views) {
+    public static List<QuoteAdminResponse> toAdminResponses(List<QuoteAdminView> views) {
         return views.stream().map(QuoteWebMapper::toResponse).toList();
     }
 
@@ -135,8 +134,8 @@ public final class QuoteWebMapper {
                 view.reason());
     }
 
-    public static ApiDtos.AdminOrderResponse toResponse(ConvertedOrderView view) {
-        return new ApiDtos.AdminOrderResponse(
+    public static QuoteConvertedOrderResponse toResponse(ConvertedOrderView view) {
+        return new QuoteConvertedOrderResponse(
                 view.id(),
                 view.orderNo(),
                 view.businessNo(),

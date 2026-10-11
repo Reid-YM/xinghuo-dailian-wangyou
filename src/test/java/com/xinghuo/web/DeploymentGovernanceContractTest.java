@@ -34,6 +34,16 @@ class DeploymentGovernanceContractTest {
     }
 
     @Test
+    void ciRemainsManualOnlyUntilOperationsExplicitlyChangesPolicy() throws Exception {
+        String ci = Files.readString(ROOT.resolve(".github/workflows/ci.yml"));
+        String triggerBlock = ci.substring(0, ci.indexOf("permissions:"));
+
+        assertTrue(triggerBlock.contains("workflow_dispatch:"));
+        assertFalse(triggerBlock.contains("\n  push:"));
+        assertFalse(triggerBlock.contains("\n  pull_request:"));
+    }
+
+    @Test
     void governanceDocumentationExplainsPlatformProtectionBoundary() throws Exception {
         String doc = Files.readString(ROOT.resolve("docs/PRODUCTION-DEPLOYMENT-GOVERNANCE.md"));
         assertTrue(doc.contains("不需要为了每次发布 force reset"));
@@ -41,5 +51,21 @@ class DeploymentGovernanceContractTest {
         assertTrue(doc.contains("Chromium + WebKit UI Regression"));
         assertTrue(doc.contains("workflow_dispatch"));
         assertTrue(doc.contains("同一个 main SHA"));
+    }
+
+    @Test
+    void manualValidationRunbookLocksBrowserAndThreePortEvidenceBeforeCssRetirement() throws Exception {
+        String runbook = Files.readString(ROOT.resolve("docs/MANUAL-REFACTOR-VALIDATION.md"));
+
+        assertTrue(runbook.contains("Java 21 / Maven Build"));
+        assertTrue(runbook.contains("Chromium + WebKit UI Regression"));
+        assertTrue(runbook.contains("LegacyBridgePlaywrightTest"));
+        assertTrue(runbook.contains("18080"));
+        assertTrue(runbook.contains("8081"));
+        assertTrue(runbook.contains("8080"));
+        assertTrue(runbook.contains("vnext-legacy-bridge-v3.css"));
+        assertTrue(runbook.contains("vnext-account-submit-v3.css"));
+        assertTrue(runbook.contains("deploy/production"));
+        assertTrue(runbook.contains("workflow 定义未同步"));
     }
 }

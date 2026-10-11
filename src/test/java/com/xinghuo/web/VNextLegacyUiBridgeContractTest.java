@@ -73,8 +73,10 @@ class VNextLegacyUiBridgeContractTest {
         String brandFixes = read("src/main/resources/static/assets/admin-brand-layout-fixes.css");
         String guideAdmin = read("src/main/resources/templates/admin-guides.html");
 
-        assertTrue(editor.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
+        assertFalse(editor.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
         assertTrue(editor.contains("/assets/vnext-formal-ui.css?v=20261010ui03"));
+        assertTrue(editor.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
+        assertTrue(editor.contains("data-admin-brand-layout-fixes"));
         assertFalse(controls.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
         assertFalse(controls.contains("ensureVNextBridge"));
         assertTrue(controls.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));

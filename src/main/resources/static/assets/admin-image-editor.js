@@ -4,10 +4,10 @@
    link.rel='stylesheet';link.href='/assets/vnext-formal-ui.css?v=20261010ui03';link.dataset.vnextFormalTheme='1';
    document.head.append(link);
  }
- if(!document.querySelector('link[data-vnext-legacy-bridge]')){
-   const bridge=document.createElement('link');
-   bridge.rel='stylesheet';bridge.href='/assets/vnext-legacy-bridge-v3.css?v=20261010ui03';bridge.dataset.vnextLegacyBridge='1';
-   document.head.append(bridge);
+ if(!document.querySelector('link[data-admin-brand-layout-fixes]')){
+   const fixes=document.createElement('link');
+   fixes.rel='stylesheet';fixes.href='/assets/admin-brand-layout-fixes.css?v=20261008b002';fixes.dataset.adminBrandLayoutFixes='1';
+   document.head.append(fixes);
  }
 })();
 (function(){

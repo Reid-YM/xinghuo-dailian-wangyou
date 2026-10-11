@@ -3,7 +3,6 @@ package com.xinghuo.upload.infrastructure;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.ConflictException;
 import com.xinghuo.exception.NotFoundException;
-import com.xinghuo.model.UploadAsset;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;

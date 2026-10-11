@@ -1,5 +1,0 @@
-/* VNext build entry for the shared formal production UI layer.
-   Keep the source of truth in Spring static assets while bundling it into /vnext/assets/app.css. */
-@import "../../src/main/resources/static/assets/vnext-formal-ui.css";
-@import "../../src/main/resources/static/assets/vnext-mobile-focus-v7.css";
-@import "../../src/main/resources/static/assets/vnext-mobile-polish-v8.css";

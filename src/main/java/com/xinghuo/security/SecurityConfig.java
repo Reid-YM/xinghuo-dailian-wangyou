@@ -1,6 +1,6 @@
 package com.xinghuo.security;
 
-import com.xinghuo.security.infrastructure.AdminUserDetailsService;
+import com.xinghuo.service.AdminUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -36,7 +36,6 @@ public class SecurityConfig {
     private static final String[] PERMIT_ALL = {
             "/", "/services", "/service/**", "/game/**", "/guides", "/guides/**", "/mastery", "/quote",
             "/records", "/record/**", "/order", "/order/**", "/contact",
-            "/vnext", "/vnext/**",
             "/account", "/account/login", "/account/register", "/account/reset",
             "/account/settings", "/account/submit",
             "/account/requests", "/account/orders", "/account/progress",
@@ -61,7 +60,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain chain(HttpSecurity http, AdminUserDetailsService users) throws Exception {
+    SecurityFilterChain chain(HttpSecurity http, AdminUserService users) throws Exception {
         return http
                 .userDetailsService((UserDetailsService) users)
                 .authorizeHttpRequests(a -> a

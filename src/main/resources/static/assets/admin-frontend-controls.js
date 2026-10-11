@@ -6,15 +6,6 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const ADMIN_BRAND_FAVICON = '/assets/brand-logo.svg?v=20261008logo02';
 
-  function ensureVNextBridge() {
-    if (document.querySelector('link[data-vnext-legacy-bridge]')) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = '/assets/vnext-legacy-bridge-v3.css?v=20261010ui03';
-    link.dataset.vnextLegacyBridge = '1';
-    document.head.appendChild(link);
-  }
-
   function ensureBrandLayoutFixes() {
     if (document.querySelector('link[data-admin-brand-layout-fixes]')) return;
     const link = document.createElement('link');
@@ -38,7 +29,6 @@
     icon.href = ADMIN_BRAND_FAVICON;
   }
 
-  ensureVNextBridge();
   ensureBrandLayoutFixes();
   ensureAdminBrandFavicon();
 

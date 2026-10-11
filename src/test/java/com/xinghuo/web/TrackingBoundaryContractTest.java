@@ -54,15 +54,12 @@ class TrackingBoundaryContractTest {
         assertTrue(controller.contains("package com.xinghuo.tracking.web;"));
         assertTrue(controller.contains("com.xinghuo.tracking.application.TrackingApplicationService"));
         assertTrue(controller.contains("@RequestMapping(value={\"/api/track\"})"));
+        assertTrue(controller.contains("@RequestBody TrackRequest body"));
         assertTrue(controller.contains("TrackingWebMapper.toCommand"));
         assertTrue(controller.contains("HashUtil.sha256(RequestUtil.clientIp(req))"));
         assertTrue(controller.contains("ResponseEntity.noContent().build()"));
-        assertFalse(controller.contains("import com.xinghuo.service.TrackingService;"));
-
-        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
-        assertFalse(legacyPublicApi.contains("TrackingApplicationService"));
-        assertFalse(legacyPublicApi.contains("TrackingWebMapper"));
-        assertFalse(legacyPublicApi.contains("@PostMapping(value={\"/track\"})"));
+        assertFalse(controller.contains("com.xinghuo.dto.ApiDtos"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/PublicApiController.java")));
     }
 
     @Test
@@ -83,13 +80,16 @@ class TrackingBoundaryContractTest {
     @Test
     void infrastructureOwnsTrackingWriteAndAdminSummaryPersistence() throws IOException {
         String writeMapper = read("src/main/java/com/xinghuo/tracking/web/TrackingWebMapper.java");
-        assertTrue(writeMapper.contains("ApiDtos.TrackRequest"));
+        assertTrue(writeMapper.contains("TrackRequest"));
+        assertFalse(writeMapper.contains("ApiDtos.TrackRequest"));
         assertTrue(writeMapper.contains("TrackingCommand"));
 
         String write = read("src/main/java/com/xinghuo/tracking/infrastructure/TrackingPersistenceAdapter.java");
         assertTrue(write.contains("implements TrackingPort"));
-        assertTrue(write.contains("com.xinghuo.repository.TrackingEventRepository"));
-        assertTrue(write.contains("com.xinghuo.model.TrackingEvent"));
+        assertTrue(write.contains("private final TrackingEventRepository repo;"));
+        assertTrue(write.contains("TrackingEvent.builder()"));
+        assertFalse(write.contains("com.xinghuo.repository.TrackingEventRepository"));
+        assertFalse(write.contains("com.xinghuo.model.TrackingEvent"));
         assertTrue(write.contains("hero_quote_click"));
         assertTrue(write.contains("rule_open"));
         assertFalse(write.contains("com.xinghuo.dto"));
@@ -103,6 +103,16 @@ class TrackingBoundaryContractTest {
         assertTrue(summary.contains("order_search_success"));
         assertTrue(summary.contains("Math.round(count * 1000.0 / first) / 10.0"));
         assertTrue(summary.contains("GROUP BY d ORDER BY d"));
+    }
+
+    @Test
+    void trackingWebContractPreservesValidationShape() throws IOException {
+        String request = read("src/main/java/com/xinghuo/tracking/web/TrackRequest.java");
+        assertTrue(request.contains("String eventName"));
+        assertTrue(request.contains("String path"));
+        assertTrue(request.contains("String refValue"));
+        assertTrue(request.contains("@NotBlank @Size(max=64) @NotBlank @Size(max=64)"));
+        assertTrue(request.contains("@Size(max=255) @Size(max=255)"));
     }
 
     @Test

@@ -11,17 +11,17 @@ public final class SlotWebMapper {
     private SlotWebMapper() {
     }
 
-    public static UpdateSlotCommand toCommand(ApiDtos.SlotUpdate request) {
+    public static UpdateSlotCommand toCommand(SlotUpdate request) {
         return new UpdateSlotCommand(
                 request.slotNo(), request.serviceId(), request.mode(), request.reason());
     }
 
-    public static ApiDtos.SlotResponse toResponse(SlotView view) {
-        return new ApiDtos.SlotResponse(
+    public static SlotResponse toResponse(SlotView view) {
+        return new SlotResponse(
                 view.slotNo(), view.serviceId(), view.serviceName(), view.mode());
     }
 
-    public static List<ApiDtos.SlotResponse> toSlotResponses(List<SlotView> views) {
+    public static List<SlotResponse> toSlotResponses(List<SlotView> views) {
         return views.stream().map(SlotWebMapper::toResponse).toList();
     }
 

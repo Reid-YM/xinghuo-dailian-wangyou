@@ -29,8 +29,8 @@
     visible('.site-header', bool(control.siteHeaderVisible));
     visible('body > footer', bool(control.siteFooterVisible));
     visible('a[href="/services"]', bool(control.servicesEntryVisible));
-    visible('a[href="/quote"]', bool(control.quoteEntryVisible));
-    visible('a[href="/records"]', bool(control.recordsEntryVisible));
+    visible('a[href="/quote"], [data-primary-cta]', bool(control.quoteEntryVisible));
+    visible('a[href="/records"], .hero-progress-link', bool(control.recordsEntryVisible));
     visible('.mobile-dock', bool(control.mobileDockVisible));
   }
 
@@ -111,9 +111,9 @@
       if (!response.ok) return;
       const control = await response.json();
       const apply = () => {
-        applyFeatureSwitches(control || {});
         applyTheme(control || {});
         applyHome(control || {});
+        applyFeatureSwitches(control || {});
       };
       apply();
       [120, 600, 1500].forEach(delay => setTimeout(apply, delay));

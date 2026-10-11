@@ -44,8 +44,10 @@ class FrontendStyleLayerContractTest {
     void frontendControlRuntimeTargetsBothHomeRootsAndUsesFreshCacheKey() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
         String runtime = Files.readString(MAIN.resolve("resources/static/assets/frontend-controls-runtime.js"));
-        assertTrue(site.contains("/assets/frontend-controls-runtime.js?v=20261011fc20"));
+        assertTrue(site.contains("/assets/frontend-controls-runtime.js?v=20261011fc30"));
         assertTrue(runtime.contains("document.querySelector('main section[aria-label=\"为什么选择星火\"]')"));
+        assertTrue(runtime.contains("main.xh-desktop-home"));
+        assertTrue(runtime.contains("main.xh-mobile-home"));
         assertFalse(runtime.contains("main.container section[aria-label=\"为什么选择星火\"]"),
                 "mobile home controls must not depend on a desktop-only container class");
     }

@@ -18,9 +18,9 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void deepPageBridgeCoversPublicAccountAndAdminSurfaces() throws IOException {
+    void deepPageBridgeCoversSharedSurfacesAndAccountSubmitOwnsCanonicalStyle() throws IOException {
         String css = read("src/main/resources/static/assets/vnext-legacy-bridge-v3.css");
-        String submissionCss = read("src/main/resources/static/assets/vnext-account-submit-v3.css");
+        String submissionCss = read("src/main/resources/static/assets/account-submit.css");
 
         assertTrue(css.contains("body[data-page=\"service-detail\"]"));
         assertTrue(css.contains("body[data-page=\"record-detail\"]"));
@@ -40,7 +40,7 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void publicAndAccountPagesOwnCompatibilityStylesDeclaratively() throws IOException {
+    void publicAndAccountPagesOwnStylesDeclaratively() throws IOException {
         String sharedCss = read("src/main/resources/static/assets/site-image-controls.css");
         String imageRuntime = read("src/main/resources/static/assets/site-image-controls.js");
         String bridgeFragment = read("src/main/resources/templates/fragments/vnext-legacy.html");
@@ -55,13 +55,15 @@ class VNextLegacyUiBridgeContractTest {
         String submitMobile = read("src/main/resources/templates/mobile/account-submit.html");
 
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-legacy-bridge-v3.css"));
+        assertFalse(sharedCss.contains("@import url(\"/assets/account-submit.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-account-submit-v3.css"));
         assertTrue(bridgeFragment.contains("th:fragment=\"deepPageBridge\""));
         assertTrue(bridgeFragment.contains("th:fragment=\"accountSubmitBridge\""));
         assertTrue(bridgeFragment.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
         assertTrue(bridgeFragment.contains("data-vnext-legacy-bridge=\"1\""));
-        assertTrue(bridgeFragment.contains("/assets/vnext-account-submit-v3.css?v=20261010ui03"));
-        assertTrue(bridgeFragment.contains("data-vnext-account-submit-bridge=\"1\""));
+        assertTrue(bridgeFragment.contains("/assets/account-submit.css?v=20261011refactor01"));
+        assertTrue(bridgeFragment.contains("data-account-submit-style=\"1\""));
+        assertFalse(bridgeFragment.contains("vnext-account-submit-v3.css"));
         assertTrue(accountCenterFragment.contains("th:fragment=\"bar\""));
         assertTrue(accountCenterFragment.contains("fragments/vnext-legacy :: deepPageBridge"));
 
@@ -87,8 +89,9 @@ class VNextLegacyUiBridgeContractTest {
         assertFalse(imageRuntime.contains("ensureStylesheet"));
         assertFalse(imageRuntime.contains("vnext-legacy-bridge-v3.css"));
         assertFalse(imageRuntime.contains("vnext-account-submit-v3.css"));
+        assertFalse(imageRuntime.contains("account-submit.css"));
         assertFalse(imageRuntime.contains("data-vnext-legacy-bridge"));
-        assertFalse(imageRuntime.contains("data-vnext-account-submit-bridge"));
+        assertFalse(imageRuntime.contains("data-account-submit-style"));
         assertTrue(imageRuntime.contains("window.SiteImageControls = { resolveBackground, resolveMain, background, main, serviceCoverVars }"));
 
         for (String name : List.of(

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.xinghuo.catalog.infrastructure.ServiceItem;
 import com.xinghuo.catalog.infrastructure.ServiceItemRepository;
-import com.xinghuo.model.SiteConfig;
 import com.xinghuo.siteconfig.application.SiteConfigPublicSnapshot;
 import java.math.BigDecimal;
 import java.time.Instant;

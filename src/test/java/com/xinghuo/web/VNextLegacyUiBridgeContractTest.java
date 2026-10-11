@@ -18,22 +18,23 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void sharedBridgeIsAdminOnlyWhileFeatureStylesOwnPublicRetiredSurfaces() throws IOException {
+    void sharedBridgeIsMainAdminOnlyWhileFeatureStylesOwnRetiredSurfaces() throws IOException {
         String css = read("src/main/resources/static/assets/vnext-legacy-bridge-v3.css");
         String serviceCss = read("src/main/resources/static/assets/service-detail.css");
         String recordCss = read("src/main/resources/static/assets/record-detail.css");
         String submissionCss = read("src/main/resources/static/assets/account-submit.css");
         String accountCenterRefine = read("src/main/resources/static/assets/account-center-refine.css");
+        String frontendControlCss = read("src/main/resources/static/assets/admin-frontend-controls.css");
 
         assertFalse(css.contains("body[data-page=\"service-detail\"]"));
         assertFalse(css.contains("body[data-page=\"record-detail\"]"));
         assertFalse(css.contains("body.account-center-page"));
         assertTrue(css.contains("body.admin-solid-ui"));
-        assertTrue(css.contains("body.frontend-control-admin"));
-        assertTrue(css.contains("@media(min-width:1920px)"));
-        assertTrue(css.contains("@media(min-width:2400px)"));
-        assertTrue(css.contains("env(safe-area-inset-bottom"));
-        assertTrue(css.contains("prefers-reduced-motion"));
+        assertFalse(css.contains("body.frontend-control-admin"));
+        assertFalse(css.contains("@media(min-width:1920px)"));
+        assertFalse(css.contains("@media(min-width:2400px)"));
+        assertFalse(css.contains("env(safe-area-inset-bottom"));
+        assertFalse(css.contains("prefers-reduced-motion"));
 
         assertTrue(serviceCss.contains("body[data-page=\"service-detail\"]"));
         assertTrue(serviceCss.contains(".contact-cta"));
@@ -56,6 +57,13 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(accountCenterRefine.contains("@media(min-width:1920px)"));
         assertTrue(accountCenterRefine.contains("html.is-ios body.account-center-page"));
         assertTrue(accountCenterRefine.contains("env(safe-area-inset-bottom"));
+
+        assertTrue(frontendControlCss.contains(".frontend-control-admin"));
+        assertTrue(frontendControlCss.contains("--v3-bg:#0b0c0f"));
+        assertTrue(frontendControlCss.contains("@media(min-width:1920px)"));
+        assertTrue(frontendControlCss.contains("@media(min-width:2400px)"));
+        assertTrue(frontendControlCss.contains("env(safe-area-inset-bottom"));
+        assertTrue(frontendControlCss.contains("prefers-reduced-motion"));
     }
 
     @Test
@@ -153,6 +161,7 @@ class VNextLegacyUiBridgeContractTest {
     void adminEntrypointsUseSingleBridgePathWithoutChangingBusinessApis() throws IOException {
         String editor = read("src/main/resources/static/assets/admin-image-editor.js");
         String controls = read("src/main/resources/static/assets/admin-frontend-controls.js");
+        String frontendControlCss = read("src/main/resources/static/assets/admin-frontend-controls.css");
         String brandFixes = read("src/main/resources/static/assets/admin-brand-layout-fixes.css");
         String guideAdmin = read("src/main/resources/templates/admin-guides.html");
 
@@ -163,6 +172,7 @@ class VNextLegacyUiBridgeContractTest {
         assertFalse(controls.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
         assertFalse(controls.contains("ensureVNextBridge"));
         assertTrue(controls.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
+        assertTrue(frontendControlCss.contains("原共享 vnext legacy bridge 中的前端控制中心视觉规则迁移到业务自有资产"));
         assertTrue(brandFixes.startsWith("@import url(\"/assets/vnext-legacy-bridge-v3.css?v=20261010ui03\");"));
         assertTrue(guideAdmin.contains("/assets/admin-brand-layout-fixes.css"));
 

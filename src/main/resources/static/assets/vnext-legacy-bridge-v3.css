@@ -1,4 +1,4 @@
-/* VNext 深层页面视觉桥接 v3：仅保留后台与前端控制中心兼容层。 */
+/* VNext 深层页面视觉桥接 v3：仅保留主运营后台兼容层。 */
 :root{--v3-bg:#0b0c0f;--v3-surface:#15181e;--v3-surface-2:#101318;--v3-border:#2b313b;--v3-border-strong:#3a424e;--v3-text:#eef1f5;--v3-muted:#9ca5b2;--v3-accent:#df2f31;--v3-accent-soft:rgba(223,47,49,.12);--v3-green:#33b77a;--v3-radius:16px;--v3-shadow:0 18px 48px rgba(0,0,0,.22)}
 
 /* 主运营后台：现有 admin-solid-ui 上继续统一深层组件。 */
@@ -15,26 +15,4 @@ body.admin-solid-ui .notice,body.admin-solid-ui .alert,body.admin-solid-ui .toas
 body.admin-solid-ui .toolbar,body.admin-solid-ui .row-actions{gap:8px}
 body.admin-solid-ui .btn,body.admin-solid-ui button{min-height:40px;border-radius:10px}
 
-/* 独立后台“前端控制中心”。 */
-body.frontend-control-admin{background:radial-gradient(circle at 90% 0,rgba(223,47,49,.08),transparent 34rem),var(--v3-bg)!important;color:var(--v3-text)!important}
-body.frontend-control-admin .fc-topbar{background:rgba(15,17,22,.94)!important;border-bottom:1px solid var(--v3-border)!important;backdrop-filter:blur(16px)}
-body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 40px),1480px)!important;max-width:none!important;margin-inline:auto!important}
-body.frontend-control-admin .fc-brand-mark{background:linear-gradient(145deg,#17191f,#0d0f13)!important;border-color:#fff!important;box-shadow:4px 4px 0 var(--v3-accent)!important}
-body.frontend-control-admin .fc-hero,body.frontend-control-admin .fc-card,body.frontend-control-admin .fc-status-card,body.frontend-control-admin .fc-theme-preview,body.frontend-control-admin .fc-existing-grid article{border:1px solid var(--v3-border)!important;border-radius:var(--v3-radius)!important;background:linear-gradient(180deg,#181b21,#121419)!important;color:var(--v3-text)!important;box-shadow:var(--v3-shadow)!important}
-body.frontend-control-admin .fc-section-nav{border:1px solid var(--v3-border)!important;border-radius:14px!important;background:#101318!important}
-body.frontend-control-admin .fc-section-nav a{color:#b9c0ca!important;border-radius:10px}
-body.frontend-control-admin .fc-section-nav a:hover{background:#211719!important;color:#fff!important}
-body.frontend-control-admin .field input,body.frontend-control-admin .field select,body.frontend-control-admin .field textarea{min-height:46px;border:1px solid #343b46!important;border-radius:12px!important;background:#0d0f13!important;color:var(--v3-text)!important;font-size:16px}
-body.frontend-control-admin .toggle-row{border:1px solid var(--v3-border)!important;border-radius:12px!important;background:#101318!important;color:var(--v3-text)!important}
-body.frontend-control-admin .btn.primary{background:var(--v3-accent)!important;border-color:var(--v3-accent)!important;color:#fff!important}
-body.frontend-control-admin .btn.ghost{background:#15181e!important;border-color:#303641!important;color:#e2e5ea!important}
-body.frontend-control-admin .fc-sticky-save{border-color:#333a45!important;background:rgba(15,17,22,.95)!important;box-shadow:0 -18px 50px rgba(0,0,0,.22)!important}
-body.frontend-control-admin .eyebrow,body.frontend-control-admin .fc-badge{color:#ff6d6f!important}
-
-@media(min-width:1600px){body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 72px),1580px)!important}}
-@media(min-width:1920px){body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 96px),1780px)!important}}
-@media(min-width:2400px){body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 120px),2020px)!important}}
-@media(max-width:1023px){body.frontend-control-admin .fc-grid.two{grid-template-columns:1fr!important}}
-@media(max-width:767px){body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 24px),100%)!important}body.frontend-control-admin .fc-top-actions{gap:6px;flex-wrap:wrap}body.frontend-control-admin .fc-card{padding:18px!important}body.frontend-control-admin .fc-sticky-save{bottom:max(8px,env(safe-area-inset-bottom,0px))!important;border-radius:16px!important}}
-@media(prefers-reduced-motion:reduce){body.frontend-control-admin *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
-@media(forced-colors:active){body.admin-solid-ui .table-wrap,body.frontend-control-admin .fc-card{border:1px solid CanvasText!important}}
+@media(forced-colors:active){body.admin-solid-ui .table-wrap{border:1px solid CanvasText!important}}

@@ -20,6 +20,7 @@ class ProductionSmokeCompatibilityContractTest {
         assertTrue(smoke.contains("check_code /assets/account-submit.css 200"));
         assertTrue(smoke.contains("check_code /assets/account-center.css 200"));
         assertTrue(smoke.contains("check_code /assets/account-center-refine.css 200"));
+        assertTrue(smoke.contains("check_code /assets/admin-frontend-controls.css 200"));
         assertFalse(smoke.contains("check_code /assets/vnext-account-submit-v3.css 200"));
     }
 

@@ -1,0 +1,22 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+<div th:fragment="compactQuoteHero(eyebrow,title,note,status,secondaryHref,secondaryLabel,extraClass)"
+     class="page-hero page-hero-compact"
+     th:classappend="${extraClass != null ? extraClass : ''}">
+  <div>
+    <div th:if="${status != null and !#strings.isEmpty(status)}" class="service-state" data-config="status" th:text="${status}">服务状态</div>
+    <span class="eyebrow" th:text="${eyebrow}">页面</span>
+    <h1 th:text="${title}">页面标题</h1>
+    <p th:if="${note != null and !#strings.isEmpty(note)}" class="page-hero-note" th:text="${note}">页面说明</p>
+  </div>
+  <div class="page-hero-actions">
+    <a class="btn primary" href="/quote" data-primary-cta>提前询价</a>
+    <a th:if="${secondaryHref != null and !#strings.isEmpty(secondaryHref)}"
+       class="btn ghost"
+       th:href="${secondaryHref}"
+       th:text="${secondaryLabel}">更多</a>
+  </div>
+</div>
+</body>
+</html>

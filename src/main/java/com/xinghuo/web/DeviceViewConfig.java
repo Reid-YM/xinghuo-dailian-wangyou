@@ -14,6 +14,16 @@ public class DeviceViewConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor);
+        registry.addInterceptor(interceptor)
+                // Device view switching belongs to the public storefront only. Keeping
+                // the interceptor off admin/account/console/API routes prevents device
+                // presentation state from leaking into authenticated control surfaces.
+                .addPathPatterns(
+                        "/",
+                        "/services",
+                        "/service/**",
+                        "/quote",
+                        "/records",
+                        "/record/**");
     }
 }

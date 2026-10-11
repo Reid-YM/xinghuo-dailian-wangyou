@@ -48,6 +48,8 @@ class FrontendControlCenterV3ContractTest {
         assertTrue(runtime.contains("--xh-home-card-padding"));
         assertTrue(runtime.contains("mobileDockServicesLabel"));
         assertTrue(runtime.contains("mobileDockQuoteLabel"));
+        assertTrue(runtime.contains("data-dock-key=\"home\""));
+        assertTrue(runtime.contains(".mobile-dock-label"));
         assertTrue(runtime.contains("if (!bool(control.homeCasesVisible))"));
         assertTrue(runtime.contains("if (!bool(control.homeGameEntryVisible))"));
         assertFalse(runtime.contains("control.homeContactVisible"));
@@ -77,7 +79,8 @@ class FrontendControlCenterV3ContractTest {
     @Test
     void publicShellUsesFreshV3RuntimeCacheKey() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
-        assertTrue(site.contains("frontend-controls-runtime.js?v=20261011fc30"));
+        assertTrue(site.contains("frontend-controls-runtime.js?v=20261012fc40"));
+        assertFalse(site.contains("frontend-controls-runtime.js?v=20261011fc30"));
         assertFalse(site.contains("frontend-controls-runtime.js?v=20261011fc20"));
     }
 }

@@ -1,10 +1,10 @@
 package com.xinghuo.frontendcontrol.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xinghuo.audit.infrastructure.AuditLog;
+import com.xinghuo.audit.infrastructure.AuditLogRepository;
 import com.xinghuo.frontendcontrol.application.FrontendControlAuditContext;
 import com.xinghuo.frontendcontrol.application.FrontendControlAuditPort;
-import com.xinghuo.model.AuditLog;
-import com.xinghuo.repository.AuditLogRepository;
 import java.time.Instant;
 import java.util.Map;
 import org.springframework.stereotype.Component;

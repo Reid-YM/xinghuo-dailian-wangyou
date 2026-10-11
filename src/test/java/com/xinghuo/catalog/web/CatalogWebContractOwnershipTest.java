@@ -17,6 +17,7 @@ class CatalogWebContractOwnershipTest {
         String request = Files.readString(web.resolve("ServiceUpsert.java"));
         String publicResponse = Files.readString(web.resolve("ServiceResponse.java"));
         String adminResponse = Files.readString(web.resolve("AdminServiceResponse.java"));
+        String uploadResponse = Files.readString(web.resolve("SiteImageUploadResponse.java"));
         String publicMapper = Files.readString(web.resolve("CatalogWebMapper.java"));
         String adminMapper = Files.readString(web.resolve("CatalogAdminWebMapper.java"));
         String publicController = Files.readString(web.resolve("PublicCatalogServiceController.java"));
@@ -29,11 +30,11 @@ class CatalogWebContractOwnershipTest {
         assertTrue(publicResponse.contains("String coverImage"));
         assertTrue(adminResponse.contains("BigDecimal hotScore"));
         assertTrue(adminResponse.contains("long version"));
+        assertTrue(uploadResponse.contains("record SiteImageUploadResponse(String url)"));
         assertFalse(publicMapper.contains("com.xinghuo.dto.ApiDtos"));
         assertFalse(adminMapper.contains("com.xinghuo.dto.ApiDtos"));
         assertFalse(publicController.contains("com.xinghuo.dto.ApiDtos"));
-        assertFalse(adminController.contains("ApiDtos.ServiceUpsert"));
-        assertFalse(adminController.contains("ApiDtos.AdminServiceResponse"));
-        assertTrue(adminController.contains("ApiDtos.SiteImageUploadResponse"));
+        assertFalse(adminController.contains("com.xinghuo.dto.ApiDtos"));
+        assertTrue(adminController.contains("SiteImageUploadResponse uploadServiceCover"));
     }
 }

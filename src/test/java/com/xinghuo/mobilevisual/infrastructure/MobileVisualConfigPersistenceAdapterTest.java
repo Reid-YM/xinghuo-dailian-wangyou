@@ -6,10 +6,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.xinghuo.mobilevisual.application.UpdateMobileVisualConfigCommand;
-import com.xinghuo.model.SiteConfig;
-import com.xinghuo.model.SiteSetting;
-import com.xinghuo.repository.SiteConfigRepository;
-import com.xinghuo.repository.SiteSettingRepository;
+import com.xinghuo.siteconfig.infrastructure.SiteConfig;
+import com.xinghuo.siteconfig.infrastructure.SiteConfigRepository;
+import com.xinghuo.sitesetting.infrastructure.SiteSetting;
+import com.xinghuo.sitesetting.infrastructure.SiteSettingRepository;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;

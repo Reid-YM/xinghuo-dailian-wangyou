@@ -1,0 +1,49 @@
+name: Cleanup Frontend Documentation References
+
+on:
+  push:
+    branches:
+      - refactor/remove-ui-fixes-references-20261012
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-docs:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/remove-ui-fixes-references-20261012
+          fetch-depth: 0
+
+      - name: Update retired frontend asset references
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('开发手册.md')
+          text = path.read_text(encoding='utf-8')
+          replacements = {
+              '- `mastery.html`：MW4 迷彩解锁助手 / 工具站。': '- `mw4-camo-tracker.html`：MW4 迷彩追踪器 / 工具站。',
+              '- `admin-guides.css`、`admin-guides.js`：攻略编辑后台。': '- `admin-guides-workspace.css`、`admin-guides.js`：攻略编辑后台。',
+              '- `ui-fixes.js`、`ui-refresh.js`：全站 UI 修补和交互增强。': '- `site-shell.js`、`public.js`、`pages.js`、`ui-refresh.js`：公共壳层、公共数据、页面逻辑与服务卡增强。',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'expected documentation line missing: {old}')
+              text = text.replace(old, new)
+          path.write_text(text, encoding='utf-8')
+          Path('.github/workflows/cleanup-frontend-doc-refs.yml').unlink()
+          PY
+
+      - name: Commit documentation cleanup
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "docs: remove retired frontend asset references"
+          git push origin HEAD:refactor/remove-ui-fixes-references-20261012

@@ -1,6 +1,5 @@
 package com.xinghuo.slot.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.slot.application.SlotApplicationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -19,12 +18,12 @@ public class AdminSlotController {
     private final SlotApplicationService slots;
 
     @GetMapping
-    List<ApiDtos.SlotResponse> slots() {
+    List<SlotResponse> slots() {
         return SlotWebMapper.toSlotResponses(this.slots.list());
     }
 
     @PatchMapping
-    ApiDtos.SlotResponse updateSlot(@Valid @RequestBody ApiDtos.SlotUpdate r, Authentication a, HttpServletRequest req) {
+    SlotResponse updateSlot(@Valid @RequestBody SlotUpdate r, Authentication a, HttpServletRequest req) {
         return SlotWebMapper.toResponse(
                 this.slots.update(SlotWebMapper.toCommand(r), a.getName()));
     }

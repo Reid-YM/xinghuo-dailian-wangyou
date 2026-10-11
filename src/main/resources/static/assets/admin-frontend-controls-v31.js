@@ -391,9 +391,9 @@
     workspace = next || null;
     fillForm(workspace?.draft || workspace?.published || {});
     renderOrder((workspace?.draft || workspace?.published || {}).homeModuleOrder || '');
-    formDirty = false;
     const radius = $('#frontendControlsForm [name="themeRadius"]');
     if (radius) radius.dispatchEvent(new Event('input', { bubbles: true }));
+    formDirty = false;
     renderPreview();
     updateWorkspaceUi();
   }

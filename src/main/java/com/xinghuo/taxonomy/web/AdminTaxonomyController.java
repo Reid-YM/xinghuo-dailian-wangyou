@@ -32,36 +32,36 @@ public class AdminTaxonomyController {
     private final UploadService uploads;
 
     @GetMapping
-    ApiDtos.CatalogResponse catalog() {
+    CatalogResponse catalog() {
         return TaxonomyWebMapper.toResponse(this.taxonomy.catalog(true));
     }
 
     @PostMapping(value={"/games"})
-    ApiDtos.GameOptionResponse addGame(@Valid @RequestBody ApiDtos.CatalogNameRequest r, Authentication a, HttpServletRequest req) {
+    GameOptionResponse addGame(@Valid @RequestBody CatalogNameRequest r, Authentication a, HttpServletRequest req) {
         return TaxonomyWebMapper.toResponse(
                 this.taxonomy.addGame(TaxonomyWebMapper.toCommand(r), a.getName()));
     }
 
     @PostMapping(value={"/categories"})
-    ApiDtos.CategoryOptionResponse addCategory(@Valid @RequestBody ApiDtos.CategoryCreateRequest r, Authentication a, HttpServletRequest req) {
+    CategoryOptionResponse addCategory(@Valid @RequestBody CategoryCreateRequest r, Authentication a, HttpServletRequest req) {
         return TaxonomyWebMapper.toResponse(
                 this.taxonomy.addCategory(TaxonomyWebMapper.toCommand(r), a.getName()));
     }
 
     @PutMapping(value={"/games/{code}"})
-    ApiDtos.GameOptionResponse updateGame(@PathVariable String code, @Valid @RequestBody ApiDtos.CatalogUpdateRequest r, Authentication a, HttpServletRequest req) {
+    GameOptionResponse updateGame(@PathVariable String code, @Valid @RequestBody CatalogUpdateRequest r, Authentication a, HttpServletRequest req) {
         return TaxonomyWebMapper.toResponse(
                 this.taxonomy.updateGame(code, TaxonomyWebMapper.toCommand(r), a.getName()));
     }
 
     @PutMapping(value={"/games/{code}/profile"})
-    ApiDtos.GameOptionResponse updateGameProfile(@PathVariable String code, @Valid @RequestBody ApiDtos.GameProfileUpdateRequest r, Authentication a, HttpServletRequest req) {
+    GameOptionResponse updateGameProfile(@PathVariable String code, @Valid @RequestBody GameProfileUpdateRequest r, Authentication a, HttpServletRequest req) {
         return TaxonomyWebMapper.toResponse(
                 this.taxonomy.updateGameProfile(code, TaxonomyWebMapper.toCommand(r), a.getName()));
     }
 
     @PatchMapping(value={"/games/bulk"})
-    List<ApiDtos.GameOptionResponse> bulkUpdateGames(@Valid @RequestBody ApiDtos.GameBulkUpdateRequest r, Authentication a, HttpServletRequest req) {
+    List<GameOptionResponse> bulkUpdateGames(@Valid @RequestBody GameBulkUpdateRequest r, Authentication a, HttpServletRequest req) {
         return TaxonomyWebMapper.toGameResponses(
                 this.taxonomy.bulkUpdateGames(TaxonomyWebMapper.toCommand(r), a.getName()));
     }
@@ -85,7 +85,7 @@ public class AdminTaxonomyController {
     }
 
     @PutMapping(value={"/categories/{id}"})
-    ApiDtos.CategoryOptionResponse updateCategory(@PathVariable Long id, @Valid @RequestBody ApiDtos.CategoryUpdateRequest r, Authentication a, HttpServletRequest req) {
+    CategoryOptionResponse updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryUpdateRequest r, Authentication a, HttpServletRequest req) {
         return TaxonomyWebMapper.toResponse(
                 this.taxonomy.updateCategory(id, TaxonomyWebMapper.toCommand(r), a.getName()));
     }

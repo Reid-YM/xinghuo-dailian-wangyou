@@ -2,29 +2,31 @@
 
 ## 当前状态（2026-10-11）
 
-代码层重构已经进入验收阶段，不能再把“结构迁移完成”和“生产验收完成”混为一谈。
+代码结构重构与第一轮生产级验收已经完成，项目正式进入 **#131 最终清理 / 兼容资产小批次退役阶段**。
 
-已在 `main` 收口的代码层工作：
+已在 `main` 收口并完成生产验证的工作：
 
 - 后端已按业务域 package-by-feature 收口，顶层旧横向业务包 `controller / service / repository / model / dto / web` 已退役，并有架构守卫防止回流。
 - 全局 `com.xinghuo.dto.ApiDtos` 已删除；公开/后台 HTTP contract 已迁回各业务域 `web` 边界，并有 contract tests 锁定字段与边界。
 - Controller、application、domain、infrastructure 的业务域边界已经建立，旧 Legacy Service 的逐域退役已完成主体收口。
 - 公共详情页、业务进度页、个人中心旧子页与攻略投稿页的 VNext compatibility bridge 已改为模板声明式加载；`site-image-controls.js` 不再负责动态注入兼容 CSS，只保留图片布局能力。
 - 后台 compatibility bridge 已收敛到单一后台样式入口，避免多条 JS 动态加载链路。
-- 数据/观测/发布基础设施重构及最终零消费者资产清理已合入主线；仍被补丁构建流程消费的基线 jar 清理清单继续保留。
+- 数据/观测/发布基础设施重构及最终零消费者资产清理已合入主线；仍被补丁构建流程消费的历史脚本继续作为独立技术债处理，不再参与正式生产发布。
 - 自动 CI 按当前运维决定保持暂停，仅保留 `workflow_dispatch` 手动触发。
+- `main` SHA `73dd113bc52b4ddf1c4d80b602f510ee036cde65` 已完成同 SHA `Java 21 / Maven Build`、Chromium、WebKit、18080、8081、8080、nginx 回切和回滚路径验证，并成功发布到生产。
 
-尚未完成、因此暂不能宣告“生产级重构完成”的验收门：
+因此当前状态定义为：**主架构重构已经完成生产级闭环，剩余工作是小批次兼容资产退役和文档收尾，而不是继续扩大架构改造范围。**
 
-1. 手动触发 Java 21 / Maven 全量构建与测试。
-2. Chromium 回归。
-3. WebKit 回归。
-4. 18080 验证环境 smoke。
-5. 8081 预发布/切换验证。
-6. 8080 生产端口最终验证与回滚确认。
-7. 只有上述浏览器与生产 smoke 证明等价后，才允许进一步删除仍在使用的 `vnext-legacy-bridge-v3.css`、`vnext-account-submit-v3.css` 等兼容样式本体。
+### 当前最终清理批次
 
-因此当前状态定义为：**代码结构重构已基本收口，正在等待手动 CI + 浏览器 + 生产端口门禁验收；兼容 CSS 本体暂保留属于刻意设计，不是漏清理。**
+第一批选择最小风险的页面专属兼容资产：
+
+- `vnext-account-submit-v3.css` 的视觉规则不删除，原样迁移到业务页面自有 `account-submit.css`；
+- 攻略投稿页仍保留共享 `vnext-legacy-bridge-v3.css`，因此本批只改变页面专属样式 owner；
+- Maven contract、Chromium wide-screen、WebKit 390px iPhone、18080 / 8081 / 8080 smoke 都必须改为验证新的 `/assets/account-submit.css`；
+- 只有新提交自身重新通过上述门禁，旧 `vnext-account-submit-v3.css` 路径才算正式退役。
+
+`vnext-legacy-bridge-v3.css` 仍服务 service detail、record/order detail、account center 与后台表面，不能与本批一起删除。它必须有单独的 owner 迁移清单和“无 shared bridge”浏览器回归后才能进入下一批。
 
 ## 目标
 
@@ -102,13 +104,14 @@
 
 ### #131 最终清理
 
-只有在上述模块全部经过生产验证后：
+当前阶段。只允许小批次、可回滚的退役工作：
 
 - 删除旧横向包残留。
 - 删除无引用模板和静态资源。
-- 删除兼容桥接代码。
+- 将页面专属兼容规则迁移到明确业务 owner。
+- 最后删除共享兼容桥接代码。
 - 更新开发手册与部署说明。
-- 运行完整 Maven、Chromium、WebKit、18080、8081、8080 门禁。
+- 每一批都重新运行完整 Maven、Chromium、WebKit；合入 `main` 后如需生产验收，再走 18080、8081、8080 门禁。
 
 ## 完成标准
 
@@ -122,3 +125,4 @@
 - 旧实现有明确退役清单且绝大部分已删除。
 - 核心业务流有自动化行为回归。
 - 任一阶段都可独立发布与回滚。
+- 共享 compatibility bridge 的最后消费者已经迁走，且无 bridge 版本经过真实 Chromium + WebKit + production smoke 验证。

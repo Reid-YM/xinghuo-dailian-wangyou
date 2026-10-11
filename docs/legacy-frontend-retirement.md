@@ -31,7 +31,7 @@ Examples include account/profile controllers, frontend control runtime, public f
 
 ### B. Visual compatibility layers
 
-The VNext v4/v5/v7/v8 CSS layers and the remaining shared/admin bridge styles keep mature Thymeleaf surfaces visually aligned with VNext. They are temporary, but still production dependencies until a replacement is verified without them.
+The VNext v4/v5/v7/v8 CSS layers and the remaining main-admin bridge styles keep mature Thymeleaf surfaces visually aligned with VNext. They are temporary, but still production dependencies until a replacement is verified without them.
 
 ### C. Retirement candidates
 
@@ -45,28 +45,33 @@ A legacy CSS/JS/template becomes a retirement candidate only when:
 
 ## Current retirement progress
 
-### Account submit page-owned stylesheet
+Retirement is now proceeding in small feature-owned batches. Each completed batch preserves the current production visual behavior while moving ownership out of globally named compatibility assets.
 
-`vnext-account-submit-v3.css` was a page-local compatibility asset despite its global VNext-style name. The retirement change moves the exact visual rules into the page-owned canonical asset `account-submit.css`; `account-submit.html` and its mobile equivalent continue to receive the same rules through the existing declarative fragment, while runtime JavaScript remains uninvolved.
+### Completed feature ownership moves
 
-The old `vnext-account-submit-v3.css` path must stay retired only if the replacement branch passes:
+- **Account submit**: retired `vnext-account-submit-v3.css`; canonical owner is `/assets/account-submit.css`.
+- **Account center**: account-center bridge rules moved into `/assets/account-center-refine.css`; account-center templates no longer load the shared deep-page bridge.
+- **Service detail**: service-detail bridge rules moved into `/assets/service-detail.css`; desktop/mobile service-detail templates load the feature-owned asset directly.
+- **Record / order detail**: record/order bridge rules moved into `/assets/record-detail.css`; desktop/mobile record and order detail templates load the feature-owned asset directly.
+- **Frontend control center**: the production dark/wide/mobile compatibility rules are being migrated into `/assets/admin-frontend-controls.css`; the shared bridge must no longer contain `frontend-control-admin` selectors after this batch passes CI.
 
-- Maven contract tests;
-- Chromium wide-screen account-submit regression;
-- WebKit mobile account-submit regression;
-- the shared production smoke contract with `/assets/account-submit.css` present.
+All feature-owned replacements are covered by Maven contracts, Chromium/WebKit regression, and the shared production smoke script used on ports 18080, 8081 and 8080.
 
-This migration does **not** prove that `vnext-legacy-bridge-v3.css` can be removed. That shared bridge still serves service detail, record/order detail, account-center and admin surfaces and must be retired separately.
+### Remaining shared bridge boundary
+
+After the frontend-control migration, `/assets/vnext-legacy-bridge-v3.css` is intentionally limited to the **main operational admin** `body.admin-solid-ui` compatibility rules. `admin-brand-layout-fixes.css` still imports that bridge because several existing admin entrypoints share the same brand/layout layer.
+
+Therefore the shared bridge is **not yet removable**. The final retirement step must first move the remaining `admin-solid-ui` table/panel/tab/modal/notice rules into their canonical admin owner, then prove the admin surfaces in Chromium + WebKit and production smoke without the shared bridge.
 
 ## Planned sequence
 
-1. Centralize shared asset loading and remove runtime style injection. **Started in #129.**
-2. Inventory account/admin/page-local CSS and JS consumers.
-3. Migrate page-local visual overrides into shared feature/design-system ownership.
-4. Migrate business JS into feature-owned modules where equivalent VNext flows exist.
-5. Delete unreferenced assets in small batches with route-specific regression tests.
-6. Remove v4/v5 compatibility layers only after no mature Thymeleaf public page requires them.
-7. Remove the remaining legacy templates only after controller routing and production smoke prove the VNext replacement.
+1. Centralize shared asset loading and remove runtime style injection. **Completed for public deep-page compatibility assets.**
+2. Retire page-local compatibility assets into feature-owned canonical CSS. **Account submit, account center, service detail and record/order detail completed.**
+3. Retire frontend-control visual rules into `admin-frontend-controls.css`. **Current batch.**
+4. Retire the final `admin-solid-ui` rules into the canonical main-admin style owner.
+5. Remove `vnext-legacy-bridge-v3.css` and its `@import` only after the final admin browser + production gates pass.
+6. Re-evaluate v4/v5/v7/v8 public compatibility layers only after no mature Thymeleaf public page requires them.
+7. Remove remaining legacy templates only after controller routing and production smoke prove the VNext replacement.
 
 ## Deletion gate
 

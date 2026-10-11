@@ -1,6 +1,8 @@
 # 星火网站 VNext 全量重构与生产部署 SOP
 
 > 状态：方案 A 已建立隔离预览。`/vnext/` 可随生产包发布，但在 UI 体系审核通过前，根路径 `/` 和现有 Thymeleaf 页面保持不变。
+>
+> 当前运维策略：自动 CI 暂停，`CI` 只通过 `workflow_dispatch` 手动运行。最终验收顺序以 `docs/MANUAL-REFACTOR-VALIDATION.md` 为准。
 
 ## 1. 重构边界
 
@@ -71,7 +73,8 @@
 - Playwright：Chromium + WebKit
 - 重点尺寸：320、375 WeChat、390 iPhone、430 WeChat、768、1440、1536、1920、2560
 - 检查：横向溢出、44px 触控区、iOS 输入框缩放、移动底栏、超宽屏画布
-- 生产 smoke test 新增 `/vnext/`、Vite JS、Vite CSS 资源检查
+- `LegacyBridgePlaywrightTest` 覆盖仍依赖 compatibility bridge 的关键 legacy 页面
+- 生产 smoke test 检查 `/vnext/`、Vite JS/CSS 以及仍在使用的 legacy bridge CSS 资源
 
 ---
 
@@ -143,23 +146,28 @@ target/xinghuo-v2-1.0.0.jar
 
 ---
 
-## 5. Git / PR 流程
+## 5. Git / PR / 手动 CI 流程
 
-所有生产改动都走：
+所有生产代码改动都走：
 
 ```text
 feature branch
    ↓
 Pull Request
    ↓
-CI 全绿
-   ↓
 merge 到 main
    ↓
-main CI 再次全绿
+锁定当前 main SHA
+   ↓
+在 main 上手动运行 CI（workflow_dispatch）
+   ↓
+Java 21 / Maven Build 全绿
++ Chromium + WebKit UI Regression 全绿
    ↓
 Deploy Production
 ```
+
+当前 `CI` workflow 不会因 PR 或 push 自动运行，这是刻意的运维决定。发布门禁必须找到**同一个待发布 main SHA** 的成功手动 CI，不能拿旧 SHA 或其他事件的 CI 结果替代。
 
 禁止：
 
@@ -167,7 +175,14 @@ Deploy Production
 direct push main
 feature branch 直接上生产
 服务器直接改源码后发布
-绕过 CI 手工替换 current.jar
+绕过手动 CI 手工替换 current.jar
+用其他 SHA 的成功 CI 作为当前版本发布证明
+```
+
+完整人工验收记录格式见：
+
+```text
+docs/MANUAL-REFACTOR-VALIDATION.md
 ```
 
 ---
@@ -180,8 +195,12 @@ feature branch 直接上生产
 
 - 目标必须是当前 `main`
 - 目标 commit 必须来自已合并 Pull Request
-- 对应 `main` CI 必须成功
+- 对应**同一个 `main` SHA** 的手动 `CI` `workflow_dispatch` 必须成功
 - GitHub Actions 必须取得生产 SSH secrets
+
+优先从 `main` 手动运行 `Deploy Production` 并勾选 `confirm=true`。
+
+`deploy/production` 是备用的长期发布请求分支。只要 `main` 上的 `deploy-production.yml` 发生过变更，在该分支完成受控 workflow 同步前不要使用备用入口；GitHub 会使用触发分支自己的 workflow 定义，旧定义可能导致错误门禁。不要为了同步 workflow 随意向该分支 push，因为 push 本身会触发生产部署工作流。
 
 工作流最终在生产服务器调用：
 
@@ -228,7 +247,7 @@ scripts/deploy-from-github.sh
 6. **18080 预发布冒烟**
    - 候选 JAR 独立启动在 18080
    - 执行 `scripts/smoke_test.sh 18080`
-   - VNext `/vnext/` 以及 JS/CSS bundle 必须成功
+   - VNext `/vnext/`、JS/CSS bundle 以及仍在使用的 compatibility bridge 资源必须成功
    - 失败时生产流量完全不受影响
 
 7. **8081 → 8080 蓝绿发布**

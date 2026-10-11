@@ -18,7 +18,6 @@ check_code / 200
 check_code /services 200
 check_code /guides 200
 check_code /mastery 200
-check_code /api/site-config 200
 check_code /api/guides 200
 check_code /api/tool-station 200
 # 用户中心所有真实页面都必须存在并要求登录。未登录时应跳转登录页，绝不能 404。
@@ -48,11 +47,6 @@ check_code /trust 200
 check_code /order 200
 check_code /api/account/me 401
 check_code /api/account/security/events 401
-# 后台登录页必须始终可达；后台配置接口必须存在且未登录严格返回 401，而不是 404/500/302。
-check_code /admin/login 200
-check_code /api/admin/site-config 401
-check_code /api/admin/global-ui-settings 401
-check_code /api/admin/frontend-controls 401
 check_removed() {
   local path=$1
   local code

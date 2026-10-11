@@ -49,6 +49,25 @@ class BackendPackageByFeatureContractTest {
     }
 
     @Test
+    void apiExceptionAdviceUsesFeatureWebScopesWithoutTakingOverAccountApis() throws IOException {
+        String apiAdvice = Files.readString(MAIN.resolve("exception/ApiExceptionHandler.java"));
+        String accountAdvice = Files.readString(MAIN.resolve("account/web/AccountExceptionHandler.java"));
+        int adviceStart = apiAdvice.indexOf("@RestControllerAdvice(");
+        int classStart = apiAdvice.indexOf("public class ApiExceptionHandler");
+        assertTrue(adviceStart >= 0 && classStart > adviceStart, "API advice scope must be explicit");
+        String adviceScope = apiAdvice.substring(adviceStart, classStart);
+
+        assertTrue(adviceScope.contains("basePackages={"));
+        for (String feature : List.of("quote", "order", "catalog", "guide", "seo", "siteconfig", "upload")) {
+            assertTrue(adviceScope.contains("\"com.xinghuo." + feature + ".web\""), feature + " web APIs must keep shared error mapping");
+        }
+        assertFalse(adviceScope.contains("com.xinghuo.account.web"), "account APIs have their own exception advice");
+        assertFalse(adviceScope.contains("assignableTypes"), "shared advice must not depend on retired controller classes");
+        assertFalse(apiAdvice.contains("import com.xinghuo.controller."));
+        assertTrue(accountAdvice.contains("@RestControllerAdvice(basePackages = \"com.xinghuo.account.web\")"));
+    }
+
+    @Test
     void applicationAndDomainLayersStayPersistenceAndProtocolIndependent() throws IOException {
         for (String feature : CORE_FEATURES) {
             for (String layer : List.of("application", "domain")) {

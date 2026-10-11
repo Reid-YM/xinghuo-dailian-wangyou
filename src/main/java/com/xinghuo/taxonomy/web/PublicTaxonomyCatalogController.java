@@ -1,6 +1,5 @@
 package com.xinghuo.taxonomy.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import lombok.Generated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,7 @@ public class PublicTaxonomyCatalogController {
     private final TaxonomyApplicationService taxonomy;
 
     @GetMapping
-    ApiDtos.CatalogResponse catalog() {
+    CatalogResponse catalog() {
         return TaxonomyWebMapper.toResponse(this.taxonomy.catalog(false));
     }
 

@@ -18,11 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
  * 管理员可安全调整的前端展示变量。
  *
  * <p>配置分为 global / desktop / mobile 三层。设备层覆盖全局层，但仍使用同一份
- * 白名单和校验规则，不接受任意 CSS / JavaScript。</p>
+ * 白名单和校验规则，不接受任意 CSS / JavaScript。V3.1 增加草稿 / 发布 / 上一版恢复，
+ * 公开前台仍只读取正式配置。</p>
  */
 @Service
 public class FrontendControlService {
     private static final String DEVICE_PREFIX = "frontend.";
+    private static final String DRAFT_PREFIX = "frontend.draft.";
+    private static final String PREVIOUS_PREFIX = "frontend.previous.";
 
     private static final Map<String, String> DEFAULTS = Map.ofEntries(
             Map.entry("siteHeaderVisible", "true"),
@@ -146,6 +149,13 @@ public class FrontendControlService {
         }
     }
 
+    public record Workspace(
+            Map<String, String> published,
+            Map<String, String> draft,
+            boolean hasDraft,
+            boolean hasPrevious
+    ) {}
+
     /** Backward-compatible global settings. */
     @Transactional(readOnly = true)
     public Map<String, String> settings() {
@@ -162,8 +172,27 @@ public class FrontendControlService {
         return settings(mode == DeviceMode.MOBILE ? Scope.MOBILE : Scope.DESKTOP);
     }
 
-    private Map<String, String> settings(Scope scope) {
+    @Transactional(readOnly = true)
+    public Workspace workspace(String scope) {
+        Scope parsedScope = Scope.parse(scope);
         List<SiteSetting> all = repo.findAll();
+        Map<String, String> published = settings(parsedScope, all);
+        Map<String, String> storedDraft = namespaceSnapshot(all, DRAFT_PREFIX, parsedScope);
+        LinkedHashMap<String, String> draft = new LinkedHashMap<>(published);
+        draft.putAll(storedDraft);
+        return new Workspace(
+                published,
+                draft,
+                !storedDraft.isEmpty(),
+                !namespaceSnapshot(all, PREVIOUS_PREFIX, parsedScope).isEmpty()
+        );
+    }
+
+    private Map<String, String> settings(Scope scope) {
+        return settings(scope, repo.findAll());
+    }
+
+    private Map<String, String> settings(Scope scope, List<SiteSetting> all) {
         LinkedHashMap<String, String> out = new LinkedHashMap<>(DEFAULTS);
         for (SiteSetting setting : all) {
             if (!DEFAULTS.containsKey(setting.getSettingKey())) continue;
@@ -198,15 +227,63 @@ public class FrontendControlService {
     @Transactional
     public Map<String, String> update(String scope, Map<String, Object> values) {
         Scope parsedScope = Scope.parse(scope);
-        if (values == null) throw new BadRequestException("前端配置不能为空");
-        for (Map.Entry<String, Object> entry : values.entrySet()) {
-            String key = entry.getKey();
-            if ("reason".equals(key)) continue;
-            if (!DEFAULTS.containsKey(key)) throw new BadRequestException("存在不支持的前端配置项：" + key);
-            String raw = entry.getValue() == null ? "" : String.valueOf(entry.getValue()).trim();
-            putInternal(storageKey(parsedScope, key), normalize(key, raw));
+        Map<String, String> normalized = normalizeValues(values);
+        for (Map.Entry<String, String> entry : normalized.entrySet()) {
+            putInternal(storageKey(parsedScope, entry.getKey()), entry.getValue());
         }
         return settings(parsedScope);
+    }
+
+    @Transactional
+    public Workspace saveDraft(String scope, Map<String, Object> values) {
+        Scope parsedScope = Scope.parse(scope);
+        Map<String, String> normalized = normalizeValues(values);
+        for (Map.Entry<String, String> entry : normalized.entrySet()) {
+            putInternal(namespaceKey(DRAFT_PREFIX, parsedScope, entry.getKey()), entry.getValue());
+        }
+        return workspace(scope);
+    }
+
+    @Transactional
+    public Workspace discardDraft(String scope) {
+        Scope parsedScope = Scope.parse(scope);
+        clearNamespace(DRAFT_PREFIX, parsedScope);
+        return workspace(scope);
+    }
+
+    @Transactional
+    public Workspace publishDraft(String scope) {
+        Scope parsedScope = Scope.parse(scope);
+        List<SiteSetting> all = repo.findAll();
+        Map<String, String> storedDraft = namespaceSnapshot(all, DRAFT_PREFIX, parsedScope);
+        if (storedDraft.isEmpty()) {
+            throw new BadRequestException("当前作用域没有可发布的草稿");
+        }
+
+        Map<String, String> current = settings(parsedScope, all);
+        LinkedHashMap<String, String> next = new LinkedHashMap<>(current);
+        next.putAll(storedDraft);
+
+        replaceNamespace(PREVIOUS_PREFIX, parsedScope, current);
+        replacePublished(parsedScope, next);
+        clearNamespace(DRAFT_PREFIX, parsedScope);
+        return workspace(scope);
+    }
+
+    @Transactional
+    public Workspace restorePrevious(String scope) {
+        Scope parsedScope = Scope.parse(scope);
+        List<SiteSetting> all = repo.findAll();
+        Map<String, String> previous = namespaceSnapshot(all, PREVIOUS_PREFIX, parsedScope);
+        if (previous.isEmpty()) {
+            throw new BadRequestException("当前作用域没有可恢复的上一版配置");
+        }
+
+        Map<String, String> current = settings(parsedScope, all);
+        replacePublished(parsedScope, previous);
+        replaceNamespace(PREVIOUS_PREFIX, parsedScope, current);
+        clearNamespace(DRAFT_PREFIX, parsedScope);
+        return workspace(scope);
     }
 
     @Transactional
@@ -215,12 +292,21 @@ public class FrontendControlService {
         if (parsedScope == Scope.GLOBAL) {
             throw new BadRequestException("全局配置不能通过设备覆盖重置接口清空");
         }
-        List<String> ids = DEFAULTS.keySet().stream()
-                .map(key -> storageKey(parsedScope, key))
-                .toList();
-        repo.deleteAllById(ids);
-        repo.flush();
+        clearPublishedScope(parsedScope);
         return settings(parsedScope);
+    }
+
+    private Map<String, String> normalizeValues(Map<String, Object> values) {
+        if (values == null) throw new BadRequestException("前端配置不能为空");
+        LinkedHashMap<String, String> normalized = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+            String key = entry.getKey();
+            if ("reason".equals(key)) continue;
+            if (!DEFAULTS.containsKey(key)) throw new BadRequestException("存在不支持的前端配置项：" + key);
+            String raw = entry.getValue() == null ? "" : String.valueOf(entry.getValue()).trim();
+            normalized.put(key, normalize(key, raw));
+        }
+        return normalized;
     }
 
     private String normalize(String key, String raw) {
@@ -281,12 +367,72 @@ public class FrontendControlService {
         return value.startsWith("https://");
     }
 
+    private Map<String, String> namespaceSnapshot(List<SiteSetting> all, String namespace, Scope scope) {
+        String prefix = namespacePrefix(namespace, scope);
+        LinkedHashMap<String, String> values = new LinkedHashMap<>();
+        for (SiteSetting setting : all) {
+            String storageKey = setting.getSettingKey();
+            if (storageKey == null || !storageKey.startsWith(prefix)) continue;
+            String key = storageKey.substring(prefix.length());
+            if (!DEFAULTS.containsKey(key)) continue;
+            String value = setting.getSettingValue();
+            if (value != null && !value.isBlank()) values.put(key, value.trim());
+        }
+        return values;
+    }
+
+    private void replacePublished(Scope scope, Map<String, String> values) {
+        if (scope != Scope.GLOBAL) clearPublishedScope(scope);
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            if (!DEFAULTS.containsKey(entry.getKey())) continue;
+            putInternal(storageKey(scope, entry.getKey()), entry.getValue());
+        }
+    }
+
+    private void replaceNamespace(String namespace, Scope scope, Map<String, String> values) {
+        clearNamespace(namespace, scope);
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            if (!DEFAULTS.containsKey(entry.getKey())) continue;
+            putInternal(namespaceKey(namespace, scope, entry.getKey()), entry.getValue());
+        }
+    }
+
+    private void clearPublishedScope(Scope scope) {
+        if (scope == Scope.GLOBAL) return;
+        String prefix = scopePrefix(scope);
+        List<String> ids = repo.findAll().stream()
+                .map(SiteSetting::getSettingKey)
+                .filter(key -> key != null && key.startsWith(prefix))
+                .filter(key -> DEFAULTS.containsKey(key.substring(prefix.length())))
+                .toList();
+        if (!ids.isEmpty()) repo.deleteAllById(ids);
+        repo.flush();
+    }
+
+    private void clearNamespace(String namespace, Scope scope) {
+        String prefix = namespacePrefix(namespace, scope);
+        List<String> ids = repo.findAll().stream()
+                .map(SiteSetting::getSettingKey)
+                .filter(key -> key != null && key.startsWith(prefix))
+                .toList();
+        if (!ids.isEmpty()) repo.deleteAllById(ids);
+        repo.flush();
+    }
+
     private String storageKey(Scope scope, String key) {
         return scope == Scope.GLOBAL ? key : scopePrefix(scope) + key;
     }
 
     private String scopePrefix(Scope scope) {
         return DEVICE_PREFIX + scope.key() + ".";
+    }
+
+    private String namespaceKey(String namespace, Scope scope, String key) {
+        return namespacePrefix(namespace, scope) + key;
+    }
+
+    private String namespacePrefix(String namespace, Scope scope) {
+        return namespace + scope.key() + ".";
     }
 
     private void putInternal(String key, String value) {

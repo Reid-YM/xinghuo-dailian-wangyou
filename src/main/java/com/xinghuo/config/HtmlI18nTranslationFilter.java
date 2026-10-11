@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.xinghuo.config.I18nDictionary;
+import com.xinghuo.config.SmartLocaleResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -200,7 +202,7 @@ extends OncePerRequestFilter {
         }
         if (node.isObject()) {
             ObjectNode translated = JSON_MAPPER.createObjectNode();
-            node.properties().forEach(entry -> {
+            node.fields().forEachRemaining(entry -> {
                 if ("inLanguage".equals(entry.getKey())) {
                     translated.put((String)entry.getKey(), "en");
                 } else {
@@ -290,3 +292,4 @@ extends OncePerRequestFilter {
         return StandardCharsets.UTF_8;
     }
 }
+

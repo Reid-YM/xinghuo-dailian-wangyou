@@ -1,5 +1,6 @@
 package com.xinghuo.security;
 
+import com.xinghuo.security.OncePerRequestFilterBase;
 import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,9 +18,12 @@ import org.springframework.stereotype.Component;
 @Order(value=-2147483628)
 public class RateLimitFilter
 extends OncePerRequestFilterBase {
-    private final ConcurrentHashMap<String, Window> map = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Window> map = new ConcurrentHashMap();
     private final AtomicLong requests = new AtomicLong();
 
+    /*
+     * WARNING - Removed try catching itself - possible behaviour change.
+     */
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
         String p = req.getRequestURI();
         int max = p.startsWith("/api/records/") || p.startsWith("/api/orders/") ? 30 : (p.equals("/api/quote") || p.equals("/api/uploads/quote") ? 12 : 0);
@@ -43,7 +47,7 @@ extends OncePerRequestFilterBase {
     }
 
     private void cleanup() {
-        this.map.entrySet().removeIf(e -> e.getValue().expired());
+        this.map.entrySet().removeIf(e -> ((Window)e.getValue()).expired());
     }
 
     private static class Window {
@@ -58,3 +62,4 @@ extends OncePerRequestFilterBase {
         }
     }
 }
+

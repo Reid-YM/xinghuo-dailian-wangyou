@@ -8,7 +8,5 @@
 .DS_Store
 /tmp/
 /node_modules/
-/frontend-vnext/node_modules/
-/.frontend/
 /target/
 !.env.example

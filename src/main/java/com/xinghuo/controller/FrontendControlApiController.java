@@ -4,20 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xinghuo.model.AuditLog;
 import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.service.FrontendControlService;
-import com.xinghuo.service.FrontendControlService.Workspace;
 import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,107 +30,22 @@ public class FrontendControlApiController {
     }
 
     @GetMapping
-    Map<String, String> get(@RequestParam(defaultValue = "global") String scope) {
-        return controls.settings(scope);
-    }
-
-    @GetMapping("/workspace")
-    Workspace workspace(@RequestParam(defaultValue = "global") String scope) {
-        return controls.workspace(scope);
+    Map<String, String> get() {
+        return controls.settings();
     }
 
     @PatchMapping
-    Map<String, String> update(@RequestParam(defaultValue = "global") String scope,
-                               @RequestBody Map<String, Object> body,
+    Map<String, String> update(@RequestBody Map<String, Object> body,
                                Authentication authentication,
                                HttpServletRequest request) throws Exception {
-        Map<String, String> before = controls.settings(scope);
+        Map<String, String> before = controls.settings();
         LinkedHashMap<String, Object> values = new LinkedHashMap<>(body == null ? Map.of() : body);
         String reason = cleanReason(values.remove("reason"));
-        Map<String, String> after = controls.update(scope, values);
-        audit("FRONTEND_CONTROLS_UPDATE", scope, before, after, reason, authentication, request);
-        return after;
-    }
-
-    @PatchMapping("/draft")
-    Workspace saveDraft(@RequestParam(defaultValue = "global") String scope,
-                        @RequestBody Map<String, Object> body,
-                        Authentication authentication,
-                        HttpServletRequest request) throws Exception {
-        Workspace before = controls.workspace(scope);
-        LinkedHashMap<String, Object> values = new LinkedHashMap<>(body == null ? Map.of() : body);
-        String reason = cleanReason(values.remove("reason"));
-        Workspace after = controls.saveDraft(scope, values);
-        audit("FRONTEND_CONTROLS_DRAFT_SAVE", scope, before.draft(), after.draft(), reason, authentication, request);
-        return after;
-    }
-
-    @PostMapping("/draft/inherit-global")
-    Workspace stageGlobalInheritance(@RequestParam String scope,
-                                     Authentication authentication,
-                                     HttpServletRequest request) throws Exception {
-        Workspace before = controls.workspace(scope);
-        Workspace after = controls.stageGlobalInheritance(scope);
-        audit("FRONTEND_CONTROLS_DRAFT_INHERIT_GLOBAL", scope, before.draft(), after.draft(),
-                "草稿恢复继承全局配置", authentication, request);
-        return after;
-    }
-
-    @PostMapping("/publish")
-    Workspace publish(@RequestParam(defaultValue = "global") String scope,
-                      Authentication authentication,
-                      HttpServletRequest request) throws Exception {
-        Workspace before = controls.workspace(scope);
-        Workspace after = controls.publishDraft(scope);
-        audit("FRONTEND_CONTROLS_PUBLISH", scope, before.published(), after.published(),
-                "发布前端控制中心草稿", authentication, request);
-        return after;
-    }
-
-    @PostMapping("/restore-previous")
-    Workspace restorePrevious(@RequestParam(defaultValue = "global") String scope,
-                              Authentication authentication,
-                              HttpServletRequest request) throws Exception {
-        Workspace before = controls.workspace(scope);
-        Workspace after = controls.restorePrevious(scope);
-        audit("FRONTEND_CONTROLS_RESTORE_PREVIOUS", scope, before.published(), after.published(),
-                "恢复前端控制中心上一版", authentication, request);
-        return after;
-    }
-
-    @DeleteMapping("/draft")
-    Workspace discardDraft(@RequestParam(defaultValue = "global") String scope,
-                           Authentication authentication,
-                           HttpServletRequest request) throws Exception {
-        Workspace before = controls.workspace(scope);
-        Workspace after = controls.discardDraft(scope);
-        audit("FRONTEND_CONTROLS_DRAFT_DISCARD", scope, before.draft(), after.draft(),
-                "丢弃前端控制中心草稿", authentication, request);
-        return after;
-    }
-
-    @DeleteMapping
-    Map<String, String> reset(@RequestParam String scope,
-                              Authentication authentication,
-                              HttpServletRequest request) throws Exception {
-        Map<String, String> before = controls.settings(scope);
-        Map<String, String> after = controls.reset(scope);
-        audit("FRONTEND_CONTROLS_RESET", scope, before, after,
-                "恢复继承全局前端配置", authentication, request);
-        return after;
-    }
-
-    private void audit(String action,
-                       String scope,
-                       Map<String, String> before,
-                       Map<String, String> after,
-                       String reason,
-                       Authentication authentication,
-                       HttpServletRequest request) throws Exception {
+        Map<String, String> after = controls.update(values);
         audits.save(AuditLog.builder()
-                .action(action)
+                .action("FRONTEND_CONTROLS_UPDATE")
                 .targetType("SITE_SETTINGS")
-                .targetId("frontend-controls:" + scope)
+                .targetId("frontend-controls")
                 .operatorName(authentication == null ? "admin" : authentication.getName())
                 .beforeJson(mapper.writeValueAsString(before))
                 .afterJson(mapper.writeValueAsString(after))
@@ -143,6 +54,7 @@ public class FrontendControlApiController {
                 .requestId(request.getHeader("X-Request-Id"))
                 .createdAt(Instant.now())
                 .build());
+        return after;
     }
 
     private String cleanReason(Object value) {

@@ -26,6 +26,7 @@ public class FrontendControlService {
     private static final String DEVICE_PREFIX = "frontend.";
     private static final String DRAFT_PREFIX = "frontend.draft.";
     private static final String PREVIOUS_PREFIX = "frontend.previous.";
+    private static final String DRAFT_INHERIT_KEY = "__inheritGlobal";
 
     private static final Map<String, String> DEFAULTS = Map.ofEntries(
             Map.entry("siteHeaderVisible", "true"),
@@ -153,7 +154,8 @@ public class FrontendControlService {
             Map<String, String> published,
             Map<String, String> draft,
             boolean hasDraft,
-            boolean hasPrevious
+            boolean hasPrevious,
+            boolean draftInheritGlobal
     ) {}
 
     /** Backward-compatible global settings. */
@@ -178,13 +180,17 @@ public class FrontendControlService {
         List<SiteSetting> all = repo.findAll();
         Map<String, String> published = settings(parsedScope, all);
         Map<String, String> storedDraft = namespaceSnapshot(all, DRAFT_PREFIX, parsedScope);
-        LinkedHashMap<String, String> draft = new LinkedHashMap<>(published);
-        draft.putAll(storedDraft);
+        boolean inheritGlobal = parsedScope != Scope.GLOBAL && draftInheritanceRequested(all, parsedScope);
+        LinkedHashMap<String, String> draft = new LinkedHashMap<>(
+                inheritGlobal ? settings(Scope.GLOBAL, all) : published
+        );
+        if (!inheritGlobal) draft.putAll(storedDraft);
         return new Workspace(
                 published,
                 draft,
-                !storedDraft.isEmpty(),
-                !namespaceSnapshot(all, PREVIOUS_PREFIX, parsedScope).isEmpty()
+                inheritGlobal || !storedDraft.isEmpty(),
+                hasNamespaceEntries(all, PREVIOUS_PREFIX, parsedScope),
+                inheritGlobal
         );
     }
 
@@ -238,9 +244,21 @@ public class FrontendControlService {
     public Workspace saveDraft(String scope, Map<String, Object> values) {
         Scope parsedScope = Scope.parse(scope);
         Map<String, String> normalized = normalizeValues(values);
+        clearNamespace(DRAFT_PREFIX, parsedScope);
         for (Map.Entry<String, String> entry : normalized.entrySet()) {
             putInternal(namespaceKey(DRAFT_PREFIX, parsedScope, entry.getKey()), entry.getValue());
         }
+        return workspace(scope);
+    }
+
+    @Transactional
+    public Workspace stageGlobalInheritance(String scope) {
+        Scope parsedScope = Scope.parse(scope);
+        if (parsedScope == Scope.GLOBAL) {
+            throw new BadRequestException("全局配置不能继承自身");
+        }
+        clearNamespace(DRAFT_PREFIX, parsedScope);
+        putInternal(namespaceKey(DRAFT_PREFIX, parsedScope, DRAFT_INHERIT_KEY), "true");
         return workspace(scope);
     }
 
@@ -256,16 +274,20 @@ public class FrontendControlService {
         Scope parsedScope = Scope.parse(scope);
         List<SiteSetting> all = repo.findAll();
         Map<String, String> storedDraft = namespaceSnapshot(all, DRAFT_PREFIX, parsedScope);
-        if (storedDraft.isEmpty()) {
+        boolean inheritGlobal = parsedScope != Scope.GLOBAL && draftInheritanceRequested(all, parsedScope);
+        if (storedDraft.isEmpty() && !inheritGlobal) {
             throw new BadRequestException("当前作用域没有可发布的草稿");
         }
 
         Map<String, String> current = settings(parsedScope, all);
-        LinkedHashMap<String, String> next = new LinkedHashMap<>(current);
-        next.putAll(storedDraft);
-
         replaceNamespace(PREVIOUS_PREFIX, parsedScope, current);
-        replacePublished(parsedScope, next);
+        if (inheritGlobal) {
+            clearPublishedScope(parsedScope);
+        } else {
+            LinkedHashMap<String, String> next = new LinkedHashMap<>(current);
+            next.putAll(storedDraft);
+            replacePublished(parsedScope, next);
+        }
         clearNamespace(DRAFT_PREFIX, parsedScope);
         return workspace(scope);
     }
@@ -379,6 +401,18 @@ public class FrontendControlService {
             if (value != null && !value.isBlank()) values.put(key, value.trim());
         }
         return values;
+    }
+
+    private boolean draftInheritanceRequested(List<SiteSetting> all, Scope scope) {
+        String key = namespaceKey(DRAFT_PREFIX, scope, DRAFT_INHERIT_KEY);
+        return all.stream().anyMatch(setting -> key.equals(setting.getSettingKey())
+                && "true".equalsIgnoreCase(setting.getSettingValue()));
+    }
+
+    private boolean hasNamespaceEntries(List<SiteSetting> all, String namespace, Scope scope) {
+        String prefix = namespacePrefix(namespace, scope);
+        return all.stream().map(SiteSetting::getSettingKey)
+                .anyMatch(key -> key != null && key.startsWith(prefix));
     }
 
     private void replacePublished(Scope scope, Map<String, String> values) {

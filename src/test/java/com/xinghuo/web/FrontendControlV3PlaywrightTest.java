@@ -30,7 +30,6 @@ class FrontendControlV3PlaywrightTest {
                       "homeHeroMediaVisible":"true",
                       "homeQuotePanelVisible":"true",
                       "homeRecordPanelVisible":"true",
-                      "homeContactVisible":"true",
                       "homeGameEntryVisible":"true",
                       "homeWhyVisible":"true",
                       "homeServicesVisible":"true",
@@ -73,7 +72,6 @@ class FrontendControlV3PlaywrightTest {
                       "homeLauncherVisible":"true",
                       "homeQuotePanelVisible":"true",
                       "homeRecordPanelVisible":"false",
-                      "homeContactVisible":"false",
                       "homeGameEntryVisible":"true",
                       "homeWhyVisible":"true",
                       "homeServicesVisible":"true",
@@ -98,7 +96,8 @@ class FrontendControlV3PlaywrightTest {
             page.waitForFunction("() => document.querySelector('#homeHero').style.minHeight === '430px'");
 
             assertTrue(page.locator("main > :first-child").getAttribute("class").contains("xh-mobile-quote-card"));
-            assertEquals(Boolean.TRUE, page.locator(".xh-mobile-two-up").evaluate("el => el.hidden"));
+            assertEquals(Boolean.TRUE, page.locator(".xh-mobile-two-up").evaluate("el => el.hidden"),
+                    "support wrapper must collapse when record is disabled and the existing global contact control already hid contact");
             assertEquals(Boolean.TRUE, page.locator("#publicCaseSection").evaluate("el => el.hidden"),
                     "V3 must not expose an empty data-driven case section merely because the feature is allowed");
             assertEquals(Boolean.TRUE, page.locator("#gameEntrySection").evaluate("el => el.hidden"),
@@ -161,7 +160,7 @@ class FrontendControlV3PlaywrightTest {
                     <section class="xh-mobile-launcher"></section>
                     <section id="gameEntrySection" class="xh-mobile-game-entry" hidden></section>
                     <section class="quote-card-home xh-mobile-quote-card"></section>
-                    <section class="xh-mobile-two-up"><div class="desktop-secondary-panel"></div><div class="quick-contact-card"></div></section>
+                    <section class="xh-mobile-two-up"><div class="desktop-secondary-panel"></div><div class="quick-contact-card" hidden></div></section>
                     <section class="xh-mobile-hot"></section>
                     <section class="xh-mobile-services"><article class="service-card"></article></section>
                     <section aria-label="为什么选择星火"><div class="section-title"><span class="eyebrow"></span><h2></h2><a class="text-link"></a></div><article class="card"></article></section>

@@ -1,7 +1,6 @@
 package com.xinghuo.audit.web;
 
 import com.xinghuo.audit.application.AuditQueryApplicationService;
-import com.xinghuo.dto.ApiDtos;
 import java.util.List;
 import lombok.Generated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +13,9 @@ public class AdminAuditController {
     private final AuditQueryApplicationService audits;
 
     @GetMapping
-    List<ApiDtos.AuditResponse> audits() {
+    List<AuditResponse> audits() {
         return this.audits.latest100().stream()
-                .map(x -> new ApiDtos.AuditResponse(
+                .map(x -> new AuditResponse(
                         x.id(),
                         x.action(),
                         x.targetType(),

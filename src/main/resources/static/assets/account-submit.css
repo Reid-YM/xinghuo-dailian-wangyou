@@ -1,4 +1,4 @@
-/* 攻略投稿控制台：VNext 深层视觉桥接。 */
+/* 攻略投稿控制台：业务页面样式。规则由 account-submit 页面拥有，保持 VNext 深层视觉等价。 */
 body[data-page="account-submit"]{background:radial-gradient(circle at 86% 0,rgba(223,47,49,.08),transparent 32rem),#0b0c0f!important;color:#eef1f5!important}
 body[data-page="account-submit"] .nexus{width:min(calc(100% - 40px),1480px);max-width:none;margin-inline:auto;padding-top:26px;padding-bottom:54px}
 body[data-page="account-submit"] .nexus-commandbar,body[data-page="account-submit"] .nexus-rail,body[data-page="account-submit"] .nexus-hero,body[data-page="account-submit"] .nexus-status,body[data-page="account-submit"] .nexus-module,body[data-page="account-submit"] .submission-preview{border:1px solid #2b313b!important;border-radius:16px!important;background:linear-gradient(180deg,#181b21,#121419)!important;color:#eef1f5!important;box-shadow:0 18px 48px rgba(0,0,0,.18)!important}

@@ -67,7 +67,9 @@ class DeploymentGovernanceContractTest {
         assertTrue(runbook.contains("8081"));
         assertTrue(runbook.contains("8080"));
         assertTrue(runbook.contains("vnext-legacy-bridge-v3.css"));
+        assertTrue(runbook.contains("account-submit.css"));
         assertTrue(runbook.contains("vnext-account-submit-v3.css"));
+        assertTrue(runbook.contains("已进入首批退役"));
         assertTrue(runbook.contains("deploy/production"));
         assertTrue(runbook.contains("workflow 定义未同步"));
     }

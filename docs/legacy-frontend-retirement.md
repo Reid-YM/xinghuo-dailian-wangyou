@@ -31,7 +31,7 @@ Examples include account/profile controllers, frontend control runtime, public f
 
 ### B. Visual compatibility layers
 
-The VNext v4/v5/v7/v8 CSS layers and remaining account/admin bridge styles keep mature Thymeleaf surfaces visually aligned with VNext. They are temporary, but still production dependencies.
+The VNext v4/v5/v7/v8 CSS layers and the remaining shared/admin bridge styles keep mature Thymeleaf surfaces visually aligned with VNext. They are temporary, but still production dependencies until a replacement is verified without them.
 
 ### C. Retirement candidates
 
@@ -42,6 +42,21 @@ A legacy CSS/JS/template becomes a retirement candidate only when:
 - no runtime script injects or depends on it;
 - Chromium + WebKit regression tests cover the replacement;
 - production smoke checks cover the replacement route/assets.
+
+## Current retirement progress
+
+### Account submit page-owned stylesheet
+
+`vnext-account-submit-v3.css` was a page-local compatibility asset despite its global VNext-style name. The retirement change moves the exact visual rules into the page-owned canonical asset `account-submit.css`; `account-submit.html` and its mobile equivalent continue to receive the same rules through the existing declarative fragment, while runtime JavaScript remains uninvolved.
+
+The old `vnext-account-submit-v3.css` path must stay retired only if the replacement branch passes:
+
+- Maven contract tests;
+- Chromium wide-screen account-submit regression;
+- WebKit mobile account-submit regression;
+- the shared production smoke contract with `/assets/account-submit.css` present.
+
+This migration does **not** prove that `vnext-legacy-bridge-v3.css` can be removed. That shared bridge still serves service detail, record/order detail, account-center and admin surfaces and must be retired separately.
 
 ## Planned sequence
 

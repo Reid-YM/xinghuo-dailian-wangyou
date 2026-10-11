@@ -1,6 +1,5 @@
 package com.xinghuo.feedback.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.feedback.application.FeedbackApplicationService;
 import com.xinghuo.upload.infrastructure.UploadAsset;
@@ -30,24 +29,24 @@ public class AdminFeedbackController {
     private final UploadService uploads;
 
     @GetMapping
-    List<ApiDtos.TestFeedbackResponse> feedback() {
+    List<TestFeedbackResponse> feedback() {
         return FeedbackWebMapper.toResponses(this.feedback.list());
     }
 
     @PostMapping
-    ApiDtos.TestFeedbackResponse createFeedback(@Valid @RequestBody ApiDtos.TestFeedbackCreateRequest r, Authentication a, HttpServletRequest req) {
+    TestFeedbackResponse createFeedback(@Valid @RequestBody TestFeedbackCreateRequest r, Authentication a, HttpServletRequest req) {
         return FeedbackWebMapper.toResponse(
                 this.feedback.create(FeedbackWebMapper.toCommand(r), a.getName()));
     }
 
     @PutMapping(value={"/{id}"})
-    ApiDtos.TestFeedbackResponse updateFeedback(@PathVariable Long id, @Valid @RequestBody ApiDtos.TestFeedbackUpdateRequest r, Authentication a, HttpServletRequest req) {
+    TestFeedbackResponse updateFeedback(@PathVariable Long id, @Valid @RequestBody TestFeedbackUpdateRequest r, Authentication a, HttpServletRequest req) {
         return FeedbackWebMapper.toResponse(
                 this.feedback.update(id, FeedbackWebMapper.toCommand(r), a.getName()));
     }
 
     @PostMapping(value={"/{id}/attachment"})
-    ApiDtos.TestFeedbackResponse uploadFeedbackAttachment(@PathVariable Long id, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
+    TestFeedbackResponse uploadFeedbackAttachment(@PathVariable Long id, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
         UploadAsset asset = this.uploads.storeImage(file, UploadAsset.Kind.TEST_FEEDBACK_ATTACHMENT);
         this.uploads.bind(asset.getId(), "TEST_FEEDBACK", String.valueOf(id));
         return FeedbackWebMapper.toResponse(this.feedback.attach(id, asset.getId(), a.getName()));

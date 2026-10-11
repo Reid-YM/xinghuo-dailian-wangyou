@@ -23,12 +23,17 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
-    void siteLoadsMutuallyExclusiveDeviceAssetLayers() throws Exception {
+    void siteLoadsMutuallyExclusiveDeviceAssetLayersAfterSharedFoundation() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
-        assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" rel=\"stylesheet\" href=\"/assets/desktop-storefront.css?v=20261011ds11\""));
-        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" rel=\"stylesheet\" href=\"/assets/mobile-storefront.css?v=20261011ds11\""));
-        assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" defer src=\"/assets/desktop-storefront.js?v=20261011ds11\""));
-        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" defer src=\"/assets/mobile-storefront.js?v=20261011ds11\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" rel=\"stylesheet\" href=\"/assets/desktop-storefront.css?v=20261011ds20\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" rel=\"stylesheet\" href=\"/assets/mobile-storefront.css?v=20261011ds20\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" defer src=\"/assets/desktop-storefront.js?v=20261011ds20\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" defer src=\"/assets/mobile-storefront.js?v=20261011ds20\""));
+        int sharedCss = site.indexOf("site-experience-v2.css?v=20261007ux03");
+        int desktopCss = site.indexOf("desktop-storefront.css?v=20261011ds20");
+        int mobileCss = site.indexOf("mobile-storefront.css?v=20261011ds20");
+        assertTrue(sharedCss >= 0 && desktopCss > sharedCss && mobileCss > sharedCss,
+                "device-specific CSS must load after the shared experience foundation");
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/desktop-storefront.css")));
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/mobile-storefront.css")));
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/desktop-storefront.js")));

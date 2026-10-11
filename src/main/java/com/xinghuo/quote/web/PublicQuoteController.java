@@ -3,7 +3,6 @@ package com.xinghuo.quote.web;
 import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountSessionService;
 import com.xinghuo.account.service.QuoteContactService;
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
@@ -32,9 +31,9 @@ public class PublicQuoteController {
     private final QuoteContactService quoteContacts;
 
     @PostMapping
-    ResponseEntity<ApiDtos.QuoteResponse> quote(@Valid @RequestBody PublicQuoteRequest body,
-                                                @RequestHeader(value="Idempotency-Key") String key,
-                                                HttpServletRequest req) {
+    ResponseEntity<QuoteResponse> quote(@Valid @RequestBody PublicQuoteRequest body,
+                                        @RequestHeader(value="Idempotency-Key") String key,
+                                        HttpServletRequest req) {
         if (!this.runtimeConfig.quoteEnabled()) {
             throw new BadRequestException("当前已关闭网页询价，请通过客服渠道联系");
         }
@@ -48,7 +47,7 @@ public class PublicQuoteController {
                 payload = body.withCustomerContact(contact.value(), quoteContactMethod(contact.type()));
             }
         }
-        ApiDtos.QuoteResponse out = QuoteWebMapper.toResponse(this.quotes.create(QuoteWebMapper.toCommand(
+        QuoteResponse out = QuoteWebMapper.toResponse(this.quotes.create(QuoteWebMapper.toCommand(
                 payload,
                 key,
                 HashUtil.sha256(RequestUtil.clientIp(req)),

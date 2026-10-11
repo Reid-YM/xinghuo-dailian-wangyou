@@ -1,6 +1,5 @@
 package com.xinghuo.quote.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.upload.infrastructure.UploadAsset;
 import com.xinghuo.upload.infrastructure.UploadService;
 import lombok.Generated;
@@ -16,8 +15,8 @@ public class PublicQuoteUploadController {
     private final UploadService uploads;
 
     @PostMapping(value={"/quote"})
-    ApiDtos.UploadResponse quoteUpload(@RequestParam(value="file") MultipartFile file) {
-        return new ApiDtos.UploadResponse(
+    QuoteUploadResponse quoteUpload(@RequestParam(value="file") MultipartFile file) {
+        return new QuoteUploadResponse(
                 this.uploads.storeImage(file, UploadAsset.Kind.QUOTE_SCREENSHOT).getId());
     }
 

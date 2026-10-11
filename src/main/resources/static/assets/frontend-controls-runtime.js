@@ -95,7 +95,7 @@
     text('#gameEntrySection .game-entry-head .text-link', control.homeGameLinkLabel);
     href('#gameEntrySection .game-entry-head .text-link', control.homeGameLinkHref);
 
-    const why = document.querySelector('main.container section[aria-label="为什么选择星火"]');
+    const why = document.querySelector('main section[aria-label="为什么选择星火"]');
     if (why) {
       why.hidden = !bool(control.homeWhyVisible);
       text('.section-title .eyebrow', control.homeWhyEyebrow, why);

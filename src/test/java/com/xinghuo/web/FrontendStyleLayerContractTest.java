@@ -23,16 +23,51 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
-    void siteLoadsMutuallyExclusiveDeviceAssetLayers() throws Exception {
+    void siteLoadsMutuallyExclusiveDeviceAssetLayersAfterSharedFoundation() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
-        assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" rel=\"stylesheet\" href=\"/assets/desktop-storefront.css?v=20261011ds11\""));
-        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" rel=\"stylesheet\" href=\"/assets/mobile-storefront.css?v=20261011ds11\""));
-        assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" defer src=\"/assets/desktop-storefront.js?v=20261011ds11\""));
-        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" defer src=\"/assets/mobile-storefront.js?v=20261011ds11\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" rel=\"stylesheet\" href=\"/assets/desktop-storefront.css?v=20261011ds20\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" rel=\"stylesheet\" href=\"/assets/mobile-storefront.css?v=20261011ds20\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" defer src=\"/assets/desktop-storefront.js?v=20261011ds20\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" defer src=\"/assets/mobile-storefront.js?v=20261011ds20\""));
+        int sharedCss = site.indexOf("site-experience-v2.css?v=20261007ux03");
+        int desktopCss = site.indexOf("desktop-storefront.css?v=20261011ds20");
+        int mobileCss = site.indexOf("mobile-storefront.css?v=20261011ds20");
+        assertTrue(sharedCss >= 0 && desktopCss > sharedCss && mobileCss > sharedCss,
+                "device-specific CSS must load after the shared experience foundation");
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/desktop-storefront.css")));
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/mobile-storefront.css")));
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/desktop-storefront.js")));
         assertTrue(Files.exists(MAIN.resolve("resources/static/assets/mobile-storefront.js")));
+    }
+
+    @Test
+    void frontendControlRuntimeTargetsBothHomeRootsAndUsesFreshCacheKey() throws Exception {
+        String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
+        String runtime = Files.readString(MAIN.resolve("resources/static/assets/frontend-controls-runtime.js"));
+        assertTrue(site.contains("/assets/frontend-controls-runtime.js?v=20261011fc20"));
+        assertTrue(runtime.contains("document.querySelector('main section[aria-label=\"为什么选择星火\"]')"));
+        assertFalse(runtime.contains("main.container section[aria-label=\"为什么选择星火\"]"),
+                "mobile home controls must not depend on a desktop-only container class");
+    }
+
+    @Test
+    void desktopAndMobileHomeOwnIndependentDomWhileKeepingBusinessHooks() throws Exception {
+        String desktop = Files.readString(MAIN.resolve("resources/templates/desktop/index.html"));
+        String mobile = Files.readString(MAIN.resolve("resources/templates/mobile/index.html"));
+        assertFalse(desktop.contains("th:replace=\"~{index :: html}\""));
+        assertFalse(mobile.contains("th:replace=\"~{index :: html}\""));
+        assertTrue(desktop.contains("xh-desktop-home"));
+        assertTrue(mobile.contains("xh-mobile-home"));
+        assertTrue(desktop.contains("xh-desktop-command"));
+        assertTrue(mobile.contains("xh-mobile-launcher"));
+        assertFalse(desktop.contains("xh-mobile-launcher"));
+        assertFalse(mobile.contains("xh-desktop-command"));
+        for (String hook : new String[]{"id=\"homeHero\"", "id=\"quoteForm\"", "id=\"orderForm\"", "id=\"gameEntrySection\"", "id=\"homeGameRail\"", "id=\"serviceGrid\"", "id=\"hotServices\"", "name=\"privacyConsent\""}) {
+            assertTrue(desktop.contains(hook), "desktop missing " + hook);
+            assertTrue(mobile.contains(hook), "mobile missing " + hook);
+        }
+        assertFalse(desktop.contains("class=\"mobile-dock\""));
+        assertTrue(mobile.contains("class=\"mobile-dock\""));
     }
 
     @Test

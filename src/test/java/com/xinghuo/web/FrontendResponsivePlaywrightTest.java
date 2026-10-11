@@ -77,15 +77,16 @@ class FrontendResponsivePlaywrightTest {
         assertTrue(css.contains("var(--accent"));
         assertTrue(css.contains("var(--surface-2"));
         assertTrue(css.contains("-webkit-backdrop-filter:none!important"));
+        assertTrue(css.contains("backdrop-filter:none!important;transition:none!important"));
         assertTrue(css.contains(".service-browser-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}"),
                 "desktop service browser must keep the explicit four-column experience contract");
 
         assertTrue(!fragment.contains("site-shell.css"),
                 "retired legacy shell must not compete with the rewritten public experience layer");
         assertTrue(fragment.contains("data-experience-shell=\"v3\""));
-        assertTrue(fragment.contains("backdrop-filter:none!important;transition:none!important"),
-                "public v3 header must quarantine legacy blur transitions at the shell boundary");
-        int experience = fragment.indexOf("site-experience-v2.css?v=20261007ux03");
+        assertTrue(!fragment.contains("style=\"-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important\""),
+                "public v3 header must keep visual quarantine in the authoritative stylesheet, not inline markup");
+        int experience = fragment.indexOf("site-experience-v2.css?v=20261012ux04");
         int runtime = fragment.indexOf("frontend-controls-runtime.js");
         assertTrue(experience >= 0, "rewritten experience stylesheet must load globally");
         assertTrue(runtime > experience, "runtime frontend controls must remain able to override theme variables");

@@ -12,16 +12,18 @@ class ComponentResponsiveControlsContractTest {
     @Test
     void backendExposesDesktopAndMobileComponentControls() throws Exception {
         String migration = Files.readString(ROOT.resolve("src/main/resources/db/migration/V60__responsive_component_controls.sql"));
-        String dto = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/dto/ApiDtos.java"));
+        String updateContract = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/siteconfig/web/SiteConfigUpdate.java"));
+        String responseContract = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/siteconfig/web/SiteConfigResponse.java"));
         String writes = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/siteconfig/infrastructure/SiteConfigWritePersistenceAdapter.java"));
 
         assertTrue(migration.contains("home_service_mobile_limit"));
         assertTrue(migration.contains("home_service_desktop_columns"));
         assertTrue(migration.contains("trust_faq_home_mobile_limit"));
         assertTrue(Files.readString(ROOT.resolve("src/main/resources/db/migration/V61__mobile_background_image_controls.sql")).contains("hero_background_mobile_image"));
-        assertTrue(dto.contains("int homeServiceMobileLimit"));
-        assertTrue(dto.contains("String serviceCardMobileDensity"));
-        assertTrue(dto.contains("String heroBackgroundMobileImage"));
+        assertTrue(updateContract.contains("int homeServiceMobileLimit"));
+        assertTrue(updateContract.contains("String serviceCardMobileDensity"));
+        assertTrue(updateContract.contains("String heroBackgroundMobileImage"));
+        assertTrue(responseContract.contains("String heroBackgroundMobileImage"));
         assertTrue(writes.contains("setHomeServiceMobileLimit"));
         assertTrue(writes.contains("setHeroBackgroundMobileImage"));
         assertTrue(writes.contains("normalizeDensity"));

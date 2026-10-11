@@ -13,13 +13,14 @@ class FrontendStyleLayerContractTest {
     @Test
     void sharedSiteUsesSingleAuthoritativeExperienceLayer() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
-        assertTrue(site.contains("/assets/site-experience-v2.css?v=20261007ux03"));
+        assertTrue(site.contains("/assets/site-experience-v2.css?v=20261012ux04"));
         assertTrue(site.contains("/assets/site-shell.js?v=20261012ss05"));
         assertTrue(site.contains("/assets/brand-logo.svg?v=20261008logo01"));
         assertFalse(site.contains("brand-dot"));
         assertFalse(site.contains("site-shell.css"));
         assertFalse(site.contains("site-surface-refine.css"));
         assertFalse(site.contains("site-surface-refine.js"));
+        assertFalse(site.contains("style=\"-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important\""));
     }
 
     @Test

@@ -120,13 +120,13 @@
       </div>
       <h3>模块显示</h3><div class="fc-grid two">
         <label class="toggle-row"><input type="checkbox" name="homeLauncherVisible"><span><b>显示手机四宫格入口</b><small>电脑端无可见副作用。</small></span></label>
-        <label class="toggle-row"><input type="checkbox" name="homeContactVisible"><span><b>显示首页客服卡片</b></span></label>
         <label class="toggle-row"><input type="checkbox" name="homeHotVisible"><span><b>显示热门服务</b></span></label>
         <label class="toggle-row"><input type="checkbox" name="homeServicesVisible"><span><b>显示服务项目</b></span></label>
         <label class="toggle-row"><input type="checkbox" name="homeToolVisible"><span><b>显示 MW4 工具 / 交付模块</b></span></label>
         <label class="toggle-row"><input type="checkbox" name="homeCasesVisible"><span><b>允许显示近期完成记录</b><small>仍需原后台存在公开案例才会出现。</small></span></label>
         <label class="toggle-row"><input type="checkbox" name="homeFaqVisible"><span><b>显示常见问题</b></span></label>
       </div>
+      <p class="fc-layout-note">首页客服卡显隐继续由“导航与备案 → 显示首页快捷联系卡片”唯一控制，V3 不重复设置。</p>
       <h3>首页模块排序</h3>
       <div class="field wide"><label id="homeModuleOrderLabel">当前端模块顺序</label><input type="hidden" name="homeModuleOrder"><div id="homeModuleOrderList" class="fc-order-list"></div><p class="fc-layout-note">排序只在电脑端或手机端配置时启用；全局层保留各端自己的设计顺序。</p><button type="button" class="btn ghost" id="resetHomeModuleOrder">恢复当前端设计顺序</button></div>
       <h3>手机底部 Dock 文案</h3><div class="fc-grid two" id="mobileDockLabelControls">
@@ -184,7 +184,10 @@
   function setBusy(form, busy) {
     form?.classList.toggle('fc-loading', busy);
     $$('button,input,select,textarea', form).forEach(node => { node.disabled = busy; });
-    if (!busy) updateScopeUi();
+    if (!busy) {
+      updateScopeUi();
+      syncOrderButtons();
+    }
   }
 
   function fillForm(form, values = {}) {
@@ -243,7 +246,9 @@
   }
 
   function syncOrderButtons() {
-    const rows = $$('[data-home-module-id]', $('#homeModuleOrderList') || document);
+    const list = $('#homeModuleOrderList');
+    if (!list) return;
+    const rows = $$('[data-home-module-id]', list);
     rows.forEach((row, index) => {
       const up = $('[data-order-move="up"]', row);
       const down = $('[data-order-move="down"]', row);

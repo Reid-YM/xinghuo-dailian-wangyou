@@ -1,9 +1,9 @@
 package com.xinghuo.siteconfig.infrastructure;
 
+import com.xinghuo.catalog.infrastructure.ServiceItemRepository;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.model.ServiceItem;
 import com.xinghuo.model.SiteConfig;
-import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.siteconfig.application.SiteConfigPublicPort;
 import com.xinghuo.siteconfig.application.SiteConfigPublicSnapshot;
 import java.math.BigDecimal;

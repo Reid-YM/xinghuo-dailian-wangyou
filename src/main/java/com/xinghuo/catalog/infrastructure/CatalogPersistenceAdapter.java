@@ -10,7 +10,6 @@ import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.ConflictException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.ServiceItem;
-import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;

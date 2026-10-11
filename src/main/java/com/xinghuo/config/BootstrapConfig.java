@@ -1,7 +1,7 @@
 package com.xinghuo.config;
 
-import com.xinghuo.security.infrastructure.AdminUser;
-import com.xinghuo.security.infrastructure.AdminUserRepository;
+import com.xinghuo.model.AdminUser;
+import com.xinghuo.repository.AdminUserRepository;
 import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,3 +30,4 @@ public class BootstrapConfig {
         };
     }
 }
+

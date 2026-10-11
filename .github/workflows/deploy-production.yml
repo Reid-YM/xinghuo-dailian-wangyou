@@ -141,7 +141,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${DEPLOY_SHA}&branch=main&per_page=20"
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${DEPLOY_SHA}&branch=main&event=push&per_page=10"
           json=$(curl -fsSL \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
@@ -149,11 +149,7 @@ jobs:
             "$api")
           echo "$json" | jq -e '
             .workflow_runs
-            | any(
-                .status == "completed"
-                and .conclusion == "success"
-                and (.event == "push" or .event == "workflow_dispatch")
-              )
+            | any(.status == "completed" and .conclusion == "success")
           ' >/dev/null || {
             echo "No successful main CI run found for ${DEPLOY_SHA}."
             exit 1

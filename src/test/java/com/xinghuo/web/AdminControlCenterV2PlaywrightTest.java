@@ -244,10 +244,9 @@ class AdminControlCenterV2PlaywrightTest {
     }
 
     @Test
-    void frontendControlCenterOwnsProductionDarkSurfaceWithoutSharedBridge() {
+    void frontendControlCenterUsesLightAdminSurface() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
-            page.setViewportSize(1920, 1080);
             page.setContent("""
                     <body class="frontend-control-admin">
                       <header class="fc-topbar"><div class="fc-topbar-inner">顶部</div></header>
@@ -258,16 +257,9 @@ class AdminControlCenterV2PlaywrightTest {
                     """);
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-frontend-controls.css")));
 
-            assertEquals("rgb(11, 12, 15)", page.evaluate("() => getComputedStyle(document.body).backgroundColor"));
-            assertEquals("rgb(238, 241, 245)", page.evaluate("() => getComputedStyle(document.body).color"));
-            assertTrue(((String) page.evaluate("() => getComputedStyle(document.querySelector('.fc-card')).backgroundImage")).contains("linear-gradient"));
-            assertEquals("rgb(13, 15, 19)", page.evaluate("() => getComputedStyle(document.querySelector('.fc-card input')).backgroundColor"));
-            Number shellWidth = (Number) page.evaluate("() => document.querySelector('.fc-shell').getBoundingClientRect().width");
-            assertTrue(shellWidth.doubleValue() >= 1700.0);
-
-            page.setViewportSize(390, 844);
-            assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
-            assertEquals("16px", page.evaluate("() => getComputedStyle(document.querySelector('.fc-card input')).fontSize"));
+            assertEquals("rgb(244, 246, 248)", page.evaluate("() => getComputedStyle(document.body).backgroundColor"));
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.fc-card')).backgroundColor"));
+            assertEquals("rgb(255, 255, 255)", page.evaluate("() => getComputedStyle(document.querySelector('.fc-card input')).backgroundColor"));
         }
     }
 

@@ -50,13 +50,17 @@ class ProductionAccessAndOverflowContractTest {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
         String guard = Files.readString(MAIN.resolve("resources/static/assets/site-overflow-guard.css"));
         String adminFixes = Files.readString(MAIN.resolve("resources/static/assets/admin-brand-layout-fixes.css"));
+        String dock = Files.readString(MAIN.resolve("resources/static/assets/mobile-floating-dock-v4.css"));
 
         int desktop = site.indexOf("desktop-storefront.css?v=20261011ds20");
         int mobile = site.indexOf("mobile-storefront.css?v=20261011ds20");
         int mobileV4 = site.indexOf("mobile-home-v4.css?v=20261012mv401");
+        int dockV4 = site.indexOf("mobile-floating-dock-v4.css?v=20261012mv402");
         int overflow = site.indexOf("site-overflow-guard.css?v=20261011of01");
-        assertTrue(desktop >= 0 && mobile >= 0 && mobileV4 > mobile && overflow > desktop && overflow > mobileV4);
+        assertTrue(desktop >= 0 && mobile >= 0 && mobileV4 > mobile && dockV4 > mobileV4 && overflow > desktop && overflow > dockV4);
         assertTrue(adminFixes.startsWith("@import url('/assets/site-overflow-guard.css?v=20261011of01');"));
+        assertTrue(dock.contains("position: fixed !important"));
+        assertTrue(dock.contains("z-index: 85 !important"));
 
         assertTrue(guard.contains("overflow-x: clip !important"));
         assertTrue(guard.contains("body[data-page=\"home\"] #homeHero"));

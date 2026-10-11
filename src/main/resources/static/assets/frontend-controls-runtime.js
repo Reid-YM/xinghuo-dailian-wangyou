@@ -25,6 +25,15 @@
     return `${value >> 16 & 255},${value >> 8 & 255},${value & 255}`;
   }
 
+  function applyFeatureSwitches(control = {}) {
+    visible('.site-header', bool(control.siteHeaderVisible));
+    visible('body > footer', bool(control.siteFooterVisible));
+    visible('a[href="/services"]', bool(control.servicesEntryVisible));
+    visible('a[href="/quote"]', bool(control.quoteEntryVisible));
+    visible('a[href="/records"]', bool(control.recordsEntryVisible));
+    visible('.mobile-dock', bool(control.mobileDockVisible));
+  }
+
   function applyTheme(control = {}) {
     const root = document.documentElement;
     const accent = String(control.themeAccentColor || '').trim();
@@ -101,7 +110,11 @@
       const response = await fetch('/api/public/frontend-controls', { cache: 'no-store' });
       if (!response.ok) return;
       const control = await response.json();
-      const apply = () => { applyTheme(control || {}); applyHome(control || {}); };
+      const apply = () => {
+        applyFeatureSwitches(control || {});
+        applyTheme(control || {});
+        applyHome(control || {});
+      };
       apply();
       [120, 600, 1500].forEach(delay => setTimeout(apply, delay));
     } catch (_) {

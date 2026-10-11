@@ -39,7 +39,7 @@ class GlobalUiControlContractTest {
     void adminIsOrganizedByFunctionalEntryAndExposesBackendOnlyFields() throws IOException {
         String loader = read("resources/static/assets/admin-tool-station.js");
         String admin = read("resources/static/assets/admin-global-ui.js");
-        String controller = read("java/com/xinghuo/controller/GlobalUiSettingsController.java");
+        String controller = read("java/com/xinghuo/sitesetting/web/GlobalUiSettingsController.java");
 
         assertTrue(loader.contains("/assets/admin-global-ui.js?v=20261007g004"));
         assertTrue(admin.contains("站点运营"));

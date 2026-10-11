@@ -50,7 +50,7 @@ class DeploymentGovernanceContractTest {
         assertTrue(doc.contains("Administration 权限"));
         assertTrue(doc.contains("Chromium + WebKit UI Regression"));
         assertTrue(doc.contains("workflow_dispatch"));
-        assertTrue(doc.contains("同一个 main SHA"));
+        assertTrue(doc.contains("同一个 `main` SHA"));
     }
 
     @Test

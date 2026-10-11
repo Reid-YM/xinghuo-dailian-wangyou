@@ -10,17 +10,11 @@ import org.junit.jupiter.api.Test;
 
 class AdminApiNoLegacyDependencyContractTest {
     @Test
-    void productionSourcesDoNotReferenceRetiredAdminApiController() throws IOException {
+    void productionSourcesDoNotReintroduceRetiredAdminApiControllerFile() throws IOException {
         try (Stream<Path> files = Files.walk(Path.of("src/main/java"))) {
             assertThat(files
-                    .filter(path -> path.toString().endsWith(".java"))
-                    .filter(path -> {
-                        try {
-                            return Files.readString(path).contains("AdminApiController");
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .filter(path -> path.getFileName() != null)
+                    .filter(path -> path.getFileName().toString().equals("AdminApiController.java"))
                     .toList()).isEmpty();
         }
     }

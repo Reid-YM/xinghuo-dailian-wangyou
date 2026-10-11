@@ -1,6 +1,5 @@
 package com.xinghuo.siteconfig.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService;
 import lombok.Generated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,7 @@ public class PublicSiteConfigController {
     private final SiteConfigPublicApplicationService siteConfig;
 
     @GetMapping
-    ApiDtos.SiteConfigResponse config() {
+    SiteConfigResponse config() {
         return SiteConfigWebMapper.toResponse(this.siteConfig.get());
     }
 

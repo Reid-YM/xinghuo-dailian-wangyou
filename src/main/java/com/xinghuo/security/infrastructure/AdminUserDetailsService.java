@@ -1,7 +1,5 @@
 package com.xinghuo.security.infrastructure;
 
-import com.xinghuo.model.AdminUser;
-import com.xinghuo.repository.AdminUserRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

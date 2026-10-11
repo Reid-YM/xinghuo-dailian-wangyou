@@ -94,6 +94,7 @@ class HomeDeviceDomPlaywrightTest {
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-home-v4.css")));
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-floating-dock-v4.css")));
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-home-reference-v5.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-home-reference-v5-layout.css")));
         }
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-overflow-guard.css")));
         page.addScriptTag(new Page.AddScriptTagOptions().setPath(deviceJs));

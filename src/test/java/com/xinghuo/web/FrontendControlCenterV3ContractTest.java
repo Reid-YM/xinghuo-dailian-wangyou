@@ -37,6 +37,10 @@ class FrontendControlCenterV3ContractTest {
 
         assertTrue(runtime.contains("DESKTOP_HOME_MODULES"));
         assertTrue(runtime.contains("MOBILE_HOME_MODULES"));
+        assertTrue(runtime.contains("why: '.xh-desktop-proof-grid'"));
+        assertTrue(runtime.contains("why: '.xh-mobile-proof-grid'"));
+        assertTrue(runtime.contains("function resolveHomeModule"));
+        assertTrue(runtime.contains("candidate.closest('section')"));
         assertTrue(runtime.contains("applyHomeModuleOrder"));
         assertTrue(runtime.contains("applyHomeSizing"));
         assertTrue(runtime.contains("applyHomeVisibility"));
@@ -47,6 +51,8 @@ class FrontendControlCenterV3ContractTest {
         assertTrue(runtime.contains("if (!bool(control.homeCasesVisible))"));
         assertTrue(runtime.contains("if (!bool(control.homeGameEntryVisible))"));
         assertFalse(runtime.contains("control.homeContactVisible"));
+        assertFalse(runtime.contains("main section[aria-label=\"为什么选择星火\"]"),
+                "V3 ordering must not depend on localized aria-label copy");
     }
 
     @Test

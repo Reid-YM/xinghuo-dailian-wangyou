@@ -17,15 +17,16 @@ class FrontendControlCenterV3ContractTest {
         for (String key : new String[]{
                 "homeModuleOrder", "homeHeroHeight", "homeCardScale", "homeLauncherVisible",
                 "homeHotVisible", "homeServicesVisible", "homeToolVisible", "homeCasesVisible",
-                "homeFaqVisible", "homeContactVisible", "mobileDockServicesLabel",
-                "mobileDockGuidesLabel", "mobileDockRecordsLabel", "mobileDockContactLabel",
-                "mobileDockQuoteLabel"
+                "homeFaqVisible", "mobileDockServicesLabel", "mobileDockGuidesLabel",
+                "mobileDockRecordsLabel", "mobileDockContactLabel", "mobileDockQuoteLabel"
         }) {
             assertTrue(service.contains("\"" + key + "\""), "missing V3 control key " + key);
         }
         assertTrue(service.contains("normalizeModuleOrder"));
         assertTrue(service.contains("HOME_MODULE_IDS"));
         assertTrue(service.contains("LinkedHashSet"));
+        assertFalse(service.contains("homeContactVisible"),
+                "quick-contact visibility must remain owned by the existing homeQuickContactVisible setting");
         assertFalse(service.contains("customCss"));
         assertFalse(service.contains("customJavaScript"));
     }
@@ -45,6 +46,7 @@ class FrontendControlCenterV3ContractTest {
         assertTrue(runtime.contains("mobileDockQuoteLabel"));
         assertTrue(runtime.contains("if (!bool(control.homeCasesVisible))"));
         assertTrue(runtime.contains("if (!bool(control.homeGameEntryVisible))"));
+        assertFalse(runtime.contains("control.homeContactVisible"));
     }
 
     @Test
@@ -63,6 +65,7 @@ class FrontendControlCenterV3ContractTest {
         assertTrue(admin.contains("homeHeroHeight"));
         assertTrue(admin.contains("homeCardScale"));
         assertTrue(admin.contains("mobileDockQuoteLabel"));
+        assertFalse(admin.contains("name=\"homeContactVisible\""));
     }
 
     @Test

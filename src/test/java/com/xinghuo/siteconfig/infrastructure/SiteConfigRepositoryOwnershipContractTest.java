@@ -10,12 +10,14 @@ import org.junit.jupiter.api.Test;
 
 class SiteConfigRepositoryOwnershipContractTest {
     @Test
-    void siteConfigRepositoryLivesInsideSiteConfigInfrastructure() throws IOException {
-        assertThat(Files.exists(Path.of("src/main/java/com/xinghuo/siteconfig/infrastructure/SiteConfigRepository.java"))).isTrue();
-        assertThat(Files.exists(Path.of("src/main/java/com/xinghuo/repository/SiteConfigRepository.java"))).isFalse();
-        assertThat(Files.exists(Path.of("src/main/java/com/xinghuo/model/SiteConfig.java"))).isTrue();
+    void siteConfigPersistenceLivesInsideSiteConfigInfrastructure() throws IOException {
+        Path main = Path.of("src/main/java/com/xinghuo");
+        assertThat(Files.exists(main.resolve("siteconfig/infrastructure/SiteConfig.java"))).isTrue();
+        assertThat(Files.exists(main.resolve("siteconfig/infrastructure/SiteConfigRepository.java"))).isTrue();
+        assertThat(Files.exists(main.resolve("model/SiteConfig.java"))).isFalse();
+        assertThat(Files.exists(main.resolve("repository/SiteConfigRepository.java"))).isFalse();
 
-        try (Stream<Path> files = Files.walk(Path.of("src/main/java/com/xinghuo/siteconfig"))) {
+        try (Stream<Path> files = Files.walk(main)) {
             assertThat(files
                     .filter(path -> path.toString().endsWith(".java"))
                     .map(path -> {
@@ -27,6 +29,7 @@ class SiteConfigRepositoryOwnershipContractTest {
                     })
                     .toList())
                     .allSatisfy(source -> assertThat(source)
+                            .doesNotContain("com.xinghuo.model.SiteConfig")
                             .doesNotContain("com.xinghuo.repository.SiteConfigRepository"));
         }
     }

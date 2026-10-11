@@ -39,7 +39,7 @@ class HomeDeviceDomPlaywrightTest {
     }
 
     private static void assertDesktop(Browser browser, int width, int height, String label) throws Exception {
-        Page page = render(browser, TEMPLATES.resolve("desktop/index.html"), ASSETS.resolve("desktop-storefront.css"), ASSETS.resolve("desktop-storefront.js"), width, height);
+        Page page = render(browser, TEMPLATES.resolve("desktop/index.html"), ASSETS.resolve("desktop-storefront.css"), ASSETS.resolve("desktop-storefront.js"), width, height, false);
         assertNotNull(page.querySelector(".xh-desktop-home"), label + " desktop root missing");
         assertNotNull(page.querySelector(".xh-desktop-command"), label + " desktop command area missing");
         assertNull(page.querySelector(".xh-mobile-launcher"), label + " leaked mobile launcher");
@@ -53,14 +53,22 @@ class HomeDeviceDomPlaywrightTest {
     }
 
     private static void assertMobile(Browser browser, int width, int height, String label) throws Exception {
-        Page page = render(browser, TEMPLATES.resolve("mobile/index.html"), ASSETS.resolve("mobile-storefront.css"), ASSETS.resolve("mobile-storefront.js"), width, height);
+        Page page = render(browser, TEMPLATES.resolve("mobile/index.html"), ASSETS.resolve("mobile-storefront.css"), ASSETS.resolve("mobile-storefront.js"), width, height, true);
         assertNotNull(page.querySelector(".xh-mobile-home"), label + " mobile root missing");
+        assertNotNull(page.querySelector(".xh-mobile-hero-v4"), label + " V4 hero missing");
+        assertEquals(4, ((Number) page.evaluate("() => document.querySelectorAll('.xh-mobile-hero-feature').length")).intValue(), label + " hero feature count");
+        assertNotNull(page.querySelector(".xh-mobile-progress-card"), label + " progress card missing");
         assertNotNull(page.querySelector(".xh-mobile-launcher"), label + " mobile launcher missing");
         assertNull(page.querySelector(".xh-desktop-command"), label + " leaked desktop command area");
         assertNotNull(page.querySelector(".mobile-dock"), label + " mobile dock missing");
         assertNotNull(page.querySelector("#quoteForm"), label + " quote form missing");
         assertNotNull(page.querySelector("#orderForm"), label + " record form missing");
         assertEquals("grid", string(page, "getComputedStyle(document.querySelector('.mobile-dock')).display"), label + " mobile dock hidden");
+        assertEquals("fixed", string(page, "getComputedStyle(document.querySelector('.mobile-dock')).position"), label + " mobile dock must float fixed");
+        assertEquals(5, ((Number) page.evaluate("() => document.querySelectorAll('.mobile-dock > a').length")).intValue(), label + " dock item count");
+        assertNotNull(page.querySelector(".mobile-dock [data-dock-key='home'][aria-current='page']"), label + " active home item missing");
+        Number dockIcon = number(page, "document.querySelector('.mobile-dock svg').getBoundingClientRect().width");
+        assertTrue(dockIcon.doubleValue() >= 20, () -> label + " dock icon too small: " + dockIcon + "px");
         Number submitHeight = number(page, "document.querySelector('.xh-mobile-submit').getBoundingClientRect().height");
         assertTrue(submitHeight.doubleValue() >= 48, () -> label + " submit touch target too small: " + submitHeight + "px");
         Number inputFont = number(page, "parseFloat(getComputedStyle(document.querySelector('#home-contact')).fontSize)");
@@ -69,12 +77,13 @@ class HomeDeviceDomPlaywrightTest {
         page.close();
     }
 
-    private static Page render(Browser browser, Path template, Path deviceCss, Path deviceJs, int width, int height) throws Exception {
+    private static Page render(Browser browser, Path template, Path deviceCss, Path deviceJs, int width, int height, boolean mobile) throws Exception {
         Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(width, height));
         page.setContent(Files.readString(template));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("app.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v2.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(deviceCss));
+        if (mobile) page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-home-v4.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-overflow-guard.css")));
         page.addScriptTag(new Page.AddScriptTagOptions().setPath(deviceJs));
         return page;

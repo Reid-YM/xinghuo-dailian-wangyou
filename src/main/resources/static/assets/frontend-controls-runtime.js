@@ -148,7 +148,6 @@
     visible('.xh-mobile-launcher', bool(control.homeLauncherVisible));
     visible('.quote-card-home', bool(control.homeQuotePanelVisible));
     visible('.desktop-secondary-panel', bool(control.homeRecordPanelVisible));
-    visible('.quick-contact-card', bool(control.homeContactVisible));
     visible('.xh-desktop-hot, .xh-mobile-hot', bool(control.homeHotVisible));
     visible('.home-service-showcase, .xh-mobile-services', bool(control.homeServicesVisible));
     visible('.xh-desktop-lower-grid, .xh-mobile-tool', bool(control.homeToolVisible));
@@ -157,15 +156,18 @@
     if (!bool(control.homeGameEntryVisible)) visible('#gameEntrySection', false);
     if (!bool(control.homeCasesVisible)) visible('#publicCaseSection', false);
 
+    const desktopContact = document.querySelector('.xh-desktop-command .quick-contact-card');
     const desktopCommand = document.querySelector('.xh-desktop-command');
     if (desktopCommand) {
       desktopCommand.hidden = !bool(control.homeQuotePanelVisible)
         && !bool(control.homeRecordPanelVisible)
-        && !bool(control.homeContactVisible);
+        && !(desktopContact && !desktopContact.hidden);
     }
+    const mobileContact = document.querySelector('.xh-mobile-two-up .quick-contact-card');
     const mobileSupport = document.querySelector('.xh-mobile-two-up');
     if (mobileSupport) {
-      mobileSupport.hidden = !bool(control.homeRecordPanelVisible) && !bool(control.homeContactVisible);
+      mobileSupport.hidden = !bool(control.homeRecordPanelVisible)
+        && !(mobileContact && !mobileContact.hidden);
     }
   }
 

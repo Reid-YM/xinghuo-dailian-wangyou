@@ -1,4 +1,4 @@
-package com.xinghuo.model;
+package com.xinghuo.taxonomy.infrastructure;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -463,4 +463,3 @@ public class GameCatalog {
         }
     }
 }
-

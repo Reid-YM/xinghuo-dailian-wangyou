@@ -4,8 +4,6 @@ import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.ConflictException;
 import com.xinghuo.exception.NotFoundException;
-import com.xinghuo.model.ServiceCategoryCatalog;
-import com.xinghuo.repository.ServiceCategoryCatalogRepository;
 import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.taxonomy.application.TaxonomyCatalogView;
 import com.xinghuo.taxonomy.application.TaxonomyCommands;

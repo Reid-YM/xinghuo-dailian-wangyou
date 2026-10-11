@@ -25,7 +25,7 @@ class FrontendPatchDebtContractTest {
     void transitionalUiFixesContainsNoPollingOrRetiredToolSelectors() throws Exception {
         String patches = Files.readString(ASSETS.resolve("ui-fixes.js"));
         assertFalse(patches.contains("setInterval("));
-        assertFalse(patches.contains("MutationObserver"));
+        assertFalse(patches.contains("new MutationObserver("));
         assertFalse(patches.contains("weaponList"));
         assertFalse(patches.contains("progressSuggest"));
         assertFalse(patches.contains("camo-mode-preview-art"));

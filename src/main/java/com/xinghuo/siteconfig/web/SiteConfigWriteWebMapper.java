@@ -1,6 +1,5 @@
 package com.xinghuo.siteconfig.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.siteconfig.application.SiteConfigFullUpdateCommand;
 import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ public final class SiteConfigWriteWebMapper {
     private SiteConfigWriteWebMapper() {
     }
 
-    public static SiteConfigFullUpdateCommand toCommand(ApiDtos.SiteConfigUpdate request) {
+    public static SiteConfigFullUpdateCommand toCommand(SiteConfigUpdate request) {
         Map<String, Object> values = recordValues(request);
         Object reason = values.remove("reason");
         return new SiteConfigFullUpdateCommand(values, reason == null ? null : String.valueOf(reason));

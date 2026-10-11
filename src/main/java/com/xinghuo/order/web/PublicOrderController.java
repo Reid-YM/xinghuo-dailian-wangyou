@@ -2,7 +2,6 @@ package com.xinghuo.order.web;
 
 import com.xinghuo.account.service.RateLimiter;
 import com.xinghuo.account.service.RequestUtils;
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.order.application.OrderApplicationService;
@@ -30,7 +29,7 @@ public class PublicOrderController {
     private final RateLimiter rateLimiter;
 
     @GetMapping(value={"/orders/{orderNo}"})
-    ApiDtos.OrderPublicResponse order(@PathVariable String orderNo, HttpServletRequest req) {
+    OrderPublicResponse order(@PathVariable String orderNo, HttpServletRequest req) {
         this.requireOrderQueryEnabled();
         this.limitByIp(req, "pub:order");
         return OrderWebMapper.toResponse(this.orders.getPublic(orderNo));

@@ -22,7 +22,7 @@
     hero: '#homeHero',
     command: '.xh-desktop-command',
     game: '#gameEntrySection',
-    why: 'main section[aria-label="为什么选择星火"]',
+    why: '.xh-desktop-proof-grid',
     hot: '.xh-desktop-hot',
     services: '.home-service-showcase',
     tool: '.xh-desktop-lower-grid',
@@ -38,7 +38,7 @@
     support: '.xh-mobile-two-up',
     hot: '.xh-mobile-hot',
     services: '.xh-mobile-services',
-    why: 'main section[aria-label="为什么选择星火"]',
+    why: '.xh-mobile-proof-grid',
     tool: '.xh-mobile-tool',
     cases: '#publicCaseSection',
     faq: '.xh-mobile-faq'
@@ -103,6 +103,14 @@
     return document.documentElement.dataset.deviceMode === 'mobile' ? 'mobile' : 'desktop';
   }
 
+  function resolveHomeModule(main, selector) {
+    const candidate = main.querySelector(selector);
+    if (!candidate) return null;
+    if (candidate.parentElement === main) return candidate;
+    const section = candidate.closest('section');
+    return section && section.parentElement === main ? section : null;
+  }
+
   function applyHomeModuleOrder(control = {}) {
     const raw = String(control.homeModuleOrder || '').trim();
     if (!raw) return;
@@ -111,10 +119,11 @@
     const main = document.querySelector(mode === 'mobile' ? 'main.xh-mobile-home' : 'main.xh-desktop-home');
     if (!main) return;
 
-    const requested = raw.split(',').map(value => value.trim()).filter(id => map[id]);
+    const nodes = new Map(Object.entries(map).map(([id, selector]) => [id, resolveHomeModule(main, selector)]));
+    const requested = raw.split(',').map(value => value.trim()).filter(id => nodes.get(id));
     const orderedIds = [...new Set([...requested, ...Object.keys(map)])];
     orderedIds.forEach(id => {
-      const node = document.querySelector(map[id]);
+      const node = nodes.get(id);
       if (node && node.parentElement === main) main.appendChild(node);
     });
   }
@@ -198,7 +207,8 @@
     text('#gameEntrySection .game-entry-head .text-link', control.homeGameLinkLabel);
     href('#gameEntrySection .game-entry-head .text-link', control.homeGameLinkHref);
 
-    const why = document.querySelector('main section[aria-label="为什么选择星火"]');
+    const proofGrid = document.querySelector('.xh-desktop-proof-grid, .xh-mobile-proof-grid');
+    const why = proofGrid?.closest('section');
     if (why) {
       why.hidden = !bool(control.homeWhyVisible);
       text('.section-title .eyebrow', control.homeWhyEyebrow, why);

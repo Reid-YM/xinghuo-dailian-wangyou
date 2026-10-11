@@ -10,12 +10,14 @@ import org.junit.jupiter.api.Test;
 
 class ServiceItemRepositoryOwnershipContractTest {
     @Test
-    void serviceItemRepositoryLivesInsideCatalogInfrastructure() throws IOException {
-        assertThat(Files.exists(Path.of("src/main/java/com/xinghuo/catalog/infrastructure/ServiceItemRepository.java"))).isTrue();
-        assertThat(Files.exists(Path.of("src/main/java/com/xinghuo/repository/ServiceItemRepository.java"))).isFalse();
-        assertThat(Files.exists(Path.of("src/main/java/com/xinghuo/model/ServiceItem.java"))).isTrue();
+    void serviceItemPersistenceLivesInsideCatalogInfrastructure() throws IOException {
+        Path main = Path.of("src/main/java/com/xinghuo");
+        assertThat(Files.exists(main.resolve("catalog/infrastructure/ServiceItem.java"))).isTrue();
+        assertThat(Files.exists(main.resolve("catalog/infrastructure/ServiceItemRepository.java"))).isTrue();
+        assertThat(Files.exists(main.resolve("model/ServiceItem.java"))).isFalse();
+        assertThat(Files.exists(main.resolve("repository/ServiceItemRepository.java"))).isFalse();
 
-        try (Stream<Path> files = Files.walk(Path.of("src/main/java"))) {
+        try (Stream<Path> files = Files.walk(main)) {
             assertThat(files
                     .filter(path -> path.toString().endsWith(".java"))
                     .map(path -> {
@@ -27,6 +29,7 @@ class ServiceItemRepositoryOwnershipContractTest {
                     })
                     .toList())
                     .allSatisfy(source -> assertThat(source)
+                            .doesNotContain("com.xinghuo.model.ServiceItem")
                             .doesNotContain("com.xinghuo.repository.ServiceItemRepository"));
         }
     }

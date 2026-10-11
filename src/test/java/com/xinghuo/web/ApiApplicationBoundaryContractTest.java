@@ -116,7 +116,8 @@ class ApiApplicationBoundaryContractTest {
         assertFalse(order.contains("com.xinghuo.repository."));
 
         assertTrue(catalog.contains("private final ServiceItemRepository repo;"));
-        assertTrue(catalog.contains("com.xinghuo.model.ServiceItem"));
+        assertTrue(catalog.contains("ServiceItem item"));
+        assertFalse(catalog.contains("com.xinghuo.model.ServiceItem"));
         assertTrue(catalog.contains("CatalogServiceCommand"));
         assertFalse(catalog.contains("com.xinghuo.dto"));
         assertFalse(catalog.contains("com.xinghuo.repository."));

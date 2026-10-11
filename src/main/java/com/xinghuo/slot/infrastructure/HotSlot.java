@@ -1,6 +1,6 @@
 package com.xinghuo.slot.infrastructure;
 
-import com.xinghuo.model.ServiceItem;
+import com.xinghuo.catalog.infrastructure.ServiceItem;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -164,4 +164,3 @@ public class HotSlot {
 
     }
 }
-

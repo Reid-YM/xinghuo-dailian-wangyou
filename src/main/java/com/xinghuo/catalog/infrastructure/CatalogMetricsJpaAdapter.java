@@ -1,7 +1,6 @@
 package com.xinghuo.catalog.infrastructure;
 
 import com.xinghuo.catalog.application.CatalogMetricsPort;
-import com.xinghuo.repository.ServiceItemRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 

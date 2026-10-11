@@ -22,10 +22,10 @@
   <script type="application/ld+json" th:utext="${breadcrumbJsonLd}"></script>
   <script type="application/ld+json" th:utext="${faqJsonLd}"></script>
 <link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008r2"/>
+<link rel="stylesheet" href="/assets/service-detail.css?v=20261011refactor02"/>
 </head>
 <body data-page="service-detail">
 <header th:replace="~{fragments/site :: header}"></header>
-<link th:replace="~{fragments/vnext-legacy :: deepPageBridge}">
 <main class="container section page-shell service-detail-page" data-service-detail th:attr="data-service-slug=${service.slug}">
 
   <!-- 1. Hero：服务名、状态、参考价格、预计时间、支持平台、CTA -->

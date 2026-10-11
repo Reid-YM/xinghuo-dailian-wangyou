@@ -1,3 +1,12 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  jakarta.servlet.http.HttpServletRequest
+ *  lombok.Generated
+ *  org.springframework.stereotype.Service
+ *  org.springframework.transaction.annotation.Transactional
+ */
 package com.xinghuo.service;
 
 import com.xinghuo.dto.ApiDtos;
@@ -7,6 +16,8 @@ import com.xinghuo.model.HotSlot;
 import com.xinghuo.model.ServiceItem;
 import com.xinghuo.repository.HotSlotRepository;
 import com.xinghuo.repository.ServiceItemRepository;
+import com.xinghuo.service.AuditService;
+import com.xinghuo.service.TaxonomyService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,13 +39,13 @@ public class SlotService {
     @Transactional(readOnly=true)
     public List<ApiDtos.ServiceResponse> publicHotServices() {
         List<ServiceItem> publicList = this.services.findPublic(Instant.now()).stream().filter(x -> this.taxonomy.publicAllowed(x.getGameCode(), x.getCategory())).toList();
-        LinkedHashMap<Long, ServiceItem> available = new LinkedHashMap<>();
+        LinkedHashMap available = new LinkedHashMap();
         publicList.forEach(s -> available.put(s.getId(), s));
-        ArrayList<ServiceItem> out = new ArrayList<>();
-        HashSet<Long> added = new HashSet<>();
+        ArrayList<ServiceItem> out = new ArrayList<ServiceItem>();
+        HashSet<Long> added = new HashSet<Long>();
         for (HotSlot slot : this.repo.findAllByOrderBySlotNoAsc()) {
             ServiceItem item;
-            if (slot.getMode() != HotSlot.Mode.MANUAL || slot.getService() == null || (item = available.get(slot.getService().getId())) == null || !added.add(item.getId())) continue;
+            if (slot.getMode() != HotSlot.Mode.MANUAL || slot.getService() == null || (item = (ServiceItem)available.get(slot.getService().getId())) == null || !added.add(item.getId())) continue;
             out.add(item);
         }
         for (ServiceItem s2 : publicList) {
@@ -52,10 +63,11 @@ public class SlotService {
 
     @Transactional
     public ApiDtos.SlotResponse update(ApiDtos.SlotUpdate r, String operator, HttpServletRequest req) {
+        ServiceItem item;
         HotSlot s = this.repo.findBySlotNo(r.slotNo()).orElseThrow(NotFoundException::new);
         ApiDtos.SlotResponse before = this.response(s);
         HotSlot.Mode mode = this.parseMode(r.mode());
-        ServiceItem item = r.serviceId() == null ? null : this.services.findById(r.serviceId()).orElseThrow(NotFoundException::new);
+        ServiceItem serviceItem = item = r.serviceId() == null ? null : (ServiceItem)this.services.findById(r.serviceId()).orElseThrow(NotFoundException::new);
         if (mode == HotSlot.Mode.AUTO) {
             item = null;
         }
@@ -98,3 +110,4 @@ public class SlotService {
         this.taxonomy = taxonomy;
     }
 }
+

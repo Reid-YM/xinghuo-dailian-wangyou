@@ -1,7 +1,6 @@
 package com.xinghuo.security;
 
 import com.xinghuo.service.AdminUserService;
-import java.util.LinkedHashMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -10,20 +9,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * 安全配置。
  *
- * <p>未认证访问 /api/** 时返回 401；未认证访问后台网页时明确跳转
- * /admin/login，避免默认入口选择因 Accept 头不同而把 /admin 当成 API 返回 401。
+ * <p>未认证访问 /api/** 时返回 401 而不是 302 跳到登录页。
  */
 @Configuration
 @EnableMethodSecurity
@@ -71,8 +65,6 @@ public class SecurityConfig {
                 .userDetailsService((UserDetailsService) users)
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(PERMIT_ALL).permitAll()
-                        .requestMatchers("/admin")
-                        .hasAnyRole("ADMIN", "OPERATOR")
                         .requestMatchers("/admin/**", "/api/admin/**")
                         .hasAnyRole("ADMIN", "OPERATOR")
                         .anyRequest().denyAll())
@@ -87,7 +79,9 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/admin/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID"))
-                .exceptionHandling(e -> e.authenticationEntryPoint(authenticationEntryPoint()))
+                .exceptionHandling(e -> e.defaultAuthenticationEntryPointFor(
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                        PathPatternRequestMatcher.withDefaults().matcher("/api/**")))
                 .csrf(c -> c.ignoringRequestMatchers(
                         "/api/quote", "/api/uploads/quote", "/api/track", "/api/account/**", "/api/console/**"))
                 .headers(h -> h
@@ -102,16 +96,5 @@ public class SecurityConfig {
                         .permissionsPolicyHeader(p -> p.policy(
                                 "camera=(), microphone=(), geolocation=()")))
                 .build();
-    }
-
-    static AuthenticationEntryPoint authenticationEntryPoint() {
-        LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
-        entryPoints.put(
-                PathPatternRequestMatcher.withDefaults().matcher("/api/**"),
-                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-
-        DelegatingAuthenticationEntryPoint delegating = new DelegatingAuthenticationEntryPoint(entryPoints);
-        delegating.setDefaultEntryPoint(new LoginUrlAuthenticationEntryPoint("/admin/login"));
-        return delegating;
     }
 }

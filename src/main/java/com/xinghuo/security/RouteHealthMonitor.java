@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 public class RouteHealthMonitor {
     private static final Logger log = LoggerFactory.getLogger(RouteHealthMonitor.class);
     private static final int MAX_KEYS = 500;
-    private final ConcurrentHashMap<String, AtomicLong> notFound = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, AtomicLong> redirects = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, AtomicLong> notFound = new ConcurrentHashMap();
+    private final ConcurrentHashMap<String, AtomicLong> redirects = new ConcurrentHashMap();
     private final AtomicLong notFoundTotal = new AtomicLong();
     private final AtomicLong redirectTotal = new AtomicLong();
     private volatile Instant since = Instant.now();
@@ -27,7 +27,7 @@ public class RouteHealthMonitor {
         if (path == null) {
             return;
         }
-        AtomicLong counter = this.bump(this.notFound, path);
+        AtomicLong counter = this.bump((Map)this.notFound, path);
         if (counter != null && counter.get() == 1L) {
             log.warn("404 first seen path={}", path);
         }
@@ -38,7 +38,7 @@ public class RouteHealthMonitor {
         if (from == null) {
             return;
         }
-        AtomicLong counter = this.bump(this.redirects, from);
+        AtomicLong counter = this.bump((Map)this.redirects, from);
         if (counter != null && counter.get() == 1L) {
             log.info("301 first seen from={} to={}", from, to);
         }
@@ -50,7 +50,7 @@ public class RouteHealthMonitor {
             existing.incrementAndGet();
             return existing;
         }
-        if (map.size() >= MAX_KEYS) {
+        if (map.size() >= 500) {
             return null;
         }
         AtomicLong created = new AtomicLong(1L);
@@ -63,28 +63,27 @@ public class RouteHealthMonitor {
     }
 
     public Map<String, Object> snapshot(int limit) {
-        LinkedHashMap<String, Object> out = new LinkedHashMap<>();
+        LinkedHashMap<String, Object> out = new LinkedHashMap<String, Object>();
         out.put("since", this.since);
         out.put("notFoundTotal", this.notFoundTotal.get());
         out.put("redirectTotal", this.redirectTotal.get());
-        out.put("notFound", this.topEntries(this.notFound, limit));
-        out.put("redirects", this.topEntries(this.redirects, limit));
+        out.put("notFound", this.topEntries((Map)this.notFound, limit));
+        out.put("redirects", this.topEntries((Map)this.redirects, limit));
         return out;
     }
 
     private List<Map<String, Object>> topEntries(Map<String, AtomicLong> map, int limit) {
-        ArrayList<Map.Entry<String, AtomicLong>> rows = new ArrayList<>(map.entrySet());
+        ArrayList<Map.Entry<String, AtomicLong>> rows = new ArrayList<Map.Entry<String, AtomicLong>>(map.entrySet());
         rows.sort(Comparator.<Map.Entry<String, AtomicLong>>comparingLong(e -> e.getValue().get()).reversed());
-        ArrayList<Map<String, Object>> out = new ArrayList<>();
+        ArrayList<Map<String, Object>> out = new ArrayList<Map<String, Object>>();
         for (Map.Entry<String, AtomicLong> entry : rows) {
-            if (out.size() >= limit) {
-                break;
-            }
-            LinkedHashMap<String, Object> row = new LinkedHashMap<>();
+            if (out.size() >= limit) break;
+            LinkedHashMap<String, Object> row = new LinkedHashMap<String, Object>();
             row.put("path", entry.getKey());
-            row.put("count", entry.getValue().get());
+            row.put("count", ((AtomicLong)entry.getValue()).get());
             out.add(row);
         }
         return out;
     }
 }
+

@@ -40,9 +40,9 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void publicPagesCanMoveToDeclarativeBridgeWhileRuntimeFallbackRemains() throws IOException {
+    void publicAndAccountPagesOwnCompatibilityStylesDeclaratively() throws IOException {
         String sharedCss = read("src/main/resources/static/assets/site-image-controls.css");
-        String sharedRuntime = read("src/main/resources/static/assets/site-image-controls.js");
+        String imageRuntime = read("src/main/resources/static/assets/site-image-controls.js");
         String bridgeFragment = read("src/main/resources/templates/fragments/vnext-legacy.html");
         String accountCenterFragment = read("src/main/resources/templates/fragments/account-center.html");
         String serviceDesktop = read("src/main/resources/templates/service-detail.html");
@@ -64,6 +64,7 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(bridgeFragment.contains("data-vnext-account-submit-bridge=\"1\""));
         assertTrue(accountCenterFragment.contains("th:fragment=\"bar\""));
         assertTrue(accountCenterFragment.contains("fragments/vnext-legacy :: deepPageBridge"));
+
         assertTrue(serviceDesktop.indexOf("fragments/site :: header") < serviceDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(serviceMobile.indexOf("fragments/site :: header") < serviceMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(recordDesktop.indexOf("fragments/site :: header") < recordDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
@@ -73,11 +74,22 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(submitDesktop.indexOf("fragments/site :: header") < submitDesktop.indexOf("fragments/vnext-legacy :: accountSubmitBridge"));
         assertTrue(submitMobile.indexOf("fragments/site :: header") < submitMobile.indexOf("fragments/vnext-legacy :: accountSubmitBridge"));
 
-        assertTrue(sharedRuntime.contains("page === 'service-detail'"));
-        assertTrue(sharedRuntime.contains("page === 'record-detail'"));
-        assertTrue(sharedRuntime.contains("body?.classList.contains('account-center-page')"));
-        assertTrue(sharedRuntime.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
-        assertTrue(sharedRuntime.contains("/assets/vnext-account-submit-v3.css?v=20261010ui03"));
+        for (String name : List.of(
+                "account-orders.html",
+                "account-progress.html",
+                "account-requests.html",
+                "account-settings.html")) {
+            assertTrue(read("src/main/resources/templates/" + name).contains("fragments/account-center :: bar"));
+            assertTrue(read("src/main/resources/templates/mobile/" + name).contains("fragments/account-center :: bar"));
+        }
+        assertTrue(read("src/main/resources/templates/mobile/account.html").contains("fragments/account-center :: bar"));
+
+        assertFalse(imageRuntime.contains("ensureStylesheet"));
+        assertFalse(imageRuntime.contains("vnext-legacy-bridge-v3.css"));
+        assertFalse(imageRuntime.contains("vnext-account-submit-v3.css"));
+        assertFalse(imageRuntime.contains("data-vnext-legacy-bridge"));
+        assertFalse(imageRuntime.contains("data-vnext-account-submit-bridge"));
+        assertTrue(imageRuntime.contains("window.SiteImageControls = { resolveBackground, resolveMain, background, main, serviceCoverVars }"));
 
         for (String name : List.of(
                 "service-detail.html",
@@ -89,7 +101,7 @@ class VNextLegacyUiBridgeContractTest {
                 "account-settings.html",
                 "account-submit.html")) {
             String html = read("src/main/resources/templates/" + name);
-            assertTrue(html.contains("/assets/site-image-controls.js"), name + " must keep the runtime fallback while migration is incomplete");
+            assertTrue(html.contains("/assets/site-image-controls.js"), name + " still needs the image layout runtime");
             assertTrue(html.contains("/assets/site-image-controls.css"), name + " must keep image control styling");
         }
     }

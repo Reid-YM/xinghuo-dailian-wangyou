@@ -13,17 +13,17 @@ class PublicOrderQueryBoundaryContractTest {
     @Test
     void publicOrderQueryIsOwnedByOrderWebBoundary() throws Exception {
         String controller = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/order/web/PublicOrderController.java"));
-        String legacyPublicApi = Files.readString(ROOT.resolve("src/main/java/com/xinghuo/controller/PublicApiController.java"));
 
         assertTrue(controller.contains("package com.xinghuo.order.web;"));
-        assertTrue(controller.contains("@RequestMapping(value={\"/api/orders\"})"));
-        assertTrue(controller.contains("@GetMapping(value={\"/{orderNo}\"})"));
+        assertTrue(controller.contains("@RequestMapping(value={\"/api\"})"));
+        assertTrue(controller.contains("@GetMapping(value={\"/orders/{orderNo}\"})"));
+        assertTrue(controller.contains("@GetMapping(value={\"/orders/{orderNo}/image\"})"));
         assertTrue(controller.contains("runtimeConfig.orderQueryEnabled()"));
         assertTrue(controller.contains("pub:order"));
+        assertTrue(controller.contains("pub:orderimg"));
         assertTrue(controller.contains("REQUEST_BUCKET_PER_MINUTE = 60"));
         assertTrue(controller.contains("Duration.ofMinutes(1L)"));
         assertTrue(controller.contains("OrderWebMapper.toResponse(this.orders.getPublic(orderNo))"));
-        assertFalse(legacyPublicApi.contains("@GetMapping(value={\"/orders/{orderNo}\"})"));
-        assertTrue(legacyPublicApi.contains("@GetMapping(value={\"/orders/{orderNo}/image\"})"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/PublicApiController.java")));
     }
 }

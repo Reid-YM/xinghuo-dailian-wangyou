@@ -22,26 +22,26 @@ class FrontendPatchDebtContractTest {
     }
 
     @Test
-    void transitionalUiFixesContainsNoPollingOrRetiredToolSelectors() throws Exception {
-        String patches = Files.readString(ASSETS.resolve("ui-fixes.js"));
-        assertFalse(patches.contains("setInterval("));
-        assertFalse(patches.contains("new MutationObserver("));
-        assertFalse(patches.contains("weaponList"));
-        assertFalse(patches.contains("progressSuggest"));
-        assertFalse(patches.contains("camo-mode-preview-art"));
-        assertFalse(patches.contains(".camo-check"));
-        assertFalse(patches.contains("language-switcher"));
-        assertFalse(patches.contains("clearLocalRecords"));
-        assertFalse(patches.contains("data-account-entry"));
-        assertFalse(patches.contains("nav-toggle"));
-        assertFalse(patches.contains("x-overflow"));
+    void pageControllerOwnsFormerHomeAndContactPatches() throws Exception {
+        String pages = Files.readString(ASSETS.resolve("pages.js"));
+        assertTrue(pages.contains("renderHomeRecommendations"));
+        assertTrue(pages.contains("normalizeContactPage"));
+        assertTrue(pages.contains("observeContactChannelRefresh"));
+        assertTrue(pages.contains("hero-hot-list"));
+        assertTrue(pages.contains("contactChannelGrid"));
     }
 
     @Test
-    void transitionalUiFixesStaysSmallAndPageScoped() throws Exception {
+    void uiFixesIsAnInertCompatibilityStub() throws Exception {
         String patches = Files.readString(ASSETS.resolve("ui-fixes.js"));
-        assertTrue(patches.length() < 6_000, "ui-fixes.js must remain transitional, not become a global patch bucket again");
-        assertTrue(patches.contains("dataset?.page !== 'contact'"));
-        assertTrue(patches.contains("dataset?.page !== 'home'"));
+        assertTrue(patches.length() < 1_000, "ui-fixes.js must remain an inert compatibility stub until template references are removed");
+        assertTrue(patches.contains("Retired compatibility stub"));
+        assertFalse(patches.contains("(() =>"));
+        assertFalse(patches.contains("fetch("));
+        assertFalse(patches.contains("addEventListener("));
+        assertFalse(patches.contains("setInterval("));
+        assertFalse(patches.contains("setTimeout("));
+        assertFalse(patches.contains("new MutationObserver("));
+        assertFalse(patches.contains("document.querySelector"));
     }
 }

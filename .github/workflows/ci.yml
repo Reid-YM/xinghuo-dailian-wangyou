@@ -1,6 +1,12 @@
 name: CI
 
 on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -78,13 +84,8 @@ jobs:
           cp "${jars[0]}" "$artifact"
           sha256sum "$artifact" > "$artifact.sha256"
 
-      # Production deploy builds from the verified main SHA on the server and does not consume this
-      # convenience artifact. Keep the upload best-effort so a repository storage-quota incident
-      # cannot turn an otherwise successful build/test run red or block the deploy gate.
       - name: Upload main build artifact
-        id: upload-main-artifact
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           name: xinghuo-v2-${{ github.sha }}
@@ -92,17 +93,12 @@ jobs:
             xinghuo-v2-${{ github.sha }}.jar
             xinghuo-v2-${{ github.sha }}.jar.sha256
           if-no-files-found: error
-          retention-days: 7
-
-      - name: Report artifact upload warning
-        if: steps.upload-main-artifact.outcome == 'failure'
-        shell: bash
-        run: echo '::warning::Build and tests passed, but the optional GitHub build artifact could not be uploaded. Check Actions artifact storage quota.'
+          retention-days: 30
 
   frontend-ui:
     name: Chromium + WebKit UI Regression
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository
@@ -114,14 +110,6 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
 
       - name: Compile UI regression tests
         run: mvn -B -ntp -DskipTests test-compile

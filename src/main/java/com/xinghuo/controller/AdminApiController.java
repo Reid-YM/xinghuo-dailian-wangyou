@@ -1,0 +1,368 @@
+package com.xinghuo.controller;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.xinghuo.dto.ApiDtos;
+import com.xinghuo.exception.BadRequestException;
+import com.xinghuo.exception.NotFoundException;
+import com.xinghuo.model.GameStatus;
+import com.xinghuo.model.Quote;
+import com.xinghuo.model.UploadAsset;
+import com.xinghuo.repository.AuditLogRepository;
+import com.xinghuo.service.AdminTestFeedbackService;
+import com.xinghuo.service.DashboardService;
+import com.xinghuo.service.GameStatusService;
+import com.xinghuo.service.OrderService;
+import com.xinghuo.service.QuoteService;
+import com.xinghuo.service.ServiceCatalogService;
+import com.xinghuo.service.SiteConfigService;
+import com.xinghuo.service.SlotService;
+import com.xinghuo.service.TaxonomyService;
+import com.xinghuo.service.ToolStationService;
+import com.xinghuo.service.UploadService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import lombok.Generated;
+import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+@RestController
+@RequestMapping(value={"/api/admin"})
+public class AdminApiController {
+    private final DashboardService dashboard;
+    private final SiteConfigService config;
+    private final ServiceCatalogService services;
+    private final QuoteService quotes;
+    private final OrderService orders;
+    private final SlotService slots;
+    private final UploadService uploads;
+    private final AuditLogRepository audits;
+    private final TaxonomyService taxonomy;
+    private final AdminTestFeedbackService feedback;
+
+    private final ToolStationService toolStation;
+    private final GameStatusService gameStatuses;
+
+    @GetMapping(value={"/dashboard"})
+    ApiDtos.DashboardResponse dashboard() {
+        return this.dashboard.get();
+    }
+
+    @GetMapping(value={"/site-config"})
+    ApiDtos.SiteConfigResponse getConfig() {
+        return this.config.publicConfig();
+    }
+
+    @PutMapping(value={"/game-status/{gameCode}"})
+    Map<String, Object> updateGameStatus(@PathVariable String gameCode, @RequestBody Map<String, Object> body, Authentication auth, HttpServletRequest request) {
+        GameStatus s = this.gameStatuses.update(gameCode, this.str(body.get("status")), this.str(body.get("label")), this.str(body.get("detail")), this.str(body.get("ctaLabel")), auth == null ? "admin" : auth.getName(), request);
+        LinkedHashMap<String, Object> out = new LinkedHashMap<String, Object>();
+        out.put("game", s.getGameCode());
+        out.put("status", s.getStatusCode().name().toLowerCase(Locale.ROOT));
+        out.put("label", s.getPublicLabel());
+        out.put("updatedAt", s.getUpdatedAt());
+        return out;
+    }
+
+    @PatchMapping(value={"/orders/{orderNo}/public-case"})
+    Map<String, Object> setPublicCase(@PathVariable String orderNo, @RequestBody Map<String, Object> body, Authentication auth) {
+        boolean enabled = Boolean.parseBoolean(String.valueOf(body.getOrDefault("enabled", "false")));
+        String summary = this.str(body.get("summary"));
+        return this.orders.setPublicCase(orderNo, enabled, summary, auth == null ? "admin" : auth.getName());
+    }
+
+    private String str(Object v) {
+        return v == null ? null : String.valueOf(v);
+    }
+
+    @PatchMapping(value={"/site-config/section/{section}"})
+    ApiDtos.SiteConfigResponse updateConfigSection(@PathVariable String section, @RequestBody Map<String, Object> body, Authentication a, HttpServletRequest req) {
+        return this.config.updateSection(section, body, a.getName(), req);
+    }
+
+    @PatchMapping(value={"/site-config"})
+    ApiDtos.SiteConfigResponse updateConfig(@Valid @RequestBody ApiDtos.SiteConfigUpdate r, Authentication a, HttpServletRequest req) {
+        return this.config.update(r, a.getName(), req);
+    }
+
+    @PostMapping(value={"/site-config/image/{slot}"})
+    ApiDtos.SiteImageUploadResponse uploadSiteImage(@PathVariable String slot, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
+        String key;
+        UploadAsset.Kind kind = switch (key = slot.trim().toUpperCase(Locale.ROOT)) {
+            case "HERO" -> UploadAsset.Kind.SITE_HERO;
+            case "BACKGROUND" -> UploadAsset.Kind.SITE_BACKGROUND;
+            case "WECHAT_QR" -> UploadAsset.Kind.SITE_WECHAT_QR;
+            case "CONTACT_QR" -> UploadAsset.Kind.SITE_WECHAT_QR;
+            default -> throw new BadRequestException("\u975e\u6cd5\u56fe\u7247\u4f4d\u7f6e");
+        };
+        UploadAsset asset = this.uploads.storeImage(file, kind);
+        this.uploads.bind(asset.getId(), "SITE_CONFIG", key);
+        String url = "/api/site-assets/" + String.valueOf(asset.getId());
+        if (!"CONTACT_QR".equals(key)) {
+            this.config.updateSiteImage(key, url, a.getName(), req);
+        }
+        return new ApiDtos.SiteImageUploadResponse(url);
+    }
+
+    @DeleteMapping(value={"/site-config/image/{slot}"})
+    ApiDtos.SiteConfigResponse clearSiteImage(@PathVariable String slot, Authentication a, HttpServletRequest req) {
+        return this.config.updateSiteImage(slot, null, a.getName(), req);
+    }
+
+    @PostMapping(value={"/services/cover-image"})
+    ApiDtos.SiteImageUploadResponse uploadServiceCover(@RequestParam(value="file") MultipartFile file) {
+        UploadAsset asset = this.uploads.storeImage(file, UploadAsset.Kind.SERVICE_COVER);
+        return new ApiDtos.SiteImageUploadResponse("/api/site-assets/" + String.valueOf(asset.getId()));
+    }
+
+    @PostMapping(value={"/tool-station/image"})
+    ApiDtos.SiteImageUploadResponse uploadToolStationImage(@RequestParam(value="file") MultipartFile file) {
+        UploadAsset asset = this.uploads.storeImage(file, UploadAsset.Kind.TOOL_STATION_COVER);
+        return new ApiDtos.SiteImageUploadResponse("/api/site-assets/" + String.valueOf(asset.getId()));
+    }
+
+    @GetMapping(value={"/catalog"})
+    ApiDtos.CatalogResponse catalog() {
+        return this.taxonomy.catalog(true);
+    }
+
+    @PostMapping(value={"/catalog/games"})
+    ApiDtos.GameOptionResponse addGame(@Valid @RequestBody ApiDtos.CatalogNameRequest r, Authentication a, HttpServletRequest req) {
+        return this.taxonomy.addGame(r, a.getName(), req);
+    }
+
+    @PostMapping(value={"/catalog/categories"})
+    ApiDtos.CategoryOptionResponse addCategory(@Valid @RequestBody ApiDtos.CategoryCreateRequest r, Authentication a, HttpServletRequest req) {
+        return this.taxonomy.addCategory(r, a.getName(), req);
+    }
+
+    @PutMapping(value={"/catalog/games/{code}"})
+    ApiDtos.GameOptionResponse updateGame(@PathVariable String code, @Valid @RequestBody ApiDtos.CatalogUpdateRequest r, Authentication a, HttpServletRequest req) {
+        return this.taxonomy.updateGame(code, r, a.getName(), req);
+    }
+
+    @PutMapping(value={"/catalog/games/{code}/profile"})
+    ApiDtos.GameOptionResponse updateGameProfile(@PathVariable String code, @Valid @RequestBody ApiDtos.GameProfileUpdateRequest r, Authentication a, HttpServletRequest req) {
+        return this.taxonomy.updateGameProfile(code, r, a.getName(), req);
+    }
+
+    @PatchMapping(value={"/catalog/games/bulk"})
+    List<ApiDtos.GameOptionResponse> bulkUpdateGames(@Valid @RequestBody ApiDtos.GameBulkUpdateRequest r, Authentication a, HttpServletRequest req) {
+        return this.taxonomy.bulkUpdateGames(r, a.getName(), req);
+    }
+
+    @PostMapping(value={"/catalog/games/image/{kind}"})
+    ApiDtos.SiteImageUploadResponse uploadGameImage(@PathVariable String kind, @RequestParam(value="file") MultipartFile file) {
+        UploadAsset.Kind imageKind = switch (kind.trim().toUpperCase(Locale.ROOT)) {
+            case "LOGO" -> UploadAsset.Kind.GAME_LOGO;
+            case "COVER" -> UploadAsset.Kind.GAME_COVER;
+            default -> throw new BadRequestException("\u975e\u6cd5\u6e38\u620f\u56fe\u7247\u7c7b\u578b");
+        };
+        UploadAsset asset = this.uploads.storeImage(file, imageKind);
+        return new ApiDtos.SiteImageUploadResponse("/api/site-assets/" + String.valueOf(asset.getId()));
+    }
+
+    @DeleteMapping(value={"/catalog/games/{code}"})
+    @PreAuthorize(value="hasRole('ADMIN')")
+    ResponseEntity<Void> deleteGame(@PathVariable String code, Authentication a, HttpServletRequest req) {
+        this.taxonomy.deleteGame(code, a.getName(), req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value={"/catalog/categories/{id}"})
+    ApiDtos.CategoryOptionResponse updateCategory(@PathVariable Long id, @Valid @RequestBody ApiDtos.CategoryUpdateRequest r, Authentication a, HttpServletRequest req) {
+        return this.taxonomy.updateCategory(id, r, a.getName(), req);
+    }
+
+    @DeleteMapping(value={"/catalog/categories/{id}"})
+    @PreAuthorize(value="hasRole('ADMIN')")
+    ResponseEntity<Void> deleteCategory(@PathVariable Long id, Authentication a, HttpServletRequest req) {
+        this.taxonomy.deleteCategory(id, a.getName(), req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value={"/services"})
+    List<ApiDtos.AdminServiceResponse> listServices() {
+        return this.services.adminList();
+    }
+
+    @PostMapping(value={"/services"})
+    ApiDtos.AdminServiceResponse createService(@Valid @RequestBody ApiDtos.ServiceUpsert r, Authentication a, HttpServletRequest req) {
+        return this.services.create(r, a.getName(), req);
+    }
+
+    @PutMapping(value={"/services/{id}"})
+    ApiDtos.AdminServiceResponse updateService(@PathVariable Long id, @Valid @RequestBody ApiDtos.ServiceUpsert r, Authentication a, HttpServletRequest req) {
+        return this.services.update(id, r, a.getName(), req);
+    }
+
+    @DeleteMapping(value={"/services/{id}"})
+    @PreAuthorize(value="hasRole('ADMIN')")
+    ResponseEntity<Void> deleteService(@PathVariable Long id, Authentication a, HttpServletRequest req) {
+        this.services.delete(id, a.getName(), req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value={"/tool-station"})
+    JsonNode toolStation() {
+        return this.toolStation.publicData();
+    }
+
+    @PutMapping(value={"/tool-station"})
+    JsonNode saveToolStation(@RequestBody JsonNode data) {
+        return this.toolStation.save(data);
+    }
+
+    @PostMapping(value={"/tool-station/reset"})
+    JsonNode resetToolStation() {
+        return this.toolStation.reset();
+    }
+
+    @PostMapping(value={"/services/{id}/restore"})
+    ApiDtos.AdminServiceResponse restoreService(@PathVariable Long id, Authentication a, HttpServletRequest req) {
+        return this.services.restore(id, a.getName(), req);
+    }
+
+    @GetMapping(value={"/quotes"})
+    List<ApiDtos.QuoteAdminResponse> quotes() {
+        return this.quotes.list();
+    }
+
+    @PatchMapping(value={"/quotes/{id}/status"})
+    ApiDtos.QuoteAdminResponse quoteStatus(@PathVariable UUID id, @Valid @RequestBody ApiDtos.QuoteStatusUpdate r, Authentication a, HttpServletRequest req) {
+        return this.quotes.updateStatus(id, r, a.getName(), req);
+    }
+
+    @DeleteMapping(value={"/quotes/{id}"})
+    @PreAuthorize(value="hasRole('ADMIN')")
+    ResponseEntity<Void> deleteQuote(@PathVariable UUID id, Authentication a, HttpServletRequest req) {
+        this.quotes.delete(id, a.getName(), req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value={"/quotes/{id}/convert"})
+    ApiDtos.AdminOrderResponse convertQuote(@PathVariable UUID id, @Valid @RequestBody ApiDtos.QuoteConvertRequest r, Authentication a, HttpServletRequest req) {
+        return this.quotes.convertToOrder(id, r, a.getName(), req);
+    }
+
+    @GetMapping(value={"/quotes/{id}/image"})
+    ResponseEntity<Resource> quoteImage(@PathVariable UUID id) {
+        Quote q = this.quotes.find(id);
+        if (q.getScreenshotAssetId() == null) {
+            throw new NotFoundException();
+        }
+        return ResponseEntity.ok().contentType(this.uploads.mediaType(q.getScreenshotAssetId())).cacheControl(CacheControl.noStore()).body(this.uploads.load(q.getScreenshotAssetId(), "QUOTE", q.getId().toString()));
+    }
+
+    @GetMapping(value={"/orders"})
+    List<ApiDtos.AdminOrderResponse> orders() {
+        return this.orders.list();
+    }
+
+    @PostMapping(value={"/orders"})
+    ApiDtos.AdminOrderResponse createOrder(@Valid @RequestBody ApiDtos.CreateOrderRequest r, Authentication a, HttpServletRequest req) {
+        return this.orders.create(r, a.getName(), req);
+    }
+
+    @PatchMapping(value={"/orders/{orderNo}"})
+    ApiDtos.AdminOrderResponse updateOrder(@PathVariable String orderNo, @Valid @RequestBody ApiDtos.UpdateOrderRequest r, Authentication a, HttpServletRequest req) {
+        return this.orders.update(orderNo, r, a.getName(), req);
+    }
+
+    @PostMapping(value={"/orders/{orderNo}/image"})
+    ApiDtos.AdminOrderResponse orderImage(@PathVariable String orderNo, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
+        UploadAsset x = this.uploads.storeImage(file, UploadAsset.Kind.ORDER_PROGRESS);
+        return this.orders.attachImage(orderNo, x.getId(), a.getName(), req);
+    }
+
+    @DeleteMapping(value={"/orders/{orderNo}"})
+    @PreAuthorize(value="hasRole('ADMIN')")
+    ResponseEntity<Void> deleteOrder(@PathVariable String orderNo, Authentication a, HttpServletRequest req) {
+        this.orders.delete(orderNo, a.getName(), req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value={"/slots"})
+    List<ApiDtos.SlotResponse> slots() {
+        return this.slots.list();
+    }
+
+    @PatchMapping(value={"/slots"})
+    ApiDtos.SlotResponse updateSlot(@Valid @RequestBody ApiDtos.SlotUpdate r, Authentication a, HttpServletRequest req) {
+        return this.slots.update(r, a.getName(), req);
+    }
+
+    @GetMapping(value={"/audits"})
+    List<ApiDtos.AuditResponse> audits() {
+        return this.audits.findTop100ByOrderByCreatedAtDesc().stream().map(x -> new ApiDtos.AuditResponse(x.getId(), x.getAction(), x.getTargetType(), x.getTargetId(), x.getOperatorName(), x.getReason(), x.getIpAddress(), x.getCreatedAt())).toList();
+    }
+
+    @GetMapping(value={"/test-feedback"})
+    List<ApiDtos.TestFeedbackResponse> feedback() {
+        return this.feedback.list();
+    }
+
+    @PostMapping(value={"/test-feedback"})
+    ApiDtos.TestFeedbackResponse createFeedback(@Valid @RequestBody ApiDtos.TestFeedbackCreateRequest r, Authentication a, HttpServletRequest req) {
+        return this.feedback.create(r, a.getName(), req);
+    }
+
+    @PutMapping(value={"/test-feedback/{id}"})
+    ApiDtos.TestFeedbackResponse updateFeedback(@PathVariable Long id, @Valid @RequestBody ApiDtos.TestFeedbackUpdateRequest r, Authentication a, HttpServletRequest req) {
+        return this.feedback.update(id, r, a.getName(), req);
+    }
+
+    @PostMapping(value={"/test-feedback/{id}/attachment"})
+    ApiDtos.TestFeedbackResponse uploadFeedbackAttachment(@PathVariable Long id, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
+        UploadAsset asset = this.uploads.storeImage(file, UploadAsset.Kind.TEST_FEEDBACK_ATTACHMENT);
+        this.uploads.bind(asset.getId(), "TEST_FEEDBACK", String.valueOf(id));
+        return this.feedback.attach(id, asset.getId(), a.getName(), req);
+    }
+
+    @GetMapping(value={"/test-feedback/{id}/attachment"})
+    ResponseEntity<Resource> feedbackAttachment(@PathVariable Long id) {
+        ApiDtos.TestFeedbackResponse item = this.feedback.get(id);
+        if (item.attachmentAssetId() == null) {
+            throw new NotFoundException();
+        }
+        return ResponseEntity.ok().contentType(this.uploads.mediaType(item.attachmentAssetId())).cacheControl(CacheControl.noStore()).body(this.uploads.load(item.attachmentAssetId(), "TEST_FEEDBACK", String.valueOf(id)));
+    }
+
+    @Generated
+    public AdminApiController(DashboardService dashboard, SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, SlotService slots, UploadService uploads, AuditLogRepository audits, TaxonomyService taxonomy, AdminTestFeedbackService feedback, ToolStationService toolStation, GameStatusService gameStatuses) {
+        this.dashboard = dashboard;
+        this.config = config;
+        this.services = services;
+        this.quotes = quotes;
+        this.orders = orders;
+        this.slots = slots;
+        this.uploads = uploads;
+        this.audits = audits;
+        this.taxonomy = taxonomy;
+        this.feedback = feedback;
+
+        this.toolStation = toolStation;
+        this.gameStatuses = gameStatuses;
+    }
+}
+
+

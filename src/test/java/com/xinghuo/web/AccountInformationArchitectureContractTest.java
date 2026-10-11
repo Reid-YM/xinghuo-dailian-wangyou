@@ -15,14 +15,10 @@ class AccountInformationArchitectureContractTest {
     @Test
     void accountHomeIsOverviewInsteadOfMegaTabPage() throws IOException {
         String account = read("resources/templates/account.html");
-        String accountPage = Files.readString(Path.of("frontend-vnext/src/pages/AccountPage.tsx"));
-        assertTrue(account.contains("data-page=\"account\""));
-        assertTrue(account.contains("id=\"root\""));
-        assertTrue(account.contains("/vnext/assets/app.js"));
-        assertTrue(accountPage.contains("'/account/requests'"));
-        assertTrue(accountPage.contains("'/account/orders'"));
-        assertTrue(accountPage.contains("'/account/progress'"));
-        assertTrue(accountPage.contains("'/account/settings'"));
+        assertTrue(account.contains("data-page=\"account-center-overview\""));
+        assertTrue(account.contains("href=\"/account/requests\""));
+        assertTrue(account.contains("href=\"/account/orders\""));
+        assertTrue(account.contains("href=\"/account/progress\""));
         assertFalse(account.contains("role=\"tablist\""));
         assertFalse(account.contains("id=\"panel-orders\""));
         assertFalse(account.contains("id=\"panel-devices\""));
@@ -120,7 +116,7 @@ class AccountInformationArchitectureContractTest {
     @Test
     void sharedNavigationUsesCanonicalAccountEntry() throws IOException {
         String site = read("resources/templates/fragments/site.html");
-        String settings = read("java/com/xinghuo/sitesetting/application/SiteSettingApplicationService.java");
+        String settings = read("java/com/xinghuo/service/SiteSettingService.java");
         String controls = read("resources/static/assets/global-ui-controls.js");
         assertTrue(site.contains("href=\"/account\" data-account-entry"));
         assertTrue(site.contains("href=\"/account\" data-global-ui=\"footer-console\""));

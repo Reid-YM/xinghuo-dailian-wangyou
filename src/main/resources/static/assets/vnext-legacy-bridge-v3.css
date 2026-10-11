@@ -1,31 +1,14 @@
 /* VNext 深层页面视觉桥接 v3：只改变展示，不改变 API、鉴权或业务行为。 */
 :root{--v3-bg:#0b0c0f;--v3-surface:#15181e;--v3-surface-2:#101318;--v3-border:#2b313b;--v3-border-strong:#3a424e;--v3-text:#eef1f5;--v3-muted:#9ca5b2;--v3-accent:#df2f31;--v3-accent-soft:rgba(223,47,49,.12);--v3-green:#33b77a;--v3-radius:16px;--v3-shadow:0 18px 48px rgba(0,0,0,.22)}
 
-/* 服务详情 / 记录详情：统一深色正式底板。个人中心已迁移到 account-center-refine.css。 */
-body[data-page="service-detail"],body[data-page="record-detail"]{background:radial-gradient(circle at 86% 0,rgba(223,47,49,.08),transparent 32rem),var(--v3-bg)!important;color:var(--v3-text)!important}
-body[data-page="service-detail"] main,body[data-page="record-detail"] main{color:var(--v3-text)}
-body[data-page="service-detail"] .container,body[data-page="record-detail"] .container{width:min(calc(100% - 40px),1240px);max-width:none;margin-inline:auto}
-body[data-page="service-detail"] .card,body[data-page="record-detail"] .card{background:linear-gradient(180deg,#181b21,#121419)!important;border:1px solid var(--v3-border)!important;border-radius:var(--v3-radius)!important;color:var(--v3-text)!important;box-shadow:var(--v3-shadow)!important}
-body[data-page="service-detail"] h1,body[data-page="service-detail"] h2,body[data-page="record-detail"] h1,body[data-page="record-detail"] h2{color:var(--v3-text)!important;letter-spacing:-.025em}
-body[data-page="service-detail"] p,body[data-page="service-detail"] small,body[data-page="record-detail"] p,body[data-page="record-detail"] small{color:var(--v3-muted)}
-body[data-page="service-detail"] a,body[data-page="record-detail"] a{transition:color .18s ease,border-color .18s ease,background .18s ease,transform .18s ease}
-
-/* 服务详情。 */
-body[data-page="service-detail"] .detail-layout{gap:24px;align-items:start}
-body[data-page="service-detail"] .rich-detail-card{position:relative;overflow:hidden;padding:clamp(22px,3vw,34px)!important}
-body[data-page="service-detail"] .rich-detail-card::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--v3-accent),transparent 72%)}
-body[data-page="service-detail"] .detail-title-row{gap:16px;align-items:flex-start}
-body[data-page="service-detail"] .detail-title-row h1{font-size:clamp(30px,4vw,48px);line-height:1.06;margin:.35em 0 .2em}
-body[data-page="service-detail"] .badge{display:inline-flex;align-items:center;min-height:30px;padding:5px 10px;border:1px solid rgba(255,99,101,.28);border-radius:999px;background:var(--v3-accent-soft)!important;color:#ff787a!important;font-size:12px;font-weight:800}
-body[data-page="service-detail"] .price-highlight{margin:24px 0;padding:20px;border:1px solid rgba(223,47,49,.3)!important;border-radius:14px;background:linear-gradient(135deg,rgba(223,47,49,.14),rgba(223,47,49,.04))!important;color:var(--v3-text)!important}
-body[data-page="service-detail"] .price-highlight strong{font-size:clamp(26px,3vw,38px);color:#fff}
-body[data-page="service-detail"] .detail-updated-row,body[data-page="service-detail"] .detail-section{margin-top:16px;padding:16px;border:1px solid var(--v3-border)!important;border-radius:14px;background:var(--v3-surface-2)!important;color:#d9dde4!important}
-body[data-page="service-detail"] .detail-section h2{margin-top:0;font-size:18px}
-body[data-page="service-detail"] .contact-cta{position:sticky;top:92px;padding:24px!important;border:1px solid #3a3034!important;border-radius:18px!important;background:linear-gradient(155deg,#211719,#121419 60%)!important;box-shadow:0 24px 62px rgba(0,0,0,.28)!important}
-body[data-page="service-detail"] .contact-cta .btn,body[data-page="service-detail"] .contact-cta button{min-height:46px;border-radius:12px;font-weight:800}
-body[data-page="service-detail"] .contact-cta .primary{background:var(--v3-accent)!important;border-color:var(--v3-accent)!important;color:#fff!important;box-shadow:0 12px 30px rgba(223,47,49,.22)}
-
-/* 记录详情。 */
+/* 记录详情继续使用共享 bridge；服务详情已迁移到 service-detail.css。 */
+body[data-page="record-detail"]{background:radial-gradient(circle at 86% 0,rgba(223,47,49,.08),transparent 32rem),var(--v3-bg)!important;color:var(--v3-text)!important}
+body[data-page="record-detail"] main{color:var(--v3-text)}
+body[data-page="record-detail"] .container{width:min(calc(100% - 40px),1240px);max-width:none;margin-inline:auto}
+body[data-page="record-detail"] .card{background:linear-gradient(180deg,#181b21,#121419)!important;border:1px solid var(--v3-border)!important;border-radius:var(--v3-radius)!important;color:var(--v3-text)!important;box-shadow:var(--v3-shadow)!important}
+body[data-page="record-detail"] h1,body[data-page="record-detail"] h2{color:var(--v3-text)!important;letter-spacing:-.025em}
+body[data-page="record-detail"] p,body[data-page="record-detail"] small{color:var(--v3-muted)}
+body[data-page="record-detail"] a{transition:color .18s ease,border-color .18s ease,background .18s ease,transform .18s ease}
 body[data-page="record-detail"] .record-banner{margin-bottom:20px;padding:18px 20px;border:1px solid var(--v3-border)!important;border-radius:14px;background:linear-gradient(90deg,rgba(223,47,49,.1),rgba(17,20,25,.86))!important;color:#e7eaf0!important}
 body[data-page="record-detail"] .record-detail-grid{gap:22px}
 body[data-page="record-detail"] .record-detail-card{padding:clamp(20px,3vw,30px)!important;border:1px solid var(--v3-border)!important;border-radius:var(--v3-radius)!important;background:linear-gradient(180deg,#181b21,#121419)!important;box-shadow:var(--v3-shadow)!important}
@@ -69,14 +52,11 @@ body.frontend-control-admin .btn.ghost{background:#15181e!important;border-color
 body.frontend-control-admin .fc-sticky-save{border-color:#333a45!important;background:rgba(15,17,22,.95)!important;box-shadow:0 -18px 50px rgba(0,0,0,.22)!important}
 body.frontend-control-admin .eyebrow,body.frontend-control-admin .fc-badge{color:#ff6d6f!important}
 
-/* 宽屏：沿用第二轮原则，减少 24 寸 / 2K / 超宽屏两侧浪费。 */
-@media(min-width:1600px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container{width:min(calc(100% - 72px),1500px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 72px),1580px)!important}}
-@media(min-width:1920px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container{width:min(calc(100% - 96px),1720px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 96px),1780px)!important}}
-@media(min-width:2400px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container{width:min(calc(100% - 120px),1960px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 120px),2020px)!important}}
-
-/* 平板 / 手机 / 微信 / iOS。 */
-@media(max-width:1023px){body[data-page="service-detail"] .detail-layout,body[data-page="record-detail"] .record-detail-grid{grid-template-columns:1fr!important}body[data-page="service-detail"] .contact-cta{position:static}body.frontend-control-admin .fc-grid.two{grid-template-columns:1fr!important}}
-@media(max-width:767px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container,body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 24px),100%)!important}body[data-page="service-detail"] .rich-detail-card,body[data-page="record-detail"] .record-detail-card{padding:17px!important}body[data-page="record-detail"] .record-meta-grid{grid-template-columns:1fr!important}body[data-page="service-detail"] .mobile-dock,body[data-page="record-detail"] .mobile-dock{padding-bottom:max(10px,env(safe-area-inset-bottom,0px))!important}body.frontend-control-admin .fc-top-actions{gap:6px;flex-wrap:wrap}body.frontend-control-admin .fc-card{padding:18px!important}body.frontend-control-admin .fc-sticky-save{bottom:max(8px,env(safe-area-inset-bottom,0px))!important;border-radius:16px!important}}
-@supports(padding:max(0px)){html.is-wechat body[data-page="service-detail"],html.is-wechat body[data-page="record-detail"]{padding-bottom:env(safe-area-inset-bottom,0px)}}
-@media(prefers-reduced-motion:reduce){body[data-page="service-detail"] *,body[data-page="record-detail"] *,body.frontend-control-admin *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
-@media(forced-colors:active){body[data-page="service-detail"] .card,body[data-page="record-detail"] .record-detail-card,body.admin-solid-ui .table-wrap,body.frontend-control-admin .fc-card{border:1px solid CanvasText!important}}
+@media(min-width:1600px){body[data-page="record-detail"] .container{width:min(calc(100% - 72px),1500px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 72px),1580px)!important}}
+@media(min-width:1920px){body[data-page="record-detail"] .container{width:min(calc(100% - 96px),1720px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 96px),1780px)!important}}
+@media(min-width:2400px){body[data-page="record-detail"] .container{width:min(calc(100% - 120px),1960px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 120px),2020px)!important}}
+@media(max-width:1023px){body[data-page="record-detail"] .record-detail-grid{grid-template-columns:1fr!important}body.frontend-control-admin .fc-grid.two{grid-template-columns:1fr!important}}
+@media(max-width:767px){body[data-page="record-detail"] .container,body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 24px),100%)!important}body[data-page="record-detail"] .record-detail-card{padding:17px!important}body[data-page="record-detail"] .record-meta-grid{grid-template-columns:1fr!important}body[data-page="record-detail"] .mobile-dock{padding-bottom:max(10px,env(safe-area-inset-bottom,0px))!important}body.frontend-control-admin .fc-top-actions{gap:6px;flex-wrap:wrap}body.frontend-control-admin .fc-card{padding:18px!important}body.frontend-control-admin .fc-sticky-save{bottom:max(8px,env(safe-area-inset-bottom,0px))!important;border-radius:16px!important}}
+@supports(padding:max(0px)){html.is-wechat body[data-page="record-detail"]{padding-bottom:env(safe-area-inset-bottom,0px)}}
+@media(prefers-reduced-motion:reduce){body[data-page="record-detail"] *,body.frontend-control-admin *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+@media(forced-colors:active){body[data-page="record-detail"] .record-detail-card,body.admin-solid-ui .table-wrap,body.frontend-control-admin .fc-card{border:1px solid CanvasText!important}}

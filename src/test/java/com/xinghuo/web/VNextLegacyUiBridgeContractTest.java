@@ -40,12 +40,21 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void legacyPublicAndAccountPagesLoadTheBridgeThroughRuntimeLoader() throws IOException {
+    void publicPagesCanMoveToDeclarativeBridgeWhileRuntimeFallbackRemains() throws IOException {
         String sharedCss = read("src/main/resources/static/assets/site-image-controls.css");
         String sharedRuntime = read("src/main/resources/static/assets/site-image-controls.js");
+        String bridgeFragment = read("src/main/resources/templates/fragments/vnext-legacy.html");
+        String recordDesktop = read("src/main/resources/templates/record-detail.html");
+        String recordMobile = read("src/main/resources/templates/mobile/record-detail.html");
 
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-legacy-bridge-v3.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-account-submit-v3.css"));
+        assertTrue(bridgeFragment.contains("th:fragment=\"deepPageBridge\""));
+        assertTrue(bridgeFragment.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
+        assertTrue(bridgeFragment.contains("data-vnext-legacy-bridge=\"1\""));
+        assertTrue(recordDesktop.indexOf("fragments/site :: header") < recordDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
+        assertTrue(recordMobile.indexOf("fragments/site :: header") < recordMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
+
         assertTrue(sharedRuntime.contains("page === 'service-detail'"));
         assertTrue(sharedRuntime.contains("page === 'record-detail'"));
         assertTrue(sharedRuntime.contains("body?.classList.contains('account-center-page')"));
@@ -61,7 +70,7 @@ class VNextLegacyUiBridgeContractTest {
                 "account-settings.html",
                 "account-submit.html")) {
             String html = read("src/main/resources/templates/" + name);
-            assertTrue(html.contains("/assets/site-image-controls.js"), name + " must keep the runtime bridge loader");
+            assertTrue(html.contains("/assets/site-image-controls.js"), name + " must keep the runtime fallback while migration is incomplete");
             assertTrue(html.contains("/assets/site-image-controls.css"), name + " must keep image control styling");
         }
     }

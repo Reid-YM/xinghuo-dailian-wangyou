@@ -3,12 +3,12 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
 <body>
 <header th:fragment="header" class="site-header" data-experience-shell="v3" style="-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important">
-  <link th:if="${deviceMode == 'desktop'}" rel="stylesheet" href="/assets/desktop-storefront.css?v=20261011ds11">
-  <link th:if="${deviceMode == 'mobile'}" rel="stylesheet" href="/assets/mobile-storefront.css?v=20261011ds11">
-  <script th:if="${deviceMode == 'desktop'}" defer src="/assets/desktop-storefront.js?v=20261011ds11"></script>
-  <script th:if="${deviceMode == 'mobile'}" defer src="/assets/mobile-storefront.js?v=20261011ds11"></script>
   <link rel="stylesheet" href="/assets/site-experience-v2.css?v=20261007ux03">
+  <link th:if="${deviceMode == 'desktop'}" rel="stylesheet" href="/assets/desktop-storefront.css?v=20261011ds20">
+  <link th:if="${deviceMode == 'mobile'}" rel="stylesheet" href="/assets/mobile-storefront.css?v=20261011ds20">
   <script defer src="/assets/site-shell.js?v=20261008ss04"></script>
+  <script th:if="${deviceMode == 'desktop'}" defer src="/assets/desktop-storefront.js?v=20261011ds20"></script>
+  <script th:if="${deviceMode == 'mobile'}" defer src="/assets/mobile-storefront.js?v=20261011ds20"></script>
   <script defer src="/assets/public-field-sanitizer.js?v=20261007pfs01"></script>
   <div class="container topbar">
     <a class="brand brand-mark" href="/"><img src="/assets/brand-logo.svg?v=20261008logo01" alt="" aria-hidden="true" width="32" height="32" decoding="async" style="display:block;width:32px;height:32px;flex:0 0 32px;border-radius:8px"><span data-config="brandName">星火网游代练平台</span></a>

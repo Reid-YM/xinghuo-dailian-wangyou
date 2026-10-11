@@ -1,8 +1,6 @@
 package com.xinghuo.order.infrastructure;
 
-import com.xinghuo.model.CustomerOrder;
 import com.xinghuo.order.application.OrderMetricsPort;
-import com.xinghuo.repository.CustomerOrderRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 

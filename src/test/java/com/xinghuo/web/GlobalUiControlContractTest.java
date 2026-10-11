@@ -16,8 +16,10 @@ class GlobalUiControlContractTest {
         String controls = read("resources/static/assets/global-ui-controls.js");
         String settings = read("java/com/xinghuo/service/SiteSettingService.java");
 
-        assertTrue(fragment.contains("/assets/global-ui-controls.js?v=20261007g005"));
+        assertTrue(fragment.contains("/assets/global-ui-controls.js?v=20261012g006"));
         assertTrue(controls.contains("protectUserCenterFromAdminLinks"));
+        assertTrue(controls.contains("xh:mobile-nav-rendered"));
+        assertTrue(!controls.contains("setTimeout("), "global navigation controls must use explicit lifecycle events, not timer retries");
         for (String key : new String[]{
                 "navServicesLabel", "navServicesVisible", "navGuidesLabel", "navGuidesVisible",
                 "navMasteryLabel", "navMasteryVisible", "navRecordsLabel", "navRecordsVisible",

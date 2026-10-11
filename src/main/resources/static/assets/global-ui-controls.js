@@ -1,5 +1,7 @@
 (() => {
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  let currentSettings = null;
+  let currentSite = null;
   const bool = (value, fallback = true) => {
     if (value == null || value === '') return fallback;
     return String(value).toLowerCase() === 'true';
@@ -98,24 +100,28 @@
     }
   }
 
+  function reapplySharedNavigation() {
+    if (!currentSettings || !currentSite) return;
+    applySharedNavigation(currentSettings, currentSite);
+  }
+
   async function load() {
     try {
       const [settingsResponse, siteResponse] = await Promise.all([
         fetch('/api/public/site-settings', { cache: 'no-store' }),
         fetch('/api/site-config', { cache: 'no-store' })
       ]);
-      const settings = settingsResponse.ok ? await settingsResponse.json() : {};
-      const site = siteResponse.ok ? await siteResponse.json() : {};
-      applySharedNavigation(settings || {}, site || {});
-      applyPageControls(settings || {}, site || {});
-      setTimeout(() => applySharedNavigation(settings || {}, site || {}), 120);
-      setTimeout(() => applySharedNavigation(settings || {}, site || {}), 600);
+      currentSettings = settingsResponse.ok ? await settingsResponse.json() : {};
+      currentSite = siteResponse.ok ? await siteResponse.json() : {};
+      reapplySharedNavigation();
+      applyPageControls(currentSettings, currentSite);
     } catch (_) {
       // 后台配置接口异常时保留模板默认值，不影响站点主流程。
     }
   }
 
   protectUserCenterFromAdminLinks();
+  document.addEventListener('xh:mobile-nav-rendered', reapplySharedNavigation);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load, { once: true });
   else load();
 })();

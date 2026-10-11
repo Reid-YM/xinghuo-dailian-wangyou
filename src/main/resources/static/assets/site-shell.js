@@ -106,6 +106,7 @@
       quote.textContent = '提交询价';
       list.append(quote);
       drawer.replaceChildren(list);
+      document.dispatchEvent(new CustomEvent('xh:mobile-nav-rendered', { detail: { drawer } }));
     };
 
     const setOpen = (open) => {

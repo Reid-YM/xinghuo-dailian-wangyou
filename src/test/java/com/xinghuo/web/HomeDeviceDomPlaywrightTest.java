@@ -23,6 +23,8 @@ class HomeDeviceDomPlaywrightTest {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             assertDesktop(browser, 1920, 1080, "Chromium desktop 1920");
             assertDesktop(browser, 1366, 768, "Chromium desktop 1366");
+            assertDesktop(browser, 1024, 768, "Chromium notebook 1024");
+            assertDesktop(browser, 820, 1180, "Chromium tablet-desktop 820");
             assertMobile(browser, 430, 932, "Chromium mobile 430");
             assertMobile(browser, 390, 844, "Chromium mobile 390");
             assertMobile(browser, 320, 700, "Chromium mobile 320");
@@ -73,6 +75,7 @@ class HomeDeviceDomPlaywrightTest {
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("app.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v2.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(deviceCss));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-overflow-guard.css")));
         page.addScriptTag(new Page.AddScriptTagOptions().setPath(deviceJs));
         return page;
     }

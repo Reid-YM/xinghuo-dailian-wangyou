@@ -95,7 +95,16 @@ class FrontendControlV3PlaywrightTest {
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(RUNTIME));
             page.waitForFunction("() => document.querySelector('#homeHero').style.minHeight === '430px'");
 
-            assertTrue(page.locator("main > :first-child").getAttribute("class").contains("xh-mobile-quote-card"));
+            Number quoteIndex = (Number) page.evaluate("""
+                    () => Array.from(document.querySelector('main.xh-mobile-home').children)
+                      .indexOf(document.querySelector('.xh-mobile-quote-card'))
+                    """);
+            String childOrder = String.valueOf(page.evaluate("""
+                    () => Array.from(document.querySelector('main.xh-mobile-home').children)
+                      .map(el => el.id || el.className || el.tagName)
+                      .join(' | ')
+                    """));
+            assertEquals(0, quoteIndex.intValue(), "mobile module order mismatch: " + childOrder);
             assertEquals(Boolean.TRUE, page.locator(".xh-mobile-two-up").evaluate("el => el.hidden"),
                     "support wrapper must collapse when record is disabled and the existing global contact control already hid contact");
             assertEquals(Boolean.TRUE, page.locator("#publicCaseSection").evaluate("el => el.hidden"),

@@ -14,7 +14,7 @@ class GlobalUiControlContractTest {
     void sharedFrontendConsumesPersistedNavigationAndVisibilitySettings() throws IOException {
         String fragment = read("resources/templates/fragments/site.html");
         String controls = read("resources/static/assets/global-ui-controls.js");
-        String settings = read("java/com/xinghuo/sitesetting/application/SiteSettingApplicationService.java");
+        String settings = read("java/com/xinghuo/service/SiteSettingService.java");
 
         assertTrue(fragment.contains("/assets/global-ui-controls.js?v=20261007g005"));
         assertTrue(controls.contains("protectUserCenterFromAdminLinks"));

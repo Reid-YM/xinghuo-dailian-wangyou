@@ -1,10 +1,10 @@
 package com.xinghuo.controller;
 
-import com.xinghuo.catalog.application.CatalogApplicationService;
-import com.xinghuo.catalog.application.CatalogPageServiceView;
+import com.xinghuo.model.GameCatalog;
+import com.xinghuo.model.ServiceItem;
 import com.xinghuo.guide.GuideContentService;
-import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
-import com.xinghuo.taxonomy.application.TaxonomyCatalogView;
+import com.xinghuo.service.ServiceCatalogService;
+import com.xinghuo.service.TaxonomyService;
 import java.time.LocalDate;
 import lombok.Generated;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class SeoController {
     private static final String SITE_URL = "https://wydlgf.cn";
     private static final String LAST_MOD = LocalDate.now().toString();
-    private final CatalogApplicationService services;
-    private final TaxonomyApplicationService taxonomy;
+    private final ServiceCatalogService services;
+    private final TaxonomyService taxonomy;
     private final GuideContentService guides;
 
     @GetMapping(value={"/robots.txt"}, produces={"text/plain; charset=UTF-8"})
@@ -49,11 +49,11 @@ public class SeoController {
         this.appendUrl(xml, "/mastery", "weekly", "0.7");
         // SEO-h：补齐可索引漏斗页。
         this.appendUrl(xml, "/quote", "daily", "0.7");
-        for (TaxonomyCatalogView.GameView game : this.taxonomy.publicGames()) {
+        for (GameCatalog game : this.taxonomy.publicGames()) {
             if (game.getSeoSlug() == null || game.getSeoSlug().isBlank()) continue;
             this.appendUrl(xml, "/game/" + game.getSeoSlug(), "weekly", "0.8");
         }
-        for (CatalogPageServiceView service : this.services.publicPageItems()) {
+        for (ServiceItem service : this.services.publicItems()) {
             this.appendUrl(xml, "/service/" + service.getSlug(), "weekly", "0.8");
         }
         for (var guide : this.guides.publicList(null, null, 200)) {
@@ -77,7 +77,7 @@ public class SeoController {
     }
 
     @Generated
-    public SeoController(CatalogApplicationService services, TaxonomyApplicationService taxonomy, GuideContentService guides) {
+    public SeoController(ServiceCatalogService services, TaxonomyService taxonomy, GuideContentService guides) {
         this.services = services;
         this.taxonomy = taxonomy;
         this.guides = guides;

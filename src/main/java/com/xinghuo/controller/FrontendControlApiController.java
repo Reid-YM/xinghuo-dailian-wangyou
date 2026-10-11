@@ -1,10 +1,9 @@
 package com.xinghuo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xinghuo.frontendcontrol.application.FrontendControlApplicationService;
-import com.xinghuo.frontendcontrol.web.FrontendControlWebMapper;
 import com.xinghuo.model.AuditLog;
 import com.xinghuo.repository.AuditLogRepository;
+import com.xinghuo.service.FrontendControlService;
 import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
@@ -20,11 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/frontend-controls")
 public class FrontendControlApiController {
-    private final FrontendControlApplicationService controls;
+    private final FrontendControlService controls;
     private final AuditLogRepository audits;
     private final ObjectMapper mapper;
 
-    public FrontendControlApiController(FrontendControlApplicationService controls, AuditLogRepository audits, ObjectMapper mapper) {
+    public FrontendControlApiController(FrontendControlService controls, AuditLogRepository audits, ObjectMapper mapper) {
         this.controls = controls;
         this.audits = audits;
         this.mapper = mapper;
@@ -42,7 +41,7 @@ public class FrontendControlApiController {
         Map<String, String> before = controls.settings();
         LinkedHashMap<String, Object> values = new LinkedHashMap<>(body == null ? Map.of() : body);
         String reason = cleanReason(values.remove("reason"));
-        Map<String, String> after = controls.update(FrontendControlWebMapper.toCommand(values));
+        Map<String, String> after = controls.update(values);
         audits.save(AuditLog.builder()
                 .action("FRONTEND_CONTROLS_UPDATE")
                 .targetType("SITE_SETTINGS")

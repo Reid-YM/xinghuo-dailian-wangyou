@@ -65,6 +65,8 @@ public class SecurityConfig {
                 .userDetailsService((UserDetailsService) users)
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(PERMIT_ALL).permitAll()
+                        .requestMatchers("/admin")
+                        .hasAnyRole("ADMIN", "OPERATOR")
                         .requestMatchers("/admin/**", "/api/admin/**")
                         .hasAnyRole("ADMIN", "OPERATOR")
                         .anyRequest().denyAll())

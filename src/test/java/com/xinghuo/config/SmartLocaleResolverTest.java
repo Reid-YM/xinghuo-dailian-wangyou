@@ -19,6 +19,7 @@ class SmartLocaleResolverTest {
         when(geo.detectLanguage("172.2.1.1")).thenReturn("en");
         SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
         MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/");
         request.setRemoteAddr("10.0.0.5");
         request.addHeader("X-Forwarded-For", "172.2.1.1");
 
@@ -32,6 +33,7 @@ class SmartLocaleResolverTest {
         when(geo.detectLanguage("203.0.113.10")).thenReturn("en");
         SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
         MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/services");
         request.setRemoteAddr("203.0.113.10");
         request.addHeader("X-Forwarded-For", "172.20.1.1");
 
@@ -46,6 +48,7 @@ class SmartLocaleResolverTest {
         when(geo.detectLanguage("172.32.0.1")).thenReturn("en");
         SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
         MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/services");
         request.setRemoteAddr("10.0.0.5");
         request.addHeader("X-Forwarded-For", "172.32.0.1");
 
@@ -63,11 +66,53 @@ class SmartLocaleResolverTest {
         });
         SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
         MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/");
         request.setRemoteAddr("203.0.113.10");
         request.addHeader("X-Forwarded-For", "fd12:3456::1");
 
         assertEquals(Locale.ENGLISH, resolver.resolveLocale(request));
         verify(geo, never()).detectLanguage("fd12:3456::1");
         verify(geo).detectLanguage("203.0.113.10");
+    }
+
+    @Test
+    void adminRouteNeverUsesGeoLookup() {
+        GeoLanguageResolver geo = org.mockito.Mockito.mock(GeoLanguageResolver.class);
+        SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/admin");
+        request.setRemoteAddr("203.0.113.10");
+        request.addHeader("X-Forwarded-For", "8.8.8.8");
+        request.addHeader("Accept-Language", "en-US,en;q=0.9");
+
+        assertEquals(Locale.ENGLISH, resolver.resolveLocale(request));
+        verify(geo, never()).detectLanguage(anyString());
+    }
+
+    @Test
+    void adminApiNeverUsesGeoLookup() {
+        GeoLanguageResolver geo = org.mockito.Mockito.mock(GeoLanguageResolver.class);
+        SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/admin/site-config");
+        request.setRemoteAddr("203.0.113.10");
+        request.addHeader("Accept-Language", "zh-CN,zh;q=0.9");
+
+        assertEquals(Locale.SIMPLIFIED_CHINESE, resolver.resolveLocale(request));
+        verify(geo, never()).detectLanguage(anyString());
+    }
+
+    @Test
+    void accountAndConsoleRoutesNeverUseGeoLookup() {
+        GeoLanguageResolver geo = org.mockito.Mockito.mock(GeoLanguageResolver.class);
+        SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
+        for (String path : new String[]{"/account", "/account/orders", "/console", "/console/orders", "/api/account/me"}) {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setRequestURI(path);
+            request.setRemoteAddr("203.0.113.10");
+            request.addHeader("Accept-Language", "en-US,en;q=0.9");
+            assertEquals(Locale.ENGLISH, resolver.resolveLocale(request), path);
+        }
+        verify(geo, never()).detectLanguage(anyString());
     }
 }

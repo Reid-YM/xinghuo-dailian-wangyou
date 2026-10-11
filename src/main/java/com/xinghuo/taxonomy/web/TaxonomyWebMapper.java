@@ -1,6 +1,5 @@
 package com.xinghuo.taxonomy.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.taxonomy.application.TaxonomyCatalogView;
 import com.xinghuo.taxonomy.application.TaxonomyCommands;
 import java.util.List;
@@ -10,19 +9,19 @@ public final class TaxonomyWebMapper {
     private TaxonomyWebMapper() {
     }
 
-    public static TaxonomyCommands.CreateGame toCommand(ApiDtos.CatalogNameRequest request) {
+    public static TaxonomyCommands.CreateGame toCommand(CatalogNameRequest request) {
         return new TaxonomyCommands.CreateGame(
                 request.name(), request.iconKey(), request.description(), request.sortOrder(),
                 request.active(), request.reason());
     }
 
-    public static TaxonomyCommands.UpdateGame toCommand(ApiDtos.CatalogUpdateRequest request) {
+    public static TaxonomyCommands.UpdateGame toCommand(CatalogUpdateRequest request) {
         return new TaxonomyCommands.UpdateGame(
                 request.name(), request.iconKey(), request.description(), request.sortOrder(),
                 request.active(), request.reason());
     }
 
-    public static TaxonomyCommands.UpdateGameProfile toCommand(ApiDtos.GameProfileUpdateRequest request) {
+    public static TaxonomyCommands.UpdateGameProfile toCommand(GameProfileUpdateRequest request) {
         return new TaxonomyCommands.UpdateGameProfile(
                 request.name(), request.nameEn(), request.aliases(), request.iconKey(),
                 request.description(), request.publisher(), request.genres(), request.logoImage(),
@@ -32,34 +31,34 @@ public final class TaxonomyWebMapper {
                 request.platformCodes(), request.reason());
     }
 
-    public static TaxonomyCommands.BulkUpdateGames toCommand(ApiDtos.GameBulkUpdateRequest request) {
+    public static TaxonomyCommands.BulkUpdateGames toCommand(GameBulkUpdateRequest request) {
         return new TaxonomyCommands.BulkUpdateGames(
                 request.codes(), request.active(), request.featured(), request.businessStatus(),
                 request.popularityScore(), request.reason());
     }
 
-    public static TaxonomyCommands.CreateCategory toCommand(ApiDtos.CategoryCreateRequest request) {
+    public static TaxonomyCommands.CreateCategory toCommand(CategoryCreateRequest request) {
         return new TaxonomyCommands.CreateCategory(
                 request.gameCode(), request.name(), request.iconKey(), request.description(),
                 request.sortOrder(), request.active(), request.reason());
     }
 
-    public static TaxonomyCommands.UpdateCategory toCommand(ApiDtos.CategoryUpdateRequest request) {
+    public static TaxonomyCommands.UpdateCategory toCommand(CategoryUpdateRequest request) {
         return new TaxonomyCommands.UpdateCategory(
                 request.name(), request.iconKey(), request.description(), request.sortOrder(),
                 request.active(), request.reason());
     }
 
-    public static ApiDtos.CatalogResponse toResponse(TaxonomyCatalogView view) {
-        return new ApiDtos.CatalogResponse(
+    public static CatalogResponse toResponse(TaxonomyCatalogView view) {
+        return new CatalogResponse(
                 view.games().stream().map(TaxonomyWebMapper::toResponse).toList(),
                 view.categories().stream().map(TaxonomyWebMapper::toResponse).toList(),
                 view.platforms().stream().map(TaxonomyWebMapper::toResponse).toList(),
                 view.gamePlatforms().stream().map(TaxonomyWebMapper::toResponse).toList());
     }
 
-    public static ApiDtos.GameOptionResponse toResponse(TaxonomyCatalogView.GameView view) {
-        return new ApiDtos.GameOptionResponse(
+    public static GameOptionResponse toResponse(TaxonomyCatalogView.GameView view) {
+        return new GameOptionResponse(
                 view.code(), view.name(), view.nameEn(), view.aliases(), view.iconKey(),
                 view.description(), view.publisher(), view.genres(), view.logoImage(),
                 view.coverImage(), view.popularityScore(), view.featured(), view.businessStatus(),
@@ -67,25 +66,25 @@ public final class TaxonomyWebMapper {
                 view.sortOrder(), view.categoryCount(), view.serviceCount(), view.platformCodes());
     }
 
-    public static List<ApiDtos.GameOptionResponse> toGameResponses(
+    public static List<GameOptionResponse> toGameResponses(
             List<TaxonomyCatalogView.GameView> views) {
         return views.stream().map(TaxonomyWebMapper::toResponse).toList();
     }
 
-    public static ApiDtos.CategoryOptionResponse toResponse(TaxonomyCatalogView.CategoryView view) {
-        return new ApiDtos.CategoryOptionResponse(
+    public static CategoryOptionResponse toResponse(TaxonomyCatalogView.CategoryView view) {
+        return new CategoryOptionResponse(
                 view.id(), view.gameCode(), view.code(), view.name(), view.iconKey(),
                 view.description(), view.active(), view.sortOrder(), view.serviceCount());
     }
 
-    public static ApiDtos.PlatformOptionResponse toResponse(TaxonomyCatalogView.PlatformView view) {
-        return new ApiDtos.PlatformOptionResponse(
+    public static PlatformOptionResponse toResponse(TaxonomyCatalogView.PlatformView view) {
+        return new PlatformOptionResponse(
                 view.code(), view.name(), view.iconKey(), view.platformGroup(), view.description(),
                 view.active(), view.sortOrder());
     }
 
-    public static ApiDtos.GamePlatformResponse toResponse(TaxonomyCatalogView.GamePlatformView view) {
-        return new ApiDtos.GamePlatformResponse(
+    public static GamePlatformResponse toResponse(TaxonomyCatalogView.GamePlatformView view) {
+        return new GamePlatformResponse(
                 view.gameCode(), view.platformCode(), view.active(), view.sortOrder());
     }
 }

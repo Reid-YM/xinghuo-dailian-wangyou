@@ -51,20 +51,28 @@ class SlotBoundaryContractTest {
         assertTrue(controller.contains("SlotWebMapper.toSlotResponses"));
         assertTrue(controller.contains("SlotWebMapper.toCommand"));
         assertTrue(controller.contains("@RequestMapping(value={\"/api/admin/slots\"})"));
+        assertTrue(controller.contains("List<SlotResponse> slots()"));
+        assertTrue(controller.contains("@RequestBody SlotUpdate r"));
+        assertFalse(controller.contains("com.xinghuo.dto.ApiDtos"));
         assertFalse(controller.contains("HotSlotRepository"));
         assertFalse(controller.contains("ServiceItemRepository"));
         assertFalse(controller.contains("AuditService"));
     }
 
     @Test
-    void webLayerOwnsEstablishedSlotProtocolDtos() throws IOException {
+    void webLayerOwnsSlotSpecificProtocolDtos() throws IOException {
         String mapper = read("src/main/java/com/xinghuo/slot/web/SlotWebMapper.java");
-        assertTrue(mapper.contains("ApiDtos.SlotUpdate"));
-        assertTrue(mapper.contains("ApiDtos.SlotResponse"));
+        String update = read("src/main/java/com/xinghuo/slot/web/SlotUpdate.java");
+        String response = read("src/main/java/com/xinghuo/slot/web/SlotResponse.java");
+        assertFalse(mapper.contains("ApiDtos.SlotUpdate"));
+        assertFalse(mapper.contains("ApiDtos.SlotResponse"));
         assertTrue(mapper.contains("ApiDtos.ServiceResponse"));
         assertTrue(mapper.contains("UpdateSlotCommand"));
         assertTrue(mapper.contains("SlotView"));
         assertTrue(mapper.contains("SlotPublicServiceView"));
+        assertTrue(update.contains("@Min(value=1L) @Max(value=2L) @Min(value=1L) @Max(value=2L) int slotNo"));
+        assertTrue(update.contains("@Size(max=500) @Size(max=500) String reason"));
+        assertTrue(response.contains("record SlotResponse(int slotNo, Long serviceId, String serviceName, String mode)"));
     }
 
     @Test

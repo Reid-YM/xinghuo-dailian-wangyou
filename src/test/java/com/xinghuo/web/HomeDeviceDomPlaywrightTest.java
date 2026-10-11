@@ -83,7 +83,10 @@ class HomeDeviceDomPlaywrightTest {
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("app.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v2.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(deviceCss));
-        if (mobile) page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-home-v4.css")));
+        if (mobile) {
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-home-v4.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-floating-dock-v4.css")));
+        }
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-overflow-guard.css")));
         page.addScriptTag(new Page.AddScriptTagOptions().setPath(deviceJs));
         return page;

@@ -51,8 +51,9 @@ class AccountAuthBundlePlaywrightTest {
                   </form>
                 </body>
                 """);
-        loadAuthBundle(page);
+        loadAuthRuntime(page);
 
+        assertEquals(Boolean.TRUE, page.evaluate("() => !!window.XHAccountCore"));
         assertEquals(Boolean.TRUE, page.evaluate("() => !!window.XHAccount && window.XHAccount === window.XHAccountAuth"));
         page.locator("[data-toggle-password]").click();
         assertEquals("text", page.locator("input[name=password]").getAttribute("type"));
@@ -82,7 +83,7 @@ class AccountAuthBundlePlaywrightTest {
                   </form>
                 </body>
                 """);
-        loadAuthBundle(page);
+        loadAuthRuntime(page);
 
         page.locator("input[name=password]").fill("Abc12345!");
         int score = Integer.parseInt(page.locator("[data-password-meter]").getAttribute("data-score"));
@@ -109,7 +110,7 @@ class AccountAuthBundlePlaywrightTest {
                   </form>
                 </body>
                 """);
-        loadAuthBundle(page);
+        loadAuthRuntime(page);
 
         page.locator("#accountResetConfirmForm [data-submit]").click();
         assertEquals("true", page.locator("input[name=email]").getAttribute("aria-invalid"));
@@ -118,7 +119,8 @@ class AccountAuthBundlePlaywrightTest {
         page.close();
     }
 
-    private void loadAuthBundle(Page page) {
+    private void loadAuthRuntime(Page page) {
+        page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("account-core.js")));
         page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("account-auth.js")));
     }
 }

@@ -99,12 +99,17 @@ class FrontendControlV3PlaywrightTest {
                     () => Array.from(document.querySelector('main.xh-mobile-home').children)
                       .indexOf(document.querySelector('.xh-mobile-quote-card'))
                     """);
+            Number whyIndex = (Number) page.evaluate("""
+                    () => Array.from(document.querySelector('main.xh-mobile-home').children)
+                      .indexOf(document.querySelector('.xh-mobile-proof-grid').closest('section'))
+                    """);
             String childOrder = String.valueOf(page.evaluate("""
                     () => Array.from(document.querySelector('main.xh-mobile-home').children)
                       .map(el => el.id || el.className || el.tagName)
                       .join(' | ')
                     """));
             assertEquals(0, quoteIndex.intValue(), "mobile module order mismatch: " + childOrder);
+            assertEquals(7, whyIndex.intValue(), "mobile why module order mismatch: " + childOrder);
             assertEquals(Boolean.TRUE, page.locator(".xh-mobile-two-up").evaluate("el => el.hidden"),
                     "support wrapper must collapse when record is disabled and the existing global contact control already hid contact");
             assertEquals(Boolean.TRUE, page.locator("#publicCaseSection").evaluate("el => el.hidden"),
@@ -147,7 +152,7 @@ class FrontendControlV3PlaywrightTest {
                     <section id="homeHero"><div class="hero-promise"></div><aside class="hero-media-panel"></aside></section>
                     <section class="xh-desktop-command"><div class="quote-card-home"></div><aside><div class="desktop-secondary-panel"></div><div class="quick-contact-card"></div></aside></section>
                     <section id="gameEntrySection" hidden></section>
-                    <section aria-label="为什么选择星火"><div class="section-title"><span class="eyebrow"></span><h2></h2><a class="text-link"></a></div><article class="card"></article></section>
+                    <section aria-label="为什么选择星火"><div class="section-title"><span class="eyebrow"></span><h2></h2><a class="text-link"></a></div><div class="xh-desktop-proof-grid"><article class="card"></article></div></section>
                     <section class="xh-desktop-hot"></section>
                     <section class="home-service-showcase"><article class="service-card"></article></section>
                     <section class="xh-desktop-lower-grid"></section>
@@ -172,7 +177,7 @@ class FrontendControlV3PlaywrightTest {
                     <section class="xh-mobile-two-up"><div class="desktop-secondary-panel"></div><div class="quick-contact-card" hidden></div></section>
                     <section class="xh-mobile-hot"></section>
                     <section class="xh-mobile-services"><article class="service-card"></article></section>
-                    <section aria-label="为什么选择星火"><div class="section-title"><span class="eyebrow"></span><h2></h2><a class="text-link"></a></div><article class="card"></article></section>
+                    <section aria-label="为什么选择星火"><div class="section-title"><span class="eyebrow"></span><h2></h2><a class="text-link"></a></div><div class="xh-mobile-proof-grid"><article class="card"></article></div></section>
                     <section class="xh-mobile-tool"></section>
                     <section id="publicCaseSection" hidden></section>
                     <section class="xh-mobile-faq"></section>

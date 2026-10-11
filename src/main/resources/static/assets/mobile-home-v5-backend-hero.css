@@ -1,0 +1,19 @@
+/* Mobile V5 Hero image ownership guard.
+ *
+ * The mobile reference layer owns only geometry/overlay styling. The Hero image
+ * source itself is backend-owned and is injected by public.js through
+ * SiteImageControls using the site-config fields:
+ * heroBackgroundImage, heroBackgroundFit, heroBackgroundPositionX/Y,
+ * heroBackgroundOpacity and heroBackgroundBlur.
+ *
+ * This later layer neutralizes the legacy V5 CSS fallback image. Inline
+ * !important values written by SiteImageControls still take precedence, so
+ * every image change and visual adjustment made in /admin remains effective.
+ */
+body.xh-mobile-home-page.xh-mobile-home-page #homeHero .hero-bg-layer{
+  background-image:none!important;
+}
+
+body.xh-mobile-home-page.xh-mobile-home-page #homeHero:not(.has-background) .hero-bg-layer{
+  background-image:none!important;
+}

@@ -1,26 +1,23 @@
 package com.xinghuo.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.xinghuo.dto.ApiDtos;
+import com.xinghuo.dto.PublicQuoteRequest;
+import com.xinghuo.exception.BadRequestException;
+import com.xinghuo.exception.NotFoundException;
+import com.xinghuo.model.CustomerOrder;
+import com.xinghuo.model.GameStatus;
+import com.xinghuo.model.UploadAsset;
 import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountSessionService;
 import com.xinghuo.account.service.QuoteContactService;
 import com.xinghuo.account.service.RateLimiter;
 import com.xinghuo.account.service.RequestUtils;
-import com.xinghuo.catalog.application.CatalogApplicationService;
-import com.xinghuo.catalog.web.CatalogWebMapper;
-import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.dto.PublicQuoteRequest;
-import com.xinghuo.exception.BadRequestException;
-import com.xinghuo.exception.NotFoundException;
-import com.xinghuo.model.GameStatus;
-import com.xinghuo.model.UploadAsset;
-import com.xinghuo.order.application.OrderApplicationService;
-import com.xinghuo.order.domain.OrderProgressAsset;
-import com.xinghuo.order.web.OrderWebMapper;
-import com.xinghuo.quote.application.QuoteApplicationService;
-import com.xinghuo.quote.web.QuoteWebMapper;
 import com.xinghuo.service.GameStatusService;
+import com.xinghuo.service.OrderService;
+import com.xinghuo.service.QuoteService;
 import com.xinghuo.service.RecordService;
+import com.xinghuo.service.ServiceCatalogService;
 import com.xinghuo.service.SiteConfigService;
 import com.xinghuo.service.SiteSettingService;
 import com.xinghuo.service.TaxonomyService;
@@ -60,9 +57,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class PublicApiController {
     private static final int REQUEST_BUCKET_PER_MINUTE = 60;
     private final SiteConfigService config;
-    private final CatalogApplicationService services;
-    private final QuoteApplicationService quotes;
-    private final OrderApplicationService orders;
+    private final ServiceCatalogService services;
+    private final QuoteService quotes;
+    private final OrderService orders;
     private final RecordService records;
     private final UploadService uploads;
     private final TrackingService tracking;
@@ -127,12 +124,12 @@ public class PublicApiController {
 
     @GetMapping(value={"/public/cases"})
     List<Map<String, Object>> publicCases() {
-        return OrderWebMapper.toCaseResponses(this.orders.publicCases());
+        return this.orders.publicCases();
     }
 
     @GetMapping(value={"/services"})
     List<ApiDtos.ServiceResponse> services() {
-        return CatalogWebMapper.toResponses(this.services.publicList());
+        return this.services.publicList();
     }
 
     @GetMapping(value={"/catalog"})
@@ -159,7 +156,7 @@ public class PublicApiController {
     @PostMapping(value={"/quote"})
     ResponseEntity<ApiDtos.QuoteResponse> quote(@Valid @RequestBody PublicQuoteRequest body, @RequestHeader(value="Idempotency-Key") String key, HttpServletRequest req) {
         if (!this.config.isQuoteEnabled()) {
-            throw new BadRequestException("当前已关闭网页询价，请通过客服渠道联系");
+            throw new BadRequestException("\u5f53\u524d\u5df2\u5173\u95ed\u7f51\u9875\u8be2\u4ef7\uff0c\u8bf7\u901a\u8fc7\u5ba2\u670d\u6e20\u9053\u8054\u7cfb");
         }
         Optional<Account> current = this.accountSessions.current(req);
         Long accountId = current.map(Account::getId).orElse(null);
@@ -173,11 +170,7 @@ public class PublicApiController {
                 payload = body.withCustomerContact(contact.value(), quoteContactMethod(contact.type()));
             }
         }
-        ApiDtos.QuoteResponse out = QuoteWebMapper.toResponse(this.quotes.create(QuoteWebMapper.toCommand(
-                payload,
-                key,
-                HashUtil.sha256(RequestUtil.clientIp(req)),
-                accountId)));
+        ApiDtos.QuoteResponse out = this.quotes.create(payload, key, HashUtil.sha256(RequestUtil.clientIp(req)), accountId);
         return ResponseEntity.status((HttpStatusCode)HttpStatus.CREATED).body(out);
     }
 
@@ -191,8 +184,8 @@ public class PublicApiController {
             return null;
         }
         return switch (typeName.toUpperCase(Locale.ROOT)) {
-            case "PHONE" -> "手机";
-            case "WECHAT" -> "微信";
+            case "PHONE" -> "\u624b\u673a";
+            case "WECHAT" -> "\u5fae\u4fe1";
             case "QQ" -> "QQ";
             default -> null;
         };
@@ -201,7 +194,7 @@ public class PublicApiController {
     @GetMapping(value={"/records/{businessNo}"})
     ApiDtos.RecordPublicResponse record(@PathVariable String businessNo, HttpServletRequest req) {
         if (!this.config.isOrderQueryEnabled()) {
-            throw new BadRequestException("进度查询正在维护，请联系客服查询");
+            throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
         this.limitByIp(req, "pub:record");
         return this.records.get(businessNo);
@@ -210,38 +203,38 @@ public class PublicApiController {
     @GetMapping(value={"/records/{businessNo}/image"})
     ResponseEntity<Resource> recordImage(@PathVariable String businessNo, HttpServletRequest req) {
         if (!this.config.isOrderQueryEnabled()) {
-            throw new BadRequestException("进度查询正在维护，请联系客服查询");
+            throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
         this.limitByIp(req, "pub:recordimg");
-        OrderProgressAsset asset = this.orders.progressAsset(businessNo);
-        if (asset.assetId() == null) {
+        CustomerOrder o = this.orders.findByPublicNo(businessNo);
+        if (o.getProgressImageAssetId() == null) {
             throw new NotFoundException();
         }
-        Resource r = this.uploads.load(asset.assetId(), "ORDER", asset.storageOwnerId());
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(asset.assetId())).cacheControl(CacheControl.noStore())).body(r);
+        Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
+        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(o.getProgressImageAssetId())).cacheControl(CacheControl.noStore())).body(r);
     }
 
     @GetMapping(value={"/orders/{orderNo}"})
     ApiDtos.OrderPublicResponse order(@PathVariable String orderNo, HttpServletRequest req) {
         if (!this.config.isOrderQueryEnabled()) {
-            throw new BadRequestException("进度查询正在维护，请联系客服查询");
+            throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
         this.limitByIp(req, "pub:order");
-        return OrderWebMapper.toResponse(this.orders.getPublic(orderNo));
+        return this.orders.getPublic(orderNo);
     }
 
     @GetMapping(value={"/orders/{orderNo}/image"})
     ResponseEntity<Resource> orderImage(@PathVariable String orderNo, HttpServletRequest req) {
         if (!this.config.isOrderQueryEnabled()) {
-            throw new BadRequestException("进度查询正在维护，请联系客服查询");
+            throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
         this.limitByIp(req, "pub:orderimg");
-        OrderProgressAsset asset = this.orders.progressAsset(orderNo);
-        if (asset.assetId() == null) {
+        CustomerOrder o = this.orders.findByPublicNo(orderNo);
+        if (o.getProgressImageAssetId() == null) {
             throw new NotFoundException();
         }
-        Resource r = this.uploads.load(asset.assetId(), "ORDER", asset.storageOwnerId());
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(asset.assetId())).cacheControl(CacheControl.noStore())).body(r);
+        Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
+        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(o.getProgressImageAssetId())).cacheControl(CacheControl.noStore())).body(r);
     }
 
     /**
@@ -262,7 +255,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, CatalogApplicationService services, QuoteApplicationService quotes, OrderApplicationService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;
@@ -279,3 +272,4 @@ public class PublicApiController {
         this.quoteContacts = quoteContacts;
     }
 }
+

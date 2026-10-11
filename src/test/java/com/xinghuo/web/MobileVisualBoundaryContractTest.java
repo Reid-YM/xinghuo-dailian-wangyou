@@ -67,11 +67,17 @@ class MobileVisualBoundaryContractTest {
     }
 
     @Test
-    void settingsPersistenceAdapterOwnsFallbackAndSettingsPersistence() throws IOException {
+    void settingsPersistenceAdapterUsesFeatureOwnedSitePersistence() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/mobilevisual/infrastructure/MobileVisualConfigPersistenceAdapter.java");
         assertTrue(adapter.contains("implements MobileVisualConfigPort"));
-        assertTrue(adapter.contains("com.xinghuo.repository.SiteSettingRepository"));
-        assertTrue(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
+        assertTrue(adapter.contains("com.xinghuo.sitesetting.infrastructure.SiteSettingRepository"));
+        assertTrue(adapter.contains("com.xinghuo.siteconfig.infrastructure.SiteConfigRepository"));
+        assertTrue(adapter.contains("com.xinghuo.sitesetting.infrastructure.SiteSetting"));
+        assertTrue(adapter.contains("com.xinghuo.siteconfig.infrastructure.SiteConfig"));
+        assertFalse(adapter.contains("com.xinghuo.repository.SiteSettingRepository"));
+        assertFalse(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
+        assertFalse(adapter.contains("com.xinghuo.model.SiteSetting"));
+        assertFalse(adapter.contains("com.xinghuo.model.SiteConfig"));
         assertTrue(adapter.contains("heroBackgroundMobileOpacity"));
         assertTrue(adapter.contains("heroBackgroundMobileBlur"));
         assertTrue(adapter.contains("clamp"));
@@ -81,10 +87,13 @@ class MobileVisualBoundaryContractTest {
     }
 
     @Test
-    void auditPersistenceAdapterOwnsAuditRepositoryAndStableAction() throws IOException {
+    void auditPersistenceAdapterUsesSharedAuditInfrastructure() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/mobilevisual/infrastructure/MobileVisualConfigAuditPersistenceAdapter.java");
         assertTrue(adapter.contains("implements MobileVisualConfigAuditPort"));
-        assertTrue(adapter.contains("AuditLogRepository"));
+        assertTrue(adapter.contains("com.xinghuo.audit.infrastructure.AuditLogRepository"));
+        assertTrue(adapter.contains("com.xinghuo.audit.infrastructure.AuditLog"));
+        assertFalse(adapter.contains("com.xinghuo.repository.AuditLogRepository"));
+        assertFalse(adapter.contains("com.xinghuo.model.AuditLog"));
         assertTrue(adapter.contains("MOBILE_VISUAL_CONFIG_UPDATE"));
         assertTrue(adapter.contains("SITE_SETTINGS"));
         assertTrue(adapter.contains("mobile-background"));

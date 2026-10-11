@@ -1,12 +1,12 @@
 package com.xinghuo.record.infrastructure;
 
 import com.xinghuo.exception.NotFoundException;
-import com.xinghuo.model.CustomerOrder;
-import com.xinghuo.model.Quote;
+import com.xinghuo.order.infrastructure.CustomerOrder;
+import com.xinghuo.order.infrastructure.CustomerOrderRepository;
+import com.xinghuo.quote.infrastructure.Quote;
+import com.xinghuo.quote.infrastructure.QuoteRepository;
 import com.xinghuo.record.application.RecordPort;
 import com.xinghuo.record.application.RecordPublicView;
-import com.xinghuo.repository.CustomerOrderRepository;
-import com.xinghuo.repository.QuoteRepository;
 import java.util.Locale;
 import java.util.Optional;
 import org.springframework.stereotype.Component;

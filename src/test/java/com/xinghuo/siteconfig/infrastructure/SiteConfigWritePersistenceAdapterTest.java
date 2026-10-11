@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.xinghuo.exception.BadRequestException;
-import com.xinghuo.model.SiteConfig;
-import com.xinghuo.repository.SiteConfigRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

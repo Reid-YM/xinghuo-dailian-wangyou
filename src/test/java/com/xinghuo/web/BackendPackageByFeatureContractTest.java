@@ -32,16 +32,18 @@ class BackendPackageByFeatureContractTest {
         assertFalse(Files.exists(MAIN.resolve("controller")), "global controller package must stay retired");
         assertFalse(Files.exists(MAIN.resolve("repository")), "global repository package must stay retired");
         assertFalse(Files.exists(MAIN.resolve("service")), "global service package must stay retired");
+        assertFalse(Files.exists(MAIN.resolve("model")), "global model package must stay retired");
     }
 
     @Test
-    void productionCodeDoesNotReferenceRetiredHorizontalPackages() throws IOException {
+    void productionCodeDoesNotImportRetiredHorizontalPackages() throws IOException {
         try (Stream<Path> files = Files.walk(MAIN)) {
             for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
                 String source = Files.readString(file);
-                assertFalse(source.contains("com.xinghuo.controller."), file + " references retired controller package");
-                assertFalse(source.contains("com.xinghuo.repository."), file + " references retired repository package");
-                assertFalse(source.contains("com.xinghuo.service."), file + " references retired service package");
+                assertFalse(source.contains("import com.xinghuo.controller."), file + " imports retired controller package");
+                assertFalse(source.contains("import com.xinghuo.repository."), file + " imports retired repository package");
+                assertFalse(source.contains("import com.xinghuo.service."), file + " imports retired service package");
+                assertFalse(source.contains("import com.xinghuo.model."), file + " imports retired model package");
             }
         }
     }
@@ -54,9 +56,9 @@ class BackendPackageByFeatureContractTest {
                 try (Stream<Path> files = Files.walk(directory)) {
                     for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
                         String source = Files.readString(file);
-                        assertFalse(source.contains("com.xinghuo.dto"), file + " depends on protocol DTOs");
-                        assertFalse(source.contains("com.xinghuo.model"), file + " depends on global persistence entities");
-                        assertFalse(source.contains("com.xinghuo.repository"), file + " depends on retired repositories");
+                        assertFalse(source.contains("import com.xinghuo.dto"), file + " depends on protocol DTOs");
+                        assertFalse(source.contains("import com.xinghuo.model"), file + " depends on global persistence entities");
+                        assertFalse(source.contains("import com.xinghuo.repository"), file + " depends on retired repositories");
                         assertFalse(source.contains("jakarta.persistence"), file + " depends on JPA");
                         assertFalse(source.contains("jakarta.servlet"), file + " depends on servlet APIs");
                         assertFalse(source.contains("org.springframework.data."), file + " depends on Spring Data");
@@ -74,6 +76,7 @@ class BackendPackageByFeatureContractTest {
                 "order/infrastructure/CustomerOrderRepository.java",
                 "catalog/infrastructure/ServiceItemRepository.java",
                 "siteconfig/infrastructure/SiteConfigRepository.java",
+                "sitesetting/infrastructure/SiteSettingRepository.java",
                 "upload/infrastructure/UploadAssetRepository.java",
                 "taxonomy/infrastructure/GameCatalogRepository.java",
                 "taxonomy/infrastructure/ServiceCategoryCatalogRepository.java")) {

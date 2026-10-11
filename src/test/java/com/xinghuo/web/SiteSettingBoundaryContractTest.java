@@ -49,8 +49,10 @@ class SiteSettingBoundaryContractTest {
     void persistenceAdapterOwnsSiteSettingJpaAccessAndAtomicBatchWrite() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/sitesetting/infrastructure/SiteSettingPersistenceAdapter.java");
         assertTrue(adapter.contains("implements SiteSettingPort"));
-        assertTrue(adapter.contains("com.xinghuo.repository.SiteSettingRepository"));
-        assertTrue(adapter.contains("com.xinghuo.model.SiteSetting"));
+        assertTrue(adapter.contains("private final SiteSettingRepository repo;"));
+        assertTrue(adapter.contains("for (SiteSetting setting : repo.findAll())"));
+        assertFalse(adapter.contains("com.xinghuo.repository.SiteSettingRepository"));
+        assertFalse(adapter.contains("com.xinghuo.model.SiteSetting"));
         assertTrue(adapter.contains("public void putAll"));
         assertTrue(adapter.contains("@Transactional"));
     }
@@ -88,9 +90,7 @@ class SiteSettingBoundaryContractTest {
         assertTrue(publicApi.contains("siteSettings.publicSettings()"));
         assertFalse(publicApi.contains("com.xinghuo.service.SiteSettingService"));
 
-        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
-        assertFalse(legacyPublicApi.contains("SiteSettingApplicationService"));
-        assertFalse(legacyPublicApi.contains("/public/site-settings"));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/PublicApiController.java")));
 
         String siteConfigWrites = read("src/main/java/com/xinghuo/siteconfig/application/SiteConfigWriteApplicationService.java");
         assertTrue(siteConfigWrites.contains("com.xinghuo.sitesetting.application.SiteSettingApplicationService"));
@@ -103,13 +103,19 @@ class SiteSettingBoundaryContractTest {
     }
 
     @Test
-    void legacySiteSettingServiceAndGlobalControllerStayRetired() throws IOException {
+    void legacySiteSettingServiceAndGlobalControllersStayRetired() throws IOException {
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/service/SiteSettingService.java")));
         assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/GlobalUiSettingsController.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/PublicApiController.java")));
         try (Stream<Path> files = Files.walk(ROOT.resolve("src/main/java"))) {
             for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
-                assertFalse(Files.readString(file).contains("com.xinghuo.service.SiteSettingService"),
+                String source = Files.readString(file);
+                assertFalse(source.contains("com.xinghuo.service.SiteSettingService"),
                         file + " still references retired SiteSettingService");
+                assertFalse(source.contains("com.xinghuo.model.SiteSetting"),
+                        file + " still references retired SiteSetting model");
+                assertFalse(source.contains("com.xinghuo.repository.SiteSettingRepository"),
+                        file + " still references retired SiteSetting repository");
             }
         }
     }

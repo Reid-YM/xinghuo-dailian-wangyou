@@ -1,8 +1,8 @@
 package com.xinghuo.sitesetting.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xinghuo.model.AuditLog;
-import com.xinghuo.repository.AuditLogRepository;
+import com.xinghuo.audit.infrastructure.AuditLog;
+import com.xinghuo.audit.infrastructure.AuditLogRepository;
 import com.xinghuo.sitesetting.application.GlobalUiSettingsAuditContext;
 import com.xinghuo.sitesetting.application.GlobalUiSettingsAuditPort;
 import java.time.Instant;

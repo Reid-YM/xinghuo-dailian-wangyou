@@ -1,0 +1,92 @@
+name: Consolidate Public Header Style Ownership
+
+on:
+  push:
+    branches:
+      - refactor/public-css-ownership-20261012
+
+permissions:
+  contents: write
+
+jobs:
+  consolidate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/public-css-ownership-20261012
+          fetch-depth: 0
+
+      - name: Move header quarantine into authoritative CSS
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          css_path = Path('src/main/resources/static/assets/site-experience-v2.css')
+          css = css_path.read_text(encoding='utf-8')
+          old_css = '-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.site-header .topbar'
+          new_css = '-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important}.site-header .topbar'
+          if old_css not in css:
+              raise SystemExit('authoritative header CSS anchor missing')
+          css = css.replace(old_css, new_css, 1)
+          css_path.write_text(css, encoding='utf-8')
+
+          fragment_path = Path('src/main/resources/templates/fragments/site.html')
+          fragment = fragment_path.read_text(encoding='utf-8')
+          old_header = '<header th:fragment="header" class="site-header" data-experience-shell="v3" style="-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important">'
+          new_header = '<header th:fragment="header" class="site-header" data-experience-shell="v3">'
+          if old_header not in fragment:
+              raise SystemExit('inline header quarantine anchor missing')
+          fragment = fragment.replace(old_header, new_header, 1)
+          fragment = fragment.replace('site-experience-v2.css?v=20261007ux03', 'site-experience-v2.css?v=20261012ux04')
+          fragment_path.write_text(fragment, encoding='utf-8')
+
+          responsive_path = Path('src/test/java/com/xinghuo/web/FrontendResponsivePlaywrightTest.java')
+          responsive = responsive_path.read_text(encoding='utf-8')
+          responsive = responsive.replace(
+              'assertEquals("none", string(page, "getComputedStyle(document.querySelector(\'.site-header\')).backdropFilter"));',
+              'assertEquals("none", string(page, "getComputedStyle(document.querySelector(\'.site-header\')).backdropFilter"));\n            assertEquals("none", string(page, "getComputedStyle(document.querySelector(\'.site-header\')).transitionProperty"));',
+              1)
+          responsive = responsive.replace(
+              'assertEquals("none", string(desktop, "getComputedStyle(document.querySelector(\'.site-header\')).backdropFilter"));',
+              'assertEquals("none", string(desktop, "getComputedStyle(document.querySelector(\'.site-header\')).backdropFilter"));\n            assertEquals("none", string(desktop, "getComputedStyle(document.querySelector(\'.site-header\')).transitionProperty"));',
+              1)
+          old_contract = '''assertTrue(fragment.contains("backdrop-filter:none!important;transition:none!important"),
+                "public v3 header must quarantine legacy blur transitions at the shell boundary");'''
+          new_contract = '''assertTrue(!fragment.contains("style=\\\"-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important\\\""),
+                "public v3 header must keep visual quarantine in the authoritative stylesheet, not inline markup");'''
+          if old_contract not in responsive:
+              raise SystemExit('responsive inline quarantine contract anchor missing')
+          responsive = responsive.replace(old_contract, new_contract, 1)
+          responsive = responsive.replace(
+              'assertTrue(css.contains("-webkit-backdrop-filter:none!important"));',
+              'assertTrue(css.contains("-webkit-backdrop-filter:none!important"));\n        assertTrue(css.contains("backdrop-filter:none!important;transition:none!important"));',
+              1)
+          responsive = responsive.replace('site-experience-v2.css?v=20261007ux03', 'site-experience-v2.css?v=20261012ux04')
+          responsive_path.write_text(responsive, encoding='utf-8')
+
+          style_test_path = Path('src/test/java/com/xinghuo/web/FrontendStyleLayerContractTest.java')
+          style_test = style_test_path.read_text(encoding='utf-8')
+          style_test = style_test.replace('site-experience-v2.css?v=20261007ux03', 'site-experience-v2.css?v=20261012ux04')
+          anchor = '        assertFalse(site.contains("site-surface-refine.js"));\n'
+          if anchor not in style_test:
+              raise SystemExit('style layer test anchor missing')
+          style_test = style_test.replace(
+              anchor,
+              anchor + '        assertFalse(site.contains("style=\\\"-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important\\\""));\n',
+              1)
+          style_test_path.write_text(style_test, encoding='utf-8')
+
+          Path('.github/workflows/consolidate-public-header-style.yml').unlink()
+          PY
+
+      - name: Commit ownership cleanup
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "refactor: move public header quarantine into experience css"
+          git push origin HEAD:refactor/public-css-ownership-20261012

@@ -1,7 +1,6 @@
 package com.xinghuo.dashboard.web;
 
 import com.xinghuo.dashboard.application.DashboardApplicationService;
-import com.xinghuo.dto.ApiDtos;
 import lombok.Generated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +12,7 @@ public class AdminDashboardController {
     private final DashboardApplicationService dashboard;
 
     @GetMapping(value={"/dashboard"})
-    ApiDtos.DashboardResponse dashboard() {
+    DashboardResponse dashboard() {
         return DashboardWebMapper.toResponse(this.dashboard.get());
     }
 

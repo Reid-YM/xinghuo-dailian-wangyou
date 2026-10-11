@@ -2,7 +2,7 @@ package com.xinghuo.catalog.web;
 
 import com.xinghuo.catalog.application.CatalogApplicationService;
 import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.model.UploadAsset;
+import com.xinghuo.upload.infrastructure.UploadAsset;
 import com.xinghuo.upload.infrastructure.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

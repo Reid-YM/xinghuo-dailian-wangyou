@@ -15,6 +15,7 @@ class ProductionSmokeCompatibilityContractTest {
         String smoke = Files.readString(ROOT.resolve("scripts/smoke_test.sh"));
 
         assertTrue(smoke.contains("check_code /assets/vnext-legacy-bridge-v3.css 200"));
+        assertTrue(smoke.contains("check_code /assets/service-detail.css 200"));
         assertTrue(smoke.contains("check_code /assets/account-submit.css 200"));
         assertTrue(smoke.contains("check_code /assets/account-center.css 200"));
         assertTrue(smoke.contains("check_code /assets/account-center-refine.css 200"));

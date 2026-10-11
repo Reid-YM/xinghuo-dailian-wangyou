@@ -44,7 +44,7 @@ class LegacyBridgePlaywrightTest {
                 """);
         addStyle(page, "app.css");
         addStyle(page, "site-experience-v2.css");
-        addStyle(page, "vnext-legacy-bridge-v3.css");
+        addStyle(page, "service-detail.css");
 
         assertBridgeBackground(page, "service-detail desktop");
         assertNoHorizontalOverflow(page, "service-detail desktop");
@@ -97,7 +97,7 @@ class LegacyBridgePlaywrightTest {
                 """);
         addStyle(page, "app.css");
         addStyle(page, "site-experience-v2.css");
-        addStyle(page, "vnext-legacy-bridge-v3.css");
+        addStyle(page, "service-detail.css");
         assertBridgeBackground(page, "service-detail iPhone");
         assertNoHorizontalOverflow(page, "service-detail iPhone");
         page.close();

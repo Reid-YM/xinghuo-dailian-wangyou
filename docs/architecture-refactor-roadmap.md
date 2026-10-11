@@ -1,5 +1,31 @@
 # 星火网站真正重构路线图
 
+## 当前状态（2026-10-11）
+
+代码层重构已经进入验收阶段，不能再把“结构迁移完成”和“生产验收完成”混为一谈。
+
+已在 `main` 收口的代码层工作：
+
+- 后端已按业务域 package-by-feature 收口，顶层旧横向业务包 `controller / service / repository / model / dto / web` 已退役，并有架构守卫防止回流。
+- 全局 `com.xinghuo.dto.ApiDtos` 已删除；公开/后台 HTTP contract 已迁回各业务域 `web` 边界，并有 contract tests 锁定字段与边界。
+- Controller、application、domain、infrastructure 的业务域边界已经建立，旧 Legacy Service 的逐域退役已完成主体收口。
+- 公共详情页、业务进度页、个人中心旧子页与攻略投稿页的 VNext compatibility bridge 已改为模板声明式加载；`site-image-controls.js` 不再负责动态注入兼容 CSS，只保留图片布局能力。
+- 后台 compatibility bridge 已收敛到单一后台样式入口，避免多条 JS 动态加载链路。
+- 数据/观测/发布基础设施重构及最终零消费者资产清理已合入主线；仍被补丁构建流程消费的基线 jar 清理清单继续保留。
+- 自动 CI 按当前运维决定保持暂停，仅保留 `workflow_dispatch` 手动触发。
+
+尚未完成、因此暂不能宣告“生产级重构完成”的验收门：
+
+1. 手动触发 Java 21 / Maven 全量构建与测试。
+2. Chromium 回归。
+3. WebKit 回归。
+4. 18080 验证环境 smoke。
+5. 8081 预发布/切换验证。
+6. 8080 生产端口最终验证与回滚确认。
+7. 只有上述浏览器与生产 smoke 证明等价后，才允许进一步删除仍在使用的 `vnext-legacy-bridge-v3.css`、`vnext-account-submit-v3.css` 等兼容样式本体。
+
+因此当前状态定义为：**代码结构重构已基本收口，正在等待手动 CI + 浏览器 + 生产端口门禁验收；兼容 CSS 本体暂保留属于刻意设计，不是漏清理。**
+
 ## 目标
 
 这轮重构不再以“继续叠页面样式”为核心，而是把现有系统从可运行的混合结构，逐步整理为可长期演进、可测试、可回滚的模块化系统。

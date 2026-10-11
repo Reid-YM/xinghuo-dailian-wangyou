@@ -51,6 +51,11 @@
     return `${value >> 16 & 255},${value >> 8 & 255},${value & 255}`;
   }
 
+  function upgradedDockLabel(value, legacy, next) {
+    const current = String(value || '').trim();
+    return !current || current === legacy ? next : current;
+  }
+
   function applyFeatureSwitches(control = {}) {
     visible('.site-header', bool(control.siteHeaderVisible));
     visible('body > footer', bool(control.siteFooterVisible));
@@ -59,11 +64,11 @@
     visible('a[href="/records"], .hero-progress-link', bool(control.recordsEntryVisible));
     visible('.mobile-dock', bool(control.mobileDockVisible));
 
-    text('.mobile-dock a[href="/services"]', control.mobileDockServicesLabel);
-    text('.mobile-dock a[href="/guides"]', control.mobileDockGuidesLabel);
-    text('.mobile-dock a[href="/records"]', control.mobileDockRecordsLabel);
-    text('.mobile-dock a[href="/contact"]', control.mobileDockContactLabel);
-    text('.mobile-dock [data-primary-cta]', control.mobileDockQuoteLabel);
+    text('.mobile-dock [data-dock-key="home"] .mobile-dock-label', upgradedDockLabel(control.mobileDockQuoteLabel, '询价', '首页'));
+    text('.mobile-dock [data-dock-key="services"] .mobile-dock-label', upgradedDockLabel(control.mobileDockServicesLabel, '服务', '服务'));
+    text('.mobile-dock [data-dock-key="records"] .mobile-dock-label', upgradedDockLabel(control.mobileDockRecordsLabel, '记录', '进度'));
+    text('.mobile-dock [data-dock-key="tools"] .mobile-dock-label', upgradedDockLabel(control.mobileDockGuidesLabel, '攻略', '工具'));
+    text('.mobile-dock [data-dock-key="account"] .mobile-dock-label', upgradedDockLabel(control.mobileDockContactLabel, '客服', '我的'));
   }
 
   function applyTheme(control = {}) {

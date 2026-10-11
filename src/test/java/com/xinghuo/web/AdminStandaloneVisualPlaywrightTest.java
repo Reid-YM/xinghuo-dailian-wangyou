@@ -42,7 +42,7 @@ class AdminStandaloneVisualPlaywrightTest {
             addCanonicalGuideStyles(page);
 
             assertEquals("rgb(244, 246, 248)", string(page, "getComputedStyle(document.body).backgroundColor"));
-            assertEquals("16px", string(page, "getComputedStyle(document.querySelector('.guide-editor-grid input')).fontSize"));
+            assertEquals("rgb(255, 255, 255)", string(page, "getComputedStyle(document.querySelector('.guide-editor-grid input')).backgroundColor"));
             assertNoHorizontalOverflow(page, "guide admin iPhone");
         }
     }

@@ -2,7 +2,6 @@ package com.xinghuo.record.web;
 
 import com.xinghuo.account.service.RateLimiter;
 import com.xinghuo.account.service.RequestUtils;
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.record.application.RecordApplicationService;
 import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;
@@ -23,7 +22,7 @@ public class PublicRecordController {
     private final RateLimiter rateLimiter;
 
     @GetMapping(value={"/{businessNo}"})
-    ApiDtos.RecordPublicResponse record(@PathVariable String businessNo, HttpServletRequest req) {
+    RecordPublicResponse record(@PathVariable String businessNo, HttpServletRequest req) {
         if (!this.runtimeConfig.orderQueryEnabled()) {
             throw new BadRequestException("进度查询正在维护，请联系客服查询");
         }

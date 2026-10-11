@@ -10,12 +10,14 @@ import org.junit.jupiter.api.Test;
 
 class UploadAssetRepositoryOwnershipContractTest {
     @Test
-    void uploadAssetRepositoryLivesInsideUploadInfrastructure() throws IOException {
-        assertThat(Files.exists(Path.of("src/main/java/com/xinghuo/upload/infrastructure/UploadAssetRepository.java"))).isTrue();
-        assertThat(Files.exists(Path.of("src/main/java/com/xinghuo/repository/UploadAssetRepository.java"))).isFalse();
-        assertThat(Files.exists(Path.of("src/main/java/com/xinghuo/model/UploadAsset.java"))).isTrue();
+    void uploadAssetPersistenceLivesInsideUploadInfrastructure() throws IOException {
+        Path main = Path.of("src/main/java/com/xinghuo");
+        assertThat(Files.exists(main.resolve("upload/infrastructure/UploadAsset.java"))).isTrue();
+        assertThat(Files.exists(main.resolve("upload/infrastructure/UploadAssetRepository.java"))).isTrue();
+        assertThat(Files.exists(main.resolve("model/UploadAsset.java"))).isFalse();
+        assertThat(Files.exists(main.resolve("repository/UploadAssetRepository.java"))).isFalse();
 
-        try (Stream<Path> files = Files.walk(Path.of("src/main/java/com/xinghuo/upload"))) {
+        try (Stream<Path> files = Files.walk(main)) {
             assertThat(files
                     .filter(path -> path.toString().endsWith(".java"))
                     .map(path -> {
@@ -27,6 +29,7 @@ class UploadAssetRepositoryOwnershipContractTest {
                     })
                     .toList())
                     .allSatisfy(source -> assertThat(source)
+                            .doesNotContain("com.xinghuo.model.UploadAsset")
                             .doesNotContain("com.xinghuo.repository.UploadAssetRepository"));
         }
     }

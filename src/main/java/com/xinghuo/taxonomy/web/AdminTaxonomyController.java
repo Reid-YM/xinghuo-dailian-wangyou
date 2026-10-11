@@ -2,8 +2,8 @@ package com.xinghuo.taxonomy.web;
 
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
-import com.xinghuo.model.UploadAsset;
 import com.xinghuo.taxonomy.application.TaxonomyApplicationService;
+import com.xinghuo.upload.infrastructure.UploadAsset;
 import com.xinghuo.upload.infrastructure.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

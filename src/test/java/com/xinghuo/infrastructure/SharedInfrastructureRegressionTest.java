@@ -8,12 +8,12 @@ import static org.mockito.Mockito.when;
 
 import com.xinghuo.audit.infrastructure.AuditService;
 import com.xinghuo.exception.ConflictException;
-import com.xinghuo.model.CustomerOrder;
-import com.xinghuo.model.UploadAsset;
 import com.xinghuo.order.application.UpdateOrderCommand;
+import com.xinghuo.order.infrastructure.CustomerOrder;
+import com.xinghuo.order.infrastructure.CustomerOrderRepository;
 import com.xinghuo.order.infrastructure.OrderPersistenceAdapter;
-import com.xinghuo.repository.CustomerOrderRepository;
-import com.xinghuo.repository.UploadAssetRepository;
+import com.xinghuo.upload.infrastructure.UploadAsset;
+import com.xinghuo.upload.infrastructure.UploadAssetRepository;
 import com.xinghuo.upload.infrastructure.UploadService;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;

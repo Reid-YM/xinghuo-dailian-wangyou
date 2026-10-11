@@ -3,7 +3,7 @@ package com.xinghuo.feedback.web;
 import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.feedback.application.FeedbackApplicationService;
-import com.xinghuo.model.UploadAsset;
+import com.xinghuo.upload.infrastructure.UploadAsset;
 import com.xinghuo.upload.infrastructure.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

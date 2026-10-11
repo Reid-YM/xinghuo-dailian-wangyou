@@ -1,8 +1,8 @@
 package com.xinghuo.order.web;
 
 import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.model.UploadAsset;
 import com.xinghuo.order.application.OrderApplicationService;
+import com.xinghuo.upload.infrastructure.UploadAsset;
 import com.xinghuo.upload.infrastructure.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

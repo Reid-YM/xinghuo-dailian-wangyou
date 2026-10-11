@@ -81,16 +81,22 @@ class FrontendControlBoundaryContractTest {
     }
 
     @Test
-    void persistenceAdaptersOwnSettingsAndAuditRepositories() throws IOException {
+    void persistenceAdaptersUseFeatureOwnedSettingsAndAuditRepositories() throws IOException {
         String settings = read("src/main/java/com/xinghuo/frontendcontrol/infrastructure/FrontendControlPersistenceAdapter.java");
         assertTrue(settings.contains("implements FrontendControlPort"));
-        assertTrue(settings.contains("com.xinghuo.repository.SiteSettingRepository"));
+        assertTrue(settings.contains("com.xinghuo.sitesetting.infrastructure.SiteSettingRepository"));
+        assertTrue(settings.contains("com.xinghuo.sitesetting.infrastructure.SiteSetting"));
+        assertFalse(settings.contains("com.xinghuo.repository.SiteSettingRepository"));
+        assertFalse(settings.contains("com.xinghuo.model.SiteSetting"));
         assertTrue(settings.contains("@Transactional"));
         assertTrue(settings.contains("void putAll"));
 
         String audit = read("src/main/java/com/xinghuo/frontendcontrol/infrastructure/FrontendControlAuditPersistenceAdapter.java");
         assertTrue(audit.contains("implements FrontendControlAuditPort"));
-        assertTrue(audit.contains("AuditLogRepository"));
+        assertTrue(audit.contains("com.xinghuo.audit.infrastructure.AuditLogRepository"));
+        assertTrue(audit.contains("com.xinghuo.audit.infrastructure.AuditLog"));
+        assertFalse(audit.contains("com.xinghuo.repository.AuditLogRepository"));
+        assertFalse(audit.contains("com.xinghuo.model.AuditLog"));
         assertTrue(audit.contains("FRONTEND_CONTROLS_UPDATE"));
         assertTrue(audit.contains("SITE_SETTINGS"));
         assertFalse(audit.contains("jakarta.servlet"));

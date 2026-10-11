@@ -80,6 +80,7 @@ class FrontendDeviceSplitContractTest {
         assertTrue(mobileHtml.contains("/assets/mobile-flat-overflow.css?v=20261009mfo1"));
         assertTrue(mobileHtml.contains("/assets/mobile-runtime-fixes.css?v=20261009mrf1"));
         assertTrue(mobileHtml.contains("/assets/mobile-home-v4.css?v=20261009mh5"));
+        assertTrue(mobileHtml.contains("/assets/mobile-v6.css?v=20261011mv6"));
         assertFalse(mobileHtml.contains("mobile-home-v3.css"));
         assertTrue(mobileHtml.contains("/assets/mobile-app.js?v=20261009m2"));
 
@@ -94,6 +95,7 @@ class FrontendDeviceSplitContractTest {
         assertFalse(desktopHtml.contains("mobile-flat-overflow.css"));
         assertFalse(desktopHtml.contains("mobile-runtime-fixes.css"));
         assertFalse(desktopHtml.contains("mobile-home-v4.css"));
+        assertFalse(desktopHtml.contains("mobile-v6.css"));
         assertFalse(desktopHtml.contains("mobile-app.js"));
     }
 
@@ -112,6 +114,7 @@ class FrontendDeviceSplitContractTest {
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-flat-overflow.css")));
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-runtime-fixes.css")));
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-home-v4.css")));
+        assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-v6.css")));
         assertTrue(Files.isRegularFile(Path.of("src/main/resources/static/assets/mobile-app.js")));
         assertFalse(TEMPLATES.resolve("index.html").equals(Path.of("src/main/resources/templates/index.html")));
     }

@@ -51,12 +51,17 @@ class VNextLegacyUiBridgeContractTest {
         String recordMobile = read("src/main/resources/templates/mobile/record-detail.html");
         String orderDesktop = read("src/main/resources/templates/order-detail.html");
         String orderMobile = read("src/main/resources/templates/mobile/order-detail.html");
+        String submitDesktop = read("src/main/resources/templates/account-submit.html");
+        String submitMobile = read("src/main/resources/templates/mobile/account-submit.html");
 
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-legacy-bridge-v3.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-account-submit-v3.css"));
         assertTrue(bridgeFragment.contains("th:fragment=\"deepPageBridge\""));
+        assertTrue(bridgeFragment.contains("th:fragment=\"accountSubmitBridge\""));
         assertTrue(bridgeFragment.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
         assertTrue(bridgeFragment.contains("data-vnext-legacy-bridge=\"1\""));
+        assertTrue(bridgeFragment.contains("/assets/vnext-account-submit-v3.css?v=20261010ui03"));
+        assertTrue(bridgeFragment.contains("data-vnext-account-submit-bridge=\"1\""));
         assertTrue(accountCenterFragment.contains("th:fragment=\"bar\""));
         assertTrue(accountCenterFragment.contains("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(serviceDesktop.indexOf("fragments/site :: header") < serviceDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
@@ -65,6 +70,8 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(recordMobile.indexOf("fragments/site :: header") < recordMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(orderDesktop.indexOf("</header>") < orderDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(orderMobile.indexOf("</header>") < orderMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
+        assertTrue(submitDesktop.indexOf("fragments/site :: header") < submitDesktop.indexOf("fragments/vnext-legacy :: accountSubmitBridge"));
+        assertTrue(submitMobile.indexOf("fragments/site :: header") < submitMobile.indexOf("fragments/vnext-legacy :: accountSubmitBridge"));
 
         assertTrue(sharedRuntime.contains("page === 'service-detail'"));
         assertTrue(sharedRuntime.contains("page === 'record-detail'"));

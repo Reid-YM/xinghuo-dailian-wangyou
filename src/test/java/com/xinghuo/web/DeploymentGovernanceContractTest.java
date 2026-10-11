@@ -21,26 +21,28 @@ class DeploymentGovernanceContractTest {
     }
 
     @Test
-    void productionStillRequiresMergedPrAndSuccessfulManualMainCi() throws Exception {
+    void productionStillRequiresMergedPrAndSuccessfulSameShaMainCi() throws Exception {
         String workflow = Files.readString(ROOT.resolve(".github/workflows/deploy-production.yml"));
         assertTrue(workflow.contains("Require merged Pull Request origin"));
         assertTrue(workflow.contains(".merge_commit_sha == $sha"));
-        assertTrue(workflow.contains("Require successful manual main CI"));
-        assertTrue(workflow.contains("head_sha=${DEPLOY_SHA}&branch=main&event=workflow_dispatch&per_page=10"));
+        assertTrue(workflow.contains("Require successful main CI"));
+        assertTrue(workflow.contains("head_sha=${DEPLOY_SHA}&branch=main&per_page=20"));
         assertTrue(workflow.contains(".conclusion == \"success\""));
-        assertFalse(workflow.contains("branch=main&event=push&per_page=10"));
+        assertTrue(workflow.contains(".event == \"push\" or .event == \"workflow_dispatch\""));
         assertTrue(workflow.contains("workflow_dispatch:"));
         assertTrue(workflow.contains("confirm:"));
     }
 
     @Test
-    void ciRemainsManualOnlyUntilOperationsExplicitlyChangesPolicy() throws Exception {
+    void ciRunsAutomaticallyForPullRequestsAndMainPushesWithManualFallback() throws Exception {
         String ci = Files.readString(ROOT.resolve(".github/workflows/ci.yml"));
         String triggerBlock = ci.substring(0, ci.indexOf("permissions:"));
 
+        assertTrue(triggerBlock.contains("pull_request:"));
+        assertTrue(triggerBlock.contains("push:"));
         assertTrue(triggerBlock.contains("workflow_dispatch:"));
-        assertFalse(triggerBlock.contains("\n  push:"));
-        assertFalse(triggerBlock.contains("\n  pull_request:"));
+        assertTrue(triggerBlock.contains("- main"));
+        assertTrue(ci.contains("Guard main against direct pushes"));
     }
 
     @Test
@@ -50,6 +52,7 @@ class DeploymentGovernanceContractTest {
         assertTrue(doc.contains("Administration 权限"));
         assertTrue(doc.contains("Chromium + WebKit UI Regression"));
         assertTrue(doc.contains("workflow_dispatch"));
+        assertTrue(doc.contains("push"));
         assertTrue(doc.contains("同一个 `main` SHA"));
     }
 

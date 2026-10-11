@@ -127,7 +127,7 @@ class FrontendControlServiceTest {
 
     @Test
     void rejectsPublishingWithoutDraft() {
-        backRepositoryWith(new LinkedHashMap<>());
+        when(repo.findAll()).thenReturn(List.of());
         assertThrows(BadRequestException.class, () -> service.publishDraft("mobile"));
     }
 

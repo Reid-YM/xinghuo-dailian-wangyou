@@ -1,0 +1,8 @@
+/* Desktop-only storefront layer. Keep desktop visual changes here so they never leak into the mobile bundle. */
+:root {
+  --xh-device-mode: desktop;
+}
+
+html[data-device-mode="desktop"] body {
+  min-width: 0;
+}

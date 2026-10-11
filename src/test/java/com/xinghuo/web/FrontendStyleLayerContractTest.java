@@ -23,6 +23,19 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
+    void siteLoadsMutuallyExclusiveDeviceAssetLayers() throws Exception {
+        String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" rel=\"stylesheet\" href=\"/assets/desktop-storefront.css?v=20261011ds11\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" rel=\"stylesheet\" href=\"/assets/mobile-storefront.css?v=20261011ds11\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'desktop'}\" defer src=\"/assets/desktop-storefront.js?v=20261011ds11\""));
+        assertTrue(site.contains("th:if=\"${deviceMode == 'mobile'}\" defer src=\"/assets/mobile-storefront.js?v=20261011ds11\""));
+        assertTrue(Files.exists(MAIN.resolve("resources/static/assets/desktop-storefront.css")));
+        assertTrue(Files.exists(MAIN.resolve("resources/static/assets/mobile-storefront.css")));
+        assertTrue(Files.exists(MAIN.resolve("resources/static/assets/desktop-storefront.js")));
+        assertTrue(Files.exists(MAIN.resolve("resources/static/assets/mobile-storefront.js")));
+    }
+
+    @Test
     void guideAndLoginAdminUseUnifiedWhiteTheme() throws Exception {
         String guides = Files.readString(MAIN.resolve("resources/templates/admin-guides.html"));
         String login = Files.readString(MAIN.resolve("resources/templates/admin-login.html"));

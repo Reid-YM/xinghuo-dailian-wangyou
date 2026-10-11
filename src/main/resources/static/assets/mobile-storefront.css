@@ -1,0 +1,14 @@
+/* Mobile-only storefront layer. Put phone-specific layout changes here instead of adding more desktop-affecting media overrides. */
+:root {
+  --xh-device-mode: mobile;
+}
+
+html[data-device-mode="mobile"],
+html[data-device-mode="mobile"] body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+html[data-device-mode="mobile"] body {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

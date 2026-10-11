@@ -5,10 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.xinghuo.catalog.infrastructure.ServiceItemRepository;
 import com.xinghuo.model.ServiceItem;
 import com.xinghuo.model.SiteConfig;
-import com.xinghuo.repository.ServiceItemRepository;
-import com.xinghuo.repository.SiteConfigRepository;
 import com.xinghuo.siteconfig.application.SiteConfigPublicSnapshot;
 import java.math.BigDecimal;
 import java.time.Instant;

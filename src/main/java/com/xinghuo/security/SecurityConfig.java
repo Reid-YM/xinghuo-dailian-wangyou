@@ -12,9 +12,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.RequestMatcherDelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -110,8 +110,7 @@ public class SecurityConfig {
                 PathPatternRequestMatcher.withDefaults().matcher("/api/**"),
                 new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
-        RequestMatcherDelegatingAuthenticationEntryPoint delegating =
-                new RequestMatcherDelegatingAuthenticationEntryPoint(entryPoints);
+        DelegatingAuthenticationEntryPoint delegating = new DelegatingAuthenticationEntryPoint(entryPoints);
         delegating.setDefaultEntryPoint(new LoginUrlAuthenticationEntryPoint("/admin/login"));
         return delegating;
     }

@@ -1,4 +1,4 @@
-package com.xinghuo.dto;
+package com.xinghuo.quote.web;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -24,5 +24,3 @@ public final class QuoteLeadDtos {
     public record QuoteLeadResponse(UUID id, String businessNo, String game, String demand, String currentProgress, UUID screenshotAssetId, String platform, String expectedTime, String contactMethod, String customerContact, String customerIpHash, String status, Instant createdAt, Integer leadScore, String leadIntentLevel, String nextAction, String followUpNote, String aiSuggestion, Instant lastContactedAt, String firstTouchSource, String utmSource, String utmMedium, String utmCampaign, String referrer, Instant updatedAt, String customerSupplement) {
     }
 }
-
-

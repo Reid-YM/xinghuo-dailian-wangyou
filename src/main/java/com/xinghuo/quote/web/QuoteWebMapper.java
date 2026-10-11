@@ -1,8 +1,6 @@
 package com.xinghuo.quote.web;
 
 import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.dto.PublicQuoteRequest;
-import com.xinghuo.dto.QuoteLeadDtos;
 import com.xinghuo.quote.application.ConvertedOrderView;
 import com.xinghuo.quote.application.QuoteAdminView;
 import com.xinghuo.quote.application.QuoteAiSuggestionView;

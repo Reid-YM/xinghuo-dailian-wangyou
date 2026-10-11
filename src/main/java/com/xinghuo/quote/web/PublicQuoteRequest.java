@@ -1,4 +1,4 @@
-package com.xinghuo.dto;
+package com.xinghuo.quote.web;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;

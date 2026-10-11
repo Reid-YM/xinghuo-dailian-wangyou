@@ -4,7 +4,6 @@ import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountSessionService;
 import com.xinghuo.account.service.QuoteContactService;
 import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.dto.PublicQuoteRequest;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.siteconfig.application.SiteRuntimeApplicationService;

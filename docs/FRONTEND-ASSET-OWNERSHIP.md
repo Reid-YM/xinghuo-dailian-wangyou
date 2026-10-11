@@ -52,11 +52,15 @@
 
 ## 3. 业务模块
 
-### 账号中心
-- `account.js`：当前账号模块主脚本；
-- `account-center.js` / `account-profile-controller.js`：账号中心增强职责。
+### 账号认证与账号中心
+- `account-auth.js`：登录、注册、邮箱验证码、忘记密码与密码重置的认证页运行时；仅允许 `account-login`、`account-register`、`account-reset` 加载。
+- `account-center.js`：当前个人中心概览及已经拆出的需求、订单、进度页面主运行时；`account.html` 已不再加载 `account.js`。
+- `account.js`：账号工作区的历史主脚本；当前仍由 `account-settings`、`account-submit` 等未完成拆分的页面使用，认证页不得再加载它。
+- `account-profile-controller.js`：账号资料设置增强职责。
 
-后续重构目标：按登录、资料、安全、设备、订单/进度拆分，保持 API 契约不变。
+`account-auth.js` 必须继续遵守账号写接口的安全契约：`X-Requested-With: fetch`、同源 Cookie、同源登录回跳校验以及与后端一致的密码策略。为兼容既有排障入口，认证页暂时继续提供只读 `window.XHAccount` 公共接口。
+
+后续重构目标：从 `account.js` 继续拆出共享 core/API、资料、安全、设备等剩余模块；每一批先转移页面加载边界，再删除旧主脚本中的对应运行时职责，避免一次性重写巨型文件。
 
 ### MW4 工具站
 - `mw4-camo-tracker.js`：当前 `/mastery` 权威脚本；

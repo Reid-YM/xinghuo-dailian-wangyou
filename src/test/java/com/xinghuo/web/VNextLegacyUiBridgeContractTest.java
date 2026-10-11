@@ -20,10 +20,11 @@ class VNextLegacyUiBridgeContractTest {
     @Test
     void sharedBridgeCoversRemainingSurfacesWhileFeatureStylesOwnRetiredSurfaces() throws IOException {
         String css = read("src/main/resources/static/assets/vnext-legacy-bridge-v3.css");
+        String serviceCss = read("src/main/resources/static/assets/service-detail.css");
         String submissionCss = read("src/main/resources/static/assets/account-submit.css");
         String accountCenterRefine = read("src/main/resources/static/assets/account-center-refine.css");
 
-        assertTrue(css.contains("body[data-page=\"service-detail\"]"));
+        assertFalse(css.contains("body[data-page=\"service-detail\"]"));
         assertTrue(css.contains("body[data-page=\"record-detail\"]"));
         assertFalse(css.contains("body.account-center-page"));
         assertTrue(css.contains("body.admin-solid-ui"));
@@ -32,6 +33,11 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(css.contains("@media(min-width:2400px)"));
         assertTrue(css.contains("env(safe-area-inset-bottom"));
         assertTrue(css.contains("prefers-reduced-motion"));
+
+        assertTrue(serviceCss.contains("body[data-page=\"service-detail\"]"));
+        assertTrue(serviceCss.contains(".contact-cta"));
+        assertTrue(serviceCss.contains("@media(min-width:1920px)"));
+        assertTrue(serviceCss.contains("env(safe-area-inset-bottom"));
 
         assertTrue(submissionCss.contains("body[data-page=\"account-submit\"]"));
         assertTrue(submissionCss.contains(".nexus-commandbar"));
@@ -62,6 +68,7 @@ class VNextLegacyUiBridgeContractTest {
         String submitMobile = read("src/main/resources/templates/mobile/account-submit.html");
 
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-legacy-bridge-v3.css"));
+        assertFalse(sharedCss.contains("@import url(\"/assets/service-detail.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/account-submit.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-account-submit-v3.css"));
         assertTrue(bridgeFragment.contains("th:fragment=\"deepPageBridge\""));
@@ -74,8 +81,10 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(accountCenterFragment.contains("th:fragment=\"bar\""));
         assertFalse(accountCenterFragment.contains("fragments/vnext-legacy :: deepPageBridge"));
 
-        assertTrue(serviceDesktop.indexOf("fragments/site :: header") < serviceDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
-        assertTrue(serviceMobile.indexOf("fragments/site :: header") < serviceMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
+        assertTrue(serviceDesktop.contains("/assets/service-detail.css?v=20261011refactor02"));
+        assertTrue(serviceMobile.contains("/assets/service-detail.css?v=20261011refactor02"));
+        assertFalse(serviceDesktop.contains("fragments/vnext-legacy :: deepPageBridge"));
+        assertFalse(serviceMobile.contains("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(recordDesktop.indexOf("fragments/site :: header") < recordDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(recordMobile.indexOf("fragments/site :: header") < recordMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(orderDesktop.indexOf("</header>") < orderDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
@@ -106,6 +115,7 @@ class VNextLegacyUiBridgeContractTest {
         assertFalse(imageRuntime.contains("vnext-legacy-bridge-v3.css"));
         assertFalse(imageRuntime.contains("vnext-account-submit-v3.css"));
         assertFalse(imageRuntime.contains("account-submit.css"));
+        assertFalse(imageRuntime.contains("service-detail.css"));
         assertFalse(imageRuntime.contains("data-vnext-legacy-bridge"));
         assertFalse(imageRuntime.contains("data-account-submit-style"));
         assertTrue(imageRuntime.contains("window.SiteImageControls = { resolveBackground, resolveMain, background, main, serviceCoverVars }"));

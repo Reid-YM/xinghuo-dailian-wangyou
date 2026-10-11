@@ -36,6 +36,26 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
+    void desktopAndMobileHomeOwnIndependentDomWhileKeepingBusinessHooks() throws Exception {
+        String desktop = Files.readString(MAIN.resolve("resources/templates/desktop/index.html"));
+        String mobile = Files.readString(MAIN.resolve("resources/templates/mobile/index.html"));
+        assertFalse(desktop.contains("th:replace=\"~{index :: html}\""));
+        assertFalse(mobile.contains("th:replace=\"~{index :: html}\""));
+        assertTrue(desktop.contains("class=\"xh-desktop-home\""));
+        assertTrue(mobile.contains("class=\"xh-mobile-home\""));
+        assertTrue(desktop.contains("xh-desktop-command"));
+        assertTrue(mobile.contains("xh-mobile-launcher"));
+        assertFalse(desktop.contains("xh-mobile-launcher"));
+        assertFalse(mobile.contains("xh-desktop-command"));
+        for (String hook : new String[]{"id=\"homeHero\"", "id=\"quoteForm\"", "id=\"orderForm\"", "id=\"gameEntrySection\"", "id=\"homeGameRail\"", "id=\"serviceGrid\"", "id=\"hotServices\"", "name=\"privacyConsent\""}) {
+            assertTrue(desktop.contains(hook), "desktop missing " + hook);
+            assertTrue(mobile.contains(hook), "mobile missing " + hook);
+        }
+        assertFalse(desktop.contains("class=\"mobile-dock\""));
+        assertTrue(mobile.contains("class=\"mobile-dock\""));
+    }
+
+    @Test
     void guideAndLoginAdminUseUnifiedWhiteTheme() throws Exception {
         String guides = Files.readString(MAIN.resolve("resources/templates/admin-guides.html"));
         String login = Files.readString(MAIN.resolve("resources/templates/admin-login.html"));

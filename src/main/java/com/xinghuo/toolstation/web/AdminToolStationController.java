@@ -2,8 +2,8 @@ package com.xinghuo.toolstation.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.model.UploadAsset;
 import com.xinghuo.toolstation.application.ToolStationApplicationService;
+import com.xinghuo.upload.infrastructure.UploadAsset;
 import com.xinghuo.upload.infrastructure.UploadService;
 import lombok.Generated;
 import org.springframework.web.bind.annotation.GetMapping;

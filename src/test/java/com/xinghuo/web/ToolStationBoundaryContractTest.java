@@ -59,17 +59,18 @@ class ToolStationBoundaryContractTest {
         assertTrue(publicApi.contains("toolStationMapper.toResponse"));
         assertFalse(publicApi.contains("import com.xinghuo.service.ToolStationService;"));
 
-        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
-        assertFalse(legacyPublicApi.contains("ToolStationApplicationService"));
-        assertFalse(legacyPublicApi.contains("ToolStationWebMapper"));
-        assertFalse(legacyPublicApi.contains("/tool-station"));
-
-        String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
+        String admin = read("src/main/java/com/xinghuo/toolstation/web/AdminToolStationController.java");
+        assertTrue(admin.contains("package com.xinghuo.toolstation.web;"));
         assertTrue(admin.contains("com.xinghuo.toolstation.application.ToolStationApplicationService"));
-        assertTrue(admin.contains("com.xinghuo.toolstation.web.ToolStationWebMapper"));
+        assertTrue(admin.contains("@RequestMapping(value={\"/api/admin/tool-station\"})"));
+        assertTrue(admin.contains("ToolStationWebMapper toolStationMapper"));
         assertTrue(admin.contains("toolStationMapper.toJson"));
         assertTrue(admin.contains("toolStationMapper.toResponse"));
+        assertTrue(admin.contains("SiteImageUploadResponse"));
         assertFalse(admin.contains("import com.xinghuo.service.ToolStationService;"));
+
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/PublicApiController.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/AdminApiController.java")));
     }
 
     @Test

@@ -16,6 +16,8 @@ class FrontendStyleLayerContractTest {
         assertTrue(site.contains("/assets/site-experience-v2.css?v=20261012ux04"));
         assertTrue(site.contains("/assets/site-shell.js?v=20261012ss06"));
         assertTrue(site.contains("/assets/brand-logo.svg?v=20261008logo01"));
+        assertTrue(site.contains("width=\"32\" height=\"32\" decoding=\"async\""));
+        assertFalse(site.contains("style=\"display:block;width:32px;height:32px;flex:0 0 32px;border-radius:8px\""));
         assertFalse(site.contains("brand-dot"));
         assertFalse(site.contains("site-shell.css"));
         assertFalse(site.contains("site-surface-refine.css"));

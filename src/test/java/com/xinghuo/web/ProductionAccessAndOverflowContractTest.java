@@ -16,7 +16,8 @@ class ProductionAccessAndOverflowContractTest {
         String security = Files.readString(MAIN.resolve("java/com/xinghuo/security/SecurityConfig.java"));
         String deviceConfig = Files.readString(MAIN.resolve("java/com/xinghuo/web/DeviceViewConfig.java"));
 
-        assertTrue(security.contains(".requestMatchers(\"/admin\", \"/admin/**\", \"/api/admin/**\")"));
+        assertTrue(security.contains(".requestMatchers(\"/admin\")"));
+        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin/**\")"));
         assertTrue(security.contains(".loginPage(\"/admin/login\")"));
         assertTrue(security.contains(".defaultSuccessUrl(\"/admin\", true)"));
 

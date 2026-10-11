@@ -22,10 +22,15 @@ class AccountAuthBundleContractTest {
     }
 
     @Test
-    void accountWorkspacePagesKeepExistingRuntimeUntilTheirOwnSplit() throws Exception {
-        for (String name : new String[]{"account.html", "account-settings.html", "account-submit.html"}) {
+    void accountWorkspacePagesKeepTheirExistingOwners() throws Exception {
+        String overview = Files.readString(TEMPLATES.resolve("account.html"));
+        assertTrue(overview.contains("/assets/account-center.js"));
+        assertFalse(overview.contains("/assets/account.js"));
+        assertFalse(overview.contains("/assets/account-auth.js"));
+
+        for (String name : new String[]{"account-settings.html", "account-submit.html"}) {
             String html = Files.readString(TEMPLATES.resolve(name));
-            assertTrue(html.contains("/assets/account.js"), name + " still owns account workspace behavior");
+            assertTrue(html.contains("/assets/account.js"), name + " still uses the legacy account workspace runtime");
             assertFalse(html.contains("/assets/account-auth.js"), name + " must not load the auth-only bundle");
         }
     }

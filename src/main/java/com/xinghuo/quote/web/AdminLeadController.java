@@ -1,6 +1,5 @@
 package com.xinghuo.quote.web;
 
-import com.xinghuo.dto.QuoteLeadDtos;
 import com.xinghuo.quote.application.QuoteApplicationService;
 import jakarta.validation.Valid;
 import java.util.UUID;

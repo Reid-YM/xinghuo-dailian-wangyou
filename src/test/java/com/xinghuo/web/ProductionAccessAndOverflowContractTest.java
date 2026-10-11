@@ -46,15 +46,16 @@ class ProductionAccessAndOverflowContractTest {
     }
 
     @Test
-    void finalOverflowLayerLoadsAfterDeviceStylesAndAcrossAdminSurfaces() throws Exception {
+    void finalOverflowLayerLoadsAfterDeviceAndMobileV4StylesAcrossAdminSurfaces() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
         String guard = Files.readString(MAIN.resolve("resources/static/assets/site-overflow-guard.css"));
         String adminFixes = Files.readString(MAIN.resolve("resources/static/assets/admin-brand-layout-fixes.css"));
 
         int desktop = site.indexOf("desktop-storefront.css?v=20261011ds20");
         int mobile = site.indexOf("mobile-storefront.css?v=20261011ds20");
+        int mobileV4 = site.indexOf("mobile-home-v4.css?v=20261012mv401");
         int overflow = site.indexOf("site-overflow-guard.css?v=20261011of01");
-        assertTrue(desktop >= 0 && mobile >= 0 && overflow > desktop && overflow > mobile);
+        assertTrue(desktop >= 0 && mobile >= 0 && mobileV4 > mobile && overflow > desktop && overflow > mobileV4);
         assertTrue(adminFixes.startsWith("@import url('/assets/site-overflow-guard.css?v=20261011of01');"));
 
         assertTrue(guard.contains("overflow-x: clip !important"));

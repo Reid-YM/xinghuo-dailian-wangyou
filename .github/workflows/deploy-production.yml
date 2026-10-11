@@ -135,13 +135,13 @@ jobs:
 
           echo "PASS: deployment target came from a merged Pull Request."
 
-      - name: Require successful main CI
+      - name: Require successful manual main CI
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${DEPLOY_SHA}&branch=main&event=push&per_page=10"
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${DEPLOY_SHA}&branch=main&event=workflow_dispatch&per_page=10"
           json=$(curl -fsSL \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
@@ -151,10 +151,10 @@ jobs:
             .workflow_runs
             | any(.status == "completed" and .conclusion == "success")
           ' >/dev/null || {
-            echo "No successful main CI run found for ${DEPLOY_SHA}."
+            echo "No successful manual main CI run found for ${DEPLOY_SHA}."
             exit 1
           }
-          echo "Main CI is successful for ${DEPLOY_SHA}."
+          echo "Manual main CI is successful for ${DEPLOY_SHA}."
 
       - name: Validate deployment scripts
         shell: bash

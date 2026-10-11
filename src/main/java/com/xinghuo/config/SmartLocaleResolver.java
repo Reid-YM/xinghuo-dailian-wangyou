@@ -27,11 +27,39 @@ implements LocaleResolver {
         if (cookie != null && !cookie.isBlank()) {
             return this.remember(request, WebI18nConfig.normalize(cookie));
         }
+
+        // Authenticated/control surfaces must never depend on an external geo
+        // service. A blocked geo provider used to delay /admin and every admin
+        // API request before the handler could run. Browser language is enough
+        // here; public storefront pages may still use geo as a convenience.
+        if (this.skipGeoLookup(request)) {
+            return this.remember(request, this.fromAcceptLanguage(request));
+        }
+
         String byIp = this.geo.detectLanguage(this.clientIp(request));
         if (byIp != null) {
             return this.remember(request, WebI18nConfig.normalize(byIp));
         }
         return this.remember(request, this.fromAcceptLanguage(request));
+    }
+
+    private boolean skipGeoLookup(HttpServletRequest request) {
+        if (request == null) {
+            return true;
+        }
+        String path = request.getRequestURI();
+        if (path == null || path.isBlank()) {
+            return false;
+        }
+        return path.equals("/login")
+                || path.equals("/logout")
+                || path.equals("/admin")
+                || path.startsWith("/admin/")
+                || path.equals("/account")
+                || path.startsWith("/account/")
+                || path.equals("/console")
+                || path.startsWith("/console/")
+                || path.startsWith("/api/");
     }
 
     private Locale remember(HttpServletRequest request, Locale locale) {

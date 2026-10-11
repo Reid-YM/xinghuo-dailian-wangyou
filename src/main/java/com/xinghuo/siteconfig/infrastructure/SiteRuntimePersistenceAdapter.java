@@ -1,6 +1,5 @@
 package com.xinghuo.siteconfig.infrastructure;
 
-import com.xinghuo.model.SiteConfig;
 import com.xinghuo.siteconfig.application.SiteRuntimePort;
 import com.xinghuo.siteconfig.domain.SiteOperatingStatusCode;
 import com.xinghuo.siteconfig.domain.SiteRuntimeState;

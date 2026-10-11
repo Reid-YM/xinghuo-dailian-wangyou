@@ -1,16 +1,22 @@
 package com.xinghuo.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.model.SiteSetting;
 import com.xinghuo.repository.SiteSettingRepository;
+import com.xinghuo.service.FrontendControlService.Workspace;
 import com.xinghuo.web.DeviceModeResolver.DeviceMode;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -69,6 +75,60 @@ class FrontendControlServiceTest {
         assertEquals("true", desktop.get("homeHeroVisible"));
         assertEquals("100", desktop.get("themeFontScale"));
         assertEquals("0", desktop.get("homeHeroHeight"));
+    }
+
+    @Test
+    void draftDoesNotChangePublishedUntilPublishAndRestoreIsReversible() {
+        Map<String, SiteSetting> store = new LinkedHashMap<>();
+        store.put("homeHeroHeight", setting("homeHeroHeight", "400"));
+        backRepositoryWith(store);
+
+        Workspace draft = service.saveDraft("global", Map.of("homeHeroHeight", "520"));
+        assertEquals("400", draft.published().get("homeHeroHeight"));
+        assertEquals("520", draft.draft().get("homeHeroHeight"));
+        assertTrue(draft.hasDraft());
+        assertEquals("400", service.settings("global").get("homeHeroHeight"));
+
+        Workspace published = service.publishDraft("global");
+        assertEquals("520", published.published().get("homeHeroHeight"));
+        assertFalse(published.hasDraft());
+        assertTrue(published.hasPrevious());
+
+        Workspace restored = service.restorePrevious("global");
+        assertEquals("400", restored.published().get("homeHeroHeight"));
+        assertTrue(restored.hasPrevious(), "restore keeps the replaced version as the new previous snapshot");
+
+        Workspace toggled = service.restorePrevious("global");
+        assertEquals("520", toggled.published().get("homeHeroHeight"));
+    }
+
+    @Test
+    void stagedDeviceInheritanceRemainsDraftUntilPublished() {
+        Map<String, SiteSetting> store = new LinkedHashMap<>();
+        store.put("homeHeroHeight", setting("homeHeroHeight", "300"));
+        store.put("frontend.desktop.homeHeroHeight", setting("frontend.desktop.homeHeroHeight", "500"));
+        backRepositoryWith(store);
+
+        Workspace staged = service.stageGlobalInheritance("desktop");
+        assertEquals("500", staged.published().get("homeHeroHeight"));
+        assertEquals("300", staged.draft().get("homeHeroHeight"));
+        assertTrue(staged.hasDraft());
+        assertTrue(staged.draftInheritGlobal());
+        assertEquals("500", service.settings("desktop").get("homeHeroHeight"));
+
+        Workspace published = service.publishDraft("desktop");
+        assertEquals("300", published.published().get("homeHeroHeight"));
+        assertFalse(published.hasDraft());
+        assertFalse(published.draftInheritGlobal());
+        assertTrue(published.hasPrevious());
+        assertFalse(store.containsKey("frontend.desktop.homeHeroHeight"),
+                "publishing inheritance must clear device overrides instead of copying global values");
+    }
+
+    @Test
+    void rejectsPublishingWithoutDraft() {
+        when(repo.findAll()).thenReturn(List.of());
+        assertThrows(BadRequestException.class, () -> service.publishDraft("mobile"));
     }
 
     @Test
@@ -147,6 +207,21 @@ class FrontendControlServiceTest {
     void rejectsUnknownScope() {
         assertThrows(BadRequestException.class,
                 () -> service.settings("tablet"));
+    }
+
+    private void backRepositoryWith(Map<String, SiteSetting> store) {
+        when(repo.findAll()).thenAnswer(invocation -> List.copyOf(store.values()));
+        when(repo.findById(anyString())).thenAnswer(invocation -> Optional.ofNullable(store.get(invocation.getArgument(0))));
+        when(repo.save(any(SiteSetting.class))).thenAnswer(invocation -> {
+            SiteSetting saved = invocation.getArgument(0);
+            store.put(saved.getSettingKey(), saved);
+            return saved;
+        });
+        doAnswer(invocation -> {
+            Iterable<String> ids = invocation.getArgument(0);
+            ids.forEach(store::remove);
+            return null;
+        }).when(repo).deleteAllById(any());
     }
 
     private SiteSetting setting(String key, String value) {

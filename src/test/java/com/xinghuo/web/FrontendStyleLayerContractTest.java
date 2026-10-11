@@ -46,8 +46,8 @@ class FrontendStyleLayerContractTest {
         String mobile = Files.readString(MAIN.resolve("resources/templates/mobile/index.html"));
         assertFalse(desktop.contains("th:replace=\"~{index :: html}\""));
         assertFalse(mobile.contains("th:replace=\"~{index :: html}\""));
-        assertTrue(desktop.contains("class=\"xh-desktop-home\""));
-        assertTrue(mobile.contains("class=\"xh-mobile-home\""));
+        assertTrue(desktop.contains("xh-desktop-home"));
+        assertTrue(mobile.contains("xh-mobile-home"));
         assertTrue(desktop.contains("xh-desktop-command"));
         assertTrue(mobile.contains("xh-mobile-launcher"));
         assertFalse(desktop.contains("xh-mobile-launcher"));

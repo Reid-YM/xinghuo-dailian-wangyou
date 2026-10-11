@@ -46,7 +46,6 @@ public class FrontendControlService {
             Map.entry("homeToolVisible", "true"),
             Map.entry("homeCasesVisible", "true"),
             Map.entry("homeFaqVisible", "true"),
-            Map.entry("homeContactVisible", "true"),
             Map.entry("motionEnabled", "true"),
             Map.entry("homeHeroKicker", "CODMW4 · 可靠手打 · 纯绿服务 · 进度可查"),
             Map.entry("homePrimaryCtaLabel", "提前询价"),
@@ -90,7 +89,7 @@ public class FrontendControlService {
             "homeHeroMediaVisible", "homeSecondaryCtaVisible", "homeProgressCtaVisible",
             "homeQuotePanelVisible", "homeRecordPanelVisible", "homeGameEntryVisible",
             "homeWhyVisible", "homeLauncherVisible", "homeHotVisible", "homeServicesVisible",
-            "homeToolVisible", "homeCasesVisible", "homeFaqVisible", "homeContactVisible", "motionEnabled"
+            "homeToolVisible", "homeCasesVisible", "homeFaqVisible", "motionEnabled"
     );
 
     private static final Set<String> URL_KEYS = Set.of(
@@ -243,6 +242,7 @@ public class FrontendControlService {
             try {
                 int value = Integer.parseInt(raw);
                 if (value < range.min() || value > range.max()) throw new NumberFormatException();
+                if ("homeCardScale".equals(key) && value != 0 && value < 70) throw new NumberFormatException();
                 return String.valueOf(value);
             } catch (NumberFormatException ex) {
                 throw new BadRequestException("前端数值超出允许范围：" + key);

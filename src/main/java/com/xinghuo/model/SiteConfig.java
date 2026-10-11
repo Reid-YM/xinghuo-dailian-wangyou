@@ -57,16 +57,6 @@ public class SiteConfig {
     private boolean showStartingPrice;
     @Column(name="home_service_limit", nullable=false)
     private int homeServiceLimit;
-    @Column(name="home_service_mobile_limit", nullable=false)
-    private int homeServiceMobileLimit;
-    @Column(name="home_service_desktop_columns", nullable=false)
-    private int homeServiceDesktopColumns;
-    @Column(name="home_service_mobile_columns", nullable=false)
-    private int homeServiceMobileColumns;
-    @Column(name="service_card_density", nullable=false, length=16)
-    private String serviceCardDensity;
-    @Column(name="service_card_mobile_density", nullable=false, length=16)
-    private String serviceCardMobileDensity;
     @Column(name="hero_image", length=500)
     private String heroImage;
     @Column(name="hero_image_height", nullable=false)
@@ -77,20 +67,8 @@ public class SiteConfig {
     private int heroImagePositionX;
     @Column(name="hero_image_position_y", nullable=false)
     private int heroImagePositionY;
-    @Column(name="hero_image_mobile_height", nullable=false)
-    private int heroImageMobileHeight;
-    @Column(name="hero_image_mobile_fit", nullable=false, length=16)
-    private String heroImageMobileFit;
-    @Column(name="hero_image_mobile_position_x", nullable=false)
-    private int heroImageMobilePositionX;
-    @Column(name="hero_image_mobile_position_y", nullable=false)
-    private int heroImageMobilePositionY;
     @Column(name="hero_background_image", length=500)
     private String heroBackgroundImage;
-    @Column(name="hero_background_mobile_image", length=500)
-    private String heroBackgroundMobileImage;
-    @Column(name="hero_background_mobile_height", nullable=false)
-    private int heroBackgroundMobileHeight;
     @Column(name="hero_background_opacity", nullable=false)
     private int heroBackgroundOpacity;
     @Column(name="hero_background_fit", nullable=false, length=16)
@@ -101,12 +79,6 @@ public class SiteConfig {
     private int heroBackgroundPositionY;
     @Column(name="hero_background_blur", nullable=false)
     private int heroBackgroundBlur;
-    @Column(name="hero_background_mobile_fit", nullable=false, length=16)
-    private String heroBackgroundMobileFit;
-    @Column(name="hero_background_mobile_position_x", nullable=false)
-    private int heroBackgroundMobilePositionX;
-    @Column(name="hero_background_mobile_position_y", nullable=false)
-    private int heroBackgroundMobilePositionY;
     @Column(name="service_cover_height", nullable=false)
     private int serviceCoverHeight;
     @Column(name="service_cover_fit", nullable=false, length=16)
@@ -115,28 +87,12 @@ public class SiteConfig {
     private int serviceCoverPositionX;
     @Column(name="service_cover_position_y", nullable=false)
     private int serviceCoverPositionY;
-    @Column(name="service_cover_mobile_height", nullable=false)
-    private int serviceCoverMobileHeight;
-    @Column(name="service_cover_mobile_fit", nullable=false, length=16)
-    private String serviceCoverMobileFit;
-    @Column(name="service_cover_mobile_position_x", nullable=false)
-    private int serviceCoverMobilePositionX;
-    @Column(name="service_cover_mobile_position_y", nullable=false)
-    private int serviceCoverMobilePositionY;
     @Column(name="trust_tags", nullable=false, length=500)
     private String trustTags;
     @Column(name="trust_cases", columnDefinition="TEXT")
     private String trustCases;
-    @Column(name="trust_case_home_limit", nullable=false)
-    private int trustCaseHomeLimit;
-    @Column(name="trust_case_home_mobile_limit", nullable=false)
-    private int trustCaseHomeMobileLimit;
     @Column(name="trust_faq", columnDefinition="TEXT")
     private String trustFaq;
-    @Column(name="trust_faq_home_limit", nullable=false)
-    private int trustFaqHomeLimit;
-    @Column(name="trust_faq_home_mobile_limit", nullable=false)
-    private int trustFaqHomeMobileLimit;
     @Column(name="announcement_enabled", nullable=false)
     private boolean announcementEnabled;
     @Column(name="announcement_text", length=240)
@@ -153,10 +109,6 @@ public class SiteConfig {
     private int wechatQrSize;
     @Column(name="contact_channels", columnDefinition="TEXT")
     private String contactChannels;
-    @Column(name="home_contact_limit", nullable=false)
-    private int homeContactLimit;
-    @Column(name="home_contact_mobile_limit", nullable=false)
-    private int homeContactMobileLimit;
     @Column(name="qq_id", length=100)
     private String qqId;
     @Column(name="qq_link", length=500)
@@ -280,31 +232,6 @@ public class SiteConfig {
     }
 
     @Generated
-    public int getHomeServiceMobileLimit() {
-        return this.homeServiceMobileLimit;
-    }
-
-    @Generated
-    public int getHomeServiceDesktopColumns() {
-        return this.homeServiceDesktopColumns;
-    }
-
-    @Generated
-    public int getHomeServiceMobileColumns() {
-        return this.homeServiceMobileColumns;
-    }
-
-    @Generated
-    public String getServiceCardDensity() {
-        return this.serviceCardDensity;
-    }
-
-    @Generated
-    public String getServiceCardMobileDensity() {
-        return this.serviceCardMobileDensity;
-    }
-
-    @Generated
     public String getHeroImage() {
         return this.heroImage;
     }
@@ -330,38 +257,8 @@ public class SiteConfig {
     }
 
     @Generated
-    public int getHeroImageMobileHeight() {
-        return this.heroImageMobileHeight;
-    }
-
-    @Generated
-    public String getHeroImageMobileFit() {
-        return this.heroImageMobileFit;
-    }
-
-    @Generated
-    public int getHeroImageMobilePositionX() {
-        return this.heroImageMobilePositionX;
-    }
-
-    @Generated
-    public int getHeroImageMobilePositionY() {
-        return this.heroImageMobilePositionY;
-    }
-
-    @Generated
     public String getHeroBackgroundImage() {
         return this.heroBackgroundImage;
-    }
-
-    @Generated
-    public String getHeroBackgroundMobileImage() {
-        return this.heroBackgroundMobileImage;
-    }
-
-    @Generated
-    public int getHeroBackgroundMobileHeight() {
-        return this.heroBackgroundMobileHeight;
     }
 
     @Generated
@@ -390,21 +287,6 @@ public class SiteConfig {
     }
 
     @Generated
-    public String getHeroBackgroundMobileFit() {
-        return this.heroBackgroundMobileFit;
-    }
-
-    @Generated
-    public int getHeroBackgroundMobilePositionX() {
-        return this.heroBackgroundMobilePositionX;
-    }
-
-    @Generated
-    public int getHeroBackgroundMobilePositionY() {
-        return this.heroBackgroundMobilePositionY;
-    }
-
-    @Generated
     public int getServiceCoverHeight() {
         return this.serviceCoverHeight;
     }
@@ -425,26 +307,6 @@ public class SiteConfig {
     }
 
     @Generated
-    public int getServiceCoverMobileHeight() {
-        return this.serviceCoverMobileHeight;
-    }
-
-    @Generated
-    public String getServiceCoverMobileFit() {
-        return this.serviceCoverMobileFit;
-    }
-
-    @Generated
-    public int getServiceCoverMobilePositionX() {
-        return this.serviceCoverMobilePositionX;
-    }
-
-    @Generated
-    public int getServiceCoverMobilePositionY() {
-        return this.serviceCoverMobilePositionY;
-    }
-
-    @Generated
     public String getTrustTags() {
         return this.trustTags;
     }
@@ -455,28 +317,8 @@ public class SiteConfig {
     }
 
     @Generated
-    public int getTrustCaseHomeLimit() {
-        return this.trustCaseHomeLimit;
-    }
-
-    @Generated
-    public int getTrustCaseHomeMobileLimit() {
-        return this.trustCaseHomeMobileLimit;
-    }
-
-    @Generated
     public String getTrustFaq() {
         return this.trustFaq;
-    }
-
-    @Generated
-    public int getTrustFaqHomeLimit() {
-        return this.trustFaqHomeLimit;
-    }
-
-    @Generated
-    public int getTrustFaqHomeMobileLimit() {
-        return this.trustFaqHomeMobileLimit;
     }
 
     @Generated
@@ -517,16 +359,6 @@ public class SiteConfig {
     @Generated
     public String getContactChannels() {
         return this.contactChannels;
-    }
-
-    @Generated
-    public int getHomeContactLimit() {
-        return this.homeContactLimit;
-    }
-
-    @Generated
-    public int getHomeContactMobileLimit() {
-        return this.homeContactMobileLimit;
     }
 
     @Generated
@@ -715,31 +547,6 @@ public class SiteConfig {
     }
 
     @Generated
-    public void setHomeServiceMobileLimit(int homeServiceMobileLimit) {
-        this.homeServiceMobileLimit = homeServiceMobileLimit;
-    }
-
-    @Generated
-    public void setHomeServiceDesktopColumns(int homeServiceDesktopColumns) {
-        this.homeServiceDesktopColumns = homeServiceDesktopColumns;
-    }
-
-    @Generated
-    public void setHomeServiceMobileColumns(int homeServiceMobileColumns) {
-        this.homeServiceMobileColumns = homeServiceMobileColumns;
-    }
-
-    @Generated
-    public void setServiceCardDensity(String serviceCardDensity) {
-        this.serviceCardDensity = serviceCardDensity;
-    }
-
-    @Generated
-    public void setServiceCardMobileDensity(String serviceCardMobileDensity) {
-        this.serviceCardMobileDensity = serviceCardMobileDensity;
-    }
-
-    @Generated
     public void setHeroImage(String heroImage) {
         this.heroImage = heroImage;
     }
@@ -765,38 +572,8 @@ public class SiteConfig {
     }
 
     @Generated
-    public void setHeroImageMobileHeight(int heroImageMobileHeight) {
-        this.heroImageMobileHeight = heroImageMobileHeight;
-    }
-
-    @Generated
-    public void setHeroImageMobileFit(String heroImageMobileFit) {
-        this.heroImageMobileFit = heroImageMobileFit;
-    }
-
-    @Generated
-    public void setHeroImageMobilePositionX(int heroImageMobilePositionX) {
-        this.heroImageMobilePositionX = heroImageMobilePositionX;
-    }
-
-    @Generated
-    public void setHeroImageMobilePositionY(int heroImageMobilePositionY) {
-        this.heroImageMobilePositionY = heroImageMobilePositionY;
-    }
-
-    @Generated
     public void setHeroBackgroundImage(String heroBackgroundImage) {
         this.heroBackgroundImage = heroBackgroundImage;
-    }
-
-    @Generated
-    public void setHeroBackgroundMobileImage(String heroBackgroundMobileImage) {
-        this.heroBackgroundMobileImage = heroBackgroundMobileImage;
-    }
-
-    @Generated
-    public void setHeroBackgroundMobileHeight(int heroBackgroundMobileHeight) {
-        this.heroBackgroundMobileHeight = heroBackgroundMobileHeight;
     }
 
     @Generated
@@ -825,21 +602,6 @@ public class SiteConfig {
     }
 
     @Generated
-    public void setHeroBackgroundMobileFit(String heroBackgroundMobileFit) {
-        this.heroBackgroundMobileFit = heroBackgroundMobileFit;
-    }
-
-    @Generated
-    public void setHeroBackgroundMobilePositionX(int heroBackgroundMobilePositionX) {
-        this.heroBackgroundMobilePositionX = heroBackgroundMobilePositionX;
-    }
-
-    @Generated
-    public void setHeroBackgroundMobilePositionY(int heroBackgroundMobilePositionY) {
-        this.heroBackgroundMobilePositionY = heroBackgroundMobilePositionY;
-    }
-
-    @Generated
     public void setServiceCoverHeight(int serviceCoverHeight) {
         this.serviceCoverHeight = serviceCoverHeight;
     }
@@ -860,26 +622,6 @@ public class SiteConfig {
     }
 
     @Generated
-    public void setServiceCoverMobileHeight(int serviceCoverMobileHeight) {
-        this.serviceCoverMobileHeight = serviceCoverMobileHeight;
-    }
-
-    @Generated
-    public void setServiceCoverMobileFit(String serviceCoverMobileFit) {
-        this.serviceCoverMobileFit = serviceCoverMobileFit;
-    }
-
-    @Generated
-    public void setServiceCoverMobilePositionX(int serviceCoverMobilePositionX) {
-        this.serviceCoverMobilePositionX = serviceCoverMobilePositionX;
-    }
-
-    @Generated
-    public void setServiceCoverMobilePositionY(int serviceCoverMobilePositionY) {
-        this.serviceCoverMobilePositionY = serviceCoverMobilePositionY;
-    }
-
-    @Generated
     public void setTrustTags(String trustTags) {
         this.trustTags = trustTags;
     }
@@ -890,28 +632,8 @@ public class SiteConfig {
     }
 
     @Generated
-    public void setTrustCaseHomeLimit(int trustCaseHomeLimit) {
-        this.trustCaseHomeLimit = trustCaseHomeLimit;
-    }
-
-    @Generated
-    public void setTrustCaseHomeMobileLimit(int trustCaseHomeMobileLimit) {
-        this.trustCaseHomeMobileLimit = trustCaseHomeMobileLimit;
-    }
-
-    @Generated
     public void setTrustFaq(String trustFaq) {
         this.trustFaq = trustFaq;
-    }
-
-    @Generated
-    public void setTrustFaqHomeLimit(int trustFaqHomeLimit) {
-        this.trustFaqHomeLimit = trustFaqHomeLimit;
-    }
-
-    @Generated
-    public void setTrustFaqHomeMobileLimit(int trustFaqHomeMobileLimit) {
-        this.trustFaqHomeMobileLimit = trustFaqHomeMobileLimit;
     }
 
     @Generated
@@ -952,16 +674,6 @@ public class SiteConfig {
     @Generated
     public void setContactChannels(String contactChannels) {
         this.contactChannels = contactChannels;
-    }
-
-    @Generated
-    public void setHomeContactLimit(int homeContactLimit) {
-        this.homeContactLimit = homeContactLimit;
-    }
-
-    @Generated
-    public void setHomeContactMobileLimit(int homeContactMobileLimit) {
-        this.homeContactMobileLimit = homeContactMobileLimit;
     }
 
     @Generated
@@ -1634,4 +1346,3 @@ public class SiteConfig {
 
     }
 }
-

@@ -64,12 +64,11 @@ class SlotBoundaryContractTest {
         String mapper = read("src/main/java/com/xinghuo/slot/web/SlotWebMapper.java");
         String update = read("src/main/java/com/xinghuo/slot/web/SlotUpdate.java");
         String response = read("src/main/java/com/xinghuo/slot/web/SlotResponse.java");
-        assertFalse(mapper.contains("ApiDtos.SlotUpdate"));
-        assertFalse(mapper.contains("ApiDtos.SlotResponse"));
-        assertTrue(mapper.contains("ApiDtos.ServiceResponse"));
+        assertFalse(mapper.contains("com.xinghuo.dto.ApiDtos"));
+        assertFalse(mapper.contains("ApiDtos.ServiceResponse"));
         assertTrue(mapper.contains("UpdateSlotCommand"));
         assertTrue(mapper.contains("SlotView"));
-        assertTrue(mapper.contains("SlotPublicServiceView"));
+        assertFalse(mapper.contains("SlotPublicServiceView"));
         assertTrue(update.contains("@Min(value=1L) @Max(value=2L) @Min(value=1L) @Max(value=2L) int slotNo"));
         assertTrue(update.contains("@Size(max=500) @Size(max=500) String reason"));
         assertTrue(response.contains("record SlotResponse(int slotNo, Long serviceId, String serviceName, String mode)"));

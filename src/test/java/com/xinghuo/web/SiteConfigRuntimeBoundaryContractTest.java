@@ -104,16 +104,34 @@ class SiteConfigRuntimeBoundaryContractTest {
     }
 
     @Test
-    void publicSiteConfigEndpointUsesQueryBoundaryAndWebMapper() throws IOException {
+    void publicSiteConfigEndpointUsesQueryBoundaryAndOwnedWebMapper() throws IOException {
         String publicApi = read("src/main/java/com/xinghuo/siteconfig/web/PublicSiteConfigController.java");
         assertTrue(publicApi.contains("package com.xinghuo.siteconfig.web;"));
         assertTrue(publicApi.contains("com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService"));
         assertTrue(publicApi.contains("@RequestMapping(value={\"/api/site-config\"})"));
         assertTrue(publicApi.contains("SiteConfigWebMapper.toResponse(this.siteConfig.get())"));
+        assertTrue(publicApi.contains("SiteConfigResponse config()"));
+        assertFalse(publicApi.contains("com.xinghuo.dto.ApiDtos"));
 
         String mapper = read("src/main/java/com/xinghuo/siteconfig/web/SiteConfigWebMapper.java");
-        assertTrue(mapper.contains("com.xinghuo.dto.ApiDtos"));
-        assertTrue(mapper.contains("ApiDtos.SiteConfigResponse"));
+        assertFalse(mapper.contains("com.xinghuo.dto.ApiDtos"));
+        assertFalse(mapper.contains("SlotWebMapper"));
+        assertTrue(mapper.contains("new SiteConfigResponse("));
+        assertTrue(mapper.contains("SlotPublicServiceView"));
+    }
+
+    @Test
+    void siteConfigWebOwnsEstablishedProtocolContracts() throws IOException {
+        String response = read("src/main/java/com/xinghuo/siteconfig/web/SiteConfigResponse.java");
+        String update = read("src/main/java/com/xinghuo/siteconfig/web/SiteConfigUpdate.java");
+        String service = read("src/main/java/com/xinghuo/siteconfig/web/ServiceResponse.java");
+        assertTrue(response.contains("List<ServiceResponse> hotServices"));
+        assertTrue(response.contains("String heroBackgroundMobileImage"));
+        assertTrue(response.contains("String wecomKefuUrl"));
+        assertTrue(update.contains("@NotNull @DecimalMin(value=\"0.00\") @NotNull @DecimalMin(value=\"0.00\") BigDecimal startingPrice"));
+        assertTrue(update.contains("@Min(value=0L) @Max(value=24L) @Min(value=0L) @Max(value=24L) int heroBackgroundBlur"));
+        assertTrue(update.contains("@Size(max=500) @Size(max=500) String reason"));
+        assertTrue(service.contains("BigDecimal priceFixed"));
     }
 
     @Test
@@ -127,18 +145,21 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(admin.contains("configWrites.update("));
         assertTrue(admin.contains("configWrites.updateSiteImage("));
         assertTrue(admin.contains("@RequestMapping(value={\"/api/admin/site-config\"})"));
+        assertTrue(admin.contains("@RequestBody SiteConfigUpdate r"));
+        assertFalse(admin.contains("com.xinghuo.dto.ApiDtos"));
         assertFalse(admin.contains("com.xinghuo.service.SiteConfigService"));
     }
 
     @Test
     void webWriteOrchestratorOwnsProtocolAuditAndTransactionalSnapshots() throws IOException {
         String web = read("src/main/java/com/xinghuo/siteconfig/web/SiteConfigWriteWebService.java");
-        assertTrue(web.contains("com.xinghuo.dto.ApiDtos"));
+        assertFalse(web.contains("com.xinghuo.dto.ApiDtos"));
         assertTrue(web.contains("com.xinghuo.audit.infrastructure.AuditService"));
         assertTrue(web.contains("jakarta.servlet.http.HttpServletRequest"));
         assertTrue(web.contains("@Transactional"));
         assertTrue(web.contains("SITE_IMAGE_UPDATE"));
         assertTrue(web.contains("SITE_CONFIG_UPDATE"));
+        assertTrue(web.contains("SiteConfigResponse before = current()"));
         assertTrue(web.contains("SiteConfigWebMapper.toResponse(query.get())"));
     }
 

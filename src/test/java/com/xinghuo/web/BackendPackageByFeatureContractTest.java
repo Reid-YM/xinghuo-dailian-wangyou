@@ -32,6 +32,7 @@ class BackendPackageByFeatureContractTest {
         assertFalse(Files.exists(MAIN.resolve("controller")), "global controller package must stay retired");
         assertFalse(Files.exists(MAIN.resolve("repository")), "global repository package must stay retired");
         assertFalse(Files.exists(MAIN.resolve("service")), "global service package must stay retired");
+        assertFalse(Files.exists(MAIN.resolve("model")), "global model package must stay retired");
     }
 
     @Test
@@ -42,6 +43,7 @@ class BackendPackageByFeatureContractTest {
                 assertFalse(source.contains("com.xinghuo.controller."), file + " references retired controller package");
                 assertFalse(source.contains("com.xinghuo.repository."), file + " references retired repository package");
                 assertFalse(source.contains("com.xinghuo.service."), file + " references retired service package");
+                assertFalse(source.contains("com.xinghuo.model."), file + " references retired model package");
             }
         }
     }
@@ -74,6 +76,7 @@ class BackendPackageByFeatureContractTest {
                 "order/infrastructure/CustomerOrderRepository.java",
                 "catalog/infrastructure/ServiceItemRepository.java",
                 "siteconfig/infrastructure/SiteConfigRepository.java",
+                "sitesetting/infrastructure/SiteSettingRepository.java",
                 "upload/infrastructure/UploadAssetRepository.java",
                 "taxonomy/infrastructure/GameCatalogRepository.java",
                 "taxonomy/infrastructure/ServiceCategoryCatalogRepository.java")) {

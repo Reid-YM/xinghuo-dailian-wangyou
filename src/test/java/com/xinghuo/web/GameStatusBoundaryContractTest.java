@@ -59,16 +59,17 @@ class GameStatusBoundaryContractTest {
         assertFalse(publicApi.contains("import com.xinghuo.model.GameStatus;"));
         assertFalse(publicApi.contains("import com.xinghuo.service.GameStatusService;"));
 
-        String legacyPublicApi = read("src/main/java/com/xinghuo/controller/PublicApiController.java");
-        assertFalse(legacyPublicApi.contains("GameStatusApplicationService"));
-        assertFalse(legacyPublicApi.contains("/public/game-status"));
-
-        String admin = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
+        String admin = read("src/main/java/com/xinghuo/gamestatus/web/AdminGameStatusController.java");
+        assertTrue(admin.contains("package com.xinghuo.gamestatus.web;"));
         assertTrue(admin.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
+        assertTrue(admin.contains("@RequestMapping(value={\"/api/admin/game-status\"})"));
         assertTrue(admin.contains("GameStatusWebMapper.toCommand"));
         assertTrue(admin.contains("GameStatusWebMapper.toAdminResponse"));
         assertFalse(admin.contains("import com.xinghuo.model.GameStatus;"));
         assertFalse(admin.contains("import com.xinghuo.service.GameStatusService;"));
+
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/PublicApiController.java")));
+        assertFalse(Files.exists(ROOT.resolve("src/main/java/com/xinghuo/controller/AdminApiController.java")));
 
         String runtime = read("src/main/java/com/xinghuo/siteconfig/application/SiteRuntimeApplicationService.java");
         assertTrue(runtime.contains("com.xinghuo.gamestatus.application.GameStatusApplicationService"));
@@ -86,10 +87,12 @@ class GameStatusBoundaryContractTest {
     void persistenceAdapterOwnsJpaValidationAndAudit() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/gamestatus/infrastructure/GameStatusPersistenceAdapter.java");
         assertTrue(adapter.contains("implements GameStatusPort"));
-        assertTrue(adapter.contains("com.xinghuo.repository.GameStatusRepository"));
-        assertTrue(adapter.contains("com.xinghuo.model.GameStatus"));
+        assertTrue(adapter.contains("private final GameStatusRepository repo;"));
+        assertTrue(adapter.contains("GameStatus.builder()"));
         assertTrue(adapter.contains("com.xinghuo.audit.infrastructure.AuditService"));
         assertTrue(adapter.contains("GAME_STATUS_UPDATE"));
+        assertFalse(adapter.contains("com.xinghuo.repository.GameStatusRepository"));
+        assertFalse(adapter.contains("com.xinghuo.model.GameStatus"));
         assertFalse(adapter.contains("com.xinghuo.dto"));
         assertFalse(adapter.contains("com.xinghuo.service.GameStatusService"));
     }

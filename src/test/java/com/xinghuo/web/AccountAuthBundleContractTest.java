@@ -26,17 +26,22 @@ class AccountAuthBundleContractTest {
     }
 
     @Test
-    void accountWorkspacePagesKeepTheirExistingOwners() throws Exception {
+    void accountWorkspacePagesUseCurrentDedicatedOwners() throws Exception {
         String overview = Files.readString(TEMPLATES.resolve("account.html"));
         assertTrue(overview.contains("/assets/account-center.js"));
         assertFalse(overview.contains("/assets/account.js"));
         assertFalse(overview.contains("/assets/account-auth.js"));
 
-        for (String name : new String[]{"account-settings.html", "account-submit.html"}) {
-            String html = Files.readString(TEMPLATES.resolve(name));
-            assertTrue(html.contains("/assets/account.js"), name + " still uses the legacy account workspace runtime");
-            assertFalse(html.contains("/assets/account-auth.js"), name + " must not load the auth-only bundle");
-        }
+        String submit = Files.readString(TEMPLATES.resolve("account-submit.html"));
+        assertTrue(submit.contains("/assets/account-core.js?v=20261012ac01"));
+        assertTrue(submit.contains("/assets/account-submit.js?v=20261012as01"));
+        assertFalse(submit.contains("/assets/account.js"));
+        assertFalse(submit.contains("/assets/account-auth.js"));
+
+        String settings = Files.readString(TEMPLATES.resolve("account-settings.html"));
+        assertTrue(settings.contains("/assets/account.js"), "account-settings.html still uses the legacy account workspace runtime");
+        assertFalse(settings.contains("/assets/account-auth.js"));
+        assertFalse(settings.contains("/assets/account-submit.js"));
     }
 
     @Test

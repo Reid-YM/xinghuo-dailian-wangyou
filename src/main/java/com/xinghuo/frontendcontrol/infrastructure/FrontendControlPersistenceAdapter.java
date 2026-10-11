@@ -1,8 +1,8 @@
 package com.xinghuo.frontendcontrol.infrastructure;
 
 import com.xinghuo.frontendcontrol.application.FrontendControlPort;
-import com.xinghuo.model.SiteSetting;
-import com.xinghuo.repository.SiteSettingRepository;
+import com.xinghuo.sitesetting.infrastructure.SiteSetting;
+import com.xinghuo.sitesetting.infrastructure.SiteSettingRepository;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;

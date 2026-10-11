@@ -20,8 +20,10 @@ class AdminUserSecurityAdapterContractTest {
     void adminUserDetailsLivesInSecurityInfrastructure() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/security/infrastructure/AdminUserDetailsService.java");
         assertTrue(adapter.contains("implements UserDetailsService"));
-        assertTrue(adapter.contains("com.xinghuo.repository.AdminUserRepository"));
-        assertTrue(adapter.contains("com.xinghuo.model.AdminUser"));
+        assertTrue(adapter.contains("private final AdminUserRepository repo;"));
+        assertTrue(adapter.contains("AdminUser user = repo.findByUsername(username)"));
+        assertFalse(adapter.contains("com.xinghuo.repository.AdminUserRepository"));
+        assertFalse(adapter.contains("com.xinghuo.model.AdminUser"));
         assertTrue(adapter.contains("roles(user.getRole().name())"));
         assertTrue(adapter.contains("disabled(!user.isEnabled())"));
     }

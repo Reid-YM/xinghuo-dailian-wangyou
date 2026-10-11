@@ -10,6 +10,7 @@
 </head>
 <body data-page="account-submit" class="nexus-page">
 <header th:replace="~{fragments/site :: header}"></header>
+<th:block th:replace="~{fragments/vnext-legacy :: accountSubmitBridge}"></th:block>
 <main id="submissionConsole" class="nexus">
   <header class="nexus-commandbar"><div class="nexus-command-title"><span>攻略投稿控制台</span><i>草稿、预览与审核进度</i></div><nav aria-label="快捷导航"><a href="/account">个人空间</a><a href="/guides">攻略中心</a><a href="/contact">编辑咨询</a><button type="button" data-account-logout>安全退出</button></nav></header>
   <div class="nexus-frame">

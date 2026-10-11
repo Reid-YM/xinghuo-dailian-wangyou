@@ -88,6 +88,8 @@ class FrontendControlServiceTest {
         assertThrows(BadRequestException.class,
                 () -> service.update(Map.of("homeHeroHeight", "901")));
         assertThrows(BadRequestException.class,
+                () -> service.update(Map.of("homeCardScale", "50")));
+        assertThrows(BadRequestException.class,
                 () -> service.update(Map.of("homeCardScale", "141")));
     }
 

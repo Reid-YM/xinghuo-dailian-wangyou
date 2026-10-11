@@ -116,11 +116,12 @@ class FrontendControlV3PlaywrightTest {
                     "V3 must not expose an empty data-driven case section merely because the feature is allowed");
             assertEquals(Boolean.TRUE, page.locator("#gameEntrySection").evaluate("el => el.hidden"),
                     "V3 must leave data-driven game visibility to the business loader when enabled");
-            assertEquals("服务V3", page.locator(".mobile-dock a[href='/services']").textContent());
-            assertEquals("攻略V3", page.locator(".mobile-dock a[href='/guides']").textContent());
-            assertEquals("记录V3", page.locator(".mobile-dock a[href='/records']").textContent());
-            assertEquals("客服V3", page.locator(".mobile-dock a[href='/contact']").textContent());
-            assertEquals("询价V3", page.locator(".mobile-dock [data-primary-cta]").textContent());
+
+            assertEquals("询价V3", page.locator(".mobile-dock [data-dock-key='home'] .mobile-dock-label").textContent());
+            assertEquals("服务V3", page.locator(".mobile-dock [data-dock-key='services'] .mobile-dock-label").textContent());
+            assertEquals("记录V3", page.locator(".mobile-dock [data-dock-key='records'] .mobile-dock-label").textContent());
+            assertEquals("攻略V3", page.locator(".mobile-dock [data-dock-key='tools'] .mobile-dock-label").textContent());
+            assertEquals("客服V3", page.locator(".mobile-dock [data-dock-key='account'] .mobile-dock-label").textContent());
             Number padding = (Number) page.locator(".service-card").evaluate("el => parseFloat(getComputedStyle(el).paddingTop)");
             assertEquals(19.0, padding.doubleValue(), 0.1);
         }
@@ -182,7 +183,13 @@ class FrontendControlV3PlaywrightTest {
                     <section id="publicCaseSection" hidden></section>
                     <section class="xh-mobile-faq"></section>
                   </main>
-                  <nav class="mobile-dock"><a href="/services">服务</a><a href="/guides">攻略</a><a href="/records">记录</a><a href="/contact">客服</a><a href="#quick-actions" data-primary-cta>询价</a></nav>
+                  <nav class="mobile-dock">
+                    <a data-dock-key="home"><span class="mobile-dock-label">首页</span></a>
+                    <a data-dock-key="services"><span class="mobile-dock-label">服务</span></a>
+                    <a data-dock-key="records"><span class="mobile-dock-label">进度</span></a>
+                    <a data-dock-key="tools"><span class="mobile-dock-label">工具</span></a>
+                    <a data-dock-key="account"><span class="mobile-dock-label">我的</span></a>
+                  </nav>
                   <footer></footer>
                 </body></html>
                 """;

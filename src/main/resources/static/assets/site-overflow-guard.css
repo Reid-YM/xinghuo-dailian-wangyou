@@ -1,0 +1,199 @@
+/*
+ * 2026-10-11 production overflow guard.
+ *
+ * This file is intentionally loaded after the historical application and
+ * device styles. It owns only containment/responsiveness rules so older
+ * visual layers do not need to be rewritten during a production hotfix.
+ */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip !important;
+}
+
+body {
+  position: relative;
+}
+
+:where(main, section, article, aside, nav, header, footer, div, form, fieldset) {
+  min-width: 0;
+}
+
+:where(img, picture, video, canvas, svg, iframe) {
+  max-width: 100%;
+}
+
+img,
+picture,
+video,
+canvas {
+  height: auto;
+}
+
+:where(h1, h2, h3, h4, h5, h6, p, li, dd, dt, a, span, strong, small, label) {
+  overflow-wrap: anywhere;
+}
+
+pre {
+  max-width: 100%;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+code {
+  overflow-wrap: anywhere;
+}
+
+:where(input, select, textarea, button, .btn) {
+  max-width: 100%;
+}
+
+:where(
+  .container,
+  .page-shell,
+  .page-main,
+  .card,
+  .grid2,
+  .grid3,
+  .grid4,
+  .admin-shell,
+  .admin-main,
+  .admin-content,
+  .admin-right-rail,
+  .sidebar,
+  .account-center-shell,
+  .console-shell,
+  .quote-layout,
+  .service-browser-layout,
+  .tool-shell,
+  .nexus,
+  .xh-desktop-home,
+  .xh-mobile-home
+) {
+  min-width: 0 !important;
+  max-width: 100%;
+}
+
+/* Wide data stays scrollable inside its own surface instead of widening body. */
+:where(.table-wrap, .filters, .home-game-rail, .hot-rail, .mobile-x-scroll) {
+  max-width: 100%;
+  overscroll-behavior-inline: contain;
+}
+
+.table-wrap {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrap > table,
+.table-wrap > .table {
+  max-width: none;
+}
+
+/* Historical full-bleed 100vw rules can gain scrollbar-width pixels. */
+body[data-page="home"] #homeHero,
+body[data-page="home"] .home-hero,
+html[data-device-mode="desktop"] .xh-desktop-hero,
+html[data-device-mode="mobile"] .xh-mobile-hero {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Admin is an authenticated control surface, not a storefront canvas. */
+body.admin-solid-ui,
+body.admin-login-ui {
+  min-width: 0 !important;
+  max-width: 100%;
+  overflow-x: clip !important;
+}
+
+body.admin-solid-ui .admin-shell,
+body.admin-solid-ui .admin-shell.admin-shell-with-rail,
+body.admin-solid-ui .admin-shell.admin-shell-with-rail > *,
+body.admin-solid-ui .admin-main,
+body.admin-solid-ui .admin-content,
+body.admin-solid-ui .admin-right-rail,
+body.admin-solid-ui .sidebar {
+  min-width: 0 !important;
+  max-width: 100%;
+}
+
+body.admin-solid-ui .admin-main :where(.card, .toolbar, .filters, .form-grid, .grid2, .grid3, .grid4) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Desktop-class tablets and narrower notebook windows must stack before their
+ * fixed secondary columns can force a root-level horizontal scrollbar. */
+@media (max-width: 1180px) {
+  html[data-device-mode="desktop"] .xh-desktop-hero,
+  html[data-device-mode="desktop"] .xh-desktop-command,
+  html[data-device-mode="desktop"] .xh-desktop-lower-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-device-mode="desktop"] .xh-desktop-hero-stage {
+    min-height: 360px;
+  }
+
+  html[data-device-mode="desktop"] .xh-desktop-extra-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  body.admin-solid-ui .admin-shell,
+  body.admin-solid-ui .admin-shell.admin-shell-with-rail {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.admin-solid-ui .sidebar,
+  body.admin-solid-ui .admin-right-rail {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  html[data-device-mode="desktop"] .xh-desktop-quote-grid,
+  html[data-device-mode="desktop"] .xh-desktop-extra-grid,
+  html[data-device-mode="desktop"] .xh-desktop-faq-grid,
+  html[data-device-mode="desktop"] .xh-desktop-stage-points {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-device-mode="desktop"] .xh-desktop-submit-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-device-mode="desktop"] .xh-desktop-game-entry .home-game-rail {
+    display: flex !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x proximity;
+  }
+
+  html[data-device-mode="desktop"] .xh-desktop-game-entry .home-game-rail > * {
+    flex: 0 0 min(78vw, 260px);
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 680px) {
+  .container,
+  .page-shell,
+  .page-main,
+  .admin-main,
+  .account-center-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  :where(.actions, .toolbar, .filters, .button-row) {
+    min-width: 0;
+    max-width: 100%;
+  }
+}

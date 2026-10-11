@@ -2,7 +2,6 @@ package com.xinghuo.catalog.web;
 
 import com.xinghuo.catalog.application.CatalogAdminServiceView;
 import com.xinghuo.catalog.application.CatalogServiceCommand;
-import com.xinghuo.dto.ApiDtos;
 import java.util.List;
 
 /** Maps established admin HTTP DTOs to catalog-owned application contracts. */
@@ -10,7 +9,7 @@ public final class CatalogAdminWebMapper {
     private CatalogAdminWebMapper() {
     }
 
-    public static CatalogServiceCommand toCommand(ApiDtos.ServiceUpsert source) {
+    public static CatalogServiceCommand toCommand(ServiceUpsert source) {
         return new CatalogServiceCommand(
                 source.gameCode(),
                 source.slug(),
@@ -32,12 +31,12 @@ public final class CatalogAdminWebMapper {
                 source.reason());
     }
 
-    public static List<ApiDtos.AdminServiceResponse> toResponses(List<CatalogAdminServiceView> views) {
+    public static List<AdminServiceResponse> toResponses(List<CatalogAdminServiceView> views) {
         return views.stream().map(CatalogAdminWebMapper::toResponse).toList();
     }
 
-    public static ApiDtos.AdminServiceResponse toResponse(CatalogAdminServiceView view) {
-        return new ApiDtos.AdminServiceResponse(
+    public static AdminServiceResponse toResponse(CatalogAdminServiceView view) {
+        return new AdminServiceResponse(
                 view.id(),
                 view.slug(),
                 view.gameCode(),

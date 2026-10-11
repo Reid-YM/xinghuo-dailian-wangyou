@@ -73,7 +73,7 @@ class ApiApplicationBoundaryContractTest {
     }
 
     @Test
-    void webMappersOwnProtocolTranslationWhileLegacyDtoMigrationContinues() throws IOException {
+    void webMappersOwnProtocolTranslationWithoutGlobalDtos() throws IOException {
         String quoteMapper = read("src/main/java/com/xinghuo/quote/web/QuoteWebMapper.java");
         String orderMapper = read("src/main/java/com/xinghuo/order/web/OrderWebMapper.java");
         String recordMapper = read("src/main/java/com/xinghuo/record/web/RecordWebMapper.java");
@@ -96,14 +96,16 @@ class ApiApplicationBoundaryContractTest {
         assertFalse(dashboardMapper.contains("com.xinghuo.dto"));
         assertTrue(dashboardMapper.contains("DashboardResponse"));
         assertTrue(dashboardMapper.contains("DashboardView"));
-        assertTrue(taxonomyMapper.contains("com.xinghuo.dto"));
+        assertFalse(taxonomyMapper.contains("com.xinghuo.dto"));
         assertTrue(taxonomyMapper.contains("TaxonomyCatalogView"));
-        assertTrue(catalogMapper.contains("com.xinghuo.dto"));
+        assertTrue(taxonomyMapper.contains("CatalogResponse"));
+        assertFalse(catalogMapper.contains("com.xinghuo.dto"));
         assertTrue(catalogMapper.contains("CatalogServiceView"));
+        assertTrue(catalogMapper.contains("ServiceResponse"));
     }
 
     @Test
-    void infrastructureOwnsPersistenceTranslation() throws IOException {
+    void infrastructureOwnsPersistenceTranslationAndCrossFeatureMetricsReads() throws IOException {
         String quote = read("src/main/java/com/xinghuo/quote/infrastructure/QuotePersistenceAdapter.java");
         String order = read("src/main/java/com/xinghuo/order/infrastructure/OrderPersistenceAdapter.java");
         String catalog = read("src/main/java/com/xinghuo/catalog/infrastructure/CatalogPersistenceAdapter.java");
@@ -136,10 +138,11 @@ class ApiApplicationBoundaryContractTest {
         assertFalse(taxonomy.contains("com.xinghuo.dto"));
         assertFalse(taxonomy.contains("com.xinghuo.repository."));
 
-        assertTrue(dashboard.contains("QuoteStatsPort"));
-        assertTrue(dashboard.contains("OrderStatsPort"));
-        assertTrue(dashboard.contains("ServiceStatsPort"));
-        assertTrue(dashboard.contains("FeedbackStatsPort"));
+        assertTrue(dashboard.contains("CatalogMetricsApplicationService"));
+        assertTrue(dashboard.contains("QuoteMetricsApplicationService"));
+        assertTrue(dashboard.contains("OrderMetricsApplicationService"));
+        assertTrue(dashboard.contains("TrackingApplicationService"));
+        assertTrue(dashboard.contains("FeedbackApplicationService"));
         assertFalse(dashboard.contains("Repository"));
         assertFalse(dashboard.contains("com.xinghuo.dto"));
     }

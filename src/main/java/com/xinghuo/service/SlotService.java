@@ -52,11 +52,10 @@ public class SlotService {
 
     @Transactional
     public ApiDtos.SlotResponse update(ApiDtos.SlotUpdate r, String operator, HttpServletRequest req) {
-        ServiceItem item;
         HotSlot s = this.repo.findBySlotNo(r.slotNo()).orElseThrow(NotFoundException::new);
         ApiDtos.SlotResponse before = this.response(s);
         HotSlot.Mode mode = this.parseMode(r.mode());
-        ServiceItem serviceItem = item = r.serviceId() == null ? null : (ServiceItem)this.services.findById(r.serviceId()).orElseThrow(NotFoundException::new);
+        ServiceItem item = r.serviceId() == null ? null : this.services.findById(r.serviceId()).orElseThrow(NotFoundException::new);
         if (mode == HotSlot.Mode.AUTO) {
             item = null;
         }

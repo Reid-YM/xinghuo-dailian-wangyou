@@ -91,7 +91,6 @@ class LegacyBridgePlaywrightTest {
         page.setContent(accountSubmitFixture());
         addStyle(page, "app.css");
         addStyle(page, "account.css");
-        addStyle(page, "vnext-legacy-bridge-v3.css");
         addStyle(page, "account-submit.css");
 
         assertBridgeBackground(page, "account submit desktop");
@@ -149,7 +148,6 @@ class LegacyBridgePlaywrightTest {
         page.setContent(accountSubmitFixture());
         addStyle(page, "app.css");
         addStyle(page, "account.css");
-        addStyle(page, "vnext-legacy-bridge-v3.css");
         addStyle(page, "account-submit.css");
 
         assertBridgeBackground(page, "account submit iPhone");

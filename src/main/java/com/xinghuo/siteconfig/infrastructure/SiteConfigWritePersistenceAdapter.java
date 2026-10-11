@@ -2,7 +2,6 @@ package com.xinghuo.siteconfig.infrastructure;
 
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.model.SiteConfig;
-import com.xinghuo.repository.SiteConfigRepository;
 import com.xinghuo.siteconfig.application.SiteConfigFullUpdateCommand;
 import com.xinghuo.siteconfig.application.SiteConfigWritePort;
 import java.math.BigDecimal;

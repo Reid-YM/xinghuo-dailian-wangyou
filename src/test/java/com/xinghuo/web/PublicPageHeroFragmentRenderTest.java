@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
@@ -14,7 +14,7 @@ class PublicPageHeroFragmentRenderTest {
 
     @Test
     void servicesAndTrustRenderSharedCompactQuoteHero() {
-        TemplateEngine engine = templateEngine();
+        SpringTemplateEngine engine = templateEngine();
 
         Context servicesContext = new Context();
         servicesContext.setVariable("hallServices", List.of());
@@ -35,7 +35,7 @@ class PublicPageHeroFragmentRenderTest {
         assertFalse(trust.contains("compactQuoteHero"));
     }
 
-    private TemplateEngine templateEngine() {
+    private SpringTemplateEngine templateEngine() {
         ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
         resolver.setPrefix("templates/");
         resolver.setSuffix(".html");
@@ -43,7 +43,7 @@ class PublicPageHeroFragmentRenderTest {
         resolver.setCharacterEncoding("UTF-8");
         resolver.setCacheable(false);
 
-        TemplateEngine engine = new TemplateEngine();
+        SpringTemplateEngine engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver);
         return engine;
     }

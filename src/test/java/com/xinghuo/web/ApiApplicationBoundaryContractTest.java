@@ -73,7 +73,7 @@ class ApiApplicationBoundaryContractTest {
     }
 
     @Test
-    void webMappersOwnLegacyProtocolDtos() throws IOException {
+    void webMappersOwnProtocolTranslationWhileLegacyDtoMigrationContinues() throws IOException {
         String quoteMapper = read("src/main/java/com/xinghuo/quote/web/QuoteWebMapper.java");
         String orderMapper = read("src/main/java/com/xinghuo/order/web/OrderWebMapper.java");
         String recordMapper = read("src/main/java/com/xinghuo/record/web/RecordWebMapper.java");
@@ -87,7 +87,8 @@ class ApiApplicationBoundaryContractTest {
         assertTrue(orderMapper.contains("OrderPublicView"));
         assertTrue(recordMapper.contains("com.xinghuo.dto"));
         assertTrue(recordMapper.contains("RecordPublicView"));
-        assertTrue(dashboardMapper.contains("com.xinghuo.dto"));
+        assertFalse(dashboardMapper.contains("com.xinghuo.dto"));
+        assertTrue(dashboardMapper.contains("DashboardResponse"));
         assertTrue(dashboardMapper.contains("DashboardView"));
         assertTrue(taxonomyMapper.contains("com.xinghuo.dto"));
         assertTrue(taxonomyMapper.contains("TaxonomyCatalogView"));

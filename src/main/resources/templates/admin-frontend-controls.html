@@ -6,15 +6,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="_csrf" th:content="${csrf.token}">
   <meta name="_csrf_header" th:content="${csrf.headerName}">
-  <title>前端控制中心 V3 - 星火网游</title>
+  <title>前端控制中心 V3.1 - 星火网游</title>
   <link rel="stylesheet" href="/assets/app.css?v=20261005v031">
   <link rel="stylesheet" href="/assets/admin-frontend-controls.css?v=20261007fc02">
   <script defer src="/assets/admin-frontend-controls.js?v=20261011fc30"></script>
+  <script defer src="/assets/admin-frontend-controls-v31.js?v=20261011fc31"></script>
 </head>
 <body class="frontend-control-admin">
-<header class="fc-topbar"><div class="fc-topbar-inner"><div class="fc-brand"><span class="fc-brand-mark">X</span><div><small>星火后台</small><strong>前端控制中心 V3</strong></div></div><div class="fc-top-actions"><span th:text="${username}">admin</span><a class="btn ghost" href="/admin">返回运营后台</a><a class="btn primary" href="/" target="_blank" rel="noopener">预览前台</a></div></div></header>
+<header class="fc-topbar"><div class="fc-topbar-inner"><div class="fc-brand"><span class="fc-brand-mark">X</span><div><small>星火后台</small><strong>前端控制中心 V3.1</strong></div></div><div class="fc-top-actions"><span th:text="${username}">admin</span><a class="btn ghost" href="/admin">返回运营后台</a><a class="btn primary" href="/" target="_blank" rel="noopener">预览前台</a></div></div></header>
 <main class="fc-shell">
-  <section class="fc-hero"><div><span class="eyebrow">Frontend Control Center V3</span><h1>分端控制前端展示与布局</h1><p>导航、首页模块、按钮、跳转、显隐、模块顺序和安全主题参数从后台配置读取；价格、主图、背景图、客服资料继续使用现有站点配置，避免双重来源。</p></div><div class="fc-status-card"><b>PC / Mobile 独立覆盖</b><small>保存后前台刷新读取最新值</small></div></section>
+  <section class="fc-hero"><div><span class="eyebrow">Frontend Control Center V3.1</span><h1>预览、草稿与安全发布</h1><p>导航、首页模块、按钮、跳转、显隐、模块顺序和安全主题参数继续分端配置；首页与布局先保存草稿、实时预览，确认后再发布到正式前台。</p></div><div class="fc-status-card"><b>Draft → Preview → Publish</b><small>支持一键恢复上一版</small></div></section>
   <nav class="fc-section-nav"><a href="#global">导航与备案</a><a href="#home">首页模块</a><a href="#layout">分端布局</a><a href="#theme">主题样式</a><a href="#existing">已有配置</a></nav>
 
   <section class="fc-card" id="global"><div class="fc-card-head"><div><span class="eyebrow">全站</span><h2>导航、页脚与备案</h2><p>桌面导航、移动端抽屉和页脚共用同一份配置。</p></div><span class="fc-badge">全站生效</span></div>
@@ -43,7 +44,7 @@
   </section>
 
   <form id="frontendControlsForm">
-    <section class="fc-card" id="home"><div class="fc-card-head"><div><span class="eyebrow">首页</span><h2>首屏与关键模块</h2><p>这些字段直接控制首页展示，不再需要修改模板文案。</p></div><span class="fc-badge">首页生效</span></div>
+    <section class="fc-card" id="home"><div class="fc-card-head"><div><span class="eyebrow">首页</span><h2>首屏与关键模块</h2><p>这些字段直接控制首页展示，不再需要修改模板文案。</p></div><span class="fc-badge">首页草稿</span></div>
       <h3>Hero 首屏</h3><div class="fc-grid two">
         <label class="toggle-row"><input type="checkbox" name="homeHeroVisible"><span><b>显示 Hero 首屏</b></span></label><label class="toggle-row"><input type="checkbox" name="homeHeroPromisesVisible"><span><b>显示服务承诺</b></span></label>
         <label class="toggle-row"><input type="checkbox" name="homeHeroMediaVisible"><span><b>显示右侧推荐面板</b></span></label><div class="field"><label>Hero 上方短文案</label><input name="homeHeroKicker" maxlength="240"></div>
@@ -67,7 +68,7 @@
         <div class="field"><label>圆角（6–30 px）</label><input type="number" name="themeRadius" min="6" max="30"></div><div class="field"><label>内容最大宽度（960–1440 px）</label><input type="number" name="themeContentWidth" min="960" max="1440"></div><div class="field"><label>字体缩放（90–115%）</label><input type="number" name="themeFontScale" min="90" max="115"></div><label class="toggle-row"><input type="checkbox" name="motionEnabled"><span><b>启用前端动效</b></span></label>
       </div>
     </section>
-    <div class="fc-sticky-save"><div><b>首页、布局与主题配置</b><span id="frontendControlState">正在读取配置…</span></div><button class="btn primary" type="submit">保存当前作用域</button></div>
+    <div class="fc-sticky-save"><div><b>首页、布局与主题草稿</b><span id="frontendControlState">正在读取配置…</span></div><button class="btn primary" type="submit">保存草稿</button></div>
   </form>
 
   <section class="fc-card" id="existing"><div class="fc-card-head"><div><span class="eyebrow">已有能力</span><h2>继续由原后台维护</h2><p>避免出现两份配置互相覆盖。</p></div><a class="btn ghost" href="/admin">打开运营后台</a></div><div class="fc-existing-grid"><article><b>首页内容</b><span>Hero 标题、副标题、价格、信任标签</span></article><article><b>首页视觉</b><span>主图、背景图、焦点、裁切、模糊</span></article><article><b>联系方式</b><span>微信、二维码、企微、淘宝、闲鱼</span></article><article><b>信任 FAQ</b><span>案例、问题与说明</span></article><article><b>服务项目</b><span>价格、封面、排序、上下架</span></article><article><b>SEO / 状态</b><span>搜索展示和游戏运营状态</span></article></div></section>

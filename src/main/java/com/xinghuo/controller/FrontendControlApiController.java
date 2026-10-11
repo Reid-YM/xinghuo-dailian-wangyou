@@ -69,6 +69,17 @@ public class FrontendControlApiController {
         return after;
     }
 
+    @PostMapping("/draft/inherit-global")
+    Workspace stageGlobalInheritance(@RequestParam String scope,
+                                     Authentication authentication,
+                                     HttpServletRequest request) throws Exception {
+        Workspace before = controls.workspace(scope);
+        Workspace after = controls.stageGlobalInheritance(scope);
+        audit("FRONTEND_CONTROLS_DRAFT_INHERIT_GLOBAL", scope, before.draft(), after.draft(),
+                "草稿恢复继承全局配置", authentication, request);
+        return after;
+    }
+
     @PostMapping("/publish")
     Workspace publish(@RequestParam(defaultValue = "global") String scope,
                       Authentication authentication,

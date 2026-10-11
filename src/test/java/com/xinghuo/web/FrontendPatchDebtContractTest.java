@@ -8,7 +8,9 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 class FrontendPatchDebtContractTest {
-    private static final Path ASSETS = Path.of("src/main/resources/static/assets");
+    private static final Path MAIN = Path.of("src/main/resources");
+    private static final Path ASSETS = MAIN.resolve("static/assets");
+    private static final Path TEMPLATES = MAIN.resolve("templates");
 
     @Test
     void globalShellOwnsGlobalInteractions() throws Exception {
@@ -32,16 +34,14 @@ class FrontendPatchDebtContractTest {
     }
 
     @Test
-    void uiFixesIsAnInertCompatibilityStub() throws Exception {
-        String patches = Files.readString(ASSETS.resolve("ui-fixes.js"));
-        assertTrue(patches.length() < 1_000, "ui-fixes.js must remain an inert compatibility stub until template references are removed");
-        assertTrue(patches.contains("Retired compatibility stub"));
-        assertFalse(patches.contains("(() =>"));
-        assertFalse(patches.contains("fetch("));
-        assertFalse(patches.contains("addEventListener("));
-        assertFalse(patches.contains("setInterval("));
-        assertFalse(patches.contains("setTimeout("));
-        assertFalse(patches.contains("new MutationObserver("));
-        assertFalse(patches.contains("document.querySelector"));
+    void retiredUiFixesAssetAndTemplateReferencesAreGone() throws Exception {
+        assertFalse(Files.exists(ASSETS.resolve("ui-fixes.js")), "retired ui-fixes.js must not be restored");
+        try (var files = Files.walk(TEMPLATES)) {
+            for (Path path : files.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".html")).toList()) {
+                assertFalse(
+                        Files.readString(path).contains("/assets/ui-fixes.js"),
+                        () -> "template must not reference retired ui-fixes.js: " + path);
+            }
+        }
     }
 }

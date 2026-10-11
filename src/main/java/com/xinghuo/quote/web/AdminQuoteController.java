@@ -1,6 +1,5 @@
 package com.xinghuo.quote.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.quote.application.QuoteApplicationService;
 import com.xinghuo.upload.infrastructure.UploadService;
@@ -30,12 +29,12 @@ public class AdminQuoteController {
     private final UploadService uploads;
 
     @GetMapping
-    List<ApiDtos.QuoteAdminResponse> quotes() {
+    List<QuoteAdminResponse> quotes() {
         return QuoteWebMapper.toAdminResponses(this.quotes.list());
     }
 
     @PatchMapping(value={"/{id}/status"})
-    ApiDtos.QuoteAdminResponse quoteStatus(@PathVariable UUID id, @Valid @RequestBody ApiDtos.QuoteStatusUpdate r, Authentication a, HttpServletRequest req) {
+    QuoteAdminResponse quoteStatus(@PathVariable UUID id, @Valid @RequestBody QuoteStatusUpdate r, Authentication a, HttpServletRequest req) {
         return QuoteWebMapper.toResponse(
                 this.quotes.updateStatus(id, QuoteWebMapper.toCommand(r), a.getName()));
     }
@@ -48,7 +47,7 @@ public class AdminQuoteController {
     }
 
     @PostMapping(value={"/{id}/convert"})
-    ApiDtos.AdminOrderResponse convertQuote(@PathVariable UUID id, @Valid @RequestBody ApiDtos.QuoteConvertRequest r, Authentication a, HttpServletRequest req) {
+    QuoteConvertedOrderResponse convertQuote(@PathVariable UUID id, @Valid @RequestBody QuoteConvertRequest r, Authentication a, HttpServletRequest req) {
         return QuoteWebMapper.toResponse(
                 this.quotes.convertToOrder(id, QuoteWebMapper.toCommand(r), a.getName()));
     }

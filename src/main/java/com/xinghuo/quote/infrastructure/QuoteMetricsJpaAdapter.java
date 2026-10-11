@@ -1,8 +1,6 @@
 package com.xinghuo.quote.infrastructure;
 
-import com.xinghuo.model.Quote;
 import com.xinghuo.quote.application.QuoteMetricsPort;
-import com.xinghuo.repository.QuoteRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 

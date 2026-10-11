@@ -81,7 +81,10 @@ class ApiApplicationBoundaryContractTest {
         String taxonomyMapper = read("src/main/java/com/xinghuo/taxonomy/web/TaxonomyWebMapper.java");
         String catalogMapper = read("src/main/java/com/xinghuo/catalog/web/CatalogWebMapper.java");
 
-        assertTrue(quoteMapper.contains("com.xinghuo.dto"));
+        assertFalse(quoteMapper.contains("com.xinghuo.dto"));
+        assertTrue(quoteMapper.contains("QuoteResponse"));
+        assertTrue(quoteMapper.contains("QuoteAdminResponse"));
+        assertTrue(quoteMapper.contains("QuoteConvertedOrderResponse"));
         assertTrue(quoteMapper.contains("QuoteSubmissionCommand"));
         assertFalse(orderMapper.contains("com.xinghuo.dto"));
         assertTrue(orderMapper.contains("AdminOrderResponse"));

@@ -1,6 +1,5 @@
 package com.xinghuo.tracking.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.tracking.application.TrackingApplicationService;
 import com.xinghuo.util.HashUtil;
 import com.xinghuo.util.RequestUtil;
@@ -19,7 +18,7 @@ public class PublicTrackingController {
     private final TrackingApplicationService tracking;
 
     @PostMapping
-    ResponseEntity<Void> track(@Valid @RequestBody ApiDtos.TrackRequest body, HttpServletRequest req) {
+    ResponseEntity<Void> track(@Valid @RequestBody TrackRequest body, HttpServletRequest req) {
         this.tracking.track(TrackingWebMapper.toCommand(
                 body, HashUtil.sha256(RequestUtil.clientIp(req))));
         return ResponseEntity.noContent().build();

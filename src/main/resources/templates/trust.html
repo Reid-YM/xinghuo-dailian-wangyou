@@ -5,7 +5,7 @@
 </head><body data-page="trust">
 <header th:replace="~{fragments/site :: header}"></header>
 <main class="container section page-shell trust-page">
-  <div class="page-hero page-hero-compact"><div><span class="eyebrow">服务说明</span><h1>服务口径、备案信息与常见问题</h1></div><div class="page-hero-actions"><a class="btn primary" href="/quote" data-primary-cta>提前询价</a><a class="btn ghost" href="/rules">服务规则</a></div></div>
+  <div th:replace="~{fragments/page :: compactQuoteHero('服务说明','服务口径、备案信息与常见问题','','','/rules','服务规则','')}"></div>
   <p class="muted">以下为服务示例与报价参考，用于说明口径，不作为成交记录。真实进度以业务编号查询为准。</p>
   <section class="trust-verify" aria-label="可自行核验的信息">
     <div><strong>经营主体</strong><span data-config="legalEntityName">星维网络服务工作室</span></div>

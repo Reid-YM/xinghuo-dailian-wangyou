@@ -13,6 +13,7 @@ class FrontendRetiredAssetContractTest {
 
     @Test
     void retiredVisualOverrideLayersStayDeleted() throws Exception {
+        assertFalse(Files.exists(ASSETS.resolve("site-shell.css")));
         assertFalse(Files.exists(ASSETS.resolve("site-surface-refine.css")));
         assertFalse(Files.exists(ASSETS.resolve("site-surface-refine.js")));
         assertFalse(Files.exists(ASSETS.resolve("admin-guides.css")));

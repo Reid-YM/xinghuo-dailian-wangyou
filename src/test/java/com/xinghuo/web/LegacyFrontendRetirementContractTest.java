@@ -45,11 +45,15 @@ class LegacyFrontendRetirementContractTest {
     }
 
     @Test
-    void retirementPlanDocumentsDeletionGate() throws IOException {
+    void retirementPlanDocumentsFinalBridgeDeletionGate() throws IOException {
         String plan = read("docs/legacy-frontend-retirement.md");
         assertTrue(plan.contains("One owner per responsibility"));
-        assertTrue(plan.contains("Chromium + WebKit"));
+        assertTrue(plan.contains("Chromium regression"));
+        assertTrue(plan.contains("WebKit regression"));
         assertTrue(plan.contains("production smoke"));
+        assertTrue(plan.contains("vnext-legacy-bridge-v3.css"));
+        assertTrue(plan.contains("404"));
+        assertTrue(plan.contains("canonical replacement assets"));
         assertTrue(plan.contains("rollback path"));
     }
 }

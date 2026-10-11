@@ -47,7 +47,7 @@ class SiteShellInteractionPlaywrightTest {
                     }
                     """);
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("site-shell.js")));
-            page.waitForSelector("#mobileNavDrawer");
+            page.waitForFunction("() => document.querySelector('#mobileNavDrawer') !== null");
             page.waitForFunction("() => document.querySelector('[data-account-entry] .account-entry-name')?.textContent === '星火用户'");
 
             assertEquals("/account", page.locator("[data-account-entry]").getAttribute("href"));

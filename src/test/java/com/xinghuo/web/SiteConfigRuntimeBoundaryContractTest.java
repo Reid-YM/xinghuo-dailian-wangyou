@@ -49,12 +49,12 @@ class SiteConfigRuntimeBoundaryContractTest {
         String adapter = read("src/main/java/com/xinghuo/siteconfig/infrastructure/SiteRuntimePersistenceAdapter.java");
         assertTrue(adapter.contains("implements SiteRuntimePort"));
         assertTrue(adapter.contains("private final SiteConfigRepository repo;"));
-        assertTrue(adapter.contains("com.xinghuo.model.SiteConfig"));
-        assertTrue(adapter.contains("findById(1L)"));
+        assertTrue(adapter.contains("SiteConfig config = repo.findById(1L).orElseThrow()"));
         assertTrue(adapter.contains("SiteOperatingStatusCode.valueOf(config.getServiceStatus().name())"));
         assertTrue(adapter.contains("config.getStatusShortText()"));
         assertTrue(adapter.contains("config.getPrimaryButtonLabel()"));
         assertTrue(adapter.contains("@Transactional(readOnly = true)"));
+        assertFalse(adapter.contains("com.xinghuo.model.SiteConfig"));
         assertFalse(adapter.contains("com.xinghuo.repository.SiteConfigRepository"));
     }
 
@@ -70,6 +70,7 @@ class SiteConfigRuntimeBoundaryContractTest {
         assertTrue(adapter.contains("parseTrustFaq"));
         assertTrue(adapter.contains("@Transactional(readOnly = true)"));
         assertFalse(adapter.contains("com.xinghuo.dto"));
+        assertFalse(adapter.contains("com.xinghuo.model.SiteConfig"));
         assertFalse(adapter.contains("com.xinghuo.repository."));
     }
 
@@ -78,12 +79,13 @@ class SiteConfigRuntimeBoundaryContractTest {
         String adapter = read("src/main/java/com/xinghuo/siteconfig/infrastructure/SiteConfigWritePersistenceAdapter.java");
         assertTrue(adapter.contains("implements SiteConfigWritePort"));
         assertTrue(adapter.contains("private final SiteConfigRepository repo;"));
-        assertTrue(adapter.contains("com.xinghuo.model.SiteConfig"));
+        assertTrue(adapter.contains("SiteConfig config = requireConfig()"));
         assertTrue(adapter.contains("updateSiteImage"));
         assertTrue(adapter.contains("updateSection"));
         assertTrue(adapter.contains("serializeContactChannels"));
         assertTrue(adapter.contains("serializeTrustCases"));
         assertTrue(adapter.contains("serializeTrustFaq"));
+        assertFalse(adapter.contains("com.xinghuo.model.SiteConfig"));
         assertFalse(adapter.contains("com.xinghuo.dto"));
         assertFalse(adapter.contains("jakarta.servlet"));
         assertFalse(adapter.contains("com.xinghuo.repository."));

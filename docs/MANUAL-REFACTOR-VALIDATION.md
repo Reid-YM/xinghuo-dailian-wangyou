@@ -1,8 +1,8 @@
-# 重构最终手动验收 Runbook
+# 重构最终验收与发布 Runbook
 
-> 适用状态：自动 CI 暂停，`.github/workflows/ci.yml` 仅保留 `workflow_dispatch`。
+> 当前状态：CI 已恢复自动触发。`pull_request -> main` 与 `push -> main` 都会运行完整 CI，`workflow_dispatch` 仅作为人工补跑入口。
 >
-> 原则：代码结构收口不等于生产验收完成。兼容 CSS 本体只有在浏览器与生产端口门禁全部通过后才允许继续退役。
+> 原则：结构收口、自动 CI 通过与生产发布是三层不同证据；任何生产发布仍必须针对最终 `main` SHA 重新完成同 SHA 门禁。
 
 ## 0. 已完成的生产基线
 
@@ -18,27 +18,17 @@
 - release SHA256 与 release manifest 校验；
 - 上一正式 JAR 与回滚路径确认。
 
-因此项目已从“等待生产验收”进入 **#131 小批次兼容资产退役阶段**。后续每一个删除/迁移 PR 都必须重新建立自己的同 SHA 证据，不能把上述基线结果当成新提交的最终验收结果。
+这仍是当前已确认的生产基线。其后的 #251–#256 属于兼容资产退役清理，已经分别通过 PR CI 与 `main` 自动 CI，但尚不能用旧生产基线替代新的生产发布验证。
 
-## 1. 锁定唯一验收 SHA
+## 1. 自动 CI 门禁
 
-验收前先确认 GitHub 当前 `main` 或待验收清理分支的 40 位 SHA，并在整个验收过程中保持不变。
+CI workflow 当前触发策略：
 
-所有后续证据都必须指向同一个 SHA：
+- Pull Request 指向 `main`：自动运行；
+- 合并后 push 到 `main`：自动再次运行；
+- `workflow_dispatch`：保留为人工补跑入口。
 
-- 手动 CI；
-- Chromium / WebKit 回归；
-- 生产部署目标；
-- 18080 / 8081 / 8080 smoke；
-- 最终 release manifest。
-
-如果 `main` 在验收过程中又合入新 PR，旧 SHA 的通过结果不能替代新 SHA，必须从手动 CI 重新开始。
-
-## 2. 手动 CI 门禁
-
-在 GitHub Actions 中，从目标分支手动运行 `CI` workflow；合并到 `main` 后用于生产发布时，必须再以最终 `main` SHA 为准。
-
-必须同时成功：
+每一次清理 PR 合并前必须同时成功：
 
 1. `Java 21 / Maven Build`
    - shell 脚本语法检查；
@@ -50,104 +40,109 @@
    - Playwright Chromium；
    - Playwright WebKit；
    - `PLAYWRIGHT_UI_TESTS=1`；
-   - 全部 `*PlaywrightTest`，包括 `LegacyBridgePlaywrightTest`。
+   - 全部 `*PlaywrightTest`，包括历史命名的 `LegacyBridgePlaywrightTest` 与最终独立后台验证。
 
-验收记录至少保留：workflow run URL / run id、head SHA、两个 job 的成功状态。
+合并后必须再确认最终 `main` SHA 的自动 push CI 同样全绿。
 
-## 3. 浏览器兼容重点
+## 2. compatibility CSS 退役状态
 
-共享 `vnext-legacy-bridge-v3.css` 仍是生产依赖，不得仅凭静态搜索删除。
+退役采用“先改 owner、再删共享层”的小批次策略，不能与 API、鉴权、数据库或生产路由变更混在同一个 PR。
 
-重点验证：
+已完成迁移：
 
-- service detail：1920 宽屏画布、手机无横向溢出；
-- record / order detail：声明式 bridge 正常加载；
+- `vnext-account-submit-v3.css`：已进入首批退役并完成，规则迁移到 `/assets/account-submit.css`；
+- account center：规则归属 `/assets/account-center.css` + `/assets/account-center-refine.css`；
+- service detail：归属 `/assets/service-detail.css`；
+- record / order detail：归属 `/assets/record-detail.css`；
+- frontend control center：归属 `/assets/admin-frontend-controls.css`；
+- 主运营后台：由 `/assets/admin-control-center-v2.css` + `/assets/admin-light-theme.css` 负责；
+- 独立攻略后台：由 `/assets/admin-guides-workspace.css` + `/assets/admin-light-theme.css` 负责；
+- 品牌与窄屏修复：由 `/assets/admin-brand-layout-fixes.css` 负责。
+
+`vnext-legacy-bridge-v3.css` 已进入最终退役批次：删除后生产 smoke 必须验证该旧资产返回 404，同时所有 canonical replacement assets 返回 200。
+
+## 3. 浏览器重点
+
+最终清理必须继续验证：
+
+- service detail：1920 宽屏画布、WebKit 手机无横向溢出；
+- record / order detail：feature-owned `record-detail.css` 独立工作；
 - account center：桌面宽屏、390 iPhone、输入框 16px；
-- account submit：桌面宽屏、390 iPhone、编辑器移动端单列、输入框不触发 iOS 自动缩放；
-- 后台：`admin-brand-layout-fixes.css` 单一路径仍能提供 legacy bridge；
+- account submit：桌面宽屏、390 iPhone、编辑器移动端单列，不依赖 `vnext-legacy-bridge-v3.css`；
+- frontend control center：业务自有 CSS 直接提供当前生产深色宽屏/移动端效果；
+- 主运营后台：Control Center V2 浅色工作台保持稳定；
+- 独立攻略后台：`app.css -> admin-guides-workspace.css -> admin-light-theme.css -> admin-brand-layout-fixes.css` 的真实顺序下保持浅色、宽屏和手机无溢出；
 - 微信 / Safari / WebKit 下安全区与底部固定区域无遮挡。
 
-`vnext-account-submit-v3.css` 已进入首批退役：其视觉规则不删除，而是原样迁移为业务页面自有的 `/assets/account-submit.css`。这一迁移只有在新的 Maven + Chromium + WebKit + production smoke 全部通过后才算正式完成。
+## 4. 生产发布资格
 
-`vnext-legacy-bridge-v3.css` 仍继续保留，必须单独建立替代 owner 和无 bridge 浏览器证据后才能进入下一批删除。
+生产发布目标必须满足：
 
-## 4. 生产 SSH 只读安全验证
+- 等于当前 `main` SHA；
+- 来自已合并到 `main` 的 Pull Request；
+- 同一个 SHA 的 `CI` 已成功；
+- CI 可以是自动 `push` run，也可以是备用 `workflow_dispatch` run；
+- 生产 SSH secrets 可用。
 
-如需先验证 GitHub Secrets 与受限 SSH key，可手动运行 `Test Production SSH`。
-
-该 workflow 只发送一个不允许的普通命令来确认 forced-command 限制，预期结果是拒绝普通 shell；它不会发送 `deploy <sha>`，也不会部署。
+不要使用其他 SHA 的旧 CI 结果替代当前 SHA。
 
 ## 5. 生产发布入口
 
-当前有两条受控入口，最终都会执行同一套生产门禁：
+### A. `main` 人工确认入口
 
-### A. `main` 手动入口
+从 `main` 运行 `Deploy Production` 并勾选 `confirm=true`。发布 workflow 会再次验证 PR 来源、同 SHA CI 和 SSH 配置。
 
-1. 当前 `main` SHA 已完成第 2 节手动 CI，两个 job 全绿；
-2. 从 `main` 手动运行 `Deploy Production`；
-3. 勾选 `confirm=true`；
-4. Deploy workflow 再次验证：
-   - 目标就是当前 `main`；
-   - 目标提交来自已合并 PR；
-   - 同一个 SHA 存在成功的 `CI` `workflow_dispatch` run；
-   - 生产 SSH secrets 可用。
+### B. `deploy/production` 受控请求入口
 
-### B. `deploy/production` 受控发布请求入口
+当自动化客户端无法直接发起 `workflow_dispatch` 时，可在线性 `deploy/production` 分支提交只修改 `.deploy-request` 的单父提交：
 
-`deploy/production` 可通过只修改 `.deploy-request` 的单父提交触发发布。请求中的 `deploy_sha` 必须等于当前 `main`，并同样要求已合并 PR 来源和同 SHA 成功的手动 CI。
+- `.deploy-request` 只能包含目标 `deploy_sha`；
+- `deploy_sha` 必须等于当前 `main`；
+- 目标仍必须来自已合并 PR；
+- 同 SHA CI 必须成功。
 
-不要用其他 SHA 的旧 CI 结果替代当前 SHA。
+`deploy/production` 是受控发布请求分支，不是源码开发分支。
 
-## 6. `deploy/production` 入口注意事项
+如果 `main` 上的发布 workflow 发生过修改，而 `deploy/production` 的 workflow 定义未同步：
 
-`deploy/production` 是长期受控发布请求分支，不是正式源码分支。
+- 不要直接提交正常发布请求；
+- 先按受控流程同步 workflow；
+- 同步提交本身应因 `.deploy-request` 门禁而安全失败；
+- 确认没有进入实际部署后，再提交正常 `.deploy-request`。
 
-重要限制：GitHub 对该分支的 push 会使用该分支自己保存的 workflow 定义。只要 `main` 上的 `.github/workflows/deploy-production.yml` 发生过变更，就必须先确认 `deploy/production` 已按受控流程刷新到同一版本，才能继续使用发布请求入口。
-
-在 workflow 定义未同步时：
-
-- 不要直接提交 `.deploy-request`；
-- 先受控同步 workflow 定义；
-- 同步本身不应满足 `.deploy-request` 校验，因此不会进入实际服务器部署；
-- 确认安全失败后，再单独提交只修改 `.deploy-request` 的正常发布请求。
-
-## 7. 服务器三端口门禁
-
-生产服务器发布链固定为：
+## 6. 服务器三端口门禁
 
 ### 18080 — 候选预发布
 
-`deploy-from-github.sh`：
-
-- 从当前 `main` SHA 完整 Maven 构建候选 JAR；
-- 独立启动候选 JAR 到 18080；
-- 执行 `scripts/smoke_test.sh 18080`；
-- 失败时不切生产流量。
+`deploy-from-github.sh` 从目标 SHA 完整 Maven 构建候选 JAR，启动 18080 并执行 `scripts/smoke_test.sh 18080`。失败时不得切生产流量。
 
 ### 8081 — 金丝雀
 
-`deploy-zero-downtime.sh`：
+同一候选 JAR 启动到 8081，执行完整 smoke。只有通过后 nginx 才允许临时切到 8081。
 
-- 同一候选 JAR 启动到 8081；
-- 执行完整 `run_smoke 8081`；
-- 通过后 nginx 才允许临时切到 8081。
+### 8080 — 正式实例
 
-### 8080 — 新正式实例
+原子切换 `current.jar`，启动正式 8080，执行完整 smoke；通过后 nginx 回到 8080，并停止 8081。
 
-- 原子切换 `current.jar`；
-- 启动正式 8080；
-- 执行完整 `run_smoke 8080`；
-- 通过后 nginx 切回 8080；
-- 停止 8081 金丝雀。
+## 7. 最终 bridge 退役 smoke
 
-共享 smoke 当前验证：
+最终 shared bridge 删除版本必须在 18080、8081、8080 三道门同时验证：
 
-- `/assets/vnext-legacy-bridge-v3.css`：仍在使用的共享兼容层；
-- `/assets/account-submit.css`：攻略投稿页业务自有 canonical style。
+- `/assets/vnext-legacy-bridge-v3.css` → **404**；
+- `/assets/service-detail.css` → 200；
+- `/assets/record-detail.css` → 200；
+- `/assets/account-submit.css` → 200；
+- `/assets/account-center.css` → 200；
+- `/assets/account-center-refine.css` → 200；
+- `/assets/admin-frontend-controls.css` → 200；
+- `/assets/admin-control-center-v2.css` → 200；
+- `/assets/admin-light-theme.css` → 200；
+- `/assets/admin-guides-workspace.css` → 200；
+- `/assets/admin-brand-layout-fixes.css` → 200。
 
-旧 `/assets/vnext-account-submit-v3.css` 不应再成为 smoke 依赖。
+旧 `/assets/vnext-account-submit-v3.css` 不再是运行或 smoke 依赖。
 
-## 8. 发布后必须确认
+## 8. 发布后确认
 
 - `xinghuo-v2.service` active；
 - nginx active 且 `nginx -t` 成功；
@@ -160,25 +155,21 @@
 
 ## 9. 回滚证据
 
-发布完成前必须明确上一正式 JAR 路径。
+发布前必须明确上一正式 JAR 路径。若新 8080 健康或 smoke 失败，零停机脚本应恢复旧 `current.jar`；如果 nginx 正在由健康的 8081 金丝雀承载，则先保持金丝雀，不要为了清理动作中断生产流量。
 
-若新 8080 健康或 smoke 失败，`deploy-zero-downtime.sh` 会尝试恢复旧 `current.jar`。如果 nginx 仍指向健康的 8081 金丝雀，脚本会优先保留金丝雀承载流量，避免因清理动作造成中断。
+人工回滚必须先让 8080 通过 smoke，再把 nginx upstream 恢复到 8080，最后停止 8081。
 
-人工回滚时必须先让 8080 通过 smoke，再将 nginx upstream 恢复到 8080；不要先停掉正在承载生产流量的 8081。
+## 10. 最终完成标准
 
-## 10. compatibility CSS 的最终删除条件
-
-只有以下证据全部属于同一个已验收版本时，才进入 bridge CSS 删除 PR：
+compatibility bridge 的退役只有在以下证据都属于同一个最终版本时才算闭环：
 
 - Maven 全量构建与测试通过；
 - Chromium 全量回归通过；
 - WebKit 全量回归通过；
+- 最终 `main` push CI 通过；
 - 18080 smoke 通过；
 - 8081 smoke 通过；
 - 8080 smoke 通过；
-- 回滚路径已确认；
-- 替代样式 owner 与受影响路由有明确清单。
-
-删除必须继续小批次进行，不能把 bridge CSS 删除与 API、鉴权、数据库迁移或生产路由切换混在同一个 PR。
-
-第一批策略是“先改 owner、后删共享层”：页面专属规则迁到业务命名资产并保持规则等价，再由 Playwright 和三端口 smoke 证明路径变更没有造成视觉/运行回归。共享 `vnext-legacy-bridge-v3.css` 最后处理。
+- 旧 shared bridge 404；
+- replacement canonical assets 全部 200；
+- 回滚路径已确认。

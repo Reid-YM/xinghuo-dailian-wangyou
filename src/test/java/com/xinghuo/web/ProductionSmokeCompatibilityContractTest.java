@@ -11,16 +11,21 @@ class ProductionSmokeCompatibilityContractTest {
     private static final Path ROOT = Path.of(".");
 
     @Test
-    void activeSharedBridgeAndFeatureOwnedCanonicalStylesArePartOfTheSmokeContract() throws Exception {
+    void retiredSharedBridgeAndCanonicalStylesArePartOfTheSmokeContract() throws Exception {
         String smoke = Files.readString(ROOT.resolve("scripts/smoke_test.sh"));
 
-        assertTrue(smoke.contains("check_code /assets/vnext-legacy-bridge-v3.css 200"));
+        assertTrue(smoke.contains("check_code /assets/vnext-legacy-bridge-v3.css 404"));
+        assertFalse(smoke.contains("check_code /assets/vnext-legacy-bridge-v3.css 200"));
         assertTrue(smoke.contains("check_code /assets/service-detail.css 200"));
         assertTrue(smoke.contains("check_code /assets/record-detail.css 200"));
         assertTrue(smoke.contains("check_code /assets/account-submit.css 200"));
         assertTrue(smoke.contains("check_code /assets/account-center.css 200"));
         assertTrue(smoke.contains("check_code /assets/account-center-refine.css 200"));
         assertTrue(smoke.contains("check_code /assets/admin-frontend-controls.css 200"));
+        assertTrue(smoke.contains("check_code /assets/admin-control-center-v2.css 200"));
+        assertTrue(smoke.contains("check_code /assets/admin-light-theme.css 200"));
+        assertTrue(smoke.contains("check_code /assets/admin-guides-workspace.css 200"));
+        assertTrue(smoke.contains("check_code /assets/admin-brand-layout-fixes.css 200"));
         assertFalse(smoke.contains("check_code /assets/vnext-account-submit-v3.css 200"));
     }
 

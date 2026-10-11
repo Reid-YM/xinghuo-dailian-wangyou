@@ -60,15 +60,19 @@ check_code /assets/vnext-final-qa-fix-v5.css 200
 check_code /assets/vnext-mobile-focus-v7.css 200
 check_code /assets/vnext-mobile-polish-v8.css 200
 
-# 共享 legacy bridge 仅保留主运营后台；公共详情、账号页和前端控制中心均由 feature-owned canonical assets 负责。
-# 该 smoke 会依次在 18080、8081、8080 执行，因此三道发布门都会验证它们。
-check_code /assets/vnext-legacy-bridge-v3.css 200
+# 深层 legacy bridge 已退休。公共详情、账号页、前端控制中心和后台均由 canonical assets 负责。
+# 该 smoke 会依次在 18080、8081、8080 执行，因此三道发布门都会验证退役结果与替代资产。
+check_code /assets/vnext-legacy-bridge-v3.css 404
 check_code /assets/service-detail.css 200
 check_code /assets/record-detail.css 200
 check_code /assets/account-submit.css 200
 check_code /assets/account-center.css 200
 check_code /assets/account-center-refine.css 200
 check_code /assets/admin-frontend-controls.css 200
+check_code /assets/admin-control-center-v2.css 200
+check_code /assets/admin-light-theme.css 200
+check_code /assets/admin-guides-workspace.css 200
+check_code /assets/admin-brand-layout-fixes.css 200
 
 # /vnext/ 继续作为 noindex 的直接预览入口和故障排查入口。
 check_code /vnext/ 200

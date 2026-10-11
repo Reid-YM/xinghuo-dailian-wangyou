@@ -19,6 +19,7 @@ class TaxonomyWebContractOwnershipTest {
         String bulk = Files.readString(web.resolve("GameBulkUpdateRequest.java"));
         String catalogResponse = Files.readString(web.resolve("CatalogResponse.java"));
         String gameResponse = Files.readString(web.resolve("GameOptionResponse.java"));
+        String uploadResponse = Files.readString(web.resolve("SiteImageUploadResponse.java"));
         String mapper = Files.readString(web.resolve("TaxonomyWebMapper.java"));
         String publicController = Files.readString(web.resolve("PublicTaxonomyCatalogController.java"));
         String adminController = Files.readString(web.resolve("AdminTaxonomyController.java"));
@@ -29,13 +30,10 @@ class TaxonomyWebContractOwnershipTest {
         assertTrue(catalogResponse.contains("List<GameOptionResponse> games"));
         assertTrue(catalogResponse.contains("List<GamePlatformResponse> gamePlatforms"));
         assertTrue(gameResponse.contains("List<String> platformCodes"));
+        assertTrue(uploadResponse.contains("record SiteImageUploadResponse(String url)"));
         assertFalse(mapper.contains("com.xinghuo.dto.ApiDtos"));
         assertFalse(publicController.contains("com.xinghuo.dto.ApiDtos"));
-        assertFalse(adminController.contains("ApiDtos.CatalogResponse"));
-        assertFalse(adminController.contains("ApiDtos.GameOptionResponse"));
-        assertFalse(adminController.contains("ApiDtos.CategoryOptionResponse"));
-        assertFalse(adminController.contains("ApiDtos.CatalogNameRequest"));
-        assertFalse(adminController.contains("ApiDtos.GameProfileUpdateRequest"));
-        assertTrue(adminController.contains("ApiDtos.SiteImageUploadResponse"));
+        assertFalse(adminController.contains("com.xinghuo.dto.ApiDtos"));
+        assertTrue(adminController.contains("SiteImageUploadResponse uploadGameImage"));
     }
 }

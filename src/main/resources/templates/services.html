@@ -6,7 +6,7 @@
 </head><body data-page="services">
 <header th:replace="~{fragments/site :: header}"></header>
 <main class="container section page-shell services-browser">
-  <div class="page-hero page-hero-compact service-browser-hero"><div><div class="service-state" data-config="status">● 多游戏服务大厅 · 按当前进度确认报价</div><span class="eyebrow">服务大厅</span><h1>COD MW4 / DMZ / 战区 任务服务</h1><p class="page-hero-note">可靠手打 · 纯绿服务 · 进度可查 · 下单前确认需求</p></div><div class="page-hero-actions"><a class="btn primary" href="/quote" data-primary-cta>提前询价</a></div></div>
+  <div th:replace="~{fragments/page :: compactQuoteHero('服务大厅','COD MW4 / DMZ / 战区 任务服务','可靠手打 · 纯绿服务 · 进度可查 · 下单前确认需求','● 多游戏服务大厅 · 按当前进度确认报价','','','service-browser-hero')}"></div>
   <section class="service-browser-console" aria-label="服务筛选">
     <div class="service-browser-search"><span class="search-icon" aria-hidden="true">⌕</span><input id="publicServiceSearch" type="search" placeholder="搜索游戏或服务" autocomplete="off"></div>
     <div class="browser-row"><span class="browser-label">游戏</span><div id="publicGameFilters" class="filters game-filter-rail"><button class="filter-btn active" data-game-filter="all">全部游戏</button></div></div>

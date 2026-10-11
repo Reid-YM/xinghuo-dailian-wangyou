@@ -21,12 +21,14 @@ class DeploymentGovernanceContractTest {
     }
 
     @Test
-    void productionStillRequiresMergedPrAndSuccessfulMainCi() throws Exception {
+    void productionStillRequiresMergedPrAndSuccessfulManualMainCi() throws Exception {
         String workflow = Files.readString(ROOT.resolve(".github/workflows/deploy-production.yml"));
         assertTrue(workflow.contains("Require merged Pull Request origin"));
         assertTrue(workflow.contains(".merge_commit_sha == $sha"));
-        assertTrue(workflow.contains("Require successful main CI"));
+        assertTrue(workflow.contains("Require successful manual main CI"));
+        assertTrue(workflow.contains("head_sha=${DEPLOY_SHA}&branch=main&event=workflow_dispatch&per_page=10"));
         assertTrue(workflow.contains(".conclusion == \"success\""));
+        assertFalse(workflow.contains("branch=main&event=push&per_page=10"));
         assertTrue(workflow.contains("workflow_dispatch:"));
         assertTrue(workflow.contains("confirm:"));
     }
@@ -36,6 +38,8 @@ class DeploymentGovernanceContractTest {
         String doc = Files.readString(ROOT.resolve("docs/PRODUCTION-DEPLOYMENT-GOVERNANCE.md"));
         assertTrue(doc.contains("不需要为了每次发布 force reset"));
         assertTrue(doc.contains("Administration 权限"));
-        assertTrue(doc.contains("Chromium UI Regression"));
+        assertTrue(doc.contains("Chromium + WebKit UI Regression"));
+        assertTrue(doc.contains("workflow_dispatch"));
+        assertTrue(doc.contains("同一个 main SHA"));
     }
 }

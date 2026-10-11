@@ -1,11 +1,11 @@
 package com.xinghuo.mobilevisual.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xinghuo.audit.infrastructure.AuditLog;
+import com.xinghuo.audit.infrastructure.AuditLogRepository;
 import com.xinghuo.mobilevisual.application.MobileVisualConfigAuditContext;
 import com.xinghuo.mobilevisual.application.MobileVisualConfigAuditPort;
 import com.xinghuo.mobilevisual.application.MobileVisualConfigView;
-import com.xinghuo.model.AuditLog;
-import com.xinghuo.repository.AuditLogRepository;
 import java.time.Instant;
 import org.springframework.stereotype.Component;
 

@@ -18,13 +18,14 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void deepPageBridgeCoversSharedSurfacesAndAccountSubmitOwnsCanonicalStyle() throws IOException {
+    void sharedBridgeCoversRemainingSurfacesWhileFeatureStylesOwnRetiredSurfaces() throws IOException {
         String css = read("src/main/resources/static/assets/vnext-legacy-bridge-v3.css");
         String submissionCss = read("src/main/resources/static/assets/account-submit.css");
+        String accountCenterRefine = read("src/main/resources/static/assets/account-center-refine.css");
 
         assertTrue(css.contains("body[data-page=\"service-detail\"]"));
         assertTrue(css.contains("body[data-page=\"record-detail\"]"));
-        assertTrue(css.contains("body.account-center-page"));
+        assertFalse(css.contains("body.account-center-page"));
         assertTrue(css.contains("body.admin-solid-ui"));
         assertTrue(css.contains("body.frontend-control-admin"));
         assertTrue(css.contains("@media(min-width:1920px)"));
@@ -37,6 +38,12 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(submissionCss.contains(".submission-editor-layout"));
         assertTrue(submissionCss.contains("@media(min-width:1920px)"));
         assertTrue(submissionCss.contains("env(safe-area-inset-bottom"));
+
+        assertTrue(accountCenterRefine.contains("body.account-center-page"));
+        assertTrue(accountCenterRefine.contains(".account-center-shell"));
+        assertTrue(accountCenterRefine.contains("@media(min-width:1920px)"));
+        assertTrue(accountCenterRefine.contains("html.is-ios body.account-center-page"));
+        assertTrue(accountCenterRefine.contains("env(safe-area-inset-bottom"));
     }
 
     @Test
@@ -65,7 +72,7 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(bridgeFragment.contains("data-account-submit-style=\"1\""));
         assertFalse(bridgeFragment.contains("vnext-account-submit-v3.css"));
         assertTrue(accountCenterFragment.contains("th:fragment=\"bar\""));
-        assertTrue(accountCenterFragment.contains("fragments/vnext-legacy :: deepPageBridge"));
+        assertFalse(accountCenterFragment.contains("fragments/vnext-legacy :: deepPageBridge"));
 
         assertTrue(serviceDesktop.indexOf("fragments/site :: header") < serviceDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(serviceMobile.indexOf("fragments/site :: header") < serviceMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
@@ -81,10 +88,19 @@ class VNextLegacyUiBridgeContractTest {
                 "account-progress.html",
                 "account-requests.html",
                 "account-settings.html")) {
-            assertTrue(read("src/main/resources/templates/" + name).contains("fragments/account-center :: bar"));
-            assertTrue(read("src/main/resources/templates/mobile/" + name).contains("fragments/account-center :: bar"));
+            String desktop = read("src/main/resources/templates/" + name);
+            String mobile = read("src/main/resources/templates/mobile/" + name);
+            assertTrue(desktop.contains("fragments/account-center :: bar"));
+            assertTrue(mobile.contains("fragments/account-center :: bar"));
+            assertTrue(desktop.contains("/assets/account-center.css"));
+            assertTrue(desktop.contains("/assets/account-center-refine.css"));
+            assertTrue(mobile.contains("/assets/account-center.css"));
+            assertTrue(mobile.contains("/assets/account-center-refine.css"));
         }
-        assertTrue(read("src/main/resources/templates/mobile/account.html").contains("fragments/account-center :: bar"));
+        String mobileAccount = read("src/main/resources/templates/mobile/account.html");
+        assertTrue(mobileAccount.contains("fragments/account-center :: bar"));
+        assertTrue(mobileAccount.contains("/assets/account-center.css"));
+        assertTrue(mobileAccount.contains("/assets/account-center-refine.css"));
 
         assertFalse(imageRuntime.contains("ensureStylesheet"));
         assertFalse(imageRuntime.contains("vnext-legacy-bridge-v3.css"));

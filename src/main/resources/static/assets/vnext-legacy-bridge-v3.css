@@ -1,14 +1,14 @@
 /* VNext 深层页面视觉桥接 v3：只改变展示，不改变 API、鉴权或业务行为。 */
 :root{--v3-bg:#0b0c0f;--v3-surface:#15181e;--v3-surface-2:#101318;--v3-border:#2b313b;--v3-border-strong:#3a424e;--v3-text:#eef1f5;--v3-muted:#9ca5b2;--v3-accent:#df2f31;--v3-accent-soft:rgba(223,47,49,.12);--v3-green:#33b77a;--v3-radius:16px;--v3-shadow:0 18px 48px rgba(0,0,0,.22)}
 
-/* 服务详情 / 记录详情 / 个人中心：统一深色正式底板。 */
-body[data-page="service-detail"],body[data-page="record-detail"],body.account-center-page{background:radial-gradient(circle at 86% 0,rgba(223,47,49,.08),transparent 32rem),var(--v3-bg)!important;color:var(--v3-text)!important}
-body[data-page="service-detail"] main,body[data-page="record-detail"] main,body.account-center-page main{color:var(--v3-text)}
-body[data-page="service-detail"] .container,body[data-page="record-detail"] .container,body.account-center-page .account-center-shell{width:min(calc(100% - 40px),1240px);max-width:none;margin-inline:auto}
-body[data-page="service-detail"] .card,body[data-page="record-detail"] .card,body.account-center-page .account-center-panel,body.account-center-page .account-summary-card,body.account-center-page .account-action-card{background:linear-gradient(180deg,#181b21,#121419)!important;border:1px solid var(--v3-border)!important;border-radius:var(--v3-radius)!important;color:var(--v3-text)!important;box-shadow:var(--v3-shadow)!important}
-body[data-page="service-detail"] h1,body[data-page="service-detail"] h2,body[data-page="record-detail"] h1,body[data-page="record-detail"] h2,body.account-center-page h1,body.account-center-page h2,body.account-center-page h3{color:var(--v3-text)!important;letter-spacing:-.025em}
-body[data-page="service-detail"] p,body[data-page="service-detail"] small,body[data-page="record-detail"] p,body[data-page="record-detail"] small,body.account-center-page p,body.account-center-page small{color:var(--v3-muted)}
-body[data-page="service-detail"] a,body[data-page="record-detail"] a,body.account-center-page a{transition:color .18s ease,border-color .18s ease,background .18s ease,transform .18s ease}
+/* 服务详情 / 记录详情：统一深色正式底板。个人中心已迁移到 account-center-refine.css。 */
+body[data-page="service-detail"],body[data-page="record-detail"]{background:radial-gradient(circle at 86% 0,rgba(223,47,49,.08),transparent 32rem),var(--v3-bg)!important;color:var(--v3-text)!important}
+body[data-page="service-detail"] main,body[data-page="record-detail"] main{color:var(--v3-text)}
+body[data-page="service-detail"] .container,body[data-page="record-detail"] .container{width:min(calc(100% - 40px),1240px);max-width:none;margin-inline:auto}
+body[data-page="service-detail"] .card,body[data-page="record-detail"] .card{background:linear-gradient(180deg,#181b21,#121419)!important;border:1px solid var(--v3-border)!important;border-radius:var(--v3-radius)!important;color:var(--v3-text)!important;box-shadow:var(--v3-shadow)!important}
+body[data-page="service-detail"] h1,body[data-page="service-detail"] h2,body[data-page="record-detail"] h1,body[data-page="record-detail"] h2{color:var(--v3-text)!important;letter-spacing:-.025em}
+body[data-page="service-detail"] p,body[data-page="service-detail"] small,body[data-page="record-detail"] p,body[data-page="record-detail"] small{color:var(--v3-muted)}
+body[data-page="service-detail"] a,body[data-page="record-detail"] a{transition:color .18s ease,border-color .18s ease,background .18s ease,transform .18s ease}
 
 /* 服务详情。 */
 body[data-page="service-detail"] .detail-layout{gap:24px;align-items:start}
@@ -38,22 +38,6 @@ body[data-page="record-detail"] .status-step{color:var(--v3-muted)!important}
 body[data-page="record-detail"] .status-step.active,body[data-page="record-detail"] .status-step.is-active,body[data-page="record-detail"] .status-step.completed,body[data-page="record-detail"] .status-step.is-complete{color:var(--v3-text)!important}
 body[data-page="record-detail"] .status-step.active::before,body[data-page="record-detail"] .status-step.is-active::before{background:var(--v3-accent)!important;box-shadow:0 0 0 5px rgba(223,47,49,.12)}
 body[data-page="record-detail"] .record-screenshot-grid img,body[data-page="record-detail"] .record-screenshots img{border:1px solid var(--v3-border)!important;border-radius:12px;background:#0b0d11}
-
-/* 个人中心子页。 */
-body.account-center-page .account-center-shell{padding-top:28px;padding-bottom:48px}
-body.account-center-page .account-center-bar{margin-bottom:16px;padding:12px 14px;border:1px solid var(--v3-border);border-radius:14px;background:rgba(21,24,30,.9);box-shadow:0 12px 34px rgba(0,0,0,.16)}
-body.account-center-page .account-center-breadcrumb{margin-bottom:14px;color:var(--v3-muted)}
-body.account-center-page .account-center-panel{padding:clamp(18px,2.5vw,28px)!important}
-body.account-center-page .account-summary-card,body.account-center-page .account-action-card{padding:18px!important}
-body.account-center-page .account-filter-bar{display:flex;gap:10px;flex-wrap:wrap;padding:12px;border:1px solid var(--v3-border)!important;border-radius:14px;background:var(--v3-surface-2)!important}
-body.account-center-page .account-order-row,body.account-center-page .account-request-row,body.account-center-page .account-progress-row,body.account-center-page .account-list-item{border:1px solid var(--v3-border)!important;border-radius:13px!important;background:#101318!important;color:var(--v3-text)!important;box-shadow:none!important}
-body.account-center-page input,body.account-center-page select,body.account-center-page textarea{min-height:46px;border:1px solid #343b46!important;border-radius:12px!important;background:#0d0f13!important;color:var(--v3-text)!important;font-size:16px;outline:none}
-body.account-center-page input:focus,body.account-center-page select:focus,body.account-center-page textarea:focus{border-color:var(--v3-accent)!important;box-shadow:0 0 0 3px rgba(223,47,49,.12)!important}
-body.account-center-page .btn.primary,body.account-center-page button.primary{background:var(--v3-accent)!important;border-color:var(--v3-accent)!important;color:#fff!important;box-shadow:0 10px 26px rgba(223,47,49,.18)}
-body.account-center-page .btn.ghost,body.account-center-page button.ghost{background:#15181e!important;border-color:#303641!important;color:#e4e7ec!important}
-body.account-center-page .status-badge,body.account-center-page .account-status{border-radius:999px!important;font-weight:800}
-body.account-center-page .account-empty-state{padding:30px;border:1px dashed #38404c;border-radius:14px;background:#0f1116;color:var(--v3-muted)}
-body.account-center-page .pagination a,body.account-center-page .pagination button{min-width:42px;min-height:42px;border:1px solid var(--v3-border);border-radius:10px;background:#12151a;color:#dfe3e9}
 
 /* 主运营后台：现有 admin-solid-ui 上继续统一深层组件。 */
 body.admin-solid-ui .table-wrap,body.admin-solid-ui .table-card,body.admin-solid-ui .panel,body.admin-solid-ui .admin-panel,body.admin-solid-ui .form-section,body.admin-solid-ui .admin-form-section{border:1px solid var(--v3-border)!important;border-radius:14px!important;background:var(--v3-surface)!important;box-shadow:0 14px 40px rgba(0,0,0,.16)!important;color:var(--v3-text)!important}
@@ -86,14 +70,13 @@ body.frontend-control-admin .fc-sticky-save{border-color:#333a45!important;backg
 body.frontend-control-admin .eyebrow,body.frontend-control-admin .fc-badge{color:#ff6d6f!important}
 
 /* 宽屏：沿用第二轮原则，减少 24 寸 / 2K / 超宽屏两侧浪费。 */
-@media(min-width:1600px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container,body.account-center-page .account-center-shell{width:min(calc(100% - 72px),1500px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 72px),1580px)!important}}
-@media(min-width:1920px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container,body.account-center-page .account-center-shell{width:min(calc(100% - 96px),1720px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 96px),1780px)!important}}
-@media(min-width:2400px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container,body.account-center-page .account-center-shell{width:min(calc(100% - 120px),1960px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 120px),2020px)!important}}
+@media(min-width:1600px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container{width:min(calc(100% - 72px),1500px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 72px),1580px)!important}}
+@media(min-width:1920px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container{width:min(calc(100% - 96px),1720px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 96px),1780px)!important}}
+@media(min-width:2400px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container{width:min(calc(100% - 120px),1960px)}body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 120px),2020px)!important}}
 
 /* 平板 / 手机 / 微信 / iOS。 */
 @media(max-width:1023px){body[data-page="service-detail"] .detail-layout,body[data-page="record-detail"] .record-detail-grid{grid-template-columns:1fr!important}body[data-page="service-detail"] .contact-cta{position:static}body.frontend-control-admin .fc-grid.two{grid-template-columns:1fr!important}}
-@media(max-width:767px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container,body.account-center-page .account-center-shell,body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 24px),100%)!important}body[data-page="service-detail"] .rich-detail-card,body[data-page="record-detail"] .record-detail-card,body.account-center-page .account-center-panel{padding:17px!important}body[data-page="record-detail"] .record-meta-grid{grid-template-columns:1fr!important}body.account-center-page .account-filter-bar{display:grid;grid-template-columns:1fr}body.account-center-page .mobile-dock,body[data-page="service-detail"] .mobile-dock,body[data-page="record-detail"] .mobile-dock{padding-bottom:max(10px,env(safe-area-inset-bottom,0px))!important}body.frontend-control-admin .fc-top-actions{gap:6px;flex-wrap:wrap}body.frontend-control-admin .fc-card{padding:18px!important}body.frontend-control-admin .fc-sticky-save{bottom:max(8px,env(safe-area-inset-bottom,0px))!important;border-radius:16px!important}}
-html.is-ios body.account-center-page input,html.is-ios body.account-center-page textarea,html.is-ios body.account-center-page select{font-size:16px!important}
-@supports(padding:max(0px)){html.is-wechat body.account-center-page,html.is-wechat body[data-page="service-detail"],html.is-wechat body[data-page="record-detail"]{padding-bottom:env(safe-area-inset-bottom,0px)}}
-@media(prefers-reduced-motion:reduce){body[data-page="service-detail"] *,body[data-page="record-detail"] *,body.account-center-page *,body.frontend-control-admin *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
-@media(forced-colors:active){body[data-page="service-detail"] .card,body[data-page="record-detail"] .record-detail-card,body.account-center-page .account-center-panel,body.admin-solid-ui .table-wrap,body.frontend-control-admin .fc-card{border:1px solid CanvasText!important}}
+@media(max-width:767px){body[data-page="service-detail"] .container,body[data-page="record-detail"] .container,body.frontend-control-admin .fc-topbar-inner,body.frontend-control-admin .fc-shell{width:min(calc(100% - 24px),100%)!important}body[data-page="service-detail"] .rich-detail-card,body[data-page="record-detail"] .record-detail-card{padding:17px!important}body[data-page="record-detail"] .record-meta-grid{grid-template-columns:1fr!important}body[data-page="service-detail"] .mobile-dock,body[data-page="record-detail"] .mobile-dock{padding-bottom:max(10px,env(safe-area-inset-bottom,0px))!important}body.frontend-control-admin .fc-top-actions{gap:6px;flex-wrap:wrap}body.frontend-control-admin .fc-card{padding:18px!important}body.frontend-control-admin .fc-sticky-save{bottom:max(8px,env(safe-area-inset-bottom,0px))!important;border-radius:16px!important}}
+@supports(padding:max(0px)){html.is-wechat body[data-page="service-detail"],html.is-wechat body[data-page="record-detail"]{padding-bottom:env(safe-area-inset-bottom,0px)}}
+@media(prefers-reduced-motion:reduce){body[data-page="service-detail"] *,body[data-page="record-detail"] *,body.frontend-control-admin *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+@media(forced-colors:active){body[data-page="service-detail"] .card,body[data-page="record-detail"] .record-detail-card,body.admin-solid-ui .table-wrap,body.frontend-control-admin .fc-card{border:1px solid CanvasText!important}}

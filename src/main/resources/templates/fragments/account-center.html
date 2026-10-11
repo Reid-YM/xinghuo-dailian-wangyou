@@ -2,7 +2,6 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <body>
 <header th:fragment="bar" class="account-center-bar">
-  <link th:replace="~{fragments/vnext-legacy :: deepPageBridge}">
   <div><span class="account-center-eyebrow">XINGHUO ACCOUNT</span><strong>个人中心</strong><small>需求、订单、资料与安全各归其位</small></div>
   <nav aria-label="个人中心快捷操作"><a href="/">首页</a><a href="/records">编号查询</a><a href="/contact">联系客服</a><button type="button" data-account-logout>安全退出</button></nav>
 </header>
@@ -10,8 +9,7 @@
 <aside th:fragment="rail(active)" class="account-center-rail" aria-label="个人中心导航">
   <div class="account-center-profile">
     <div class="account-avatar" data-account-center-avatar data-profile-avatar-preview aria-hidden="true"><span class="account-avatar-fallback">星</span></div>
-    <div><span>当前账号</span><strong data-account-center-name data-settings-name>读取中…</strong><small data-account-center-meta data-settings-contact>正在同步账号信息</small></div>
-  </div>
+    <div><span>当前账号</span><strong data-account-center-name data-settings-name>读取中…</strong><small data-account-center-meta data-settings-contact>正在同步账号信息</small></div></div>
   <nav class="account-center-nav">
     <span>业务中心</span>
     <a href="/account" th:classappend="${active == 'overview'} ? ' is-active' : ''"><b>概</b><i><strong>总览</strong><small>状态与快捷任务</small></i></a>

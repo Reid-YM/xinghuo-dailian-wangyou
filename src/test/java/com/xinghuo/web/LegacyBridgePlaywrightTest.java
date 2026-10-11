@@ -61,7 +61,6 @@ class LegacyBridgePlaywrightTest {
         addStyle(page, "account.css");
         addStyle(page, "account-center.css");
         addStyle(page, "account-center-refine.css");
-        addStyle(page, "vnext-legacy-bridge-v3.css");
 
         assertBridgeBackground(page, "account center desktop");
         assertNoHorizontalOverflow(page, "account center desktop");
@@ -111,7 +110,6 @@ class LegacyBridgePlaywrightTest {
         addStyle(page, "account.css");
         addStyle(page, "account-center.css");
         addStyle(page, "account-center-refine.css");
-        addStyle(page, "vnext-legacy-bridge-v3.css");
 
         assertBridgeBackground(page, "account center iPhone");
         assertNoHorizontalOverflow(page, "account center iPhone");

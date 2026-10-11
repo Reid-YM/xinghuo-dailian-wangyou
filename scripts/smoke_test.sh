@@ -60,10 +60,12 @@ check_code /assets/vnext-final-qa-fix-v5.css 200
 check_code /assets/vnext-mobile-focus-v7.css 200
 check_code /assets/vnext-mobile-polish-v8.css 200
 
-# 共享 legacy bridge 仍在生产使用；攻略投稿页样式已迁移为业务自有 canonical asset。
+# 共享 legacy bridge 仍服务详情/记录/后台；投稿页和个人中心已迁移为 feature-owned canonical assets。
 # 该 smoke 会依次在 18080、8081、8080 执行，因此三道发布门都会验证它们。
 check_code /assets/vnext-legacy-bridge-v3.css 200
 check_code /assets/account-submit.css 200
+check_code /assets/account-center.css 200
+check_code /assets/account-center-refine.css 200
 
 # /vnext/ 继续作为 noindex 的直接预览入口和故障排查入口。
 check_code /vnext/ 200

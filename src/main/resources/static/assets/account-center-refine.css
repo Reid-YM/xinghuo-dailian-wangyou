@@ -266,3 +266,45 @@
     grid-template-columns:1fr 1fr;
   }
 }
+
+/* 个人中心正式视觉层：从共享 vnext legacy bridge 迁入 feature-owned refine asset。 */
+body.account-center-page{
+  --v3-bg:#0b0c0f;
+  --v3-surface:#15181e;
+  --v3-surface-2:#101318;
+  --v3-border:#2b313b;
+  --v3-text:#eef1f5;
+  --v3-muted:#9ca5b2;
+  --v3-accent:#df2f31;
+  --v3-radius:16px;
+  --v3-shadow:0 18px 48px rgba(0,0,0,.22);
+  background:radial-gradient(circle at 86% 0,rgba(223,47,49,.08),transparent 32rem),var(--v3-bg)!important;
+  color:var(--v3-text)!important;
+}
+body.account-center-page main{color:var(--v3-text)}
+body.account-center-page .account-center-shell{width:min(calc(100% - 40px),1240px);max-width:none;margin-inline:auto;padding-top:28px;padding-bottom:48px}
+body.account-center-page .account-center-panel,body.account-center-page .account-summary-card,body.account-center-page .account-action-card{background:linear-gradient(180deg,#181b21,#121419)!important;border:1px solid var(--v3-border)!important;border-radius:var(--v3-radius)!important;color:var(--v3-text)!important;box-shadow:var(--v3-shadow)!important}
+body.account-center-page h1,body.account-center-page h2,body.account-center-page h3{color:var(--v3-text)!important;letter-spacing:-.025em}
+body.account-center-page p,body.account-center-page small{color:var(--v3-muted)}
+body.account-center-page a{transition:color .18s ease,border-color .18s ease,background .18s ease,transform .18s ease}
+body.account-center-page .account-center-bar{margin-bottom:16px;padding:12px 14px;border:1px solid var(--v3-border);border-radius:14px;background:rgba(21,24,30,.9);box-shadow:0 12px 34px rgba(0,0,0,.16)}
+body.account-center-page .account-center-breadcrumb{margin-bottom:14px;color:var(--v3-muted)}
+body.account-center-page .account-center-panel{padding:clamp(18px,2.5vw,28px)!important}
+body.account-center-page .account-summary-card,body.account-center-page .account-action-card{padding:18px!important}
+body.account-center-page .account-filter-bar{display:flex;gap:10px;flex-wrap:wrap;padding:12px;border:1px solid var(--v3-border)!important;border-radius:14px;background:var(--v3-surface-2)!important}
+body.account-center-page .account-order-row,body.account-center-page .account-request-row,body.account-center-page .account-progress-row,body.account-center-page .account-list-item{border:1px solid var(--v3-border)!important;border-radius:13px!important;background:#101318!important;color:var(--v3-text)!important;box-shadow:none!important}
+body.account-center-page input,body.account-center-page select,body.account-center-page textarea{min-height:46px;border:1px solid #343b46!important;border-radius:12px!important;background:#0d0f13!important;color:var(--v3-text)!important;font-size:16px;outline:none}
+body.account-center-page input:focus,body.account-center-page select:focus,body.account-center-page textarea:focus{border-color:var(--v3-accent)!important;box-shadow:0 0 0 3px rgba(223,47,49,.12)!important}
+body.account-center-page .btn.primary,body.account-center-page button.primary{background:var(--v3-accent)!important;border-color:var(--v3-accent)!important;color:#fff!important;box-shadow:0 10px 26px rgba(223,47,49,.18)}
+body.account-center-page .btn.ghost,body.account-center-page button.ghost{background:#15181e!important;border-color:#303641!important;color:#e4e7ec!important}
+body.account-center-page .status-badge,body.account-center-page .account-status{border-radius:999px!important;font-weight:800}
+body.account-center-page .account-empty-state{padding:30px;border:1px dashed #38404c;border-radius:14px;background:#0f1116;color:var(--v3-muted)}
+body.account-center-page .pagination a,body.account-center-page .pagination button{min-width:42px;min-height:42px;border:1px solid var(--v3-border);border-radius:10px;background:#12151a;color:#dfe3e9}
+@media(min-width:1600px){body.account-center-page .account-center-shell{width:min(calc(100% - 72px),1500px)}}
+@media(min-width:1920px){body.account-center-page .account-center-shell{width:min(calc(100% - 96px),1720px)}}
+@media(min-width:2400px){body.account-center-page .account-center-shell{width:min(calc(100% - 120px),1960px)}}
+@media(max-width:767px){body.account-center-page .account-center-shell{width:min(calc(100% - 24px),100%)!important}body.account-center-page .account-center-panel{padding:17px!important}body.account-center-page .account-filter-bar{display:grid;grid-template-columns:1fr}body.account-center-page .mobile-dock{padding-bottom:max(10px,env(safe-area-inset-bottom,0px))!important}}
+html.is-ios body.account-center-page input,html.is-ios body.account-center-page textarea,html.is-ios body.account-center-page select{font-size:16px!important}
+@supports(padding:max(0px)){html.is-wechat body.account-center-page{padding-bottom:env(safe-area-inset-bottom,0px)}}
+@media(prefers-reduced-motion:reduce){body.account-center-page *{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+@media(forced-colors:active){body.account-center-page .account-center-panel{border:1px solid CanvasText!important}}

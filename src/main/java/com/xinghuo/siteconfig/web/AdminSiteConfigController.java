@@ -1,6 +1,5 @@
 package com.xinghuo.siteconfig.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.siteconfig.application.SiteConfigPublicApplicationService;
 import com.xinghuo.upload.infrastructure.UploadAsset;
@@ -30,17 +29,17 @@ public class AdminSiteConfigController {
     private final UploadService uploads;
 
     @GetMapping
-    ApiDtos.SiteConfigResponse getConfig() {
+    SiteConfigResponse getConfig() {
         return SiteConfigWebMapper.toResponse(this.siteConfigQuery.get());
     }
 
     @PatchMapping(value={"/section/{section}"})
-    ApiDtos.SiteConfigResponse updateConfigSection(@PathVariable String section, @RequestBody Map<String, Object> body, Authentication a, HttpServletRequest req) {
+    SiteConfigResponse updateConfigSection(@PathVariable String section, @RequestBody Map<String, Object> body, Authentication a, HttpServletRequest req) {
         return this.configWrites.updateSection(section, body, a.getName(), req);
     }
 
     @PatchMapping
-    ApiDtos.SiteConfigResponse updateConfig(@Valid @RequestBody ApiDtos.SiteConfigUpdate r, Authentication a, HttpServletRequest req) {
+    SiteConfigResponse updateConfig(@Valid @RequestBody SiteConfigUpdate r, Authentication a, HttpServletRequest req) {
         return this.configWrites.update(r, a.getName(), req);
     }
 
@@ -65,7 +64,7 @@ public class AdminSiteConfigController {
     }
 
     @DeleteMapping(value={"/image/{slot}"})
-    ApiDtos.SiteConfigResponse clearSiteImage(@PathVariable String slot, Authentication a, HttpServletRequest req) {
+    SiteConfigResponse clearSiteImage(@PathVariable String slot, Authentication a, HttpServletRequest req) {
         return this.configWrites.updateSiteImage(slot, null, a.getName(), req);
     }
 

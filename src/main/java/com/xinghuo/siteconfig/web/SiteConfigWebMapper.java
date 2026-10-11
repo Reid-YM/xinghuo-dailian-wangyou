@@ -1,17 +1,16 @@
 package com.xinghuo.siteconfig.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.siteconfig.application.SiteConfigPublicSnapshot;
 import com.xinghuo.siteconfig.application.SiteConfigPublicView;
-import com.xinghuo.slot.web.SlotWebMapper;
+import com.xinghuo.slot.application.SlotPublicServiceView;
 
 public final class SiteConfigWebMapper {
     private SiteConfigWebMapper() {
     }
 
-    public static ApiDtos.SiteConfigResponse toResponse(SiteConfigPublicView view) {
+    public static SiteConfigResponse toResponse(SiteConfigPublicView view) {
         SiteConfigPublicSnapshot c = view.config();
-        return new ApiDtos.SiteConfigResponse(
+        return new SiteConfigResponse(
                 c.brandName(),
                 c.legalEntityName(),
                 view.operatingStatus().publicCode(),
@@ -96,19 +95,36 @@ public final class SiteConfigWebMapper {
                 c.seoDescription(),
                 c.toolUpdatedNote(),
                 c.toolPublicEnabled(),
-                SlotWebMapper.toPublicResponses(view.hotServices()));
+                view.hotServices().stream().map(SiteConfigWebMapper::toResponse).toList());
     }
 
-    private static ApiDtos.ContactChannelResponse toResponse(SiteConfigPublicSnapshot.ContactChannelView view) {
-        return new ApiDtos.ContactChannelResponse(
+    private static ContactChannelResponse toResponse(SiteConfigPublicSnapshot.ContactChannelView view) {
+        return new ContactChannelResponse(
                 view.label(), view.wechatId(), view.qrImage(), view.note(), view.jumpUrl());
     }
 
-    private static ApiDtos.TrustCaseResponse toResponse(SiteConfigPublicSnapshot.TrustCaseView view) {
-        return new ApiDtos.TrustCaseResponse(view.tag(), view.title(), view.metric(), view.detail());
+    private static TrustCaseResponse toResponse(SiteConfigPublicSnapshot.TrustCaseView view) {
+        return new TrustCaseResponse(view.tag(), view.title(), view.metric(), view.detail());
     }
 
-    private static ApiDtos.TrustFaqResponse toResponse(SiteConfigPublicSnapshot.TrustFaqView view) {
-        return new ApiDtos.TrustFaqResponse(view.question(), view.answer());
+    private static TrustFaqResponse toResponse(SiteConfigPublicSnapshot.TrustFaqView view) {
+        return new TrustFaqResponse(view.question(), view.answer());
+    }
+
+    private static ServiceResponse toResponse(SlotPublicServiceView view) {
+        return new ServiceResponse(
+                view.id(),
+                view.slug(),
+                view.gameCode(),
+                view.name(),
+                view.category(),
+                view.shortDesc(),
+                view.priceMode(),
+                view.priceFixed(),
+                view.priceMin(),
+                view.priceMax(),
+                view.durationText(),
+                view.status(),
+                view.coverImage());
     }
 }

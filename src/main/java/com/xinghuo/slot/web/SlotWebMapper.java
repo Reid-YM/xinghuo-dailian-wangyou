@@ -1,7 +1,5 @@
 package com.xinghuo.slot.web;
 
-import com.xinghuo.dto.ApiDtos;
-import com.xinghuo.slot.application.SlotPublicServiceView;
 import com.xinghuo.slot.application.SlotView;
 import com.xinghuo.slot.application.UpdateSlotCommand;
 import java.util.List;
@@ -22,27 +20,6 @@ public final class SlotWebMapper {
     }
 
     public static List<SlotResponse> toSlotResponses(List<SlotView> views) {
-        return views.stream().map(SlotWebMapper::toResponse).toList();
-    }
-
-    public static ApiDtos.ServiceResponse toResponse(SlotPublicServiceView view) {
-        return new ApiDtos.ServiceResponse(
-                view.id(),
-                view.slug(),
-                view.gameCode(),
-                view.name(),
-                view.category(),
-                view.shortDesc(),
-                view.priceMode(),
-                view.priceFixed(),
-                view.priceMin(),
-                view.priceMax(),
-                view.durationText(),
-                view.status(),
-                view.coverImage());
-    }
-
-    public static List<ApiDtos.ServiceResponse> toPublicResponses(List<SlotPublicServiceView> views) {
         return views.stream().map(SlotWebMapper::toResponse).toList();
     }
 }

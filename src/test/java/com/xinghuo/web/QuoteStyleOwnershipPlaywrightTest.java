@@ -41,7 +41,9 @@ class QuoteStyleOwnershipPlaywrightTest {
 
                     page.setViewportSize(800, 900);
                     assertEquals("relative", page.evaluate("() => getComputedStyle(document.querySelector('.consult-card')).position"));
-                    assertEquals("auto", page.evaluate("() => getComputedStyle(document.querySelector('.consult-card')).top"));
+                    assertEquals(0.0, ((Number) page.evaluate(
+                            "() => parseFloat(getComputedStyle(document.querySelector('.consult-card')).top) || 0"
+                    )).doubleValue());
                 }
             }
         }

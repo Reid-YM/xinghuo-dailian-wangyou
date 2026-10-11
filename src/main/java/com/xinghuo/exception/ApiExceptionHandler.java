@@ -1,15 +1,6 @@
 package com.xinghuo.exception;
 
-import com.xinghuo.controller.AdminApiController;
-import com.xinghuo.controller.AdminLeadController;
-import com.xinghuo.controller.PublicApiController;
-import com.xinghuo.controller.SeoController;
 import com.xinghuo.account.service.AccountException;
-import com.xinghuo.exception.BadRequestException;
-import com.xinghuo.exception.ConflictException;
-import com.xinghuo.exception.NotFoundException;
-import com.xinghuo.guide.AdminGuideController;
-import com.xinghuo.guide.PublicGuideController;
 import jakarta.persistence.OptimisticLockException;
 import java.util.Map;
 import org.apache.catalina.connector.ClientAbortException;
@@ -29,7 +20,27 @@ import org.springframework.web.context.request.async.AsyncRequestNotUsableExcept
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-@RestControllerAdvice(assignableTypes={PublicApiController.class, AdminApiController.class, AdminLeadController.class, PublicGuideController.class, AdminGuideController.class, SeoController.class})
+@RestControllerAdvice(basePackages={
+        "com.xinghuo.audit.web",
+        "com.xinghuo.catalog.web",
+        "com.xinghuo.dashboard.web",
+        "com.xinghuo.feedback.web",
+        "com.xinghuo.frontendcontrol.web",
+        "com.xinghuo.gamestatus.web",
+        "com.xinghuo.guide.web",
+        "com.xinghuo.mobilevisual.web",
+        "com.xinghuo.order.web",
+        "com.xinghuo.quote.web",
+        "com.xinghuo.record.web",
+        "com.xinghuo.seo.web",
+        "com.xinghuo.siteconfig.web",
+        "com.xinghuo.sitesetting.web",
+        "com.xinghuo.slot.web",
+        "com.xinghuo.taxonomy.web",
+        "com.xinghuo.toolstation.web",
+        "com.xinghuo.tracking.web",
+        "com.xinghuo.upload.web"
+})
 public class ApiExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
 

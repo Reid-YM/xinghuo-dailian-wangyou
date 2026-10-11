@@ -44,6 +44,7 @@ class VNextLegacyUiBridgeContractTest {
         String sharedCss = read("src/main/resources/static/assets/site-image-controls.css");
         String sharedRuntime = read("src/main/resources/static/assets/site-image-controls.js");
         String bridgeFragment = read("src/main/resources/templates/fragments/vnext-legacy.html");
+        String accountCenterFragment = read("src/main/resources/templates/fragments/account-center.html");
         String serviceDesktop = read("src/main/resources/templates/service-detail.html");
         String serviceMobile = read("src/main/resources/templates/mobile/service-detail.html");
         String recordDesktop = read("src/main/resources/templates/record-detail.html");
@@ -56,6 +57,8 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(bridgeFragment.contains("th:fragment=\"deepPageBridge\""));
         assertTrue(bridgeFragment.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
         assertTrue(bridgeFragment.contains("data-vnext-legacy-bridge=\"1\""));
+        assertTrue(accountCenterFragment.contains("th:fragment=\"bar\""));
+        assertTrue(accountCenterFragment.contains("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(serviceDesktop.indexOf("fragments/site :: header") < serviceDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(serviceMobile.indexOf("fragments/site :: header") < serviceMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(recordDesktop.indexOf("fragments/site :: header") < recordDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));

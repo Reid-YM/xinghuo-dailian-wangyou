@@ -35,17 +35,17 @@ public class AdminCatalogServiceController {
     }
 
     @GetMapping
-    List<ApiDtos.AdminServiceResponse> listServices() {
+    List<AdminServiceResponse> listServices() {
         return CatalogAdminWebMapper.toResponses(this.services.adminList());
     }
 
     @PostMapping
-    ApiDtos.AdminServiceResponse createService(@Valid @RequestBody ApiDtos.ServiceUpsert r, Authentication a, HttpServletRequest req) {
+    AdminServiceResponse createService(@Valid @RequestBody ServiceUpsert r, Authentication a, HttpServletRequest req) {
         return CatalogAdminWebMapper.toResponse(this.services.create(CatalogAdminWebMapper.toCommand(r), a.getName()));
     }
 
     @PutMapping(value={"/{id}"})
-    ApiDtos.AdminServiceResponse updateService(@PathVariable Long id, @Valid @RequestBody ApiDtos.ServiceUpsert r, Authentication a, HttpServletRequest req) {
+    AdminServiceResponse updateService(@PathVariable Long id, @Valid @RequestBody ServiceUpsert r, Authentication a, HttpServletRequest req) {
         return CatalogAdminWebMapper.toResponse(this.services.update(id, CatalogAdminWebMapper.toCommand(r), a.getName()));
     }
 
@@ -57,7 +57,7 @@ public class AdminCatalogServiceController {
     }
 
     @PostMapping(value={"/{id}/restore"})
-    ApiDtos.AdminServiceResponse restoreService(@PathVariable Long id, Authentication a, HttpServletRequest req) {
+    AdminServiceResponse restoreService(@PathVariable Long id, Authentication a, HttpServletRequest req) {
         return CatalogAdminWebMapper.toResponse(this.services.restore(id, a.getName()));
     }
 

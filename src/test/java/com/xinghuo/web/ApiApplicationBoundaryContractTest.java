@@ -83,7 +83,9 @@ class ApiApplicationBoundaryContractTest {
 
         assertTrue(quoteMapper.contains("com.xinghuo.dto"));
         assertTrue(quoteMapper.contains("QuoteSubmissionCommand"));
-        assertTrue(orderMapper.contains("com.xinghuo.dto"));
+        assertFalse(orderMapper.contains("com.xinghuo.dto"));
+        assertTrue(orderMapper.contains("AdminOrderResponse"));
+        assertTrue(orderMapper.contains("OrderPublicResponse"));
         assertTrue(orderMapper.contains("OrderPublicView"));
         assertFalse(recordMapper.contains("com.xinghuo.dto"));
         assertTrue(recordMapper.contains("RecordPublicResponse"));

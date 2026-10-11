@@ -1,6 +1,5 @@
 package com.xinghuo.order.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.order.application.AdminOrderView;
 import com.xinghuo.order.application.CreateOrderCommand;
 import com.xinghuo.order.application.OrderPublicView;
@@ -16,7 +15,7 @@ public final class OrderWebMapper {
     private OrderWebMapper() {
     }
 
-    public static CreateOrderCommand toCommand(ApiDtos.CreateOrderRequest request) {
+    public static CreateOrderCommand toCommand(CreateOrderRequest request) {
         return new CreateOrderCommand(
                 request.status(),
                 request.progressPercent(),
@@ -26,7 +25,7 @@ public final class OrderWebMapper {
                 request.reason());
     }
 
-    public static UpdateOrderCommand toCommand(ApiDtos.UpdateOrderRequest request) {
+    public static UpdateOrderCommand toCommand(UpdateOrderRequest request) {
         return new UpdateOrderCommand(
                 request.version(),
                 request.status(),
@@ -37,8 +36,8 @@ public final class OrderWebMapper {
                 request.reason());
     }
 
-    public static ApiDtos.OrderPublicResponse toResponse(OrderPublicView view) {
-        return new ApiDtos.OrderPublicResponse(
+    public static OrderPublicResponse toResponse(OrderPublicView view) {
+        return new OrderPublicResponse(
                 view.businessNo(),
                 view.status(),
                 view.progressPercent(),
@@ -48,8 +47,8 @@ public final class OrderWebMapper {
                 view.customerNote());
     }
 
-    public static ApiDtos.AdminOrderResponse toResponse(AdminOrderView view) {
-        return new ApiDtos.AdminOrderResponse(
+    public static AdminOrderResponse toResponse(AdminOrderView view) {
+        return new AdminOrderResponse(
                 view.id(),
                 view.orderNo(),
                 view.businessNo(),
@@ -64,7 +63,7 @@ public final class OrderWebMapper {
                 view.version());
     }
 
-    public static List<ApiDtos.AdminOrderResponse> toAdminResponses(List<AdminOrderView> views) {
+    public static List<AdminOrderResponse> toAdminResponses(List<AdminOrderView> views) {
         return views.stream().map(OrderWebMapper::toResponse).toList();
     }
 

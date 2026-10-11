@@ -1,6 +1,5 @@
 package com.xinghuo.order.web;
 
-import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.order.application.OrderApplicationService;
 import com.xinghuo.upload.infrastructure.UploadAsset;
 import com.xinghuo.upload.infrastructure.UploadService;
@@ -38,24 +37,24 @@ public class AdminOrderController {
     }
 
     @GetMapping
-    List<ApiDtos.AdminOrderResponse> orders() {
+    List<AdminOrderResponse> orders() {
         return OrderWebMapper.toAdminResponses(this.orders.list());
     }
 
     @PostMapping
-    ApiDtos.AdminOrderResponse createOrder(@Valid @RequestBody ApiDtos.CreateOrderRequest r, Authentication a, HttpServletRequest req) {
+    AdminOrderResponse createOrder(@Valid @RequestBody CreateOrderRequest r, Authentication a, HttpServletRequest req) {
         return OrderWebMapper.toResponse(
                 this.orders.create(OrderWebMapper.toCommand(r), a.getName()));
     }
 
     @PatchMapping(value={"/{orderNo}"})
-    ApiDtos.AdminOrderResponse updateOrder(@PathVariable String orderNo, @Valid @RequestBody ApiDtos.UpdateOrderRequest r, Authentication a, HttpServletRequest req) {
+    AdminOrderResponse updateOrder(@PathVariable String orderNo, @Valid @RequestBody UpdateOrderRequest r, Authentication a, HttpServletRequest req) {
         return OrderWebMapper.toResponse(
                 this.orders.update(orderNo, OrderWebMapper.toCommand(r), a.getName()));
     }
 
     @PostMapping(value={"/{orderNo}/image"})
-    ApiDtos.AdminOrderResponse orderImage(@PathVariable String orderNo, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
+    AdminOrderResponse orderImage(@PathVariable String orderNo, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
         UploadAsset x = this.uploads.storeImage(file, UploadAsset.Kind.ORDER_PROGRESS);
         return OrderWebMapper.toResponse(this.orders.attachImage(orderNo, x.getId(), a.getName()));
     }

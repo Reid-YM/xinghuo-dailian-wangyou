@@ -55,7 +55,7 @@ class HomeDeviceDomPlaywrightTest {
     private static void assertMobile(Browser browser, int width, int height, String label) throws Exception {
         Page page = render(browser, TEMPLATES.resolve("mobile/index.html"), ASSETS.resolve("mobile-storefront.css"), ASSETS.resolve("mobile-storefront.js"), width, height, true);
         assertNotNull(page.querySelector(".xh-mobile-home"), label + " mobile root missing");
-        assertNotNull(page.querySelector(".xh-mobile-hero-v4"), label + " V4 hero missing");
+        assertNotNull(page.querySelector(".xh-mobile-hero-v4"), label + " V4/V5 hero missing");
         assertEquals(4, ((Number) page.evaluate("() => document.querySelectorAll('.xh-mobile-hero-feature').length")).intValue(), label + " hero feature count");
         assertNotNull(page.querySelector(".xh-mobile-progress-card"), label + " progress card missing");
         assertNotNull(page.querySelector(".xh-mobile-launcher"), label + " mobile launcher missing");
@@ -73,6 +73,13 @@ class HomeDeviceDomPlaywrightTest {
         assertTrue(submitHeight.doubleValue() >= 48, () -> label + " submit touch target too small: " + submitHeight + "px");
         Number inputFont = number(page, "parseFloat(getComputedStyle(document.querySelector('#home-contact')).fontSize)");
         assertTrue(inputFont.doubleValue() >= 16, () -> label + " input font can trigger iOS zoom: " + inputFont + "px");
+
+        Number heroHeight = number(page, "document.querySelector('#homeHero').getBoundingClientRect().height");
+        assertTrue(heroHeight.doubleValue() >= 400 && heroHeight.doubleValue() <= 540,
+                () -> label + " V5 first-screen composition drifted: hero=" + heroHeight + "px");
+        assertEquals("block", string(page, "getComputedStyle(document.querySelector('#gameEntrySection')).display"), label + " MW4 reference card hidden");
+        Number gameCardHeight = number(page, "document.querySelector('#gameEntrySection').getBoundingClientRect().height");
+        assertTrue(gameCardHeight.doubleValue() >= 90, () -> label + " MW4 game card too short: " + gameCardHeight + "px");
         assertNoOverflow(page, label);
         page.close();
     }
@@ -86,6 +93,8 @@ class HomeDeviceDomPlaywrightTest {
         if (mobile) {
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-home-v4.css")));
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-floating-dock-v4.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-home-reference-v5.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("mobile-home-reference-v5-layout.css")));
         }
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-overflow-guard.css")));
         page.addScriptTag(new Page.AddScriptTagOptions().setPath(deviceJs));

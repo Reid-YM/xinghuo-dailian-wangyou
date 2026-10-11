@@ -1,0 +1,649 @@
+/* Mobile Home V5 — reference-matched storefront.
+ * This layer intentionally sits after V4 + floating-dock hardening and before
+ * the global overflow guard. It only targets the mobile home body.
+ */
+body.xh-mobile-home-page.xh-mobile-home-page{
+  --v5-gold:#ffd528;
+  --v5-gold-2:#ffb914;
+  --v5-green:#38ef8e;
+  --v5-bg:#07090c;
+  --v5-card:#11151b;
+  --v5-card-2:#171c24;
+  --v5-line:rgba(255,255,255,.13);
+  --v5-muted:#9da5b1;
+  background:#07090c!important;
+  padding-bottom:calc(94px + env(safe-area-inset-bottom,0px))!important;
+}
+
+/* Header — compact, dark and gold like the approved reference. */
+body.xh-mobile-home-page.xh-mobile-home-page .site-header{
+  background:#080a0d!important;
+  border-bottom:1px solid rgba(255,202,38,.22)!important;
+  box-shadow:none!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .site-header .topbar{
+  min-height:58px!important;
+  padding:7px 14px!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .brand{
+  gap:10px!important;
+  font-size:17px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  letter-spacing:-.03em!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .brand img{
+  width:32px!important;
+  height:32px!important;
+  flex:0 0 32px!important;
+  border-radius:8px!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .nav-toggle{
+  width:43px!important;
+  height:43px!important;
+  border-radius:12px!important;
+  border:1px solid rgba(255,255,255,.15)!important;
+  background:linear-gradient(180deg,#1d222b,#12161d)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 8px 18px rgba(0,0,0,.28)!important;
+}
+
+/* Announcement — label on the left, chevron on the right. */
+body.xh-mobile-home-page.xh-mobile-home-page #announcementBar:not(.hidden){
+  display:flex!important;
+  align-items:center!important;
+  min-height:40px!important;
+  margin:6px 12px 5px!important;
+  padding:6px 34px 6px 72px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(255,205,38,.24)!important;
+  border-radius:10px!important;
+  background:linear-gradient(90deg,rgba(255,198,30,.08),rgba(23,26,31,.96) 28%,rgba(23,26,31,.90))!important;
+  color:#e6e8ec!important;
+  font-size:12px!important;
+  line-height:1.25!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+  position:relative!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page #announcementBar:not(.hidden)::before{
+  content:"公告";
+  position:absolute;
+  left:9px;
+  top:50%;
+  transform:translateY(-50%);
+  min-width:49px;
+  height:27px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,204,32,.55);
+  border-radius:999px;
+  background:rgba(36,28,6,.78);
+  color:#ffd337;
+  font-size:11px;
+  font-weight:900;
+}
+body.xh-mobile-home-page.xh-mobile-home-page #announcementBar:not(.hidden)::after{
+  content:"›";
+  position:absolute;
+  right:11px;
+  top:50%;
+  transform:translateY(-53%);
+  color:#fff;
+  font-size:27px;
+  font-weight:300;
+}
+
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-home{
+  gap:10px!important;
+  padding:0 12px 28px!important;
+}
+
+/* Hero — the visual background ends before the progress card even though the
+ * progress card remains inside the section for compatibility with V3 controls. */
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4{
+  min-height:0!important;
+  height:auto!important;
+  padding:0!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  isolation:isolate!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 .hero-bg-layer{
+  top:0!important;
+  left:0!important;
+  right:0!important;
+  bottom:auto!important;
+  width:100%!important;
+  height:350px!important;
+  border-radius:0 0 18px 18px!important;
+  opacity:1!important;
+  background-image:url('/assets/covers/service/codmw4-1.jpg');
+  background-position:center 38%!important;
+  background-size:cover!important;
+  filter:saturate(1.05) contrast(1.08) brightness(.76)!important;
+  transform:none!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4::before{
+  inset:0 0 auto 0!important;
+  height:350px!important;
+  border-radius:0 0 18px 18px!important;
+  background:
+    linear-gradient(90deg,rgba(4,6,8,.86) 0%,rgba(4,6,8,.64) 38%,rgba(4,6,8,.18) 72%,rgba(4,6,8,.05) 100%),
+    linear-gradient(0deg,rgba(5,7,10,.94) 0%,rgba(5,7,10,.08) 51%,rgba(5,7,10,.25) 100%)!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4::after{
+  inset:240px 0 auto 0!important;
+  height:110px!important;
+  border-radius:0 0 18px 18px!important;
+  background:linear-gradient(180deg,transparent,rgba(5,7,10,.94))!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4>*:not(.hero-bg-layer){
+  position:relative;
+  z-index:3;
+}
+
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-top{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  gap:7px!important;
+  margin:0 12px!important;
+  padding-top:15px!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 .service-state{
+  min-height:27px!important;
+  padding:5px 10px!important;
+  border:1px solid rgba(255,216,62,.66)!important;
+  border-radius:999px!important;
+  background:rgba(10,25,18,.76)!important;
+  color:var(--v5-green)!important;
+  font-size:11.5px!important;
+  line-height:1.15!important;
+  font-weight:900!important;
+  box-shadow:0 0 18px rgba(51,239,141,.09)!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 .hero-kicker{
+  min-height:28px!important;
+  padding:5px 11px!important;
+  border:1px solid rgba(255,213,40,.72)!important;
+  border-radius:999px!important;
+  background:rgba(7,9,12,.76)!important;
+  color:#e8eaee!important;
+  font-size:11.5px!important;
+  line-height:1.2!important;
+  font-weight:850!important;
+}
+
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-copy{
+  max-width:none!important;
+  margin:0 12px!important;
+  padding-top:12px!important;
+  position:relative!important;
+}
+/* Keep the configurable H1 in the document, but render the approved visual
+ * line treatment with pseudo-elements so MW4 can be highlighted in gold. */
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 h1{
+  max-width:none!important;
+  margin:0!important;
+  font-size:0!important;
+  line-height:0!important;
+  letter-spacing:0!important;
+  color:transparent!important;
+  text-shadow:none!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 h1::before,
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 h1::after{
+  display:block;
+  width:max-content;
+  max-width:100%;
+  font-size:39px;
+  line-height:.98;
+  font-weight:950;
+  letter-spacing:-.065em;
+  text-shadow:0 4px 16px rgba(0,0,0,.52);
+  white-space:nowrap;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 h1::before{
+  content:"使命召唤";
+  color:#fff;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 h1::after{
+  content:"MW4 代练服务";
+  margin-top:2px;
+  background:linear-gradient(90deg,#ffd52a 0 31%,#fff 31% 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 .hero-subtitle,
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 .hero-price-row{
+  display:none!important;
+}
+/* Small wordmark in the upper-right, mirroring the approved composition. */
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-copy::after{
+  content:"CALL OF DUTY\A MODERN WARFARE 4";
+  position:absolute;
+  top:-82px;
+  right:1px;
+  width:92px;
+  color:#f5f5f5;
+  white-space:pre;
+  text-align:right;
+  font-size:8px;
+  line-height:.9;
+  font-weight:950;
+  letter-spacing:-.04em;
+  text-shadow:0 2px 8px rgba(0,0,0,.55);
+  opacity:.96;
+}
+
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-features{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:0!important;
+  margin:11px 12px 0!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-feature{
+  min-height:45px!important;
+  display:grid!important;
+  grid-template-columns:23px 1fr!important;
+  grid-template-rows:auto auto!important;
+  align-content:center!important;
+  column-gap:5px!important;
+  padding:2px 7px!important;
+  border:0!important;
+  border-right:1px solid rgba(255,255,255,.25)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  text-align:left!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-feature:last-child{border-right:0!important}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-feature svg{
+  grid-row:1 / span 2!important;
+  align-self:center!important;
+  width:22px!important;
+  height:22px!important;
+  margin:0!important;
+  stroke:var(--v5-gold)!important;
+  stroke-width:1.9!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-feature b{
+  align-self:end!important;
+  color:#fff!important;
+  font-size:10.5px!important;
+  line-height:1.05!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-feature small{
+  align-self:start!important;
+  margin-top:3px!important;
+  color:#c0c4cb!important;
+  font-size:8px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-actions{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:8px!important;
+  margin:11px 12px 0!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-actions .btn{
+  width:100%!important;
+  min-height:0!important;
+  height:48px!important;
+  border-radius:16px!important;
+  font-size:16px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  position:relative!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-actions .btn.primary{
+  color:#0b0d10!important;
+  border:1px solid #ffe269!important;
+  background:linear-gradient(105deg,#ffba0f,#ffe237 57%,#ffc319)!important;
+  box-shadow:0 5px 22px rgba(255,195,26,.24),inset 0 1px 0 rgba(255,255,255,.64)!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-actions .btn.primary::after{
+  content:"›";
+  margin-left:9px;
+  font-size:28px;
+  line-height:0;
+  vertical-align:-3px;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-actions .btn.ghost{
+  height:42px!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  background:linear-gradient(180deg,rgba(28,33,41,.96),rgba(17,21,27,.96))!important;
+  color:#f5f7fa!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-actions .btn.ghost::before{
+  content:"▦";
+  margin-right:8px;
+  font-size:21px;
+  font-weight:500;
+  vertical-align:-2px;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-actions .btn.ghost::after{
+  content:"›";
+  margin-left:8px;
+  color:#8f98a7;
+  font-size:22px;
+  vertical-align:-2px;
+}
+
+/* Business progress — independent card immediately under the cinematic hero. */
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-card{
+  margin:13px 0 0!important;
+  padding:10px 10px 11px!important;
+  border:1px solid rgba(255,255,255,.15)!important;
+  border-radius:16px!important;
+  background:linear-gradient(165deg,#151a21,#0f1319)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 8px 22px rgba(0,0,0,.18)!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-head{
+  min-height:26px!important;
+  margin:0 2px 8px!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-head strong{
+  gap:7px!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:950!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-head svg{
+  width:18px!important;
+  height:18px!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-all{
+  color:#a8adb7!important;
+  font-size:10px!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-items{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:6px!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-items span{
+  min-height:54px!important;
+  display:grid!important;
+  grid-template-columns:30px 1fr!important;
+  grid-template-rows:auto auto!important;
+  align-content:center!important;
+  column-gap:4px!important;
+  padding:7px 7px!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  border-radius:12px!important;
+  background:linear-gradient(155deg,rgba(28,33,42,.92),rgba(18,22,29,.92))!important;
+  text-align:left!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-items span::before{
+  grid-row:1 / span 2;
+  align-self:center;
+  justify-self:center;
+  color:#f5f7fa;
+  font-size:24px;
+  line-height:1;
+  font-weight:400;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-items span:nth-child(1)::before{content:"◎"}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-items span:nth-child(2)::before{content:"♙"}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-items span:nth-child(3)::before{content:"▣"}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-items b{
+  color:#fff!important;
+  font-size:13px!important;
+  line-height:1.05!important;
+  font-weight:950!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-items small{
+  margin-top:3px!important;
+  color:#a9afb9!important;
+  font-size:8.5px!important;
+  line-height:1.05!important;
+}
+
+/* Four quick entries */
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-launcher{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+  margin:0!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-launcher a{
+  min-height:82px!important;
+  padding:10px 5px 8px!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  border-radius:16px!important;
+  background:linear-gradient(160deg,#181d25,#11151b)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 8px 18px rgba(0,0,0,.17)!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-launcher svg{
+  width:25px!important;
+  height:25px!important;
+  margin:0 auto 7px!important;
+  stroke:#eef1f5!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-launcher a:first-child svg,
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-launcher a:nth-child(2) svg{
+  stroke:var(--v5-gold)!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-launcher strong{
+  color:#fff!important;
+  font-size:13px!important;
+  line-height:1!important;
+  font-weight:950!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-launcher span{
+  margin-top:5px!important;
+  color:#9ca3ae!important;
+  font-size:9px!important;
+}
+
+/* Always show the reference-style MW4 game card, independent of API timing. */
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-game-entry.hidden{
+  display:block!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-game-entry{
+  min-height:104px!important;
+  padding:14px 60px 13px 16px!important;
+  overflow:hidden!important;
+  position:relative!important;
+  border:1px solid rgba(255,255,255,.13)!important;
+  border-radius:16px!important;
+  background:
+    linear-gradient(90deg,rgba(8,10,13,.94) 0%,rgba(8,10,13,.68) 52%,rgba(8,10,13,.25) 100%),
+    url('/assets/covers/service/codmw4-3.jpg') center/cover no-repeat!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-game-entry .game-entry-head{
+  min-height:76px!important;
+  align-items:flex-start!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-game-entry .eyebrow{
+  color:var(--v5-gold)!important;
+  font-size:10px!important;
+  font-weight:950!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-game-entry h2{
+  margin:3px 0 0!important;
+  color:#fff!important;
+  font-size:24px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  letter-spacing:-.04em!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-game-entry h2::after{
+  content:"专业代练 · 安全高效 · 进度可查";
+  display:block;
+  margin-top:7px;
+  color:#b5bac3;
+  font-size:11px;
+  line-height:1.1;
+  font-weight:600;
+  letter-spacing:0;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-game-entry .text-link{
+  position:absolute!important;
+  right:13px!important;
+  top:50%!important;
+  width:42px!important;
+  height:42px!important;
+  transform:translateY(-50%)!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid rgba(255,213,40,.35)!important;
+  border-radius:50%!important;
+  background:rgba(12,15,20,.72)!important;
+  color:transparent!important;
+  font-size:0!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-game-entry .text-link::after{
+  content:"›";
+  color:#fff;
+  font-size:32px;
+  line-height:1;
+  transform:translateX(1px) translateY(-1px);
+}
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-game-entry .home-game-rail{
+  display:none!important;
+}
+
+/* Floating support button sits just above the dock. */
+body.xh-mobile-home-page.xh-mobile-home-page .floating-customer-service{
+  position:fixed!important;
+  right:14px!important;
+  bottom:calc(92px + env(safe-area-inset-bottom,0px))!important;
+  width:56px!important;
+  height:56px!important;
+  min-width:56px!important;
+  min-height:56px!important;
+  border:3px solid rgba(91,255,165,.78)!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle at 35% 30%,#3cf496,#09c967 70%)!important;
+  box-shadow:0 0 24px rgba(33,237,128,.40),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  z-index:90!important;
+}
+
+/* Bottom dock — glass black/gold capsule matching the approved reference. */
+body.xh-mobile-home-page.xh-mobile-home-page .mobile-dock{
+  left:max(12px,env(safe-area-inset-left,0px))!important;
+  right:max(12px,env(safe-area-inset-right,0px))!important;
+  bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;
+  height:70px!important;
+  min-height:70px!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:0!important;
+  padding:6px 5px!important;
+  overflow:visible!important;
+  border:1px solid rgba(255,221,98,.72)!important;
+  border-radius:28px!important;
+  background:linear-gradient(180deg,rgba(29,33,40,.94),rgba(14,17,22,.96))!important;
+  box-shadow:0 -4px 26px rgba(255,210,53,.08),0 15px 40px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.08)!important;
+  -webkit-backdrop-filter:blur(18px)!important;
+  backdrop-filter:blur(18px)!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .mobile-dock>a{
+  position:relative!important;
+  min-width:0!important;
+  height:58px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+  color:#f4f5f7!important;
+  text-decoration:none!important;
+  border:0!important;
+  background:transparent!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .mobile-dock svg{
+  width:24px!important;
+  height:24px!important;
+  margin:0!important;
+  overflow:visible!important;
+  fill:none!important;
+  stroke:#f2f3f6!important;
+  stroke-width:1.9!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .mobile-dock-label{
+  color:#f1f2f4!important;
+  font-size:10.5px!important;
+  line-height:1!important;
+  font-weight:800!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .mobile-dock>a[aria-current="page"] svg{
+  width:32px!important;
+  height:32px!important;
+  margin-top:-5px!important;
+  padding:5px!important;
+  border-radius:9px!important;
+  background:linear-gradient(145deg,#ffb90c,#ffe232)!important;
+  stroke:#17191d!important;
+  filter:drop-shadow(0 4px 10px rgba(255,197,20,.28));
+}
+body.xh-mobile-home-page.xh-mobile-home-page .mobile-dock>a[aria-current="page"] .mobile-dock-label{
+  color:var(--v5-gold)!important;
+  font-weight:950!important;
+}
+body.xh-mobile-home-page.xh-mobile-home-page .mobile-dock>a[aria-current="page"]::after{
+  content:"";
+  position:absolute;
+  bottom:1px;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#ffe136;
+  box-shadow:0 0 10px rgba(255,222,52,.75);
+}
+
+/* Everything below the first-screen reference keeps the existing V4 business
+ * components, but the surfaces stay visually consistent. */
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-quote-card,
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-two-up>.card,
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hot,
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-proof-grid .card,
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-tool,
+body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-faq{
+  border-color:rgba(255,255,255,.11)!important;
+  background:linear-gradient(160deg,#151a21,#0f1318)!important;
+}
+
+@media (max-width:380px){
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 .hero-bg-layer,
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4::before{height:338px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4::after{inset:230px 0 auto 0!important;height:108px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 h1::before,
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 h1::after{font-size:35px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-feature{grid-template-columns:20px 1fr!important;padding:2px 4px!important;column-gap:3px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-feature svg{width:19px!important;height:19px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-feature b{font-size:9.5px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-feature small{font-size:7.4px!important}
+}
+
+@media (max-width:330px){
+  body.xh-mobile-home-page.xh-mobile-home-page .site-header .topbar{padding-left:10px!important;padding-right:10px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .brand{font-size:15px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page #announcementBar:not(.hidden){margin-left:8px!important;margin-right:8px!important;font-size:10.5px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-home{padding-left:8px!important;padding-right:8px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 h1::before,
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 h1::after{font-size:31px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-top,
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-copy,
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-features,
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-actions{margin-left:9px!important;margin-right:9px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 .service-state,
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-hero-v4 .hero-kicker{font-size:9.8px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-items span{grid-template-columns:24px 1fr!important;padding-left:5px!important;padding-right:5px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-progress-items span::before{font-size:20px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .xh-mobile-launcher a{min-height:78px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .mobile-dock{left:8px!important;right:8px!important;height:66px!important;min-height:66px!important}
+  body.xh-mobile-home-page.xh-mobile-home-page .mobile-dock>a{height:54px!important}
+}

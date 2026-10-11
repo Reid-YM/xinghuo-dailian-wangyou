@@ -46,6 +46,8 @@ class VNextLegacyUiBridgeContractTest {
         String bridgeFragment = read("src/main/resources/templates/fragments/vnext-legacy.html");
         String recordDesktop = read("src/main/resources/templates/record-detail.html");
         String recordMobile = read("src/main/resources/templates/mobile/record-detail.html");
+        String orderDesktop = read("src/main/resources/templates/order-detail.html");
+        String orderMobile = read("src/main/resources/templates/mobile/order-detail.html");
 
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-legacy-bridge-v3.css"));
         assertFalse(sharedCss.contains("@import url(\"/assets/vnext-account-submit-v3.css"));
@@ -54,6 +56,8 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(bridgeFragment.contains("data-vnext-legacy-bridge=\"1\""));
         assertTrue(recordDesktop.indexOf("fragments/site :: header") < recordDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
         assertTrue(recordMobile.indexOf("fragments/site :: header") < recordMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
+        assertTrue(orderDesktop.indexOf("</header>") < orderDesktop.indexOf("fragments/vnext-legacy :: deepPageBridge"));
+        assertTrue(orderMobile.indexOf("</header>") < orderMobile.indexOf("fragments/vnext-legacy :: deepPageBridge"));
 
         assertTrue(sharedRuntime.contains("page === 'service-detail'"));
         assertTrue(sharedRuntime.contains("page === 'record-detail'"));
@@ -64,6 +68,7 @@ class VNextLegacyUiBridgeContractTest {
         for (String name : List.of(
                 "service-detail.html",
                 "record-detail.html",
+                "order-detail.html",
                 "account-orders.html",
                 "account-progress.html",
                 "account-requests.html",

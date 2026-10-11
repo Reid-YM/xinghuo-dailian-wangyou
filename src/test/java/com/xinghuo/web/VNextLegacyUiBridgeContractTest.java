@@ -40,7 +40,7 @@ class VNextLegacyUiBridgeContractTest {
     }
 
     @Test
-    void publicPagesCanMoveToDeclarativeBridgeWhileRuntimeFallbackRemains() throws IOException {
+    void publicPagesOwnLegacyBridgesDeclarativelyWithoutRuntimeStyleInjection() throws IOException {
         String sharedCss = read("src/main/resources/static/assets/site-image-controls.css");
         String sharedRuntime = read("src/main/resources/static/assets/site-image-controls.js");
         String bridgeFragment = read("src/main/resources/templates/fragments/vnext-legacy.html");
@@ -73,11 +73,13 @@ class VNextLegacyUiBridgeContractTest {
         assertTrue(submitDesktop.indexOf("fragments/site :: header") < submitDesktop.indexOf("fragments/vnext-legacy :: accountSubmitBridge"));
         assertTrue(submitMobile.indexOf("fragments/site :: header") < submitMobile.indexOf("fragments/vnext-legacy :: accountSubmitBridge"));
 
-        assertTrue(sharedRuntime.contains("page === 'service-detail'"));
-        assertTrue(sharedRuntime.contains("page === 'record-detail'"));
-        assertTrue(sharedRuntime.contains("body?.classList.contains('account-center-page')"));
-        assertTrue(sharedRuntime.contains("/assets/vnext-legacy-bridge-v3.css?v=20261010ui03"));
-        assertTrue(sharedRuntime.contains("/assets/vnext-account-submit-v3.css?v=20261010ui03"));
+        assertFalse(sharedRuntime.contains("ensureStylesheet"));
+        assertFalse(sharedRuntime.contains("page === 'service-detail'"));
+        assertFalse(sharedRuntime.contains("page === 'record-detail'"));
+        assertFalse(sharedRuntime.contains("account-center-page"));
+        assertFalse(sharedRuntime.contains("vnext-legacy-bridge-v3.css"));
+        assertFalse(sharedRuntime.contains("vnext-account-submit-v3.css"));
+        assertTrue(sharedRuntime.contains("window.SiteImageControls = { resolveBackground, resolveMain, background, main, serviceCoverVars }"));
 
         for (String name : List.of(
                 "service-detail.html",
@@ -89,7 +91,7 @@ class VNextLegacyUiBridgeContractTest {
                 "account-settings.html",
                 "account-submit.html")) {
             String html = read("src/main/resources/templates/" + name);
-            assertTrue(html.contains("/assets/site-image-controls.js"), name + " must keep the runtime fallback while migration is incomplete");
+            assertTrue(html.contains("/assets/site-image-controls.js"), name + " must keep the shared image layout engine");
             assertTrue(html.contains("/assets/site-image-controls.css"), name + " must keep image control styling");
         }
     }

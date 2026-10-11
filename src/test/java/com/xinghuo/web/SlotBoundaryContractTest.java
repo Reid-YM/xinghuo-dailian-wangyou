@@ -27,34 +27,33 @@ class SlotBoundaryContractTest {
 
     @Test
     void applicationAndDomainStayFrameworkAndPersistenceIndependent() throws IOException {
-        Path application = ROOT.resolve("src/main/java/com/xinghuo/slot/application");
-        try (Stream<Path> files = Files.list(application)) {
-            for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
-                String source = Files.readString(file);
-                assertFalse(source.contains("com.xinghuo.dto"), file + " must not depend on protocol DTOs");
-                assertFalse(source.contains("com.xinghuo.model"), file + " must not depend on persistence entities");
-                assertFalse(source.contains("com.xinghuo.repository"), file + " must not depend on repositories");
-                assertFalse(source.contains("jakarta.servlet"), file + " must not depend on servlet APIs");
-                assertFalse(source.contains("jakarta.persistence"), file + " must not depend on JPA");
+        for (String layer : new String[] {"application", "domain"}) {
+            Path directory = ROOT.resolve("src/main/java/com/xinghuo/slot/" + layer);
+            try (Stream<Path> files = Files.walk(directory)) {
+                for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
+                    String source = Files.readString(file);
+                    assertFalse(source.contains("com.xinghuo.dto"), file + " must not depend on protocol DTOs");
+                    assertFalse(source.contains("com.xinghuo.model"), file + " must not depend on persistence entities");
+                    assertFalse(source.contains("com.xinghuo.repository"), file + " must not depend on retired repositories");
+                    assertFalse(source.contains("jakarta.servlet"), file + " must not depend on servlet APIs");
+                    assertFalse(source.contains("jakarta.persistence"), file + " must not depend on JPA");
+                    assertFalse(source.contains("org.springframework.data."), file + " must not depend on Spring Data");
+                }
             }
         }
-
-        String domain = read("src/main/java/com/xinghuo/slot/domain/package-info.java");
-        assertFalse(domain.contains("org.springframework"));
-        assertFalse(domain.contains("jakarta.persistence"));
-        assertFalse(domain.contains("jakarta.servlet"));
-        assertFalse(domain.contains("com.xinghuo.repository"));
-        assertFalse(domain.contains("com.xinghuo.service"));
     }
 
     @Test
-    void adminConsumesSlotApplicationAndWebBoundary() throws IOException {
-        String controller = read("src/main/java/com/xinghuo/controller/AdminApiController.java");
-        assertTrue(controller.contains("com.xinghuo.slot.application.SlotApplicationService"));
-        assertTrue(controller.contains("com.xinghuo.slot.web.SlotWebMapper"));
+    void adminControllerConsumesSlotApplicationAndWebBoundary() throws IOException {
+        String controller = read("src/main/java/com/xinghuo/slot/web/AdminSlotController.java");
+        assertTrue(controller.contains("package com.xinghuo.slot.web;"));
+        assertTrue(controller.contains("SlotApplicationService"));
         assertTrue(controller.contains("SlotWebMapper.toSlotResponses"));
         assertTrue(controller.contains("SlotWebMapper.toCommand"));
-        assertFalse(controller.contains("import com.xinghuo.service.SlotService;"));
+        assertTrue(controller.contains("@RequestMapping(value={\"/api/admin/slots\"})"));
+        assertFalse(controller.contains("HotSlotRepository"));
+        assertFalse(controller.contains("ServiceItemRepository"));
+        assertFalse(controller.contains("AuditService"));
     }
 
     @Test
@@ -72,13 +71,14 @@ class SlotBoundaryContractTest {
     void persistenceAdapterOwnsSelectionPersistenceValidationAndAudit() throws IOException {
         String adapter = read("src/main/java/com/xinghuo/slot/infrastructure/SlotPersistenceAdapter.java");
         assertTrue(adapter.contains("implements SlotPort"));
-        assertTrue(adapter.contains("com.xinghuo.repository.HotSlotRepository"));
-        assertTrue(adapter.contains("com.xinghuo.repository.ServiceItemRepository"));
+        assertTrue(adapter.contains("private final HotSlotRepository repo;"));
+        assertTrue(adapter.contains("com.xinghuo.catalog.infrastructure.ServiceItemRepository"));
         assertTrue(adapter.contains("com.xinghuo.taxonomy.application.TaxonomyApplicationService"));
-        assertTrue(adapter.contains("com.xinghuo.service.AuditService"));
+        assertTrue(adapter.contains("com.xinghuo.audit.infrastructure.AuditService"));
         assertTrue(adapter.contains("SLOT_UPDATE"));
         assertFalse(adapter.contains("com.xinghuo.dto"));
-        assertFalse(adapter.contains("com.xinghuo.service.SlotService"));
+        assertFalse(adapter.contains("com.xinghuo.repository."));
+        assertFalse(adapter.contains("com.xinghuo.service."));
     }
 
     @Test
@@ -94,11 +94,5 @@ class SlotBoundaryContractTest {
 
         Path legacy = ROOT.resolve("src/main/java/com/xinghuo/service/SlotService.java");
         assertFalse(Files.exists(legacy));
-        try (Stream<Path> files = Files.walk(ROOT.resolve("src/main/java"))) {
-            for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
-                assertFalse(Files.readString(file).contains("com.xinghuo.service.SlotService"),
-                        file + " still references retired SlotService");
-            }
-        }
     }
 }

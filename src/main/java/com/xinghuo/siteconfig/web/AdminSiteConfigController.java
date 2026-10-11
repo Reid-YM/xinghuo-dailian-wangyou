@@ -45,7 +45,7 @@ public class AdminSiteConfigController {
     }
 
     @PostMapping(value={"/image/{slot}"})
-    ApiDtos.SiteImageUploadResponse uploadSiteImage(@PathVariable String slot, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
+    SiteImageUploadResponse uploadSiteImage(@PathVariable String slot, @RequestParam(value="file") MultipartFile file, Authentication a, HttpServletRequest req) {
         String key;
         UploadAsset.Kind kind = switch (key = slot.trim().toUpperCase(Locale.ROOT)) {
             case "HERO" -> UploadAsset.Kind.SITE_HERO;
@@ -61,7 +61,7 @@ public class AdminSiteConfigController {
         if (!"CONTACT_QR".equals(key)) {
             this.configWrites.updateSiteImage(key, url, a.getName(), req);
         }
-        return new ApiDtos.SiteImageUploadResponse(url);
+        return new SiteImageUploadResponse(url);
     }
 
     @DeleteMapping(value={"/image/{slot}"})

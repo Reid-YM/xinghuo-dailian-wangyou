@@ -98,7 +98,7 @@ class SmartLocaleResolverTest {
         request.setRemoteAddr("203.0.113.10");
         request.addHeader("Accept-Language", "zh-CN,zh;q=0.9");
 
-        assertEquals(Locale.CHINESE, resolver.resolveLocale(request));
+        assertEquals(Locale.SIMPLIFIED_CHINESE, resolver.resolveLocale(request));
         verify(geo, never()).detectLanguage(anyString());
     }
 

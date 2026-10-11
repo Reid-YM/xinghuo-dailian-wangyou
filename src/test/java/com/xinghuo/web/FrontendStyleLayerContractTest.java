@@ -14,7 +14,7 @@ class FrontendStyleLayerContractTest {
     void sharedSiteUsesSingleAuthoritativeExperienceLayer() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
         assertTrue(site.contains("/assets/site-experience-v2.css?v=20261012ux04"));
-        assertTrue(site.contains("/assets/site-shell.js?v=20261012ss05"));
+        assertTrue(site.contains("/assets/site-shell.js?v=20261012ss06"));
         assertTrue(site.contains("/assets/brand-logo.svg?v=20261008logo01"));
         assertFalse(site.contains("brand-dot"));
         assertFalse(site.contains("site-shell.css"));

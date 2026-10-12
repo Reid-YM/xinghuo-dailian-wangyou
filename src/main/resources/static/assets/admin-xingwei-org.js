@@ -18,11 +18,28 @@
     return typeof window.xwHasPermission === 'function' && window.xwHasPermission(permission);
   }
 
+  function canManageGlobalRbac() {
+    return typeof window.xwCanManageGlobalRbac === 'function' && window.xwCanManageGlobalRbac();
+  }
+
   function dataScopeLabel(scope, departmentCode = '') {
     if (scope === 'ALL') return '全部数据';
     if (scope === 'DEPARTMENT') return departmentCode ? `本中心 · ${departmentCode}` : '本中心 · 未分配中心时仅本人';
     if (scope === 'SELF') return '仅本人';
     return '无数据范围';
+  }
+
+  function scopeRank(scope) {
+    if (scope === 'ALL') return 3;
+    if (scope === 'DEPARTMENT') return 2;
+    if (scope === 'SELF') return 1;
+    return 0;
+  }
+
+  function canAssignRole(role) {
+    if (!orgSnapshot) return false;
+    if (window.xwAccess?.allowAll || orgSnapshot.dataScope === 'ALL') return true;
+    return scopeRank(role?.dataScope) <= scopeRank(orgSnapshot.dataScope);
   }
 
   async function apiJson(url, options = {}) {
@@ -213,7 +230,8 @@
     fillEmployeePositionOptions(department.value, employee.positionCode || '');
 
     const selectedRoles = new Set(employee.roleCodes || []);
-    document.getElementById('xwEmployeeRoleChecks').innerHTML = (orgSnapshot.roles || []).map((role) => `
+    const assignableRoles = (orgSnapshot.roles || []).filter((role) => canAssignRole(role));
+    document.getElementById('xwEmployeeRoleChecks').innerHTML = assignableRoles.map((role) => `
       <label class="xw-check-item">
         <input type="checkbox" value="${escapeHtml(role.code)}" ${selectedRoles.has(role.code) ? 'checked' : ''}/>
         <span><strong>${escapeHtml(role.name)}</strong><small>${escapeHtml(dataScopeLabel(role.dataScope))}</small></span>
@@ -229,7 +247,7 @@
   });
 
   function openRoleDialog(roleCode) {
-    if (!orgSnapshot || roleCode === 'XW_MANAGEMENT' || !hasPermission('rbac:manage')) return;
+    if (!orgSnapshot || roleCode === 'XW_MANAGEMENT' || !canManageGlobalRbac()) return;
     const role = (orgSnapshot.roles || []).find((row) => row.code === roleCode);
     const dialog = document.getElementById('xwRoleDialog');
     if (!role || !dialog) return;
@@ -300,7 +318,7 @@
 
   document.getElementById('xwRoleForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!orgSnapshot || !hasPermission('rbac:manage')) return;
+    if (!orgSnapshot || !canManageGlobalRbac()) return;
     const roleCode = document.getElementById('xwRoleCode').value;
     const state = document.getElementById('xwRoleSaveState');
     const permissionCodes = Array.from(document.querySelectorAll('#xwPermissionChecks input:checked')).map((node) => node.value);

@@ -17,6 +17,7 @@ import java.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -39,6 +40,12 @@ public class AccountWeChatController {
         this.weChatLogin = weChatLogin;
         this.rateLimiter = rateLimiter;
         this.secureCookie = baseUrl != null && baseUrl.trim().startsWith("https://");
+    }
+
+    @GetMapping("/availability")
+    @ResponseBody
+    public java.util.Map<String, Boolean> availability() {
+        return java.util.Map.of("enabled", weChatLogin.configured());
     }
 
     /**

@@ -4,6 +4,11 @@
   const link = document.querySelector('[data-wechat-login]');
   if (!link) return;
 
+  fetch('/api/account/wechat/availability', { cache: 'no-store' })
+    .then((response) => response.ok ? response.json() : { enabled: false })
+    .then((result) => { link.hidden = !result.enabled; })
+    .catch(() => { link.hidden = true; });
+
   const params = new URLSearchParams(location.search);
   const rawReturn = params.get('next') || params.get('redirect') || '';
   const returnTo = safeReturnTo(rawReturn);

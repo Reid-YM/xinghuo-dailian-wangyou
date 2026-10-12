@@ -13,7 +13,7 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 class PublicPageHeroFragmentRenderTest {
 
     @Test
-    void servicesAndTrustRenderSharedCompactQuoteHero() {
+    void publicPagesRenderSharedHeroFragments() {
         SpringTemplateEngine engine = templateEngine();
 
         Context servicesContext = new Context();
@@ -33,6 +33,16 @@ class PublicPageHeroFragmentRenderTest {
         assertTrue(trust.contains("href=\"/quote\""));
         assertTrue(trust.contains("href=\"/rules\""));
         assertFalse(trust.contains("compactQuoteHero"));
+
+        String records = engine.process("records", new Context());
+        assertTrue(records.contains("class=\"page-hero page-hero-compact\""));
+        assertTrue(records.contains("业务记录"));
+        assertTrue(records.contains("查询与历史"));
+        assertTrue(records.contains("href=\"/quote\""));
+        assertTrue(records.contains("id=\"clearLocalRecords\""));
+        assertTrue(records.contains("class=\"btn small-btn ghost\" type=\"button\""));
+        assertTrue(records.contains("清除浏览器记录"));
+        assertFalse(records.contains("recordsHero"));
     }
 
     private SpringTemplateEngine templateEngine() {

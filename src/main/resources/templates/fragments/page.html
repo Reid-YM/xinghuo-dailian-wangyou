@@ -19,6 +19,17 @@
   </div>
 </div>
 
+<div th:fragment="recordsHero(eyebrow,title)" class="page-hero page-hero-compact">
+  <div>
+    <span class="eyebrow" th:text="${eyebrow}">业务记录</span>
+    <h1 th:text="${title}">查询与历史</h1>
+  </div>
+  <div class="page-hero-actions">
+    <a class="btn primary" href="/quote" data-primary-cta>提前询价</a>
+    <button id="clearLocalRecords" class="btn small-btn ghost" type="button">清除浏览器记录</button>
+  </div>
+</div>
+
 <div th:fragment="sectionHeader(eyebrow,title,linkHref,linkLabel,extraClass)"
      class="section-title"
      th:classappend="${extraClass != null ? extraClass : ''}">

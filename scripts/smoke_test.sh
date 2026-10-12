@@ -40,7 +40,10 @@ check_code /console/security 302
 check_code /account/login 200
 check_code /account/register 200
 check_code /rules 200
+check_code /rules-en 200
 check_code /privacy 200
+check_code /privacy-en 200
+check_code '/language?lang=en&returnTo=/rules' 302
 check_code /contact 200
 check_code /records 200
 check_code /trust 200

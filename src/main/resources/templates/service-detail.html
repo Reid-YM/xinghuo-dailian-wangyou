@@ -17,7 +17,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer src="/assets/public.js?v=20261008audit01"></script><script defer src="/assets/pages.js?v=20260928v016"></script>
   <script type="application/ld+json" th:inline="javascript">{"@context":"https://schema.org","@type":"Service","name":[[${serviceDisplayH1}]],"description":[[${serviceDescription}]],"serviceType":[[${gameName}]],"areaServed":"CN","provider":{"@type":"Organization","name":"星火网游代练平台","url":"https://wydlgf.cn/"},"url":[[${canonicalUrl}]]}</script>
-  <script type="application/ld+json" th:utext="${breadcrumbJsonLd}"></script>
+  <script type="application/ld+json" th:inline="javascript">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://wydlgf.cn/"},{"@type":"ListItem","position":2,"name":"服务大厅","item":"https://wydlgf.cn/services"},{"@type":"ListItem","position":3,"name":[[${serviceDisplayH1}]],"item":[[${canonicalUrl}]]}]}</script>
   <script type="application/ld+json" th:utext="${faqJsonLd}"></script>
 <link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008a1"/>
 </head>

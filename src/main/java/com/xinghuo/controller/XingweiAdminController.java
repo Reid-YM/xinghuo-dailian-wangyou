@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 /**
  * 星维网络服务工作室新版后台入口。
  *
- * <p>第一阶段只提供独立后台壳与现有后台能力导航，不替换现有 /admin，
- * 不引入第二套认证，也不修改现有数据库结构。后续业务模块逐步迁移到本入口。
+ * <p>V2A 在 V1 并行后台壳基础上接入固定组织架构、正式岗位词库、员工档案与影子 RBAC。
+ * 现有 /admin、Spring Security ADMIN/OPERATOR 授权、JPA/Flyway 和生产发布链路保持不变。
  */
 @Controller
 public class XingweiAdminController {
@@ -24,7 +24,7 @@ public class XingweiAdminController {
         model.addAttribute("csrf", csrf);
         model.addAttribute("username", authentication == null ? "admin" : authentication.getName());
         model.addAttribute("workspaceName", "星维网络服务工作室");
-        model.addAttribute("consoleVersion", "20261013-v1");
+        model.addAttribute("consoleVersion", "20261013-v2a");
         return "admin-xingwei";
     }
 
@@ -34,7 +34,7 @@ public class XingweiAdminController {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("ok", true);
         result.put("workspace", "星维网络服务工作室");
-        result.put("version", "20261013-v1");
+        result.put("version", "20261013-v2a");
         result.put("user", authentication == null ? "unknown" : authentication.getName());
         result.put("serverTime", OffsetDateTime.now().toString());
         return result;

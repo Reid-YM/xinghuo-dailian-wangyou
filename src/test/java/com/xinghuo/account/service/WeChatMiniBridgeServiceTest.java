@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.xinghuo.service.UploadService;
 import org.springframework.web.client.RestClient;
 
 class WeChatMiniBridgeServiceTest {
@@ -26,7 +27,7 @@ class WeChatMiniBridgeServiceTest {
     private final WeChatMiniPairingRepository pairings = mock(WeChatMiniPairingRepository.class);
     private final WeChatMiniBridgeService service = new WeChatMiniBridgeService(
             accounts, identities, pairings, mock(PasswordEncoder.class),
-            mock(OrderLinkService.class), RestClient.builder(), "mini-app", "secret");
+            mock(OrderLinkService.class), mock(UploadService.class), RestClient.builder(), "mini-app", "secret");
 
     @Test
     void visibleCodeAloneCannotCompleteLogin() {

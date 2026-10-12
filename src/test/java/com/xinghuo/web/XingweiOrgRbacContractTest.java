@@ -119,12 +119,15 @@ class XingweiOrgRbacContractTest {
 
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
         assertTrue(template.contains("/assets/admin-xingwei.js?v=20261013v2c"));
-        assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2b"));
+        assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
         assertTrue(template.contains("PHASE 2C · DATA SCOPE ENFORCEMENT"));
         assertTrue(template.contains("全部数据、本中心、仅本人"));
         assertTrue(orgJs.contains("/api/admin/xingwei/org/snapshot"));
         assertTrue(orgJs.contains("form.dataset.canProfile"));
         assertTrue(orgJs.contains("form.dataset.canRoles"));
+        assertTrue(orgJs.contains("dataScopeLabel(scope"));
+        assertTrue(orgJs.contains("availableEmployeeDepartments"));
+        assertTrue(orgJs.contains("V2C 数据范围"));
         assertTrue(mainJs.contains("/api/admin/xingwei/access"));
         assertTrue(mainJs.contains("MODULE_PERMISSIONS"));
         assertTrue(mainJs.contains("employee:manage"));

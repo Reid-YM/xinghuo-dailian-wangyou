@@ -28,16 +28,32 @@ check_header() {
     echo "OK   $path $header=$value"
   fi
 }
+check_body_contains() {
+  local path=$1 expected=$2
+  shift 2
+  local body
+  body=$(curl -sS "$@" "$BASE$path" || true)
+  if ! printf '%s' "$body" | grep -Fq "$expected"; then
+    echo "FAIL $path body missing: $expected"
+    fail=1
+  else
+    echo "OK   $path body contains: $expected"
+  fi
+}
 check_code / 200
 check_code /services 200
 check_code /guides 200
 check_code /mastery 200
 check_code /api/guides 200
 check_code /api/tool-station 200
-# 匿名可索引页面不能再因浏览器语言或爬虫来源变化而改变 canonical URL 下的语言。
+# 所有可索引 canonical 页面必须稳定输出中文正文，而不是只把响应头写成 zh-CN。
+# 即使请求来自英语浏览器，或携带历史 xh_lang=en Cookie，也不能把同一 URL 翻成英文。
 check_header /services Content-Language zh-CN -H 'Accept-Language: en-US,en;q=0.9'
-# 用户主动选择英文后仍应通过 Cookie 保留英文体验。
-check_header /services Content-Language en -H 'Cookie: xh_lang=en'
+check_body_contains /services '<html lang="zh-CN">' -H 'Accept-Language: en-US,en;q=0.9'
+check_body_contains /services '服务大厅' -H 'Accept-Language: en-US,en;q=0.9'
+check_header /services Content-Language zh-CN -H 'Cookie: xh_lang=en'
+check_body_contains /services '<html lang="zh-CN">' -H 'Cookie: xh_lang=en'
+check_body_contains /services '服务大厅' -H 'Cookie: xh_lang=en'
 # 用户中心所有真实页面都必须存在并要求登录。未登录时应跳转登录页，绝不能 404。
 check_code /account 302
 check_code /account/requests 302

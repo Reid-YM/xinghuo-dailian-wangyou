@@ -23,6 +23,7 @@ class XingweiAdminPlaywrightTest {
             page.setViewportSize(1440, 900);
             page.setContent(Files.readString(TEMPLATE));
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.css")));
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-xingwei.js")));
 
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
@@ -43,6 +44,78 @@ class XingweiAdminPlaywrightTest {
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwSidebar').classList.contains('open')"));
             page.locator(".xw-nav-item[href='#business']").click();
             assertTrue(!(Boolean) page.evaluate("() => document.querySelector('#xwSidebar').classList.contains('open')"));
+            assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
+        }
+    }
+
+    @Test
+    void organizationSnapshotRendersAndDialogsUseCanonicalOptions() throws Exception {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setViewportSize(1440, 900);
+            page.setContent(Files.readString(TEMPLATE));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei.css")));
+            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.css")));
+            page.evaluate("""
+                    () => {
+                      const snapshot = {
+                        shadowMode: true,
+                        enforcement: 'LEGACY_ADMIN_ROLE',
+                        counts: {departments: 7, positions: 155, employees: 1, assignedEmployees: 1, roles: 7, permissions: 3},
+                        departments: [
+                          {id:1, code:'01', name:'01 管理层', positionCount:7, enabled:true},
+                          {id:4, code:'04', name:'04 游戏业务中心', positionCount:30, enabled:true}
+                        ],
+                        positions: [
+                          {id:1, code:'XW-LC-01-001', name:'工作室负责人', category:'核心管理', departmentCode:'01', departmentName:'01 管理层'},
+                          {id:58, code:'XW-LC-04-007', name:'MW4 代练员', category:'MW4 执行', departmentCode:'04', departmentName:'04 游戏业务中心'}
+                        ],
+                        employees: [{id:1, username:'admin', legacyRole:'ADMIN', loginEnabled:true, employeeNo:'XW-0001', displayName:'负责人', status:'ACTIVE', departmentCode:'01', departmentName:'01 管理层', positionCode:'XW-LC-01-001', positionName:'工作室负责人', roleCodes:['XW_MANAGEMENT']}],
+                        roles: [
+                          {id:1, code:'XW_MANAGEMENT', name:'管理层', dataScope:'ALL', permissionCount:3, permissionCodes:['dashboard:view','org:view','rbac:view'], enabled:true},
+                          {id:4, code:'XW_GAME_BUSINESS', name:'游戏业务中心', dataScope:'DEPARTMENT', permissionCount:1, permissionCodes:['dashboard:view'], enabled:true}
+                        ],
+                        permissions: [
+                          {id:1, code:'dashboard:view', name:'工作台查看', module:'dashboard'},
+                          {id:11, code:'org:view', name:'组织架构查看', module:'organization'},
+                          {id:15, code:'rbac:view', name:'角色与权限查看', module:'security'}
+                        ]
+                      };
+                      window.fetch = async (url, options = {}) => {
+                        if (String(url) === '/api/admin/xingwei/org/snapshot') {
+                          return {ok:true, json:async () => snapshot};
+                        }
+                        if (String(url) === '/api/admin/xingwei/health') {
+                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2a', serverTime:'2026-10-13T04:30:00+08:00'})};
+                        }
+                        if (String(options.method || 'GET').toUpperCase() === 'PUT') {
+                          return {ok:true, json:async () => ({ok:true})};
+                        }
+                        return {ok:false, status:404, json:async () => ({error:'not found'})};
+                      };
+                    }
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.js")));
+            page.waitForFunction("() => document.querySelector('[data-org-kpi=\"positions\"]')?.textContent === '155'");
+
+            assertEquals("7", page.locator("[data-org-kpi='departments']").textContent());
+            assertEquals("155", page.locator("[data-org-kpi='positions']").textContent());
+            assertEquals(2, page.locator("#xwDepartmentRows tr").count());
+            assertEquals(2, page.locator("#xwPositionRows tr").count());
+
+            page.locator("#xwPositionDepartment").selectOption("04");
+            assertEquals(1, page.locator("#xwPositionRows tr").count());
+            assertTrue(page.locator("#xwPositionRows").textContent().contains("MW4 代练员"));
+
+            page.locator("[data-employee-edit='1']").click();
+            assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwEmployeeDialog').open"));
+            assertEquals("XW-LC-01-001", page.locator("#xwEmployeePosition").inputValue());
+            page.locator("[data-dialog-close='xwEmployeeDialog']").first().click();
+
+            page.locator("[data-role-edit='XW_GAME_BUSINESS']").click();
+            assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwRoleDialog').open"));
+            assertEquals(3, page.locator("#xwPermissionChecks input").count());
+            assertEquals(0, page.locator("[data-role-edit='XW_MANAGEMENT']").count());
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
         }
     }

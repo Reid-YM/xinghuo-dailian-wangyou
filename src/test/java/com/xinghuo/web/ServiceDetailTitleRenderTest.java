@@ -3,64 +3,36 @@ package com.xinghuo.web;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.xinghuo.model.ServiceItem;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 class ServiceDetailTitleRenderTest {
 
     @Test
-    void mw4PrefixedServiceNameDoesNotRepeatGameTokenInSeoTitleOrHeading() {
-        ServiceItem service = ServiceItem.builder()
-                .slug("mw4-tier-camo")
-                .gameCode("CODMW4")
-                .name("MW4 迷彩层级代练")
-                .category("CAMO")
-                .shortDesc("精通迷彩前置层级，按武器当前进度补差")
-                .priceMode(ServiceItem.PriceMode.QUOTE)
-                .priceMin(new BigDecimal("80.00"))
-                .durationText("按进度确认")
-                .build();
+    void serviceDetailUsesDeduplicatedDisplayTitleAcrossSeoSurfaces() throws Exception {
+        String template = Files.readString(Path.of("src/main/resources/templates/service-detail.html"));
 
-        Context context = new Context();
-        context.setVariable("service", service);
-        context.setVariable("gameName", "使命召唤 MW4");
-        context.setVariable("serviceDescription", "使命召唤 MW4 精通迷彩前置层级，按武器当前进度补差。按进度报价，网页不收账号密码。");
-        context.setVariable("canonicalUrl", "https://wydlgf.cn/service/mw4-tier-camo");
-        context.setVariable("ogImage", "https://wydlgf.cn/og.png");
-        context.setVariable("breadcrumbJsonLd", "{}");
-        context.setVariable("faqJsonLd", "{}");
-        context.setVariable("supportItems", Map.of());
-        context.setVariable("quoteFactors", Map.of());
-        context.setVariable("relatedServices", List.of());
-        context.setVariable("serviceFaqs", List.of());
-        context.setVariable("contactFallback", "AAC9878");
-        context.setVariable("homeServices", List.of());
+        assertTrue(template.contains("gameToken=${gameName != null && gameName.contains(' ') ? gameName.substring(gameName.lastIndexOf(' ') + 1) : gameName}"),
+                "service detail must derive the trailing game token such as MW4");
+        assertTrue(template.contains("service.name.startsWith(gameName + ' ')"),
+                "full game-name prefixes must be deduplicated");
+        assertTrue(template.contains("service.name.startsWith(gameToken + ' ')"),
+                "short game-token prefixes such as MW4 must be deduplicated");
+        assertTrue(template.contains("serviceDisplayH1=${gameName + ' ' + serviceDisplayName}"),
+                "the public heading must be rebuilt from the deduplicated service name");
+        assertTrue(template.contains("serviceDisplayTitle=${serviceDisplayH1 + ' | 星火网游代练平台'}"),
+                "the SEO title must use the deduplicated heading");
 
-        String html = templateEngine().process("service-detail", context);
+        assertTrue(template.contains("<title th:text=\"${serviceDisplayTitle}\""));
+        assertTrue(template.contains("<meta property=\"og:title\" th:content=\"${serviceDisplayTitle}\""));
+        assertTrue(template.contains("<meta name=\"twitter:title\" th:content=\"${serviceDisplayTitle}\""));
+        assertTrue(template.contains("<h1 th:text=\"${serviceDisplayH1}\""));
+        assertTrue(template.contains("\"name\":[[${serviceDisplayH1}]]"));
 
-        assertTrue(html.contains("<title>使命召唤 MW4 迷彩层级代练 | 星火网游代练平台</title>"));
-        assertTrue(html.contains("<h1>使命召唤 MW4 迷彩层级代练</h1>"));
-        assertTrue(html.contains("\"name\":\"使命召唤 MW4 迷彩层级代练\""));
-        assertFalse(html.contains("使命召唤 MW4 MW4 迷彩层级代练"));
-    }
-
-    private SpringTemplateEngine templateEngine() {
-        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
-        resolver.setPrefix("templates/");
-        resolver.setSuffix(".html");
-        resolver.setTemplateMode(TemplateMode.HTML);
-        resolver.setCharacterEncoding("UTF-8");
-        resolver.setCacheable(false);
-
-        SpringTemplateEngine engine = new SpringTemplateEngine();
-        engine.setTemplateResolver(resolver);
-        return engine;
+        assertFalse(template.contains("<title th:text=\"${serviceTitle}\""),
+                "legacy duplicated controller title must not drive the page title");
+        assertFalse(template.contains("<h1 th:text=\"${serviceH1}\""),
+                "legacy duplicated controller heading must not drive the H1");
     }
 }

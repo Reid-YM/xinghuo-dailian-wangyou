@@ -28,10 +28,45 @@ check_header() {
     echo "OK   $path $header=$value"
   fi
 }
+check_body_contains() {
+  local path=$1 expected=$2
+  local body
+  body=$(curl -sS "$BASE$path" || true)
+  if ! grep -Fq -- "$expected" <<<"$body"; then
+    echo "FAIL $path missing-body-fragment=$expected"
+    fail=1
+  else
+    echo "OK   $path contains=$expected"
+  fi
+}
+check_body_absent() {
+  local path=$1 forbidden=$2
+  local body
+  body=$(curl -sS "$BASE$path" || true)
+  if grep -Fq -- "$forbidden" <<<"$body"; then
+    echo "FAIL $path forbidden-body-fragment=$forbidden"
+    fail=1
+  else
+    echo "OK   $path excludes=$forbidden"
+  fi
+}
 check_code / 200
 check_code /services 200
 check_code /guides 200
 check_code /mastery 200
+# 搜索引擎入口必须在候选、金丝雀和正式端口都可用；避免发布后才由 Search Console 发现 robots/sitemap 失效。
+check_code /robots.txt 200
+check_body_contains /robots.txt 'Sitemap: https://wydlgf.cn/sitemap.xml'
+check_code /sitemap.xml 200
+check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/</loc>'
+check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/mastery</loc>'
+check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/rules-en</loc>'
+check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/privacy-en</loc>'
+# 商详页是人工询价服务，不是站内直接购买商品；必须保留 Service schema，且不能重新输出 Product merchant schema。
+check_code /service/weapon-leveling 200
+check_body_contains /service/weapon-leveling '"@type":"Service"'
+check_body_contains /service/weapon-leveling '<link rel="canonical" href="https://wydlgf.cn/service/weapon-leveling"'
+check_body_absent /service/weapon-leveling '"@type":"Product"'
 check_code /api/guides 200
 check_code /api/tool-station 200
 # 匿名可索引页面不能再因浏览器语言或爬虫来源变化而改变 canonical URL 下的语言。

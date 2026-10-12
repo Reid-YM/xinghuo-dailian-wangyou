@@ -125,8 +125,8 @@ public class XingweiOrgRbacController {
             @RequestBody EmployeeRolesRequest body,
             Authentication authentication,
             HttpServletRequest request) {
-        if (!permissions.canManageEmployeeRoles(authentication, adminUserId)) {
-            throw new AccessDeniedException("超出当前员工数据范围");
+        if (!permissions.canAssignEmployeeRoles(authentication, adminUserId, body.roleCodes())) {
+            throw new AccessDeniedException("角色分配超出当前员工或数据范围");
         }
         Map<String, Object> before = org.employee(adminUserId);
         Map<String, Object> after = org.replaceEmployeeRoles(adminUserId, body.roleCodes());
@@ -137,7 +137,7 @@ public class XingweiOrgRbacController {
                 operator(authentication),
                 before,
                 after,
-                "星维 V2C 角色配置（含数据范围校验）",
+                "星维 V2C 角色配置（含范围升级保护）",
                 request);
         return after;
     }
@@ -149,6 +149,9 @@ public class XingweiOrgRbacController {
             @RequestBody RolePermissionsRequest body,
             Authentication authentication,
             HttpServletRequest request) {
+        if (!permissions.canManageGlobalRbac(authentication)) {
+            throw new AccessDeniedException("只有 ALL 数据范围可以修改全局角色权限模板");
+        }
         Map<String, Object> before = org.role(roleCode);
         Map<String, Object> after = org.replaceRolePermissions(roleCode, body.permissionCodes());
         audits.log(
@@ -158,7 +161,7 @@ public class XingweiOrgRbacController {
                 operator(authentication),
                 before,
                 after,
-                "星维 V2C 权限配置",
+                "星维 V2C 全局权限配置",
                 request);
         return after;
     }

@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" th:with="publicGameDescription=${game.seoDescription ?: game.name + ' 可接任务、活动、等级、迷彩、排位等服务；查看参考价格与预计时间，提交需求后由客服按当前进度确认报价。'}">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
   <title th:text="${game.seoTitle ?: game.name + ' 游戏任务服务 | 星火网游代练平台'}">游戏任务服务 - 星火网游代练平台</title>
-  <meta name="description" th:content="${game.seoDescription ?: game.name + ' 任务代练、活动、等级、排位等服务，提交需求获取业务编号，客服一对一确认报价。'}" content="星火网游代练平台游戏任务服务。">
+  <meta name="description" th:content="${publicGameDescription}" content="星火网游代练平台游戏任务服务。">
   <link rel="canonical" th:href="${canonicalUrl}" href="https://wydlgf.cn/game/cod-mw4">
   <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台">
   <meta property="og:title" th:content="${game.seoTitle ?: game.name + ' 游戏任务服务 | 星火网游代练平台'}" content="游戏任务服务 - 星火网游代练平台">
-  <meta property="og:description" th:content="${game.seoDescription ?: game.description}" content="星火网游代练平台游戏任务服务。">
+  <meta property="og:description" th:content="${publicGameDescription}" content="星火网游代练平台游戏任务服务。">
   <meta property="og:url" th:content="${canonicalUrl}" content="https://wydlgf.cn/game/cod-mw4">
   <meta property="og:image" th:content="${gameOgImage}" content="https://wydlgf.cn/og.png">
   <!-- SEO-K(Java 侧生成)：游戏页 BreadcrumbList（首页 > 服务大厅 > 游戏） -->
@@ -23,7 +23,7 @@
     <div>
       <span class="eyebrow" th:text="${game.nameEn ?: 'Game'}">Game</span>
       <h1 th:text="${game.name + ' 任务服务'}">游戏任务服务</h1>
-      <p th:text="${game.description ?: game.genres ?: '选择服务项目，提交需求后由客服确认报价。'}">选择服务项目，提交需求后由客服确认报价。</p>
+      <p th:text="${publicGameDescription}">选择服务项目，查看参考价格与预计时间，提交需求后由客服按当前进度确认报价。</p>
       <div class="trust"><span th:text="${game.publisher ?: '官方平台'}">官方平台</span><span th:text="${game.genres ?: '游戏任务'}">游戏任务</span><span>网页不收密码</span><span>业务编号可查</span></div>
     </div>
     <img th:if="${game.coverImage != null}" th:src="${game.coverImage}" th:alt="${game.name}" src="/og.png" alt="游戏封面" width="800" height="450" loading="eager" decoding="async">

@@ -20,6 +20,15 @@ implements LocaleResolver {
             Locale locale = (Locale)cached;
             return locale;
         }
+
+        // SEO canonical contract: these four legal URLs are real, separately indexable
+        // language variants. Their rendered language must therefore be stable and must
+        // never change because of IP, cookies or Accept-Language.
+        Locale stablePathLocale = this.stablePathLocale(request.getRequestURI());
+        if (stablePathLocale != null) {
+            return this.remember(request, stablePathLocale);
+        }
+
         String explicit = request.getParameter("lang");
         if (explicit != null && !explicit.isBlank()) {
             return this.remember(request, WebI18nConfig.normalize((String)explicit));
@@ -33,6 +42,16 @@ implements LocaleResolver {
             return this.remember(request, WebI18nConfig.normalize((String)byIp));
         }
         return this.remember(request, this.fromAcceptLanguage(request));
+    }
+
+    private Locale stablePathLocale(String uri) {
+        if ("/rules".equals(uri) || "/privacy".equals(uri)) {
+            return Locale.SIMPLIFIED_CHINESE;
+        }
+        if ("/rules-en".equals(uri) || "/privacy-en".equals(uri)) {
+            return Locale.ENGLISH;
+        }
+        return null;
     }
 
     private Locale remember(HttpServletRequest request, Locale locale) {

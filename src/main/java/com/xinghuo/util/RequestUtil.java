@@ -10,16 +10,27 @@ public final class RequestUtil {
     }
 
     /**
-     * Returns the client IP using the same trusted proxy semantics as the account layer.
+     * Returns the client IP using the trusted proxy semantics shared by the application.
+     * Missing/invalid request metadata is represented as {@code "unknown"} for public/security
+     * callers that require a stable bucket value.
+     */
+    public static String clientIp(HttpServletRequest request) {
+        String ip = clientIpOrNull(request);
+        return ip == null ? "unknown" : ip;
+    }
+
+    /**
+     * Nullable form of {@link #clientIp(HttpServletRequest)} for legacy/account callers that use
+     * {@code null} to represent missing request metadata.
      *
      * <p>The production site runs behind nginx. nginx overwrites {@code X-Real-IP} with
      * {@code $remote_addr} and appends the observed source to {@code X-Forwarded-For}, so the last
      * XFF segment is the trusted fallback. Direct {@code remoteAddr} is used only when neither
      * proxy header provides a usable address.
      */
-    public static String clientIp(HttpServletRequest request) {
+    public static String clientIpOrNull(HttpServletRequest request) {
         if (request == null) {
-            return "unknown";
+            return null;
         }
 
         String real = request.getHeader("X-Real-IP");
@@ -37,7 +48,7 @@ public final class RequestUtil {
         }
 
         String remote = request.getRemoteAddr();
-        return usableIp(remote) ? remote.trim() : "unknown";
+        return usableIp(remote) ? remote.trim() : null;
     }
 
     private static boolean usableIp(String value) {

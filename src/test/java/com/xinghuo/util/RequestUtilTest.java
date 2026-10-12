@@ -1,6 +1,7 @@
 package com.xinghuo.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -15,6 +16,7 @@ class RequestUtilTest {
         request.addHeader("X-Real-IP", "203.0.113.9");
 
         assertEquals("203.0.113.9", RequestUtil.clientIp(request));
+        assertEquals("203.0.113.9", RequestUtil.clientIpOrNull(request));
     }
 
     @Test
@@ -24,6 +26,7 @@ class RequestUtilTest {
         request.addHeader("X-Forwarded-For", "198.51.100.10, 203.0.113.8");
 
         assertEquals("203.0.113.8", RequestUtil.clientIp(request));
+        assertEquals("203.0.113.8", RequestUtil.clientIpOrNull(request));
     }
 
     @Test
@@ -32,10 +35,12 @@ class RequestUtilTest {
         request.setRemoteAddr("192.0.2.44");
 
         assertEquals("192.0.2.44", RequestUtil.clientIp(request));
+        assertEquals("192.0.2.44", RequestUtil.clientIpOrNull(request));
     }
 
     @Test
-    void returnsUnknownForMissingRequest() {
+    void missingRequestKeepsBothPublicAndNullableSemantics() {
         assertEquals("unknown", RequestUtil.clientIp(null));
+        assertNull(RequestUtil.clientIpOrNull(null));
     }
 }

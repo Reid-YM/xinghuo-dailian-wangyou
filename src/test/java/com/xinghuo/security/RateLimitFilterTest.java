@@ -3,7 +3,6 @@ package com.xinghuo.security;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -15,6 +14,11 @@ class RateLimitFilterTest {
     void quoteAndQuoteUploadKeepTwelveRequestsPerMinute() throws Exception {
         assertThreshold("/api/quote", 12);
         assertThreshold("/api/uploads/quote", 12);
+    }
+
+    @Test
+    void trackHasIndependentOneHundredTwentyRequestBucket() throws Exception {
+        assertThreshold("/api/track", 120);
     }
 
     @Test

@@ -11,8 +11,6 @@ import com.xinghuo.model.UploadAsset;
 import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountSessionService;
 import com.xinghuo.account.service.QuoteContactService;
-import com.xinghuo.account.service.RateLimiter;
-import com.xinghuo.account.service.RequestUtils;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.OrderService;
 import com.xinghuo.service.QuoteService;
@@ -55,7 +53,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping(value={"/api"})
 public class PublicApiController {
-    private static final int REQUEST_BUCKET_PER_MINUTE = 60;
     private final SiteConfigService config;
     private final ServiceCatalogService services;
     private final QuoteService quotes;
@@ -68,7 +65,6 @@ public class PublicApiController {
     private final ToolStationService toolStation;
     private final GameStatusService gameStatuses;
     private final SiteSettingService siteSettings;
-    private final RateLimiter rateLimiter;
     private final QuoteContactService quoteContacts;
 
     @GetMapping(value={"/site-config"})
@@ -196,7 +192,6 @@ public class PublicApiController {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
-        this.limitByIp(req, "pub:record");
         return this.records.get(businessNo);
     }
 
@@ -205,7 +200,6 @@ public class PublicApiController {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
-        this.limitByIp(req, "pub:recordimg");
         CustomerOrder o = this.orders.findByPublicNo(businessNo);
         if (o.getProgressImageAssetId() == null) {
             throw new NotFoundException();
@@ -219,7 +213,6 @@ public class PublicApiController {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
-        this.limitByIp(req, "pub:order");
         return this.orders.getPublic(orderNo);
     }
 
@@ -228,24 +221,12 @@ public class PublicApiController {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
-        this.limitByIp(req, "pub:orderimg");
         CustomerOrder o = this.orders.findByPublicNo(orderNo);
         if (o.getProgressImageAssetId() == null) {
             throw new NotFoundException();
         }
         Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
         return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(o.getProgressImageAssetId())).cacheControl(CacheControl.noStore())).body(r);
-    }
-
-    /**
-     * 修复 C-1：公开进度/订单/图片端点加 IP 限流，避免把「按业务编号查进度」的
-     * 信任能力变成无节流枚举口。按键取 {@code X-Real-IP}/XFF 末段（可信来源），
-     * 超限抛 429（由 ApiExceptionHandler 统一兜底成 RATE_LIMITED）。
-     */
-    private void limitByIp(HttpServletRequest req, String bucket) {
-        String ip = RequestUtils.clientIp(req);
-        this.rateLimiter.check(bucket + ":" + (ip == null ? "unknown" : ip),
-                REQUEST_BUCKET_PER_MINUTE, Duration.ofMinutes(1L));
     }
 
     @PostMapping(value={"/track"})
@@ -255,7 +236,7 @@ public class PublicApiController {
     }
 
     @Generated
-    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, com.xinghuo.account.service.QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;
@@ -268,7 +249,6 @@ public class PublicApiController {
         this.toolStation = toolStation;
         this.gameStatuses = gameStatuses;
         this.siteSettings = siteSettings;
-        this.rateLimiter = rateLimiter;
         this.quoteContacts = quoteContacts;
     }
 }

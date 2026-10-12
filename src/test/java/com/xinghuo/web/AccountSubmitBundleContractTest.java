@@ -41,9 +41,10 @@ class AccountSubmitBundleContractTest {
     }
 
     @Test
-    void legacyAccountRuntimeStillOwnsSettingsUntilNextSplit() throws Exception {
+    void settingsUsesItsOwnDedicatedRuntimeAfterSubmissionSplit() throws Exception {
         String settings = Files.readString(TEMPLATES.resolve("account-settings.html"));
-        assertTrue(settings.contains("/assets/account.js"));
+        assertTrue(settings.contains("/assets/account-settings.js?v=20261012ase01"));
+        assertFalse(settings.contains("/assets/account.js"));
         assertFalse(settings.contains("/assets/account-submit.js"));
     }
 }

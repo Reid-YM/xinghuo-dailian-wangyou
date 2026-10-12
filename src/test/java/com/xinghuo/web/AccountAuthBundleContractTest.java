@@ -39,7 +39,11 @@ class AccountAuthBundleContractTest {
         assertFalse(submit.contains("/assets/account-auth.js"));
 
         String settings = Files.readString(TEMPLATES.resolve("account-settings.html"));
-        assertTrue(settings.contains("/assets/account.js"), "account-settings.html still uses the legacy account workspace runtime");
+        assertTrue(settings.contains("/assets/account-core.js?v=20261012ac01"));
+        assertTrue(settings.contains("/assets/account-settings.js?v=20261012ase01"));
+        assertTrue(settings.contains("/assets/account-center.js"));
+        assertTrue(settings.contains("/assets/account-profile-controller.js"));
+        assertFalse(settings.contains("/assets/account.js"));
         assertFalse(settings.contains("/assets/account-auth.js"));
         assertFalse(settings.contains("/assets/account-submit.js"));
     }

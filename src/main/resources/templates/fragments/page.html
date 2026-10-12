@@ -18,5 +18,18 @@
        th:text="${secondaryLabel}">更多</a>
   </div>
 </div>
+
+<div th:fragment="sectionHeader(eyebrow,title,linkHref,linkLabel,extraClass)"
+     class="section-title"
+     th:classappend="${extraClass != null ? extraClass : ''}">
+  <div>
+    <span class="eyebrow" th:text="${eyebrow}">分区</span>
+    <h2 th:text="${title}">分区标题</h2>
+  </div>
+  <a th:if="${linkHref != null and !#strings.isEmpty(linkHref)}"
+     class="text-link"
+     th:href="${linkHref}"
+     th:text="${linkLabel}">更多</a>
+</div>
 </body>
 </html>

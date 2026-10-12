@@ -82,11 +82,11 @@
     <section class="xw-section" id="business">
       <div class="xw-section-head">
         <div><p class="xw-kicker">BUSINESS CENTER</p><h2>业务中台</h2></div>
-        <p>新版入口按查看权限过滤；实际旧业务页面仍沿用原有后台安全边界，V3 再逐项迁移成新版独立接口。</p>
+        <p>V2E 已把询价与订单接入新版数据范围工作台；服务、内容等其他业务模块继续沿用旧后台，逐项迁移。</p>
       </div>
       <div class="xw-grid">
-        <a class="xw-module" data-search="询价 客户 需求 线索 报价" href="/admin"><div class="xw-module-index">B01</div><h3>询价与线索</h3><p>查看客户需求、询价记录与跟进状态。</p><span>现有后台承载 →</span></a>
-        <a class="xw-module" data-search="订单 履约 进度 派单 代练" href="/admin"><div class="xw-module-index">B02</div><h3>订单与履约</h3><p>订单状态、进度同步和后续派单能力的统一入口。</p><span>现有后台承载 →</span></a>
+        <a class="xw-module" data-search="询价 客户 需求 线索 报价" href="/admin/xingwei/business?tab=quotes"><div class="xw-module-index">B01</div><h3>询价与线索</h3><p>按 ALL / DEPARTMENT / SELF 查看客户需求、询价记录与业务归属。</p><span>新版工作台 →</span></a>
+        <a class="xw-module" data-search="订单 履约 进度 派单 代练" href="/admin/xingwei/business?tab=orders"><div class="xw-module-index">B02</div><h3>订单与履约</h3><p>按真实数据范围查看订单状态、进度与负责人，并执行范围内派单。</p><span>新版工作台 →</span></a>
         <a class="xw-module" data-search="服务 商品 价格 上下架 游戏 mw4" href="/admin"><div class="xw-module-index">B03</div><h3>服务与商品</h3><p>服务项目、价格、展示状态与游戏资料管理。</p><span>现有后台承载 →</span></a>
         <a class="xw-module" data-search="攻略 内容 编辑 guides" href="/admin/guides"><div class="xw-module-index">B04</div><h3>攻略内容</h3><p>管理攻略组件与站内内容资产。</p><span>打开模块 →</span></a>
       </div>
@@ -131,7 +131,7 @@
       </article>
 
       <article class="xw-data-panel" id="org-roles">
-        <div class="xw-data-head"><div><h3>角色与权限点</h3><p>角色权限与数据范围会直接约束已分配角色账号访问新版星维接口；管理层安全兜底角色保持只读。</p></div></div>
+        <div class="xw-data-head"><div><h3>角色与权限点</h3><p>角色权限与数据范围会直接约束已分配该角色账号对新版星维接口和模块的访问；管理层安全兜底角色保持只读。</p></div></div>
         <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>角色</th><th>数据范围</th><th>权限点</th><th>状态</th><th>操作</th></tr></thead><tbody id="xwRoleRows"></tbody></table></div>
       </article>
     </section>
@@ -156,7 +156,7 @@
       </div>
     </section>
 
-    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移顺序</h2></div></div><ol><li><strong>V1 并行入口</strong><span>已上线：新版后台壳、现有模块导航、服务状态检查。</span></li><li><strong>V2A 组织底座</strong><span>已上线：七大中心、155 岗位、员工档案与角色权限数据模型。</span></li><li><strong>V2B 权限执行</strong><span>已上线：新版星维接口启用混合权限守卫、模块与操作同步按权限过滤。</span></li><li><strong>V2C 数据范围</strong><span>当前：组织与员工接口执行 ALL / DEPARTMENT / SELF；后续复用到询价与订单。</span></li><li><strong>V3 / V4</strong><span>业务迁移、派单工作台、微信与渠道统一管理。</span></li></ol></section>
+    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移顺序</h2></div></div><ol><li><strong>V1 并行入口</strong><span>已上线：新版后台壳、现有模块导航、服务状态检查。</span></li><li><strong>V2A 组织底座</strong><span>已上线：七大中心、155 岗位、员工档案与角色权限数据模型。</span></li><li><strong>V2B 权限执行</strong><span>已上线：新版星维接口启用混合权限守卫、模块与操作同步按权限过滤。</span></li><li><strong>V2C 数据范围</strong><span>已上线：组织与员工接口执行 ALL / DEPARTMENT / SELF；V2D 已扩展到询价与订单。</span></li><li><strong>V2E / V3</strong><span>询价与订单进入新版工作台；后续继续迁移服务、派单和完整业务操作。</span></li></ol></section>
 
     <footer class="xw-footer"><span>星维网络服务工作室 · 管理后台</span><span>固定组织架构 · 后端授权 · 数据范围 · 可审计 · 可回滚 · 旧后台保留</span></footer>
   </main>

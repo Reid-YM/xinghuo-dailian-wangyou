@@ -30,12 +30,13 @@ public class XingweiOrgRbacController {
     }
 
     @GetMapping("/snapshot")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'org:view')")
     public Map<String, Object> snapshot() {
         return org.snapshot();
     }
 
     @PutMapping("/employees/{adminUserId}/profile")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'employee:manage')")
     public Map<String, Object> updateEmployeeProfile(
             @PathVariable long adminUserId,
             @RequestBody EmployeeProfileRequest body,
@@ -58,13 +59,13 @@ public class XingweiOrgRbacController {
                 operator(authentication),
                 before,
                 after,
-                "星维 V2A 员工档案配置",
+                "星维 V2B 员工档案配置",
                 request);
         return after;
     }
 
     @PutMapping("/employees/{adminUserId}/roles")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'rbac:manage')")
     public Map<String, Object> replaceEmployeeRoles(
             @PathVariable long adminUserId,
             @RequestBody EmployeeRolesRequest body,
@@ -79,13 +80,13 @@ public class XingweiOrgRbacController {
                 operator(authentication),
                 before,
                 after,
-                "星维 V2A 影子角色配置（暂不参与登录授权）",
+                "星维 V2B 角色配置",
                 request);
         return after;
     }
 
     @PutMapping("/roles/{roleCode}/permissions")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'rbac:manage')")
     public Map<String, Object> replaceRolePermissions(
             @PathVariable String roleCode,
             @RequestBody RolePermissionsRequest body,
@@ -100,7 +101,7 @@ public class XingweiOrgRbacController {
                 operator(authentication),
                 before,
                 after,
-                "星维 V2A 影子权限配置（暂不参与登录授权）",
+                "星维 V2B 权限配置",
                 request);
         return after;
     }

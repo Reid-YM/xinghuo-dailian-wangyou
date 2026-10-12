@@ -71,7 +71,7 @@ class XingweiOrgRbacContractTest {
     }
 
     @Test
-    void v2cOrganizationEndpointsUsePermissionAndDataScopeGuard() throws Exception {
+    void v2cOrganizationEndpointsUsePermissionDataScopeAndEscalationGuards() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiOrgRbacController.java");
         String guard = read("java/com/xinghuo/security/XingweiPermissionGuard.java");
 
@@ -88,8 +88,10 @@ class XingweiOrgRbacContractTest {
                 "snapshot filtering must call the backend data-scope guard");
         assertTrue(controller.contains("permissions.canManageEmployeeProfile("),
                 "employee profile writes must reject cross-scope mutations");
-        assertTrue(controller.contains("permissions.canManageEmployeeRoles("),
-                "employee role writes must reject cross-scope mutations");
+        assertTrue(controller.contains("permissions.canAssignEmployeeRoles("),
+                "employee role writes must enforce the caller's role-scope ceiling");
+        assertTrue(controller.contains("permissions.canManageGlobalRbac(authentication)"),
+                "global role templates must be writable only by ALL-scope RBAC managers");
         assertTrue(controller.contains("@ResponseStatus(HttpStatus.FORBIDDEN)"));
         assertTrue(controller.contains("XINGWEI_V2C_DATA_SCOPE"));
         assertTrue(controller.contains("result.put(\"dataScope\", access.dataScope())"));
@@ -102,6 +104,9 @@ class XingweiOrgRbacContractTest {
         assertTrue(guard.contains("\"ALL\", \"DEPARTMENT\", \"SELF\""));
         assertTrue(guard.contains("canAccessEmployee("));
         assertTrue(guard.contains("canManageEmployeeProfile("));
+        assertTrue(guard.contains("canAssignEmployeeRoles("));
+        assertTrue(guard.contains("scopeCanGrant("));
+        assertTrue(guard.contains("canManageGlobalRbac("));
         assertTrue(guard.contains("departmentFallbackToSelf"));
         assertTrue(controller.contains("XW_EMPLOYEE_PROFILE_UPDATE"));
         assertTrue(controller.contains("XW_EMPLOYEE_ROLES_UPDATE"));

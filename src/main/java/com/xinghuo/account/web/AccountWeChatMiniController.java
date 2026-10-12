@@ -65,11 +65,11 @@ public class AccountWeChatMiniController {
     @GetMapping("/code")
     public ResponseEntity<byte[]> code(@RequestParam("flow") String flow,
                                        HttpServletRequest request) {
-        byte[] png = weChatMini.qrCode(flow, readFlowCookie(request));
+        byte[] image = weChatMini.qrCode(flow, readFlowCookie(request));
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .contentType(MediaType.IMAGE_PNG)
-                .body(png);
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(image);
     }
 
     @GetMapping("/status")

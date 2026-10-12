@@ -9,5 +9,7 @@ public interface AccountIdentityRepository extends JpaRepository<AccountIdentity
 
     Optional<AccountIdentity> findByProviderAndOpenId(AccountIdentity.Provider provider, String openId);
 
+    Optional<AccountIdentity> findFirstByProviderAndUnionId(AccountIdentity.Provider provider, String unionId);
+
     List<AccountIdentity> findByUserId(Long userId);
 }

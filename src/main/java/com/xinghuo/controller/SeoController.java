@@ -8,7 +8,6 @@ import com.xinghuo.service.TaxonomyService;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import lombok.Generated;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -97,7 +96,6 @@ public class SeoController {
         return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
-    @Generated
     public SeoController(ServiceCatalogService services, TaxonomyService taxonomy, GuideContentService guides) {
         this.services = services;
         this.taxonomy = taxonomy;

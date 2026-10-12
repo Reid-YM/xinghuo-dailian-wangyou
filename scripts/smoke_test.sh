@@ -14,12 +14,30 @@ check_code() {
     echo "OK   $path $code"
   fi
 }
+check_header() {
+  local path=$1 header=$2 expected=$3
+  shift 3
+  local value
+  value=$(curl -sS -D - -o /dev/null "$@" "$BASE$path" \
+    | tr -d '\r' \
+    | awk -v h="$header" 'BEGIN{IGNORECASE=1} $0 ~ "^" h ":" {sub(/^[^:]+:[[:space:]]*/, ""); print; exit}')
+  if [ "$value" != "$expected" ]; then
+    echo "FAIL $path header=$header expected=$expected actual=${value:-<missing>}"
+    fail=1
+  else
+    echo "OK   $path $header=$value"
+  fi
+}
 check_code / 200
 check_code /services 200
 check_code /guides 200
 check_code /mastery 200
 check_code /api/guides 200
 check_code /api/tool-station 200
+# 匿名可索引页面不能再因浏览器语言或爬虫来源变化而改变 canonical URL 下的语言。
+check_header /services Content-Language zh-CN -H 'Accept-Language: en-US,en;q=0.9'
+# 用户主动选择英文后仍应通过 Cookie 保留英文体验。
+check_header /services Content-Language en -H 'Cookie: xh_lang=en'
 # 用户中心所有真实页面都必须存在并要求登录。未登录时应跳转登录页，绝不能 404。
 check_code /account 302
 check_code /account/requests 302
@@ -44,6 +62,7 @@ check_code /rules-en 200
 check_code /privacy 200
 check_code /privacy-en 200
 check_code '/language?lang=en&returnTo=/rules' 302
+check_header '/language?lang=en&returnTo=/rules' X-Robots-Tag 'noindex, nofollow'
 check_code /contact 200
 check_code /records 200
 check_code /trust 200

@@ -49,10 +49,9 @@ class XingweiOrgRbacContractTest {
     }
 
     @Test
-    void v2aIsAdditiveAndLeavesLegacyAdminAuthenticationUntouched() throws Exception {
+    void v63RemainsAdditiveAndLegacyAdminBoundaryStillExists() throws Exception {
         String migration = read("resources/db/migration/V63__xingwei_org_rbac_foundation.sql");
         String security = read("java/com/xinghuo/security/SecurityConfig.java");
-        String service = read("java/com/xinghuo/service/XingweiOrgRbacService.java");
 
         for (String table : List.of(
                 "xw_departments",
@@ -64,24 +63,29 @@ class XingweiOrgRbacContractTest {
                 "xw_admin_roles")) {
             assertTrue(migration.contains("CREATE TABLE " + table), "missing additive table " + table);
         }
-        assertFalse(migration.contains("ALTER TABLE admin_users"), "V2A must not change the legacy admin login table");
-        assertFalse(migration.contains("UPDATE admin_users"), "V2A must not rewrite legacy admin roles");
+        assertFalse(migration.contains("ALTER TABLE admin_users"), "organization migration must not change legacy login table");
+        assertFalse(migration.contains("UPDATE admin_users"), "organization migration must not rewrite legacy roles");
+        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin/**\")"));
         assertTrue(security.contains(".hasAnyRole(\"ADMIN\", \"OPERATOR\")"),
-                "legacy ADMIN/OPERATOR must remain the actual Spring Security gate in V2A");
-        assertTrue(service.contains("result.put(\"shadowMode\", true)"));
-        assertTrue(service.contains("result.put(\"enforcement\", \"LEGACY_ADMIN_ROLE\")"));
+                "legacy ADMIN/OPERATOR remains the outer Spring Security boundary");
     }
 
     @Test
-    void allV2aWritesRequireLegacyAdminAndAreAudited() throws Exception {
+    void v2bOrganizationEndpointsUseBackendPermissionGuardAndAuditWrites() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiOrgRbacController.java");
+        String guard = read("java/com/xinghuo/security/XingweiPermissionGuard.java");
 
-        assertTrue(controller.contains("@GetMapping(\"/snapshot\")"));
-        assertTrue(controller.contains("@PutMapping(\"/employees/{adminUserId}/profile\")"));
-        assertTrue(controller.contains("@PutMapping(\"/employees/{adminUserId}/roles\")"));
-        assertTrue(controller.contains("@PutMapping(\"/roles/{roleCode}/permissions\")"));
-        assertEquals(3, occurrences(controller, "@PreAuthorize(\"hasRole('ADMIN')\")"),
-                "every V2A mutation endpoint must remain legacy-ADMIN-only");
+        assertTrue(controller.contains("@PreAuthorize(\"@xingweiPermissionGuard.has(authentication, 'org:view')\")"));
+        assertTrue(controller.contains("@PreAuthorize(\"@xingweiPermissionGuard.has(authentication, 'employee:manage')\")"));
+        assertEquals(2, occurrences(controller,
+                "@PreAuthorize(\"@xingweiPermissionGuard.has(authentication, 'rbac:manage')\")"));
+        assertFalse(controller.contains("@PreAuthorize(\"hasRole('ADMIN')\")"),
+                "V2B organization API must use the hybrid permission guard, not UI-only filtering");
+
+        assertTrue(guard.contains("LEGACY_ADMIN_OVERRIDE"));
+        assertTrue(guard.contains("LEGACY_OPERATOR_COMPAT"));
+        assertTrue(guard.contains("SHADOW_RBAC"));
+        assertTrue(guard.contains("LEGACY_OPERATOR_VIEW_PERMISSIONS"));
         assertTrue(controller.contains("XW_EMPLOYEE_PROFILE_UPDATE"));
         assertTrue(controller.contains("XW_EMPLOYEE_ROLES_UPDATE"));
         assertTrue(controller.contains("XW_ROLE_PERMISSIONS_UPDATE"));
@@ -89,18 +93,23 @@ class XingweiOrgRbacContractTest {
     }
 
     @Test
-    void consoleLoadsV2aAssetsAndMakesShadowModeExplicit() throws Exception {
+    void consoleLoadsOrganizationAssetsAndV2bAccessFiltering() throws Exception {
         String template = read("resources/templates/admin-xingwei.html");
-        String js = read("resources/static/assets/admin-xingwei-org.js");
+        String orgJs = read("resources/static/assets/admin-xingwei-org.js");
+        String mainJs = read("resources/static/assets/admin-xingwei.js");
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
+        String accessController = read("java/com/xinghuo/controller/XingweiPermissionController.java");
 
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2a"));
-        assertTrue(template.contains("影子权限模式"));
         assertTrue(template.contains("155 岗位正式词库"));
-        assertTrue(js.contains("/api/admin/xingwei/org/snapshot"));
-        assertTrue(js.contains("XW_MANAGEMENT"));
-        assertTrue(controller.contains("20261013-v2a"));
+        assertTrue(orgJs.contains("/api/admin/xingwei/org/snapshot"));
+        assertTrue(mainJs.contains("/api/admin/xingwei/access"));
+        assertTrue(mainJs.contains("MODULE_PERMISSIONS"));
+        assertTrue(mainJs.contains("employee:manage"));
+        assertTrue(mainJs.contains("rbac:manage"));
+        assertTrue(accessController.contains("@GetMapping(\"/access\")"));
+        assertTrue(controller.contains("20261013-v2b"));
     }
 
     private static int occurrences(String source, String needle) {

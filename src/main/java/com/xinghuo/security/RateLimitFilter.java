@@ -41,7 +41,7 @@ public class RateLimitFilter extends OncePerRequestFilterBase {
         String path = request.getRequestURI();
         int maxRequests = maxRequestsFor(path);
         if (maxRequests > 0 && !allow(request, path, maxRequests)) {
-            response.setStatus(HttpServletResponse.SC_TOO_MANY_REQUESTS);
+            response.setStatus(429);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(
                     "{\"code\":\"RATE_LIMITED\",\"message\":\"请求过于频繁，请稍后重试\"}");

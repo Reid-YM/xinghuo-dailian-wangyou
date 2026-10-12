@@ -105,7 +105,21 @@ public class WeChatLoginService {
                     .orElseThrow(() -> AccountException.serverError(
                             "WECHAT_IDENTITY_ORPHANED", "微信身份绑定异常，请联系客服"));
         } else {
-            account = accounts
+            account = null;
+            if (profile.unionId() != null) {
+                java.util.List<AccountIdentity> sameUnion = identities.findByUnionIdAndProviderIn(
+                        profile.unionId(), java.util.List.of(AccountIdentity.Provider.WECHAT,
+                                AccountIdentity.Provider.WECHAT_MINI));
+                if (!sameUnion.isEmpty()) {
+                    Long userId = sameUnion.get(0).getUserId();
+                    if (sameUnion.stream().anyMatch(link -> !userId.equals(link.getUserId()))) {
+                        throw AccountException.conflict("WECHAT_IDENTITY_CONFLICT", "微信身份关联异常，请联系客服核对");
+                    }
+                    account = accounts.findById(userId).orElseThrow(() -> AccountException.serverError(
+                            "WECHAT_IDENTITY_ORPHANED", "微信身份绑定异常，请联系客服"));
+                }
+            }
+            if (account == null) account = accounts
                     .findByContactTypeAndContactNorm(Account.ContactType.WECHAT, profile.openId())
                     .orElse(null);
             if (account == null) {

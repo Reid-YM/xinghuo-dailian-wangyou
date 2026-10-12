@@ -44,6 +44,9 @@ app:
   wechat-login:
     app-id: ${WECHAT_OPEN_APP_ID:}
     app-secret: ${WECHAT_OPEN_APP_SECRET:}
+  wechat-mini:
+    app-id: ${WECHAT_MINI_APP_ID:}
+    app-secret: ${WECHAT_MINI_APP_SECRET:}
   bootstrap-admin:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:}

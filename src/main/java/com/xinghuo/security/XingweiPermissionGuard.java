@@ -100,8 +100,9 @@ public class XingweiPermissionGuard {
     }
 
     /**
-     * 员工角色分配同时受目标员工范围与角色范围上限约束，避免 DEPARTMENT / SELF
-     * 管理员通过分配更宽的角色把自己或同范围员工升级为 ALL。
+     * 员工角色分配同时受三层约束：调用者必须有 rbac:manage、目标员工必须在数据范围内、
+     * 目标当前角色范围与拟分配角色范围都不能宽于调用者。这样既防提权，也防较窄范围人员
+     * 修改/移除更高范围员工的角色。
      */
     public boolean canAssignEmployeeRoles(
             Authentication authentication,
@@ -114,6 +115,11 @@ public class XingweiPermissionGuard {
         AccessSnapshot snapshot = resolve(authentication);
         if (snapshot.allowAll() || "ALL".equals(snapshot.dataScope())) {
             return true;
+        }
+
+        String targetCurrentScope = employeeRoleDataScope(targetAdminUserId);
+        if (!scopeCanGrant(snapshot.dataScope(), targetCurrentScope)) {
+            return false;
         }
         if (requestedRoleCodes == null || requestedRoleCodes.isEmpty()) {
             return true;
@@ -311,6 +317,11 @@ public class XingweiPermissionGuard {
         } catch (EmptyResultDataAccessException ex) {
             return null;
         }
+    }
+
+    private String employeeRoleDataScope(long adminUserId) {
+        List<RoleAssignment> assignments = roleAssignments(adminUserId);
+        return assignments.isEmpty() ? "SELF" : effectiveDataScope(assignments);
     }
 
     private String destinationDepartmentCode(String requestedDepartmentCode, String requestedPositionCode) {

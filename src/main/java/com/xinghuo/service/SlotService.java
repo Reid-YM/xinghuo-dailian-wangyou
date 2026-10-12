@@ -1,12 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  jakarta.servlet.http.HttpServletRequest
- *  lombok.Generated
- *  org.springframework.stereotype.Service
- *  org.springframework.transaction.annotation.Transactional
- */
 package com.xinghuo.service;
 
 import com.xinghuo.dto.ApiDtos;
@@ -16,8 +7,6 @@ import com.xinghuo.model.HotSlot;
 import com.xinghuo.model.ServiceItem;
 import com.xinghuo.repository.HotSlotRepository;
 import com.xinghuo.repository.ServiceItemRepository;
-import com.xinghuo.service.AuditService;
-import com.xinghuo.service.TaxonomyService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -25,89 +14,151 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import lombok.Generated;
+import java.util.Map;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SlotService {
+    private static final int PUBLIC_SLOT_LIMIT = 2;
+
     private final HotSlotRepository repo;
     private final ServiceItemRepository services;
     private final AuditService audit;
     private final TaxonomyService taxonomy;
 
-    @Transactional(readOnly=true)
-    public List<ApiDtos.ServiceResponse> publicHotServices() {
-        List<ServiceItem> publicList = this.services.findPublic(Instant.now()).stream().filter(x -> this.taxonomy.publicAllowed(x.getGameCode(), x.getCategory())).toList();
-        LinkedHashMap available = new LinkedHashMap();
-        publicList.forEach(s -> available.put(s.getId(), s));
-        ArrayList<ServiceItem> out = new ArrayList<ServiceItem>();
-        HashSet<Long> added = new HashSet<Long>();
-        for (HotSlot slot : this.repo.findAllByOrderBySlotNoAsc()) {
-            ServiceItem item;
-            if (slot.getMode() != HotSlot.Mode.MANUAL || slot.getService() == null || (item = (ServiceItem)available.get(slot.getService().getId())) == null || !added.add(item.getId())) continue;
-            out.add(item);
-        }
-        for (ServiceItem s2 : publicList) {
-            if (out.size() >= 2) break;
-            if (!added.add(s2.getId())) continue;
-            out.add(s2);
-        }
-        return out.stream().limit(2L).map(this::pub).toList();
-    }
-
-    @Transactional(readOnly=true)
-    public List<ApiDtos.SlotResponse> list() {
-        return this.repo.findAllByOrderBySlotNoAsc().stream().map(s -> new ApiDtos.SlotResponse(s.getSlotNo(), s.getService() == null ? null : s.getService().getId(), s.getService() == null ? null : s.getService().getName(), s.getMode().name())).toList();
-    }
-
-    @Transactional
-    public ApiDtos.SlotResponse update(ApiDtos.SlotUpdate r, String operator, HttpServletRequest req) {
-        ServiceItem item;
-        HotSlot s = this.repo.findBySlotNo(r.slotNo()).orElseThrow(NotFoundException::new);
-        ApiDtos.SlotResponse before = this.response(s);
-        HotSlot.Mode mode = this.parseMode(r.mode());
-        ServiceItem serviceItem = item = r.serviceId() == null ? null : (ServiceItem)this.services.findById(r.serviceId()).orElseThrow(NotFoundException::new);
-        if (mode == HotSlot.Mode.AUTO) {
-            item = null;
-        }
-        if (mode == HotSlot.Mode.MANUAL && item == null) {
-            throw new BadRequestException("\u624b\u52a8\u6307\u5b9a\u6a21\u5f0f\u5fc5\u987b\u9009\u62e9\u670d\u52a1");
-        }
-        if (!(item == null || item.isActive() && item.getStatus() != ServiceItem.Status.OFFLINE && this.taxonomy.publicAllowed(item.getGameCode(), item.getCategory()) && (item.getExpiresAt() == null || item.getExpiresAt().isAfter(Instant.now())))) {
-            throw new BadRequestException("\u8be5\u670d\u52a1\u5f53\u524d\u4e0d\u53ef\u7528\u4e8e\u9996\u9875\u5c55\u793a");
-        }
-        s.setMode(mode);
-        s.setService(item);
-        s.setUpdatedAt(Instant.now());
-        ApiDtos.SlotResponse after = this.response(s);
-        this.audit.log("SLOT_UPDATE", "HOT_SLOT", String.valueOf(r.slotNo()), operator, before, after, r.reason(), req);
-        return after;
-    }
-
-    private ApiDtos.SlotResponse response(HotSlot s) {
-        return new ApiDtos.SlotResponse(s.getSlotNo(), s.getService() == null ? null : s.getService().getId(), s.getService() == null ? null : s.getService().getName(), s.getMode().name());
-    }
-
-    private HotSlot.Mode parseMode(String s) {
-        try {
-            return HotSlot.Mode.valueOf(s.toUpperCase(Locale.ROOT));
-        }
-        catch (Exception e) {
-            throw new BadRequestException("\u975e\u6cd5\u5c55\u793a\u4f4d\u6a21\u5f0f");
-        }
-    }
-
-    private ApiDtos.ServiceResponse pub(ServiceItem s) {
-        return new ApiDtos.ServiceResponse(s.getId(), s.getSlug(), s.getGameCode(), s.getName(), s.getCategory().toLowerCase(Locale.ROOT), s.getShortDesc(), s.getPriceMode().name().toLowerCase(Locale.ROOT), s.getPriceFixed(), s.getPriceMin(), s.getPriceMax(), s.getDurationText(), s.getStatus().name().toLowerCase(Locale.ROOT), s.getCoverImage());
-    }
-
-    @Generated
-    public SlotService(HotSlotRepository repo, ServiceItemRepository services, AuditService audit, TaxonomyService taxonomy) {
+    public SlotService(
+            HotSlotRepository repo,
+            ServiceItemRepository services,
+            AuditService audit,
+            TaxonomyService taxonomy) {
         this.repo = repo;
         this.services = services;
         this.audit = audit;
         this.taxonomy = taxonomy;
     }
-}
 
+    @Transactional(readOnly = true)
+    public List<ApiDtos.ServiceResponse> publicHotServices() {
+        List<ServiceItem> publicItems = services.findPublic(Instant.now()).stream()
+                .filter(item -> taxonomy.publicAllowed(item.getGameCode(), item.getCategory()))
+                .toList();
+
+        Map<Long, ServiceItem> availableById = new LinkedHashMap<>();
+        publicItems.forEach(item -> availableById.put(item.getId(), item));
+
+        List<ServiceItem> selected = new ArrayList<>();
+        Set<Long> added = new HashSet<>();
+        for (HotSlot slot : repo.findAllByOrderBySlotNoAsc()) {
+            if (slot.getMode() != HotSlot.Mode.MANUAL || slot.getService() == null) {
+                continue;
+            }
+            ServiceItem item = availableById.get(slot.getService().getId());
+            if (item != null && added.add(item.getId())) {
+                selected.add(item);
+            }
+        }
+
+        for (ServiceItem item : publicItems) {
+            if (selected.size() >= PUBLIC_SLOT_LIMIT) {
+                break;
+            }
+            if (added.add(item.getId())) {
+                selected.add(item);
+            }
+        }
+
+        return selected.stream()
+                .limit(PUBLIC_SLOT_LIMIT)
+                .map(this::toPublicResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ApiDtos.SlotResponse> list() {
+        return repo.findAllByOrderBySlotNoAsc().stream()
+                .map(this::response)
+                .toList();
+    }
+
+    @Transactional
+    public ApiDtos.SlotResponse update(
+            ApiDtos.SlotUpdate request,
+            String operator,
+            HttpServletRequest httpRequest) {
+        HotSlot slot = repo.findBySlotNo(request.slotNo()).orElseThrow(NotFoundException::new);
+        ApiDtos.SlotResponse before = response(slot);
+        HotSlot.Mode mode = parseMode(request.mode());
+
+        ServiceItem item = request.serviceId() == null
+                ? null
+                : services.findById(request.serviceId()).orElseThrow(NotFoundException::new);
+        if (mode == HotSlot.Mode.AUTO) {
+            item = null;
+        }
+        if (mode == HotSlot.Mode.MANUAL && item == null) {
+            throw new BadRequestException("手动指定模式必须选择服务");
+        }
+        if (item != null && !isAvailableForHomepage(item)) {
+            throw new BadRequestException("该服务当前不可用于首页展示");
+        }
+
+        slot.setMode(mode);
+        slot.setService(item);
+        slot.setUpdatedAt(Instant.now());
+
+        ApiDtos.SlotResponse after = response(slot);
+        audit.log(
+                "SLOT_UPDATE",
+                "HOT_SLOT",
+                String.valueOf(request.slotNo()),
+                operator,
+                before,
+                after,
+                request.reason(),
+                httpRequest);
+        return after;
+    }
+
+    private boolean isAvailableForHomepage(ServiceItem item) {
+        return item.isActive()
+                && item.getStatus() != ServiceItem.Status.OFFLINE
+                && taxonomy.publicAllowed(item.getGameCode(), item.getCategory())
+                && (item.getExpiresAt() == null || item.getExpiresAt().isAfter(Instant.now()));
+    }
+
+    private ApiDtos.SlotResponse response(HotSlot slot) {
+        ServiceItem item = slot.getService();
+        return new ApiDtos.SlotResponse(
+                slot.getSlotNo(),
+                item == null ? null : item.getId(),
+                item == null ? null : item.getName(),
+                slot.getMode().name());
+    }
+
+    private HotSlot.Mode parseMode(String value) {
+        try {
+            return HotSlot.Mode.valueOf(value.toUpperCase(Locale.ROOT));
+        } catch (Exception exception) {
+            throw new BadRequestException("非法展示位模式");
+        }
+    }
+
+    private ApiDtos.ServiceResponse toPublicResponse(ServiceItem item) {
+        return new ApiDtos.ServiceResponse(
+                item.getId(),
+                item.getSlug(),
+                item.getGameCode(),
+                item.getName(),
+                item.getCategory().toLowerCase(Locale.ROOT),
+                item.getShortDesc(),
+                item.getPriceMode().name().toLowerCase(Locale.ROOT),
+                item.getPriceFixed(),
+                item.getPriceMin(),
+                item.getPriceMax(),
+                item.getDurationText(),
+                item.getStatus().name().toLowerCase(Locale.ROOT),
+                item.getCoverImage());
+    }
+}

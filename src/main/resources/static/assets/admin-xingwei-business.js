@@ -71,10 +71,11 @@
   }
 
   async function fetchJson(url, options = {}) {
+    const {headers: optionHeaders = {}, ...rest} = options;
     const response = await fetch(url, {
       credentials: 'same-origin',
-      headers: {'Accept': 'application/json', ...(options.headers || {})},
-      ...options
+      ...rest,
+      headers: {'Accept': 'application/json', ...optionHeaders}
     });
     if (!response.ok) {
       let detail = '';
@@ -320,24 +321,28 @@
       assignTarget.replaceChildren();
       const placeholder = document.createElement('option');
       placeholder.value = '';
-      placeholder.textContent = rows.length ? '请选择负责人或中心队列' : '当前范围没有可分配员工';
+      placeholder.textContent = rows.length
+        ? (access?.dataScope === 'SELF' ? '请选择本人' : '请选择负责人或中心队列')
+        : '当前范围没有可分配员工';
       assignTarget.appendChild(placeholder);
 
-      const departments = new Map();
-      rows.forEach((candidate) => {
-        if (candidate.departmentCode && !departments.has(candidate.departmentCode)) {
-          departments.set(candidate.departmentCode, candidate.departmentName || candidate.departmentCode);
+      if (access?.dataScope !== 'SELF') {
+        const departments = new Map();
+        rows.forEach((candidate) => {
+          if (candidate.departmentCode && !departments.has(candidate.departmentCode)) {
+            departments.set(candidate.departmentCode, candidate.departmentName || candidate.departmentCode);
+          }
+        });
+        if (item.ownership?.departmentCode && !departments.has(item.ownership.departmentCode)) {
+          departments.set(item.ownership.departmentCode, item.ownership.departmentName || item.ownership.departmentCode);
         }
-      });
-      if (item.ownership?.departmentCode && !departments.has(item.ownership.departmentCode)) {
-        departments.set(item.ownership.departmentCode, item.ownership.departmentName || item.ownership.departmentCode);
+        departments.forEach((name, code) => {
+          const option = document.createElement('option');
+          option.value = `dept:${code}`;
+          option.textContent = `${name} · 中心队列`;
+          assignTarget.appendChild(option);
+        });
       }
-      departments.forEach((name, code) => {
-        const option = document.createElement('option');
-        option.value = `dept:${code}`;
-        option.textContent = `${name} · 中心队列`;
-        assignTarget.appendChild(option);
-      });
       rows.forEach((candidate) => {
         const option = document.createElement('option');
         option.value = `owner:${candidate.adminUserId}`;

@@ -75,17 +75,23 @@ class XingweiOrgRbacContractTest {
         String controller = read("java/com/xinghuo/controller/XingweiOrgRbacController.java");
         String guard = read("java/com/xinghuo/security/XingweiPermissionGuard.java");
 
-        assertTrue(controller.contains("@PreAuthorize(\"@xingweiPermissionGuard.has(authentication, 'org:view')\")"));
+        assertTrue(controller.contains("@PreAuthorize(\"@xingweiPermissionGuard.hasAny(authentication, 'org:view', 'employee:view', 'rbac:view')\")"));
         assertTrue(controller.contains("@PreAuthorize(\"@xingweiPermissionGuard.has(authentication, 'employee:manage')\")"));
         assertEquals(2, occurrences(controller,
                 "@PreAuthorize(\"@xingweiPermissionGuard.has(authentication, 'rbac:manage')\")"));
         assertFalse(controller.contains("@PreAuthorize(\"hasRole('ADMIN')\")"),
                 "V2B organization API must use the hybrid permission guard, not UI-only filtering");
+        assertTrue(controller.contains("result.put(\"employees\", employeeView ? source.get(\"employees\") : List.of())"),
+                "organization snapshot must trim employee data when employee:view is absent");
+        assertTrue(controller.contains("result.put(\"roles\", rbacView ? source.get(\"roles\") : List.of())"),
+                "organization snapshot must trim RBAC data when rbac:view is absent");
 
         assertTrue(guard.contains("LEGACY_ADMIN_OVERRIDE"));
         assertTrue(guard.contains("LEGACY_OPERATOR_COMPAT"));
         assertTrue(guard.contains("SHADOW_RBAC"));
         assertTrue(guard.contains("LEGACY_OPERATOR_VIEW_PERMISSIONS"));
+        assertTrue(guard.contains("containsWithManageImplication"));
+        assertTrue(guard.contains("hasAny(Authentication authentication, String... permissionCodes)"));
         assertTrue(controller.contains("XW_EMPLOYEE_PROFILE_UPDATE"));
         assertTrue(controller.contains("XW_EMPLOYEE_ROLES_UPDATE"));
         assertTrue(controller.contains("XW_ROLE_PERMISSIONS_UPDATE"));
@@ -101,13 +107,19 @@ class XingweiOrgRbacContractTest {
         String accessController = read("java/com/xinghuo/controller/XingweiPermissionController.java");
 
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
-        assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2a"));
+        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261013v2b"));
+        assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2b"));
+        assertTrue(template.contains("PHASE 2B · PERMISSION ENFORCEMENT"));
+        assertTrue(template.contains("V2B 混合权限"));
         assertTrue(template.contains("155 岗位正式词库"));
         assertTrue(orgJs.contains("/api/admin/xingwei/org/snapshot"));
+        assertTrue(orgJs.contains("form.dataset.canProfile"));
+        assertTrue(orgJs.contains("form.dataset.canRoles"));
         assertTrue(mainJs.contains("/api/admin/xingwei/access"));
         assertTrue(mainJs.contains("MODULE_PERMISSIONS"));
         assertTrue(mainJs.contains("employee:manage"));
         assertTrue(mainJs.contains("rbac:manage"));
+        assertTrue(mainJs.contains("permission.endsWith(':view')"));
         assertTrue(accessController.contains("@GetMapping(\"/access\")"));
         assertTrue(controller.contains("20261013-v2b"));
     }

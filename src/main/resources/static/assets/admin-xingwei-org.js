@@ -14,6 +14,10 @@
       .replaceAll("'", '&#39;');
   }
 
+  function hasPermission(permission) {
+    return typeof window.xwHasPermission === 'function' && window.xwHasPermission(permission);
+  }
+
   async function apiJson(url, options = {}) {
     const method = String(options.method || 'GET').toUpperCase();
     const headers = {
@@ -48,7 +52,8 @@
     const body = document.getElementById('xwDepartmentRows');
     const filter = document.getElementById('xwPositionDepartment');
     if (!body || !orgSnapshot) return;
-    body.innerHTML = orgSnapshot.departments.map((d) => `
+    const departments = orgSnapshot.departments || [];
+    body.innerHTML = departments.map((d) => `
       <tr>
         <td><span class="xw-code">${escapeHtml(d.code)}</span></td>
         <td><strong>${escapeHtml(d.name)}</strong></td>
@@ -57,7 +62,7 @@
       </tr>`).join('');
     if (filter) {
       const selected = filter.value;
-      filter.innerHTML = '<option value="">全部中心</option>' + orgSnapshot.departments
+      filter.innerHTML = '<option value="">全部中心</option>' + departments
         .map((d) => `<option value="${escapeHtml(d.code)}">${escapeHtml(d.name)}</option>`).join('');
       filter.value = selected;
     }
@@ -68,7 +73,7 @@
     const filter = document.getElementById('xwPositionDepartment');
     if (!body || !orgSnapshot) return;
     const departmentCode = filter?.value || '';
-    const rows = orgSnapshot.positions.filter((p) => !departmentCode || p.departmentCode === departmentCode);
+    const rows = (orgSnapshot.positions || []).filter((p) => !departmentCode || p.departmentCode === departmentCode);
     body.innerHTML = rows.map((p) => `
       <tr>
         <td><span class="xw-code">${escapeHtml(p.code)}</span></td>
@@ -79,13 +84,13 @@
   }
 
   function roleLabel(code) {
-    return orgSnapshot?.roles?.find((role) => role.code === code)?.name || code;
+    return (orgSnapshot?.roles || []).find((role) => role.code === code)?.name || code;
   }
 
   function renderEmployees() {
     const body = document.getElementById('xwEmployeeRows');
     if (!body || !orgSnapshot) return;
-    body.innerHTML = orgSnapshot.employees.map((employee) => {
+    body.innerHTML = (orgSnapshot.employees || []).map((employee) => {
       const roles = (employee.roleCodes || []).map(roleLabel).join('、') || '未配置';
       const name = employee.displayName || '未归档';
       const number = employee.employeeNo ? `<small class="xw-block-code">${escapeHtml(employee.employeeNo)}</small>` : '';
@@ -105,11 +110,11 @@
   function renderRoles() {
     const body = document.getElementById('xwRoleRows');
     if (!body || !orgSnapshot) return;
-    body.innerHTML = orgSnapshot.roles.map((role) => `
+    body.innerHTML = (orgSnapshot.roles || []).map((role) => `
       <tr>
         <td><strong>${escapeHtml(role.name)}</strong><small class="xw-block-code">${escapeHtml(role.code)}</small></td>
         <td>${role.dataScope === 'ALL' ? '全部数据' : '本中心'}</td>
-        <td>${escapeHtml(role.permissionCount)} / ${escapeHtml(orgSnapshot.permissions.length)}</td>
+        <td>${escapeHtml(role.permissionCount)} / ${escapeHtml((orgSnapshot.permissions || []).length)}</td>
         <td><span class="xw-pill ${role.enabled ? 'ok' : ''}">${role.enabled ? '启用' : '停用'}</span></td>
         <td>${role.code === 'XW_MANAGEMENT'
           ? '<span class="xw-muted-label">安全兜底 · 只读</span>'
@@ -132,9 +137,9 @@
       setOrgMessage('正在读取组织数据……');
       orgSnapshot = await apiJson('/api/admin/xingwei/org/snapshot');
       renderOrg();
-      setOrgMessage(`组织数据已连接 · ${orgSnapshot.counts.departments} 个中心 / ${orgSnapshot.counts.positions} 个岗位 · 当前权限为影子模式`, 'ok');
+      setOrgMessage(`组织数据已连接 · ${orgSnapshot.counts?.departments ?? 0} 个中心 / ${orgSnapshot.counts?.positions ?? 0} 个岗位 · V2B 混合权限守卫已生效`, 'ok');
     } catch (error) {
-      setOrgMessage(`组织数据读取失败：${error.message}`, 'error');
+      setOrgMessage(`组织数据读取失败或无查看权限：${error.message}`, 'error');
       console.warn('Xingwei org snapshot failed', error);
     }
   }
@@ -144,15 +149,33 @@
   function fillEmployeePositionOptions(departmentCode, selectedCode = '') {
     const select = document.getElementById('xwEmployeePosition');
     if (!select || !orgSnapshot) return;
-    const rows = orgSnapshot.positions.filter((p) => !departmentCode || p.departmentCode === departmentCode);
+    const rows = (orgSnapshot.positions || []).filter((p) => !departmentCode || p.departmentCode === departmentCode);
     select.innerHTML = '<option value="">未分配岗位</option>' + rows
       .map((p) => `<option value="${escapeHtml(p.code)}">${escapeHtml(p.code)} · ${escapeHtml(p.name)}</option>`).join('');
     select.value = selectedCode && rows.some((p) => p.code === selectedCode) ? selectedCode : '';
   }
 
+  function setEmployeeDialogMode(canProfile, canRoles) {
+    ['xwEmployeeName', 'xwEmployeeNo', 'xwEmployeeDepartment', 'xwEmployeePosition', 'xwEmployeeStatus', 'xwEmployeeNotes']
+      .forEach((id) => {
+        const field = document.getElementById(id);
+        if (field) field.disabled = !canProfile;
+      });
+    const roleFieldset = document.getElementById('xwEmployeeRoleChecks')?.closest('fieldset');
+    if (roleFieldset) roleFieldset.hidden = !canRoles;
+    const form = document.getElementById('xwEmployeeForm');
+    if (form) {
+      form.dataset.canProfile = String(canProfile);
+      form.dataset.canRoles = String(canRoles);
+    }
+  }
+
   function openEmployeeDialog(employeeId) {
     if (!orgSnapshot) return;
-    const employee = orgSnapshot.employees.find((row) => Number(row.id) === Number(employeeId));
+    const canProfile = hasPermission('employee:manage');
+    const canRoles = hasPermission('rbac:manage');
+    if (!canProfile && !canRoles) return;
+    const employee = (orgSnapshot.employees || []).find((row) => Number(row.id) === Number(employeeId));
     const dialog = document.getElementById('xwEmployeeDialog');
     if (!employee || !dialog) return;
 
@@ -164,18 +187,19 @@
     document.getElementById('xwEmployeeNotes').value = employee.notes || '';
 
     const department = document.getElementById('xwEmployeeDepartment');
-    department.innerHTML = '<option value="">未分配中心</option>' + orgSnapshot.departments
+    department.innerHTML = '<option value="">未分配中心</option>' + (orgSnapshot.departments || [])
       .map((d) => `<option value="${escapeHtml(d.code)}">${escapeHtml(d.name)}</option>`).join('');
     department.value = employee.departmentCode || '';
     fillEmployeePositionOptions(department.value, employee.positionCode || '');
 
     const selectedRoles = new Set(employee.roleCodes || []);
-    document.getElementById('xwEmployeeRoleChecks').innerHTML = orgSnapshot.roles.map((role) => `
+    document.getElementById('xwEmployeeRoleChecks').innerHTML = (orgSnapshot.roles || []).map((role) => `
       <label class="xw-check-item">
         <input type="checkbox" value="${escapeHtml(role.code)}" ${selectedRoles.has(role.code) ? 'checked' : ''}/>
         <span><strong>${escapeHtml(role.name)}</strong><small>${escapeHtml(role.dataScope === 'ALL' ? '全部数据' : '本中心数据')}</small></span>
       </label>`).join('');
 
+    setEmployeeDialogMode(canProfile, canRoles);
     document.getElementById('xwEmployeeSaveState').textContent = '';
     dialog.showModal();
   }
@@ -185,8 +209,8 @@
   });
 
   function openRoleDialog(roleCode) {
-    if (!orgSnapshot || roleCode === 'XW_MANAGEMENT') return;
-    const role = orgSnapshot.roles.find((row) => row.code === roleCode);
+    if (!orgSnapshot || roleCode === 'XW_MANAGEMENT' || !hasPermission('rbac:manage')) return;
+    const role = (orgSnapshot.roles || []).find((row) => row.code === roleCode);
     const dialog = document.getElementById('xwRoleDialog');
     if (!role || !dialog) return;
     document.getElementById('xwRoleCode').value = role.code;
@@ -194,7 +218,7 @@
     document.getElementById('xwRoleSaveState').textContent = '';
     const selected = new Set(role.permissionCodes || []);
     const grouped = new Map();
-    orgSnapshot.permissions.forEach((permission) => {
+    (orgSnapshot.permissions || []).forEach((permission) => {
       if (!grouped.has(permission.module)) grouped.set(permission.module, []);
       grouped.get(permission.module).push(permission);
     });
@@ -219,26 +243,34 @@
   document.getElementById('xwEmployeeForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!orgSnapshot) return;
+    const form = event.currentTarget;
+    const canProfile = form.dataset.canProfile === 'true';
+    const canRoles = form.dataset.canRoles === 'true';
     const id = Number(document.getElementById('xwEmployeeId').value);
     const state = document.getElementById('xwEmployeeSaveState');
     const roleCodes = Array.from(document.querySelectorAll('#xwEmployeeRoleChecks input:checked')).map((node) => node.value);
     state.textContent = '正在保存……';
     try {
-      await apiJson(`/api/admin/xingwei/org/employees/${id}/profile`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          employeeNo: document.getElementById('xwEmployeeNo').value,
-          displayName: document.getElementById('xwEmployeeName').value,
-          departmentCode: document.getElementById('xwEmployeeDepartment').value,
-          positionCode: document.getElementById('xwEmployeePosition').value,
-          status: document.getElementById('xwEmployeeStatus').value,
-          notes: document.getElementById('xwEmployeeNotes').value
-        })
-      });
-      await apiJson(`/api/admin/xingwei/org/employees/${id}/roles`, {
-        method: 'PUT',
-        body: JSON.stringify({roleCodes})
-      });
+      if (canProfile) {
+        await apiJson(`/api/admin/xingwei/org/employees/${id}/profile`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            employeeNo: document.getElementById('xwEmployeeNo').value,
+            displayName: document.getElementById('xwEmployeeName').value,
+            departmentCode: document.getElementById('xwEmployeeDepartment').value,
+            positionCode: document.getElementById('xwEmployeePosition').value,
+            status: document.getElementById('xwEmployeeStatus').value,
+            notes: document.getElementById('xwEmployeeNotes').value
+          })
+        });
+      }
+      if (canRoles) {
+        await apiJson(`/api/admin/xingwei/org/employees/${id}/roles`, {
+          method: 'PUT',
+          body: JSON.stringify({roleCodes})
+        });
+      }
+      if (!canProfile && !canRoles) throw new Error('当前账号没有可保存的权限');
       await loadOrg();
       document.getElementById('xwEmployeeDialog').close();
     } catch (error) {
@@ -248,7 +280,7 @@
 
   document.getElementById('xwRoleForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!orgSnapshot) return;
+    if (!orgSnapshot || !hasPermission('rbac:manage')) return;
     const roleCode = document.getElementById('xwRoleCode').value;
     const state = document.getElementById('xwRoleSaveState');
     const permissionCodes = Array.from(document.querySelectorAll('#xwPermissionChecks input:checked')).map((node) => node.value);
@@ -263,6 +295,10 @@
     } catch (error) {
       state.textContent = `保存失败：${error.message}`;
     }
+  });
+
+  document.addEventListener('xw:access-ready', () => {
+    if (orgSnapshot) renderOrg();
   });
 
   loadOrg();

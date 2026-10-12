@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 /**
  * 星维 V2B 混合权限守卫。
  *
- * <p>安全策略：legacy ADMIN 始终全权；未配置影子角色的 legacy OPERATOR
- * 仅获得兼容的查看权限；一旦明确分配影子角色，则按 xw_role_permissions 精确授权。
+ * <p>安全策略：legacy ADMIN 始终全权；未配置星维角色的 legacy OPERATOR
+ * 仅获得兼容的查看权限；一旦明确分配星维角色，则按 xw_role_permissions 精确授权。
  * 该守卫只逐步接管新版星维接口，不改变旧 /admin 的 Spring Security 边界。
  */
 @Component
@@ -49,7 +49,19 @@ public class XingweiPermissionGuard {
             return false;
         }
         AccessSnapshot snapshot = resolve(authentication);
-        return snapshot.allowAll() || snapshot.permissionCodes().contains(permissionCode);
+        return snapshot.allowAll() || containsWithManageImplication(snapshot.permissionCodes(), permissionCode);
+    }
+
+    public boolean hasAny(Authentication authentication, String... permissionCodes) {
+        if (permissionCodes == null || permissionCodes.length == 0) {
+            return false;
+        }
+        for (String permissionCode : permissionCodes) {
+            if (has(authentication, permissionCode)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public AccessSnapshot resolve(Authentication authentication) {
@@ -139,6 +151,17 @@ public class XingweiPermissionGuard {
         return jdbc.query(
                 "SELECT code FROM xw_permissions ORDER BY code",
                 (rs, rowNum) -> rs.getString("code"));
+    }
+
+    private static boolean containsWithManageImplication(List<String> permissions, String requested) {
+        if (permissions.contains(requested)) {
+            return true;
+        }
+        if (requested.endsWith(":view")) {
+            String manage = requested.substring(0, requested.length() - ":view".length()) + ":manage";
+            return permissions.contains(manage);
+        }
+        return false;
     }
 
     private static boolean hasAuthority(Authentication authentication, String authority) {

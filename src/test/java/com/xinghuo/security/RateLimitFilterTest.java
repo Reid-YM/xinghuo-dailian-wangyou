@@ -22,6 +22,14 @@ class RateLimitFilterTest {
     }
 
     @Test
+    void publicRecordOrderAndImageRoutesEachKeepThirtyRequestsPerMinute() throws Exception {
+        assertThreshold("/api/records/XHABCDEFGHIJ", 30);
+        assertThreshold("/api/records/XHABCDEFGHIJ/image", 30);
+        assertThreshold("/api/orders/XHABCDEFGHIJ", 30);
+        assertThreshold("/api/orders/XHABCDEFGHIJ/image", 30);
+    }
+
+    @Test
     void recordNumbersShareOneNormalizedThirtyRequestBucket() throws Exception {
         RateLimitFilter filter = new RateLimitFilter();
         AtomicInteger passed = new AtomicInteger();

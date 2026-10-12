@@ -17,7 +17,7 @@ public class LanguageController {
         String normalized = "en".equalsIgnoreCase(lang) ? "en" : "zh";
         Cookie cookie = new Cookie(COOKIE_NAME, normalized);
         cookie.setPath("/");
-        cookie.setMaxAge(31536000);
+        cookie.setMaxAge(MAX_AGE_SECONDS);
         cookie.setHttpOnly(false);
         cookie.setSecure(true);
         cookie.setAttribute("SameSite", "Lax");
@@ -26,7 +26,15 @@ public class LanguageController {
     }
 
     private String targetFor(String lang, String returnTo) {
-        return this.safePath(returnTo);
+        String target = this.safePath(returnTo);
+        if ("en".equals(lang)) {
+            if ("/rules".equals(target)) return "/rules-en";
+            if ("/privacy".equals(target)) return "/privacy-en";
+        } else {
+            if ("/rules-en".equals(target)) return "/rules";
+            if ("/privacy-en".equals(target)) return "/privacy";
+        }
+        return target;
     }
 
     private String safePath(String value) {

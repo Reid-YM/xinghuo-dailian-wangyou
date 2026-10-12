@@ -55,7 +55,9 @@ public class SeoController {
         this.appendUrl(xml, "/guides", guideLastModified, "daily", "0.8");
         this.appendUrl(xml, "/contact", null, "monthly", "0.6");
         this.appendUrl(xml, "/rules", null, "monthly", "0.5");
+        this.appendUrl(xml, "/rules-en", null, "monthly", "0.4");
         this.appendUrl(xml, "/privacy", null, "monthly", "0.5");
+        this.appendUrl(xml, "/privacy-en", null, "monthly", "0.4");
         this.appendUrl(xml, "/trust", null, "weekly", "0.7");
         this.appendUrl(xml, "/mastery", null, "weekly", "0.7");
         this.appendUrl(xml, "/quote", null, "daily", "0.7");

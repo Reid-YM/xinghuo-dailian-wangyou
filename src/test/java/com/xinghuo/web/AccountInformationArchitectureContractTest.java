@@ -95,7 +95,11 @@ class AccountInformationArchitectureContractTest {
         assertNoAdminDestination(ROOT.resolve("resources/templates/fragments/account-center.html"));
         assertNoAdminDestination(ROOT.resolve("resources/templates/console.html"));
         assertNoAdminDestination(ROOT.resolve("resources/static/assets/account-center.js"));
-        assertNoAdminDestination(ROOT.resolve("resources/static/assets/account.js"));
+        assertNoAdminDestination(ROOT.resolve("resources/static/assets/account-core.js"));
+        assertNoAdminDestination(ROOT.resolve("resources/static/assets/account-auth.js"));
+        assertNoAdminDestination(ROOT.resolve("resources/static/assets/account-submit.js"));
+        assertNoAdminDestination(ROOT.resolve("resources/static/assets/account-settings.js"));
+        assertNoAdminDestination(ROOT.resolve("resources/static/assets/account-profile-controller.js"));
         assertNoAdminDestination(ROOT.resolve("resources/static/assets/console.js"));
         String center = read("resources/static/assets/account-center.js");
         assertTrue(center.contains("href === '/admin' || href.startsWith('/admin/')"));

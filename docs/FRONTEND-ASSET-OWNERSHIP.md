@@ -39,11 +39,8 @@
 - `account-submit.js`：攻略投稿页；负责作者状态、编辑器、本机草稿、安全预览、审核列表与撤回，依赖 `account-core.js`。
 - `account-settings.js`：设置页中除个人资料外的职责；负责账号只读信息、回访联系方式、密码、安全邮箱、在线设备、安全活动和退出登录，依赖 `account-core.js`。
 - `account-profile-controller.js`：`account-settings` 的头像与昵称表单唯一所有者；负责头像预览/上传与资料保存，不与 `account-settings.js` 重复绑定提交事件。
-- `account.js`：历史账号巨型脚本。当前公开账号模板已逐步迁到专用运行时；在确认无模板和脚本依赖后，下一批单独退休，不在设置页拆分 PR 中顺带删除。
 
-所有新拆出的账号页面模块应优先复用 `account-core.js`，不得各自复制 `request`、错误映射或密码策略。`account-core.js` 必须持续保留 `X-Requested-With: fetch`、同源 Cookie、同源登录回跳校验和与后端一致的密码策略。认证页为兼容既有排障入口，暂时继续提供只读 `window.XHAccount` 公共接口。
-
-后续顺序：先验证设置页专用运行时稳定，再全仓确认 `account.js` 无运行时引用，最后用独立 PR 删除历史巨型脚本并建立“不得恢复”契约。
+所有账号页面模块应优先复用 `account-core.js`，不得各自复制 `request`、错误映射或密码策略。`account-core.js` 必须持续保留 `X-Requested-With: fetch`、同源 Cookie、同源登录回跳校验和与后端一致的密码策略。认证页为兼容既有排障入口，暂时继续提供只读 `window.XHAccount` 公共接口。
 
 ### MW4 工具站
 - `mw4-camo-tracker.js`：当前 `/mastery` 权威脚本；
@@ -71,6 +68,18 @@
 状态：**已删除，不得恢复**。
 
 原有职责已经迁移到 `site-shell.js`、`pages.js`、`mw4-camo-tracker.js` 等明确所有者。所有模板中的 `/assets/ui-fixes.js` 引用已清零，并由 `FrontendPatchDebtContractTest` 防止恢复。
+
+### `account.js`
+状态：**已删除，不得恢复**。
+
+历史巨型账号脚本的运行时职责已经全部迁移：
+- 登录 / 注册 / 重置 → `account-auth.js` + `account-core.js`；
+- 个人中心 / 需求 / 订单 / 进度 → `account-center.js`；
+- 攻略投稿 → `account-submit.js` + `account-core.js`；
+- 设置页账号安全 / 邮箱 / 设备 / 回访方式 → `account-settings.js` + `account-core.js`；
+- 设置页头像 / 昵称 → `account-profile-controller.js`。
+
+`RetiredAccountMonolithContractTest` 强制保证历史文件不得恢复，且任何 HTML/JS 运行时资产不得重新引用 `/assets/account.js`。
 
 ## 6. 新代码准入规则
 

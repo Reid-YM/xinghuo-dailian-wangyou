@@ -5,6 +5,7 @@ import com.xinghuo.service.XingweiOrgRbacService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -110,6 +111,14 @@ public class XingweiOrgRbacController {
         return Map.of(
                 "ok", false,
                 "error", ex.getMessage() == null ? "请求参数不合法" : ex.getMessage());
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> missingReference() {
+        return Map.of(
+                "ok", false,
+                "error", "所选账号、中心、岗位或角色不存在或已停用");
     }
 
     private static String operator(Authentication authentication) {

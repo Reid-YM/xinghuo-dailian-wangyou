@@ -47,7 +47,7 @@
   </article>
 
   <section class="guide-products" th:if="${!#lists.isEmpty(products)}">
-    <div class="section-title section-title-rich"><div><span class="eyebrow">Recommended Products</span><h2>推荐商品</h2></div><a class="text-link" href="/services">查看全部服务</a></div>
+    <div th:replace="~{fragments/page :: sectionHeader('Recommended Products','推荐商品','/services','查看全部服务','section-title-rich')}"></div>
     <p class="muted">商品图片来自 Steam / Apple App Store / 官方商店等公开渠道，并与主站服务目录同步。价格以人工确认后的担保订单为准。</p>
     <div class="guide-product-grid">
       <a class="card guide-product" th:each="product : ${products}" th:href="@{'/service/' + ${product.slug}}">
@@ -74,7 +74,7 @@
   </section>
 
   <section class="guide-related" th:if="${!#lists.isEmpty(relatedGuides)}">
-    <div class="section-title section-title-rich"><div><span class="eyebrow">Related</span><h2>相关攻略</h2></div></div>
+    <div th:replace="~{fragments/page :: sectionHeader('Related','相关攻略',null,null,'section-title-rich')}"></div>
     <div class="guide-related-grid"><a class="card guide-related-card" th:each="item : ${relatedGuides}" th:href="@{'/guides/' + ${item.slug}}"><b th:text="${item.gameName}">游戏</b><span th:text="${item.title}">攻略</span></a></div>
   </section>
   <section class="card gc-root" data-guide-community th:attr="data-guide-slug=${guide.slug}">

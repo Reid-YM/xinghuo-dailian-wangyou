@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.xinghuo.security.GeoLanguageResolver;
 import jakarta.servlet.http.Cookie;
+import java.util.List;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -51,5 +52,59 @@ class SmartLocaleResolverSeoTest {
 
         assertEquals(Locale.ENGLISH, resolver.resolveLocale(rules));
         assertEquals(Locale.ENGLISH, resolver.resolveLocale(privacy));
+    }
+
+    @Test
+    void anonymousIndexablePublicPagesIgnoreGeoAndAcceptLanguage() {
+        GeoLanguageResolver geo = mock(GeoLanguageResolver.class);
+        when(geo.detectLanguage(anyString())).thenReturn("en");
+        SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
+
+        List<String> paths = List.of(
+                "/",
+                "/services",
+                "/service/weapon-leveling",
+                "/game/cod-mw4",
+                "/guides",
+                "/guides/mw4-camo-guide",
+                "/mastery",
+                "/quote",
+                "/contact",
+                "/trust");
+
+        for (String path : paths) {
+            MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
+            request.setRemoteAddr("8.8.8.8");
+            request.addHeader("Accept-Language", "en-US,en;q=0.9");
+            assertEquals(Locale.SIMPLIFIED_CHINESE, resolver.resolveLocale(request), path);
+        }
+    }
+
+    @Test
+    void explicitUserPreferenceStillWinsOnIndexablePublicPages() {
+        GeoLanguageResolver geo = mock(GeoLanguageResolver.class);
+        when(geo.detectLanguage(anyString())).thenReturn("zh");
+        SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
+
+        MockHttpServletRequest cookieChoice = new MockHttpServletRequest("GET", "/services");
+        cookieChoice.setCookies(new Cookie("xh_lang", "en"));
+
+        MockHttpServletRequest parameterChoice = new MockHttpServletRequest("GET", "/service/weapon-leveling");
+        parameterChoice.setParameter("lang", "en");
+
+        assertEquals(Locale.ENGLISH, resolver.resolveLocale(cookieChoice));
+        assertEquals(Locale.ENGLISH, resolver.resolveLocale(parameterChoice));
+    }
+
+    @Test
+    void nonIndexableUtilityPagesKeepAutomaticLanguageConvenience() {
+        GeoLanguageResolver geo = mock(GeoLanguageResolver.class);
+        when(geo.detectLanguage(anyString())).thenReturn("en");
+        SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/account/login");
+        request.setRemoteAddr("8.8.8.8");
+
+        assertEquals(Locale.ENGLISH, resolver.resolveLocale(request));
     }
 }

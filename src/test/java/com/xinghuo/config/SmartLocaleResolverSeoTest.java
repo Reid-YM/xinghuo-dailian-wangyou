@@ -1,6 +1,7 @@
 package com.xinghuo.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 class SmartLocaleResolverSeoTest {
 
@@ -83,6 +85,25 @@ class SmartLocaleResolverSeoTest {
     }
 
     @Test
+    void seoForcedPublicLocaleIsNotPersistedAsUserPreference() {
+        GeoLanguageResolver geo = mock(GeoLanguageResolver.class);
+        when(geo.detectLanguage(anyString())).thenReturn("en");
+        SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
+
+        List<String> paths = List.of("/services", "/service/weapon-leveling", "/rules", "/rules-en");
+        for (String path : paths) {
+            MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
+            request.setRemoteAddr("8.8.8.8");
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            Locale locale = resolver.resolveLocale(request);
+
+            resolver.persistIfAbsent(request, response, locale);
+
+            assertNull(response.getCookie(WebI18nConfig.COOKIE_NAME), path);
+        }
+    }
+
+    @Test
     void explicitUserPreferenceStillWorksOnNonIndexableUtilityPages() {
         GeoLanguageResolver geo = mock(GeoLanguageResolver.class);
         when(geo.detectLanguage(anyString())).thenReturn("zh");
@@ -99,14 +120,19 @@ class SmartLocaleResolverSeoTest {
     }
 
     @Test
-    void nonIndexableUtilityPagesKeepAutomaticLanguageConvenience() {
+    void nonIndexableUtilityPagesKeepAutomaticLanguageConvenienceAndPersistIt() {
         GeoLanguageResolver geo = mock(GeoLanguageResolver.class);
         when(geo.detectLanguage(anyString())).thenReturn("en");
         SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
 
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/account/login");
         request.setRemoteAddr("8.8.8.8");
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-        assertEquals(Locale.ENGLISH, resolver.resolveLocale(request));
+        Locale locale = resolver.resolveLocale(request);
+        resolver.persistIfAbsent(request, response, locale);
+
+        assertEquals(Locale.ENGLISH, locale);
+        assertEquals("en", response.getCookie(WebI18nConfig.COOKIE_NAME).getValue());
     }
 }

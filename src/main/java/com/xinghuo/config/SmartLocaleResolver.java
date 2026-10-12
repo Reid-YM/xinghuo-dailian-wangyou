@@ -81,6 +81,10 @@ public class SmartLocaleResolver implements LocaleResolver {
                 || uri.startsWith("/guides/");
     }
 
+    private boolean isStablePublicPath(String uri) {
+        return this.stablePathLocale(uri) != null || this.isIndexablePublicPath(uri);
+    }
+
     private Locale remember(HttpServletRequest request, Locale locale) {
         request.setAttribute(RESOLVED_ATTR, locale);
         return locale;
@@ -101,6 +105,13 @@ public class SmartLocaleResolver implements LocaleResolver {
     }
 
     public void persistIfAbsent(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+        // A canonical public URL has a language chosen by SEO routing, not by the user.
+        // Do not turn that forced locale into a year-long preference cookie, otherwise
+        // an English visitor who merely opens /services would later inherit Chinese on
+        // private/non-indexable pages where automatic or explicit language choice is valid.
+        if (request != null && this.isStablePublicPath(request.getRequestURI())) {
+            return;
+        }
         if (this.cookieValue(request, WebI18nConfig.COOKIE_NAME) == null) {
             this.setLocale(request, response, locale);
         }

@@ -33,11 +33,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.Generated;
 import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -141,7 +139,10 @@ public class PublicApiController {
     @GetMapping(value={"/site-assets/{assetId}"})
     ResponseEntity<Resource> siteAsset(@PathVariable UUID assetId) {
         Resource r = this.uploads.loadPublicSiteAsset(assetId);
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(assetId)).cacheControl(CacheControl.maxAge((Duration)Duration.ofDays(7L)).cachePublic())).body(r);
+        return ResponseEntity.ok()
+                .contentType(this.uploads.mediaType(assetId))
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(7L)).cachePublic())
+                .body(r);
     }
 
     @PostMapping(value={"/uploads/quote"})
@@ -167,7 +168,7 @@ public class PublicApiController {
             }
         }
         ApiDtos.QuoteResponse out = this.quotes.create(payload, key, HashUtil.sha256(RequestUtil.clientIp(req)), accountId);
-        return ResponseEntity.status((HttpStatusCode)HttpStatus.CREATED).body(out);
+        return ResponseEntity.status(HttpStatus.CREATED).body(out);
     }
 
     private boolean isBlankContact(PublicQuoteRequest body) {
@@ -188,7 +189,7 @@ public class PublicApiController {
     }
 
     @GetMapping(value={"/records/{businessNo}"})
-    ApiDtos.RecordPublicResponse record(@PathVariable String businessNo, HttpServletRequest req) {
+    ApiDtos.RecordPublicResponse record(@PathVariable String businessNo) {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
@@ -196,7 +197,7 @@ public class PublicApiController {
     }
 
     @GetMapping(value={"/records/{businessNo}/image"})
-    ResponseEntity<Resource> recordImage(@PathVariable String businessNo, HttpServletRequest req) {
+    ResponseEntity<Resource> recordImage(@PathVariable String businessNo) {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
@@ -205,11 +206,14 @@ public class PublicApiController {
             throw new NotFoundException();
         }
         Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(o.getProgressImageAssetId())).cacheControl(CacheControl.noStore())).body(r);
+        return ResponseEntity.ok()
+                .contentType(this.uploads.mediaType(o.getProgressImageAssetId()))
+                .cacheControl(CacheControl.noStore())
+                .body(r);
     }
 
     @GetMapping(value={"/orders/{orderNo}"})
-    ApiDtos.OrderPublicResponse order(@PathVariable String orderNo, HttpServletRequest req) {
+    ApiDtos.OrderPublicResponse order(@PathVariable String orderNo) {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
@@ -217,7 +221,7 @@ public class PublicApiController {
     }
 
     @GetMapping(value={"/orders/{orderNo}/image"})
-    ResponseEntity<Resource> orderImage(@PathVariable String orderNo, HttpServletRequest req) {
+    ResponseEntity<Resource> orderImage(@PathVariable String orderNo) {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
@@ -226,7 +230,10 @@ public class PublicApiController {
             throw new NotFoundException();
         }
         Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(this.uploads.mediaType(o.getProgressImageAssetId())).cacheControl(CacheControl.noStore())).body(r);
+        return ResponseEntity.ok()
+                .contentType(this.uploads.mediaType(o.getProgressImageAssetId()))
+                .cacheControl(CacheControl.noStore())
+                .body(r);
     }
 
     @PostMapping(value={"/track"})
@@ -235,8 +242,7 @@ public class PublicApiController {
         return ResponseEntity.noContent().build();
     }
 
-    @Generated
-    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, com.xinghuo.account.service.QuoteContactService quoteContacts) {
+    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;
@@ -252,4 +258,3 @@ public class PublicApiController {
         this.quoteContacts = quoteContacts;
     }
 }
-

@@ -35,6 +35,14 @@ class XingweiBusinessWorkbenchContractTest {
     }
 
     @Test
+    void selfScopeNeverOffersDepartmentQueueThatBackendWouldReject() throws Exception {
+        String js = read("resources/static/assets/admin-xingwei-business.js");
+
+        assertTrue(js.contains("access?.dataScope === 'SELF' ? '请选择本人' : '请选择负责人或中心队列'"));
+        assertTrue(js.contains("if (access?.dataScope !== 'SELF')"));
+    }
+
+    @Test
     void workbenchKeepsLegacyAdminRecoveryLinkAndResponsiveTableContainment() throws Exception {
         String template = read("resources/templates/admin-xingwei-business.html");
         String css = read("resources/static/assets/admin-xingwei-business.css");

@@ -1,4 +1,5 @@
 # Reviewed Flyway migrations for production auto-deploy.
 # Format: <migration filename> <exact git blob sha> <review note>
 # A migration is auto-approved only when both filename and current git blob SHA match exactly.
+V59__responsive_visual_controls.sql 2937c597c7bb9b9663ed73c513c2fa4e98c7aa4f 2026-10-12:historical-applied-production-checksum-1593454081
 V60__wechat_mini_pairing.sql 13403a4303243618b2b7855d7ef20f61ad6be6d9 2026-10-12:additive-create-table-reviewed

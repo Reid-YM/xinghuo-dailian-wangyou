@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#101216"/>
+  <meta name="_csrf" th:content="${csrf.token}"/>
+  <meta name="_csrf_header" th:content="${csrf.headerName}"/>
+  <title>星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <script defer src="/assets/admin-xingwei.js?v=20261013v1"></script>
+</head>
+<body>
+<div class="xw-shell">
+  <aside class="xw-sidebar" id="xwSidebar">
+    <div class="xw-brand">
+      <span class="xw-brand-mark" aria-hidden="true">XW</span>
+      <div>
+        <strong th:text="${workspaceName}">星维网络服务工作室</strong>
+        <small>Management Console</small>
+      </div>
+    </div>
+
+    <nav class="xw-nav" aria-label="后台导航">
+      <a class="xw-nav-item active" href="#overview"><span>01</span>运营总览</a>
+      <a class="xw-nav-item" href="#business"><span>02</span>业务中台</a>
+      <a class="xw-nav-item" href="#organization"><span>03</span>组织与权限</a>
+      <a class="xw-nav-item" href="#channels"><span>04</span>渠道与微信</a>
+      <a class="xw-nav-item" href="#system"><span>05</span>系统工具</a>
+    </nav>
+
+    <div class="xw-sidebar-foot">
+      <div class="xw-user">
+        <span class="xw-user-dot" aria-hidden="true"></span>
+        <div><strong th:text="${username}">admin</strong><small>已登录管理员</small></div>
+      </div>
+      <form action="/logout" method="post">
+        <input type="hidden" th:name="${csrf.parameterName}" th:value="${csrf.token}"/>
+        <button class="xw-button xw-button-ghost" type="submit">退出后台</button>
+      </form>
+    </div>
+  </aside>
+
+  <main class="xw-main">
+    <header class="xw-topbar">
+      <button class="xw-menu-button" id="xwMenuButton" type="button" aria-label="打开导航" aria-expanded="false">☰</button>
+      <div>
+        <p class="xw-kicker">STARWEAVE · OPERATIONS</p>
+        <h1>星维管理后台</h1>
+      </div>
+      <div class="xw-topbar-actions">
+        <span class="xw-status" id="xwBackendStatus"><i></i>正在检查服务</span>
+        <a class="xw-button xw-button-ghost" href="/" target="_blank" rel="noopener">查看前台</a>
+        <a class="xw-button" href="/admin">进入旧后台</a>
+      </div>
+    </header>
+
+    <section class="xw-hero" id="overview">
+      <div>
+        <p class="xw-kicker">PHASE 1 · PARALLEL CONSOLE</p>
+        <h2>先建立统一管理入口，再逐步迁移业务能力。</h2>
+        <p>当前版本与原后台并行运行，沿用现有管理员登录、Spring Security、JPA/Flyway 与生产发布链路，不影响当前网站和订单流程。</p>
+      </div>
+      <div class="xw-version-card">
+        <span>当前版本</span>
+        <strong th:text="${consoleVersion}">20261013-v1</strong>
+        <small id="xwServerTime">等待服务响应</small>
+      </div>
+    </section>
+
+    <section class="xw-command-card" aria-label="后台快捷搜索">
+      <label for="xwModuleSearch">快速定位模块</label>
+      <div class="xw-search-row">
+        <input id="xwModuleSearch" type="search" placeholder="搜索：订单、询价、用户、微信、SEO、日志……" autocomplete="off"/>
+        <span id="xwSearchCount">全部模块</span>
+      </div>
+    </section>
+
+    <section class="xw-section" id="business">
+      <div class="xw-section-head">
+        <div><p class="xw-kicker">BUSINESS CENTER</p><h2>业务中台</h2></div>
+        <p>先复用现有成熟功能，后续逐项迁移成新版独立页面。</p>
+      </div>
+      <div class="xw-grid">
+        <a class="xw-module" data-search="询价 客户 需求 线索 报价" href="/admin">
+          <div class="xw-module-index">B01</div><h3>询价与线索</h3><p>查看客户需求、询价记录与跟进状态。</p><span>现有后台承载 →</span>
+        </a>
+        <a class="xw-module" data-search="订单 履约 进度 派单 代练" href="/admin">
+          <div class="xw-module-index">B02</div><h3>订单与履约</h3><p>订单状态、进度同步和后续派单能力的统一入口。</p><span>现有后台承载 →</span>
+        </a>
+        <a class="xw-module" data-search="服务 商品 价格 上下架 游戏 mw4" href="/admin">
+          <div class="xw-module-index">B03</div><h3>服务与商品</h3><p>服务项目、价格、展示状态与游戏资料管理。</p><span>现有后台承载 →</span>
+        </a>
+        <a class="xw-module" data-search="攻略 内容 编辑 guides" href="/admin/guides">
+          <div class="xw-module-index">B04</div><h3>攻略内容</h3><p>管理攻略组件与站内内容资产。</p><span>打开模块 →</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="xw-section" id="organization">
+      <div class="xw-section-head">
+        <div><p class="xw-kicker">ORGANIZATION & RBAC</p><h2>组织与权限</h2></div>
+        <p>这一组是从 scaffold-master 优先吸收的核心能力。</p>
+      </div>
+      <div class="xw-grid">
+        <article class="xw-module xw-module-planned" data-search="部门 组织 架构 运营 客服 游戏 技术">
+          <div class="xw-module-index">O01</div><h3>部门管理</h3><p>管理运营中心、客服与订单中心、游戏服务中心、技术中心。</p><span>第二阶段接入</span>
+        </article>
+        <article class="xw-module xw-module-planned" data-search="岗位 职务 员工 淘宝 闲鱼 售前 售后 代练">
+          <div class="xw-module-index">O02</div><h3>岗位与员工</h3><p>按岗位绑定员工，并为派单与工作台数据范围提供基础。</p><span>第二阶段接入</span>
+        </article>
+        <article class="xw-module xw-module-planned" data-search="角色 权限 rbac 菜单 按钮 数据范围">
+          <div class="xw-module-index">O03</div><h3>角色与权限</h3><p>菜单权限、操作权限与数据范围分开控制。</p><span>第二阶段接入</span>
+        </article>
+        <a class="xw-module" data-search="账号 用户 登录 日志" href="/admin">
+          <div class="xw-module-index">O04</div><h3>现有账号管理</h3><p>继续使用当前管理员与用户账号能力，避免双认证体系。</p><span>现有后台承载 →</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="xw-section" id="channels">
+      <div class="xw-section-head">
+        <div><p class="xw-kicker">CHANNELS & WECHAT</p><h2>渠道与微信</h2></div>
+        <p>为淘宝、闲鱼、官网、小程序与微信支付预留统一管理面。</p>
+      </div>
+      <div class="xw-grid">
+        <article class="xw-module xw-module-planned" data-search="淘宝 闲鱼 渠道 商品 运营">
+          <div class="xw-module-index">C01</div><h3>渠道运营</h3><p>后续汇总淘宝、闲鱼和官网运营状态与任务。</p><span>规划中</span>
+        </article>
+        <article class="xw-module xw-module-planned" data-search="微信 登录 小程序 扫码 公众号 服务号">
+          <div class="xw-module-index">C02</div><h3>微信身份能力</h3><p>网站微信登录、小程序账号互通和后续扫码登录状态。</p><span>第三阶段整合</span>
+        </article>
+        <article class="xw-module xw-module-planned" data-search="微信支付 支付 退款 商户 订单">
+          <div class="xw-module-index">C03</div><h3>微信支付</h3><p>支付订单、回调状态、退款和异常对账的后台入口。</p><span>第三阶段整合</span>
+        </article>
+        <a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/frontend-controls">
+          <div class="xw-module-index">C04</div><h3>前台控制</h3><p>继续复用现有前台展示与功能开关控制。</p><span>打开模块 →</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="xw-section" id="system">
+      <div class="xw-section-head">
+        <div><p class="xw-kicker">SYSTEM & GOVERNANCE</p><h2>系统工具</h2></div>
+        <p>保留审计、SEO、站点配置和发布回滚能力。</p>
+      </div>
+      <div class="xw-grid">
+        <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin">
+          <div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示与图片视觉。</p><span>现有后台承载 →</span>
+        </a>
+        <a class="xw-module" data-search="日志 审计 操作 安全" href="/admin">
+          <div class="xw-module-index">S02</div><h3>操作审计</h3><p>继续使用当前审计日志，后续升级权限溯源视图。</p><span>现有后台承载 →</span>
+        </a>
+        <article class="xw-module xw-module-planned" data-search="发布 部署 回滚 ci github 服务器">
+          <div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>保持 GitHub PR → CI → 生产部署门禁，不在后台直接执行危险发布。</p><span>沿用现有流水线</span>
+        </article>
+        <article class="xw-module xw-module-planned" data-search="代码生成 scaffold generator 开发">
+          <div class="xw-module-index">S04</div><h3>开发工具</h3><p>后续评估移植 scaffold-master 的代码生成与字典能力。</p><span>评估中</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="xw-roadmap">
+      <div class="xw-section-head">
+        <div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移顺序</h2></div>
+      </div>
+      <ol>
+        <li><strong>V1 并行入口</strong><span>新版后台壳、现有模块导航、服务状态检查。</span></li>
+        <li><strong>V2 组织与权限</strong><span>部门、岗位、角色、菜单/按钮权限、数据范围。</span></li>
+        <li><strong>V3 业务迁移</strong><span>询价、订单、派单、员工工作台逐步进入新版后台。</span></li>
+        <li><strong>V4 微信与渠道</strong><span>微信登录、支付、小程序、淘宝/闲鱼运营状态统一管理。</span></li>
+      </ol>
+    </section>
+
+    <footer class="xw-footer">
+      <span>星维网络服务工作室 · 管理后台</span>
+      <span>原后台保留，所有迁移按可回滚方式推进</span>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

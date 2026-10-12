@@ -1,8 +1,10 @@
 package com.xinghuo.controller;
 
+import com.xinghuo.security.XingweiPermissionGuard;
 import com.xinghuo.service.AuditService;
 import com.xinghuo.service.XingweiOrgRbacService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,16 +25,46 @@ import org.springframework.web.bind.annotation.RestController;
 public class XingweiOrgRbacController {
     private final XingweiOrgRbacService org;
     private final AuditService audits;
+    private final XingweiPermissionGuard permissions;
 
-    public XingweiOrgRbacController(XingweiOrgRbacService org, AuditService audits) {
+    public XingweiOrgRbacController(
+            XingweiOrgRbacService org,
+            AuditService audits,
+            XingweiPermissionGuard permissions) {
         this.org = org;
         this.audits = audits;
+        this.permissions = permissions;
     }
 
     @GetMapping("/snapshot")
-    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'org:view')")
-    public Map<String, Object> snapshot() {
-        return org.snapshot();
+    @PreAuthorize("@xingweiPermissionGuard.hasAny(authentication, 'org:view', 'employee:view', 'rbac:view')")
+    public Map<String, Object> snapshot(Authentication authentication) {
+        Map<String, Object> source = org.snapshot();
+        boolean orgView = permissions.has(authentication, "org:view");
+        boolean employeeView = permissions.has(authentication, "employee:view");
+        boolean rbacView = permissions.has(authentication, "rbac:view");
+
+        Map<String, Object> result = new LinkedHashMap<>(source);
+        result.put("departments", orgView || employeeView ? source.get("departments") : List.of());
+        result.put("positions", orgView || employeeView ? source.get("positions") : List.of());
+        result.put("employees", employeeView ? source.get("employees") : List.of());
+        result.put("roles", rbacView ? source.get("roles") : List.of());
+        result.put("permissions", rbacView ? source.get("permissions") : List.of());
+
+        Map<String, Object> sourceCounts = castMap(source.get("counts"));
+        Map<String, Object> counts = new LinkedHashMap<>();
+        counts.put("departments", orgView || employeeView ? sourceCounts.getOrDefault("departments", 0) : 0);
+        counts.put("positions", orgView || employeeView ? sourceCounts.getOrDefault("positions", 0) : 0);
+        counts.put("employees", employeeView ? sourceCounts.getOrDefault("employees", 0) : 0);
+        counts.put("assignedEmployees", employeeView ? sourceCounts.getOrDefault("assignedEmployees", 0) : 0);
+        counts.put("roles", rbacView ? sourceCounts.getOrDefault("roles", 0) : 0);
+        counts.put("permissions", rbacView ? sourceCounts.getOrDefault("permissions", 0) : 0);
+        result.put("counts", counts);
+        result.put("visibleSections", Map.of(
+                "organization", orgView,
+                "employees", employeeView,
+                "rbac", rbacView));
+        return result;
     }
 
     @PutMapping("/employees/{adminUserId}/profile")
@@ -120,6 +152,11 @@ public class XingweiOrgRbacController {
         return Map.of(
                 "ok", false,
                 "error", "所选账号、中心、岗位或角色不存在或已停用");
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> castMap(Object value) {
+        return value instanceof Map<?, ?> ? (Map<String, Object>) value : Map.of();
     }
 
     private static String operator(Authentication authentication) {

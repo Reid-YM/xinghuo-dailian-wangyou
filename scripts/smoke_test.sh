@@ -30,8 +30,9 @@ check_header() {
 }
 check_body_contains() {
   local path=$1 expected=$2
+  shift 2
   local body
-  body=$(curl -sS "$BASE$path" || true)
+  body=$(curl -sS "$@" "$BASE$path" || true)
   if ! grep -Fq -- "$expected" <<<"$body"; then
     echo "FAIL $path missing-body-fragment=$expected"
     fail=1
@@ -69,10 +70,17 @@ check_body_contains /service/weapon-leveling '<link rel="canonical" href="https:
 check_body_absent /service/weapon-leveling '"@type":"Product"'
 check_code /api/guides 200
 check_code /api/tool-station 200
-# 匿名可索引页面不能再因浏览器语言或爬虫来源变化而改变 canonical URL 下的语言。
+# 所有可索引 canonical 页面必须稳定输出中文正文，而不是只把响应头写成 zh-CN。
+# 英语浏览器头、历史英文 Cookie、显式 lang=en 都不能让同一 canonical URL 输出另一套正文。
 check_header /services Content-Language zh-CN -H 'Accept-Language: en-US,en;q=0.9'
-# 用户主动选择英文后仍应通过 Cookie 保留英文体验。
-check_header /services Content-Language en -H 'Cookie: xh_lang=en'
+check_body_contains /services '<html lang="zh-CN">' -H 'Accept-Language: en-US,en;q=0.9'
+check_body_contains /services '服务大厅' -H 'Accept-Language: en-US,en;q=0.9'
+check_header /services Content-Language zh-CN -H 'Cookie: xh_lang=en'
+check_body_contains /services '<html lang="zh-CN">' -H 'Cookie: xh_lang=en'
+check_body_contains /services '服务大厅' -H 'Cookie: xh_lang=en'
+check_header '/services?lang=en' Content-Language zh-CN
+check_body_contains '/services?lang=en' '<html lang="zh-CN">'
+check_body_contains '/services?lang=en' '服务大厅'
 # 用户中心所有真实页面都必须存在并要求登录。未登录时应跳转登录页，绝不能 404。
 check_code /account 302
 check_code /account/requests 302

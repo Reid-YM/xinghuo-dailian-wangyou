@@ -55,7 +55,7 @@ class SmartLocaleResolverSeoTest {
     }
 
     @Test
-    void anonymousIndexablePublicPagesIgnoreGeoAndAcceptLanguage() {
+    void indexablePublicPagesIgnoreGeoAcceptLanguageCookiesAndLangParameters() {
         GeoLanguageResolver geo = mock(GeoLanguageResolver.class);
         when(geo.detectLanguage(anyString())).thenReturn("en");
         SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
@@ -76,20 +76,22 @@ class SmartLocaleResolverSeoTest {
             MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
             request.setRemoteAddr("8.8.8.8");
             request.addHeader("Accept-Language", "en-US,en;q=0.9");
+            request.setCookies(new Cookie("xh_lang", "en"));
+            request.setParameter("lang", "en");
             assertEquals(Locale.SIMPLIFIED_CHINESE, resolver.resolveLocale(request), path);
         }
     }
 
     @Test
-    void explicitUserPreferenceStillWinsOnIndexablePublicPages() {
+    void explicitUserPreferenceStillWorksOnNonIndexableUtilityPages() {
         GeoLanguageResolver geo = mock(GeoLanguageResolver.class);
         when(geo.detectLanguage(anyString())).thenReturn("zh");
         SmartLocaleResolver resolver = new SmartLocaleResolver(geo);
 
-        MockHttpServletRequest cookieChoice = new MockHttpServletRequest("GET", "/services");
+        MockHttpServletRequest cookieChoice = new MockHttpServletRequest("GET", "/account/login");
         cookieChoice.setCookies(new Cookie("xh_lang", "en"));
 
-        MockHttpServletRequest parameterChoice = new MockHttpServletRequest("GET", "/service/weapon-leveling");
+        MockHttpServletRequest parameterChoice = new MockHttpServletRequest("GET", "/records");
         parameterChoice.setParameter("lang", "en");
 
         assertEquals(Locale.ENGLISH, resolver.resolveLocale(cookieChoice));

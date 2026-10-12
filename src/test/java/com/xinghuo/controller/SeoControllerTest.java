@@ -65,6 +65,7 @@ class SeoControllerTest {
         String robots = controller.robots().getBody();
         assertTrue(robots.contains("Disallow: /api/"));
         assertTrue(robots.contains("Disallow: /account"));
+        assertTrue(robots.contains("Disallow: /language"));
         assertTrue(robots.contains("Disallow: /record/"));
         assertTrue(robots.contains("Sitemap: https://wydlgf.cn/sitemap.xml"));
         assertFalse(Files.exists(Path.of("src/main/resources/static/robots.txt")));

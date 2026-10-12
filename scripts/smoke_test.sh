@@ -65,8 +65,14 @@ check_code '/language?lang=en&returnTo=/rules' 302
 check_header '/language?lang=en&returnTo=/rules' X-Robots-Tag 'noindex, nofollow'
 check_code /contact 200
 check_code /records 200
+check_header /records X-Robots-Tag 'noindex, follow'
 check_code /trust 200
-check_code /order 200
+# 旧业务查询 URL 必须永久归并到当前 canonical 工具地址，不能继续返回第二套 200 页面。
+check_code /order 301
+check_header /order Location '/records'
+check_header /order X-Robots-Tag 'noindex, follow'
+check_code /order/XH7KM4Q2AZ8P 301
+check_header /order/XH7KM4Q2AZ8P Location '/record/XH7KM4Q2AZ8P'
 check_code /api/account/me 401
 check_code /api/account/security/events 401
 check_removed() {

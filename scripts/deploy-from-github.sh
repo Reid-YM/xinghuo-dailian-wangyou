@@ -10,6 +10,7 @@ CANDIDATE_DIR=${CANDIDATE_DIR:-$APP_DIR/candidates}
 SMOKE_UNIT=${SMOKE_UNIT:-xinghuo-smoke-18080}
 SMOKE_PORT=${SMOKE_PORT:-18080}
 EXPECTED_SHA=${1:-}
+REVIEWED_MIGRATIONS_FILE=${REVIEWED_MIGRATIONS_FILE:-$WORK/docs/REVIEWED_FLYWAY_MIGRATIONS.txt}
 
 log()  { echo "[$(date '+%F %T')] $*"; }
 fail() { log "❌ $*"; exit 1; }
@@ -62,6 +63,18 @@ fi
 HEAD_MIGRATIONS=$(find "$WORK/src/main/resources/db/migration" -maxdepth 1 -name 'V*.sql' \
   -printf '%f\n' 2>/dev/null | sort -u)
 
+migration_has_exact_review() {
+  local migration=$1
+  local migration_path="$WORK/src/main/resources/db/migration/$migration"
+  local actual_blob reviewed_blob
+  [ -f "$migration_path" ] || return 1
+  [ -f "$REVIEWED_MIGRATIONS_FILE" ] || return 1
+  actual_blob=$(git -C "$WORK" hash-object "src/main/resources/db/migration/$migration")
+  reviewed_blob=$(awk -v name="$migration" '$1 == name { print $2 }' "$REVIEWED_MIGRATIONS_FILE" | tail -n 1)
+  [[ "$reviewed_blob" =~ ^[0-9a-f]{40}$ ]] || return 1
+  [ "$actual_blob" = "$reviewed_blob" ]
+}
+
 if [ -z "$LIVE_MIGRATIONS" ]; then
   # 读不到线上包内的清单时退回旧口径：宁可拦下，也不能放过带迁移的版本
   MIGRATIONS=$(git -C "$WORK" diff --name-only \
@@ -75,10 +88,25 @@ else
     <(printf '%s\n' "$HEAD_MIGRATIONS") | sed '/^$/d')
   if [ -n "$NEW_MIGRATIONS" ]; then
     echo "$NEW_MIGRATIONS"
-    if [ "${ALLOW_REVIEWED_MIGRATION:-}" = "YES" ]; then
-      log "⚠️ 本次发布包含新 migration，已按 ALLOW_REVIEWED_MIGRATION=YES 放行（须已单独评审）"
+    UNREVIEWED_MIGRATIONS=""
+    while IFS= read -r migration; do
+      [ -n "$migration" ] || continue
+      if migration_has_exact_review "$migration"; then
+        REVIEWED_BLOB=$(git -C "$WORK" hash-object "src/main/resources/db/migration/$migration")
+        log "✅ 已评审 migration 内容匹配: $migration ($REVIEWED_BLOB)"
+      else
+        UNREVIEWED_MIGRATIONS="${UNREVIEWED_MIGRATIONS}${migration}"$'\n'
+      fi
+    done <<< "$NEW_MIGRATIONS"
+
+    if [ -z "$UNREVIEWED_MIGRATIONS" ]; then
+      log "⚠️ 本次新增 migration 均有精确内容评审记录，允许进入候选构建与冒烟"
+    elif [ "${ALLOW_REVIEWED_MIGRATION:-}" = "YES" ]; then
+      printf '%s' "$UNREVIEWED_MIGRATIONS"
+      log "⚠️ 仍有未命中仓库评审清单的 migration，已按 ALLOW_REVIEWED_MIGRATION=YES 手工放行"
     else
-      fail "本次发布包含新的 Flyway migration；一键发布默认拒绝，请走单独数据库发布评审（评审后可用 ALLOW_REVIEWED_MIGRATION=YES 手动执行）"
+      printf '%s' "$UNREVIEWED_MIGRATIONS"
+      fail "存在未评审或内容哈希已变化的 Flyway migration；请先评审并登记精确 Git blob SHA"
     fi
   else
     log "没有新增 migration（与线上运行版本一致）"

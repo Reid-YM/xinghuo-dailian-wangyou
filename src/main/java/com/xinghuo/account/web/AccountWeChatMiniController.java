@@ -11,8 +11,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -80,6 +84,26 @@ public class AccountWeChatMiniController {
         return bridge.profile(body.loginCode());
     }
 
+    /** 小程序把微信侧授权到的昵称 / 头像同步到已关联的网站账号。 */
+    /** 只同步昵称（不带头像文件）时走 JSON 变体。 */
+    @PostMapping(value = "/sync-profile", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public WeChatMiniBridgeService.MiniProfile syncProfileJson(@Valid @RequestBody SyncProfileRequest body,
+                                                               HttpServletRequest request) {
+        rateLimiter.check("mini:syncprofile:" + RequestUtils.clientIp(request), 10, Duration.ofMinutes(15));
+        return bridge.syncProfile(body.loginCode(), body.nickName(), null);
+    }
+
+    /** 小程序把微信侧授权到的昵称 / 头像同步到已关联的网站账号。 */
+    @PostMapping(value = "/sync-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public WeChatMiniBridgeService.MiniProfile syncProfile(
+            @RequestParam("loginCode") String loginCode,
+            @RequestParam(value = "nickName", required = false) String nickName,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatar,
+            HttpServletRequest request) {
+        rateLimiter.check("mini:syncprofile:" + RequestUtils.clientIp(request), 10, Duration.ofMinutes(15));
+        return bridge.syncProfile(loginCode, nickName, avatar);
+    }
+
     @PostMapping("/confirm")
     public WeChatMiniBridgeService.MiniProfile confirm(@Valid @RequestBody Confirm body,
                                                         HttpServletRequest request) {
@@ -106,4 +130,5 @@ public class AccountWeChatMiniController {
     public record PollView(String status, String identityHint) {}
     public record LoginCode(@NotBlank String loginCode) {}
     public record Confirm(@NotBlank String code, @NotBlank String loginCode) {}
+    public record SyncProfileRequest(@NotBlank String loginCode, @Size(max = 60) String nickName) {}
 }

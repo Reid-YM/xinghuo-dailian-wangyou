@@ -8,6 +8,8 @@ import com.xinghuo.account.model.WeChatMiniPairing;
 import com.xinghuo.account.repo.AccountIdentityRepository;
 import com.xinghuo.account.repo.AccountRepository;
 import com.xinghuo.account.repo.WeChatMiniPairingRepository;
+import com.xinghuo.model.UploadAsset;
+import com.xinghuo.service.UploadService;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -24,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.multipart.MultipartFile;
 
 /** 网站与小程序通过微信 code2session 和短期人工确认码建立同一星火账号。 */
 @Service
@@ -35,6 +38,7 @@ public class WeChatMiniBridgeService {
     private final WeChatMiniPairingRepository pairings;
     private final PasswordEncoder encoder;
     private final OrderLinkService orders;
+    private final UploadService uploads;
     /** 微信 jscode2session 返回 text/plain，需要自行解析（见 exchange）。 */
     private static final ObjectMapper JSON = new ObjectMapper();
 
@@ -44,7 +48,7 @@ public class WeChatMiniBridgeService {
 
     public WeChatMiniBridgeService(AccountRepository accounts, AccountIdentityRepository identities,
                                    WeChatMiniPairingRepository pairings, PasswordEncoder encoder,
-                                   OrderLinkService orders,
+                                   OrderLinkService orders, UploadService uploads,
                                    RestClient.Builder restClientBuilder,
                                    @Value("${app.wechat-mini.app-id:}") String appId,
                                    @Value("${app.wechat-mini.app-secret:}") String appSecret) {
@@ -53,6 +57,7 @@ public class WeChatMiniBridgeService {
         this.pairings = pairings;
         this.encoder = encoder;
         this.orders = orders;
+        this.uploads = uploads;
         this.restClient = restClientBuilder.build();
         this.appId = appId == null ? "" : appId.trim();
         this.appSecret = appSecret == null ? "" : appSecret.trim();
@@ -159,6 +164,44 @@ public class WeChatMiniBridgeService {
                 : new MiniProfile(true, account.getDisplayName(),
                         account.getAvatarUrl() == null ? "" : account.getAvatarUrl(),
                         account.getPublicUserId(), orders.countOrders(account.getId()));
+    }
+
+    /**
+     * 小程序把在微信侧授权到的昵称 / 头像同步到**已关联**的网站账号。
+     *
+     * <p>身份仍由一次性微信 code 校验；头像复用网站既有的用户头像存储
+     * （UploadService#storeImage + ACCOUNT_AVATAR 绑定），与网站账号设置里
+     * 上传头像是同一套资源，因此两端显示同一个地址。
+     * 只补充资料，不创建账号、不改变关联关系。
+     */
+    @Transactional
+    public MiniProfile syncProfile(String loginCode, String nickName, MultipartFile avatar) {
+        MiniIdentity mini = exchange(loginCode);
+        Account account = findLinked(mini);
+        if (account == null || !account.isLoginable()) {
+            throw AccountException.badRequest("MINI_NOT_LINKED",
+                    "请先在网站获取登录码并完成账号关联，再同步资料");
+        }
+
+        boolean changed = false;
+        String name = nickName == null ? "" : nickName.trim();
+        if (!name.isEmpty() && !name.equals(account.getDisplayName())) {
+            account.setDisplayName(name.length() > 60 ? name.substring(0, 60) : name);
+            changed = true;
+        }
+        if (avatar != null && !avatar.isEmpty()) {
+            UploadAsset asset = uploads.storeImage(avatar, UploadAsset.Kind.USER_AVATAR);
+            uploads.bind(asset.getId(), "ACCOUNT_AVATAR", String.valueOf(account.getId()));
+            account.setAvatarUrl("/api/site-assets/" + asset.getId());
+            changed = true;
+        }
+        Account saved = changed ? accounts.save(account) : account;
+
+        return new MiniProfile(true,
+                saved.getDisplayName() == null ? "" : saved.getDisplayName(),
+                saved.getAvatarUrl() == null ? "" : saved.getAvatarUrl(),
+                saved.getPublicUserId(),
+                orders.countOrders(saved.getId()));
     }
 
     @Transactional

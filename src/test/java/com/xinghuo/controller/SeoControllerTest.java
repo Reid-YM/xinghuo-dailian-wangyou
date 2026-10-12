@@ -51,6 +51,8 @@ class SeoControllerTest {
         assertTrue(urlBlock(xml, "/services").contains("<lastmod>2026-10-01T09:00:00Z</lastmod>"));
         assertTrue(urlBlock(xml, "/").contains("<lastmod>2026-10-01T09:00:00Z</lastmod>"));
         assertFalse(urlBlock(xml, "/contact").contains("<lastmod>"));
+        assertTrue(urlBlock(xml, "/rules-en").contains("<changefreq>monthly</changefreq>"));
+        assertTrue(urlBlock(xml, "/privacy-en").contains("<changefreq>monthly</changefreq>"));
     }
 
     @Test

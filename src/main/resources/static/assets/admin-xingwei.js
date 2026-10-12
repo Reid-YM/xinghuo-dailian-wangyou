@@ -49,7 +49,12 @@
 
   function can(permission) {
     if (!access || !permission) return true;
-    return Boolean(access.allowAll || access.permissionCodes?.includes(permission));
+    if (access.allowAll || access.permissionCodes?.includes(permission)) return true;
+    if (permission.endsWith(':view')) {
+      const manage = `${permission.slice(0, -':view'.length)}:manage`;
+      return Boolean(access.permissionCodes?.includes(manage));
+    }
+    return false;
   }
 
   function modulePermission(module) {
@@ -78,7 +83,7 @@
   function applyActionPermissions(root = document) {
     if (!access) return;
     root.querySelectorAll?.('[data-employee-edit]').forEach((node) => {
-      node.hidden = !can('employee:manage');
+      node.hidden = !(can('employee:manage') || can('rbac:manage'));
     });
     root.querySelectorAll?.('[data-role-edit]').forEach((node) => {
       node.hidden = !can('rbac:manage');

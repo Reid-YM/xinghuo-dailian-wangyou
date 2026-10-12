@@ -15,8 +15,40 @@ import org.junit.jupiter.api.Test;
 class ReviewedFlywayMigrationContractTest {
 
     @Test
-    void appliedV59KeepsProductionChecksumAndExactReviewedBlob() throws Exception {
-        Path migration = Path.of("src/main/resources/db/migration/V59__responsive_visual_controls.sql");
+    void appliedHistoricalMigrationsRemainImmutable() throws Exception {
+        assertHistoricalMigration(
+                "V59__responsive_visual_controls.sql",
+                1593454081,
+                "2937c597c7bb9b9663ed73c513c2fa4e98c7aa4f");
+        assertHistoricalMigration(
+                "V60__responsive_component_controls.sql",
+                1507001770,
+                "87e1c4a434ef1adfe9b7b259f8fc97c726b66cfa");
+        assertHistoricalMigration(
+                "V61__mobile_background_image_controls.sql",
+                413343084,
+                "8fe701049f783178be34c156b141b87b149afee3");
+    }
+
+    @Test
+    void reviewedV62RecordMatchesExactMigrationBlobAndDeployScriptChecksIt() throws Exception {
+        Path migration = Path.of("src/main/resources/db/migration/V62__wechat_mini_pairing.sql");
+        String gitBlobSha = gitBlobSha(migration);
+
+        String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
+        assertEquals("13403a4303243618b2b7855d7ef20f61ad6be6d9", gitBlobSha,
+                "V62 content changed after review; re-review and update the exact blob hash");
+        assertTrue(manifest.contains("V62__wechat_mini_pairing.sql " + gitBlobSha),
+                "review manifest must bind V62 to its exact git blob hash");
+
+        String deploy = Files.readString(Path.of("scripts/deploy-from-github.sh"));
+        assertTrue(deploy.contains("migration_has_exact_review"));
+        assertTrue(deploy.contains("git -C \"$WORK\" hash-object"));
+        assertTrue(deploy.contains("REVIEWED_FLYWAY_MIGRATIONS.txt"));
+    }
+
+    private void assertHistoricalMigration(String filename, int expectedChecksum, String expectedBlobSha) throws Exception {
+        Path migration = Path.of("src/main/resources/db/migration", filename);
         CRC32 crc = new CRC32();
         try (BufferedReader reader = Files.newBufferedReader(migration, StandardCharsets.UTF_8)) {
             String line;
@@ -24,32 +56,15 @@ class ReviewedFlywayMigrationContractTest {
                 crc.update(line.getBytes(StandardCharsets.UTF_8));
             }
         }
-        assertEquals(1593454081, (int) crc.getValue(),
-                "V59 is already applied in production and must remain immutable");
+        assertEquals(expectedChecksum, (int) crc.getValue(),
+                filename + " is an already-used historical migration and must remain immutable");
 
         String gitBlobSha = gitBlobSha(migration);
-        assertEquals("2937c597c7bb9b9663ed73c513c2fa4e98c7aa4f", gitBlobSha,
-                "historical V59 content changed after production execution");
+        assertEquals(expectedBlobSha, gitBlobSha,
+                filename + " content changed after historical merge/application");
         String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
-        assertTrue(manifest.contains("V59__responsive_visual_controls.sql " + gitBlobSha),
-                "review manifest must bind historical V59 to its exact applied blob");
-    }
-
-    @Test
-    void reviewedV60RecordMatchesExactMigrationBlobAndDeployScriptChecksIt() throws Exception {
-        Path migration = Path.of("src/main/resources/db/migration/V60__wechat_mini_pairing.sql");
-        String gitBlobSha = gitBlobSha(migration);
-
-        String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
-        assertEquals("13403a4303243618b2b7855d7ef20f61ad6be6d9", gitBlobSha,
-                "V60 content changed after review; re-review and update the exact blob hash");
-        assertTrue(manifest.contains("V60__wechat_mini_pairing.sql " + gitBlobSha),
-                "review manifest must bind V60 to its exact git blob hash");
-
-        String deploy = Files.readString(Path.of("scripts/deploy-from-github.sh"));
-        assertTrue(deploy.contains("migration_has_exact_review"));
-        assertTrue(deploy.contains("git -C \"$WORK\" hash-object"));
-        assertTrue(deploy.contains("REVIEWED_FLYWAY_MIGRATIONS.txt"));
+        assertTrue(manifest.contains(filename + " " + gitBlobSha),
+                "review manifest must bind " + filename + " to its exact historical blob");
     }
 
     private String gitBlobSha(Path migration) throws Exception {

@@ -115,11 +115,26 @@ jobs:
         run: mvn -B -ntp -DskipTests test-compile
 
       - name: Install Playwright Chromium and WebKit
-        run: >-
-          mvn -B -ntp org.codehaus.mojo:exec-maven-plugin:3.6.2:java
-          -Dexec.mainClass=com.microsoft.playwright.CLI
-          -Dexec.classpathScope=test
-          -Dexec.args="install --with-deps chromium webkit"
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if mvn -B -ntp org.codehaus.mojo:exec-maven-plugin:3.6.2:java \
+              -Dexec.mainClass=com.microsoft.playwright.CLI \
+              -Dexec.classpathScope=test \
+              -Dexec.args="install --with-deps chromium webkit"; then
+              exit 0
+            fi
+
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Playwright browser installation failed after 3 attempts."
+              exit 1
+            fi
+
+            delay=$((attempt * 5))
+            echo "::warning::Playwright browser installation attempt ${attempt} failed; retrying in ${delay}s."
+            sleep "$delay"
+          done
 
       - name: Run all browser interaction regression tests
         env:

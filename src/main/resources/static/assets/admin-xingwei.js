@@ -62,6 +62,15 @@
     return MODULE_PERMISSIONS[code] || 'dashboard:view';
   }
 
+  function scopeLabel(snapshot) {
+    switch (snapshot?.dataScope) {
+      case 'ALL': return '全部数据';
+      case 'DEPARTMENT': return snapshot.departmentCode ? `本中心 · ${snapshot.departmentCode}` : '本中心 · 未分配中心时仅本人';
+      case 'SELF': return '仅本人';
+      default: return '无数据范围';
+    }
+  }
+
   function filterModules() {
     const query = normalize(search?.value);
     let visible = 0;
@@ -72,7 +81,7 @@
       if (match) visible += 1;
     });
     if (searchCount) {
-      const suffix = access?.mode === 'SHADOW_RBAC' ? ' · 已按角色过滤' : '';
+      const suffix = access?.mode === 'SHADOW_RBAC' ? ` · RBAC · ${scopeLabel(access)}` : '';
       searchCount.textContent = query ? `匹配 ${visible} 个模块${suffix}` : `可用 ${visible} / ${modules.length} 个模块${suffix}`;
     }
   }
@@ -105,9 +114,9 @@
 
   function modeLabel(snapshot) {
     switch (snapshot?.mode) {
-      case 'LEGACY_ADMIN_OVERRIDE': return '管理员兜底 · 全权限';
-      case 'LEGACY_OPERATOR_COMPAT': return 'OPERATOR 兼容 · 只读';
-      case 'SHADOW_RBAC': return `RBAC 已生效 · ${(snapshot.roleCodes || []).length} 角色`;
+      case 'LEGACY_ADMIN_OVERRIDE': return '管理员兜底 · 全权限 · 全部数据';
+      case 'LEGACY_OPERATOR_COMPAT': return 'OPERATOR 兼容 · 只读 · 全部数据';
+      case 'SHADOW_RBAC': return `RBAC 已生效 · ${scopeLabel(snapshot)}`;
       default: return '新版权限不可用';
     }
   }
@@ -127,14 +136,14 @@
         badge.textContent = modeLabel(access);
         badge.classList.toggle('ok', access.mode !== 'DENIED');
         badge.title = access.mode === 'SHADOW_RBAC'
-          ? `角色：${(access.roleCodes || []).join('、') || '无'}；权限点：${(access.permissionCodes || []).length}`
+          ? `角色：${(access.roleCodes || []).join('、') || '无'}；权限点：${(access.permissionCodes || []).length}；数据范围：${scopeLabel(access)}`
           : '旧后台仍沿用原 ADMIN / OPERATOR 安全边界。';
       }
       filterModules();
       applyActionPermissions(document);
       document.dispatchEvent(new CustomEvent('xw:access-ready', {detail: access}));
     } catch (error) {
-      access = {mode: 'DENIED', allowAll: false, permissionCodes: [], roleCodes: []};
+      access = {mode: 'DENIED', allowAll: false, permissionCodes: [], roleCodes: [], dataScope: 'NONE'};
       window.xwAccess = access;
       window.xwHasPermission = can;
       if (badge) {

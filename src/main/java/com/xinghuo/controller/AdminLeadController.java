@@ -5,7 +5,6 @@ import com.xinghuo.service.QuoteService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.UUID;
-import lombok.Generated;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,7 +35,6 @@ public class AdminLeadController {
         return this.quotes.generateLeadSuggestion(id, a == null ? "admin" : a.getName(), req);
     }
 
-    @Generated
     public AdminLeadController(QuoteService quotes) {
         this.quotes = quotes;
     }

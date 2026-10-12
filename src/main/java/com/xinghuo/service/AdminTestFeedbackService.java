@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-import lombok.Generated;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -158,7 +157,6 @@ public class AdminTestFeedbackService {
         return out.length() > max ? out.substring(0, max) : out;
     }
 
-    @Generated
     public AdminTestFeedbackService(AdminTestFeedbackRepository repo, AuditService audit) {
         this.repo = repo;
         this.audit = audit;

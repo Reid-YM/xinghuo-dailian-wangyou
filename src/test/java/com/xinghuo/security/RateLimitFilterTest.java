@@ -41,6 +41,31 @@ class RateLimitFilterTest {
     }
 
     @Test
+    void differentTrustedClientIpsDoNotShareNginxRemoteAddressBucket() throws Exception {
+        RateLimitFilter filter = new RateLimitFilter();
+        AtomicInteger passed = new AtomicInteger();
+
+        for (int i = 0; i < 30; i++) {
+            MockHttpServletResponse response = invoke(
+                    filter,
+                    "/api/records/XHABCDEFGHIJ",
+                    "127.0.0.1",
+                    "203.0.113.21",
+                    passed);
+            assertEquals(200, response.getStatus());
+        }
+
+        MockHttpServletResponse otherClient = invoke(
+                filter,
+                "/api/records/XHABCDEFGHIJ",
+                "127.0.0.1",
+                "203.0.113.22",
+                passed);
+        assertEquals(200, otherClient.getStatus());
+        assertEquals(31, passed.get());
+    }
+
+    @Test
     void unrelatedPublicEndpointsRemainOutsideThisFilter() throws Exception {
         RateLimitFilter filter = new RateLimitFilter();
         AtomicInteger passed = new AtomicInteger();
@@ -70,8 +95,20 @@ class RateLimitFilterTest {
             String path,
             String remoteAddress,
             AtomicInteger passed) throws Exception {
+        return invoke(filter, path, remoteAddress, null, passed);
+    }
+
+    private MockHttpServletResponse invoke(
+            RateLimitFilter filter,
+            String path,
+            String remoteAddress,
+            String realIp,
+            AtomicInteger passed) throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
         request.setRemoteAddr(remoteAddress);
+        if (realIp != null) {
+            request.addHeader("X-Real-IP", realIp);
+        }
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilterInternal(request, response, (req, res) -> passed.incrementAndGet());
         return response;

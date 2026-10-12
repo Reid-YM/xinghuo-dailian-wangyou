@@ -6,8 +6,8 @@
   <meta name="description" content="登录星火网游代练平台账号，集中查看询价记录、业务进度与交付状态。网页不收游戏账号密码、验证码或令牌。">
   <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="https://wydlgf.cn/account/login"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261006ac16">
-  <script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer src="/assets/public.js?v=20261008audit01"></script><script defer src="/assets/account-core.js?v=20261012ac01"></script><script defer src="/assets/account-auth.js?v=20261012aa02"></script><script defer src="/assets/wechat-login.js?v=20261006wx01"></script>
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261006ac16"><link rel="stylesheet" href="/assets/wechat-login.css?v=20261012wx01">
+  <script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer src="/assets/public.js?v=20261008audit01"></script><script defer src="/assets/account-core.js?v=20261012ac01"></script><script defer src="/assets/account-auth.js?v=20261012aa02"></script><script defer src="/assets/wechat-login.js?v=20261012wx02"></script>
 <link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008a1"/>
 </head>
 <body data-page="account-login">
@@ -35,8 +35,8 @@
       <p class="muted">可使用微信扫码，或使用邮箱和密码登录。</p>
     </div>
 
-    <a class="btn ghost btn-wide" href="/api/account/wechat/start" data-wechat-login>微信扫码登录</a>
-    <p class="account-inline-note">微信仅用于身份验证；登录后仍进入同一个星火账号体系，订单、询价、进度与权限都归星火账号。</p>
+    <button class="btn ghost btn-wide" type="button" data-wechat-login>微信扫码登录</button>
+    <p class="account-inline-note">电脑端会显示一次性小程序码；微信确认后仍进入同一个星火账号体系，订单、询价、进度与权限不会另建一套。</p>
 
     <form id="accountLoginForm" class="account-form" novalidate>
       <input type="hidden" name="redirect" value="">
@@ -87,6 +87,20 @@
     </div>
   </section>
 </main>
+
+<div id="wechatMiniDialog" class="wechat-mini-dialog" role="dialog" aria-modal="true" aria-labelledby="wechatMiniTitle" hidden>
+  <section class="wechat-mini-panel">
+    <span class="eyebrow">微信安全登录</span>
+    <h3 id="wechatMiniTitle">使用微信扫描小程序码</h3>
+    <p>扫码后请在小程序中点击「确认登录」。二维码约 5 分钟失效，并且只能给发起它的当前浏览器建立登录会话。</p>
+    <div class="wechat-mini-code-wrap"><img data-wechat-mini-code alt="微信小程序登录码"></div>
+    <p class="wechat-mini-status" data-wechat-mini-status role="status">正在生成小程序码…</p>
+    <div class="wechat-mini-actions">
+      <button class="btn ghost" type="button" data-wechat-mini-close>取消</button>
+    </div>
+  </section>
+</div>
+
 <nav class="mobile-dock" data-smart-dock aria-label="手机快捷操作"><a href="/">首页</a><a href="/records">业务记录</a><a class="primary" href="/quote" data-primary-cta>提前询价</a></nav>
 <footer th:replace="~{fragments/site :: footer}"></footer>
 </body>

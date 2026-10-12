@@ -1,0 +1,38 @@
+.wechat-mini-dialog[hidden] { display: none !important; }
+.wechat-mini-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(5, 7, 10, .76);
+  backdrop-filter: blur(8px);
+}
+.wechat-mini-panel {
+  width: min(92vw, 420px);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 22px;
+  padding: 24px;
+  background: #12151a;
+  box-shadow: 0 28px 80px rgba(0,0,0,.38);
+  text-align: center;
+}
+.wechat-mini-panel h3 { margin: 0 0 8px; }
+.wechat-mini-panel p { margin: 0; color: var(--muted, #9aa3af); line-height: 1.6; }
+.wechat-mini-code-wrap {
+  width: 240px;
+  height: 240px;
+  margin: 20px auto;
+  padding: 10px;
+  border-radius: 18px;
+  background: #fff;
+}
+.wechat-mini-code-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.wechat-mini-status { min-height: 24px; color: #f5bb2c !important; font-weight: 700; }
+.wechat-mini-actions { display: flex; gap: 10px; margin-top: 18px; }
+.wechat-mini-actions .btn { flex: 1; }
+@media (max-width: 520px) {
+  .wechat-mini-panel { padding: 20px 16px; }
+  .wechat-mini-code-wrap { width: min(66vw, 230px); height: min(66vw, 230px); }
+}

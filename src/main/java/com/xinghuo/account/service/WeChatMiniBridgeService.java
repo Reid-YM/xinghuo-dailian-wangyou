@@ -1,6 +1,7 @@
 package com.xinghuo.account.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xinghuo.account.model.Account;
 import com.xinghuo.account.model.AccountIdentity;
 import com.xinghuo.account.model.WeChatMiniPairing;
@@ -34,6 +35,9 @@ public class WeChatMiniBridgeService {
     private final WeChatMiniPairingRepository pairings;
     private final PasswordEncoder encoder;
     private final OrderLinkService orders;
+    /** 微信 jscode2session 返回 text/plain，需要自行解析（见 exchange）。 */
+    private static final ObjectMapper JSON = new ObjectMapper();
+
     private final RestClient restClient;
     private final String appId;
     private final String appSecret;
@@ -232,7 +236,12 @@ public class WeChatMiniBridgeService {
                 + "&secret=" + enc(appSecret) + "&js_code=" + enc(code)
                 + "&grant_type=authorization_code";
         try {
-            JsonNode body = restClient.get().uri(url).retrieve().body(JsonNode.class);
+            // 微信 jscode2session 的响应头是 Content-Type: text/plain，
+            // 而 Spring 的 Jackson 转换器只接受 application/json / application/*+json，
+            // 直接 .body(JsonNode.class) 会抛 no suitable HttpMessageConverter，
+            // 被下面的 catch 统一变成 502。这里先按字符串取回再自行解析。
+            String payload = restClient.get().uri(url).retrieve().body(String.class);
+            JsonNode body = payload == null || payload.isBlank() ? null : JSON.readTree(payload);
             if (body == null || body.path("errcode").asInt(0) != 0
                     || body.path("openid").asText("").isBlank()) {
                 throw AccountException.badRequest("WECHAT_CODE_INVALID", "微信登录凭证无效，请重试");
@@ -242,7 +251,7 @@ public class WeChatMiniBridgeService {
             return new MiniIdentity(openId, unionId.isBlank() ? null : unionId);
         } catch (AccountException e) {
             throw e;
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             throw AccountException.serverError("WECHAT_SERVICE_UNAVAILABLE", "微信服务暂不可用，请稍后重试");
         }
     }

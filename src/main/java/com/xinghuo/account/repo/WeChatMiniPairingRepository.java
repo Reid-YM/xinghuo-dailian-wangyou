@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 public interface WeChatMiniPairingRepository extends JpaRepository<WeChatMiniPairing, String> {
     Optional<WeChatMiniPairing> findByCodeHash(String codeHash);
     Optional<WeChatMiniPairing> findByBrowserHash(String browserHash);
+    boolean existsByCodeHash(String codeHash);
 
     @Modifying
     @Query("update WeChatMiniPairing p set p.consumedAt = :now "

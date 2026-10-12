@@ -62,10 +62,21 @@ public class WeChatMiniBridgeService {
     public Challenge issue(Long targetUserId) {
         requireConfigured();
         String browserSecret = randomUrl(32);
-        String code = String.format(Locale.ROOT, "%08d", RANDOM.nextInt(100_000_000));
+        String code = null;
+        String codeHash = null;
+        for (int attempt = 0; attempt < 8; attempt++) {
+            String candidate = String.format(Locale.ROOT, "%08d", RANDOM.nextInt(100_000_000));
+            String candidateHash = sha256(candidate);
+            if (pairings.existsByCodeHash(candidateHash)) continue;
+            code = candidate;
+            codeHash = candidateHash;
+            break;
+        }
+        if (code == null) throw AccountException.serverError(
+                "PAIR_CODE_UNAVAILABLE", "暂时无法生成登录码，请稍后重试");
         WeChatMiniPairing pairing = new WeChatMiniPairing();
         pairing.setId(randomUrl(32));
-        pairing.setCodeHash(sha256(code));
+        pairing.setCodeHash(codeHash);
         pairing.setBrowserHash(sha256(browserSecret));
         pairing.setTargetUserId(targetUserId);
         pairing.setCreatedAt(Instant.now());

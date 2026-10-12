@@ -56,6 +56,7 @@
     clearTimeout(timer);
     active = false;
     complete.hidden = true;
+    code.textContent = '--------';
     start.disabled = true;
     state.textContent = '正在生成登录码…';
     panel.hidden = false;

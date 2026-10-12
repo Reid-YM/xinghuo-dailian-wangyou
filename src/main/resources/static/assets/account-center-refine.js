@@ -60,6 +60,6 @@
   }
 
   loadIdentity().catch(() => {
-    // account.js 负责投稿页主体错误处理；头像读取失败时保留静态占位。
+    // account-submit.js 负责投稿页主体错误处理；头像读取失败时保留静态占位。
   });
 })();

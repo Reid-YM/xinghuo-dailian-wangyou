@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN" th:with="gameToken=${gameName != null && gameName.contains(' ') ? gameName.substring(gameName.lastIndexOf(' ') + 1) : gameName},serviceDisplayName=${service.name.startsWith(gameName + ' ') ? service.name.substring(gameName.length() + 1) : (gameToken != null && service.name.startsWith(gameToken + ' ') ? service.name.substring(gameToken.length() + 1) : service.name)},serviceDisplayH1=${gameName + ' ' + serviceDisplayName},serviceDisplayTitle=${serviceDisplayH1 + ' | 星火网游代练平台'}">
+<html lang="zh-CN" th:with="gameToken=${gameName != null && gameName.contains(' ') ? gameName.substring(gameName.lastIndexOf(' ') + 1) : gameName},serviceDisplayName=${gameName != null && service.name.startsWith(gameName) ? service.name.substring(gameName.length()).trim() : (gameToken != null && service.name.startsWith(gameToken) ? service.name.substring(gameToken.length()).trim() : service.name)},serviceDisplayH1=${(gameName + ' ' + serviceDisplayName).trim()},serviceDisplayTitle=${serviceDisplayH1 + ' | 星火网游代练平台'}">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
   <title th:text="${serviceDisplayTitle}">服务详情 - 星火网游代练平台</title>

@@ -7,8 +7,6 @@ import com.xinghuo.repository.CustomerOrderRepository;
 import com.xinghuo.repository.QuoteRepository;
 import com.xinghuo.repository.ServiceItemRepository;
 import com.xinghuo.repository.TrackingEventRepository;
-import com.xinghuo.service.AdminTestFeedbackService;
-import lombok.Generated;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,17 +17,26 @@ public class DashboardService {
     private final TrackingEventRepository events;
     private final AdminTestFeedbackService feedback;
 
-    public ApiDtos.DashboardResponse get() {
-        return new ApiDtos.DashboardResponse(this.services.count(), this.quotes.countByStatus(Quote.Status.NEW), this.orders.countByStatus(CustomerOrder.Status.IN_PROGRESS), this.orders.countByStatus(CustomerOrder.Status.COMPLETED), this.events.count(), this.feedback.newCount());
-    }
-
-    @Generated
-    public DashboardService(ServiceItemRepository services, QuoteRepository quotes, CustomerOrderRepository orders, TrackingEventRepository events, AdminTestFeedbackService feedback) {
+    public DashboardService(
+            ServiceItemRepository services,
+            QuoteRepository quotes,
+            CustomerOrderRepository orders,
+            TrackingEventRepository events,
+            AdminTestFeedbackService feedback) {
         this.services = services;
         this.quotes = quotes;
         this.orders = orders;
         this.events = events;
         this.feedback = feedback;
     }
-}
 
+    public ApiDtos.DashboardResponse get() {
+        return new ApiDtos.DashboardResponse(
+                this.services.count(),
+                this.quotes.countByStatus(Quote.Status.NEW),
+                this.orders.countByStatus(CustomerOrder.Status.IN_PROGRESS),
+                this.orders.countByStatus(CustomerOrder.Status.COMPLETED),
+                this.events.count(),
+                this.feedback.newCount());
+    }
+}

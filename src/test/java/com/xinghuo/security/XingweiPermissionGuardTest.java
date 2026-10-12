@@ -54,7 +54,7 @@ class XingweiPermissionGuardTest {
                 (4, 'XW_DEPT_ADMIN', 'DEPARTMENT', TRUE, 9)
                 """);
         jdbc.update("INSERT INTO xw_permissions (id, code) VALUES (1, 'org:view'), (2, 'employee:manage'), (3, 'rbac:manage')");
-        jdbc.update("INSERT INTO xw_admin_roles (admin_user_id, role_id, is_primary) VALUES (3, 2, TRUE), (6, 3, TRUE), (7, 4, TRUE)");
+        jdbc.update("INSERT INTO xw_admin_roles (admin_user_id, role_id, is_primary) VALUES (3, 2, TRUE), (4, 1, TRUE), (6, 3, TRUE), (7, 4, TRUE)");
         jdbc.update("INSERT INTO xw_role_permissions (role_id, permission_id) VALUES (2, 2), (3, 2), (3, 3), (4, 3)");
         guard = new XingweiPermissionGuard(jdbc);
     }
@@ -130,18 +130,21 @@ class XingweiPermissionGuardTest {
     }
 
     @Test
-    void departmentRbacManagerCannotEscalateToAllOrTouchGlobalRoleTemplates() {
+    void departmentRbacManagerCannotEscalateOrModifyBroaderTargetRole() {
         Authentication manager = authentication("deptadmin", "ROLE_OPERATOR");
         XingweiPermissionGuard.AccessSnapshot snapshot = guard.resolve(manager);
 
         assertEquals("DEPARTMENT", snapshot.dataScope());
         assertTrue(guard.has(manager, "rbac:manage"));
-        assertTrue(guard.canAssignEmployeeRoles(manager, 4L, List.of("XW_GENERAL_SUPPORT")));
-        assertTrue(guard.canAssignEmployeeRoles(manager, 4L, List.of("XW_SELF_SERVICE")));
-        assertTrue(guard.canAssignEmployeeRoles(manager, 4L, List.of()));
-        assertFalse(guard.canAssignEmployeeRoles(manager, 4L, List.of("XW_MANAGEMENT")));
+        assertTrue(guard.canAssignEmployeeRoles(manager, 3L, List.of("XW_GENERAL_SUPPORT")));
+        assertTrue(guard.canAssignEmployeeRoles(manager, 3L, List.of("XW_SELF_SERVICE")));
+        assertTrue(guard.canAssignEmployeeRoles(manager, 3L, List.of()));
+        assertFalse(guard.canAssignEmployeeRoles(manager, 3L, List.of("XW_MANAGEMENT")));
+        assertTrue(guard.canAccessEmployee(manager, 4L));
+        assertFalse(guard.canAssignEmployeeRoles(manager, 4L, List.of("XW_GENERAL_SUPPORT")),
+                "same-department employee with an existing ALL role must remain protected");
         assertFalse(guard.canAssignEmployeeRoles(manager, 5L, List.of("XW_GENERAL_SUPPORT")));
-        assertFalse(guard.canAssignEmployeeRoles(manager, 4L, List.of("MISSING_ROLE")));
+        assertFalse(guard.canAssignEmployeeRoles(manager, 3L, List.of("MISSING_ROLE")));
         assertFalse(guard.canManageGlobalRbac(manager));
     }
 

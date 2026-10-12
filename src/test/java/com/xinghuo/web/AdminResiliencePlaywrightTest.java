@@ -40,6 +40,66 @@ class AdminResiliencePlaywrightTest {
     }
 
     @Test
+    void missingPanelCaptureGuardStopsLegacyNavigationHandlerBeforeItCanBlankThePage() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setContent("""
+                    <body>
+                      <main class="admin-main">
+                        <section data-panel="dashboard">DASHBOARD</section>
+                        <section class="hidden" data-panel="users">USERS</section>
+                      </main>
+                      <button id="brokenNav" data-nav="missingModule">打开缺失模块</button>
+                      <div id="toastArea"></div>
+                    </body>
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-resilience.js")));
+            page.evaluate("""
+                    () => {
+                      window.legacyNavigationRan = false;
+                      document.addEventListener('click', event => {
+                        const nav = event.target.closest?.('[data-nav]');
+                        if (!nav) return;
+                        window.legacyNavigationRan = true;
+                        document.querySelectorAll('[data-panel]').forEach(panel => panel.classList.add('hidden'));
+                      });
+                    }
+                    """);
+
+            page.locator("#brokenNav").click();
+
+            assertEquals(Boolean.FALSE, page.evaluate("() => window.legacyNavigationRan"));
+            assertEquals(Boolean.FALSE, page.evaluate("() => document.querySelector('[data-panel=dashboard]').classList.contains('hidden')"));
+            assertEquals(1, page.locator("[data-panel=dashboard] [data-admin-panel-error]").count());
+        }
+    }
+
+    @Test
+    void programmaticBlankStateAutomaticallyRestoresDashboardAndExplainsRecovery() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setContent("""
+                    <body>
+                      <main class="admin-main">
+                        <section data-panel="dashboard">DASHBOARD</section>
+                        <section class="hidden" data-panel="users">USERS</section>
+                      </main>
+                      <button data-nav="dashboard">总览</button>
+                      <button data-nav="users">用户</button>
+                      <div id="toastArea"></div>
+                    </body>
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-resilience.js")));
+
+            page.evaluate("() => document.querySelectorAll('[data-panel]').forEach(panel => panel.classList.add('hidden'))");
+            page.waitForSelector("[data-panel=dashboard]:not(.hidden) [data-admin-panel-error]");
+
+            assertEquals(Boolean.FALSE, page.evaluate("() => document.querySelector('[data-panel=dashboard]').classList.contains('hidden')"));
+            assertTrue(page.locator("[data-panel=dashboard] [data-admin-panel-error]").textContent().contains("自动恢复运营总览"));
+        }
+    }
+
+    @Test
     void errorToastIsPromotedIntoVisiblePanelInsteadOfDisappearingIntoBlankScreen() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();

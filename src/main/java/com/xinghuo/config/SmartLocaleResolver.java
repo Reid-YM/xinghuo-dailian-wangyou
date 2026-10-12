@@ -26,7 +26,16 @@ public class SmartLocaleResolver implements LocaleResolver {
             return this.remember(request, stablePathLocale);
         }
 
-        // Explicit user choice always wins for the remaining pages.
+        // All other indexable public URLs currently have one canonical language version:
+        // Chinese. Keep their rendered body deterministic even if a browser or crawler
+        // carries an old xh_lang cookie or a lang query parameter. Serving English from
+        // the same canonical URL is the locale-adaptive pattern that can make Google see
+        // different content for one URL. Full English SEO should use dedicated /en/... URLs.
+        if (this.isIndexablePublicPath(request.getRequestURI())) {
+            return this.remember(request, WebI18nConfig.DEFAULT_LOCALE);
+        }
+
+        // Explicit user choice remains available on private/non-indexable utility pages.
         String explicit = request.getParameter("lang");
         if (explicit != null && !explicit.isBlank()) {
             return this.remember(request, WebI18nConfig.normalize(explicit));
@@ -34,15 +43,6 @@ public class SmartLocaleResolver implements LocaleResolver {
         String cookie = this.cookieValue(request, WebI18nConfig.COOKIE_NAME);
         if (cookie != null && !cookie.isBlank()) {
             return this.remember(request, WebI18nConfig.normalize(cookie));
-        }
-
-        // Anonymous canonical/indexable pages must render deterministically. Previously
-        // Googlebot could receive English or Chinese for the same canonical URL depending
-        // on crawler IP or Accept-Language, which makes indexing and canonical selection
-        // unstable. Keep the canonical public surface Chinese by default; users can still
-        // explicitly switch language and keep that preference in the cookie.
-        if (this.isIndexablePublicPath(request.getRequestURI())) {
-            return this.remember(request, WebI18nConfig.DEFAULT_LOCALE);
         }
 
         // Non-indexable/private utility pages can keep the convenience auto-detection.

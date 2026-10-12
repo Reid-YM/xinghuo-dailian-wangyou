@@ -1,22 +1,22 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" th:with="gameToken=${gameName != null && gameName.contains(' ') ? gameName.substring(gameName.lastIndexOf(' ') + 1) : gameName},serviceDisplayName=${service.name.startsWith(gameName + ' ') ? service.name.substring(gameName.length() + 1) : (gameToken != null && service.name.startsWith(gameToken + ' ') ? service.name.substring(gameToken.length() + 1) : service.name)},serviceDisplayH1=${gameName + ' ' + serviceDisplayName},serviceDisplayTitle=${serviceDisplayH1 + ' | 星火网游代练平台'}">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07090c">
-  <title th:text="${serviceTitle}">服务详情 - 星火网游代练平台</title>
+  <title th:text="${serviceDisplayTitle}">服务详情 - 星火网游代练平台</title>
   <meta name="description" th:content="${serviceDescription}" content="星火网游代练平台游戏任务服务详情。">
   <link rel="canonical" th:href="${canonicalUrl}" href="https://wydlgf.cn/service/weapon-leveling">
   <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台">
-  <meta property="og:title" th:content="${serviceTitle}" content="服务详情 - 星火网游代练平台">
+  <meta property="og:title" th:content="${serviceDisplayTitle}" content="服务详情 - 星火网游代练平台">
   <meta property="og:description" th:content="${serviceDescription}" content="星火网游代练平台游戏任务服务详情。">
   <meta property="og:url" th:content="${canonicalUrl}" content="https://wydlgf.cn/service/weapon-leveling">
   <meta property="og:image" th:content="${ogImage}" content="https://wydlgf.cn/og.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" th:content="${serviceTitle}" content="服务详情 - 星火网游代练平台">
+  <meta name="twitter:title" th:content="${serviceDisplayTitle}" content="服务详情 - 星火网游代练平台">
   <meta name="twitter:description" th:content="${serviceDescription}" content="星火网游代练平台游戏任务服务详情。">
   <meta name="twitter:image" th:content="${ogImage}" content="https://wydlgf.cn/og.png">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer src="/assets/public.js?v=20261008audit01"></script><script defer src="/assets/pages.js?v=20260928v016"></script>
-  <script type="application/ld+json" th:inline="javascript">{"@context":"https://schema.org","@type":"Service","name":[[${serviceH1}]],"description":[[${serviceDescription}]],"serviceType":[[${gameName}]],"areaServed":"CN","provider":{"@type":"Organization","name":"星火网游代练平台","url":"https://wydlgf.cn/"},"url":[[${canonicalUrl}]]}</script>
+  <script type="application/ld+json" th:inline="javascript">{"@context":"https://schema.org","@type":"Service","name":[[${serviceDisplayH1}]],"description":[[${serviceDescription}]],"serviceType":[[${gameName}]],"areaServed":"CN","provider":{"@type":"Organization","name":"星火网游代练平台","url":"https://wydlgf.cn/"},"url":[[${canonicalUrl}]]}</script>
   <script type="application/ld+json" th:utext="${breadcrumbJsonLd}"></script>
   <script type="application/ld+json" th:utext="${faqJsonLd}"></script>
 <link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008a1"/>
@@ -26,13 +26,13 @@
 <main class="container section page-shell service-detail-page" data-service-detail th:attr="data-service-slug=${service.slug}">
 
   <!-- 1. Hero：服务名、状态、参考价格、预计时间、支持平台、CTA -->
-  <nav class="guide-breadcrumb" aria-label="面包屑"><a th:href="@{/}">首页</a><span>/</span><a th:href="@{/services}">服务大厅</a><span>/</span><span th:text="${serviceH1}">服务</span></nav>
+  <nav class="guide-breadcrumb" aria-label="面包屑"><a th:href="@{/}">首页</a><span>/</span><a th:href="@{/services}">服务大厅</a><span>/</span><span th:text="${serviceDisplayH1}">服务</span></nav>
   <section class="service-detail-panel is-active" th:attr="data-service-panel=${service.slug}">
     <div class="detail-hero">
       <div>
         <div class="service-state" data-config="status">● MW4 正式版预约中 · 上线后陆续开放服务</div>
         <span class="eyebrow" th:text="${gameName}">服务项目</span>
-        <h1 th:text="${serviceH1}">服务详情</h1>
+        <h1 th:text="${serviceDisplayH1}">服务详情</h1>
         <p th:text="${service.shortDesc}">服务说明</p>
         <div class="detail-list">
           <strong>参考价格</strong>

@@ -1,8 +1,8 @@
 package com.xinghuo.security;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,13 +63,15 @@ class XingweiPermissionGuardTest {
     }
 
     @Test
-    void assignedOperatorUsesOnlyShadowRolePermissions() {
+    void assignedOperatorUsesOnlyRolePermissionsAndManageImpliesView() {
         Authentication operator = authentication("scoped", "ROLE_OPERATOR");
         XingweiPermissionGuard.AccessSnapshot snapshot = guard.resolve(operator);
 
         assertEquals("SHADOW_RBAC", snapshot.mode());
         assertEquals(List.of("XW_GENERAL_SUPPORT"), snapshot.roleCodes());
         assertTrue(guard.has(operator, "employee:manage"));
+        assertTrue(guard.has(operator, "employee:view"));
+        assertTrue(guard.hasAny(operator, "org:view", "employee:view"));
         assertFalse(guard.has(operator, "org:view"));
         assertFalse(guard.has(operator, "rbac:manage"));
     }

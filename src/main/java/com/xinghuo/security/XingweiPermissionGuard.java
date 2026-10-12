@@ -75,11 +75,14 @@ public class XingweiPermissionGuard {
             long targetAdminUserId,
             String targetDepartmentCode) {
         AccessSnapshot snapshot = resolve(authentication);
-        if ("DENIED".equals(snapshot.mode()) || snapshot.adminUserId() == null) {
+        if ("DENIED".equals(snapshot.mode())) {
             return false;
         }
         if (snapshot.allowAll() || "ALL".equals(snapshot.dataScope())) {
             return true;
+        }
+        if (snapshot.adminUserId() == null) {
+            return false;
         }
         if (snapshot.adminUserId() == targetAdminUserId) {
             return true;
@@ -96,9 +99,52 @@ public class XingweiPermissionGuard {
                 && canAccessEmployee(authentication, targetAdminUserId);
     }
 
-    public boolean canManageEmployeeRoles(Authentication authentication, long targetAdminUserId) {
-        return has(authentication, "rbac:manage")
-                && canAccessEmployee(authentication, targetAdminUserId);
+    /**
+     * 员工角色分配同时受目标员工范围与角色范围上限约束，避免 DEPARTMENT / SELF
+     * 管理员通过分配更宽的角色把自己或同范围员工升级为 ALL。
+     */
+    public boolean canAssignEmployeeRoles(
+            Authentication authentication,
+            long targetAdminUserId,
+            List<String> requestedRoleCodes) {
+        if (!has(authentication, "rbac:manage")
+                || !canAccessEmployee(authentication, targetAdminUserId)) {
+            return false;
+        }
+        AccessSnapshot snapshot = resolve(authentication);
+        if (snapshot.allowAll() || "ALL".equals(snapshot.dataScope())) {
+            return true;
+        }
+        if (requestedRoleCodes == null || requestedRoleCodes.isEmpty()) {
+            return true;
+        }
+
+        LinkedHashSet<String> normalized = new LinkedHashSet<>();
+        for (String requestedRoleCode : requestedRoleCodes) {
+            String code = blankToNull(requestedRoleCode);
+            if (code != null) {
+                normalized.add(code.toUpperCase(Locale.ROOT));
+            }
+        }
+        for (String roleCode : normalized) {
+            String roleScope = roleDataScope(roleCode);
+            if (roleScope == null || !scopeCanGrant(snapshot.dataScope(), roleScope)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 角色权限模板是全局配置。即使较窄范围角色未来获得 rbac:manage，也不能改写
+     * 全局角色模板；只有 ALL 范围（或 legacy ADMIN 兜底）可以执行。
+     */
+    public boolean canManageGlobalRbac(Authentication authentication) {
+        if (!has(authentication, "rbac:manage")) {
+            return false;
+        }
+        AccessSnapshot snapshot = resolve(authentication);
+        return snapshot.allowAll() || "ALL".equals(snapshot.dataScope());
     }
 
     /**
@@ -285,6 +331,27 @@ public class XingweiPermissionGuard {
             }
         }
         return blankToNull(requestedDepartmentCode);
+    }
+
+    private String roleDataScope(String roleCode) {
+        try {
+            return normalizeDataScope(jdbc.queryForObject(
+                    "SELECT data_scope FROM xw_rbac_roles WHERE code = ? AND enabled = TRUE",
+                    String.class,
+                    roleCode));
+        } catch (EmptyResultDataAccessException ex) {
+            return null;
+        }
+    }
+
+    private static boolean scopeCanGrant(String callerScope, String requestedScope) {
+        if ("ALL".equals(callerScope)) {
+            return true;
+        }
+        if ("DEPARTMENT".equals(callerScope)) {
+            return "DEPARTMENT".equals(requestedScope) || "SELF".equals(requestedScope);
+        }
+        return "SELF".equals(callerScope) && "SELF".equals(requestedScope);
     }
 
     private static String effectiveDataScope(List<RoleAssignment> assignments) {

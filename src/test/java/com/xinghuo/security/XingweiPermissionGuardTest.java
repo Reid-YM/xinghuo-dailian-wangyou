@@ -40,20 +40,22 @@ class XingweiPermissionGuardTest {
                 (3, 'scoped', TRUE),
                 (4, 'peer', TRUE),
                 (5, 'outsider', TRUE),
-                (6, 'selfscope', TRUE)
+                (6, 'selfscope', TRUE),
+                (7, 'deptadmin', TRUE)
                 """);
         jdbc.update("INSERT INTO xw_departments (id, code, enabled) VALUES (10, 'XW-03', TRUE), (20, 'XW-02', TRUE)");
         jdbc.update("INSERT INTO xw_positions (id, code, department_id, enabled) VALUES (100, 'POS-CS', 10, TRUE), (200, 'POS-OPS', 20, TRUE)");
-        jdbc.update("INSERT INTO xw_admin_profiles (admin_user_id, department_id) VALUES (3, 10), (4, 10), (5, 20), (6, 20)");
+        jdbc.update("INSERT INTO xw_admin_profiles (admin_user_id, department_id) VALUES (3, 10), (4, 10), (5, 20), (6, 20), (7, 10)");
         jdbc.update("""
                 INSERT INTO xw_rbac_roles (id, code, data_scope, enabled, sort_order) VALUES
                 (1, 'XW_MANAGEMENT', 'ALL', TRUE, 1),
                 (2, 'XW_GENERAL_SUPPORT', 'DEPARTMENT', TRUE, 7),
-                (3, 'XW_SELF_SERVICE', 'SELF', TRUE, 8)
+                (3, 'XW_SELF_SERVICE', 'SELF', TRUE, 8),
+                (4, 'XW_DEPT_ADMIN', 'DEPARTMENT', TRUE, 9)
                 """);
         jdbc.update("INSERT INTO xw_permissions (id, code) VALUES (1, 'org:view'), (2, 'employee:manage'), (3, 'rbac:manage')");
-        jdbc.update("INSERT INTO xw_admin_roles (admin_user_id, role_id, is_primary) VALUES (3, 2, TRUE), (6, 3, TRUE)");
-        jdbc.update("INSERT INTO xw_role_permissions (role_id, permission_id) VALUES (2, 2), (3, 2)");
+        jdbc.update("INSERT INTO xw_admin_roles (admin_user_id, role_id, is_primary) VALUES (3, 2, TRUE), (6, 3, TRUE), (7, 4, TRUE)");
+        jdbc.update("INSERT INTO xw_role_permissions (role_id, permission_id) VALUES (2, 2), (3, 2), (3, 3), (4, 3)");
         guard = new XingweiPermissionGuard(jdbc);
     }
 
@@ -69,6 +71,19 @@ class XingweiPermissionGuardTest {
         assertTrue(guard.has(admin, "rbac:manage"));
         assertTrue(guard.has(admin, "future:permission"));
         assertTrue(guard.canAccessEmployee(admin, 5L));
+        assertTrue(guard.canManageGlobalRbac(admin));
+        assertTrue(guard.canAssignEmployeeRoles(admin, 5L, List.of("XW_MANAGEMENT")));
+    }
+
+    @Test
+    void roleAdminOverrideStaysAllEvenWhenPrincipalIsNotInLegacyUserTable() {
+        Authentication root = authentication("root-not-in-db", "ROLE_ADMIN");
+        XingweiPermissionGuard.AccessSnapshot snapshot = guard.resolve(root);
+
+        assertTrue(snapshot.allowAll());
+        assertEquals("ALL", snapshot.dataScope());
+        assertTrue(guard.canAccessEmployee(root, 5L));
+        assertTrue(guard.canManageGlobalRbac(root));
     }
 
     @Test
@@ -84,6 +99,7 @@ class XingweiPermissionGuardTest {
         assertTrue(guard.canAccessEmployee(operator, 5L));
         assertFalse(guard.has(operator, "employee:manage"));
         assertFalse(guard.has(operator, "rbac:manage"));
+        assertFalse(guard.canManageGlobalRbac(operator));
     }
 
     @Test
@@ -114,18 +130,40 @@ class XingweiPermissionGuardTest {
     }
 
     @Test
-    void selfScopeOnlySeesAndMutatesOwnEmployeeRecord() {
+    void departmentRbacManagerCannotEscalateToAllOrTouchGlobalRoleTemplates() {
+        Authentication manager = authentication("deptadmin", "ROLE_OPERATOR");
+        XingweiPermissionGuard.AccessSnapshot snapshot = guard.resolve(manager);
+
+        assertEquals("DEPARTMENT", snapshot.dataScope());
+        assertTrue(guard.has(manager, "rbac:manage"));
+        assertTrue(guard.canAssignEmployeeRoles(manager, 4L, List.of("XW_GENERAL_SUPPORT")));
+        assertTrue(guard.canAssignEmployeeRoles(manager, 4L, List.of("XW_SELF_SERVICE")));
+        assertTrue(guard.canAssignEmployeeRoles(manager, 4L, List.of()));
+        assertFalse(guard.canAssignEmployeeRoles(manager, 4L, List.of("XW_MANAGEMENT")));
+        assertFalse(guard.canAssignEmployeeRoles(manager, 5L, List.of("XW_GENERAL_SUPPORT")));
+        assertFalse(guard.canAssignEmployeeRoles(manager, 4L, List.of("MISSING_ROLE")));
+        assertFalse(guard.canManageGlobalRbac(manager));
+    }
+
+    @Test
+    void selfScopeCanOnlyAssignSelfScopeRoleToSelf() {
         Authentication self = authentication("selfscope", "ROLE_OPERATOR");
         XingweiPermissionGuard.AccessSnapshot snapshot = guard.resolve(self);
 
         assertEquals("SELF", snapshot.dataScope());
         assertEquals("XW-02", snapshot.departmentCode());
+        assertTrue(guard.has(self, "rbac:manage"));
         assertTrue(guard.canAccessEmployee(self, 6L));
         assertFalse(guard.canAccessEmployee(self, 5L));
         assertTrue(guard.canManageEmployee(self, 6L));
         assertFalse(guard.canManageEmployee(self, 5L));
         assertTrue(guard.canManageEmployeeProfile(self, 6L, "XW-03", null),
                 "SELF scope stays limited to the same account even if profile metadata changes");
+        assertTrue(guard.canAssignEmployeeRoles(self, 6L, List.of("XW_SELF_SERVICE")));
+        assertFalse(guard.canAssignEmployeeRoles(self, 6L, List.of("XW_GENERAL_SUPPORT")));
+        assertFalse(guard.canAssignEmployeeRoles(self, 6L, List.of("XW_MANAGEMENT")));
+        assertFalse(guard.canAssignEmployeeRoles(self, 5L, List.of("XW_SELF_SERVICE")));
+        assertFalse(guard.canManageGlobalRbac(self));
     }
 
     @Test
@@ -135,6 +173,8 @@ class XingweiPermissionGuardTest {
         assertEquals("NONE", guard.resolve(unknown).dataScope());
         assertFalse(guard.has(unknown, "org:view"));
         assertFalse(guard.canAccessEmployee(unknown, 3L));
+        assertFalse(guard.canAssignEmployeeRoles(unknown, 3L, List.of("XW_SELF_SERVICE")));
+        assertFalse(guard.canManageGlobalRbac(unknown));
         assertFalse(guard.has(null, "org:view"));
     }
 

@@ -6,5 +6,5 @@
 <header th:replace="~{fragments/site :: header}"></header>
 <main class="container section records-page page-shell"><div th:replace="~{fragments/page :: recordsHero('业务记录','查询与历史')}"></div>
 <div class="card record-search-card"><form id="recordLookupForm" data-record-form><div class="field"><label for="record-business-no">业务编号</label><input id="record-business-no" name="businessNo" autocomplete="off" autocapitalize="characters" required placeholder="例如：XH7KM4Q2AZ8P"></div><button class="btn primary" type="submit">查询并加入记录</button><div data-message aria-live="polite"></div></form></div><div id="recordList" class="record-list section"><div class="empty card">正在读取记录…</div></div></main>
-<nav class="mobile-dock" aria-label="手机快捷操作"><a href="/">首页</a><a href="/records">业务记录</a><a class="primary" href="/quote" data-primary-cta>提前询价</a></nav><footer th:replace="~{fragments/site :: footer}"></footer></body></html>
+<nav th:replace="~{fragments/site :: mobileDock}"></nav><footer th:replace="~{fragments/site :: footer}"></footer></body></html>
 

@@ -22,6 +22,7 @@ public class LanguageController {
         cookie.setSecure(true);
         cookie.setAttribute("SameSite", "Lax");
         response.addCookie(cookie);
+        response.setHeader("X-Robots-Tag", "noindex, nofollow");
         return "redirect:" + this.targetFor(normalized, returnTo);
     }
 
@@ -53,4 +54,3 @@ public class LanguageController {
         return value.startsWith("/") ? value : "/";
     }
 }
-

@@ -22,13 +22,14 @@ public class SeoController {
     @GetMapping(value={"/robots.txt"}, produces={"text/plain; charset=UTF-8"})
     ResponseEntity<String> robots() {
         // 动态 Controller 是 robots.txt 的唯一权威来源。
-        // 公开展示页一律 Allow；后台、账号、API 与业务明细不参与抓取。
+        // 公开展示页一律 Allow；后台、账号、API、语言切换与业务明细不参与抓取。
         return ResponseEntity.ok("User-agent: *\n"
             + "Allow: /\n"
             + "Disallow: /admin\n"
             + "Disallow: /adm/*\n"
             + "Disallow: /api/\n"
             + "Disallow: /account\n"
+            + "Disallow: /language\n"
             + "Disallow: /order/\n"
             + "Disallow: /record/\n"
             + "Sitemap: " + SITE_URL + "/sitemap.xml\n");

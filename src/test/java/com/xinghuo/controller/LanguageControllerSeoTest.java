@@ -35,4 +35,13 @@ class LanguageControllerSeoTest {
         assertEquals("redirect:/services",
                 controller.switchLanguage("en", "/services", response));
     }
+
+    @Test
+    void languageSwitchRedirectIsNotIndexable() {
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        controller.switchLanguage("en", "/services", response);
+
+        assertEquals("noindex, nofollow", response.getHeader("X-Robots-Tag"));
+    }
 }

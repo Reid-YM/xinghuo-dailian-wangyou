@@ -1,6 +1,5 @@
 package com.xinghuo.config;
 
-import com.xinghuo.config.WebI18nConfig;
 import com.xinghuo.security.GeoLanguageResolver;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,15 +8,13 @@ import java.util.Locale;
 import lombok.Generated;
 import org.springframework.web.servlet.LocaleResolver;
 
-public class SmartLocaleResolver
-implements LocaleResolver {
+public class SmartLocaleResolver implements LocaleResolver {
     private static final String RESOLVED_ATTR = SmartLocaleResolver.class.getName() + ".resolved";
     private final GeoLanguageResolver geo;
 
     public Locale resolveLocale(HttpServletRequest request) {
         Object cached = request.getAttribute(RESOLVED_ATTR);
-        if (cached instanceof Locale) {
-            Locale locale = (Locale)cached;
+        if (cached instanceof Locale locale) {
             return locale;
         }
 
@@ -29,17 +26,29 @@ implements LocaleResolver {
             return this.remember(request, stablePathLocale);
         }
 
+        // Explicit user choice always wins for the remaining pages.
         String explicit = request.getParameter("lang");
         if (explicit != null && !explicit.isBlank()) {
-            return this.remember(request, WebI18nConfig.normalize((String)explicit));
+            return this.remember(request, WebI18nConfig.normalize(explicit));
         }
-        String cookie = this.cookieValue(request, "xh_lang");
+        String cookie = this.cookieValue(request, WebI18nConfig.COOKIE_NAME);
         if (cookie != null && !cookie.isBlank()) {
-            return this.remember(request, WebI18nConfig.normalize((String)cookie));
+            return this.remember(request, WebI18nConfig.normalize(cookie));
         }
+
+        // Anonymous canonical/indexable pages must render deterministically. Previously
+        // Googlebot could receive English or Chinese for the same canonical URL depending
+        // on crawler IP or Accept-Language, which makes indexing and canonical selection
+        // unstable. Keep the canonical public surface Chinese by default; users can still
+        // explicitly switch language and keep that preference in the cookie.
+        if (this.isIndexablePublicPath(request.getRequestURI())) {
+            return this.remember(request, WebI18nConfig.DEFAULT_LOCALE);
+        }
+
+        // Non-indexable/private utility pages can keep the convenience auto-detection.
         String byIp = this.geo.detectLanguage(this.clientIp(request));
         if (byIp != null) {
-            return this.remember(request, WebI18nConfig.normalize((String)byIp));
+            return this.remember(request, WebI18nConfig.normalize(byIp));
         }
         return this.remember(request, this.fromAcceptLanguage(request));
     }
@@ -54,6 +63,24 @@ implements LocaleResolver {
         return null;
     }
 
+    private boolean isIndexablePublicPath(String uri) {
+        if (uri == null || uri.isBlank()) {
+            return false;
+        }
+        if ("/".equals(uri)
+                || "/services".equals(uri)
+                || "/guides".equals(uri)
+                || "/mastery".equals(uri)
+                || "/quote".equals(uri)
+                || "/contact".equals(uri)
+                || "/trust".equals(uri)) {
+            return true;
+        }
+        return uri.startsWith("/service/")
+                || uri.startsWith("/game/")
+                || uri.startsWith("/guides/");
+    }
+
     private Locale remember(HttpServletRequest request, Locale locale) {
         request.setAttribute(RESOLVED_ATTR, locale);
         return locale;
@@ -63,8 +90,8 @@ implements LocaleResolver {
         if (locale == null || response == null) {
             return;
         }
-        Locale normalized = WebI18nConfig.normalize((String)locale.toLanguageTag());
-        Cookie cookie = new Cookie("xh_lang", normalized.toLanguageTag());
+        Locale normalized = WebI18nConfig.normalize(locale.toLanguageTag());
+        Cookie cookie = new Cookie(WebI18nConfig.COOKIE_NAME, normalized.toLanguageTag());
         cookie.setPath("/");
         cookie.setMaxAge(31536000);
         cookie.setHttpOnly(false);
@@ -74,7 +101,7 @@ implements LocaleResolver {
     }
 
     public void persistIfAbsent(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-        if (this.cookieValue(request, "xh_lang") == null) {
+        if (this.cookieValue(request, WebI18nConfig.COOKIE_NAME) == null) {
             this.setLocale(request, response, locale);
         }
     }
@@ -85,19 +112,26 @@ implements LocaleResolver {
             return WebI18nConfig.DEFAULT_LOCALE;
         }
         for (String part : header.split(",")) {
-            Locale candidate;
             String tag = part.split(";")[0].trim();
-            if (tag.isBlank() || !(candidate = WebI18nConfig.normalize((String)tag)).getLanguage().equals(Locale.ENGLISH.getLanguage()) && !candidate.getLanguage().equals(Locale.CHINESE.getLanguage())) continue;
-            return candidate;
+            if (tag.isBlank()) {
+                continue;
+            }
+            Locale candidate = WebI18nConfig.normalize(tag);
+            if (candidate.getLanguage().equals(Locale.ENGLISH.getLanguage())
+                    || candidate.getLanguage().equals(Locale.CHINESE.getLanguage())) {
+                return candidate;
+            }
         }
         return WebI18nConfig.DEFAULT_LOCALE;
     }
 
     private String clientIp(HttpServletRequest request) {
-        String first;
         String forwarded = request.getHeader("X-Forwarded-For");
-        if (!(forwarded == null || forwarded.isBlank() || (first = forwarded.split(",")[0].trim()).isBlank() || this.isPrivate(first))) {
-            return first;
+        if (forwarded != null && !forwarded.isBlank()) {
+            String first = forwarded.split(",")[0].trim();
+            if (!first.isBlank() && !this.isPrivate(first)) {
+                return first;
+            }
         }
         String real = request.getHeader("X-Real-IP");
         if (real != null && !real.isBlank() && !this.isPrivate(real.trim())) {
@@ -107,7 +141,18 @@ implements LocaleResolver {
     }
 
     private boolean isPrivate(String ip) {
-        return ip.startsWith("10.") || ip.startsWith("192.168.") || ip.startsWith("127.") || ip.startsWith("172.16.") || ip.startsWith("172.17.") || ip.startsWith("172.18.") || ip.startsWith("172.19.") || ip.startsWith("172.2") || ip.startsWith("172.30.") || ip.startsWith("172.31.") || ip.startsWith("169.254.") || ip.equals("::1");
+        return ip.startsWith("10.")
+                || ip.startsWith("192.168.")
+                || ip.startsWith("127.")
+                || ip.startsWith("172.16.")
+                || ip.startsWith("172.17.")
+                || ip.startsWith("172.18.")
+                || ip.startsWith("172.19.")
+                || ip.startsWith("172.2")
+                || ip.startsWith("172.30.")
+                || ip.startsWith("172.31.")
+                || ip.startsWith("169.254.")
+                || ip.equals("::1");
     }
 
     private String cookieValue(HttpServletRequest request, String name) {
@@ -115,9 +160,10 @@ implements LocaleResolver {
         if (cookies == null) {
             return null;
         }
-        for (Cookie c : cookies) {
-            if (!name.equals(c.getName())) continue;
-            return c.getValue();
+        for (Cookie cookie : cookies) {
+            if (name.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
         }
         return null;
     }
@@ -127,4 +173,3 @@ implements LocaleResolver {
         this.geo = geo;
     }
 }
-

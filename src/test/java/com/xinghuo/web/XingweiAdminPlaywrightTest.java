@@ -28,10 +28,14 @@ class XingweiAdminPlaywrightTest {
                     () => {
                       window.fetch = async (url) => {
                         if (String(url) === '/api/admin/xingwei/access') {
-                          return {ok:true, json:async () => ({mode:'LEGACY_ADMIN_OVERRIDE', allowAll:true, permissionCodes:[], roleCodes:[]})};
+                          return {ok:true, json:async () => ({
+                            mode:'LEGACY_ADMIN_OVERRIDE', allowAll:true,
+                            permissionCodes:[], roleCodes:[], dataScope:'ALL',
+                            adminUserId:1, departmentCode:'01'
+                          })};
                         }
                         if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2b', serverTime:'2026-10-13T05:00:00+08:00'})};
+                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2c', serverTime:'2026-10-13T05:00:00+08:00'})};
                         }
                         return {ok:false, status:404, json:async () => ({error:'not found'})};
                       };
@@ -77,11 +81,12 @@ class XingweiAdminPlaywrightTest {
                           return {ok:true, json:async () => ({
                             mode:'SHADOW_RBAC', allowAll:false,
                             permissionCodes:['order:view','employee:manage'],
-                            roleCodes:['XW_CUSTOMER_ORDER']
+                            roleCodes:['XW_CUSTOMER_ORDER'],
+                            dataScope:'DEPARTMENT', departmentCode:'XW-03', adminUserId:3
                           })};
                         }
                         if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2b', serverTime:'2026-10-13T05:00:00+08:00'})};
+                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2c', serverTime:'2026-10-13T05:00:00+08:00'})};
                         }
                         return {ok:false, status:404, json:async () => ({error:'not found'})};
                       };
@@ -100,6 +105,7 @@ class XingweiAdminPlaywrightTest {
             assertEquals(0, ((Number) page.evaluate("() => [...document.querySelectorAll('.xw-module')].filter(x => !x.hidden).length")).intValue());
             assertTrue(page.locator("#xwSearchCount").textContent().contains("匹配 0 个模块"));
             assertTrue(page.locator("#xwAccessMode").textContent().contains("RBAC 已生效"));
+            assertTrue(page.locator("#xwAccessMode").textContent().contains("本中心"));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
         }
     }
@@ -114,10 +120,20 @@ class XingweiAdminPlaywrightTest {
             page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.css")));
             page.evaluate("""
                     () => {
+                      window.xwAccess = {
+                        mode:'LEGACY_ADMIN_OVERRIDE', allowAll:true,
+                        permissionCodes:[], roleCodes:['XW_MANAGEMENT'],
+                        dataScope:'ALL', adminUserId:1, departmentCode:'01'
+                      };
                       window.xwHasPermission = () => true;
+                      window.xwCanManageGlobalRbac = () => true;
                       const snapshot = {
-                        shadowMode: true,
-                        enforcement: 'XINGWEI_V2B_HYBRID',
+                        shadowMode: false,
+                        enforcement: 'XINGWEI_V2C_DATA_SCOPE',
+                        scope: 'XINGWEI_ONLY',
+                        dataScope: 'ALL',
+                        scopeDepartmentCode: '01',
+                        scopeAdminUserId: 1,
                         counts: {departments: 7, positions: 155, employees: 1, assignedEmployees: 1, roles: 7, permissions: 3},
                         visibleSections: {organization:true, employees:true, rbac:true},
                         departments: [
@@ -144,7 +160,7 @@ class XingweiAdminPlaywrightTest {
                           return {ok:true, json:async () => snapshot};
                         }
                         if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2b', serverTime:'2026-10-13T05:00:00+08:00'})};
+                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2c', serverTime:'2026-10-13T05:00:00+08:00'})};
                         }
                         if (String(options.method || 'GET').toUpperCase() === 'PUT') {
                           return {ok:true, json:async () => ({ok:true})};
@@ -160,6 +176,7 @@ class XingweiAdminPlaywrightTest {
             assertEquals("155", page.locator("[data-org-kpi='positions']").textContent());
             assertEquals(2, page.locator("#xwDepartmentRows tr").count());
             assertEquals(2, page.locator("#xwPositionRows tr").count());
+            assertTrue(page.locator("#xwOrgMessage").textContent().contains("V2C 数据范围：全部数据"));
 
             page.locator("#xwPositionDepartment").selectOption("04");
             assertEquals(1, page.locator("#xwPositionRows tr").count());
@@ -168,6 +185,7 @@ class XingweiAdminPlaywrightTest {
             page.locator("[data-employee-edit='1']").click();
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwEmployeeDialog').open"));
             assertEquals("XW-LC-01-001", page.locator("#xwEmployeePosition").inputValue());
+            assertEquals(2, page.locator("#xwEmployeeRoleChecks input").count());
             page.locator("[data-dialog-close='xwEmployeeDialog']").first().click();
 
             page.locator("[data-role-edit='XW_GAME_BUSINESS']").click();

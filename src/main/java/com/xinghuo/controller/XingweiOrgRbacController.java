@@ -43,25 +43,29 @@ public class XingweiOrgRbacController {
         boolean orgView = permissions.has(authentication, "org:view");
         boolean employeeView = permissions.has(authentication, "employee:view");
         boolean rbacView = permissions.has(authentication, "rbac:view");
+        boolean organizationCatalogView = orgView || employeeView;
 
         Map<String, Object> result = new LinkedHashMap<>(source);
-        result.put("departments", orgView || employeeView ? source.get("departments") : List.of());
-        result.put("positions", orgView || employeeView ? source.get("positions") : List.of());
+        result.put("shadowMode", false);
+        result.put("enforcement", "XINGWEI_V2B_HYBRID");
+        result.put("scope", "XINGWEI_ONLY");
+        result.put("departments", organizationCatalogView ? source.get("departments") : List.of());
+        result.put("positions", organizationCatalogView ? source.get("positions") : List.of());
         result.put("employees", employeeView ? source.get("employees") : List.of());
         result.put("roles", rbacView ? source.get("roles") : List.of());
         result.put("permissions", rbacView ? source.get("permissions") : List.of());
 
         Map<String, Object> sourceCounts = castMap(source.get("counts"));
         Map<String, Object> counts = new LinkedHashMap<>();
-        counts.put("departments", orgView || employeeView ? sourceCounts.getOrDefault("departments", 0) : 0);
-        counts.put("positions", orgView || employeeView ? sourceCounts.getOrDefault("positions", 0) : 0);
+        counts.put("departments", organizationCatalogView ? sourceCounts.getOrDefault("departments", 0) : 0);
+        counts.put("positions", organizationCatalogView ? sourceCounts.getOrDefault("positions", 0) : 0);
         counts.put("employees", employeeView ? sourceCounts.getOrDefault("employees", 0) : 0);
         counts.put("assignedEmployees", employeeView ? sourceCounts.getOrDefault("assignedEmployees", 0) : 0);
         counts.put("roles", rbacView ? sourceCounts.getOrDefault("roles", 0) : 0);
         counts.put("permissions", rbacView ? sourceCounts.getOrDefault("permissions", 0) : 0);
         result.put("counts", counts);
         result.put("visibleSections", Map.of(
-                "organization", orgView,
+                "organization", organizationCatalogView,
                 "employees", employeeView,
                 "rbac", rbacView));
         return result;

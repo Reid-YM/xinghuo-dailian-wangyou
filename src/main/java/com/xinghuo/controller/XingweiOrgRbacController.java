@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,18 +41,26 @@ public class XingweiOrgRbacController {
     @PreAuthorize("@xingweiPermissionGuard.hasAny(authentication, 'org:view', 'employee:view', 'rbac:view')")
     public Map<String, Object> snapshot(Authentication authentication) {
         Map<String, Object> source = org.snapshot();
+        XingweiPermissionGuard.AccessSnapshot access = permissions.resolve(authentication);
         boolean orgView = permissions.has(authentication, "org:view");
         boolean employeeView = permissions.has(authentication, "employee:view");
         boolean rbacView = permissions.has(authentication, "rbac:view");
         boolean organizationCatalogView = orgView || employeeView;
 
+        List<Map<String, Object>> visibleEmployees = employeeView
+                ? scopedEmployees(authentication, castRows(source.get("employees")))
+                : List.of();
+
         Map<String, Object> result = new LinkedHashMap<>(source);
         result.put("shadowMode", false);
-        result.put("enforcement", "XINGWEI_V2B_HYBRID");
+        result.put("enforcement", "XINGWEI_V2C_DATA_SCOPE");
         result.put("scope", "XINGWEI_ONLY");
+        result.put("dataScope", access.dataScope());
+        result.put("scopeDepartmentCode", access.departmentCode());
+        result.put("scopeAdminUserId", access.adminUserId());
         result.put("departments", organizationCatalogView ? source.get("departments") : List.of());
         result.put("positions", organizationCatalogView ? source.get("positions") : List.of());
-        result.put("employees", employeeView ? source.get("employees") : List.of());
+        result.put("employees", visibleEmployees);
         result.put("roles", rbacView ? source.get("roles") : List.of());
         result.put("permissions", rbacView ? source.get("permissions") : List.of());
 
@@ -59,8 +68,10 @@ public class XingweiOrgRbacController {
         Map<String, Object> counts = new LinkedHashMap<>();
         counts.put("departments", organizationCatalogView ? sourceCounts.getOrDefault("departments", 0) : 0);
         counts.put("positions", organizationCatalogView ? sourceCounts.getOrDefault("positions", 0) : 0);
-        counts.put("employees", employeeView ? sourceCounts.getOrDefault("employees", 0) : 0);
-        counts.put("assignedEmployees", employeeView ? sourceCounts.getOrDefault("assignedEmployees", 0) : 0);
+        counts.put("employees", visibleEmployees.size());
+        counts.put("assignedEmployees", visibleEmployees.stream()
+                .filter(row -> row.get("departmentCode") != null || row.get("positionCode") != null)
+                .count());
         counts.put("roles", rbacView ? sourceCounts.getOrDefault("roles", 0) : 0);
         counts.put("permissions", rbacView ? sourceCounts.getOrDefault("permissions", 0) : 0);
         result.put("counts", counts);
@@ -78,6 +89,13 @@ public class XingweiOrgRbacController {
             @RequestBody EmployeeProfileRequest body,
             Authentication authentication,
             HttpServletRequest request) {
+        if (!permissions.canManageEmployeeProfile(
+                authentication,
+                adminUserId,
+                body.departmentCode(),
+                body.positionCode())) {
+            throw new AccessDeniedException("超出当前员工数据范围");
+        }
         Map<String, Object> before = org.employee(adminUserId);
         Map<String, Object> after = org.updateEmployeeProfile(
                 adminUserId,
@@ -95,7 +113,7 @@ public class XingweiOrgRbacController {
                 operator(authentication),
                 before,
                 after,
-                "星维 V2B 员工档案配置",
+                "星维 V2C 员工档案配置（含数据范围校验）",
                 request);
         return after;
     }
@@ -107,6 +125,9 @@ public class XingweiOrgRbacController {
             @RequestBody EmployeeRolesRequest body,
             Authentication authentication,
             HttpServletRequest request) {
+        if (!permissions.canAssignEmployeeRoles(authentication, adminUserId, body.roleCodes())) {
+            throw new AccessDeniedException("角色分配超出当前员工或数据范围");
+        }
         Map<String, Object> before = org.employee(adminUserId);
         Map<String, Object> after = org.replaceEmployeeRoles(adminUserId, body.roleCodes());
         audits.log(
@@ -116,7 +137,7 @@ public class XingweiOrgRbacController {
                 operator(authentication),
                 before,
                 after,
-                "星维 V2B 角色配置",
+                "星维 V2C 角色配置（含范围升级保护）",
                 request);
         return after;
     }
@@ -128,6 +149,9 @@ public class XingweiOrgRbacController {
             @RequestBody RolePermissionsRequest body,
             Authentication authentication,
             HttpServletRequest request) {
+        if (!permissions.canManageGlobalRbac(authentication)) {
+            throw new AccessDeniedException("只有 ALL 数据范围可以修改全局角色权限模板");
+        }
         Map<String, Object> before = org.role(roleCode);
         Map<String, Object> after = org.replaceRolePermissions(roleCode, body.permissionCodes());
         audits.log(
@@ -137,9 +161,17 @@ public class XingweiOrgRbacController {
                 operator(authentication),
                 before,
                 after,
-                "星维 V2B 权限配置",
+                "星维 V2C 全局权限配置",
                 request);
         return after;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, Object> forbidden(AccessDeniedException ex) {
+        return Map.of(
+                "ok", false,
+                "error", ex.getMessage() == null ? "超出当前数据范围" : ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -158,9 +190,29 @@ public class XingweiOrgRbacController {
                 "error", "所选账号、中心、岗位或角色不存在或已停用");
     }
 
+    private List<Map<String, Object>> scopedEmployees(
+            Authentication authentication,
+            List<Map<String, Object>> employees) {
+        return employees.stream()
+                .filter(row -> permissions.canAccessEmployee(
+                        authentication,
+                        ((Number) row.get("id")).longValue(),
+                        stringValue(row.get("departmentCode"))))
+                .toList();
+    }
+
+    private static String stringValue(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
+
     @SuppressWarnings("unchecked")
     private static Map<String, Object> castMap(Object value) {
         return value instanceof Map<?, ?> ? (Map<String, Object>) value : Map.of();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<Map<String, Object>> castRows(Object value) {
+        return value instanceof List<?> ? (List<Map<String, Object>>) value : List.of();
     }
 
     private static String operator(Authentication authentication) {

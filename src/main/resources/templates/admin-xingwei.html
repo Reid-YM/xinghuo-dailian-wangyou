@@ -10,8 +10,8 @@
   <title>星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <script defer src="/assets/admin-xingwei.js?v=20261013v2b"></script>
-  <script defer src="/assets/admin-xingwei-org.js?v=20261013v2b"></script>
+  <script defer src="/assets/admin-xingwei.js?v=20261013v2c"></script>
+  <script defer src="/assets/admin-xingwei-org.js?v=20261013v2c"></script>
 </head>
 <body>
 <div class="xw-shell">
@@ -60,13 +60,13 @@
 
     <section class="xw-hero" id="overview">
       <div>
-        <p class="xw-kicker">PHASE 2B · PERMISSION ENFORCEMENT</p>
-        <h2>新版星维接口开始执行细粒度权限，同时保留管理员安全兜底与旧后台兼容。</h2>
-        <p>legacy ADMIN 永远保持全权限；尚未配置星维角色的 OPERATOR 保留新版查看兼容；一旦明确分配星维角色，则新版星维接口与模块按角色权限精确生效。旧 /admin 仍沿用原 ADMIN / OPERATOR 边界，避免一次性切换造成锁死。</p>
+        <p class="xw-kicker">PHASE 2C · DATA SCOPE ENFORCEMENT</p>
+        <h2>细粒度权限继续下沉到数据范围：全部数据、本中心、仅本人。</h2>
+        <p>legacy ADMIN 继续保持全量兜底；未配置星维角色的 OPERATOR 保持旧行为；显式 RBAC 账号开始按角色 data_scope 裁剪员工数据，并对跨范围写入返回 403。当前先在组织与员工模块验证，后续同一规则会复用到询价与订单。</p>
       </div>
       <div class="xw-version-card">
         <span>当前版本</span>
-        <strong th:text="${consoleVersion}">20261013-v2b</strong>
+        <strong th:text="${consoleVersion}">20261013-v2c</strong>
         <small id="xwServerTime">等待服务响应</small>
       </div>
     </section>
@@ -95,24 +95,24 @@
     <section class="xw-section" id="organization">
       <div class="xw-section-head">
         <div><p class="xw-kicker">ORGANIZATION & RBAC</p><h2>组织与权限</h2></div>
-        <p>V2B 已在新版组织接口启用后端权限守卫；权限不仅控制按钮和模块显示，也会在接口层返回拒绝。</p>
+        <p>V2C 已在新版组织接口启用后端数据范围守卫；权限和 ALL / DEPARTMENT / SELF 范围都会在接口层执行。</p>
       </div>
       <div class="xw-grid">
         <a class="xw-module" data-search="部门 组织 架构 七大中心" href="#org-console"><div class="xw-module-index">O01</div><h3>七大中心</h3><p>固定组织架构、中心编号和岗位数量实时读取数据库。</p><span>org:view →</span></a>
-        <a class="xw-module" data-search="岗位 职务 员工 155 淘宝 闲鱼 mw4" href="#org-employees"><div class="xw-module-index">O02</div><h3>岗位与员工</h3><p>155 个正式岗位词库，现有管理员账号可绑定员工档案。</p><span>employee:view →</span></a>
-        <a class="xw-module" data-search="角色 权限 rbac 数据范围" href="#org-roles"><div class="xw-module-index">O03</div><h3>角色与权限</h3><p>七个中心角色与权限点已经成为新版星维接口的有效授权依据。</p><span>rbac:view →</span></a>
+        <a class="xw-module" data-search="岗位 职务 员工 155 淘宝 闲鱼 mw4" href="#org-employees"><div class="xw-module-index">O02</div><h3>岗位与员工</h3><p>155 个正式岗位词库；员工列表已按有效数据范围在后端裁剪。</p><span>employee:view →</span></a>
+        <a class="xw-module" data-search="角色 权限 rbac 数据范围" href="#org-roles"><div class="xw-module-index">O03</div><h3>角色与权限</h3><p>七个中心角色、权限点与 data_scope 已成为新版接口的有效授权依据。</p><span>rbac:view →</span></a>
         <a class="xw-module" data-search="账号 用户 登录 日志" href="/admin"><div class="xw-module-index">O04</div><h3>现有账号管理</h3><p>账号创建、密码和 legacy 登录角色仍由原后台管理，作为认证与安全兜底。</p><span>现有后台承载 →</span></a>
       </div>
     </section>
 
     <section class="xw-section xw-org-console" id="org-console">
       <div class="xw-section-head">
-        <div><p class="xw-kicker">V2B · HYBRID RBAC</p><h2>组织与权限控制台</h2></div>
-        <div class="xw-shadow-badge"><i></i><span>V2B 混合权限</span><small>ADMIN 兜底 · OPERATOR 兼容 · 已分配角色精确授权</small></div>
+        <div><p class="xw-kicker">V2C · DATA SCOPE</p><h2>组织与权限控制台</h2></div>
+        <div class="xw-shadow-badge"><i></i><span>V2C 数据范围</span><small>ADMIN 全量 · OPERATOR 兼容 · RBAC 执行 ALL / DEPARTMENT / SELF</small></div>
       </div>
       <div class="xw-org-message" id="xwOrgMessage" role="status">正在读取组织数据……</div>
       <div class="xw-org-kpis" id="xwOrgKpis">
-        <div><span>中心</span><strong data-org-kpi="departments">-</strong></div><div><span>正式岗位</span><strong data-org-kpi="positions">-</strong></div><div><span>后台账号</span><strong data-org-kpi="employees">-</strong></div><div><span>已归档员工</span><strong data-org-kpi="assignedEmployees">-</strong></div><div><span>星维角色</span><strong data-org-kpi="roles">-</strong></div><div><span>权限点</span><strong data-org-kpi="permissions">-</strong></div>
+        <div><span>中心</span><strong data-org-kpi="departments">-</strong></div><div><span>正式岗位</span><strong data-org-kpi="positions">-</strong></div><div><span>可见账号</span><strong data-org-kpi="employees">-</strong></div><div><span>已归档员工</span><strong data-org-kpi="assignedEmployees">-</strong></div><div><span>星维角色</span><strong data-org-kpi="roles">-</strong></div><div><span>权限点</span><strong data-org-kpi="permissions">-</strong></div>
       </div>
 
       <article class="xw-data-panel">
@@ -126,12 +126,12 @@
       </article>
 
       <article class="xw-data-panel" id="org-employees">
-        <div class="xw-data-head"><div><h3>员工档案</h3><p>直接扩展现有 admin_users，不新建第二套登录账号。修改档案需 employee:manage；分配角色需 rbac:manage。</p></div></div>
+        <div class="xw-data-head"><div><h3>员工档案</h3><p>直接扩展现有 admin_users，不新建第二套登录账号。读取和修改都会执行当前账号的数据范围。</p></div></div>
         <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>账号</th><th>姓名/编号</th><th>中心</th><th>岗位</th><th>星维角色</th><th>登录角色</th><th>操作</th></tr></thead><tbody id="xwEmployeeRows"></tbody></table></div>
       </article>
 
       <article class="xw-data-panel" id="org-roles">
-        <div class="xw-data-head"><div><h3>角色与权限点</h3><p>角色权限会直接约束已分配角色账号访问新版星维接口；所有修改继续记录审计日志，管理层安全兜底角色保持只读。</p></div></div>
+        <div class="xw-data-head"><div><h3>角色与权限点</h3><p>角色权限与数据范围会直接约束已分配角色账号访问新版星维接口；管理层安全兜底角色保持只读。</p></div></div>
         <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>角色</th><th>数据范围</th><th>权限点</th><th>状态</th><th>操作</th></tr></thead><tbody id="xwRoleRows"></tbody></table></div>
       </article>
     </section>
@@ -156,9 +156,9 @@
       </div>
     </section>
 
-    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移顺序</h2></div></div><ol><li><strong>V1 并行入口</strong><span>已上线：新版后台壳、现有模块导航、服务状态检查。</span></li><li><strong>V2A 组织底座</strong><span>已上线：七大中心、155 岗位、员工档案与角色权限数据模型。</span></li><li><strong>V2B 权限执行</strong><span>当前：新版星维接口启用混合权限守卫、模块与操作同步按权限过滤。</span></li><li><strong>V3 / V4</strong><span>业务迁移、派单工作台、微信与渠道统一管理。</span></li></ol></section>
+    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移顺序</h2></div></div><ol><li><strong>V1 并行入口</strong><span>已上线：新版后台壳、现有模块导航、服务状态检查。</span></li><li><strong>V2A 组织底座</strong><span>已上线：七大中心、155 岗位、员工档案与角色权限数据模型。</span></li><li><strong>V2B 权限执行</strong><span>已上线：新版星维接口启用混合权限守卫、模块与操作同步按权限过滤。</span></li><li><strong>V2C 数据范围</strong><span>当前：组织与员工接口执行 ALL / DEPARTMENT / SELF；后续复用到询价与订单。</span></li><li><strong>V3 / V4</strong><span>业务迁移、派单工作台、微信与渠道统一管理。</span></li></ol></section>
 
-    <footer class="xw-footer"><span>星维网络服务工作室 · 管理后台</span><span>固定组织架构 · 后端授权 · 可审计 · 可回滚 · 旧后台保留</span></footer>
+    <footer class="xw-footer"><span>星维网络服务工作室 · 管理后台</span><span>固定组织架构 · 后端授权 · 数据范围 · 可审计 · 可回滚 · 旧后台保留</span></footer>
   </main>
 </div>
 
@@ -177,7 +177,7 @@
   <form method="dialog" class="xw-dialog-card" id="xwRoleForm">
     <div class="xw-dialog-head"><div><p class="xw-kicker">EFFECTIVE PERMISSIONS</p><h3 id="xwRoleDialogTitle">配置星维权限</h3></div><button type="button" class="xw-dialog-close" data-dialog-close="xwRoleDialog">×</button></div>
     <input type="hidden" id="xwRoleCode"/>
-    <p class="xw-dialog-note">V2B 保存后会立即影响已分配该角色账号对新版星维接口和模块的访问；legacy ADMIN 永远保留全权限，旧 /admin 仍沿用 ADMIN / OPERATOR 安全边界。</p>
+    <p class="xw-dialog-note">V2C 保存后会立即影响已分配该角色账号对新版星维接口和模块的访问；员工数据还会执行角色 data_scope。legacy ADMIN 永远保留全权限，旧 /admin 仍沿用 ADMIN / OPERATOR 安全边界。</p>
     <div class="xw-permission-grid" id="xwPermissionChecks"></div>
     <div class="xw-dialog-actions"><span id="xwRoleSaveState"></span><button type="button" class="xw-button xw-button-ghost" data-dialog-close="xwRoleDialog">取消</button><button type="submit" class="xw-button">保存星维权限</button></div>
   </form>

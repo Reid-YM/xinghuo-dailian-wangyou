@@ -18,6 +18,30 @@
     return typeof window.xwHasPermission === 'function' && window.xwHasPermission(permission);
   }
 
+  function canManageGlobalRbac() {
+    return typeof window.xwCanManageGlobalRbac === 'function' && window.xwCanManageGlobalRbac();
+  }
+
+  function dataScopeLabel(scope, departmentCode = '') {
+    if (scope === 'ALL') return '全部数据';
+    if (scope === 'DEPARTMENT') return departmentCode ? `本中心 · ${departmentCode}` : '本中心 · 未分配中心时仅本人';
+    if (scope === 'SELF') return '仅本人';
+    return '无数据范围';
+  }
+
+  function scopeRank(scope) {
+    if (scope === 'ALL') return 3;
+    if (scope === 'DEPARTMENT') return 2;
+    if (scope === 'SELF') return 1;
+    return 0;
+  }
+
+  function canAssignRole(role) {
+    if (!orgSnapshot) return false;
+    if (window.xwAccess?.allowAll || orgSnapshot.dataScope === 'ALL') return true;
+    return scopeRank(role?.dataScope) <= scopeRank(orgSnapshot.dataScope);
+  }
+
   async function apiJson(url, options = {}) {
     const method = String(options.method || 'GET').toUpperCase();
     const headers = {
@@ -113,7 +137,7 @@
     body.innerHTML = (orgSnapshot.roles || []).map((role) => `
       <tr>
         <td><strong>${escapeHtml(role.name)}</strong><small class="xw-block-code">${escapeHtml(role.code)}</small></td>
-        <td>${role.dataScope === 'ALL' ? '全部数据' : '本中心'}</td>
+        <td>${escapeHtml(dataScopeLabel(role.dataScope))}</td>
         <td>${escapeHtml(role.permissionCount)} / ${escapeHtml((orgSnapshot.permissions || []).length)}</td>
         <td><span class="xw-pill ${role.enabled ? 'ok' : ''}">${role.enabled ? '启用' : '停用'}</span></td>
         <td>${role.code === 'XW_MANAGEMENT'
@@ -137,7 +161,8 @@
       setOrgMessage('正在读取组织数据……');
       orgSnapshot = await apiJson('/api/admin/xingwei/org/snapshot');
       renderOrg();
-      setOrgMessage(`组织数据已连接 · ${orgSnapshot.counts?.departments ?? 0} 个中心 / ${orgSnapshot.counts?.positions ?? 0} 个岗位 · V2B 混合权限守卫已生效`, 'ok');
+      const scope = dataScopeLabel(orgSnapshot.dataScope, orgSnapshot.scopeDepartmentCode);
+      setOrgMessage(`组织数据已连接 · ${orgSnapshot.counts?.departments ?? 0} 个中心 / ${orgSnapshot.counts?.positions ?? 0} 个岗位 · V2C 数据范围：${scope}`, 'ok');
     } catch (error) {
       setOrgMessage(`组织数据读取失败或无查看权限：${error.message}`, 'error');
       console.warn('Xingwei org snapshot failed', error);
@@ -170,6 +195,14 @@
     }
   }
 
+  function availableEmployeeDepartments() {
+    const departments = orgSnapshot?.departments || [];
+    if (orgSnapshot?.dataScope === 'DEPARTMENT' && orgSnapshot.scopeDepartmentCode) {
+      return departments.filter((department) => department.code === orgSnapshot.scopeDepartmentCode);
+    }
+    return departments;
+  }
+
   function openEmployeeDialog(employeeId) {
     if (!orgSnapshot) return;
     const canProfile = hasPermission('employee:manage');
@@ -187,16 +220,21 @@
     document.getElementById('xwEmployeeNotes').value = employee.notes || '';
 
     const department = document.getElementById('xwEmployeeDepartment');
-    department.innerHTML = '<option value="">未分配中心</option>' + (orgSnapshot.departments || [])
+    const allowUnassigned = orgSnapshot.dataScope !== 'DEPARTMENT';
+    department.innerHTML = (allowUnassigned ? '<option value="">未分配中心</option>' : '') + availableEmployeeDepartments()
       .map((d) => `<option value="${escapeHtml(d.code)}">${escapeHtml(d.name)}</option>`).join('');
     department.value = employee.departmentCode || '';
+    if (!department.value && orgSnapshot.dataScope === 'DEPARTMENT' && orgSnapshot.scopeDepartmentCode) {
+      department.value = orgSnapshot.scopeDepartmentCode;
+    }
     fillEmployeePositionOptions(department.value, employee.positionCode || '');
 
     const selectedRoles = new Set(employee.roleCodes || []);
-    document.getElementById('xwEmployeeRoleChecks').innerHTML = (orgSnapshot.roles || []).map((role) => `
+    const assignableRoles = (orgSnapshot.roles || []).filter((role) => canAssignRole(role));
+    document.getElementById('xwEmployeeRoleChecks').innerHTML = assignableRoles.map((role) => `
       <label class="xw-check-item">
         <input type="checkbox" value="${escapeHtml(role.code)}" ${selectedRoles.has(role.code) ? 'checked' : ''}/>
-        <span><strong>${escapeHtml(role.name)}</strong><small>${escapeHtml(role.dataScope === 'ALL' ? '全部数据' : '本中心数据')}</small></span>
+        <span><strong>${escapeHtml(role.name)}</strong><small>${escapeHtml(dataScopeLabel(role.dataScope))}</small></span>
       </label>`).join('');
 
     setEmployeeDialogMode(canProfile, canRoles);
@@ -209,7 +247,7 @@
   });
 
   function openRoleDialog(roleCode) {
-    if (!orgSnapshot || roleCode === 'XW_MANAGEMENT' || !hasPermission('rbac:manage')) return;
+    if (!orgSnapshot || roleCode === 'XW_MANAGEMENT' || !canManageGlobalRbac()) return;
     const role = (orgSnapshot.roles || []).find((row) => row.code === roleCode);
     const dialog = document.getElementById('xwRoleDialog');
     if (!role || !dialog) return;
@@ -280,7 +318,7 @@
 
   document.getElementById('xwRoleForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!orgSnapshot || !hasPermission('rbac:manage')) return;
+    if (!orgSnapshot || !canManageGlobalRbac()) return;
     const roleCode = document.getElementById('xwRoleCode').value;
     const state = document.getElementById('xwRoleSaveState');
     const permissionCodes = Array.from(document.querySelectorAll('#xwPermissionChecks input:checked')).map((node) => node.value);

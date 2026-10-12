@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 /**
  * 星维网络服务工作室新版后台入口。
  *
- * <p>V2B 在固定组织与员工档案基础上启用防锁死混合权限：legacy ADMIN 永远全权，
- * 未配置影子角色的 OPERATOR 保留查看兼容，已配置影子角色的 OPERATOR 按细粒度权限执行。
- * 旧 /admin 安全边界仍保持原有行为。
+ * <p>V2C 在 V2B 混合权限基础上开始执行 ALL / DEPARTMENT / SELF 数据范围。
+ * legacy ADMIN 永远全权，未配置星维角色的 OPERATOR 继续保持兼容行为；
+ * 已配置星维角色的 OPERATOR 同时按权限点和数据范围执行。旧 /admin 边界保持原有行为。
  */
 @Controller
 public class XingweiAdminController {
@@ -25,7 +25,7 @@ public class XingweiAdminController {
         model.addAttribute("csrf", csrf);
         model.addAttribute("username", authentication == null ? "admin" : authentication.getName());
         model.addAttribute("workspaceName", "星维网络服务工作室");
-        model.addAttribute("consoleVersion", "20261013-v2b");
+        model.addAttribute("consoleVersion", "20261013-v2c");
         return "admin-xingwei";
     }
 
@@ -35,7 +35,7 @@ public class XingweiAdminController {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("ok", true);
         result.put("workspace", "星维网络服务工作室");
-        result.put("version", "20261013-v2b");
+        result.put("version", "20261013-v2c");
         result.put("user", authentication == null ? "unknown" : authentication.getName());
         result.put("serverTime", OffsetDateTime.now().toString());
         return result;

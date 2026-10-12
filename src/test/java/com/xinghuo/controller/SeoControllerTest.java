@@ -53,6 +53,13 @@ class SeoControllerTest {
         assertFalse(urlBlock(xml, "/contact").contains("<lastmod>"));
         assertTrue(urlBlock(xml, "/rules-en").contains("<changefreq>monthly</changefreq>"));
         assertTrue(urlBlock(xml, "/privacy-en").contains("<changefreq>monthly</changefreq>"));
+
+        // User-only utilities, redirects and private areas must never leak into the submitted sitemap.
+        assertFalse(xml.contains("<loc>https://wydlgf.cn/records</loc>"));
+        assertFalse(xml.contains("<loc>https://wydlgf.cn/order</loc>"));
+        assertFalse(xml.contains("<loc>https://wydlgf.cn/account</loc>"));
+        assertFalse(xml.contains("<loc>https://wydlgf.cn/language</loc>"));
+        assertFalse(xml.contains("<loc>https://wydlgf.cn/admin</loc>"));
     }
 
     @Test

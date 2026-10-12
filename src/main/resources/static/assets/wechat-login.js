@@ -33,7 +33,7 @@
     try {
       const response = await fetch('/api/account/wechat-mini/start', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'fetch' },
         credentials: 'same-origin',
         body: JSON.stringify({ next: returnTo || '/account' })
       });

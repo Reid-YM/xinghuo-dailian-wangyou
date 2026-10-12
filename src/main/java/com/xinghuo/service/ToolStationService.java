@@ -5,21 +5,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xinghuo.exception.BadRequestException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.FileAttribute;
-import lombok.Generated;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ToolStationService {
+    private static final String BUNDLED_DATA = "static/assets/tool-station-games.json";
+
     private final ObjectMapper mapper;
-    @Value(value="${app.upload-dir}")
+
+    @Value("${app.upload-dir}")
     private String uploadDir;
+
+    public ToolStationService(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
 
     public synchronized JsonNode publicData() {
         return this.readOrSeed();
@@ -33,25 +37,23 @@ public class ToolStationService {
 
     public synchronized JsonNode reset() {
         Path file = this.dataFile();
-        ClassPathResource bundled = new ClassPathResource("static/assets/tool-station-games.json");
+        ClassPathResource bundled = new ClassPathResource(BUNDLED_DATA);
         try {
-            Files.createDirectories(file.getParent(), new FileAttribute[0]);
-            if (Files.exists(file, new LinkOption[0])) {
-                Files.copy(file, file.resolveSibling(String.valueOf(file.getFileName()) + ".bak"), StandardCopyOption.REPLACE_EXISTING);
-            }
-            try (InputStream input = bundled.getInputStream();){
+            Files.createDirectories(file.getParent());
+            this.backupIfPresent(file);
+            try (InputStream input = bundled.getInputStream()) {
                 Files.copy(input, file, StandardCopyOption.REPLACE_EXISTING);
             }
             return this.mapper.readTree(file.toFile());
         }
         catch (Exception e) {
-            throw new BadRequestException("\u5de5\u5177\u7ad9\u6570\u636e\u521d\u59cb\u5316\u5931\u8d25");
+            throw new BadRequestException("工具站数据初始化失败");
         }
     }
 
     private JsonNode readOrSeed() {
         Path file = this.dataFile();
-        if (!Files.exists(file, new LinkOption[0])) {
+        if (!Files.exists(file)) {
             return this.reset();
         }
         try {
@@ -63,41 +65,42 @@ public class ToolStationService {
             throw e;
         }
         catch (Exception e) {
-            throw new BadRequestException("\u5de5\u5177\u7ad9\u6570\u636e\u8bfb\u53d6\u5931\u8d25");
+            throw new BadRequestException("工具站数据读取失败");
         }
     }
 
     private void write(JsonNode data) {
         Path file = this.dataFile();
         try {
-            Files.createDirectories(file.getParent(), new FileAttribute[0]);
-            if (Files.exists(file, new LinkOption[0])) {
-                Files.copy(file, file.resolveSibling(String.valueOf(file.getFileName()) + ".bak"), StandardCopyOption.REPLACE_EXISTING);
-            }
+            Files.createDirectories(file.getParent());
+            this.backupIfPresent(file);
             this.mapper.writerWithDefaultPrettyPrinter().writeValue(file.toFile(), data);
         }
         catch (Exception e) {
-            throw new BadRequestException("\u5de5\u5177\u7ad9\u6570\u636e\u4fdd\u5b58\u5931\u8d25");
+            throw new BadRequestException("工具站数据保存失败");
+        }
+    }
+
+    private void backupIfPresent(Path file) throws Exception {
+        if (Files.exists(file)) {
+            Files.copy(
+                    file,
+                    file.resolveSibling(file.getFileName() + ".bak"),
+                    StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
     private void validate(JsonNode data) {
         if (data == null || !data.isObject()) {
-            throw new BadRequestException("\u5de5\u5177\u7ad9\u6570\u636e\u683c\u5f0f\u4e0d\u6b63\u786e");
+            throw new BadRequestException("工具站数据格式不正确");
         }
         JsonNode games = data.path("games");
         if (!games.isArray() || games.isEmpty()) {
-            throw new BadRequestException("\u5de5\u5177\u7ad9\u81f3\u5c11\u9700\u8981\u4fdd\u7559\u4e00\u4e2a\u6e38\u620f\u7248\u672c");
+            throw new BadRequestException("工具站至少需要保留一个游戏版本");
         }
     }
 
     private Path dataFile() {
         return Paths.get(this.uploadDir, "data", "tool-station-games.json").normalize();
     }
-
-    @Generated
-    public ToolStationService(ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
 }
-

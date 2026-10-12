@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import lombok.Generated;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,16 +42,14 @@ public class SiteSettingService {
             Map.entry("icpNumber", "蜀ICP备2026047129号"),
             Map.entry("icpVisible", "true"),
             Map.entry("publicSecurityNumber", "川公网安备51162102000262号"),
-            Map.entry("publicSecurityVisible", "true")
-    );
+            Map.entry("publicSecurityVisible", "true"));
 
     private static final Set<String> BOOLEAN_KEYS = Set.of(
             "navServicesVisible", "navGuidesVisible", "navMasteryVisible", "navRecordsVisible",
             "navContactVisible", "navAccountVisible", "headerQuoteVisible",
             "footerServicesVisible", "footerRecordsVisible", "footerConsoleVisible",
             "footerRulesVisible", "footerPrivacyVisible", "footerContactVisible",
-            "homeQuickContactVisible", "icpVisible", "publicSecurityVisible"
-    );
+            "homeQuickContactVisible", "icpVisible", "publicSecurityVisible");
 
     private static final Set<String> GLOBAL_UI_KEYS = GLOBAL_UI_DEFAULTS.keySet();
 
@@ -66,32 +63,43 @@ public class SiteSettingService {
             "footerRecordsLabel", "footerRecordsVisible", "footerConsoleLabel", "footerConsoleVisible",
             "footerRulesLabel", "footerRulesVisible", "footerPrivacyLabel", "footerPrivacyVisible",
             "footerContactLabel", "footerContactVisible", "homeQuickContactVisible",
-            "icpVisible", "publicSecurityVisible"
-    );
+            "icpVisible", "publicSecurityVisible");
 
     private final SiteSettingRepository repo;
 
-    @Transactional(readOnly=true)
+    public SiteSettingService(SiteSettingRepository repo) {
+        this.repo = repo;
+    }
+
+    @Transactional(readOnly = true)
     public Map<String, String> publicSettings() {
         LinkedHashMap<String, String> out = new LinkedHashMap<>();
         out.putAll(GLOBAL_UI_DEFAULTS);
-        for (SiteSetting s : this.repo.findAll()) {
-            if (!PUBLIC_KEYS.contains(s.getSettingKey())) continue;
-            String value = s.getSettingValue();
-            if (value != null && !value.isBlank()) out.put(s.getSettingKey(), value);
+        for (SiteSetting setting : this.repo.findAll()) {
+            if (!PUBLIC_KEYS.contains(setting.getSettingKey())) {
+                continue;
+            }
+            String value = setting.getSettingValue();
+            if (value != null && !value.isBlank()) {
+                out.put(setting.getSettingKey(), value);
+            }
         }
         normalizeLegacyAccountLabels(out);
         return out;
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public Map<String, String> globalUiSettings() {
         LinkedHashMap<String, String> out = new LinkedHashMap<>();
         out.putAll(GLOBAL_UI_DEFAULTS);
-        for (SiteSetting s : this.repo.findAll()) {
-            if (!GLOBAL_UI_KEYS.contains(s.getSettingKey())) continue;
-            String value = s.getSettingValue();
-            if (value != null && !value.isBlank()) out.put(s.getSettingKey(), value);
+        for (SiteSetting setting : this.repo.findAll()) {
+            if (!GLOBAL_UI_KEYS.contains(setting.getSettingKey())) {
+                continue;
+            }
+            String value = setting.getSettingValue();
+            if (value != null && !value.isBlank()) {
+                out.put(setting.getSettingKey(), value);
+            }
         }
         normalizeLegacyAccountLabels(out);
         return out;
@@ -113,9 +121,13 @@ public class SiteSettingService {
 
     @Transactional
     public Map<String, String> updateGlobalUiSettings(Map<String, Object> values) {
-        if (values == null) throw new BadRequestException("全局前端配置不能为空");
+        if (values == null) {
+            throw new BadRequestException("全局前端配置不能为空");
+        }
         for (String key : GLOBAL_UI_KEYS) {
-            if (!values.containsKey(key)) continue;
+            if (!values.containsKey(key)) {
+                continue;
+            }
             String raw = values.get(key) == null ? "" : String.valueOf(values.get(key)).trim();
             String normalized;
             if (BOOLEAN_KEYS.contains(key)) {
@@ -124,7 +136,9 @@ public class SiteSettingService {
                 }
                 normalized = String.valueOf(Boolean.parseBoolean(raw));
             } else {
-                if (raw.length() > 120) throw new BadRequestException("全局前端配置内容过长：" + key);
+                if (raw.length() > 120) {
+                    throw new BadRequestException("全局前端配置内容过长：" + key);
+                }
                 normalized = raw.isBlank() ? GLOBAL_UI_DEFAULTS.get(key) : raw;
             }
             this.putInternal(key, normalized);
@@ -132,27 +146,25 @@ public class SiteSettingService {
         return this.globalUiSettings();
     }
 
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     public String get(String key, String fallback) {
-        String v = this.repo.findById(key).map(SiteSetting::getSettingValue).orElse(null);
-        return v == null || v.isBlank() ? fallback : v;
+        String value = this.repo.findById(key).map(SiteSetting::getSettingValue).orElse(null);
+        return value == null || value.isBlank() ? fallback : value;
     }
 
     @Transactional
     public void put(String key, String value) {
-        if (!PUBLIC_KEYS.contains(key)) return;
+        if (!PUBLIC_KEYS.contains(key)) {
+            return;
+        }
         this.putInternal(key, value);
     }
 
     private void putInternal(String key, String value) {
-        SiteSetting s = this.repo.findById(key).orElseGet(() -> SiteSetting.builder().settingKey(key).build());
-        s.setSettingValue(value);
-        s.setUpdatedAt(Instant.now());
-        this.repo.save(s);
-    }
-
-    @Generated
-    public SiteSettingService(SiteSettingRepository repo) {
-        this.repo = repo;
+        SiteSetting setting = this.repo.findById(key)
+                .orElseGet(() -> SiteSetting.builder().settingKey(key).build());
+        setting.setSettingValue(value);
+        setting.setUpdatedAt(Instant.now());
+        this.repo.save(setting);
     }
 }

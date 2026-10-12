@@ -18,10 +18,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 第三方登录身份绑定（QQ 先落地，微信预留同一张表）。
+ * 第三方登录身份绑定。
  *
- * <p>open_id 按应用隔离，QQ 与微信的 openid 不可互认，因此唯一键是
- * (provider, open_id) 而不是单独的 open_id。union_id 先留存，供同主体多应用打通。
+ * <p>open_id 按应用隔离，因此网站微信开放平台与微信小程序分别使用 WECHAT / WECHAT_MINI；
+ * 唯一键仍是 (provider, open_id)。union_id 用于在同一微信开放平台主体下把不同应用身份
+ * 归并到同一个星火账号。
  */
 @Entity
 @Table(name = "user_identity")
@@ -70,7 +71,8 @@ public class AccountIdentity {
 
     public enum Provider {
         QQ,
-        WECHAT
+        WECHAT,
+        WECHAT_MINI
     }
 
     @Generated

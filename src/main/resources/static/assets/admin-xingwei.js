@@ -57,6 +57,10 @@
     return false;
   }
 
+  function canManageGlobalRbac() {
+    return Boolean(access && can('rbac:manage') && (access.allowAll || access.dataScope === 'ALL'));
+  }
+
   function modulePermission(module) {
     const code = module.querySelector('.xw-module-index')?.textContent?.trim();
     return MODULE_PERMISSIONS[code] || 'dashboard:view';
@@ -95,7 +99,7 @@
       node.hidden = !(can('employee:manage') || can('rbac:manage'));
     });
     root.querySelectorAll?.('[data-role-edit]').forEach((node) => {
-      node.hidden = !can('rbac:manage');
+      node.hidden = !canManageGlobalRbac();
     });
   }
 
@@ -132,6 +136,7 @@
       access = await response.json();
       window.xwAccess = access;
       window.xwHasPermission = can;
+      window.xwCanManageGlobalRbac = canManageGlobalRbac;
       if (badge) {
         badge.textContent = modeLabel(access);
         badge.classList.toggle('ok', access.mode !== 'DENIED');
@@ -146,6 +151,7 @@
       access = {mode: 'DENIED', allowAll: false, permissionCodes: [], roleCodes: [], dataScope: 'NONE'};
       window.xwAccess = access;
       window.xwHasPermission = can;
+      window.xwCanManageGlobalRbac = canManageGlobalRbac;
       if (badge) {
         badge.textContent = '新版权限读取失败 · 受控模块已隐藏';
         badge.classList.add('error');

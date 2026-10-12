@@ -13,17 +13,18 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Public endpoint rate limiting for anonymous quote and business-status traffic.
+ * Public endpoint rate limiting for anonymous quote, business-status, and tracking traffic.
  *
- * <p>This filter intentionally keeps its existing fixed-window behavior and thresholds. The
- * account-domain {@code RateLimiter} is a separate sliding-window implementation; consolidation
- * must preserve the effective public limits before either layer is removed.
+ * <p>This filter intentionally keeps its existing fixed-window behavior. The account-domain
+ * {@code RateLimiter} is a separate sliding-window implementation; consolidation must preserve the
+ * effective public limits before either layer is removed.
  */
 @Component
 @Order(-2147483628)
 public class RateLimitFilter extends OncePerRequestFilterBase {
     static final int RECORD_REQUESTS_PER_MINUTE = 30;
     static final int QUOTE_REQUESTS_PER_MINUTE = 12;
+    static final int TRACK_REQUESTS_PER_MINUTE = 120;
     private static final long WINDOW_MILLIS = 60_000L;
     private static final long CLEANUP_EVERY = 500L;
     private static final int MAX_BUCKETS_BEFORE_CLEANUP = 5_000;
@@ -72,6 +73,9 @@ public class RateLimitFilter extends OncePerRequestFilterBase {
         }
         if (path.equals("/api/quote") || path.equals("/api/uploads/quote")) {
             return QUOTE_REQUESTS_PER_MINUTE;
+        }
+        if (path.equals("/api/track")) {
+            return TRACK_REQUESTS_PER_MINUTE;
         }
         return 0;
     }

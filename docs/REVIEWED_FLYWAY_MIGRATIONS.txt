@@ -5,3 +5,4 @@ V59__responsive_visual_controls.sql 2937c597c7bb9b9663ed73c513c2fa4e98c7aa4f 202
 V60__responsive_component_controls.sql 87e1c4a434ef1adfe9b7b259f8fc97c726b66cfa 2026-10-12:historical-applied-production-checksum-1507001770
 V61__mobile_background_image_controls.sql 8fe701049f783178be34c156b141b87b149afee3 2026-10-12:historical-merged-pr86-checksum-413343084
 V62__wechat_mini_pairing.sql 13403a4303243618b2b7855d7ef20f61ad6be6d9 2026-10-12:additive-create-table-reviewed
+V63__xingwei_org_rbac_foundation.sql cc2a2f1e844a16b69aa439a2cd88fdeaabd7b69d 2026-10-13:additive-org-rbac-155-position-seed-reviewed

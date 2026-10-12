@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * <p>V2C 在 V2B 混合权限基础上开始执行 ALL / DEPARTMENT / SELF 数据范围。
  * legacy ADMIN 永远全权，未配置星维角色的 OPERATOR 继续保持兼容行为；
  * 已配置星维角色的 OPERATOR 同时按权限点和数据范围执行。旧 /admin 边界保持原有行为。
+ * V2E 增加独立询价/订单业务工作台，直接使用 V2D 后端范围接口。
  */
 @Controller
 public class XingweiAdminController {
@@ -27,6 +28,15 @@ public class XingweiAdminController {
         model.addAttribute("workspaceName", "星维网络服务工作室");
         model.addAttribute("consoleVersion", "20261013-v2c");
         return "admin-xingwei";
+    }
+
+    @GetMapping("/admin/xingwei/business")
+    String businessWorkbench(Model model, CsrfToken csrf, Authentication authentication) {
+        model.addAttribute("csrf", csrf);
+        model.addAttribute("username", authentication == null ? "admin" : authentication.getName());
+        model.addAttribute("workspaceName", "星维网络服务工作室");
+        model.addAttribute("businessVersion", "20261013-v2e");
+        return "admin-xingwei-business";
     }
 
     @GetMapping("/api/admin/xingwei/health")

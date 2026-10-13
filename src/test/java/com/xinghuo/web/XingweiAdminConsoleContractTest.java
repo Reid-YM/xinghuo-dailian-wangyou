@@ -47,7 +47,7 @@ class XingweiAdminConsoleContractTest {
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
         assertTrue(template.contains("组织与权限"));
         assertTrue(template.contains("微信支付"));
-        assertTrue(template.contains("沿用现有流水线"));
+        assertTrue(template.contains("生产流水线已启用"));
         assertTrue(template.contains("V2C 数据范围"));
         assertTrue(template.contains("ALL / DEPARTMENT / SELF"));
         assertTrue(css.contains("@media(max-width:860px)"));

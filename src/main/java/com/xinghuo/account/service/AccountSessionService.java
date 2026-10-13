@@ -27,6 +27,11 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>为什么不用 spring-session-jdbc：基线 jar 的依赖是固定的，构建脚本只编译
  * 覆盖源码、不新增 Maven 依赖，因此无法引入新 jar。
+ *
+ * <p>过期语义：{@code expires_at} 是空闲截止时间 —— 每次活跃由 {@link #touchIfStale}
+ * 推到「now + 空闲窗口」，所以一直在用的人不会被固定 8 小时强行踢下线；
+ * {@code absolute_expires_at} 是硬上限，防止被盗 Cookie 靠定时刷新续成永久有效。
+ * 升级前签发的老会话这两列为空，保持原来的固定到期行为（不会因为本次上线被延长）。
  */
 @Service
 public class AccountSessionService {
@@ -34,8 +39,19 @@ public class AccountSessionService {
     /** Cookie 名。注意：Cookie 里只有随机会话 id，不含任何用户信息。 */
     public static final String COOKIE_NAME = "XH_SID";
 
-    private static final Duration DEFAULT_TTL = Duration.ofHours(8);
-    private static final Duration REMEMBER_TTL = Duration.ofDays(30);
+    /** 空闲窗口：距上次活跃超过它就失效（未勾「记住这台设备」）。 */
+    private static final Duration IDLE_TTL = Duration.ofHours(8);
+    /** 空闲窗口：勾了「记住这台设备」时 30 天不用才失效。 */
+    private static final Duration IDLE_TTL_REMEMBER = Duration.ofDays(30);
+
+    /**
+     * 绝对上限：无论多活跃，到点必须重新登录。
+     *
+     * <p>滑动续期解决「一直在用也被 8 小时踢掉」，但会话 id 是持有即可登录的凭据，
+     * 不能被一条定时刷新的脚本续成永久有效，所以再压一道硬上限。
+     */
+    private static final Duration MAX_TTL = Duration.ofDays(30);
+    private static final Duration MAX_TTL_REMEMBER = Duration.ofDays(180);
 
     /**
      * last_seen_at 的刷新阈值。
@@ -105,13 +121,39 @@ public class AccountSessionService {
         return Optional.ofNullable(readCookie(request));
     }
 
+    /**
+     * 活跃就打点：刷新 last_seen_at，并把空闲截止时间滑动到 now + 空闲窗口。
+     *
+     * <p>仍然按 TOUCH_INTERVAL 节流，所以「滑动」是分钟级粒度 —— 对 8 小时的空闲窗口
+     * 完全够用，也不会把每次页面访问都变成一次 UPDATE。
+     */
     private void touchIfStale(AccountSession session) {
         Instant now = Instant.now();
         if (session.getLastSeenAt() != null
                 && session.getLastSeenAt().isAfter(now.minus(TOUCH_INTERVAL))) {
             return;
         }
-        sessions.touch(session.getId(), now, now.minus(TOUCH_INTERVAL));
+        sessions.touch(session.getId(), now, now.minus(TOUCH_INTERVAL), renewedDeadline(session, now));
+    }
+
+    /**
+     * 续期后的空闲截止时间：now + 空闲窗口，并截断在绝对上限之内。
+     *
+     * <p>两种情况干脆沿用原到期时间（等于不续期）：升级前的老会话（两列为空），
+     * 以及已经顶到绝对上限的会话。
+     */
+    private static Instant renewedDeadline(AccountSession session, Instant now) {
+        Instant current = session.getExpiresAt();
+        Integer idleSeconds = session.getIdleSeconds();
+        Instant absolute = session.getAbsoluteExpiresAt();
+        if (idleSeconds == null || idleSeconds <= 0 || absolute == null) {
+            return current;
+        }
+        Instant next = now.plusSeconds(idleSeconds);
+        if (current != null && next.isBefore(current)) {
+            next = current; // 永不缩短：并发请求可能已经把截止时间推得更远
+        }
+        return next.isAfter(absolute) ? absolute : next;
     }
 
     private String readCookie(HttpServletRequest request) {
@@ -138,6 +180,9 @@ public class AccountSessionService {
      *
      * <p>会话 id 用 SecureRandom 生成 32 字节再 Base64 编码，而不是 UUID：
      * 会话 id 是「持有即可登录」的凭据，熵越高越好。
+     *
+     * <p>签发后过期时间是滑动的：remember 只决定空闲窗口（8 小时 / 30 天），
+     * 绝对上限（30 天 / 180 天）两条路一样硬。
      */
     public AccountSession issue(Account account, HttpServletRequest request,
                                 HttpServletResponse response, boolean remember) {
@@ -151,11 +196,24 @@ public class AccountSessionService {
                 .deviceLabel(RequestUtils.deviceLabel(RequestUtils.userAgent(request)))
                 .createdAt(now)
                 .lastSeenAt(now)
-                .expiresAt(now.plus(remember ? REMEMBER_TTL : DEFAULT_TTL))
+                .expiresAt(now.plus(idleTtl(remember)))
+                .idleSeconds((int) idleTtl(remember).toSeconds())
+                .absoluteExpiresAt(now.plus(maxTtl(remember)))
                 .build();
         sessions.save(session);
-        writeCookie(response, id, (int) (remember ? REMEMBER_TTL : DEFAULT_TTL).toSeconds());
+        // Cookie 的 Max-Age 取绝对上限而不是空闲窗口：浏览器只在写入时记这个时间，之后不会随请求刷新。
+        // 若按空闲窗口写 8 小时，滑动续期到第 8 小时反而会被浏览器自己丢掉 Cookie。
+        // 「多久不用就失效」由库里的 expires_at 判定，Cookie 活得久一点不会给未登录请求任何权限。
+        writeCookie(response, id, (int) maxTtl(remember).toSeconds());
         return session;
+    }
+
+    private static Duration idleTtl(boolean remember) {
+        return remember ? IDLE_TTL_REMEMBER : IDLE_TTL;
+    }
+
+    private static Duration maxTtl(boolean remember) {
+        return remember ? MAX_TTL_REMEMBER : MAX_TTL;
     }
 
     private String newSessionId() {

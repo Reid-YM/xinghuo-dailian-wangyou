@@ -17,15 +17,16 @@ public interface AccountSessionRepository extends JpaRepository<AccountSession, 
             Long userId, Instant now);
 
     /**
-     * 刷新最后活跃时间。
+     * 刷新最后活跃时间，同时把空闲截止时间往前推（滑动续期）。
      *
      * <p>刻意用「仅当距上次刷新超过阈值才写」的写法：会话解析发生在每个请求上，
-     * 无条件写库会把每次页面访问都变成一次 UPDATE。阈值由调用方传入。
+     * 无条件写库会把每次页面访问都变成一次 UPDATE。阈值与新的截止时间都由调用方算好后传入。
      */
     @Modifying
-    @Query("update AccountSession s set s.lastSeenAt = :now "
+    @Query("update AccountSession s set s.lastSeenAt = :now, s.expiresAt = :expiresAt "
             + "where s.id = :id and s.lastSeenAt < :threshold")
-    int touch(@Param("id") String id, @Param("now") Instant now, @Param("threshold") Instant threshold);
+    int touch(@Param("id") String id, @Param("now") Instant now,
+              @Param("threshold") Instant threshold, @Param("expiresAt") Instant expiresAt);
 
     @Modifying
     @Query("update AccountSession s set s.revokedAt = :now "

@@ -7,3 +7,4 @@ V61__mobile_background_image_controls.sql 8fe701049f783178be34c156b141b87b149afe
 V62__wechat_mini_pairing.sql 13403a4303243618b2b7855d7ef20f61ad6be6d9 2026-10-12:additive-create-table-reviewed
 V63__xingwei_org_rbac_foundation.sql cc2a2f1e844a16b69aa439a2cd88fdeaabd7b69d 2026-10-13:additive-org-rbac-155-position-seed-reviewed
 V64__xingwei_business_ownership.sql df0a0867fa73adda18b44b919541972a75f5b32d 2026-10-13:additive-business-ownership-reviewed
+V65__session_sliding_renewal.sql 530018c0b4a099443123dcec71a05131d3cc0ac5 2026-10-13:additive-session-sliding-renewal-reviewed

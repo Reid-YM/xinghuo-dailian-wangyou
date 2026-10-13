@@ -17,71 +17,31 @@ class ReviewedFlywayMigrationContractTest {
 
     @Test
     void appliedHistoricalMigrationsRemainImmutable() throws Exception {
-        assertHistoricalMigration(
-                "V59__responsive_visual_controls.sql",
-                1593454081,
-                "2937c597c7bb9b9663ed73c513c2fa4e98c7aa4f");
-        assertHistoricalMigration(
-                "V60__responsive_component_controls.sql",
-                1507001770,
-                "87e1c4a434ef1adfe9b7b259f8fc97c726b66cfa");
-        assertHistoricalMigration(
-                "V61__mobile_background_image_controls.sql",
-                413343084,
-                "8fe701049f783178be34c156b141b87b149afee3");
+        assertHistoricalMigration("V59__responsive_visual_controls.sql",1593454081,"2937c597c7bb9b9663ed73c513c2fa4e98c7aa4f");
+        assertHistoricalMigration("V60__responsive_component_controls.sql",1507001770,"87e1c4a434ef1adfe9b7b259f8fc97c726b66cfa");
+        assertHistoricalMigration("V61__mobile_background_image_controls.sql",413343084,"8fe701049f783178be34c156b141b87b149afee3");
     }
 
     @Test
     void reviewedV62RecordMatchesExactMigrationBlobAndDeployScriptChecksIt() throws Exception {
-        Path migration = Path.of("src/main/resources/db/migration/V62__wechat_mini_pairing.sql");
-        String gitBlobSha = gitBlobSha(migration);
-
-        String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
-        assertEquals("13403a4303243618b2b7855d7ef20f61ad6be6d9", gitBlobSha,
-                "V62 content changed after review; re-review and update the exact blob hash");
-        assertTrue(manifest.contains("V62__wechat_mini_pairing.sql " + gitBlobSha),
-                "review manifest must bind V62 to its exact git blob hash");
-
+        assertReviewed("V62__wechat_mini_pairing.sql", "13403a4303243618b2b7855d7ef20f61ad6be6d9");
         String deploy = Files.readString(Path.of("scripts/deploy-from-github.sh"));
         assertTrue(deploy.contains("migration_has_exact_review"));
         assertTrue(deploy.contains("git -C \"$WORK\" hash-object"));
         assertTrue(deploy.contains("REVIEWED_FLYWAY_MIGRATIONS.txt"));
     }
 
-    @Test
-    void reviewedV63OrganizationFoundationMatchesExactMigrationBlob() throws Exception {
-        Path migration = Path.of("src/main/resources/db/migration/V63__xingwei_org_rbac_foundation.sql");
+    @Test void reviewedV63OrganizationFoundationMatchesExactMigrationBlob() throws Exception { assertReviewed("V63__xingwei_org_rbac_foundation.sql","cc2a2f1e844a16b69aa439a2cd88fdeaabd7b69d"); }
+    @Test void reviewedV64BusinessOwnershipMatchesExactMigrationBlob() throws Exception { assertReviewed("V64__xingwei_business_ownership.sql","df0a0867fa73adda18b44b919541972a75f5b32d"); }
+    @Test void reviewedV65SessionSlidingRenewalMatchesExactMigrationBlob() throws Exception { assertReviewed("V65__session_sliding_renewal.sql","530018c0b4a099443123dcec71a05131d3cc0ac5"); }
+    @Test void reviewedV68MiniProgramPaymentMatchesExactMigrationBlob() throws Exception { assertReviewed("V68__wechat_mini_program_payment.sql","8b7ec25c7895961831d5b23ba76fc0876a9be428"); }
+
+    private void assertReviewed(String filename, String expectedBlobSha) throws Exception {
+        Path migration = Path.of("src/main/resources/db/migration", filename);
         String gitBlobSha = gitBlobSha(migration);
         String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
-
-        assertEquals("cc2a2f1e844a16b69aa439a2cd88fdeaabd7b69d", gitBlobSha,
-                "V63 content changed after review; re-review and update the exact blob hash");
-        assertTrue(manifest.contains("V63__xingwei_org_rbac_foundation.sql " + gitBlobSha),
-                "review manifest must bind V63 to its exact git blob hash");
-    }
-
-    @Test
-    void reviewedV64BusinessOwnershipMatchesExactMigrationBlob() throws Exception {
-        Path migration = Path.of("src/main/resources/db/migration/V64__xingwei_business_ownership.sql");
-        String gitBlobSha = gitBlobSha(migration);
-        String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
-
-        assertEquals("df0a0867fa73adda18b44b919541972a75f5b32d", gitBlobSha,
-                "V64 content changed after review; re-review and update the exact blob hash");
-        assertTrue(manifest.contains("V64__xingwei_business_ownership.sql " + gitBlobSha),
-                "review manifest must bind V64 to its exact git blob hash");
-    }
-
-    @Test
-    void reviewedV65SessionSlidingRenewalMatchesExactMigrationBlob() throws Exception {
-        Path migration = Path.of("src/main/resources/db/migration/V65__session_sliding_renewal.sql");
-        String gitBlobSha = gitBlobSha(migration);
-        String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
-
-        assertEquals("530018c0b4a099443123dcec71a05131d3cc0ac5", gitBlobSha,
-                "V65 content changed after review; re-review and update the exact blob hash");
-        assertTrue(manifest.contains("V65__session_sliding_renewal.sql " + gitBlobSha),
-                "review manifest must bind V65 to its exact git blob hash");
+        assertEquals(expectedBlobSha, gitBlobSha, filename + " content changed after review; re-review and update the exact blob hash");
+        assertTrue(manifest.contains(filename + " " + gitBlobSha), "review manifest must bind " + filename + " to its exact git blob hash");
     }
 
     private void assertHistoricalMigration(String filename, int expectedChecksum, String expectedBlobSha) throws Exception {
@@ -89,29 +49,15 @@ class ReviewedFlywayMigrationContractTest {
         CRC32 crc = new CRC32();
         try (BufferedReader reader = Files.newBufferedReader(migration, StandardCharsets.UTF_8)) {
             String line;
-            while ((line = reader.readLine()) != null) {
-                crc.update(line.getBytes(StandardCharsets.UTF_8));
-            }
+            while ((line = reader.readLine()) != null) crc.update(line.getBytes(StandardCharsets.UTF_8));
         }
-        assertEquals(expectedChecksum, (int) crc.getValue(),
-                filename + " is an already-used historical migration and must remain immutable");
-
+        assertEquals(expectedChecksum, (int) crc.getValue(), filename + " is an already-used historical migration and must remain immutable");
         String gitBlobSha = gitBlobSha(migration);
-        assertEquals(expectedBlobSha, gitBlobSha,
-                filename + " content changed after historical merge/application");
+        assertEquals(expectedBlobSha, gitBlobSha, filename + " content changed after historical merge/application");
         String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
-        assertTrue(manifest.contains(filename + " " + gitBlobSha),
-                "review manifest must bind " + filename + " to its exact historical blob");
+        assertTrue(manifest.contains(filename + " " + gitBlobSha), "review manifest must bind " + filename + " to its exact historical blob");
     }
 
-    /**
-     * 迁移文件的 git blob sha。
-     *
-     * <p>仓库在 Windows 上按 CRLF 检出（core.autocrlf），但 git 提交进去的是 LF 版本，
-     * 生产部署脚本也是在 Linux 工作区上跑 {@code git hash-object}。所以这里先按 LF 归一化再算：
-     * 同一次提交在 Windows 与 Linux 上得到同一个（也就是真正落库的）blob sha，
-     * 同时依然能挡住任何内容改动。
-     */
     private String gitBlobSha(Path migration) throws Exception {
         byte[] content = normalizeLineEndings(Files.readAllBytes(migration));
         byte[] header = ("blob " + content.length + "\0").getBytes(StandardCharsets.UTF_8);
@@ -121,13 +67,10 @@ class ReviewedFlywayMigrationContractTest {
         return HexFormat.of().formatHex(sha1.digest());
     }
 
-    /** 把 CRLF 归一化成 LF，让 blob sha 不受工作区换行符影响。 */
     private static byte[] normalizeLineEndings(byte[] content) {
         ByteArrayOutputStream out = new ByteArrayOutputStream(content.length);
         for (int i = 0; i < content.length; i++) {
-            if (content[i] == '\r' && i + 1 < content.length && content[i + 1] == '\n') {
-                continue;
-            }
+            if (content[i] == '\r' && i + 1 < content.length && content[i + 1] == '\n') continue;
             out.write(content[i]);
         }
         return out.toByteArray();

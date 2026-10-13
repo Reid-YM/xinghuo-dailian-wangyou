@@ -11,6 +11,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findByEmailNorm(String emailNorm);
 
+    Optional<Account> findByPublicUserId(String publicUserId);
+
     boolean existsByContactTypeAndContactNorm(Account.ContactType contactType, String contactNorm);
 
     boolean existsByEmailNorm(String emailNorm);

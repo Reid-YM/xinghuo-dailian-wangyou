@@ -11,6 +11,8 @@ import com.wechat.pay.java.service.payments.nativepay.model.PrepayRequest;
 import com.wechat.pay.java.service.payments.nativepay.model.QueryOrderByOutTradeNoRequest;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.Instant;
@@ -29,7 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/** Final amounts are set by staff; the browser never supplies a charge amount. */
+/** Final amounts are set by staff; the browser or mini-program never supplies a charge amount. */
 @Service
 @ConditionalOnProperty(prefix = "app.wechat-pay", name = "enabled", havingValue = "true")
 public class WeChatNativePaymentService {
@@ -51,7 +53,12 @@ public class WeChatNativePaymentService {
 
     public record Payment(String paymentNo, String businessNo, String subject,
                           BigDecimal amount, String status, Instant expiresAt,
-                          String codeUrl) {}
+                          String codeUrl, String channel) {}
+
+    public record MiniProgramPay(String paymentNo, String businessNo, String subject,
+                                 BigDecimal amount, String status, Instant expiresAt,
+                                 String timeStamp, String nonceStr, String packageVal,
+                                 String signType, String paySign) {}
 
     @Transactional
     public Payment prepare(String orderNo, BigDecimal amount, String subject) {
@@ -73,7 +80,7 @@ public class WeChatNativePaymentService {
             throw new IllegalStateException("订单尚未归属客户账号，请先完成账号关联");
         }
         List<Payment> existing = jdbc.query("""
-                SELECT payment_no,business_no,subject,amount,status,native_expires_at,native_code_url
+                SELECT payment_no,business_no,subject,amount,status,native_expires_at,native_code_url,wechat_trade_type
                   FROM payment_order WHERE business_no = ? AND provider = 'WECHAT'
                    AND status IN ('CREATED','APPROVED','CAPTURED') ORDER BY id DESC LIMIT 1
                 """, PAYMENT_MAPPER, order.businessNo());
@@ -104,7 +111,7 @@ public class WeChatNativePaymentService {
     @Transactional(readOnly = true)
     public Payment latestForOrder(String businessNo, long accountId) {
         List<Payment> rows = jdbc.query("""
-                SELECT p.payment_no,p.business_no,p.subject,p.amount,p.status,p.native_expires_at,p.native_code_url
+                SELECT p.payment_no,p.business_no,p.subject,p.amount,p.status,p.native_expires_at,p.native_code_url,p.wechat_trade_type
                   FROM payment_order p JOIN customer_orders o ON o.business_no=p.business_no
                  WHERE p.business_no = ? AND p.user_id = ? AND o.customer_account_id = ?
                    AND p.provider = 'WECHAT'
@@ -114,9 +121,20 @@ public class WeChatNativePaymentService {
     }
 
     @Transactional(readOnly = true)
+    public List<Payment> latestForAccount(long accountId) {
+        return jdbc.query("""
+                SELECT p.payment_no,p.business_no,p.subject,p.amount,p.status,p.native_expires_at,p.native_code_url,p.wechat_trade_type
+                  FROM payment_order p JOIN customer_orders o ON o.business_no=p.business_no
+                 WHERE p.user_id=? AND o.customer_account_id=? AND p.provider='WECHAT'
+                   AND p.status IN ('CREATED','APPROVED','CAPTURED')
+                 ORDER BY p.id DESC LIMIT 10
+                """, PAYMENT_MAPPER, accountId, accountId);
+    }
+
+    @Transactional(readOnly = true)
     public Payment latestForAdminOrder(String orderNo) {
         List<Payment> rows = jdbc.query("""
-                SELECT p.payment_no,p.business_no,p.subject,p.amount,p.status,p.native_expires_at,p.native_code_url
+                SELECT p.payment_no,p.business_no,p.subject,p.amount,p.status,p.native_expires_at,p.native_code_url,p.wechat_trade_type
                   FROM payment_order p JOIN customer_orders o ON o.business_no=p.business_no
                  WHERE o.order_no=? AND p.provider='WECHAT'
                  ORDER BY p.id DESC LIMIT 1
@@ -127,7 +145,7 @@ public class WeChatNativePaymentService {
     @Transactional(readOnly = true)
     public Payment getForAccount(String paymentNo, long accountId) {
         List<Payment> rows = jdbc.query("""
-                SELECT p.payment_no,p.business_no,p.subject,p.amount,p.status,p.native_expires_at,p.native_code_url
+                SELECT p.payment_no,p.business_no,p.subject,p.amount,p.status,p.native_expires_at,p.native_code_url,p.wechat_trade_type
                   FROM payment_order p JOIN customer_orders o ON o.business_no=p.business_no
                  WHERE p.payment_no = ? AND p.user_id = ? AND o.customer_account_id = ?
                    AND p.provider = 'WECHAT'
@@ -141,11 +159,16 @@ public class WeChatNativePaymentService {
         Payment payment = lockForAccount(paymentNo, accountId);
         if (payment.status().equals("CAPTURED")) return payment;
         if (payment.status().equals("CANCELLED")) throw new IllegalStateException("支付单已关闭");
+        if ("MINI_PROGRAM".equals(payment.channel())) {
+            throw new IllegalStateException("该支付单已在小程序发起，请回小程序继续支付或联系客服关闭后重建");
+        }
         if (payment.codeUrl() != null) {
             if (payment.expiresAt() != null && payment.expiresAt().isAfter(Instant.now())) return payment;
             throw new IllegalStateException("二维码已过期，请联系客服重新确认支付单");
         }
-        // External request runs under the row lock so concurrent clicks cannot issue two codes.
+        if (payment.channel() != null && !"NATIVE".equals(payment.channel())) {
+            throw new IllegalStateException("支付方式已锁定，请联系客服核对");
+        }
         Instant expiry = Instant.now().plusSeconds(QR_MINUTES * 60L);
         PrepayRequest request = new PrepayRequest();
         Amount amount = new Amount();
@@ -157,17 +180,86 @@ public class WeChatNativePaymentService {
         request.setDescription(payment.subject());
         request.setOutTradeNo(payment.paymentNo());
         request.setNotifyUrl(client.notifyUrl());
-        request.setTimeExpire(OffsetDateTime.ofInstant(expiry, ZoneOffset.ofHours(8))
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        request.setTimeExpire(expireText(expiry));
         String codeUrl = client.nativePay().prepay(request).getCodeUrl();
         if (codeUrl == null || !codeUrl.startsWith("weixin://")) {
             throw new IllegalStateException("微信支付未返回可用的扫码地址");
         }
         jdbc.update("""
-                UPDATE payment_order SET status='APPROVED',native_code_url=?,native_expires_at=?,
-                 updated_at=? WHERE payment_no=? AND status='CREATED'
+                UPDATE payment_order SET status='APPROVED',wechat_trade_type='NATIVE',
+                 native_code_url=?,native_expires_at=?,updated_at=?
+                 WHERE payment_no=? AND status='CREATED'
                 """, codeUrl, utc(expiry), utc(Instant.now()), paymentNo);
         return getForAccount(paymentNo, accountId);
+    }
+
+    @Transactional
+    public MiniProgramPay miniProgramPrepay(String paymentNo, long accountId, String openId) {
+        if (openId == null || openId.isBlank() || openId.length() > 128) {
+            throw new IllegalArgumentException("微信支付身份无效，请重新进入小程序");
+        }
+        if (client.jsapiPay() == null) {
+            throw new IllegalStateException("小程序支付尚未配置");
+        }
+        Payment payment = lockForAccount(paymentNo, accountId);
+        if (payment.status().equals("CAPTURED")) throw new IllegalStateException("该订单已支付");
+        if (payment.status().equals("CANCELLED")) throw new IllegalStateException("支付单已关闭");
+        if ("NATIVE".equals(payment.channel()) || payment.codeUrl() != null) {
+            throw new IllegalStateException("该支付单已生成网页扫码二维码，请使用原二维码或联系客服关闭后重建");
+        }
+        String payerHash = sha256(openId);
+        StoredMiniPay stored = storedMiniPay(paymentNo);
+        if ("MINI_PROGRAM".equals(payment.channel())) {
+            if (!Objects.equals(payerHash, stored.payerHash())) {
+                throw new IllegalStateException("该支付单已由另一个微信身份发起，请联系客服核对");
+            }
+            if (stored.expiresAt() == null || !stored.expiresAt().isAfter(Instant.now())) {
+                throw new IllegalStateException("小程序支付参数已过期，请联系客服重新确认支付单");
+            }
+            if (stored.complete()) return stored.toView(payment);
+            throw new IllegalStateException("小程序支付参数不完整，请联系客服关闭后重建");
+        }
+        if (!"CREATED".equals(payment.status()) || payment.channel() != null) {
+            throw new IllegalStateException("支付方式已锁定，请刷新后重试");
+        }
+
+        Instant expiry = Instant.now().plusSeconds(QR_MINUTES * 60L);
+        com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest request =
+                new com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest();
+        com.wechat.pay.java.service.payments.jsapi.model.Amount amount =
+                new com.wechat.pay.java.service.payments.jsapi.model.Amount();
+        amount.setTotal(payment.amount().movePointRight(2).intValueExact());
+        amount.setCurrency("CNY");
+        com.wechat.pay.java.service.payments.jsapi.model.Payer payer =
+                new com.wechat.pay.java.service.payments.jsapi.model.Payer();
+        payer.setOpenid(openId);
+        request.setAmount(amount);
+        request.setPayer(payer);
+        request.setAppid(client.appId());
+        request.setMchid(client.merchantId());
+        request.setDescription(payment.subject());
+        request.setOutTradeNo(payment.paymentNo());
+        request.setNotifyUrl(client.notifyUrl());
+        request.setTimeExpire(expireText(expiry));
+        com.wechat.pay.java.service.payments.jsapi.model.PrepayWithRequestPaymentResponse response =
+                client.jsapiPay().prepayWithRequestPayment(request);
+        if (response == null || blank(response.getTimeStamp()) || blank(response.getNonceStr())
+                || blank(response.getPackageVal()) || blank(response.getSignType()) || blank(response.getPaySign())) {
+            throw new IllegalStateException("微信支付未返回可用的小程序调起参数");
+        }
+        int updated = jdbc.update("""
+                UPDATE payment_order SET status='APPROVED',wechat_trade_type='MINI_PROGRAM',
+                  wechat_payer_hash=?,native_expires_at=?,native_code_url=NULL,
+                  wechat_request_timestamp=?,wechat_request_nonce=?,wechat_request_package=?,
+                  wechat_request_sign_type=?,wechat_request_pay_sign=?,updated_at=?
+                 WHERE payment_no=? AND status='CREATED' AND wechat_trade_type IS NULL
+                """, payerHash, utc(expiry), response.getTimeStamp(), response.getNonceStr(),
+                response.getPackageVal(), response.getSignType(), response.getPaySign(),
+                utc(Instant.now()), paymentNo);
+        if (updated != 1) throw new IllegalStateException("支付单已变化，请刷新后重试");
+        return new MiniProgramPay(payment.paymentNo(), payment.businessNo(), payment.subject(), payment.amount(),
+                "APPROVED", expiry, response.getTimeStamp(), response.getNonceStr(),
+                response.getPackageVal(), response.getSignType(), response.getPaySign());
     }
 
     @Transactional
@@ -175,7 +267,6 @@ public class WeChatNativePaymentService {
         if (rawBody == null || rawBody.getBytes(StandardCharsets.UTF_8).length > 65536) {
             throw new IllegalArgumentException("通知报文超出限制");
         }
-        // SDK verifies the original bytes before decryption; never trust JSON parsed before this call.
         Transaction transaction = client.parser().parse(request, Transaction.class);
         JsonNode envelope = json.readTree(rawBody);
         String eventId = envelope.path("id").asText("");
@@ -270,7 +361,6 @@ public class WeChatNativePaymentService {
                     close(row.paymentNo());
                 }
             } catch (RuntimeException error) {
-                // Keep the payment pending so the next run retries; never infer success from a timeout.
                 LOG.warn("WeChat Pay reconciliation failed for {}: {}", row.paymentNo(), error.getClass().getSimpleName());
             }
         }
@@ -319,7 +409,7 @@ public class WeChatNativePaymentService {
 
     private Payment lockForAccount(String paymentNo, long accountId) {
         List<Payment> rows = jdbc.query("""
-                SELECT p.payment_no,p.business_no,p.subject,p.amount,p.status,p.native_expires_at,p.native_code_url
+                SELECT p.payment_no,p.business_no,p.subject,p.amount,p.status,p.native_expires_at,p.native_code_url,p.wechat_trade_type
                   FROM payment_order p JOIN customer_orders o ON o.business_no=p.business_no
                  WHERE p.payment_no=? AND p.user_id=? AND o.customer_account_id=?
                    AND p.provider='WECHAT' FOR UPDATE
@@ -328,9 +418,30 @@ public class WeChatNativePaymentService {
         return rows.getFirst();
     }
 
+    private StoredMiniPay storedMiniPay(String paymentNo) {
+        List<StoredMiniPay> rows = jdbc.query("""
+                SELECT wechat_payer_hash,native_expires_at,wechat_request_timestamp,wechat_request_nonce,
+                       wechat_request_package,wechat_request_sign_type,wechat_request_pay_sign
+                  FROM payment_order WHERE payment_no=? AND provider='WECHAT'
+                """, (rs, i) -> new StoredMiniPay(rs.getString(1),
+                        asInstant(rs.getObject(2, LocalDateTime.class)), rs.getString(3), rs.getString(4),
+                        rs.getString(5), rs.getString(6), rs.getString(7)), paymentNo);
+        if (rows.isEmpty()) throw new IllegalArgumentException("支付单不存在");
+        return rows.getFirst();
+    }
+
     private static final org.springframework.jdbc.core.RowMapper<Payment> PAYMENT_MAPPER =
             (rs, i) -> new Payment(rs.getString(1), rs.getString(2), rs.getString(3),
-                    rs.getBigDecimal(4), rs.getString(5), asInstant(rs.getObject(6, LocalDateTime.class)), rs.getString(7));
+                    rs.getBigDecimal(4), rs.getString(5), asInstant(rs.getObject(6, LocalDateTime.class)),
+                    rs.getString(7), rs.getString(8));
+
+    private static boolean blank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private static String expireText(Instant expiry) {
+        return OffsetDateTime.ofInstant(expiry, ZoneOffset.ofHours(8)).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    }
 
     private static Instant asInstant(LocalDateTime value) {
         return value == null ? null : value.toInstant(ZoneOffset.UTC);
@@ -346,7 +457,26 @@ public class WeChatNativePaymentService {
         return HexFormat.of().formatHex(value).toUpperCase();
     }
 
+    private static String sha256(String value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private record OrderOwner(String businessNo, Long accountId) {}
     private record PaymentWithId(long id, BigDecimal amount, String status, String providerOrderId) {}
     private record Pending(String paymentNo, Instant expiresAt) {}
+    private record StoredMiniPay(String payerHash, Instant expiresAt, String timeStamp, String nonceStr,
+                                 String packageVal, String signType, String paySign) {
+        boolean complete() {
+            return !blank(timeStamp) && !blank(nonceStr) && !blank(packageVal) && !blank(signType) && !blank(paySign);
+        }
+        MiniProgramPay toView(Payment payment) {
+            return new MiniProgramPay(payment.paymentNo(), payment.businessNo(), payment.subject(), payment.amount(),
+                    payment.status(), expiresAt, timeStamp, nonceStr, packageVal, signType, paySign);
+        }
+    }
 }

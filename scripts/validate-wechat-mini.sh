@@ -30,15 +30,9 @@ node - "$root" <<'NODE'
 const fs = require('fs');
 const path = require('path');
 const root = process.argv[2];
-const jsonFiles = [
-  'app.json',
-  'project.config.json',
-  'sitemap.json',
-  'pages/account/index.json'
-];
+const jsonFiles = ['app.json','project.config.json','sitemap.json','pages/account/index.json'];
 for (const relative of jsonFiles) {
-  const file = path.join(root, relative);
-  JSON.parse(fs.readFileSync(file, 'utf8'));
+  JSON.parse(fs.readFileSync(path.join(root, relative), 'utf8'));
   console.log(`JSON OK: ${relative}`);
 }
 const project = JSON.parse(fs.readFileSync(path.join(root, 'project.config.json'), 'utf8'));
@@ -51,29 +45,18 @@ if (!app.includes("apiBase: 'https://wydlgf.cn'")) {
 }
 NODE
 
-# Client-side source must never contain server credentials or cloud-development calls.
 if grep -RInE --exclude='README.md' --exclude='.gitignore' \
   'WECHAT_MINI_APP_SECRET|appSecret|app_secret|AppSecret|wx\.cloud|cloudfunctionsRoot' "$root"; then
   echo "::error::Forbidden server secret/cloud-development reference found in WeChat mini-program client source."
   exit 1
 fi
 
-# The scan-login contract should remain explicit and tied to the existing website API.
-grep -Fq "xingwei-login:" "$root/pages/account/index.js" || {
-  echo "::error::Missing xingwei-login QR payload parser."
-  exit 1
-}
-grep -Fq "/api/account/wechat-mini/confirm" "$root/pages/account/index.js" || {
-  echo "::error::Missing mini-program confirmation endpoint."
-  exit 1
-}
-grep -Fq "wx.scanCode" "$root/pages/account/index.js" || {
-  echo "::error::Missing wx.scanCode login flow."
-  exit 1
-}
-grep -Fq "wx.login" "$root/pages/account/index.js" || {
-  echo "::error::Missing wx.login identity exchange flow."
-  exit 1
-}
+grep -Fq "xingwei-login:" "$root/pages/account/index.js" || { echo "::error::Missing xingwei-login QR payload parser."; exit 1; }
+grep -Fq "/api/account/wechat-mini/confirm" "$root/pages/account/index.js" || { echo "::error::Missing mini-program confirmation endpoint."; exit 1; }
+grep -Fq "wx.scanCode" "$root/pages/account/index.js" || { echo "::error::Missing wx.scanCode login flow."; exit 1; }
+grep -Fq "wx.login" "$root/pages/account/index.js" || { echo "::error::Missing wx.login identity exchange flow."; exit 1; }
+grep -Fq "wx.requestPayment" "$root/pages/account/index.js" || { echo "::error::Missing wx.requestPayment payment flow."; exit 1; }
+grep -Fq "/api/account/wechat-mini/payments" "$root/pages/account/index.js" || { echo "::error::Missing mini-program payment list endpoint."; exit 1; }
+grep -Fq "/prepay" "$root/pages/account/index.js" || { echo "::error::Missing mini-program payment prepay endpoint."; exit 1; }
 
 echo "PASS: WeChat mini-program source validation succeeded."

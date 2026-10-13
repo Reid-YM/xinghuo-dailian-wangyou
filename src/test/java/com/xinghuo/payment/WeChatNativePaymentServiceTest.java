@@ -13,6 +13,8 @@ import org.mockito.ArgumentCaptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wechat.pay.java.core.notification.NotificationParser;
 import com.wechat.pay.java.core.notification.RequestParam;
+import com.wechat.pay.java.service.payments.jsapi.JsapiServiceExtension;
+import com.wechat.pay.java.service.payments.jsapi.model.PrepayWithRequestPaymentResponse;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.payments.model.TransactionAmount;
 import com.wechat.pay.java.service.payments.nativepay.NativePayService;
@@ -31,6 +33,7 @@ class WeChatNativePaymentServiceTest {
     private JdbcTemplate jdbc;
     private NotificationParser parser;
     private NativePayService nativePay;
+    private JsapiServiceExtension jsapiPay;
     private WeChatNativePaymentService service;
 
     @BeforeEach
@@ -46,6 +49,10 @@ class WeChatNativePaymentServiceTest {
                   site_currency VARCHAR(8),status VARCHAR(20),provider VARCHAR(16),
                   idempotency_key VARCHAR(64),created_at TIMESTAMP,
                   native_code_url VARCHAR(512),native_expires_at TIMESTAMP,
+                  wechat_trade_type VARCHAR(20),wechat_payer_hash CHAR(64),
+                  wechat_request_timestamp VARCHAR(20),wechat_request_nonce VARCHAR(64),
+                  wechat_request_package VARCHAR(128),wechat_request_sign_type VARCHAR(16),
+                  wechat_request_pay_sign VARCHAR(512),
                   provider_order_id VARCHAR(64),provider_capture_id VARCHAR(64),
                   paid_at TIMESTAMP,updated_at TIMESTAMP)
                 """);
@@ -74,9 +81,10 @@ class WeChatNativePaymentServiceTest {
                 """, "XHPTEST01", 7, "B1", "测试服务", new BigDecimal("12.34"), "APPROVED", "WECHAT");
         parser = mock(NotificationParser.class);
         nativePay = mock(NativePayService.class);
+        jsapiPay = mock(JsapiServiceExtension.class);
         service = new WeChatNativePaymentService(jdbc,
                 new WeChatPayConfig.WeChatPayClient("1118501429", "wxcc2af059160a52da", "https://example.test/api/wechat-pay/notify",
-                        nativePay, parser),
+                        nativePay, jsapiPay, parser),
                 new ObjectMapper(), new TransactionTemplate(new DataSourceTransactionManager(dataSource)));
     }
 
@@ -95,6 +103,36 @@ class WeChatNativePaymentServiceTest {
         assertEquals(2980, request.getValue().getAmount().getTotal());
         assertEquals(payment.paymentNo(), request.getValue().getOutTradeNo());
         assertEquals("APPROVED", service.getForAccount(payment.paymentNo(), 7).status());
+        assertEquals("NATIVE", service.getForAccount(payment.paymentNo(), 7).channel());
+        assertThrows(IllegalStateException.class,
+                () -> service.miniProgramPrepay(payment.paymentNo(), 7, "openid-test"));
+    }
+
+    @Test
+    void miniProgramPrepayUsesLinkedOpenIdAndIsIdempotentForSameIdentity() {
+        WeChatNativePaymentService.Payment payment = service.prepare("O2", new BigDecimal("29.80"), "代练服务");
+        PrepayWithRequestPaymentResponse response = new PrepayWithRequestPaymentResponse();
+        response.setTimeStamp("1791916000");
+        response.setNonceStr("nonce-mini");
+        response.setPackageVal("prepay_id=wx-test");
+        response.setSignType("RSA");
+        response.setPaySign("pay-sign-test");
+        when(jsapiPay.prepayWithRequestPayment(any(com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest.class)))
+                .thenReturn(response);
+
+        service.miniProgramPrepay(payment.paymentNo(), 7, "openid-mini-1");
+        service.miniProgramPrepay(payment.paymentNo(), 7, "openid-mini-1");
+
+        ArgumentCaptor<com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest> request =
+                ArgumentCaptor.forClass(com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest.class);
+        verify(jsapiPay, times(1)).prepayWithRequestPayment(request.capture());
+        assertEquals(2980, request.getValue().getAmount().getTotal());
+        assertEquals("openid-mini-1", request.getValue().getPayer().getOpenid());
+        assertEquals(payment.paymentNo(), request.getValue().getOutTradeNo());
+        assertEquals("MINI_PROGRAM", service.getForAccount(payment.paymentNo(), 7).channel());
+        assertThrows(IllegalStateException.class, () -> service.nativeQr(payment.paymentNo(), 7));
+        assertThrows(IllegalStateException.class,
+                () -> service.miniProgramPrepay(payment.paymentNo(), 7, "openid-mini-2"));
     }
 
     @Test

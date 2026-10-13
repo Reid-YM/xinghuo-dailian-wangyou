@@ -89,7 +89,7 @@
   function renderPayment(host,p){
     host.textContent='';
     if(!p)return;
-    host.appendChild(el('h3','','微信扫码支付'));
+    host.appendChild(el('h3','','微信支付'));
     host.appendChild(el('p','',`${p.subject} · ¥${p.amount}`));
     if(p.status==='CAPTURED'){
       host.appendChild(el('strong','','已支付成功'));
@@ -99,7 +99,11 @@
       host.appendChild(el('p','','支付单已关闭，请联系客服确认新的报价。'));
       return;
     }
-    if(p.status==='APPROVED'&&p.expiresAt&&new Date(p.expiresAt)>new Date()){
+    if(p.status==='APPROVED'&&p.channel==='MINI_PROGRAM'){
+      host.appendChild(el('p','','该支付单已在“星维网络”小程序发起。请回到小程序继续支付；最终到账状态会由服务器自动核验。'));
+      return;
+    }
+    if(p.status==='APPROVED'&&p.channel==='NATIVE'&&p.expiresAt&&new Date(p.expiresAt)>new Date()){
       const img=el('img','account-payment-qr');
       img.src=`/api/account/payments/${encodeURIComponent(p.paymentNo)}/qr.png`;
       img.alt='微信支付二维码';
@@ -107,11 +111,15 @@
       host.append(img,el('p','','请用微信扫描二维码付款。手机访问时可在另一台设备上打开此页扫码。'));
       return;
     }
-    if(p.status==='APPROVED'){
+    if(p.status==='APPROVED'&&p.channel==='NATIVE'){
       host.appendChild(el('p','','二维码已过期，请联系客服重新确认支付单。'));
       return;
     }
-    const button=el('button','btn primary small-btn','生成支付二维码');
+    if(p.status==='APPROVED'){
+      host.appendChild(el('p','','支付方式正在确认，请刷新后重试或联系客服。'));
+      return;
+    }
+    const button=el('button','btn primary small-btn','生成网页支付二维码');
     button.type='button';button.dataset.startWechatPayment=p.paymentNo;
     host.appendChild(button);
   }
@@ -146,4 +154,3 @@
 
   (async()=>{try{await loadIdentity();if(PAGE==='account-center-overview')await initOverview();if(PAGE==='account-center-requests')await initRequests();if(PAGE==='account-center-orders')await initOrders();if(PAGE==='account-center-progress')await initProgress();}catch(err){const host=$('[data-hub-message]');if(host){host.hidden=false;host.textContent=err.message||'加载失败，请刷新重试。';}else console.error(err);}})();
 })();
-

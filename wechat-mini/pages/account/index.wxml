@@ -1,8 +1,8 @@
 <view class="page">
   <view class="hero">
     <text class="eyebrow">星维网络</text>
-    <text class="title">网站扫码登录</text>
-    <text class="sub">在电脑打开 wydlgf.cn 登录页，生成二维码后使用本页扫描。小程序只确认微信身份，不会读取网站密码或游戏账号密码。</text>
+    <text class="title">账号与微信支付</text>
+    <text class="sub">连接 wydlgf.cn 网站账号，扫码确认登录；已关联账号还可查看客服确认的待付款订单并在小程序内发起微信支付。</text>
   </view>
 
   <view class="card">
@@ -26,11 +26,32 @@
   </view>
 
   <view class="card" wx:if="{{linked}}">
+    <view class="section-head-row">
+      <text class="section-title section-title-inline">微信支付</text>
+      <button class="mini-link" bindtap="refreshPayments" loading="{{paymentLoading}}" disabled="{{paymentLoading || paymentBusyNo != ''}}">刷新支付状态</button>
+    </view>
+    <text class="profile-meta">付款金额和服务名称只来自客服在网站后台确认的支付单，小程序不会让你手填金额。最终支付成功只以服务器核验结果为准。</text>
+    <block wx:if="{{payments.length}}">
+      <view class="payment-item" wx:for="{{payments}}" wx:key="paymentNo">
+        <view class="payment-line">
+          <text class="payment-subject">{{item.subject}}</text>
+          <text class="payment-amount">¥{{item.amountText}}</text>
+        </view>
+        <text class="payment-meta">业务号：{{item.businessNo}}</text>
+        <text class="payment-meta">{{item.hint}}</text>
+        <button wx:if="{{item.canPay}}" class="primary payment-button" data-payment-no="{{item.paymentNo}}" bindtap="payPayment" loading="{{paymentBusyNo == item.paymentNo}}" disabled="{{paymentBusyNo != ''}}">微信支付</button>
+        <text wx:if="{{item.paid}}" class="paid-badge">已支付</text>
+      </view>
+    </block>
+    <text class="profile-meta" wx:else>暂无可显示的微信支付单。客服确认最终报价后，这里会自动出现。</text>
+  </view>
+
+  <view class="card" wx:if="{{linked}}">
     <text class="section-title">账号资料</text>
     <input class="input" maxlength="60" value="{{nickName}}" bindinput="onNickInput" placeholder="设置网站显示昵称" />
     <button class="secondary" bindtap="syncNickName" loading="{{profileBusy}}" disabled="{{profileBusy}}">同步昵称到网站</button>
     <button class="ghost" open-type="getPhoneNumber" bindgetphonenumber="syncPhone" loading="{{phoneBusy}}" disabled="{{phoneBusy}}">授权手机号用于业务联系</button>
   </view>
 
-  <text class="foot">扫码只是提交一次性微信身份确认。网页仍需核对识别码并再次点击确认，二维码截图本身不能直接登录账号。</text>
+  <text class="foot">网站扫码登录仍需原浏览器二次确认。微信支付即使客户端显示完成，也必须由服务器收到微信验签通知或主动查单确认后才会标记为已支付。</text>
 </view>

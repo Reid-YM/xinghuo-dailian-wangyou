@@ -2,6 +2,7 @@ package com.xinghuo.payment;
 
 import com.wechat.pay.java.core.RSAPublicKeyConfig;
 import com.wechat.pay.java.core.notification.NotificationParser;
+import com.wechat.pay.java.service.payments.jsapi.JsapiServiceExtension;
 import com.wechat.pay.java.service.payments.nativepay.NativePayService;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,6 +52,7 @@ public class WeChatPayConfig {
                 .build();
         return new WeChatPayClient(merchantId, appId, notifyUrl,
                 new NativePayService.Builder().config(config).build(),
+                new JsapiServiceExtension.Builder().config(config).build(),
                 new NotificationParser(config));
     }
 
@@ -69,5 +71,12 @@ public class WeChatPayConfig {
     }
 
     public record WeChatPayClient(String merchantId, String appId, String notifyUrl,
-                                  NativePayService nativePay, NotificationParser parser) {}
+                                  NativePayService nativePay, JsapiServiceExtension jsapiPay,
+                                  NotificationParser parser) {
+        /** Backward-compatible constructor for isolated tests that only exercise Native payment. */
+        public WeChatPayClient(String merchantId, String appId, String notifyUrl,
+                               NativePayService nativePay, NotificationParser parser) {
+            this(merchantId, appId, notifyUrl, nativePay, null, parser);
+        }
+    }
 }

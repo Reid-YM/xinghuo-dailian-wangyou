@@ -38,6 +38,29 @@ function api(path, data) {
   });
 }
 
+function requestPayment(params) {
+  return new Promise((resolve, reject) => {
+    wx.requestPayment({
+      timeStamp: String(params.timeStamp || ''),
+      nonceStr: String(params.nonceStr || ''),
+      package: String(params.packageVal || ''),
+      signType: String(params.signType || 'RSA'),
+      paySign: String(params.paySign || ''),
+      success: resolve,
+      fail(error) {
+        const message = String((error && error.errMsg) || '');
+        if (/cancel/i.test(message)) {
+          const cancelled = new Error('你已取消本次支付');
+          cancelled.cancelled = true;
+          reject(cancelled);
+          return;
+        }
+        reject(new Error('微信支付未完成，请稍后重试或联系客服'));
+      }
+    });
+  });
+}
+
 function extractPairCode(raw) {
   let text = String(raw || '').trim();
   try { text = decodeURIComponent(text); } catch (_) { /* keep raw */ }
@@ -47,12 +70,37 @@ function extractPairCode(raw) {
   return plain ? plain[1] : '';
 }
 
+function paymentView(payment) {
+  const status = String(payment.status || '');
+  const channel = String(payment.channel || '');
+  const expires = payment.expiresAt ? new Date(payment.expiresAt) : null;
+  const valid = Boolean(expires && !Number.isNaN(expires.getTime()) && expires.getTime() > Date.now());
+  let hint = '等待客服确认支付方式';
+  let canPay = false;
+  if (status === 'CAPTURED') hint = '服务端已确认收款';
+  else if (status === 'CREATED') { hint = '待付款，可直接在小程序发起微信支付'; canPay = true; }
+  else if (status === 'APPROVED' && channel === 'NATIVE') hint = '已生成网页扫码支付单，请使用原二维码付款；需要改用小程序请联系客服关闭后重建';
+  else if (status === 'APPROVED' && channel === 'MINI_PROGRAM' && valid) { hint = '小程序支付参数仍有效，可继续完成支付'; canPay = true; }
+  else if (status === 'APPROVED' && channel === 'MINI_PROGRAM') hint = '小程序支付参数已过期，请联系客服重新确认支付单';
+  else if (status === 'CANCELLED') hint = '支付单已关闭';
+  return {
+    ...payment,
+    amountText: Number(payment.amount || 0).toFixed(2),
+    hint,
+    canPay,
+    paid: status === 'CAPTURED'
+  };
+}
+
 Page({
   data: {
     pairCode: '',
     busy: false,
     profileBusy: false,
     phoneBusy: false,
+    paymentLoading: false,
+    paymentBusyNo: '',
+    payments: [],
     linked: false,
     displayName: '',
     userId: '',
@@ -64,10 +112,14 @@ Page({
 
   onLoad(options) {
     const incoming = extractPairCode((options && (options.code || options.scene)) || '');
-    if (incoming) {
-      this.setData({ pairCode: incoming }, () => this.confirmCode());
-    }
+    if (incoming) this.setData({ pairCode: incoming }, () => this.confirmCode());
     this.refreshProfile();
+  },
+
+  onShow() {
+    if (this.data.linked && !this.data.profileBusy && !this.data.paymentLoading) {
+      this.refreshProfile();
+    }
   },
 
   onCodeInput(event) {
@@ -111,6 +163,7 @@ Page({
       const code = await loginCode();
       const profile = await api('/api/account/wechat-mini/confirm', { code: pairCode, loginCode: code });
       this.applyProfile(profile);
+      if (profile && profile.linked) await this.refreshPayments();
       this.setStatus('小程序已确认。请回到网页核对微信识别码尾号，再点击“确认登录此网站”。', 'ok');
       wx.showToast({ title: '已确认', icon: 'success' });
     } catch (error) {
@@ -127,10 +180,55 @@ Page({
       const code = await loginCode();
       const profile = await api('/api/account/wechat-mini/profile', { loginCode: code });
       this.applyProfile(profile);
+      if (profile && profile.linked) await this.refreshPayments();
+      else this.setData({ payments: [] });
     } catch (_) {
       // 未关联或临时网络失败不影响扫码主流程。
     } finally {
       this.setData({ profileBusy: false });
+    }
+  },
+
+  async refreshPayments() {
+    if (!this.data.linked || this.data.paymentLoading) return this.data.payments;
+    this.setData({ paymentLoading: true });
+    try {
+      const code = await loginCode();
+      const result = await api('/api/account/wechat-mini/payments', { loginCode: code });
+      const payments = (Array.isArray(result) ? result : []).map(paymentView);
+      this.setData({ payments });
+      return payments;
+    } catch (error) {
+      // 支付开关尚未启用时不影响账号功能；真实支付错误在用户主动支付时再展示。
+      return this.data.payments;
+    } finally {
+      this.setData({ paymentLoading: false });
+    }
+  },
+
+  async payPayment(event) {
+    const paymentNo = String(event.currentTarget.dataset.paymentNo || '');
+    if (!paymentNo || this.data.paymentBusyNo) return;
+    this.setData({ paymentBusyNo: paymentNo });
+    this.setStatus('正在向服务器申请微信支付参数…', '');
+    try {
+      const code = await loginCode();
+      const params = await api(`/api/account/wechat-mini/payments/${encodeURIComponent(paymentNo)}/prepay`, { loginCode: code });
+      await requestPayment(params);
+      this.setStatus('微信支付界面已返回，正在向服务器核验最终收款状态…', '');
+      const payments = await this.refreshPayments();
+      const latest = (payments || []).find(item => item.paymentNo === paymentNo);
+      if (latest && latest.paid) {
+        this.setStatus('服务端已确认支付成功。', 'ok');
+        wx.showToast({ title: '支付已确认', icon: 'success' });
+      } else {
+        this.setStatus('微信已返回支付流程，服务端仍在核验。可稍后点击“刷新支付状态”。', '');
+        wx.showToast({ title: '结果确认中', icon: 'none' });
+      }
+    } catch (error) {
+      this.setStatus(error.message || '支付未完成，请稍后重试。', error.cancelled ? '' : 'error');
+    } finally {
+      this.setData({ paymentBusyNo: '' });
     }
   },
 

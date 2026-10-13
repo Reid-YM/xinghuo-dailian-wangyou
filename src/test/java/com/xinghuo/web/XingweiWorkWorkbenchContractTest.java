@@ -29,7 +29,9 @@ class XingweiWorkWorkbenchContractTest {
         assertTrue(service.contains("orders.update(orderNo, update, operator(authentication), request)"));
         assertTrue(service.contains("businessScope.assignOrder("));
         assertTrue(service.contains("lockOrder(normalized)"));
-        assertTrue(service.contains("FOR UPDATE"), "claim must serialize concurrent pickup attempts on the order row");
+        assertTrue(service.contains("ownershipForUpdate(normalized)"));
+        assertTrue(service.contains("private Ownership ownershipForUpdate"));
+        assertTrue(service.contains("FOR UPDATE"), "claim must serialize both the order row and current ownership read");
     }
 
     @Test

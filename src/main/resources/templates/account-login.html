@@ -6,8 +6,9 @@
   <meta name="description" content="登录星火网游代练平台账号，集中查看询价记录、业务进度与交付状态。网页不收游戏账号密码、验证码或令牌。">
   <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="https://wydlgf.cn/account/login"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261004ac11">
-  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/account.js?v=20261004ac17"></script>
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261006ac16"><link rel="stylesheet" href="/assets/wechat-mini-login.css?v=20261012wm01">
+  <script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer src="/assets/public.js?v=20261008audit01"></script><script defer src="/assets/account-core.js?v=20261012ac01"></script><script defer src="/assets/account-auth.js?v=20261012aa02"></script><script defer src="/assets/wechat-login.js?v=20261012wx02"></script><script defer src="/assets/wechat-mini-login.js?v=20261012wm01"></script>
+<link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008a1"/>
 </head>
 <body data-page="account-login">
 <header th:replace="~{fragments/site :: header}"></header>
@@ -31,8 +32,21 @@
     <div class="auth-card-head">
       <span class="eyebrow">登录</span>
       <h2 id="loginTitle">继续查看你的业务</h2>
-      <p class="muted">使用邮箱和密码登录。邮箱不公开展示。</p>
+      <p class="muted">使用星火小程序确认登录，或使用邮箱和密码登录。</p>
     </div>
+
+    <div class="mini-login" data-mini-login>
+      <button class="btn primary btn-wide" type="button" data-mini-start>使用微信小程序登录</button>
+      <p class="account-inline-note">在星火小程序「我的」中输入网页显示的登录码确认。登录码 5 分钟有效，只能使用一次。</p>
+      <div class="mini-login-challenge" data-mini-challenge hidden>
+        <span>网站登录码</span><strong data-mini-code aria-live="polite">--------</strong>
+        <p data-mini-state role="status">等待小程序确认…</p>
+        <button type="button" class="btn primary" data-mini-complete hidden>确认登录此网站</button>
+        <button type="button" class="btn ghost" data-mini-refresh>换一个登录码</button>
+      </div>
+      <p class="account-inline-note" data-mini-unavailable hidden>小程序登录暂未开通，请先使用邮箱登录。</p>
+    </div>
+    <a class="btn ghost btn-wide" href="/api/account/wechat/start" data-wechat-login hidden>微信开放平台扫码登录</a>
 
     <form id="accountLoginForm" class="account-form" novalidate>
       <input type="hidden" name="redirect" value="">
@@ -87,3 +101,4 @@
 <footer th:replace="~{fragments/site :: footer}"></footer>
 </body>
 </html>
+

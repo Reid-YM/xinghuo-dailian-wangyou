@@ -62,7 +62,7 @@ public class PageController {
 
     @GetMapping(value={"/mastery"})
     String mastery() {
-        return "mastery";
+        return "mw4-camo-tracker";
     }
 
     @GetMapping(value={"/service/{slug}"})

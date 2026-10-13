@@ -1,0 +1,69 @@
+name: Test Production SSH
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-ssh-test
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Verify restricted production SSH bridge
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Configure production SSH
+        shell: bash
+        env:
+          PROD_SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
+          PROD_SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          PROD_SSH_KNOWN_HOSTS: ${{ secrets.PROD_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          [ -n "$PROD_SSH_HOST" ] || { echo "Missing PROD_SSH_HOST"; exit 1; }
+          [ -n "$PROD_SSH_PRIVATE_KEY" ] || { echo "Missing PROD_SSH_PRIVATE_KEY"; exit 1; }
+          [ -n "$PROD_SSH_KNOWN_HOSTS" ] || { echo "Missing PROD_SSH_KNOWN_HOSTS"; exit 1; }
+
+          install -d -m 0700 "$HOME/.ssh"
+          printf '%s\n' "$PROD_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$PROD_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 0600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+
+      - name: Verify forced-command restriction without deploying
+        shell: bash
+        env:
+          PROD_SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
+        run: |
+          set -euo pipefail
+          set +e
+          output=$(ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=15 \
+            "ubuntu@${PROD_SSH_HOST}" \
+            'echo hello' 2>&1)
+          rc=$?
+          set -e
+
+          printf '%s\n' "$output"
+
+          [ "$rc" -ne 0 ] || {
+            echo "ERROR: restricted key unexpectedly allowed a normal remote command"
+            exit 1
+          }
+
+          expected="DEPLOY_GATEWAY_REJECTED: only 'deploy <40-char-sha>' is allowed"
+          printf '%s\n' "$output" | grep -Fq "$expected" || {
+            echo "ERROR: SSH reached an unexpected failure mode"
+            exit 1
+          }
+
+          echo "PASS: GitHub Secrets work, host verification succeeded, and the deploy key cannot open a normal shell."
+          echo "No deployment command was sent."

@@ -8,9 +8,9 @@ import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.CustomerOrder;
 import com.xinghuo.model.GameStatus;
 import com.xinghuo.model.UploadAsset;
+import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountSessionService;
-import com.xinghuo.account.service.RateLimiter;
-import com.xinghuo.account.service.RequestUtils;
+import com.xinghuo.account.service.QuoteContactService;
 import com.xinghuo.service.GameStatusService;
 import com.xinghuo.service.OrderService;
 import com.xinghuo.service.QuoteService;
@@ -31,12 +31,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-import lombok.Generated;
 import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,7 +51,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping(value={"/api"})
 public class PublicApiController {
-    private static final int REQUEST_BUCKET_PER_MINUTE = 60;
     private final SiteConfigService config;
     private final ServiceCatalogService services;
     private final QuoteService quotes;
@@ -65,7 +63,7 @@ public class PublicApiController {
     private final ToolStationService toolStation;
     private final GameStatusService gameStatuses;
     private final SiteSettingService siteSettings;
-    private final RateLimiter rateLimiter;
+    private final QuoteContactService quoteContacts;
 
     @GetMapping(value={"/site-config"})
     ApiDtos.SiteConfigResponse config() {
@@ -141,7 +139,10 @@ public class PublicApiController {
     @GetMapping(value={"/site-assets/{assetId}"})
     ResponseEntity<Resource> siteAsset(@PathVariable UUID assetId) {
         Resource r = this.uploads.loadPublicSiteAsset(assetId);
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.maxAge((Duration)Duration.ofDays(7L)).cachePublic())).body(r);
+        return ResponseEntity.ok()
+                .contentType(this.uploads.mediaType(assetId))
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(7L)).cachePublic())
+                .body(r);
     }
 
     @PostMapping(value={"/uploads/quote"})
@@ -154,66 +155,85 @@ public class PublicApiController {
         if (!this.config.isQuoteEnabled()) {
             throw new BadRequestException("\u5f53\u524d\u5df2\u5173\u95ed\u7f51\u9875\u8be2\u4ef7\uff0c\u8bf7\u901a\u8fc7\u5ba2\u670d\u6e20\u9053\u8054\u7cfb");
         }
-        Long accountId = this.accountSessions.current(req).map(x -> x.getId()).orElse(null);
-        ApiDtos.QuoteResponse out = this.quotes.create(body, key, HashUtil.sha256(RequestUtil.clientIp(req)), accountId);
-        return ResponseEntity.status((HttpStatusCode)HttpStatus.CREATED).body(out);
+        Optional<Account> current = this.accountSessions.current(req);
+        Long accountId = current.map(Account::getId).orElse(null);
+        // 已登录且账号里有可用联系方式时，用它补齐表单没填的部分，避免让用户重复填写；
+        // 表单里自己填了就以表单为准，用户可以临时换成别的联系方式。
+        PublicQuoteRequest payload = body;
+        if (current.isPresent() && this.isBlankContact(body)) {
+            Optional<QuoteContactService.StoredContact> preferred = this.quoteContacts.preferred(current.get());
+            if (preferred.isPresent()) {
+                QuoteContactService.StoredContact contact = preferred.get();
+                payload = body.withCustomerContact(contact.value(), quoteContactMethod(contact.type()));
+            }
+        }
+        ApiDtos.QuoteResponse out = this.quotes.create(payload, key, HashUtil.sha256(RequestUtil.clientIp(req)), accountId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(out);
+    }
+
+    private boolean isBlankContact(PublicQuoteRequest body) {
+        return body.customerContact() == null || body.customerContact().isBlank();
+    }
+
+    /** 询价表单的「联系方式」取值是中文：微信 / QQ / 手机。 */
+    private static String quoteContactMethod(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+        return switch (typeName.toUpperCase(Locale.ROOT)) {
+            case "PHONE" -> "\u624b\u673a";
+            case "WECHAT" -> "\u5fae\u4fe1";
+            case "QQ" -> "QQ";
+            default -> null;
+        };
     }
 
     @GetMapping(value={"/records/{businessNo}"})
-    ApiDtos.RecordPublicResponse record(@PathVariable String businessNo, HttpServletRequest req) {
+    ApiDtos.RecordPublicResponse record(@PathVariable String businessNo) {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
-        this.limitByIp(req, "pub:record");
         return this.records.get(businessNo);
     }
 
     @GetMapping(value={"/records/{businessNo}/image"})
-    ResponseEntity<Resource> recordImage(@PathVariable String businessNo, HttpServletRequest req) {
+    ResponseEntity<Resource> recordImage(@PathVariable String businessNo) {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
-        this.limitByIp(req, "pub:recordimg");
         CustomerOrder o = this.orders.findByPublicNo(businessNo);
         if (o.getProgressImageAssetId() == null) {
             throw new NotFoundException();
         }
         Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.noStore())).body(r);
+        return ResponseEntity.ok()
+                .contentType(this.uploads.mediaType(o.getProgressImageAssetId()))
+                .cacheControl(CacheControl.noStore())
+                .body(r);
     }
 
     @GetMapping(value={"/orders/{orderNo}"})
-    ApiDtos.OrderPublicResponse order(@PathVariable String orderNo, HttpServletRequest req) {
+    ApiDtos.OrderPublicResponse order(@PathVariable String orderNo) {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
-        this.limitByIp(req, "pub:order");
         return this.orders.getPublic(orderNo);
     }
 
     @GetMapping(value={"/orders/{orderNo}/image"})
-    ResponseEntity<Resource> orderImage(@PathVariable String orderNo, HttpServletRequest req) {
+    ResponseEntity<Resource> orderImage(@PathVariable String orderNo) {
         if (!this.config.isOrderQueryEnabled()) {
             throw new BadRequestException("\u8fdb\u5ea6\u67e5\u8be2\u6b63\u5728\u7ef4\u62a4\uff0c\u8bf7\u8054\u7cfb\u5ba2\u670d\u67e5\u8be2");
         }
-        this.limitByIp(req, "pub:orderimg");
         CustomerOrder o = this.orders.findByPublicNo(orderNo);
         if (o.getProgressImageAssetId() == null) {
             throw new NotFoundException();
         }
         Resource r = this.uploads.load(o.getProgressImageAssetId(), "ORDER", o.getOrderNo());
-        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.noStore())).body(r);
-    }
-
-    /**
-     * 修复 C-1：公开进度/订单/图片端点加 IP 限流，避免把「按业务编号查进度」的
-     * 信任能力变成无节流枚举口。按键取 {@code X-Real-IP}/XFF 末段（可信来源），
-     * 超限抛 429（由 ApiExceptionHandler 统一兜底成 RATE_LIMITED）。
-     */
-    private void limitByIp(HttpServletRequest req, String bucket) {
-        String ip = RequestUtils.clientIp(req);
-        this.rateLimiter.check(bucket + ":" + (ip == null ? "unknown" : ip),
-                REQUEST_BUCKET_PER_MINUTE, Duration.ofMinutes(1L));
+        return ResponseEntity.ok()
+                .contentType(this.uploads.mediaType(o.getProgressImageAssetId()))
+                .cacheControl(CacheControl.noStore())
+                .body(r);
     }
 
     @PostMapping(value={"/track"})
@@ -222,8 +242,7 @@ public class PublicApiController {
         return ResponseEntity.noContent().build();
     }
 
-    @Generated
-    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, RateLimiter rateLimiter) {
+    public PublicApiController(SiteConfigService config, ServiceCatalogService services, QuoteService quotes, OrderService orders, RecordService records, UploadService uploads, TrackingService tracking, TaxonomyService taxonomy, AccountSessionService accountSessions, ToolStationService toolStation, GameStatusService gameStatuses, SiteSettingService siteSettings, QuoteContactService quoteContacts) {
         this.config = config;
         this.services = services;
         this.quotes = quotes;
@@ -236,6 +255,6 @@ public class PublicApiController {
         this.toolStation = toolStation;
         this.gameStatuses = gameStatuses;
         this.siteSettings = siteSettings;
-        this.rateLimiter = rateLimiter;
+        this.quoteContacts = quoteContacts;
     }
 }

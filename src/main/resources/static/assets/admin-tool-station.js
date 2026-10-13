@@ -17,6 +17,10 @@
     const response = await fetch(url, { ...opt, headers });
     let payload = null;
     try { payload = await response.json(); } catch {}
+    if (response.status === 401 || response.status === 403) {
+      location.href = '/admin/login';
+      throw new Error('登录已失效，请重新登录');
+    }
     if (!response.ok) throw new Error(payload?.message || '请求失败');
     return payload;
   }
@@ -86,6 +90,20 @@
     $('#toolStationOnlineCamos').innerHTML = rows.length ? rows.map(row => `<div class="tool-online-admin-item" data-online-mode="${esc(row.mode)}" data-online-index="${row.index}"><div class="tool-admin-block-head"><div><b>${esc(row.title)} · ${esc(row.item.name || '')}</b><small>${esc(row.mode)}</small></div></div><div class="grid2"><div class="field"><label>迷彩名称</label><input data-online-field="name" value="${esc(row.item.name || '')}"/></div><div class="field"><label>图片 URL</label><input data-online-field="image" value="${esc(row.item.image || '')}"/></div></div><div class="field"><label>挑战条件</label><textarea data-online-field="challenge" maxlength="400">${esc(row.item.challenge || '')}</textarea></div><div class="row-actions"><input type="file" accept="image/*" data-online-file/><button class="btn small-btn" type="button" data-upload-online>上传迷彩图片</button></div></div>`).join('') : '<div class="empty">当前武器没有在线迷彩图片资料。</div>';
   }
 
+  function renderMissingWeaponState(message) {
+    weapon = null;
+    renderWeaponList();
+    const title = $('#toolStationWeaponTitle');
+    if (title) title.textContent = '暂无可编辑武器';
+    const text = `<div class="empty">${esc(message || '当前游戏没有武器资料。')}</div>`;
+    const modes = $('#toolStationModeImages');
+    const camos = $('#toolStationCamos');
+    const online = $('#toolStationOnlineCamos');
+    if (modes) modes.innerHTML = text;
+    if (camos) camos.innerHTML = text;
+    if (online) online.innerHTML = text;
+  }
+
   function selectWeapon(code) {
     weapon = (game?.weapons || []).find(item => item.code === code) || null;
     renderWeaponList();
@@ -146,8 +164,16 @@
   async function load() {
     config = await api('/api/admin/tool-station');
     game = config.games?.find(item => item.code === 'CODMW4') || config.games?.[0];
-    if (!game) throw new Error('没有可编辑的游戏版本');
-    selectWeapon((game.weapons || [])[0]?.code);
+    if (!game) {
+      renderMissingWeaponState('没有可编辑的游戏版本，可使用“恢复内置”恢复默认资料。');
+      throw new Error('没有可编辑的游戏版本');
+    }
+    const firstWeapon = (game.weapons || [])[0];
+    if (!firstWeapon) {
+      renderMissingWeaponState('当前游戏没有武器资料，可使用“恢复内置”恢复默认资料。');
+      throw new Error('当前游戏没有可编辑的武器资料');
+    }
+    selectWeapon(firstWeapon.code);
   }
 
   document.addEventListener('click', async event => {
@@ -189,4 +215,16 @@
     event.preventDefault();
     saveData().catch(e => toast(e.message, 'error'));
   });
+})();
+
+(() => {
+  const loadScript = (selector, datasetName, src) => {
+    if (document.querySelector(selector)) return;
+    const script = document.createElement('script');
+    script.src = src;
+    script.dataset[datasetName] = '1';
+    document.head.appendChild(script);
+  };
+  loadScript('script[data-admin-global-ui]', 'adminGlobalUi', '/assets/admin-global-ui.js?v=20261007g004');
+  loadScript('script[data-admin-resilience]', 'adminResilience', '/assets/admin-resilience.js?v=20261007r001');
 })();

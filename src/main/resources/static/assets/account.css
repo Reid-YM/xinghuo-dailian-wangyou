@@ -285,3 +285,30 @@ body.nexus-page::before,body[data-page^="account-"]::before,body[data-page="memb
 .account-avatar-file input[type="file"]{padding:9px;background:#0b111a;cursor:pointer}
 .account-avatar-file input[type="file"]::file-selector-button{margin-right:10px;border:0;border-radius:7px;background:var(--nx-amber);color:var(--nx-amber-ink);font-weight:800;padding:8px 12px;cursor:pointer}
 .account-avatar-file small{display:block;color:var(--nx-muted);font-size:10px;line-height:1.55}
+
+/* 20261006-order-mobile: 账号中心订单卡片小屏防挤压 */
+@media(max-width:560px){
+  .account-order{gap:13px;padding:15px 13px}
+  .account-order-title{align-items:flex-start}
+  .account-order-title>strong{min-width:0;overflow-wrap:anywhere}
+  .account-order-title>.badge{max-width:100%;min-height:auto;padding:5px 8px;white-space:normal;line-height:1.4;text-align:left;overflow-wrap:anywhere}
+  .account-order-progress>div:first-child{align-items:flex-start;gap:8px}
+  .account-order-progress>div:first-child span{overflow:visible;text-overflow:clip;white-space:normal;line-height:1.45;overflow-wrap:anywhere}
+  .account-order-action{text-align:left}
+  .account-order-action .btn{width:100%;min-width:0;min-height:44px}
+  .account-pager>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+  .account-pager .btn{width:100%;min-width:0}
+}
+@media(max-width:360px){
+  .account-pager>div{grid-template-columns:1fr}
+}
+
+/* 询价联系方式：账号与安全页的多条绑定管理 */
+.quote-contact-list{display:grid;gap:8px;margin-top:4px}
+.quote-contact-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--border,#263041);border-radius:11px;background:rgba(255,255,255,.02)}
+.quote-contact-meta{display:flex;align-items:baseline;gap:8px;min-width:0}
+.quote-contact-meta span{font-size:12px;color:var(--muted,#8b95a7)}
+.quote-contact-meta strong{font-size:14px;overflow-wrap:anywhere}
+@media(max-width:760px){
+  .quote-contact-row{flex-wrap:wrap}
+}

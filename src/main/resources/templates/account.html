@@ -1,82 +1,30 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1018">
-  <title>星火个人空间 - 星火网游工作室</title><meta name="description" content="集中管理星火账号、订单、工具进度和在线设备。"><meta name="robots" content="noindex,nofollow">
-  <link rel="canonical" href="https://wydlgf.cn/account"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261004ac11">
-  <script defer src="/assets/ui-fixes.js?v=20261005uf19"></script><script defer src="/assets/public.js?v=20261005pub10"></script><script defer src="/assets/account.js?v=20261004ac17"></script>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1018"><meta name="robots" content="noindex,nofollow">
+  <title>个人中心 - 星火网游工作室</title><meta name="description" content="查看星火账号概览、需求、订单与常用入口。"><link rel="canonical" href="https://wydlgf.cn/account">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/app.css?v=20261005v031"><link rel="stylesheet" href="/assets/account.css?v=20261006ac16"><link rel="stylesheet" href="/assets/account-center.css?v=20261007ia01"><link rel="stylesheet" href="/assets/account-center-refine.css?v=20261007ar01">
+  <script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer src="/assets/public.js?v=20261008audit01"></script><script defer src="/assets/account-center.js?v=20261008audit01"></script><script defer src="/assets/account-center-refine.js?v=20261007ar01"></script>
+<link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008a1"/>
 </head>
-<body data-page="account" class="nexus-page">
+<body data-page="account-center-overview" class="account-center-page">
 <header th:replace="~{fragments/site :: header}"></header>
-<main id="accountShell" class="nexus" data-loading="1">
-  <header class="nexus-commandbar">
-    <div class="nexus-command-title"><span>星火个人空间</span><i>私人业务与数据控制台</i></div>
-    <nav aria-label="快捷导航"><a href="/">工作室首页</a><a href="/records">编号查询</a><a href="/contact">联系客服</a><button type="button" data-account-logout>安全退出</button></nav>
-  </header>
-  <div id="accountMsg" class="notice hidden nexus-alert" role="alert" hidden></div>
-
-  <div class="nexus-frame">
-    <aside class="nexus-rail" aria-label="个人空间导航">
-      <div class="nexus-profile">
-        <div class="account-avatar" data-account-avatar aria-hidden="true"><span class="account-avatar-fallback">星</span></div>
-        <div><span>当前账号</span><strong data-account-name>读取中…</strong><small data-account-meta>正在建立安全连接</small></div>
+<main class="account-center-shell">
+  <header th:replace="~{fragments/account-center :: bar}"></header>
+  <div class="notice hidden" data-hub-message hidden></div>
+  <div class="account-center-layout">
+    <aside th:replace="~{fragments/account-center :: rail('overview')}"></aside>
+    <div class="account-center-main">
+      <section class="account-center-hero"><div><span class="account-center-eyebrow">OVERVIEW</span><h1>欢迎回到个人中心</h1><p>这里只看关键状态和下一步动作。需求、订单、工具存档和账号设置都已经拆到独立页面，不再堆在一个大面板里。</p></div><div class="account-center-actions"><a class="btn ghost" href="/account/settings#security">安全设置</a><a class="btn primary" href="/quote" data-primary-cta>提交新需求</a></div></section>
+      <section class="account-center-kpis" aria-label="个人中心概览"><article class="account-center-kpi"><span>我的需求</span><strong data-hub-kpi="requests">—</strong><small>已归属当前账号</small></article><article class="account-center-kpi"><span>我的订单</span><strong data-hub-kpi="orders">—</strong><small>可查看交付进度</small></article><article class="account-center-kpi"><span>进行中</span><strong data-hub-kpi="active">—</strong><small>需要关注的订单</small></article><article class="account-center-kpi"><span>安全活动</span><strong data-hub-kpi="security">—</strong><small>账号操作记录</small></article></section>
+      <div class="account-center-grid">
+        <section class="account-center-card"><header><div><span class="account-center-eyebrow">REQUESTS</span><h2>最近需求</h2><p>最新询价与客服处理状态。</p></div><a href="/account/requests">查看全部 →</a></header><div class="account-center-list" data-hub-recent-requests><div class="account-center-empty">正在读取…</div></div></section>
+        <section class="account-center-card"><header><div><span class="account-center-eyebrow">ORDERS</span><h2>最近订单</h2><p>交付进度与最近更新。</p></div><a href="/account/orders">查看全部 →</a></header><div class="account-center-list" data-hub-recent-orders><div class="account-center-empty">正在读取…</div></div></section>
       </div>
-      <nav class="nexus-nav account-tabs" role="tablist" aria-orientation="vertical" data-account-tabs>
-        <span class="nexus-nav-label">业务工作台</span>
-        <button type="button" role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true" data-tab="overview"><b>概</b><span>空间首页<small>状态与快捷任务</small></span></button>
-        <button type="button" role="tab" id="tab-orders" aria-controls="panel-orders" aria-selected="false" tabindex="-1" data-tab="orders"><b>单</b><span>我的订单<small>业务记录与进度</small></span></button>
-        <span class="nexus-nav-label">数据与安全</span>
-        <button type="button" role="tab" id="tab-progress" aria-controls="panel-progress" aria-selected="false" tabindex="-1" data-tab="progress"><b>云</b><span>工具存档<small>跨设备同步</small></span></button>
-        <button type="button" role="tab" id="tab-devices" aria-controls="panel-devices" aria-selected="false" tabindex="-1" data-tab="devices"><b>盾</b><span>在线设备<small>会话安全管理</small></span></button>
-      </nav>
-      <div class="nexus-rail-links"><span>更多服务</span><a href="/account/settings">账号与安全<i>→</i></a><a href="/account/submit">攻略投稿<i>→</i></a></div>
-      <div class="nexus-safety"><b>安全边界</b><p>网页不会索取游戏密码、验证码或令牌。付款仅通过担保渠道。</p><a href="/rules">查看服务规则</a></div>
-    </aside>
-
-    <div class="nexus-stage">
-      <section class="account-panel" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0" data-panel="overview">
-        <header class="nexus-hero">
-          <div><span class="nexus-kicker">个人工作台</span><h1>欢迎回到个人空间</h1><p>一处掌握账号安全、业务进度与常用服务。</p></div>
-          <div class="nexus-actions"><a class="btn ghost" href="/account/settings">安全设置</a><a class="btn primary" href="/quote" data-primary-cta>发起新询价</a></div>
-        </header>
-
-        <div class="nexus-status-grid nexus-status-grid-4" aria-label="账号状态">
-          <a href="/account/settings" class="nexus-status"><i>身份</i><span>登录凭据</span><strong data-security-contact>读取中…</strong><small>管理登录方式 →</small></a>
-          <a href="/account/settings#email" class="nexus-status"><i>恢复</i><span>安全邮箱</span><strong data-security-email>读取中…</strong><small>完善找回方式 →</small></a>
-          <button type="button" class="nexus-status" data-tab-jump="orders"><i>业务</i><span>关联订单</span><strong data-account-order-count>读取中…</strong><small>查看业务进度 →</small></button>
-          <button type="button" class="nexus-status" data-security-devices data-open-devices><i>会话</i><span>在线设备</span><strong>读取中…</strong><small>检查设备 →</small></button>
-        </div>
-
-        <section class="nexus-module nexus-module-wide"><header><div><span>账号档案</span><h2>基本信息</h2></div><a href="/account/settings">查看完整设置</a></header><div class="account-info-grid" data-account-info><div class="account-info-item"><span>账号信息</span><strong>读取中…</strong><small>正在同步</small></div></div></section>
-
-        <section class="nexus-module" data-account-entitlements hidden><header><div><span>账户能力</span><h2>已开通权益</h2></div><small>后台发放</small></header><div class="account-tool-list" data-account-entitlement-list></div></section>
-
-        <section class="nexus-module"><header><div><span>快速任务</span><h2>接下来要做什么？</h2></div></header><div class="nexus-task-grid"><a href="/quote"><b>01</b><strong>提交新需求</strong><span>填写目标与平台，生成唯一业务编号。</span><em>开始询价</em></a><button type="button" data-tab-jump="orders"><b>02</b><strong>跟踪业务</strong><span>查看账号关联订单的当前处理状态。</span><em>进入订单</em></button><a href="/records"><b>03</b><strong>独立核对</strong><span>只有业务编号，也能查询公开进度。</span><em>编号查询</em></a></div></section>
-      </section>
-
-      <section class="account-panel" id="panel-orders" role="tabpanel" aria-labelledby="tab-orders" tabindex="0" data-panel="orders" hidden>
-        <header class="nexus-hero"><div><span class="nexus-kicker">业务记录</span><h1>我的订单</h1><p>按时间查看与账号关联的业务状态、任务进度和最近更新。</p></div><div class="nexus-actions"><button class="btn ghost" type="button" data-order-refresh>刷新</button><a class="btn primary" href="/quote" data-primary-cta>新建询价</a></div></header>
-        <div id="orderMsg" class="notice hidden" role="alert" hidden></div>
-        <section class="nexus-module"><header><div><span>业务档案</span><h2>订单记录</h2></div><small>按最新状态排序</small></header><div data-order-list><div class="account-skeleton"><span></span><span></span><span></span></div></div><div class="account-pager"><span data-order-page-info>正在读取…</span><div><button class="btn ghost" type="button" data-order-prev>上一页</button><button class="btn ghost" type="button" data-order-next>下一页</button></div></div></section>
-        <section class="nexus-assist"><div><span>历史归档</span><b>注册前的订单不会自动认领</b><p>请准备业务编号，核验通过后由工作人员归档到当前账号。</p></div><div class="nexus-actions"><a class="btn ghost" href="/records">按编号查询</a><a class="btn primary" href="/contact">申请人工核验</a></div></section>
-      </section>
-
-      <section class="account-panel" id="panel-progress" role="tabpanel" aria-labelledby="tab-progress" tabindex="0" data-panel="progress" hidden>
-        <header class="nexus-hero"><div><span class="nexus-kicker">工具记录</span><h1>工具存档</h1><p>查看云端已有的工具记录。进度调整请回到对应工具完成，避免误改原始数据。</p></div><div class="nexus-actions"><button class="btn ghost" type="button" data-progress-refresh>刷新记录</button><a class="btn primary" href="/mastery">打开 MW4 工具站</a></div></header>
-        <div id="progressMsg" class="notice hidden" role="alert" hidden></div>
-        <section class="nexus-module"><header><div><span>云端记录</span><h2>已保存的工具进度</h2><p>只展示工具名称和最近更新时间，内部数据与版本号不会直接显示。</p></div></header><div class="account-tool-list account-save-list" data-progress-tools><div class="account-skeleton"><span></span></div></div></section>
-        <section class="nexus-assist"><div><span>同步说明</span><b>工具页负责编辑，个人空间负责查看</b><p>这样可以避免直接修改存档结构造成进度损坏。进入工具站后，按页面提示继续记录。</p></div><div class="nexus-actions"><a class="btn primary" href="/mastery">进入工具站</a></div></section>
-      </section>
-
-      <section class="account-panel" id="panel-devices" role="tabpanel" aria-labelledby="tab-devices" tabindex="0" data-panel="devices" hidden>
-        <header class="nexus-hero"><div><span class="nexus-kicker">会话安全</span><h1>在线设备</h1><p>检查活跃会话，发现陌生设备请立即下线并更新密码。</p></div><div class="nexus-actions"><button class="btn ghost" type="button" data-session-refresh>刷新</button><button class="btn danger" type="button" data-session-revoke-all>下线其他设备</button></div></header>
-        <div id="sessionMsg" class="notice hidden" role="alert" hidden></div><section class="nexus-module"><header><div><span>安全会话</span><h2>当前登录设备</h2></div><a href="/account/settings#password">修改密码</a></header><div data-session-list><div class="account-skeleton"><span></span><span></span></div></div></section>
-      </section>
+      <section class="account-center-quick" aria-label="常用功能"><a href="/account/settings#profile"><b>个人资料</b><strong>头像与昵称</strong><span>只维护账号公开资料，不和安全设置混在一起。</span></a><a href="/account/settings#contact"><b>回访方式</b><strong>询价联系方式</strong><span>管理手机号、微信号或 QQ，仅用于客服回访。</span></a><a href="/account/progress"><b>工具存档</b><strong>云端进度</strong><span>查看 MW4 工具站已保存的跨设备记录。</span></a></section>
     </div>
   </div>
 </main>
-<nav class="mobile-dock" data-smart-dock aria-label="手机快捷操作"><a href="/">首页</a><a href="/records">业务记录</a><a class="primary" href="/quote" data-primary-cta>提交询价</a></nav>
 <footer th:replace="~{fragments/site :: footer}"></footer>
 </body>
 </html>

@@ -252,23 +252,27 @@ public class TaxonomyService {
         return this.allowedPairSet().contains(g + "|" + c);
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     private Set<String> allowedPairSet() {
-        Set cached = this.allowedPairs;
+        Set<String> cached = this.allowedPairs;
         long now = System.currentTimeMillis();
-        if (cached != null && now - this.allowedPairsLoadedAt < 60000L) {
+        if (cached != null && now - this.allowedPairsLoadedAt < ALLOWED_PAIRS_TTL_MS) {
             return cached;
         }
-        TaxonomyService taxonomyService = this;
-        synchronized (taxonomyService) {
+        synchronized (this) {
             now = System.currentTimeMillis();
-            if (this.allowedPairs != null && now - this.allowedPairsLoadedAt < 60000L) {
+            if (this.allowedPairs != null
+                    && now - this.allowedPairsLoadedAt < ALLOWED_PAIRS_TTL_MS) {
                 return this.allowedPairs;
             }
-            Set activeGames = this.games.findAllByOrderBySortOrderAscCodeAsc().stream().filter(GameCatalog::isActive).map(GameCatalog::getCode).collect(Collectors.toSet());
-            Set<String> pairs = this.categories.findAllByOrderBySortOrderAscIdAsc().stream().filter(ServiceCategoryCatalog::isActive).filter(x -> activeGames.contains(x.getGameCode())).map(x -> x.getGameCode() + "|" + x.getCode()).collect(Collectors.toSet());
+            Set<String> activeGames = this.games.findAllByOrderBySortOrderAscCodeAsc().stream()
+                    .filter(GameCatalog::isActive)
+                    .map(GameCatalog::getCode)
+                    .collect(Collectors.toSet());
+            Set<String> pairs = this.categories.findAllByOrderBySortOrderAscIdAsc().stream()
+                    .filter(ServiceCategoryCatalog::isActive)
+                    .filter(x -> activeGames.contains(x.getGameCode()))
+                    .map(x -> x.getGameCode() + "|" + x.getCode())
+                    .collect(Collectors.toSet());
             this.allowedPairs = pairs;
             this.allowedPairsLoadedAt = now;
             return pairs;
@@ -400,4 +404,3 @@ public class TaxonomyService {
         this.audit = audit;
     }
 }
-

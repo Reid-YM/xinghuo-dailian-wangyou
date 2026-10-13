@@ -201,22 +201,8 @@
     }).catch(() => {});
   }
 
-  function initLanguageSwitcher() {
-    const nav = document.querySelector('.site-header .nav');
-    if (!nav || nav.querySelector('[data-language-switcher]')) return;
-    const current = (document.cookie.match(/(?:^|; )xh_lang=([^;]+)/) || [])[1]
-      || (document.documentElement.lang || 'zh-CN');
-    const isEn = String(current).toLowerCase().indexOf('en') === 0;
-    const next = isEn ? 'zh' : 'en';
-    const returnTo = location.pathname + location.search;
-    const wrap = document.createElement('div');
-    wrap.className = 'language-switcher';
-    wrap.setAttribute('data-language-switcher', '');
-    wrap.innerHTML = '<a class="lang-current" href="/language?lang=' + next
-      + '&returnTo=' + encodeURIComponent(returnTo) + '" rel="nofollow">'
-      + (isEn ? '中文' : 'EN') + '</a>';
-    nav.appendChild(wrap);
-  }
+  // 语言切换按钮已下线：英文版尚未开放，按钮点进去只会提示「暂未开放」，
+  // 放在导航里属于无效入口。恢复英文版时再把入口加回来。
 
   const categoryMap = {
     activity: '活动任务', weapon: '武器升级', camo: '迷彩任务', rank: '排位 / 段位', ranked: '排位模式',
@@ -971,21 +957,14 @@
       } else { heroVisual.innerHTML = ''; heroVisual.classList.remove('has-image'); }
     }
 
+    window.SiteImageControls.main(heroVisual, heroVisual?.querySelector('img'), config);
+
     const hero = $('#homeHero');
     const heroBg = $('#heroBackground');
     const heroBgImage = safeUrl(config.heroBackgroundImage);
     if (hero && heroBg) {
       hero.classList.toggle('has-background', !!heroBgImage);
-      const bgOpacity = Math.max(0, Math.min(100, Number(config.heroBackgroundOpacity ?? 72))) / 100;
-      hero.style.setProperty('--hero-bg-image-strength', String(bgOpacity));
-      hero.style.setProperty('--hero-bg-text-dim', String(Math.max(0.18, 0.58 - bgOpacity * 0.4)));
-      hero.style.setProperty('--hero-bg-edge-dim', String(Math.max(0.22, 0.72 - bgOpacity * 0.34)));
-      heroBg.style.backgroundImage = heroBgImage ? `url("${replaceAllCompat(heroBgImage, '"', '%22')}")` : '';
-      heroBg.style.opacity = String(bgOpacity);
-      const bgFit = ['cover','contain','fill'].includes(config.heroBackgroundFit) ? config.heroBackgroundFit : 'cover';
-      heroBg.style.backgroundSize = bgFit === 'fill' ? '100% 100%' : bgFit;
-      heroBg.style.backgroundPosition = `${Number(config.heroBackgroundPositionX ?? 50)}% ${Number(config.heroBackgroundPositionY ?? 50)}%`;
-      heroBg.style.filter = `blur(${Math.max(0, Math.min(24, Number(config.heroBackgroundBlur ?? 0)))}px)`;
+      window.SiteImageControls.background(hero, heroBg, config, heroBgImage);
     }
 
     document.documentElement.style.setProperty('--service-cover-height', `${Math.max(70, Math.min(240, Number(config.serviceCoverHeight || 105)))}px`);
@@ -1184,7 +1163,6 @@
 
   initCyberVisuals();
   initSmartMobileDock();
-  initLanguageSwitcher();
   initDynamicI18n();
 
   window.XH = { initLinkedQuoteForm, loadServices, loadTaxonomy, updateDynamicStartingPrice, bindUploadFields, initResponsiveDetails,
@@ -1198,3 +1176,4 @@
   initResponsiveDetails();
   loadConfig().catch(() => {});
 })();
+

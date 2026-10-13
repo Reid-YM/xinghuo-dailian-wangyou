@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#101216"/>
+  <meta name="_csrf" th:content="${csrf.token}"/>
+  <meta name="_csrf_header" th:content="${csrf.headerName}"/>
+  <title>我的工作 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261013v2e"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-work.css?v=20261013v2f"/>
+  <script defer src="/assets/admin-xingwei-work.js?v=20261013v2f"></script>
+</head>
+<body>
+<main class="xww-shell">
+  <header class="xww-topbar">
+    <div>
+      <p class="xw-kicker">STARWEAVE · MY WORK</p>
+      <h1>派单 / 我的工作</h1>
+    </div>
+    <div class="xww-top-actions">
+      <span class="xw-status" id="xwwAccessBadge"><i></i>正在读取任务</span>
+      <button class="xw-button xw-button-ghost" type="button" id="xwwRefresh">刷新</button>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei/business?tab=orders">业务派单</a>
+      <a class="xw-button" href="/admin/xingwei">返回星维后台</a>
+    </div>
+  </header>
+
+  <section class="xww-hero">
+    <div>
+      <p class="xw-kicker">PHASE 2F · DISPATCH & EMPLOYEE WORKBENCH</p>
+      <h2>调度负责派，员工只处理自己真正领取的任务。</h2>
+      <p>DEPARTMENT 只展示本人任务和本中心队列，不把同中心其他员工的个人任务混入待办；SELF 只展示本人；ALL 还能处理跨中心队列和全局未归属。履约修改继续复用既有订单状态机、乐观锁和审计。</p>
+    </div>
+    <div class="xww-scope-card">
+      <span>当前工作台版本</span>
+      <strong th:text="${workVersion}">20261013-v2f</strong>
+      <small id="xwwScopeText">等待任务范围快照</small>
+    </div>
+  </section>
+
+  <section class="xww-toolbar" aria-label="任务筛选">
+    <div class="xww-tabs" role="tablist" aria-label="任务类型">
+      <button type="button" class="xww-tab" data-filter="ALL" aria-selected="true">全部待办</button>
+      <button type="button" class="xww-tab" data-filter="MINE" aria-selected="false">我的任务</button>
+      <button type="button" class="xww-tab" data-filter="DEPARTMENT_QUEUE" aria-selected="false">中心队列</button>
+      <button type="button" class="xww-tab" data-filter="UNASSIGNED" aria-selected="false">未归属</button>
+    </div>
+    <label class="xww-search">筛选当前任务
+      <input id="xwwSearch" type="search" placeholder="业务编号、游戏、需求、状态、进度……" autocomplete="off"/>
+    </label>
+  </section>
+
+  <div class="xw-org-message" id="xwwMessage" role="status">正在加载我的工作……</div>
+
+  <section class="xww-kpis" aria-label="任务指标">
+    <button type="button" data-kpi-filter="ALL"><span>数据范围</span><strong id="xwwKpiScope">-</strong></button>
+    <button type="button" data-kpi-filter="MINE"><span>我的任务</span><strong id="xwwKpiMine">-</strong></button>
+    <button type="button" data-kpi-filter="DEPARTMENT_QUEUE"><span>中心队列</span><strong id="xwwKpiQueue">-</strong></button>
+    <button type="button" data-kpi-filter="UNASSIGNED"><span>全局未归属</span><strong id="xwwKpiUnassigned">-</strong></button>
+  </section>
+
+  <section class="xw-data-panel xww-panel" id="xwwTaskPanel">
+    <div class="xw-data-head">
+      <div><h3>当前待办</h3><p>列表由数据库按本人 / 中心队列 / 未归属先裁剪，再返回最多 100 条。</p></div>
+      <span class="xw-pill">order:view</span>
+    </div>
+    <div class="xw-table-wrap xw-table-tall">
+      <table class="xw-table xww-table">
+        <thead><tr><th>业务编号</th><th>游戏 / 需求</th><th>状态</th><th>进度</th><th>任务归属</th><th>更新时间</th><th>操作</th></tr></thead>
+        <tbody id="xwwTaskRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="xww-empty" id="xwwNoAccess" hidden>
+    <strong>当前账号没有订单查看权限</strong>
+    <p>员工工作台不会绕过星维 RBAC。请返回星维后台检查角色，或由管理员配置对应订单权限。</p>
+  </section>
+
+  <footer class="xw-footer"><span th:text="${workspaceName}">星维网络服务工作室</span><span>派单领取 · 本人待办 · 履约更新 · 后端范围 · 审计留痕</span></footer>
+</main>
+
+<dialog class="xw-dialog" id="xwwEditDialog">
+  <form method="dialog" class="xw-dialog-card" id="xwwEditForm">
+    <div class="xw-dialog-head">
+      <div><p class="xw-kicker">FULFILLMENT UPDATE</p><h3 id="xwwEditTitle">更新履约</h3></div>
+      <button type="button" class="xw-dialog-close" id="xwwEditClose" aria-label="关闭">×</button>
+    </div>
+    <p class="xww-dialog-note" id="xwwEditContext">只允许修改本人已领取任务。保存时使用订单当前 version 做乐观锁校验。</p>
+    <div class="xww-dialog-grid">
+      <label>履约状态
+        <select id="xwwEditStatus" required>
+          <option value="WAITING_CONFIRMATION">等待确认</option>
+          <option value="IN_PROGRESS">执行中</option>
+          <option value="COMPLETED">已完成</option>
+          <option value="EXCEPTION">异常</option>
+        </select>
+      </label>
+      <label>进度百分比
+        <input id="xwwEditPercent" type="number" min="0" max="100" inputmode="numeric" placeholder="0-100"/>
+      </label>
+      <label class="wide">进度说明
+        <input id="xwwEditProgress" type="text" maxlength="240" required placeholder="例如：已完成武器升级 60%"/>
+      </label>
+      <label class="wide">客户备注
+        <textarea id="xwwEditCustomerNote" maxlength="500" placeholder="仅在确有需要时填写"></textarea>
+      </label>
+      <label class="wide">内部备注
+        <textarea id="xwwEditInternalNote" maxlength="1200" placeholder="内部执行信息，不对外展示"></textarea>
+      </label>
+      <label class="wide">本次修改原因
+        <input id="xwwEditReason" type="text" maxlength="500" placeholder="例如：更新当前代练进度"/>
+      </label>
+    </div>
+    <div class="xw-dialog-actions">
+      <span id="xwwEditState"></span>
+      <button type="button" class="xw-button xw-button-ghost" id="xwwEditCancel">取消</button>
+      <button type="submit" class="xw-button">保存履约</button>
+    </div>
+  </form>
+</dialog>
+</body>
+</html>

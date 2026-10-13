@@ -1,65 +1,99 @@
 package com.xinghuo.security;
 
-import com.xinghuo.security.OncePerRequestFilterBase;
 import com.xinghuo.util.RequestUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * Public endpoint rate limiting for anonymous quote, business-status, and tracking traffic.
+ *
+ * <p>This filter intentionally keeps its existing fixed-window behavior. The account-domain
+ * {@code RateLimiter} is a separate sliding-window implementation; consolidation must preserve the
+ * effective public limits before either layer is removed.
+ */
 @Component
-@Order(value=-2147483628)
-public class RateLimitFilter
-extends OncePerRequestFilterBase {
-    private final ConcurrentHashMap<String, Window> map = new ConcurrentHashMap();
+@Order(-2147483628)
+public class RateLimitFilter extends OncePerRequestFilterBase {
+    static final int RECORD_REQUESTS_PER_MINUTE = 30;
+    static final int QUOTE_REQUESTS_PER_MINUTE = 12;
+    static final int TRACK_REQUESTS_PER_MINUTE = 120;
+    private static final long WINDOW_MILLIS = 60_000L;
+    private static final long CLEANUP_EVERY = 500L;
+    private static final int MAX_BUCKETS_BEFORE_CLEANUP = 5_000;
+    private static final Pattern BUSINESS_NO =
+            Pattern.compile("XH(?:[A-Z0-9]{10}|-[A-Z2-9]{24})");
+
+    private final ConcurrentHashMap<String, Window> buckets = new ConcurrentHashMap<>();
     private final AtomicLong requests = new AtomicLong();
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
-    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
-        String p = req.getRequestURI();
-        int max = p.startsWith("/api/records/") || p.startsWith("/api/orders/") ? 30 : (p.equals("/api/quote") || p.equals("/api/uploads/quote") ? 12 : 0);
-        if (max > 0) {
-            Window w;
-            if (this.requests.incrementAndGet() % 500L == 0L || this.map.size() > 5000) {
-                this.cleanup();
-            }
-            String key = RequestUtil.clientIp((HttpServletRequest)req) + "|" + p.replaceAll("XH(?:[A-Z0-9]{10}|-[A-Z2-9]{24})", "record");
-            Window window = w = this.map.compute(key, (k, v) -> v == null || v.expired() ? new Window() : v);
-            synchronized (window) {
-                if (++w.count > max) {
-                    res.setStatus(429);
-                    res.setContentType("application/json;charset=UTF-8");
-                    res.getWriter().write("{\"code\":\"RATE_LIMITED\",\"message\":\"\u8bf7\u6c42\u8fc7\u4e8e\u9891\u7e41\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5\"}");
-                    return;
-                }
-            }
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+        int maxRequests = maxRequestsFor(path);
+        if (maxRequests > 0 && !allow(request, path, maxRequests)) {
+            response.setStatus(429);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(
+                    "{\"code\":\"RATE_LIMITED\",\"message\":\"请求过于频繁，请稍后重试\"}");
+            return;
         }
-        chain.doFilter((ServletRequest)req, (ServletResponse)res);
+        chain.doFilter(request, response);
+    }
+
+    private boolean allow(HttpServletRequest request, String path, int maxRequests) {
+        if (requests.incrementAndGet() % CLEANUP_EVERY == 0L
+                || buckets.size() > MAX_BUCKETS_BEFORE_CLEANUP) {
+            cleanup();
+        }
+
+        String key = RequestUtil.clientIp(request) + "|" + normalizePath(path);
+        Window window = buckets.compute(
+                key,
+                (ignored, current) -> current == null || current.expired() ? new Window() : current);
+        synchronized (window) {
+            window.count += 1;
+            return window.count <= maxRequests;
+        }
+    }
+
+    private int maxRequestsFor(String path) {
+        if (path.startsWith("/api/records/") || path.startsWith("/api/orders/")) {
+            return RECORD_REQUESTS_PER_MINUTE;
+        }
+        if (path.equals("/api/quote") || path.equals("/api/uploads/quote")) {
+            return QUOTE_REQUESTS_PER_MINUTE;
+        }
+        if (path.equals("/api/track")) {
+            return TRACK_REQUESTS_PER_MINUTE;
+        }
+        return 0;
+    }
+
+    private String normalizePath(String path) {
+        return BUSINESS_NO.matcher(path).replaceAll("record");
     }
 
     private void cleanup() {
-        this.map.entrySet().removeIf(e -> ((Window)e.getValue()).expired());
+        buckets.entrySet().removeIf(entry -> entry.getValue().expired());
     }
 
-    private static class Window {
-        long start = System.currentTimeMillis();
-        int count = 0;
+    private static final class Window {
+        private final long start = System.currentTimeMillis();
+        private int count;
 
-        private Window() {
-        }
-
-        boolean expired() {
-            return System.currentTimeMillis() - this.start > 60000L;
+        private boolean expired() {
+            return System.currentTimeMillis() - start > WINDOW_MILLIS;
         }
     }
 }
-

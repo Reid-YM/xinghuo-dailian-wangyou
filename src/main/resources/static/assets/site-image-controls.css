@@ -1,0 +1,26 @@
+/* One shared mask for the front page and the editor. */
+body[data-page="home"] #homeHero.image-controlled-background.has-background::after,
+body:is(.admin-solid-ui,.admin-control-center-v2) #heroBackgroundLivePreview.image-controlled-background::after {
+ content:""!important;display:block!important;position:absolute!important;inset:0!important;pointer-events:none!important;z-index:1!important;opacity:1!important;
+ background:linear-gradient(90deg,rgba(5,8,12,var(--image-text-dim,.22)),rgba(5,8,12,.08))!important;
+}
+#heroBackgroundLivePreview .admin-hero-bg-live-copy{position:relative;z-index:2}
+body:is(.admin-solid-ui,.admin-control-center-v2) [data-config-section="visual"]{max-width:1120px;margin:auto}
+.visual-editor-heading,.visual-preview-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+#visualSaveState{font-size:13px;color:#3d536b;background:#eef3f8;border-radius:20px;padding:7px 12px}
+#visualSaveState[data-dirty="true"]{color:#835b0a;background:#fff2cf}
+body:is(.admin-solid-ui,.admin-control-center-v2) .visual-editor-card{margin-top:20px;padding:24px;border:1px solid #dbe2eb;border-radius:16px;background:#fff;min-width:0}
+.visual-editor-card h3{margin:0 0 14px;font-size:18px}
+.visual-editor-card .field{min-width:0}
+.visual-editor-card input[type="file"]{width:100%;max-width:100%;padding:14px;border:1px dashed #aab8ca;border-radius:10px;background:#f8fafc}
+.visual-editor-card output{float:right;font-variant-numeric:tabular-nums;color:#526176}
+body:is(.admin-solid-ui,.admin-control-center-v2) #heroBackgroundLivePreview{position:relative;isolation:isolate;overflow:hidden;width:100%;max-width:100%;min-height:240px;aspect-ratio:16/7;border-radius:12px;margin:14px auto;background:#0c1118}
+body:is(.admin-solid-ui,.admin-control-center-v2) #heroBackgroundLivePreview[data-device="mobile"]{max-width:390px;aspect-ratio:390/460;min-height:0}
+body:is(.admin-solid-ui,.admin-control-center-v2) #heroBackgroundLivePreview .admin-hero-bg-live-layer{position:absolute}
+body:is(.admin-solid-ui,.admin-control-center-v2) #heroBackgroundLivePreview .admin-hero-bg-live-copy{padding:24px;color:#fff}
+body:is(.admin-solid-ui,.admin-control-center-v2) #heroImagePreview{width:100%;max-width:100%;overflow:hidden;background:#101722}
+@media(max-width:640px){body:is(.admin-solid-ui,.admin-control-center-v2) .visual-editor-card{padding:16px}.visual-editor-card .grid3,.visual-editor-card .grid2{grid-template-columns:1fr!important}.visual-editor-card .row-actions{display:flex;flex-wrap:wrap}.visual-editor-card button{min-height:42px}}
+/* Service cover parameters are authoritative; existing visibility rules remain in place. */
+body:not(.admin-solid-ui):not(.admin-control-center-v2) .service-cover{height:var(--service-cover-height,105px)!important;min-height:0!important;max-height:none!important;aspect-ratio:auto!important}
+body:not(.admin-solid-ui):not(.admin-control-center-v2) .service-cover img{width:100%!important;height:100%!important;object-fit:var(--service-cover-fit,cover)!important;object-position:var(--service-cover-position,50% 50%)!important}
+body.admin-control-center-v2 [data-config-section="visual"]{padding:0;border:0;background:transparent}

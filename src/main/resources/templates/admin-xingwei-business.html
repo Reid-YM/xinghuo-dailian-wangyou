@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#101216"/>
+  <meta name="_csrf" th:content="${csrf.token}"/>
+  <meta name="_csrf_header" th:content="${csrf.headerName}"/>
+  <title>业务工作台 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261013v2e"/>
+  <script defer src="/assets/admin-xingwei-business.js?v=20261013v2e"></script>
+</head>
+<body>
+<main class="xwb-shell">
+  <header class="xwb-topbar">
+    <div>
+      <p class="xw-kicker">STARWEAVE · BUSINESS WORKBENCH</p>
+      <h1>询价 / 订单业务工作台</h1>
+    </div>
+    <div class="xwb-top-actions">
+      <span class="xw-status" id="xwbAccessBadge"><i></i>正在读取权限</span>
+      <button class="xw-button xw-button-ghost" type="button" id="xwbRefresh">刷新</button>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei/work">我的工作</a>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
+      <a class="xw-button" href="/admin">旧后台</a>
+    </div>
+  </header>
+
+  <section class="xwb-hero">
+    <div>
+      <p class="xw-kicker">PHASE 2E · SCOPED BUSINESS UI</p>
+      <h2>看得到什么、能派给谁，都由后端真实数据范围决定。</h2>
+      <p>业务工作台只调用 V2D 新版接口。ALL 可处理全部及未归属业务；DEPARTMENT 只处理本中心已归属业务；SELF 只处理本人负责业务。旧后台继续保留，作为兼容与恢复入口。</p>
+    </div>
+    <div class="xwb-scope-card">
+      <span>当前工作台版本</span>
+      <strong th:text="${businessVersion}">20261013-v2e</strong>
+      <small id="xwbScopeText">等待权限快照</small>
+    </div>
+  </section>
+
+  <section class="xwb-toolbar" aria-label="业务筛选">
+    <div class="xwb-tabs" role="tablist" aria-label="业务类型">
+      <button type="button" class="xwb-tab" data-tab="quotes" role="tab" aria-selected="false">询价与线索</button>
+      <button type="button" class="xwb-tab" data-tab="orders" role="tab" aria-selected="false">订单与履约</button>
+    </div>
+    <label class="xwb-search">筛选当前列表
+      <input id="xwbSearch" type="search" placeholder="业务编号、游戏、需求、客户联系方式、负责人……" autocomplete="off"/>
+    </label>
+  </section>
+
+  <div class="xw-org-message" id="xwbMessage" role="status">正在加载业务工作台……</div>
+
+  <section class="xwb-kpis" aria-label="当前列表指标">
+    <div><span>数据范围</span><strong id="xwbKpiScope">-</strong></div>
+    <div><span>接口可见</span><strong id="xwbKpiVisible">-</strong></div>
+    <div><span>当前筛选</span><strong id="xwbKpiFiltered">-</strong></div>
+    <div><span>未归属可见</span><strong id="xwbKpiUnassigned">-</strong></div>
+  </section>
+
+  <section class="xw-data-panel xwb-panel" id="xwbQuotesPanel" hidden>
+    <div class="xw-data-head">
+      <div><h3>询价与线索</h3><p>按当前账号数据范围从数据库先过滤，再按创建时间倒序返回。</p></div>
+      <span class="xw-pill" id="xwbQuotePermission">quote:view</span>
+    </div>
+    <div class="xw-table-wrap xw-table-tall">
+      <table class="xw-table xwb-table">
+        <thead><tr><th>业务编号</th><th>需求</th><th>客户/平台</th><th>状态</th><th>归属</th><th>创建时间</th><th>操作</th></tr></thead>
+        <tbody id="xwbQuoteRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="xw-data-panel xwb-panel" id="xwbOrdersPanel" hidden>
+    <div class="xw-data-head">
+      <div><h3>订单与履约</h3><p>询价转订单后沿用同一个 business_no，因此负责人和中心归属自动继承。</p></div>
+      <span class="xw-pill" id="xwbOrderPermission">order:view</span>
+    </div>
+    <div class="xw-table-wrap xw-table-tall">
+      <table class="xw-table xwb-table">
+        <thead><tr><th>业务编号</th><th>履约状态</th><th>进度</th><th>内部信息</th><th>归属</th><th>更新时间</th><th>操作</th></tr></thead>
+        <tbody id="xwbOrderRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="xwb-empty" id="xwbNoAccess" hidden>
+    <strong>当前账号没有询价或订单查看权限</strong>
+    <p>页面不会尝试绕过后端权限。可返回星维后台检查角色配置，legacy ADMIN 仍保留安全兜底。</p>
+  </section>
+
+  <footer class="xw-footer"><span th:text="${workspaceName}">星维网络服务工作室</span><span>业务归属 · ALL / DEPARTMENT / SELF · 后端授权 · 审计留痕</span></footer>
+</main>
+
+<dialog class="xw-dialog" id="xwbAssignDialog">
+  <form method="dialog" class="xw-dialog-card" id="xwbAssignForm">
+    <div class="xw-dialog-head">
+      <div><p class="xw-kicker">BUSINESS OWNERSHIP</p><h3 id="xwbAssignTitle">调整业务归属</h3></div>
+      <button type="button" class="xw-dialog-close" id="xwbAssignClose" aria-label="关闭">×</button>
+    </div>
+    <p class="xw-dialog-note" id="xwbAssignCurrent">当前归属：-</p>
+    <label class="xw-form-wide">目标负责人 / 中心队列
+      <select id="xwbAssignTarget" required></select>
+    </label>
+    <p class="xwb-help">候选项已经按你的有效数据范围在后端裁剪。DEPARTMENT 不能认领未归属业务或跨中心改派；SELF 只能保持本人负责。</p>
+    <div class="xw-dialog-actions">
+      <span id="xwbAssignState"></span>
+      <button type="button" class="xw-button xw-button-ghost" id="xwbAssignCancel">取消</button>
+      <button type="submit" class="xw-button">保存归属</button>
+    </div>
+  </form>
+</dialog>
+</body>
+</html>

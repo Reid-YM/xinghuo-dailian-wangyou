@@ -23,3 +23,34 @@
 .console-security-actions b{font-size:16px;}
 .console-security-actions span{color:#9aa6b8;font-size:13px;}
 @media(max-width:760px){.console-security-actions{grid-template-columns:1fr;}}
+
+/* 20261006-order-mobile: 控制台订单卡片小屏防挤压 */
+@media(max-width:860px){
+  .console-card>div:first-child{min-width:0}
+  .console-card h3,.console-card p,.console-card small,.console-progress{max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+  .card-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+  .card-actions .btn{width:100%;min-width:0;min-height:44px}
+}
+@media(max-width:420px){
+  .card-actions{grid-template-columns:minmax(0,1fr)}
+}
+
+/* 询价联系方式：控制台安全中心内的多条绑定管理 */
+.console-submodule{margin:14px 0;padding:16px;border:1px solid var(--border,#263041);border-radius:14px;background:rgba(255,255,255,.015)}
+.console-submodule .panel-head{align-items:flex-start;margin-bottom:0}
+.console-submodule .panel-head h3{margin:0 0 4px;font-size:16px}
+.console-submodule .panel-head p{margin:0;font-size:13px;color:var(--muted,#8b95a7);line-height:1.6}
+.quote-contact-list{display:grid;gap:8px;margin-top:12px}
+.quote-contact-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--border,#263041);border-radius:11px;background:rgba(255,255,255,.02)}
+.quote-contact-meta{display:flex;align-items:baseline;gap:8px;min-width:0}
+.quote-contact-meta span{font-size:12px;color:var(--muted,#8b95a7)}
+.quote-contact-meta strong{font-size:14px;overflow-wrap:anywhere}
+.console-quote-contact-form{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:10px;align-items:end;margin-top:12px}
+.console-quote-contact-form label{display:grid;gap:6px}
+.console-quote-contact-form label>span{font-size:12px;color:var(--muted,#8b95a7)}
+.console-inline-msg{margin-top:10px;font-size:13px;color:#9af0b7}
+.console-inline-msg.error{color:#ffb5b5}
+@media(max-width:760px){
+  .console-quote-contact-form{grid-template-columns:1fr}
+  .quote-contact-row{flex-wrap:wrap}
+}

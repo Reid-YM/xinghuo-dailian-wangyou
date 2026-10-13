@@ -61,39 +61,53 @@ public final class AccountDtos {
 
     // ------------------------------------------------------------------ 响应
 
-    /** 当前登录用户的档案。联系方式只返回脱敏值。 */
+    /** 当前登录用户的档案。只返回前端实际需要的资料，不暴露内部用户标识、角色和等级码。 */
     public record ProfileResponse(
-            String publicUserId,
             String displayName,
             String avatarUrl,
             String contactType,
             String contactMasked,
             boolean contactVerified,
+            List<QuoteContactView> quoteContacts,
             String email,
             boolean emailVerified,
-            String role,
-            String levelCode,
             Instant createdAt,
             List<String> entitlements) {
 
-        public static ProfileResponse of(Account a, List<String> entitlements) {
+        public static ProfileResponse of(Account a, List<String> entitlements,
+                                         List<QuoteContactView> quoteContacts) {
             return new ProfileResponse(
-                    a.getPublicUserId(),
                     a.getDisplayName(),
                     a.getAvatarUrl(),
                     a.getContactType() == null ? null : a.getContactType().name(),
                     com.xinghuo.account.service.Masking.contact(a.getContactType(), a.getContactValue()),
                     a.isContactVerified(),
+                    quoteContacts == null ? List.of() : quoteContacts,
                     a.getEmail(),
                     a.isEmailVerified(),
-                    a.getRole(),
-                    a.getLevelCode(),
                     a.getCreatedAt(),
                     entitlements == null ? List.of() : entitlements);
         }
     }
 
-    /** 「我的设备」列表项。 */
+    /**
+     * 询价联系方式（脱敏展示）。原始值只在账号自己的绑定接口里出现。
+     */
+    public record QuoteContactView(String type, String masked) {
+    }
+
+    /**
+     * 追加一条询价联系方式（一个账号最多几条，见 QuoteContactService）。
+     *
+     * <p>按需求暂不做验证，因此这里只做格式校验；它不会改动登录凭据
+     * （contact_type / contact_value），也不参与任何身份判定。
+     */
+    public record QuoteContactRequest(
+            @NotBlank String type,
+            @NotBlank @Size(max = 120) String value) {
+    }
+
+    /** 「我的设备」列表项。会话 id 仅作为下线操作句柄，不在页面展示。 */
     public record SessionResponse(
             String id,
             String ip,
@@ -103,9 +117,8 @@ public final class AccountDtos {
             boolean current) {
     }
 
-    /** 最近安全活动。只返回脱敏 IP 与粗粒度设备标签，不暴露审计详情。 */
+    /** 最近安全活动。只返回用户可读描述、脱敏 IP 与粗粒度设备标签。 */
     public record SecurityEventResponse(
-            String action,
             String title,
             String description,
             String ipMasked,
@@ -171,7 +184,7 @@ public final class AccountDtos {
 
     // ----------------------------------------------------------- 进度云同步
 
-    /** 进度元信息（列表用，不含载荷本身）。 */
+    /** 进度元信息（列表用，不含载荷本身）。toolKey 是同步操作句柄，页面只展示友好工具名。 */
     public record ProgressMeta(String toolKey, int version, Instant updatedAt) {
     }
 

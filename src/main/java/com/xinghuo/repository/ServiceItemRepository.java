@@ -27,4 +27,3 @@ extends JpaRepository<ServiceItem, Long> {
     @Query(value="select s from ServiceItem s where s.active=true and s.status<>com.xinghuo.model.ServiceItem.Status.OFFLINE and (s.expiresAt is null or s.expiresAt > :now) order by s.sortOrder asc, s.manualPriority desc, s.hotScore desc")
     public List<ServiceItem> findPublic(@Param("now") Instant now);
 }
-

@@ -4,16 +4,58 @@
 
 任何人或 AI 在分析、修改、提交代码前，应优先阅读并遵守本文件。
 
+## 0. AI 默认启动协议（必须自动执行）
+
+本仓库已经把固定开发规则写入版本控制。正常开发时，项目负责人或开发者**不需要每次重复粘贴 Git、CI、Flyway、生产部署等固定提示词**；只需要直接描述本次需求，例如“开发微信扫码登录”或“修复移动端订单页按钮挤压”。
+
+AI 收到正常开发需求后，应默认连续执行以下准备流程，不要要求开发者重复本文件内容：
+
+1. 先完整阅读当前仓库根目录 `AGENTS.md`；需要快速概览时也可参考 `docs/AI-START-HERE.md`，但发生冲突时以 `AGENTS.md` 为准。
+2. 检查：
+
+```bash
+git status --short --branch
+git branch --show-current
+git remote -v
+```
+
+3. 确认正式仓库是 `Reid-YM/xinghuo-dailian-wangyou`。若仓库不符，立即停止，不得在其他项目误操作。
+4. 若存在来源不明的未提交修改，立即停止并报告；不得覆盖、丢弃或擅自提交他人的工作。
+5. 若工作区干净，则同步最新主线：
+
+```bash
+git fetch origin
+git switch main
+git pull --ff-only origin main
+```
+
+6. 再次确认 `main` 与 `origin/main` 同步、工作区干净，然后根据任务创建独立分支：`feat/*`、`fix/*`、`refactor/*`、`docs/*` 或 `ci/*`。
+7. 先检查相关源码、调用链、配置和现有行为，再开始修改；不要仅凭需求描述猜测代码结构。
+8. 对正常、低风险、可逆的开发工作，可按本文件规则连续完成分析、修改、验证、Commit、Push 当前任务分支和创建 PR，无需每一个小步骤都等待确认。
+9. 完成后执行必要验证；Java 常规代码改动至少执行 `mvn clean package`，并检查 `git diff`。
+10. Push 只能推当前任务分支，随后创建 Pull Request 到 `main` 并等待 CI。**不得直接 Push `main`。**
+11. PR 合并、CI 成功都不等于生产部署授权。正常开发默认在 Merge `main` 后停止；只有项目负责人明确说出“确认部署”或同等明确授权后，才允许进入生产发布阶段，并优先使用 GitHub Actions 的 `Deploy Production`，而不是要求开发者日常登录服务器手输部署命令。
+
+只有以下情况应暂停并向项目负责人询问，而不是自行扩大操作范围：
+
+- 需求存在会明显改变结果的关键歧义；
+- 需要删除已有核心功能或改变重大业务逻辑；
+- 需要不可逆、破坏性或兼容性不明确的数据库变更；
+- 需要修改生产密钥、权限或生产基础设施；
+- 需要 Force Push、重写历史、删除分支或 Tag；
+- 准备进入生产部署，但尚未得到明确部署授权。
+
 ## 1. 正式项目基线
 
 - 正式 GitHub 仓库：`Reid-YM/xinghuo-dailian-wangyou`
 - 正式主分支：`main`
 - 2026-10-05 生产源码恢复基线：`d127eaae39b0f9b93c940e3f4a330d6b0e654c1a`
 - 恢复标签：`production-recovered-20261005`
-- 服务器正式源码目录：`/opt/xinghuo-v2/source-current`
+- 服务器正式维护 / 构建工作区：`/srv/xinghuo-dev/work/xinghuo-v2`
+- 生产运行目录：`/opt/xinghuo-v2`
 - 生产服务：`xinghuo-v2.service`
 
-恢复基线 SHA 只是历史恢复起点，不代表以后 `main` 永远停留在该提交。`main` 会随着正常开发继续前进；恢复标签用于历史锚定，不应删除或改写。
+`/opt/xinghuo-v2/source-current` 是恢复阶段使用过的参考源码目录，不再作为正式维护、构建或发布工作区。恢复基线 SHA 只是历史恢复起点，不代表以后 `main` 永远停留在该提交。`main` 会随着正常开发继续前进；恢复标签用于历史锚定，不应删除或改写。
 
 ## 2. 开发架构
 
@@ -29,6 +71,8 @@ GitHub 是正式代码协作和版本管理中心。
 - 故障排查
 
 生产服务器不作为两位开发者的日常共同编码工作区。两位开发者应分别使用自己电脑上的独立 Git Clone。
+
+服务器上的 `/srv/xinghuo-dev/work/xinghuo-v2` 是正式生产维护工作区，仅用于同步 `main`、构建、预发布冒烟与部署，不作为多人日常开发目录。
 
 ## 3. 核心协作原则
 
@@ -67,6 +111,7 @@ git pull --ff-only
 - Bug 修复：`fix/<问题名>`
 - 重构：`refactor/<模块名>`
 - 文档：`docs/<内容>`
+- CI / 工作流：`ci/<内容>`
 
 示例：
 
@@ -77,6 +122,7 @@ fix/mobile-layout
 fix/admin-upload
 refactor/site-config
 docs/deployment-guide
+ci/update-actions
 ```
 
 两个人同时开发时，必须使用各自独立分支，不要多人和多个 AI 无序共用同一个开发分支。
@@ -90,7 +136,7 @@ git status --short --branch
 git branch --show-current
 ```
 
-如果当前分支是 `main`，正常开发情况下不要直接修改，应先创建 `feat/*`、`fix/*`、`refactor/*` 或 `docs/*` 分支。
+如果当前分支是 `main`，正常开发情况下不要直接修改，应先创建 `feat/*`、`fix/*`、`refactor/*`、`docs/*` 或 `ci/*` 分支。
 
 ## 6. main 禁止操作
 
@@ -117,7 +163,7 @@ git push --force-with-lease
 ```text
 最新 main
   ↓
-创建 feat/* / fix/* / refactor/* / docs/*
+创建 feat/* / fix/* / refactor/* / docs/* / ci/*
   ↓
 人 + AI 开发
   ↓
@@ -137,7 +183,11 @@ CI 通过
   ↓
 Merge main
   ↓
-生产服务器更新 main
+默认停止，等待明确生产部署授权
+  ↓（仅在“确认部署”后）
+GitHub Actions: Deploy Production
+  ↓
+生产服务器 /srv/xinghuo-dev/work/xinghuo-v2 更新 main
   ↓
 构建 / 18080 冒烟 / 零停机部署 / 验证
 ```
@@ -276,7 +326,7 @@ V57__xxxx.sql
 ```text
 GitHub main
   ↓
-/opt/xinghuo-v2/source-current
+/srv/xinghuo-dev/work/xinghuo-v2
   ↓
 mvn clean package
   ↓
@@ -315,11 +365,12 @@ nginx 切回 8080
 
 ```text
 /srv/xinghuo-dev/base/xinghuo-v2-base.jar
-/srv/xinghuo-dev/work/xinghuo-v2
 基线 JAR + 覆盖源码
 rsync 覆盖源码后 dev_build.sh 拼包
 /opt/xinghuo-v2/bin/deploy-from-source.sh 直接 stop/start 替换固定 JAR
 ```
+
+`/srv/xinghuo-dev/work/xinghuo-v2` 本身不是旧方式，它现在是正式全量 Git/Maven 工作区。旧的 overlay 工作区仅以类似 `/srv/xinghuo-dev/work/xinghuo-v2.legacy-*` 的备份形式保留用于追溯。
 
 当前 `scripts/deploy-zero-downtime.sh` 的职责仅是发布已经 Maven 构建并完成 18080 冒烟的候选 JAR，不应重新构建源码或依赖旧 baseline JAR。
 
@@ -395,4 +446,4 @@ AI 完成代码任务后，应明确说明：
 - 当前代码事实以 GitHub `main` 为准。
 - 当前生产事实以实时服务器状态为准。
 
-不要因为历史文档重新使用已经淘汰的 `/srv/xinghuo-dev`、旧 baseline JAR 覆盖开发模式或旧的直接 stop/start 固定 JAR 发布方式。
+不要因为历史文档重新使用旧 baseline JAR 覆盖开发模式、旧 `dev_build.sh` 拼包方式或旧的直接 stop/start 固定 JAR 发布方式。`/srv/xinghuo-dev/work/xinghuo-v2` 是当前正式生产维护工作区；`/opt/xinghuo-v2/source-current` 仅作为恢复阶段参考目录，不是正式发布入口。

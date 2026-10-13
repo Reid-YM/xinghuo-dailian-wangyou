@@ -41,6 +41,12 @@ app:
   base-url: ${APP_BASE_URL:http://localhost:8080}
   upload-dir: ${UPLOAD_DIR:./uploads}
   max-upload-mb: ${MAX_UPLOAD_MB:5}
+  wechat-login:
+    app-id: ${WECHAT_OPEN_APP_ID:}
+    app-secret: ${WECHAT_OPEN_APP_SECRET:}
+  wechat-mini:
+    app-id: ${WECHAT_MINI_APP_ID:}
+    app-secret: ${WECHAT_MINI_APP_SECRET:}
   bootstrap-admin:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:}

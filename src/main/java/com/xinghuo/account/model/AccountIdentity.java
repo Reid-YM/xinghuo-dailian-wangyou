@@ -70,7 +70,8 @@ public class AccountIdentity {
 
     public enum Provider {
         QQ,
-        WECHAT
+        WECHAT,
+        WECHAT_MINI
     }
 
     @Generated

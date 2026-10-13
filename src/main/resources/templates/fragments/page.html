@@ -1,0 +1,46 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+<div th:fragment="compactQuoteHero(eyebrow,title,note,status,secondaryHref,secondaryLabel,extraClass)"
+     class="page-hero page-hero-compact"
+     th:classappend="${extraClass != null ? extraClass : ''}">
+  <div>
+    <div th:if="${status != null and !#strings.isEmpty(status)}" class="service-state" data-config="status" th:text="${status}">服务状态</div>
+    <span class="eyebrow" th:text="${eyebrow}">页面</span>
+    <h1 th:text="${title}">页面标题</h1>
+    <p th:if="${note != null and !#strings.isEmpty(note)}" class="page-hero-note" th:text="${note}">页面说明</p>
+  </div>
+  <div class="page-hero-actions">
+    <a class="btn primary" href="/quote" data-primary-cta>提前询价</a>
+    <a th:if="${secondaryHref != null and !#strings.isEmpty(secondaryHref)}"
+       class="btn ghost"
+       th:href="${secondaryHref}"
+       th:text="${secondaryLabel}">更多</a>
+  </div>
+</div>
+
+<div th:fragment="recordsHero(eyebrow,title)" class="page-hero page-hero-compact">
+  <div>
+    <span class="eyebrow" th:text="${eyebrow}">业务记录</span>
+    <h1 th:text="${title}">查询与历史</h1>
+  </div>
+  <div class="page-hero-actions">
+    <a class="btn primary" href="/quote" data-primary-cta>提前询价</a>
+    <button id="clearLocalRecords" class="btn small-btn ghost" type="button">清除浏览器记录</button>
+  </div>
+</div>
+
+<div th:fragment="sectionHeader(eyebrow,title,linkHref,linkLabel,extraClass)"
+     class="section-title"
+     th:classappend="${extraClass != null ? extraClass : ''}">
+  <div>
+    <span class="eyebrow" th:text="${eyebrow}">分区</span>
+    <h2 th:text="${title}">分区标题</h2>
+  </div>
+  <a th:if="${linkHref != null and !#strings.isEmpty(linkHref)}"
+     class="text-link"
+     th:href="${linkHref}"
+     th:text="${linkLabel}">更多</a>
+</div>
+</body>
+</html>

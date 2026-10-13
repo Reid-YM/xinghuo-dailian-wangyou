@@ -125,15 +125,8 @@
       layer.style.backgroundImage = '';
       return;
     }
-    const opacity = Math.max(0, Math.min(100, Number(f.heroBackgroundOpacity.value || 90))) / 100;
-    const fit = String(f.heroBackgroundFit.value || 'COVER').toLowerCase();
-    box.style.setProperty('--preview-bg-strength', String(opacity));
-    box.style.setProperty('--preview-bg-text-dim', String(Math.max(0.18, 0.48 - opacity * 0.28)));
-    layer.style.backgroundImage = `url("${replaceAllCompat(url, '"', '%22')}")`;
-    layer.style.opacity = String(opacity);
-    layer.style.backgroundSize = fit === 'fill' ? '100% 100%' : fit;
-    layer.style.backgroundPosition = `${Number(f.heroBackgroundPositionX.value || 50)}% ${Number(f.heroBackgroundPositionY.value || 50)}%`;
-    layer.style.filter = `brightness(${Math.max(1.02, Math.min(1.22, 0.98 + opacity * 0.22))}) saturate(1.08) blur(${Math.max(0, Math.min(24, Number(f.heroBackgroundBlur.value || 0)))}px)`;
+    const config = Object.fromEntries(['heroBackgroundOpacity','heroBackgroundFit','heroBackgroundPositionX','heroBackgroundPositionY','heroBackgroundBlur'].map(k => [k, f[k].value]));
+    window.SiteImageControls.background(box, layer, config, url);
     box.classList.remove('hidden');
   }
 
@@ -144,13 +137,11 @@
     try {
       const out = await api(`/api/admin/site-config/image/${slot}`, { method: 'POST', body: fd });
       hiddenInput.value = out.url || '';
-      if (slot === 'BACKGROUND') applyHeroBackgroundAutoFit();
       renderNamedPreview(previewSelector, hiddenInput.value, label);
       if (slot === 'BACKGROUND') updateHeroBackgroundLivePreview();
-      if (slot === 'BACKGROUND') {
-        await api('/api/admin/site-config/section/visual', { method: 'PATCH', body: JSON.stringify({ ...configSectionPayload('visual'), reason: '背景图上传后自动适配前台' }) });
-      }
-      toast(`${label}已上传并立即生效`);
+
+      document.dispatchEvent(new CustomEvent('site-image-updated'));
+      toast(`${label}已替换，原有调参已保留`);
     } catch (error) { toast(error.message, 'error'); }
     finally { setBusy(button, false); }
   }
@@ -171,6 +162,7 @@
       hiddenInput.value = ''; if (fileInput) fileInput.value = '';
       renderNamedPreview(previewSelector, '', label);
       if (slot === 'BACKGROUND') updateHeroBackgroundLivePreview();
+      document.dispatchEvent(new CustomEvent('site-image-updated'));
       toast(`${label}已移除并立即生效`);
     } catch (error) { toast(error.message, 'error'); }
   }
@@ -535,6 +527,7 @@ async function loadDashboard() {
     f.footerText.value = c.footerText || '';
     f.seoTitle.value = c.seoTitle || '';
     f.seoDescription.value = c.seoDescription || '';
+    document.dispatchEvent(new CustomEvent('site-config-loaded'));
   }
 
   $('#uploadHeroImage')?.addEventListener('click', event => {
@@ -552,6 +545,7 @@ async function loadDashboard() {
     if (!f?.heroBackgroundImage?.value) return toast('请先上传首页首屏背景图', 'error');
     applyHeroBackgroundAutoFit();
     updateHeroBackgroundLivePreview();
+    f.heroBackgroundOpacity.dispatchEvent(new Event('input', { bubbles: true }));
     toast('已套用前台自动适配参数，保存图片视觉模块后生效');
   });
   ['heroBackgroundOpacity','heroBackgroundFit','heroBackgroundPositionX','heroBackgroundPositionY','heroBackgroundBlur'].forEach(name => {
@@ -665,7 +659,16 @@ async function loadDashboard() {
 
   $('#saveConfigSection')?.addEventListener('click', async event => {
     const btn=event.currentTarget; setBusy(btn,true,'保存中…');
-    try { await api(`/api/admin/site-config/section/${activeConfigSection}`,{method:'PATCH',body:JSON.stringify(configSectionPayload(activeConfigSection))}); toast(`${configSectionLabels[activeConfigSection]}已单独保存`); await loadConfig(); }
+    try {
+      const section = activeConfigSection;
+      const preserve = section !== 'visual' && document.getElementById('visualSaveState')?.dataset.dirty === 'true';
+      const drafts = preserve ? [...document.querySelectorAll('[data-config-section="visual"] input:not([type="file"]),[data-config-section="visual"] select')].map(input => [input, input.value]) : [];
+      await api(`/api/admin/site-config/section/${section}`,{method:'PATCH',body:JSON.stringify(configSectionPayload(section))});
+      toast(`${configSectionLabels[section]}已单独保存`);
+      await loadConfig();
+      drafts.forEach(([input,value]) => { input.value = value; });
+      if (drafts.length) { updateHeroBackgroundLivePreview(); drafts[0][0].dispatchEvent(new Event('input', {bubbles:true})); }
+    }
     catch(error){ toast(error.message,'error'); } finally { setBusy(btn,false); }
   });
 
@@ -1071,6 +1074,7 @@ async function loadDashboard() {
     const f = $('#orderForm');
     f.reset();
     f.dataset.orderNo = o?.orderNo || '';
+    f.dataset.orderVersion = o?.version ?? '';
     f.orderNo.value = o?.orderNo || '';
     f.status.value = o?.status || 'WAITING_CONFIRMATION';
     f.progressPercent.value = o?.progressPercent ?? '';
@@ -1089,6 +1093,7 @@ async function loadDashboard() {
     const no = f.dataset.orderNo;
     const btn = f.querySelector('button[type=submit]');
     const body = {
+      ...(no ? { version: Number(f.dataset.orderVersion) } : {}),
       status: f.status.value,
       progressPercent: f.progressPercent.value === '' ? null : Number(f.progressPercent.value),
       progressText: f.progressText.value,
@@ -1931,3 +1936,4 @@ async function loadDashboard() {
   initAdminCyberVisuals();
   show('dashboard');
 })();
+

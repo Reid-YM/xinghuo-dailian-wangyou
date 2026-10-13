@@ -270,7 +270,7 @@ public class AdminApiController {
         if (q.getScreenshotAssetId() == null) {
             throw new NotFoundException();
         }
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.noStore()).body(this.uploads.load(q.getScreenshotAssetId(), "QUOTE", q.getId().toString()));
+        return ResponseEntity.ok().contentType(this.uploads.mediaType(q.getScreenshotAssetId())).cacheControl(CacheControl.noStore()).body(this.uploads.load(q.getScreenshotAssetId(), "QUOTE", q.getId().toString()));
     }
 
     @GetMapping(value={"/orders"})
@@ -344,7 +344,7 @@ public class AdminApiController {
         if (item.attachmentAssetId() == null) {
             throw new NotFoundException();
         }
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).cacheControl(CacheControl.noStore()).body(this.uploads.load(item.attachmentAssetId(), "TEST_FEEDBACK", String.valueOf(id)));
+        return ResponseEntity.ok().contentType(this.uploads.mediaType(item.attachmentAssetId())).cacheControl(CacheControl.noStore()).body(this.uploads.load(item.attachmentAssetId(), "TEST_FEEDBACK", String.valueOf(id)));
     }
 
     @Generated
@@ -364,4 +364,5 @@ public class AdminApiController {
         this.gameStatuses = gameStatuses;
     }
 }
+
 

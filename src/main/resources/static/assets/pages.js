@@ -35,11 +35,58 @@
     });
   }
 
+  function homeRecommendationPrice(service) {
+    if (!service) return '';
+    if (service.priceMode === 'fixed' && service.priceFixed != null) return `¥${service.priceFixed}`;
+    if (service.priceMin != null && service.priceMax != null) return `¥${service.priceMin}–${service.priceMax}`;
+    if (service.priceMin != null) return `¥${service.priceMin} 起`;
+    return '按需求报价';
+  }
+
+  function renderHomeRecommendations(config) {
+    const copy = document.querySelector('.hero-media-panel .hero-media-copy');
+    if (!copy) return;
+    const hot = Array.isArray(config?.hotServices) ? config.hotServices.slice(0, 2) : [];
+    if (!hot.length) {
+      copy.remove();
+      return;
+    }
+    copy.innerHTML = `<span class="eyebrow">当前推荐</span><div class="hero-hot-list">${hot.map(service => `
+      <a class="hero-hot-item" href="/service/${encodeURIComponent(service.slug || '')}">
+        <b>${XH.esc(service.name || '热门任务')}</b>
+        ${service.shortDesc ? `<small>${XH.esc(service.shortDesc)}</small>` : ''}
+        <em>${XH.esc(homeRecommendationPrice(service))}</em>
+      </a>`).join('')}</div>`;
+  }
+
+  function normalizeContactPage() {
+    const neutralLabels = { '主客服': '微信', '主账号': '微信', '默认客服': '微信' };
+    document.querySelectorAll('#contactChannelGrid .tag').forEach(tag => {
+      const current = (tag.textContent || '').trim();
+      if (neutralLabels[current]) tag.textContent = neutralLabels[current];
+    });
+
+    const qr = document.getElementById('wechatQr');
+    const consoleBox = document.querySelector('.contact-console');
+    if (!qr || !consoleBox) return;
+    const notice = consoleBox.querySelector('.contact-safety');
+    if (notice && qr.nextElementSibling !== notice) consoleBox.insertBefore(qr, notice);
+    else if (!notice && qr.parentElement !== consoleBox) consoleBox.appendChild(qr);
+  }
+
+  function observeContactChannelRefresh() {
+    const grid = document.getElementById('contactChannelGrid');
+    if (!grid || grid.dataset.normalizerReady === '1') return;
+    grid.dataset.normalizerReady = '1';
+    new MutationObserver(normalizeContactPage).observe(grid, { childList: true, subtree: true });
+  }
+
   async function initHome() {
     const config = await XH.loadConfig();
     const [services, taxonomy] = await Promise.all([XH.loadServices(), XH.loadTaxonomy()]);
     XH.updateDynamicStartingPrice(services);
     XH.bindUploadFields();
+    renderHomeRecommendations(config);
 
     const grid = $('#serviceGrid');
     if (grid) grid.innerHTML = services.slice(0, config.homeServiceLimit || 4).map(s => XH.serviceCard(s)).join('');
@@ -290,6 +337,8 @@
 
   async function initContact() {
     await XH.loadConfig();
+    normalizeContactPage();
+    observeContactChannelRefresh();
     XH.track('contact_click');
     bindCopyButtons();
   }

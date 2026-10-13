@@ -143,13 +143,14 @@ public class AccountAdminApiController {
         return AccountDtos.OkResponse.of("账号已禁用");
     }
 
+    @org.springframework.transaction.annotation.Transactional
     @DeleteMapping("/users/{id}")
     public AccountDtos.OkResponse deleteUser(@PathVariable Long id) {
         if (!accounts.existsById(id)) {
             throw AccountException.notFound("ACCOUNT_NOT_FOUND", "账号不存在");
         }
         jdbc.update("UPDATE quotes SET customer_account_id = NULL WHERE customer_account_id = ?", id);
-        jdbc.update("UPDATE customer_orders SET customer_account_id = NULL WHERE customer_account_id = ?", id);
+        jdbc.update("UPDATE customer_orders SET customer_account_id = NULL, version = version + 1 WHERE customer_account_id = ?", id);
         accounts.deleteById(id);
         return AccountDtos.OkResponse.of("账号已彻底删除");
     }
@@ -371,3 +372,4 @@ public class AccountAdminApiController {
     }
 
 }
+

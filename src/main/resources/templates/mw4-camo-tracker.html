@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080a0d">
+  <title>MW4 迷彩追踪器 | 星火网游代练平台</title>
+  <meta name="description" content="MW4 迷彩追踪器：按多人、战区、DMZ 与 Pyroclast 记录每把武器的三层大师迷彩进度，支持收藏、筛选、搜索和本机自动保存。">
+  <link rel="canonical" href="https://wydlgf.cn/mastery">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="星火网游代练平台">
+  <meta property="og:title" content="MW4 迷彩追踪器 | 星火网游代练平台">
+  <meta property="og:description" content="多人、战区、DMZ 三层大师迷彩加 Pyroclast，一页记录全部进度。">
+  <meta property="og:url" content="https://wydlgf.cn/mastery">
+  <meta property="og:image" content="https://wydlgf.cn/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MW4 迷彩追踪器">
+  <meta name="twitter:description" content="多人、战区、DMZ 三层大师迷彩加 Pyroclast，一页记录全部进度。">
+  <meta name="twitter:image" content="https://wydlgf.cn/og.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"MW4 迷彩追踪器","url":"https://wydlgf.cn/mastery","applicationCategory":"GameApplication","operatingSystem":"Web","inLanguage":"zh-CN","description":"MW4 多人、战区、DMZ 三层大师迷彩与 Pyroclast 进度追踪工具，进度保存在当前设备。","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"provider":{"@type":"Organization","name":"星火网游代练平台","url":"https://wydlgf.cn/"}}</script>
+  <link rel="stylesheet" href="/assets/app.css?v=20261006order1">
+  <link rel="stylesheet" href="/assets/mw4-camo-tracker.css?v=20261006camo5">
+  
+  <script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer src="/assets/public.js?v=20261008audit01"></script>
+  <script defer src="/assets/mw4-camo-tracker.js?v=20261006camo5"></script>
+<link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008a1"/>
+</head>
+<body class="camo-tracker-body" data-page="mw4-camo-tracker">
+<header th:replace="~{fragments/site :: header}"></header>
+
+<main class="container camo-shell">
+  <nav class="camo-crumb" aria-label="面包屑"><a href="/services">工具</a><span>/</span><b>MW4 迷彩追踪器</b></nav>
+
+  <section class="camo-hero" aria-labelledby="camoTitle">
+    <div class="camo-hero-copy">
+      <h1 id="camoTitle">MW4 迷彩追踪器</h1>
+      <p>按多人、战区、DMZ 逐个记录每把武器的三层大师迷彩，另有独立的 Pyroclast 系列。勾选即保存到当前设备，关闭页面再回来也不会丢。</p>
+      <p class="camo-hero-note">MW4 将于 2026-10-23 上线。迷彩名称已经确认，具体解锁条件与最终层级以上线后的官方信息为准。</p>
+    </div>
+    <a class="btn primary" href="/quote?toolProgress=1&amp;gameCode=CODMW4" id="quoteWithProgress" data-primary-cta>带着进度询价</a>
+  </section>
+
+  <section class="camo-progress-card" aria-label="总进度">
+    <span class="eyebrow">你的 MW4 迷彩进度</span>
+    <div class="camo-progress-row">
+      <strong id="overallPercent">0%</strong>
+      <span id="overallCount">0 / 0 项迷彩</span>
+    </div>
+    <div class="camo-overall-track"><i id="overallBar"></i></div>
+    <small id="saveState">进度会自动保存在当前浏览器</small>
+  </section>
+
+  <div class="camo-sync-bar" id="syncBar" data-state="checking">
+    <span class="camo-sync-icon" aria-hidden="true">☁</span>
+    <p><b id="syncLead">正在检查账号状态</b><span id="syncText">登录后可在所有设备上同步进度。</span></p>
+    <a class="camo-sync-action hidden" id="syncAction" href="/account/login">登录同步</a>
+  </div>
+
+  <div class="camo-tabs" id="modeTabs" role="tablist" aria-label="迷彩模式"></div>
+
+  <section class="camo-mode-panel" id="modePanel" aria-label="模式大师迷彩">
+    <div class="camo-mode-head">
+      <div><span class="camo-mode-title" id="modeHeadTitle">多人 大师迷彩</span><small id="modeHeadMeta">0 / 0 把武器</small></div>
+      <span class="camo-mode-final" id="modeHeadFinal"></span>
+    </div>
+    <div class="camo-tier-grid" id="tierCards"></div>
+    <p class="camo-tier-note" id="modeNote"></p>
+  </section>
+
+  <section class="camo-pyro-panel hidden" id="pyroPanel" aria-label="Pyroclast 迷彩">
+    <div class="camo-mode-head">
+      <div><span class="camo-mode-title">Pyroclast 系列</span><small id="pyroMeta">0 / 0 项</small></div>
+      <span class="camo-mode-final">独立于三个模式</span>
+    </div>
+    <div class="camo-pyro-grid" id="pyroCards"></div>
+    <p class="camo-tier-note">Pyroclast 是独立于多人 / 战区 / DMZ 的一套迷彩，直接按项勾选即可。</p>
+    <div class="camo-secret" id="secretCard"></div>
+  </section>
+
+  <section class="camo-filters" id="filterBar" aria-label="筛选武器">
+    <label>
+      <span>武器类型</span>
+      <select id="classFilter"><option value="">全部类型</option></select>
+    </label>
+    <label>
+      <span>完成状态</span>
+      <select id="statusFilter">
+        <option value="all">全部武器</option>
+        <option value="todo">未完成</option>
+        <option value="done">已完成</option>
+        <option value="fav">已收藏</option>
+      </select>
+    </label>
+    <label class="camo-search-field">
+      <span>搜索武器</span>
+      <input id="weaponSearch" type="search" placeholder="输入武器名称或代号" autocomplete="off">
+    </label>
+    <div class="camo-filter-actions">
+      <button class="btn ghost" id="resetProgress" type="button">重置当前进度</button>
+      <button class="btn ghost" id="clearFavorites" type="button">清空收藏</button>
+    </div>
+  </section>
+
+  <p class="camo-hint" id="weaponHint">点击武器展开三层迷彩与解锁条件；星标可以把常用武器置顶。</p>
+
+  <div id="trackerStatus" class="camo-status" role="status">正在读取 MW4 武器资料…</div>
+  <section class="camo-groups" id="weaponGroups"></section>
+  <div class="camo-empty hidden" id="emptyState">
+    <b>没有符合条件的武器</b>
+    <span>调整搜索、类型或完成状态后再试。</span>
+  </div>
+
+  <section class="camo-note">
+    <div>
+      <span class="eyebrow">工具说明</span>
+      <h2>先记录剩余项目，再决定要不要把时间交给别人</h2>
+      <p>工具只记录勾选进度，不会上传游戏账号、密码或验证码。进度保存在当前浏览器，清空浏览器数据会同时清除本机记录。</p>
+    </div>
+    <a class="btn ghost" href="/contact">联系客服确认服务</a>
+  </section>
+</main>
+
+<nav class="mobile-dock" aria-label="手机快捷操作">
+  <a class="active" href="/mastery">MW4 迷彩</a>
+  <a href="/records">业务记录</a>
+  <a class="primary" href="/quote?toolProgress=1&amp;gameCode=CODMW4" data-primary-cta>提前询价</a>
+</nav>
+<footer th:replace="~{fragments/site :: footer}"></footer>
+</body>
+</html>
+

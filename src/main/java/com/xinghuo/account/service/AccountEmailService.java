@@ -154,10 +154,14 @@ public class AccountEmailService {
             throw AccountException.badRequest("CODE_INVALID", "验证码无效或已过期，请重新发送");
         }
         account.setEmailVerified(true);
-        account.setContactVerified(true);
-        account.setContactType(Account.ContactType.EMAIL);
-        account.setContactValue(account.getEmail());
-        account.setContactNorm(account.getEmailNorm());
+        // 安全邮箱与主登录凭据是两套概念。邮箱注册账号本来就是 EMAIL，保持其
+        // contact_* 同步；微信等第三方账号验证安全邮箱时不能把主登录方式改掉，
+        // 否则会出现 contactType=EMAIL 但用户没有可知密码的“伪邮箱登录”状态。
+        if (account.getContactType() == Account.ContactType.EMAIL) {
+            account.setContactVerified(true);
+            account.setContactValue(account.getEmail());
+            account.setContactNorm(account.getEmailNorm());
+        }
         accounts.save(account);
         audit.record(account.getId(), "EMAIL_VERIFIED", null, request);
     }

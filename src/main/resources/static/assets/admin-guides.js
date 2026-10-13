@@ -58,7 +58,7 @@ function renderGuideRows() {
     return;
   }
   host.innerHTML = guideRows.map((item) => `
-    <div class="guide-admin-row ${currentDetail?.guide?.id === item.id ? 'active' : ''}" data-guide-id="${item.id}">
+    <div class="guide-admin-row ${currentDetail?.guide?.id === item.id ? 'active' : ''}">
       <label class="guide-admin-row-check" title="选择这篇攻略">
         <input type="checkbox" data-guide-check="${item.id}" ${selectedGuideIds.has(item.id) ? 'checked' : ''}/>
       </label>
@@ -73,7 +73,7 @@ function renderGuideRows() {
     else selectedGuideIds.delete(id);
     syncSelection();
   }));
-  $$('[data-guide-id]', host).forEach((button) => button.addEventListener('click', () => openGuide(Number(button.dataset.guideId))));
+  $$('.guide-admin-row-main[data-guide-id]', host).forEach((button) => button.addEventListener('click', () => openGuide(Number(button.dataset.guideId))));
   syncSelection();
 }
 

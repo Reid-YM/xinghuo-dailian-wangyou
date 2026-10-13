@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,6 +72,18 @@ class ReviewedFlywayMigrationContractTest {
                 "review manifest must bind V64 to its exact git blob hash");
     }
 
+    @Test
+    void reviewedV65SessionSlidingRenewalMatchesExactMigrationBlob() throws Exception {
+        Path migration = Path.of("src/main/resources/db/migration/V65__session_sliding_renewal.sql");
+        String gitBlobSha = gitBlobSha(migration);
+        String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
+
+        assertEquals("530018c0b4a099443123dcec71a05131d3cc0ac5", gitBlobSha,
+                "V65 content changed after review; re-review and update the exact blob hash");
+        assertTrue(manifest.contains("V65__session_sliding_renewal.sql " + gitBlobSha),
+                "review manifest must bind V65 to its exact git blob hash");
+    }
+
     private void assertHistoricalMigration(String filename, int expectedChecksum, String expectedBlobSha) throws Exception {
         Path migration = Path.of("src/main/resources/db/migration", filename);
         CRC32 crc = new CRC32();
@@ -91,12 +104,32 @@ class ReviewedFlywayMigrationContractTest {
                 "review manifest must bind " + filename + " to its exact historical blob");
     }
 
+    /**
+     * 迁移文件的 git blob sha。
+     *
+     * <p>仓库在 Windows 上按 CRLF 检出（core.autocrlf），但 git 提交进去的是 LF 版本，
+     * 生产部署脚本也是在 Linux 工作区上跑 {@code git hash-object}。所以这里先按 LF 归一化再算：
+     * 同一次提交在 Windows 与 Linux 上得到同一个（也就是真正落库的）blob sha，
+     * 同时依然能挡住任何内容改动。
+     */
     private String gitBlobSha(Path migration) throws Exception {
-        byte[] content = Files.readAllBytes(migration);
+        byte[] content = normalizeLineEndings(Files.readAllBytes(migration));
         byte[] header = ("blob " + content.length + "\0").getBytes(StandardCharsets.UTF_8);
         MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
         sha1.update(header);
         sha1.update(content);
         return HexFormat.of().formatHex(sha1.digest());
+    }
+
+    /** 把 CRLF 归一化成 LF，让 blob sha 不受工作区换行符影响。 */
+    private static byte[] normalizeLineEndings(byte[] content) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(content.length);
+        for (int i = 0; i < content.length; i++) {
+            if (content[i] == '\r' && i + 1 < content.length && content[i + 1] == '\n') {
+                continue;
+            }
+            out.write(content[i]);
+        }
+        return out.toByteArray();
     }
 }

@@ -9,8 +9,8 @@
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>游戏与分类管理 · 星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
-  <link rel="stylesheet" href="/assets/admin-xingwei-taxonomy.css?v=20261014v3f"/>
-  <script defer src="/assets/admin-xingwei-taxonomy.js?v=20261014v3f"></script>
+  <link rel="stylesheet" href="/assets/admin-xingwei-taxonomy.css?v=20261014v3i"/>
+  <script defer src="/assets/admin-xingwei-taxonomy.js?v=20261014v3i"></script>
 </head>
 <body>
 <main class="xtax-shell">
@@ -27,11 +27,11 @@
 
   <section class="xtax-hero">
     <div>
-      <p class="xw-kicker">V3F · CONTROLLED MANAGEMENT</p>
-      <h2>新增默认停用，资料编辑与启停分离；启停仍先看影响。</h2>
-      <p>V3F 已支持受控新增游戏/分类以及名称、图标、说明、排序资料编辑。新增项目始终默认停用；编辑资料不会改变 code、归属关系或启停状态。真正启用/停用仍必须先查看关联分类、服务和公开候选影响，再填写原因并确认，成功后立即刷新 taxonomy 可见性缓存。</p>
+      <p class="xw-kicker">V3I · VISIBILITY CONFIRM</p>
+      <h2>先确认前台会发生什么，再执行启停；预览过期就强制重看。</h2>
+      <p>V3I 在 V3F 的受控新增与资料编辑基础上强化启停安全：弹窗会明确显示当前前台公开服务数、操作后的公开服务数、父级游戏阻断和风险提示。提交时服务端重新计算影响快照；如果分类、服务或可见性在预览后发生变化，会拒绝旧确认并要求重新查看。</p>
     </div>
-    <div class="xtax-version"><span>当前版本</span><strong th:text="${taxonomyVersion}">20261014-v3f</strong><small th:text="${username}">admin</small></div>
+    <div class="xtax-version"><span>当前版本</span><strong th:text="${taxonomyVersion}">20261014-v3i</strong><small th:text="${username}">admin</small></div>
   </section>
 
   <section class="xtax-message" id="xtaxMessage" role="status">正在读取现有 taxonomy……</section>
@@ -53,12 +53,12 @@
 
   <div class="xtax-grid">
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>游戏</h3><p>支持受控新增和资料编辑；code 不可修改。启停必须单独查看影响并填写原因。</p></div><span class="xw-pill">影响范围更大</span></div>
+      <div class="xw-data-head"><div><h3>游戏</h3><p>支持受控新增和资料编辑；code 不可修改。启停会重新核对前台可见性影响。</p></div><span class="xw-pill">影响范围更大</span></div>
       <div class="xw-table-wrap"><table class="xw-table xtax-table"><thead><tr><th>游戏</th><th>业务状态</th><th>分类</th><th>服务</th><th>状态</th><th>操作</th></tr></thead><tbody id="xtaxGameRows"></tbody></table></div>
     </section>
 
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>分类</h3><p>支持受控新增和资料编辑；code 与所属游戏不可修改。启停独立执行影响确认。</p></div><span class="xw-pill">按分类隔离</span></div>
+      <div class="xw-data-head"><div><h3>分类</h3><p>支持受控新增和资料编辑；code 与所属游戏不可修改。启用时会检查父级游戏是否仍停用。</p></div><span class="xw-pill">按分类隔离</span></div>
       <div class="xw-table-wrap"><table class="xw-table xtax-table"><thead><tr><th>分类</th><th>游戏</th><th>服务</th><th>状态</th><th>操作</th></tr></thead><tbody id="xtaxCategoryRows"></tbody></table></div>
     </section>
   </div>
@@ -67,7 +67,7 @@
 <dialog id="xtaxDialog" class="xtax-dialog" aria-labelledby="xtaxDialogTitle">
   <section class="xtax-dialog-card">
     <div class="xtax-dialog-head">
-      <div><p class="xw-kicker">TAXONOMY · IMPACT</p><h2 id="xtaxDialogTitle">影响预览</h2><p id="xtaxDialogMeta">—</p></div>
+      <div><p class="xw-kicker">TAXONOMY · VISIBILITY IMPACT</p><h2 id="xtaxDialogTitle">前台可见性影响确认</h2><p id="xtaxDialogMeta">—</p></div>
       <button class="xw-button xw-button-ghost" id="xtaxClose" type="button">关闭</button>
     </div>
 
@@ -77,17 +77,28 @@
       <div><span>启用分类</span><strong id="xtaxImpactActiveCategories">-</strong></div>
       <div><span>关联服务</span><strong id="xtaxImpactServices">-</strong></div>
       <div><span>公开候选服务</span><strong id="xtaxImpactPublicServices">-</strong></div>
+      <div><span>当前前台服务</span><strong id="xtaxVisibleNow">-</strong></div>
+      <div><span>操作后前台服务</span><strong id="xtaxVisibleAfter">-</strong></div>
+    </div>
+    <div class="xtax-visibility" id="xtaxVisibilityBox">
+      <span>前台结果</span>
+      <strong id="xtaxVisibilitySummary">正在计算……</strong>
+      <ul id="xtaxWarnings" hidden></ul>
     </div>
     <p class="xtax-effect" id="xtaxEffect">—</p>
 
     <label class="xtax-reason" id="xtaxReasonWrap" hidden>启停原因
       <textarea id="xtaxReason" rows="3" maxlength="500" placeholder="说明为什么要启用/停用；该原因进入现有 GAME_UPDATE / CATEGORY_UPDATE 审计"></textarea>
     </label>
+    <label class="xtax-ack" id="xtaxAckWrap" hidden>
+      <input id="xtaxAcknowledge" type="checkbox"/>
+      <span>我已核对“当前前台服务 / 操作后前台服务”和上述风险提示，确认按本次影响执行。</span>
+    </label>
 
-    <div class="xtax-note">启停操作只改变 active，不修改 code、名称、说明、排序或归属关系。新增/资料编辑与启停保持分离；启停成功后立即清除公开可见性缓存。</div>
+    <div class="xtax-note">提交时会携带本次影响快照 token。若你查看预览后分类、服务或公开条件发生变化，服务端会拒绝旧确认，要求重新预览；不会按过期影响直接执行。</div>
     <div class="xtax-dialog-actions">
       <button class="xw-button xw-button-ghost" id="xtaxCancel" type="button">取消</button>
-      <button class="xw-button" id="xtaxToggle" type="button" hidden>确认启停</button>
+      <button class="xw-button" id="xtaxToggle" type="button" hidden disabled>确认启停</button>
     </div>
   </section>
 </dialog>

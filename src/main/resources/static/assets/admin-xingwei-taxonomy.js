@@ -15,7 +15,13 @@
   const effect = document.getElementById('xtaxEffect');
   const reasonWrap = document.getElementById('xtaxReasonWrap');
   const reason = document.getElementById('xtaxReason');
+  const ackWrap = document.getElementById('xtaxAckWrap');
+  const acknowledge = document.getElementById('xtaxAcknowledge');
   const toggle = document.getElementById('xtaxToggle');
+  const visibleNow = document.getElementById('xtaxVisibleNow');
+  const visibleAfter = document.getElementById('xtaxVisibleAfter');
+  const visibilitySummary = document.getElementById('xtaxVisibilitySummary');
+  const warnings = document.getElementById('xtaxWarnings');
   const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
   const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || '';
 
@@ -94,9 +100,14 @@
       const response=await fetch('/api/admin/xingwei/catalog/snapshot',{credentials:'same-origin',headers:{Accept:'application/json'}});
       const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||`HTTP ${response.status}`);
       snapshot=body;render();setStatus(status,'taxonomy 已读取',true,false);
-      if(showLoading)setMessage(`已读取 ${(snapshot.games||[]).length} 个游戏、${(snapshot.categories||[]).length} 个分类。${canManage?'所有启停必须先查看影响并填写原因。':'当前账号只能查看影响。'}`,'ok');
+      if(showLoading)setMessage(`已读取 ${(snapshot.games||[]).length} 个游戏、${(snapshot.categories||[]).length} 个分类。${canManage?'启停必须核对前台可见性、填写原因并确认影响快照。':'当前账号只能查看影响。'}`,'ok');
     }catch(error){setStatus(status,'读取失败',false,true);setMessage(`读取失败或当前账号没有 service:view：${error.message}`,'error');}
     finally{refresh.disabled=false;}
+  }
+
+  function syncToggleReady(){
+    if(!canManage||!currentImpact){toggle.disabled=true;return;}
+    toggle.disabled=!(acknowledge.checked&&reason.value.trim());
   }
 
   function resetImpact(){
@@ -105,7 +116,15 @@
     document.getElementById('xtaxImpactActiveCategories').textContent='-';
     document.getElementById('xtaxImpactServices').textContent='-';
     document.getElementById('xtaxImpactPublicServices').textContent='-';
-    reason.value='';reasonWrap.hidden=true;toggle.hidden=true;toggle.disabled=false;
+    visibleNow.textContent='-';visibleAfter.textContent='-';visibilitySummary.textContent='正在计算……';
+    warnings.replaceChildren();warnings.hidden=true;
+    reason.value='';acknowledge.checked=false;reasonWrap.hidden=true;ackWrap.hidden=true;toggle.hidden=true;toggle.disabled=true;
+  }
+
+  function renderWarnings(items){
+    warnings.replaceChildren();
+    (items||[]).forEach(text=>append(warnings,'li',text));
+    warnings.hidden=!(items||[]).length;
   }
 
   function renderImpact(impact){
@@ -116,10 +135,20 @@
     document.getElementById('xtaxImpactActiveCategories').textContent=String(impact.activeCategoryCount??0);
     document.getElementById('xtaxImpactServices').textContent=String(impact.serviceCount??0);
     document.getElementById('xtaxImpactPublicServices').textContent=String(impact.publicCandidateServiceCount??0);
+    visibleNow.textContent=String(impact.currentPublicServiceCount??0);
+    visibleAfter.textContent=String(impact.targetPublicServiceCount??0);
+    visibilitySummary.textContent=impact.visibilitySummary||impact.effect||'—';
+    renderWarnings(impact.warnings);
     effect.textContent=impact.effect||'—';
-    reasonWrap.hidden=!canManage;
-    toggle.hidden=!canManage;
-    toggle.textContent=impact.active?'确认停用':'确认启用';
+    reasonWrap.hidden=!canManage;ackWrap.hidden=!canManage;toggle.hidden=!canManage;
+    if(impact.active&&Number(impact.currentPublicServiceCount||0)>0){
+      toggle.textContent=`确认停用并隐藏 ${impact.currentPublicServiceCount} 个前台服务`;
+    }else if(!impact.active&&Number(impact.targetPublicServiceCount||0)>0){
+      toggle.textContent=`确认启用并恢复 ${impact.targetPublicServiceCount} 个前台服务`;
+    }else{
+      toggle.textContent=impact.active?'确认停用':'确认启用';
+    }
+    syncToggleReady();
   }
 
   async function openImpact(kind,key){
@@ -132,26 +161,30 @@
       const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||`HTTP ${response.status}`);
       if(!currentTarget||String(currentTarget.key)!==String(key)||currentTarget.kind!==kind)return;
       renderImpact(body);
-    }catch(error){impactBox.textContent='影响预览读取失败';effect.textContent=error.message;toggle.hidden=true;reasonWrap.hidden=true;}
+    }catch(error){impactBox.textContent='影响预览读取失败';visibilitySummary.textContent='无法确认前台可见性，请勿执行启停。';effect.textContent=error.message;toggle.hidden=true;reasonWrap.hidden=true;ackWrap.hidden=true;}
   }
 
   async function applyToggle(){
     if(!canManage||!currentImpact||!currentTarget)return;
     const why=reason.value.trim();if(!why){setMessage('启停前必须填写原因。','error');reason.focus();return;}
+    if(!acknowledge.checked){setMessage('请先确认已经核对前台可见性变化。','error');acknowledge.focus();return;}
     const next=!Boolean(currentImpact.active);
     const label=`${currentImpact.name}（${currentImpact.key}）`;
-    if(!window.confirm(`确认${next?'启用':'停用'}${currentImpact.type==='GAME'?'游戏':'分类'}「${label}」？`))return;
     const url=currentTarget.kind==='game'
       ? `/api/admin/xingwei/catalog/taxonomy/games/${encodeURIComponent(currentTarget.key)}/active`
       : `/api/admin/xingwei/catalog/taxonomy/categories/${encodeURIComponent(currentTarget.key)}/active`;
     const headers={Accept:'application/json','Content-Type':'application/json'};if(csrfToken&&csrfHeader)headers[csrfHeader]=csrfToken;
     toggle.disabled=true;
     try{
-      const response=await fetch(url,{method:'PUT',credentials:'same-origin',headers,body:JSON.stringify({active:next,reason:why})});
+      const response=await fetch(url,{method:'PUT',credentials:'same-origin',headers,body:JSON.stringify({active:next,reason:why,impactToken:currentImpact.impactToken})});
       const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||`HTTP ${response.status}`);
       dialog.close();currentImpact=null;currentTarget=null;await loadSnapshot(false);
-      setMessage(`已${next?'启用':'停用'}「${label}」，可见性缓存已立即刷新，操作已进入现有 taxonomy 审计。`,'ok');
-    }catch(error){setMessage(`启停失败：${error.message}`,'error');toggle.disabled=false;}
+      setMessage(`已${next?'启用':'停用'}「${label}」，本次影响快照已校验，可见性缓存已立即刷新，操作已进入 taxonomy 审计。`,'ok');
+    }catch(error){
+      const stale=String(error.message||'').includes('影响数据已变化');
+      if(stale&&currentTarget){const target={...currentTarget};await openImpact(target.kind,target.key);setMessage('影响数据已变化，已为你重新加载最新前台影响；请重新核对后确认。','error');}
+      else{setMessage(`启停失败：${error.message}`,'error');toggle.disabled=false;}
+    }
   }
 
   document.addEventListener('click',(event)=>{
@@ -162,10 +195,11 @@
   document.getElementById('xtaxClose').addEventListener('click',()=>dialog.close());
   document.getElementById('xtaxCancel').addEventListener('click',()=>dialog.close());
   toggle.addEventListener('click',()=>void applyToggle());
+  reason.addEventListener('input',syncToggleReady);
+  acknowledge.addEventListener('change',syncToggleReady);
   search.addEventListener('input',render);
   state.addEventListener('change',render);
   refresh.addEventListener('click',()=>void loadSnapshot(true));
-
 
   const editDialog=document.getElementById('xtaxEditDialog');
   const editForm=document.getElementById('xtaxEditForm');

@@ -15,12 +15,15 @@ class XingweiReleaseHistoryContractTest {
     @Test
     void currentVersionsAndReleaseHistoryAreCentralized() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
-        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261014-v3g\""));
-        assertTrue(controller.contains("static final String TAXONOMY_VERSION = \"20261014-v3f\""));
+        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261014-v3i\""));
+        assertTrue(controller.contains("static final String TAXONOMY_VERSION = \"20261014-v3i\""));
         assertTrue(controller.contains("@GetMapping(\"/admin/xingwei/releases\")"));
         assertTrue(controller.contains("\"V3F\", \"已上线\""));
         assertTrue(controller.contains("\"V3G\", \"已上线\""));
         assertTrue(controller.contains("\"V3H\", \"待真机验收\""));
+        assertTrue(controller.contains("\"V3I\", \"开发完成\""));
+        assertTrue(controller.contains("影响快照 token"));
+        assertTrue(controller.contains("Chromium/WebKit 自动化验证已通过"));
         assertTrue(controller.contains("result.put(\"version\", CONSOLE_VERSION)"));
     }
 
@@ -34,13 +37,15 @@ class XingweiReleaseHistoryContractTest {
     }
 
     @Test
-    void dashboardStatusMatchesDeliveredAndPendingStages() throws Exception {
+    void dashboardStatusMatchesV3iReleaseCandidateAndOtherStages() throws Exception {
         String dashboard = read("resources/templates/admin-xingwei.html");
         assertTrue(dashboard.contains("href=\"/admin/xingwei/releases\">更新记录</a>"));
-        assertTrue(dashboard.contains("V3G · CURRENT DELIVERY"));
+        assertTrue(dashboard.contains("V3I · RELEASE CANDIDATE"));
+        assertTrue(dashboard.contains("20261014-v3i"));
         assertTrue(dashboard.contains("V3G 已上线"));
         assertTrue(dashboard.contains("V3H 待真机验收"));
-        assertTrue(dashboard.contains("V3A-V3F"));
+        assertTrue(dashboard.contains("impactToken"));
+        assertTrue(dashboard.contains("V3I 新版工作台"));
         assertFalse(dashboard.contains("<span>V4 整合</span>"));
         assertFalse(dashboard.contains("PHASE 2C · DATA SCOPE ENFORCEMENT"));
     }

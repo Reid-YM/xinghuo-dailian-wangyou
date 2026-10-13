@@ -19,14 +19,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3g";
+    static final String CONSOLE_VERSION = "20261014-v3i";
     static final String BUSINESS_VERSION = "20261013-v2e";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
-    static final String TAXONOMY_VERSION = "20261014-v3f";
+    static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3I", "开发完成",
+                    "游戏/分类前台可见性确认与过期预览防护",
+                    "启停前显示当前与操作后的前台服务数量、父级游戏阻断和风险提示；提交携带影响快照 token，预览后数据发生变化会拒绝旧确认并要求重新查看。Java/Maven 与 Chromium/WebKit 自动化验证已通过，进入发布候选。"),
             new ReleaseItem("2026-10-14", "V3H", "待真机验收",
                     "小程序微信支付闭环",
                     "JSAPI/小程序支付、直接 openid 绑定、Native/小程序通道互斥、支付状态服务端核验已完成；PR #384 保持未合并，待 AppID/商户绑定和小额真机联调。"),

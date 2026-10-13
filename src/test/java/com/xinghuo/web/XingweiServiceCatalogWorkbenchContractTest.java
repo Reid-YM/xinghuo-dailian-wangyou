@@ -51,7 +51,7 @@ class XingweiServiceCatalogWorkbenchContractTest {
     }
 
     @Test
-    void safeCreateEditorAndReleasePreflightRemainPresentAfterV3fVersionSync() throws Exception {
+    void safeCreateEditorAndReleasePreflightRemainPresentAfterVersionSync() throws Exception {
         String pageController = read("java/com/xinghuo/controller/XingweiAdminController.java");
         String template = read("resources/templates/admin-xingwei-catalog.html");
         String shell = read("resources/templates/admin-xingwei.html");
@@ -75,7 +75,7 @@ class XingweiServiceCatalogWorkbenchContractTest {
     }
 
     @Test
-    void publishReviewStillHasNoSecondApprovalState() throws Exception {
+    void publishReviewStillHasNoSecondApprovalStateWhileTaxonomyUsesVisibilityConfirm() throws Exception {
         String review = read("java/com/xinghuo/service/XingweiServicePublishReviewService.java");
         String controller = read("java/com/xinghuo/controller/XingweiServiceCatalogController.java");
         assertTrue(review.contains("taxonomy.publicAllowed"));
@@ -87,7 +87,7 @@ class XingweiServiceCatalogWorkbenchContractTest {
         assertTrue(review.contains("throw new BadRequestException(\"上架前检查未通过：\""));
         assertFalse(review.contains("Repository approval"));
         assertFalse(review.contains("save("));
-        assertTrue(controller.contains("SERVICE_MANAGE_WITH_PUBLISH_PREFLIGHT_AND_TAXONOMY_TOGGLE_PREVIEW"));
+        assertTrue(controller.contains("SERVICE_MANAGE_WITH_PUBLISH_PREFLIGHT_AND_TAXONOMY_VISIBILITY_CONFIRM"));
         assertTrue(controller.contains("publishReview.requireReady(id)"));
     }
 

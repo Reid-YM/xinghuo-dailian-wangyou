@@ -61,13 +61,13 @@
 
     <section class="xw-hero" id="overview">
       <div>
-        <p class="xw-kicker">V3G · CURRENT DELIVERY</p>
-        <h2>业务工作台、服务目录、游戏分类与小程序扫码登录已经进入新版体系。</h2>
-        <p>V2 数据范围继续作为权限底座；V3F 已上线游戏/分类受控新增与资料编辑，V3G 已上线“星维网络”小程序扫码登录。V3H 小程序微信支付代码与自动化测试已完成，但仍保持未合并、未启用真实支付，等待真机 AppID / 商户绑定与小额联调。</p>
+        <p class="xw-kicker">V3I · RELEASE CANDIDATE</p>
+        <h2>新版 taxonomy 启停已经升级到“前台可见性确认 + 过期预览防护”。</h2>
+        <p>V2 数据范围继续作为权限底座；V3F 已上线游戏/分类受控新增与资料编辑，V3G 已上线“星维网络”小程序扫码登录。V3I 已完成前台可见数量、父级阻断、明确确认和 impactToken 防误操作开发与自动化验证。V3H 小程序微信支付仍保持未合并、未启用真实支付，等待真机 AppID / 商户绑定与小额联调。</p>
       </div>
       <div class="xw-version-card">
         <span>当前版本</span>
-        <strong th:text="${consoleVersion}">20261014-v3g</strong>
+        <strong th:text="${consoleVersion}">20261014-v3i</strong>
         <small id="xwServerTime">等待服务响应</small>
       </div>
     </section>
@@ -83,12 +83,12 @@
     <section class="xw-section" id="business">
       <div class="xw-section-head">
         <div><p class="xw-kicker">BUSINESS CENTER</p><h2>业务中台</h2></div>
-        <p>V2E 已把询价与订单接入新版数据范围工作台；V3A-V3F 已继续迁移服务目录、发布检查以及游戏/分类受控管理。攻略内容等未迁移能力仍复用原有模块。</p>
+        <p>V2E 已把询价与订单接入新版数据范围工作台；V3A-V3I 已继续迁移服务目录、发布检查、游戏/分类受控管理和可见性启停保护。攻略内容等未迁移能力仍复用原有模块。</p>
       </div>
       <div class="xw-grid">
         <a class="xw-module" data-search="询价 客户 需求 线索 报价" href="/admin/xingwei/business?tab=quotes"><div class="xw-module-index">B01</div><h3>询价与线索</h3><p>按 ALL / DEPARTMENT / SELF 查看客户需求、询价记录与业务归属。</p><span>新版工作台 →</span></a>
         <a class="xw-module" data-search="订单 履约 进度 派单 代练" href="/admin/xingwei/business?tab=orders"><div class="xw-module-index">B02</div><h3>订单与履约</h3><p>按真实数据范围查看订单状态、进度与负责人，并执行范围内派单。</p><span>新版工作台 →</span></a>
-        <a class="xw-module" data-search="服务 商品 价格 上下架 游戏 mw4" href="/admin/xingwei/catalog"><div class="xw-module-index">B03</div><h3>服务与商品</h3><p>服务项目、价格、发布检查、游戏与分类资料均已进入新版受控工作台。</p><span>V3F 新版工作台 →</span></a>
+        <a class="xw-module" data-search="服务 商品 价格 上下架 游戏 mw4 taxonomy 可见性" href="/admin/xingwei/catalog"><div class="xw-module-index">B03</div><h3>服务与商品</h3><p>服务项目、价格、发布检查、游戏与分类资料均已进入新版受控工作台；taxonomy 启停增加前台影响快照确认。</p><span>V3I 新版工作台 →</span></a>
         <a class="xw-module" data-search="攻略 内容 编辑 guides" href="/admin/guides"><div class="xw-module-index">B04</div><h3>攻略内容</h3><p>管理攻略组件与站内内容资产。</p><span>打开模块 →</span></a>
       </div>
     </section>
@@ -157,7 +157,7 @@
       </div>
     </section>
 
-    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移与交付状态</h2></div></div><ol><li><strong>V1 / V2A-V2C</strong><span>已上线：新版后台壳、七大中心、155 岗位、混合权限守卫与 ALL / DEPARTMENT / SELF 数据范围。</span></li><li><strong>V2D-V2G</strong><span>已上线：询价与订单数据范围、业务工作台、员工工作台、企业微信通讯录只读。</span></li><li><strong>V3A-V3F</strong><span>已上线：服务目录、受控编辑/新增、发布检查、游戏与分类影响预览以及受控新增和资料编辑。</span></li><li><strong>V3G</strong><span>已上线：网站二维码 + “星维网络”小程序确认 + 原浏览器二次确认的登录闭环。</span></li><li><strong>V3H</strong><span>开发与 CI 已完成：小程序微信支付；保持未合并、真实收款关闭，等待真机验收。</span></li></ol></section>
+    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移与交付状态</h2></div></div><ol><li><strong>V1 / V2A-V2C</strong><span>已上线：新版后台壳、七大中心、155 岗位、混合权限守卫与 ALL / DEPARTMENT / SELF 数据范围。</span></li><li><strong>V2D-V2G</strong><span>已上线：询价与订单数据范围、业务工作台、员工工作台、企业微信通讯录只读。</span></li><li><strong>V3A-V3G</strong><span>已上线：服务目录、受控编辑/新增、发布检查、游戏与分类受控管理，以及“星维网络”小程序扫码登录。</span></li><li><strong>V3H</strong><span>开发与 CI 已完成：小程序微信支付；保持未合并、真实收款关闭，等待真机验收。</span></li><li><strong>V3I</strong><span>开发与 CI 已完成：taxonomy 前台可见性确认、父级阻断提示与 impactToken 过期预览防护，作为本次发布候选。</span></li></ol></section>
 
     <footer class="xw-footer"><span>星维网络服务工作室 · 管理后台</span><span>固定组织架构 · 后端授权 · 数据范围 · 可审计 · 可回滚 · 旧后台保留</span></footer>
   </main>

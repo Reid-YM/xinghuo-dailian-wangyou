@@ -1,0 +1,19 @@
+{
+  "description": "星维网络微信小程序 - 网站扫码登录",
+  "packOptions": {
+    "ignore": []
+  },
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "compileHotReLoad": true,
+    "urlCheck": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "trial",
+  "appid": "touristappid",
+  "projectname": "xinghuo-wechat-login",
+  "condition": {}
+}

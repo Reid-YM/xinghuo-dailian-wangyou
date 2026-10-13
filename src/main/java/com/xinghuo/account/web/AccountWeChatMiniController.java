@@ -1,7 +1,11 @@
 package com.xinghuo.account.web;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import com.xinghuo.account.model.Account;
-import com.xinghuo.account.service.AccountException;
 import com.xinghuo.account.service.AccountSessionService;
 import com.xinghuo.account.service.RateLimiter;
 import com.xinghuo.account.service.RequestUtils;
@@ -12,22 +16,26 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.ByteArrayOutputStream;
 import java.time.Duration;
+import java.util.Base64;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-/** 小程序登录网站：浏览器领取短期码，小程序确认，浏览器领取本站会话。 */
+/** 小程序登录网站：浏览器领取短期码，小程序扫码或输入确认，浏览器领取本站会话。 */
 @RestController
 @RequestMapping("/api/account/wechat-mini")
 public class AccountWeChatMiniController {
     private static final String COOKIE = "XH_MINI_PAIR";
+    private static final String SCAN_PREFIX = "xingwei-login:";
     private final WeChatMiniBridgeService bridge;
     private final AccountSessionService sessions;
     private final RateLimiter rateLimiter;
@@ -54,7 +62,7 @@ public class AccountWeChatMiniController {
         Account current = sessions.current(request).orElse(null);
         WeChatMiniBridgeService.Challenge issued = bridge.issue(current == null ? null : current.getId());
         response.addHeader("Set-Cookie", cookie(issued.browserSecret(), 300));
-        return new ChallengeView(issued.code(), issued.expiresIn(), issued.binding());
+        return new ChallengeView(issued.code(), issued.expiresIn(), issued.binding(), qrDataUri(issued.code()));
     }
 
     @PostMapping("/poll")
@@ -118,6 +126,23 @@ public class AccountWeChatMiniController {
         return bridge.confirm(body.code(), body.loginCode());
     }
 
+    private String qrDataUri(String code) {
+        try {
+            BitMatrix matrix = new MultiFormatWriter().encode(
+                    SCAN_PREFIX + code,
+                    BarcodeFormat.QR_CODE,
+                    320,
+                    320,
+                    Map.of(EncodeHintType.CHARACTER_SET, "UTF-8", EncodeHintType.MARGIN, 1));
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(matrix, "PNG", output);
+            return "data:image/png;base64," + Base64.getEncoder().encodeToString(output.toByteArray());
+        } catch (Exception ignored) {
+            // 二维码是增强体验；若渲染失败，八位登录码仍可继续完成同一安全流程。
+            return "";
+        }
+    }
+
     private String readCookie(HttpServletRequest request) {
         if (request.getCookies() == null) return null;
         for (Cookie cookie : request.getCookies()) {
@@ -132,7 +157,7 @@ public class AccountWeChatMiniController {
     }
 
     public record Availability(boolean enabled) {}
-    public record ChallengeView(String code, long expiresIn, boolean binding) {}
+    public record ChallengeView(String code, long expiresIn, boolean binding, String qrImage) {}
     public record PollView(String status, String identityHint) {}
     public record LoginCode(@NotBlank String loginCode) {}
     public record Confirm(@NotBlank String code, @NotBlank String loginCode) {}

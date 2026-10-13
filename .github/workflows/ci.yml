@@ -64,7 +64,11 @@ jobs:
 
       - name: Validate shell scripts
         shell: bash
-        run: bash -n scripts/deploy-zero-downtime.sh scripts/deploy-from-github.sh scripts/github-deploy-gateway.sh scripts/install-github-deploy-bridge.sh scripts/smoke_test.sh
+        run: bash -n scripts/deploy-zero-downtime.sh scripts/deploy-from-github.sh scripts/github-deploy-gateway.sh scripts/install-github-deploy-bridge.sh scripts/smoke_test.sh scripts/validate-wechat-mini.sh
+
+      - name: Validate WeChat mini-program source
+        shell: bash
+        run: bash scripts/validate-wechat-mini.sh
 
       - name: Build and test with Maven
         run: mvn -B -ntp clean package
@@ -93,6 +97,16 @@ jobs:
             xinghuo-v2-${{ github.sha }}.jar
             xinghuo-v2-${{ github.sha }}.jar.sha256
           if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload WeChat mini-program source
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: xingwei-wechat-mini-${{ github.sha }}
+          path: wechat-mini/
+          if-no-files-found: error
+          include-hidden-files: true
           retention-days: 30
 
   frontend-ui:

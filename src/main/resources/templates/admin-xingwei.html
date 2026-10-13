@@ -61,13 +61,13 @@
 
     <section class="xw-hero" id="overview">
       <div>
-        <p class="xw-kicker">V3I · RELEASE CANDIDATE</p>
-        <h2>新版 taxonomy 启停已经升级到“前台可见性确认 + 过期预览防护”。</h2>
-        <p>V2 数据范围继续作为权限底座；V3F 已上线游戏/分类受控新增与资料编辑，V3G 已上线“星维网络”小程序扫码登录。V3I 已完成前台可见数量、父级阻断、明确确认和 impactToken 防误操作开发与自动化验证。V3H 小程序微信支付仍保持未合并、未启用真实支付，等待真机 AppID / 商户绑定与小额联调。</p>
+        <p class="xw-kicker" th:text="${consoleStage}">V3J · STABLE PRODUCTION</p>
+        <h2>新版后台已进入稳定生产状态，版本记录与模块状态以当前交付真值为准。</h2>
+        <p>V2 数据范围继续作为权限底座；V3F 已上线游戏/分类受控新增与资料编辑，V3G 已上线“星维网络”小程序扫码登录，V3I 前台可见性确认与 impactToken 防误操作已经正式进入生产。V3H 小程序微信支付仍保持未合并、真实收款关闭，等待真机 AppID / 商户绑定与小额联调。</p>
       </div>
       <div class="xw-version-card">
         <span>当前版本</span>
-        <strong th:text="${consoleVersion}">20261014-v3i</strong>
+        <strong th:text="${consoleVersion}">20261014-v3j</strong>
         <small id="xwServerTime">等待服务响应</small>
       </div>
     </section>
@@ -88,7 +88,7 @@
       <div class="xw-grid">
         <a class="xw-module" data-search="询价 客户 需求 线索 报价" href="/admin/xingwei/business?tab=quotes"><div class="xw-module-index">B01</div><h3>询价与线索</h3><p>按 ALL / DEPARTMENT / SELF 查看客户需求、询价记录与业务归属。</p><span>新版工作台 →</span></a>
         <a class="xw-module" data-search="订单 履约 进度 派单 代练" href="/admin/xingwei/business?tab=orders"><div class="xw-module-index">B02</div><h3>订单与履约</h3><p>按真实数据范围查看订单状态、进度与负责人，并执行范围内派单。</p><span>新版工作台 →</span></a>
-        <a class="xw-module" data-search="服务 商品 价格 上下架 游戏 mw4 taxonomy 可见性" href="/admin/xingwei/catalog"><div class="xw-module-index">B03</div><h3>服务与商品</h3><p>服务项目、价格、发布检查、游戏与分类资料均已进入新版受控工作台；taxonomy 启停增加前台影响快照确认。</p><span>V3I 新版工作台 →</span></a>
+        <a class="xw-module" data-search="服务 商品 价格 上下架 游戏 mw4 taxonomy 可见性" href="/admin/xingwei/catalog"><div class="xw-module-index">B03</div><h3>服务与商品</h3><p>服务项目、价格、发布检查、游戏与分类资料均已进入新版受控工作台；taxonomy 启停增加前台影响快照确认。</p><span>V3I 已上线 →</span></a>
         <a class="xw-module" data-search="攻略 内容 编辑 guides" href="/admin/guides"><div class="xw-module-index">B04</div><h3>攻略内容</h3><p>管理攻略组件与站内内容资产。</p><span>打开模块 →</span></a>
       </div>
     </section>
@@ -142,7 +142,7 @@
       <div class="xw-grid">
         <article class="xw-module xw-module-planned" data-search="淘宝 闲鱼 渠道 商品 运营"><div class="xw-module-index">C01</div><h3>渠道运营</h3><p>后续汇总淘宝、闲鱼和官网运营状态与任务。</p><span>后续规划</span></article>
         <article class="xw-module" data-search="微信 登录 小程序 扫码 公众号 服务号"><div class="xw-module-index">C02</div><h3>微信身份能力</h3><p>“星维网络”小程序扫码确认网站登录已经上线；原浏览器保留二次确认保护，小程序源码进入 CI 自动打包。</p><span>V3G 已上线</span></article>
-        <article class="xw-module xw-module-planned" data-search="微信支付 支付 退款 商户 订单"><div class="xw-module-index">C03</div><h3>微信支付</h3><p>V3H 已完成小程序 JSAPI 支付代码与自动化测试，真实收款仍关闭，等待 AppID / 商户绑定和真机小额联调。</p><span>V3H 待真机验收</span></article>
+        <article class="xw-module" data-search="微信支付 支付 退款 商户 订单"><div class="xw-module-index">C03</div><h3>微信支付</h3><p>V3H 已完成小程序 JSAPI 支付代码与自动化测试，真实收款仍关闭，等待 AppID / 商户绑定和真机小额联调。</p><span>V3H 待真机验收</span></article>
         <a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/frontend-controls"><div class="xw-module-index">C04</div><h3>前台控制</h3><p>继续复用现有前台展示与功能开关控制。</p><span>打开模块 →</span></a>
       </div>
     </section>
@@ -152,12 +152,12 @@
       <div class="xw-grid">
         <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin"><div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示与图片视觉。</p><span>现有后台承载 →</span></a>
         <a class="xw-module" data-search="日志 审计 操作 安全" href="/admin"><div class="xw-module-index">S02</div><h3>操作审计</h3><p>员工档案与权限变更也会进入现有审计日志。</p><span>现有后台承载 →</span></a>
-        <article class="xw-module xw-module-planned" data-search="发布 部署 回滚 ci github 服务器"><div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>保持 GitHub PR → CI → 生产部署门禁，不在后台直接执行危险发布。</p><span>沿用现有流水线</span></article>
+        <article class="xw-module" data-search="发布 部署 回滚 ci github 服务器"><div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>GitHub PR → CI → 生产部署门禁与零停机发布已经启用；后台仅展示状态，不直接执行危险发布。</p><span>生产流水线已启用</span></article>
         <article class="xw-module xw-module-planned" data-search="代码生成 scaffold generator 开发"><div class="xw-module-index">S04</div><h3>开发工具</h3><p>后续评估移植 scaffold-master 的代码生成与字典能力。</p><span>评估中</span></article>
       </div>
     </section>
 
-    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移与交付状态</h2></div></div><ol><li><strong>V1 / V2A-V2C</strong><span>已上线：新版后台壳、七大中心、155 岗位、混合权限守卫与 ALL / DEPARTMENT / SELF 数据范围。</span></li><li><strong>V2D-V2G</strong><span>已上线：询价与订单数据范围、业务工作台、员工工作台、企业微信通讯录只读。</span></li><li><strong>V3A-V3G</strong><span>已上线：服务目录、受控编辑/新增、发布检查、游戏与分类受控管理，以及“星维网络”小程序扫码登录。</span></li><li><strong>V3H</strong><span>开发与 CI 已完成：小程序微信支付；保持未合并、真实收款关闭，等待真机验收。</span></li><li><strong>V3I</strong><span>开发与 CI 已完成：taxonomy 前台可见性确认、父级阻断提示与 impactToken 过期预览防护，作为本次发布候选。</span></li></ol></section>
+    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移与交付状态</h2></div></div><ol><li><strong>V1 / V2A-V2C</strong><span>已上线：新版后台壳、七大中心、155 岗位、混合权限守卫与 ALL / DEPARTMENT / SELF 数据范围。</span></li><li><strong>V2D-V2G</strong><span>已上线：询价与订单数据范围、业务工作台、员工工作台、企业微信通讯录只读。</span></li><li><strong>V3A-V3G</strong><span>已上线：服务目录、受控编辑/新增、发布检查、游戏与分类受控管理，以及“星维网络”小程序扫码登录。</span></li><li><strong>V3H</strong><span>开发与 CI 已完成：小程序微信支付；保持未合并、真实收款关闭，等待真机验收。</span></li><li><strong>V3I</strong><span>已上线：taxonomy 前台可见性确认、父级阻断提示与 impactToken 过期预览防护已进入生产。</span></li><li><strong>V3J</strong><span>已上线：统一生产状态真值，修正候选/规划误标，并增加状态一致性回归守卫。</span></li></ol></section>
 
     <footer class="xw-footer"><span>星维网络服务工作室 · 管理后台</span><span>固定组织架构 · 后端授权 · 数据范围 · 可审计 · 可回滚 · 旧后台保留</span></footer>
   </main>

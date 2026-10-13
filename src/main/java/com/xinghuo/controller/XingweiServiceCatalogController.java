@@ -4,8 +4,12 @@ import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.service.ServiceCatalogService;
 import com.xinghuo.service.TaxonomyService;
 import com.xinghuo.service.XingweiServicePublishReviewService;
+import com.xinghuo.service.XingweiTaxonomyControlService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,21 +25,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** V3D：复用现有服务目录真源，并在新版恢复上架前强制执行发布检查。 */
+/** V3E：服务目录真源 + 发布检查 + taxonomy 影响预览与受控启停。 */
 @RestController
 @RequestMapping("/api/admin/xingwei/catalog")
 public class XingweiServiceCatalogController {
     private final ServiceCatalogService services;
     private final TaxonomyService taxonomy;
     private final XingweiServicePublishReviewService publishReview;
+    private final XingweiTaxonomyControlService taxonomyControl;
 
     public XingweiServiceCatalogController(
             ServiceCatalogService services,
             TaxonomyService taxonomy,
-            XingweiServicePublishReviewService publishReview) {
+            XingweiServicePublishReviewService publishReview,
+            XingweiTaxonomyControlService taxonomyControl) {
         this.services = services;
         this.taxonomy = taxonomy;
         this.publishReview = publishReview;
+        this.taxonomyControl = taxonomyControl;
     }
 
     @GetMapping("/snapshot")
@@ -53,7 +60,7 @@ public class XingweiServiceCatalogController {
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("source", "EXISTING_SERVICE_CATALOG");
-        result.put("writeScope", "EXISTING_SERVICE_CREATE_UPDATE_WITH_PUBLISH_PREFLIGHT");
+        result.put("writeScope", "SERVICE_MANAGE_WITH_PUBLISH_PREFLIGHT_AND_TAXONOMY_TOGGLE_PREVIEW");
         result.put("counts", counts);
         result.put("services", serviceRows);
         result.put("games", catalog.games());
@@ -69,6 +76,52 @@ public class XingweiServiceCatalogController {
             @PathVariable Long id,
             Authentication authentication) {
         return publishReview.review(id);
+    }
+
+    @GetMapping("/taxonomy/games/{code}/impact")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:view')")
+    public XingweiTaxonomyControlService.TaxonomyImpact gameImpact(
+            @PathVariable String code,
+            Authentication authentication) {
+        return taxonomyControl.gameImpact(code);
+    }
+
+    @GetMapping("/taxonomy/categories/{id}/impact")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:view')")
+    public XingweiTaxonomyControlService.TaxonomyImpact categoryImpact(
+            @PathVariable Long id,
+            Authentication authentication) {
+        return taxonomyControl.categoryImpact(id);
+    }
+
+    @PutMapping("/taxonomy/games/{code}/active")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
+    public ApiDtos.GameOptionResponse setGameActive(
+            @PathVariable String code,
+            @Valid @RequestBody TaxonomyToggleRequest request,
+            Authentication authentication,
+            HttpServletRequest httpRequest) {
+        return taxonomyControl.setGameActive(
+                code,
+                request.active(),
+                request.reason(),
+                authentication.getName(),
+                httpRequest);
+    }
+
+    @PutMapping("/taxonomy/categories/{id}/active")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
+    public ApiDtos.CategoryOptionResponse setCategoryActive(
+            @PathVariable Long id,
+            @Valid @RequestBody TaxonomyToggleRequest request,
+            Authentication authentication,
+            HttpServletRequest httpRequest) {
+        return taxonomyControl.setCategoryActive(
+                id,
+                request.active(),
+                request.reason(),
+                authentication.getName(),
+                httpRequest);
     }
 
     @PostMapping("/services")
@@ -108,5 +161,10 @@ public class XingweiServiceCatalogController {
             HttpServletRequest httpRequest) {
         publishReview.requireReady(id);
         return services.restore(id, authentication.getName(), httpRequest);
+    }
+
+    public record TaxonomyToggleRequest(
+            @NotNull Boolean active,
+            @NotBlank @Size(max = 500) String reason) {
     }
 }

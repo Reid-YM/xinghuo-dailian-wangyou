@@ -11,7 +11,7 @@ class XingweiServiceCatalogWorkbenchContractTest {
     private static final Path MAIN = Path.of("src/main");
 
     @Test
-    void v3dReusesExistingCatalogServicesAndKeepsTaxonomyReadOnly() throws Exception {
+    void v3dReusesExistingCatalogServicesAndKeepsTaxonomyStructuralWritesOut() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiServiceCatalogController.java");
         String js = read("resources/static/assets/admin-xingwei-catalog.js");
         assertTrue(controller.contains("services.adminList()"));
@@ -49,14 +49,15 @@ class XingweiServiceCatalogWorkbenchContractTest {
     }
 
     @Test
-    void v3dHasSafeCreateControlledEditorAndReleasePreflight() throws Exception {
+    void v3dSafeCreateEditorAndReleasePreflightRemainPresentInV3e() throws Exception {
         String pageController = read("java/com/xinghuo/controller/XingweiAdminController.java");
         String template = read("resources/templates/admin-xingwei-catalog.html");
         String shell = read("resources/templates/admin-xingwei.html");
         assertTrue(pageController.contains("@GetMapping(\"/admin/xingwei/catalog\")"));
-        assertTrue(pageController.contains("catalogVersion\", \"20261013-v3d\""));
+        assertTrue(pageController.contains("catalogVersion\", \"20261013-v3e\""));
         assertTrue(template.contains("href=\"/admin\">旧后台完整编辑</a>"));
         assertTrue(template.contains("V3D · RELEASE PREFLIGHT"));
+        assertTrue(template.contains("href=\"/admin/xingwei/taxonomy\""));
         assertTrue(template.contains("id=\"xcatCreateOpen\""));
         assertTrue(template.contains("id=\"xcatCreateDialog\""));
         assertTrue(template.contains("OFFLINE + 停用状态创建"));
@@ -71,7 +72,7 @@ class XingweiServiceCatalogWorkbenchContractTest {
     }
 
     @Test
-    void v3dPublishReviewHasNoSecondApprovalStateOrMigrationDependency() throws Exception {
+    void v3dPublishReviewStillHasNoSecondApprovalStateInsideV3e() throws Exception {
         String review = read("java/com/xinghuo/service/XingweiServicePublishReviewService.java");
         String controller = read("java/com/xinghuo/controller/XingweiServiceCatalogController.java");
         assertTrue(review.contains("taxonomy.publicAllowed"));
@@ -83,7 +84,8 @@ class XingweiServiceCatalogWorkbenchContractTest {
         assertTrue(review.contains("throw new BadRequestException(\"上架前检查未通过：\""));
         assertFalse(review.contains("Repository approval"));
         assertFalse(review.contains("save("));
-        assertTrue(controller.contains("EXISTING_SERVICE_CREATE_UPDATE_WITH_PUBLISH_PREFLIGHT"));
+        assertTrue(controller.contains("SERVICE_MANAGE_WITH_PUBLISH_PREFLIGHT_AND_TAXONOMY_TOGGLE_PREVIEW"));
+        assertTrue(controller.contains("publishReview.requireReady(id)"));
     }
 
     @Test

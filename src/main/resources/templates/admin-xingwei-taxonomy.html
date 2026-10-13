@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#101216"/>
+  <meta name="_csrf" th:content="${csrf.token}"/>
+  <meta name="_csrf_header" th:content="${csrf.headerName}"/>
+  <title>游戏与分类启停 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-taxonomy.css?v=20261013v3e"/>
+  <script defer src="/assets/admin-xingwei-taxonomy.js?v=20261013v3e"></script>
+</head>
+<body>
+<main class="xtax-shell">
+  <header class="xtax-topbar">
+    <div><p class="xw-kicker">STARWEAVE · TAXONOMY CONTROL</p><h1>游戏与分类启停</h1></div>
+    <div class="xtax-actions">
+      <span class="xw-status" id="xtaxMode"><i></i><span>权限检查中</span></span>
+      <span class="xw-status" id="xtaxStatus"><i></i><span>正在读取</span></span>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei/catalog">返回服务目录</a>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
+    </div>
+  </header>
+
+  <section class="xtax-hero">
+    <div>
+      <p class="xw-kicker">V3E · IMPACT PREVIEW</p>
+      <h2>先看影响，再启停；不开放新增、删除和编码修改。</h2>
+      <p>停用游戏会让该游戏下所有分类失去公开资格；停用分类会让该分类下服务失去公开资格。V3E 会先显示关联分类数、关联服务数和当前公开候选服务数，再允许管理账号填写原因并确认操作。更新后会立即清除 taxonomy 可见性缓存。</p>
+    </div>
+    <div class="xtax-version"><span>当前版本</span><strong th:text="${taxonomyVersion}">20261013-v3e</strong><small th:text="${username}">admin</small></div>
+  </section>
+
+  <section class="xtax-message" id="xtaxMessage" role="status">正在读取现有 taxonomy……</section>
+
+  <section class="xtax-kpis" aria-label="taxonomy 指标">
+    <div><span>游戏</span><strong id="xtaxGameCount">-</strong></div>
+    <div><span>启用游戏</span><strong id="xtaxActiveGameCount">-</strong></div>
+    <div><span>分类</span><strong id="xtaxCategoryCount">-</strong></div>
+    <div><span>启用分类</span><strong id="xtaxActiveCategoryCount">-</strong></div>
+  </section>
+
+  <section class="xtax-toolbar">
+    <label>搜索<input id="xtaxSearch" type="search" placeholder="游戏 / 分类 / code" autocomplete="off"/></label>
+    <label>状态<select id="xtaxState"><option value="">全部状态</option><option value="active">仅启用</option><option value="inactive">仅停用</option></select></label>
+    <button class="xw-button" id="xtaxRefresh" type="button">刷新</button>
+  </section>
+
+  <div class="xtax-grid">
+    <section class="xw-data-panel">
+      <div class="xw-data-head"><div><h3>游戏</h3><p>只允许 active 启停。code、名称、资料、平台和删除仍留在旧后台。</p></div><span class="xw-pill">影响范围更大</span></div>
+      <div class="xw-table-wrap"><table class="xw-table xtax-table"><thead><tr><th>游戏</th><th>业务状态</th><th>分类</th><th>服务</th><th>状态</th><th>操作</th></tr></thead><tbody id="xtaxGameRows"></tbody></table></div>
+    </section>
+
+    <section class="xw-data-panel">
+      <div class="xw-data-head"><div><h3>分类</h3><p>只允许 active 启停。code、名称、归属游戏和删除仍留在旧后台。</p></div><span class="xw-pill">按分类隔离</span></div>
+      <div class="xw-table-wrap"><table class="xw-table xtax-table"><thead><tr><th>分类</th><th>游戏</th><th>服务</th><th>状态</th><th>操作</th></tr></thead><tbody id="xtaxCategoryRows"></tbody></table></div>
+    </section>
+  </div>
+</main>
+
+<dialog id="xtaxDialog" class="xtax-dialog" aria-labelledby="xtaxDialogTitle">
+  <section class="xtax-dialog-card">
+    <div class="xtax-dialog-head">
+      <div><p class="xw-kicker">TAXONOMY · IMPACT</p><h2 id="xtaxDialogTitle">影响预览</h2><p id="xtaxDialogMeta">—</p></div>
+      <button class="xw-button xw-button-ghost" id="xtaxClose" type="button">关闭</button>
+    </div>
+
+    <div class="xtax-impact" id="xtaxImpact">正在读取影响……</div>
+    <div class="xtax-impact-grid">
+      <div><span>关联分类</span><strong id="xtaxImpactCategories">-</strong></div>
+      <div><span>启用分类</span><strong id="xtaxImpactActiveCategories">-</strong></div>
+      <div><span>关联服务</span><strong id="xtaxImpactServices">-</strong></div>
+      <div><span>公开候选服务</span><strong id="xtaxImpactPublicServices">-</strong></div>
+    </div>
+    <p class="xtax-effect" id="xtaxEffect">—</p>
+
+    <label class="xtax-reason" id="xtaxReasonWrap" hidden>启停原因
+      <textarea id="xtaxReason" rows="3" maxlength="500" placeholder="说明为什么要启用/停用；该原因进入现有 GAME_UPDATE / CATEGORY_UPDATE 审计"></textarea>
+    </label>
+
+    <div class="xtax-note">V3E 只改变 active。不会新增/删除 taxonomy，不会修改 code、名称、说明、排序或平台。启停成功后立即清除公开可见性缓存。</div>
+    <div class="xtax-dialog-actions">
+      <button class="xw-button xw-button-ghost" id="xtaxCancel" type="button">取消</button>
+      <button class="xw-button" id="xtaxToggle" type="button" hidden>确认启停</button>
+    </div>
+  </section>
+</dialog>
+</body>
+</html>

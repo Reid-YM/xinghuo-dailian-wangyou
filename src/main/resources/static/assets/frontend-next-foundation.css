@@ -36,9 +36,10 @@ body[data-page="home"] main.container{
 .card{border-color:var(--xh-next-line);border-radius:var(--xh-next-radius);background:var(--xh-next-panel-strong)}
 
 /* public shell */
-html body .site-header{
+html body .site-header[data-experience-shell="v4"],
+html body[data-page="home"] .site-header[data-experience-shell="v4"]{
   background:rgba(8,10,13,.97)!important;
-  border-bottom:1px solid var(--xh-next-line);
+  border-bottom:1px solid var(--xh-next-line)!important;
   -webkit-backdrop-filter:none!important;
   backdrop-filter:none!important;
 }

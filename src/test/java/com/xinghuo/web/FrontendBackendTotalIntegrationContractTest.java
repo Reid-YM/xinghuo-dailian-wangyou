@@ -73,7 +73,9 @@ class FrontendBackendTotalIntegrationContractTest {
         assertTrue(login.contains("account-auth.js"));
         assertTrue(account.contains("account-center.js"));
         assertTrue(account.contains("account-center-refine.js"));
-        assertTrue(accountFragment.contains("account-center-shell"));
+        assertTrue(account.contains("account-center-shell"));
+        assertTrue(accountFragment.contains("account-center-bar"));
+        assertTrue(accountFragment.contains("account-center-rail"));
         assertTrue(accountFragment.contains("account-center-nav"));
     }
 }

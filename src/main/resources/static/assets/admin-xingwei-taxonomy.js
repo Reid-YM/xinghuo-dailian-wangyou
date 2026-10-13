@@ -45,7 +45,7 @@
       tr.appendChild(cell(row.categoryCount??0));
       tr.appendChild(cell(row.serviceCount??0));
       const stateCell=document.createElement('td');append(stateCell,'span',row.active?'启用':'停用',`xtax-state ${row.active?'on':'off'}`);tr.appendChild(stateCell);
-      const actions=document.createElement('td');actions.className='xtax-row-actions';actions.appendChild(actionButton('game',row.code));tr.appendChild(actions);
+      const actions=document.createElement('td');actions.className='xtax-row-actions';actions.appendChild(actionButton('game',row.code));if(canManage)actions.appendChild(actionButton('edit-game',row.code,'编辑'));tr.appendChild(actions);
       gameRows.appendChild(tr);
     });
   }
@@ -59,7 +59,7 @@
       tr.appendChild(cell(row.gameCode));
       tr.appendChild(cell(row.serviceCount??0));
       const stateCell=document.createElement('td');append(stateCell,'span',row.active?'启用':'停用',`xtax-state ${row.active?'on':'off'}`);tr.appendChild(stateCell);
-      const actions=document.createElement('td');actions.className='xtax-row-actions';actions.appendChild(actionButton('category',row.id));tr.appendChild(actions);
+      const actions=document.createElement('td');actions.className='xtax-row-actions';actions.appendChild(actionButton('category',row.id));if(canManage)actions.appendChild(actionButton('edit-category',row.id,'编辑'));tr.appendChild(actions);
       categoryRows.appendChild(tr);
     });
   }
@@ -83,7 +83,8 @@
       if(!response.ok)throw new Error(`HTTP ${response.status}`);
       const body=await response.json();
       canManage=Boolean(body?.allowAll||(body?.permissionCodes||[]).includes('service:manage'));
-      setStatus(mode,canManage?'service:manage · 可启停':'service:view · 只读',canManage,false);
+      document.getElementById('xtaxAddGame').hidden=!canManage;document.getElementById('xtaxAddCategory').hidden=!canManage;
+      setStatus(mode,canManage?'service:manage · 可管理':'service:view · 只读',canManage,false);
     }catch(error){canManage=false;setStatus(mode,'权限读取失败 · 只读',false,true);}
   }
 
@@ -155,7 +156,8 @@
 
   document.addEventListener('click',(event)=>{
     const button=event.target.closest('button[data-kind][data-key]');if(!button)return;
-    void openImpact(button.dataset.kind,button.dataset.key);
+    if(button.dataset.kind.startsWith('edit-'))openEditor(button.dataset.kind,button.dataset.key);
+    else void openImpact(button.dataset.kind,button.dataset.key);
   });
   document.getElementById('xtaxClose').addEventListener('click',()=>dialog.close());
   document.getElementById('xtaxCancel').addEventListener('click',()=>dialog.close());
@@ -163,6 +165,48 @@
   search.addEventListener('input',render);
   state.addEventListener('change',render);
   refresh.addEventListener('click',()=>void loadSnapshot(true));
+
+
+  const editDialog=document.getElementById('xtaxEditDialog');
+  const editForm=document.getElementById('xtaxEditForm');
+  let editTarget=null;
+  function field(id){return document.getElementById(id);}
+  function openEditor(kind,key=null){
+    if(!canManage||!snapshot)return;
+    const category=kind.includes('category');
+    const row=key==null?null:(category?(snapshot.categories||[]).find(x=>String(x.id)===String(key)):(snapshot.games||[]).find(x=>x.code===key));
+    if(key!=null&&!row)return;
+    editTarget={category,key};editForm.reset();
+    field('xtaxEditTitle').textContent=(row?'编辑':'新增')+(category?'分类':'游戏');
+    field('xtaxEditHint').textContent=row?'仅修改资料，不改变编码、归属及启停状态。':'新增后默认停用，需另行通过影响预览启用。';
+    field('xtaxEditGameWrap').hidden=!category||Boolean(row);
+    const select=field('xtaxEditGame');select.replaceChildren();
+    (snapshot.games||[]).forEach(g=>{const option=document.createElement('option');option.value=g.code;option.textContent=g.name+' · '+g.code;select.appendChild(option);});
+    if(row){field('xtaxEditName').value=row.name||'';field('xtaxEditIcon').value=row.iconKey||'';field('xtaxEditDescription').value=row.description||'';field('xtaxEditSort').value=row.sortOrder??'';if(category)select.value=row.gameCode;}
+    if(!editDialog.open)editDialog.showModal();
+  }
+  async function saveEditor(event){
+    event.preventDefault();if(!canManage||!editTarget)return;
+    const name=field('xtaxEditName').value.trim(),reasonText=field('xtaxEditReason').value.trim();
+    if(!name||!reasonText){setMessage('名称和操作原因不能为空。','error');return;}
+    const {category,key}=editTarget;
+    const payload={name,iconKey:field('xtaxEditIcon').value.trim()||null,description:field('xtaxEditDescription').value.trim(),sortOrder:field('xtaxEditSort').value===''?null:Number(field('xtaxEditSort').value),reason:reasonText};
+    if(category&&key==null){if(!field('xtaxEditGame').value){setMessage('请先选择所属游戏。','error');return;}payload.gameCode=field('xtaxEditGame').value;}
+    const base='/api/admin/xingwei/catalog/taxonomy/';
+    const url=key==null?base+(category?'categories':'games'):base+(category?'categories/'+encodeURIComponent(key):'games/'+encodeURIComponent(key))+'/profile';
+    const headers={Accept:'application/json','Content-Type':'application/json'};if(csrfToken&&csrfHeader)headers[csrfHeader]=csrfToken;
+    const save=field('xtaxEditSave');save.disabled=true;
+    try{
+      const response=await fetch(url,{method:key==null?'POST':'PUT',credentials:'same-origin',headers,body:JSON.stringify(payload)});
+      const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||'HTTP '+response.status);
+      editDialog.close();editTarget=null;await loadSnapshot(false);setMessage('资料保存成功。新增项目默认停用，启用需单独审核影响。','ok');
+    }catch(error){setMessage('保存失败：'+error.message,'error');}finally{save.disabled=false;}
+  }
+  field('xtaxAddGame').addEventListener('click',()=>openEditor('game'));
+  field('xtaxAddCategory').addEventListener('click',()=>openEditor('category'));
+  field('xtaxEditClose').addEventListener('click',()=>editDialog.close());
+  field('xtaxEditCancel').addEventListener('click',()=>editDialog.close());
+  editForm.addEventListener('submit',event=>void saveEditor(event));
 
   (async()=>{await loadAccess();await loadSnapshot(true);})();
 })();

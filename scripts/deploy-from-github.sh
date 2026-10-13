@@ -19,6 +19,28 @@ cleanup_smoke() {
   sudo systemctl stop "$SMOKE_UNIT" 2>/dev/null || true
   sudo systemctl reset-failed "$SMOKE_UNIT" 2>/dev/null || true
 }
+
+smoke_port_busy() {
+  sudo ss -lntp | grep -q ":${SMOKE_PORT}\\b"
+}
+
+prepare_smoke_port() {
+  local i
+  log "清理本项目已知预发布单元 $SMOKE_UNIT，并确认 :$SMOKE_PORT 可用"
+  cleanup_smoke
+
+  for i in $(seq 1 10); do
+    if ! smoke_port_busy; then
+      return 0
+    fi
+    sleep 1
+  done
+
+  log "⚠️ :$SMOKE_PORT 仍被占用；仅输出现场信息，不自动终止未知进程"
+  sudo ss -lntp | grep ":${SMOKE_PORT}\\b" || true
+  sudo systemctl status "$SMOKE_UNIT" --no-pager -n 40 || true
+  return 1
+}
 trap cleanup_smoke EXIT
 
 [ "${CONFIRM_GITHUB_DEPLOY:-}" = "YES" ] \
@@ -120,7 +142,7 @@ sudo nginx -t >/dev/null
 curl -fsS --max-time 8 "http://127.0.0.1:8080/" >/dev/null || fail "部署前 HOME 健康检查失败"
 curl -fsS --max-time 8 "http://127.0.0.1:8080/services" >/dev/null || fail "部署前 SERVICES 健康检查失败"
 if sudo ss -lntp | grep -q ':8081\b'; then fail "8081 已被占用"; fi
-if sudo ss -lntp | grep -q ':18080\b'; then fail "18080 已被占用"; fi
+prepare_smoke_port || fail "$SMOKE_PORT 仍被未知或非本次可安全清理的进程占用"
 sudo grep -q '127\.0\.0\.1:8080;' /etc/nginx/conf.d/xinghuo-upstream.conf \
   || fail "nginx upstream 当前未指向 8080"
 
@@ -141,7 +163,7 @@ CANDIDATE_SHA=$(sudo -u xinghuo sha256sum "$CANDIDATE" | awk '{print $1}')
 sudo -u xinghuo test -r "$CANDIDATE" || fail "候选 JAR 对运行用户不可读"
 
 log "6/8 18080 预发布完整冒烟"
-cleanup_smoke
+prepare_smoke_port || fail "$SMOKE_PORT 仍被未知或非本次可安全清理的进程占用"
 sudo systemd-run \
   --unit="$SMOKE_UNIT" \
   --collect \

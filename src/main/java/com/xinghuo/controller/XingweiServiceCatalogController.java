@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** V3B：复用现有服务目录真源，提供查看与受控基础管理。 */
+/** V3C：复用现有服务目录真源，提供查看、新增与受控基础管理。 */
 @RestController
 @RequestMapping("/api/admin/xingwei/catalog")
 public class XingweiServiceCatalogController {
@@ -47,7 +47,7 @@ public class XingweiServiceCatalogController {
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("source", "EXISTING_SERVICE_CATALOG");
-        result.put("writeScope", "EXISTING_SERVICE_UPDATE_ONLY");
+        result.put("writeScope", "EXISTING_SERVICE_CREATE_UPDATE");
         result.put("counts", counts);
         result.put("services", serviceRows);
         result.put("games", catalog.games());
@@ -55,6 +55,15 @@ public class XingweiServiceCatalogController {
         result.put("platforms", catalog.platforms());
         result.put("gamePlatforms", catalog.gamePlatforms());
         return result;
+    }
+
+    @PostMapping("/services")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
+    public ApiDtos.AdminServiceResponse createService(
+            @Valid @RequestBody ApiDtos.ServiceUpsert request,
+            Authentication authentication,
+            HttpServletRequest httpRequest) {
+        return services.create(request, authentication.getName(), httpRequest);
     }
 
     @PutMapping("/services/{id}")

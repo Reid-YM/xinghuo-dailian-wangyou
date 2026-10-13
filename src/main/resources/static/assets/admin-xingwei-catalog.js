@@ -11,6 +11,23 @@
   const serviceRows = document.getElementById('xcatServiceRows');
   const gameRows = document.getElementById('xcatGameRows');
   const categoryRows = document.getElementById('xcatCategoryRows');
+  const createOpen = document.getElementById('xcatCreateOpen');
+  const createDialog = document.getElementById('xcatCreateDialog');
+  const createForm = document.getElementById('xcatCreateForm');
+  const createGame = document.getElementById('xcatCreateGame');
+  const createCategory = document.getElementById('xcatCreateCategory');
+  const createSlug = document.getElementById('xcatCreateSlug');
+  const createName = document.getElementById('xcatCreateName');
+  const createShortDesc = document.getElementById('xcatCreateShortDesc');
+  const createPriceMode = document.getElementById('xcatCreatePriceMode');
+  const createPriceFixed = document.getElementById('xcatCreatePriceFixed');
+  const createPriceMin = document.getElementById('xcatCreatePriceMin');
+  const createPriceMax = document.getElementById('xcatCreatePriceMax');
+  const createDuration = document.getElementById('xcatCreateDuration');
+  const createSortOrder = document.getElementById('xcatCreateSortOrder');
+  const createPriority = document.getElementById('xcatCreatePriority');
+  const createReason = document.getElementById('xcatCreateReason');
+  const createSave = document.getElementById('xcatCreateSave');
   const editDialog = document.getElementById('xcatEditDialog');
   const editForm = document.getElementById('xcatEditForm');
   const editMeta = document.getElementById('xcatEditMeta');
@@ -118,12 +135,45 @@
     fillGameFilter(); renderServices(); renderGames(); renderCategories();
   }
 
-  function syncPriceFields() {
-    const mode=editPriceMode.value;
-    editPriceFixed.disabled=mode!=='FIXED';
-    editPriceMin.disabled=mode!=='RANGE';
-    editPriceMax.disabled=mode!=='RANGE';
+  function syncPriceFields(mode, fixed, min, max) {
+    fixed.disabled=mode.value!=='FIXED';
+    min.disabled=mode.value!=='RANGE';
+    max.disabled=mode.value!=='RANGE';
   }
+
+  function fillCreateGames() {
+    const previous=createGame.value;
+    createGame.replaceChildren();
+    const games=(snapshot?.games||[]).filter((game)=>game.active);
+    games.forEach((game)=>{const option=document.createElement('option'); option.value=game.code; option.textContent=`${game.name} · ${game.code}`; createGame.appendChild(option);});
+    if([...createGame.options].some((option)=>option.value===previous)) createGame.value=previous;
+    createGame.disabled=games.length===0;
+    fillCreateCategories();
+  }
+
+  function fillCreateCategories() {
+    const previous=createCategory.value;
+    createCategory.replaceChildren();
+    const categories=(snapshot?.categories||[]).filter((category)=>category.active&&category.gameCode===createGame.value);
+    categories.forEach((category)=>{const option=document.createElement('option'); option.value=category.code; option.textContent=`${category.name} · ${category.code}`; createCategory.appendChild(option);});
+    if([...createCategory.options].some((option)=>option.value===previous)) createCategory.value=previous;
+    createCategory.disabled=categories.length===0;
+  }
+
+  function openCreate() {
+    if(!canManage||!snapshot) return;
+    createForm.reset();
+    createPriceMode.value='QUOTE';
+    createSortOrder.value='0';
+    createPriority.value='0';
+    fillCreateGames();
+    syncPriceFields(createPriceMode,createPriceFixed,createPriceMin,createPriceMax);
+    if(createGame.disabled||createCategory.disabled){setMessage('当前没有可用于新增服务的启用游戏/分类，请先在旧后台维护 taxonomy。','error');return;}
+    createDialog.showModal();
+    createSlug.focus();
+  }
+
+  function closeCreate() { if(createDialog.open)createDialog.close(); }
 
   function openEdit(item) {
     if(!canManage) return;
@@ -139,7 +189,7 @@
     editSortOrder.value=String(item.sortOrder??0);
     editPriority.value=String(item.manualPriority??0);
     editReason.value='';
-    syncPriceFields();
+    syncPriceFields(editPriceMode,editPriceFixed,editPriceMin,editPriceMax);
     editDialog.showModal();
     editName.focus();
   }
@@ -147,6 +197,29 @@
   function closeEdit() { if(editDialog.open)editDialog.close(); currentEdit=null; }
   function decimalOrNull(input) { if(input.disabled||input.value.trim()==='')return null; const value=Number(input.value); return Number.isFinite(value)?value:null; }
   function integerValue(input, fallback=0) { const value=Number.parseInt(input.value,10); return Number.isFinite(value)?value:fallback; }
+
+  function createPayload() {
+    return {
+      gameCode:createGame.value,
+      slug:createSlug.value.trim().toLowerCase(),
+      name:createName.value.trim(),
+      category:createCategory.value,
+      shortDesc:createShortDesc.value.trim(),
+      priceMode:createPriceMode.value,
+      priceFixed:decimalOrNull(createPriceFixed),
+      priceMin:decimalOrNull(createPriceMin),
+      priceMax:decimalOrNull(createPriceMax),
+      durationText:createDuration.value.trim(),
+      status:'OFFLINE',
+      coverImage:null,
+      hotScore:0,
+      manualPriority:integerValue(createPriority,0),
+      expiresAt:null,
+      active:false,
+      sortOrder:integerValue(createSortOrder,0),
+      reason:createReason.value.trim()
+    };
+  }
 
   function editPayload(item) {
     return {
@@ -171,6 +244,12 @@
     };
   }
 
+  function validatePrice(payload, fixedInput, minInput) {
+    if(payload.priceMode==='FIXED'&&payload.priceFixed===null){setMessage('固定价模式必须填写固定价。','error');fixedInput.focus();return false;}
+    if(payload.priceMode==='RANGE'&&(payload.priceMin===null||payload.priceMax===null||payload.priceMin>payload.priceMax)){setMessage('区间价必须填写合法的最低价和最高价。','error');minInput.focus();return false;}
+    return true;
+  }
+
   async function parseResponse(response) {
     if(response.status===204)return null;
     try{return await response.json();}catch(_){return null;}
@@ -192,9 +271,10 @@
       if(!response.ok)throw new Error(`HTTP ${response.status}`);
       access=await response.json();
       canManage=Boolean(access?.allowAll||(access?.permissionCodes||[]).includes('service:manage'));
+      createOpen.hidden=!canManage;
       setStatus(manageMode,canManage?'service:manage · 可管理':'service:view · 只读',canManage);
     }catch(error){
-      access=null; canManage=false; manageMode.classList.remove('ok'); manageMode.classList.add('error'); const label=manageMode.querySelector('span'); if(label)label.textContent='权限读取失败 · 只读';
+      access=null; canManage=false; createOpen.hidden=true; manageMode.classList.remove('ok'); manageMode.classList.add('error'); const label=manageMode.querySelector('span'); if(label)label.textContent='权限读取失败 · 只读';
     }
     if(snapshot)renderServices();
   }
@@ -206,10 +286,30 @@
       const body=await parseResponse(response);
       if(!response.ok) throw new Error(body?.error||body?.message||`HTTP ${response.status}`);
       snapshot=body; render(); status.classList.remove('error'); setStatus(status,'生产目录已读取',true);
-      if(showLoading)setMessage(`已读取 ${snapshot.counts?.services??0} 个服务、${snapshot.counts?.games??0} 个游戏、${snapshot.counts?.categories??0} 个分类。${canManage?'当前账号可执行基础服务管理。':'当前账号为只读模式。'}`,'ok');
+      if(showLoading)setMessage(`已读取 ${snapshot.counts?.services??0} 个服务、${snapshot.counts?.games??0} 个游戏、${snapshot.counts?.categories??0} 个分类。${canManage?'可新增/管理服务；新增服务默认离线。':'当前账号为只读模式。'}`,'ok');
     } catch(error) {
       status.classList.remove('ok'); status.classList.add('error'); const label=status.querySelector('span'); if(label)label.textContent='读取失败'; setMessage(`读取失败或当前账号没有 service:view：${error.message}`,'error');
     } finally { refresh.disabled=false; }
+  }
+
+  async function saveCreate(event) {
+    event.preventDefault();
+    if(!canManage||!snapshot)return;
+    const payload=createPayload();
+    if(!payload.gameCode||!payload.category){setMessage('必须选择现有游戏与分类。','error');return;}
+    if(!/^[a-z0-9-]{2,100}$/.test(payload.slug)){setMessage('slug 只能使用 2-100 位小写字母、数字和连字符。','error');createSlug.focus();return;}
+    if((snapshot.services||[]).some((item)=>normalize(item.slug)===payload.slug)){setMessage('该 slug 已存在，请更换服务标识。','error');createSlug.focus();return;}
+    const validTaxonomy=(snapshot.categories||[]).some((category)=>category.active&&category.gameCode===payload.gameCode&&category.code===payload.category);
+    if(!validTaxonomy){setMessage('所选游戏/分类已失效，请刷新目录后重试。','error');return;}
+    if(!payload.name||!payload.shortDesc||!payload.durationText){setMessage('服务名称、简短说明和预计时长不能为空。','error');return;}
+    if(!payload.reason){setMessage('创建前必须填写新增原因。','error');createReason.focus();return;}
+    if(!validatePrice(payload,createPriceFixed,createPriceMin))return;
+    createSave.disabled=true;
+    try{
+      const created=await write('/api/admin/xingwei/catalog/services','POST',payload);
+      closeCreate(); await loadSnapshot(false); setMessage(`已创建离线服务「${created?.name||payload.name}」。请检查无误后再点“恢复”正式上架；SERVICE_CREATE 已记录审计。`,'ok');
+    }catch(error){setMessage(`创建失败：${error.message}`,'error');}
+    finally{createSave.disabled=false;}
   }
 
   async function saveEdit(event) {
@@ -217,8 +317,7 @@
     if(!currentEdit||!canManage)return;
     const payload=editPayload(currentEdit);
     if(!payload.reason){setMessage('保存前必须填写变更原因。','error');editReason.focus();return;}
-    if(payload.priceMode==='FIXED'&&payload.priceFixed===null){setMessage('固定价模式必须填写固定价。','error');editPriceFixed.focus();return;}
-    if(payload.priceMode==='RANGE'&&(payload.priceMin===null||payload.priceMax===null||payload.priceMin>payload.priceMax)){setMessage('区间价必须填写合法的最低价和最高价。','error');editPriceMin.focus();return;}
+    if(!validatePrice(payload,editPriceFixed,editPriceMin))return;
     editSave.disabled=true;
     const name=currentEdit.name;
     try{
@@ -231,7 +330,7 @@
   async function changeAvailability(item, action, button) {
     if(!canManage)return;
     const restoring=action==='restore';
-    const confirmed=window.confirm(restoring?`确认恢复「${item.name}」？`:`确认下线「${item.name}」？该操作会使公开服务不可见。`);
+    const confirmed=window.confirm(restoring?`确认恢复「${item.name}」？恢复后该服务可能重新公开，请先确认内容与价格。`:`确认下线「${item.name}」？该操作会使公开服务不可见。`);
     if(!confirmed)return;
     button.disabled=true;
     try{
@@ -247,8 +346,14 @@
     const id=Number(button.dataset.id); const item=(snapshot?.services||[]).find((row)=>Number(row.id)===id); if(!item)return;
     if(button.dataset.action==='edit')openEdit(item); else void changeAvailability(item,button.dataset.action,button);
   });
+  createOpen.addEventListener('click',openCreate);
+  createForm.addEventListener('submit',saveCreate);
+  createGame.addEventListener('change',fillCreateCategories);
+  createPriceMode.addEventListener('change',()=>syncPriceFields(createPriceMode,createPriceFixed,createPriceMin,createPriceMax));
+  document.getElementById('xcatCreateClose').addEventListener('click',closeCreate);
+  document.getElementById('xcatCreateCancel').addEventListener('click',closeCreate);
   editForm.addEventListener('submit',saveEdit);
-  editPriceMode.addEventListener('change',syncPriceFields);
+  editPriceMode.addEventListener('change',()=>syncPriceFields(editPriceMode,editPriceFixed,editPriceMin,editPriceMax));
   document.getElementById('xcatEditClose').addEventListener('click',closeEdit);
   document.getElementById('xcatEditCancel').addEventListener('click',closeEdit);
   search.addEventListener('input',renderServices);

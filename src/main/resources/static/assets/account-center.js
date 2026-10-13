@@ -85,11 +85,64 @@
   async function initOverview(){const s=await api('/api/console/summary');if(!s)return;const v={requests:s.quoteTotal,orders:s.orderTotal,active:s.activeOrders,security:s.securityEvents};Object.entries(v).forEach(([k,x])=>{const n=$(`[data-hub-kpi="${k}"]`);if(n)n.textContent=String(x??0);});const q=$('[data-hub-recent-requests]');if(q){q.textContent='';(s.recentQuotes||[]).forEach(x=>renderQuote(q,x,true));if(!(s.recentQuotes||[]).length)empty(q,'暂无需求记录');}const o=$('[data-hub-recent-orders]');if(o){o.textContent='';(s.recentOrders||[]).forEach(x=>renderOrder(o,x,true));if(!(s.recentOrders||[]).length)empty(o,'暂无订单记录');}}
   async function initRequests(){const host=$('[data-hub-requests]');if(!host)return;const d=await api('/api/console/quotes');host.textContent='';(d?.items||[]).forEach(x=>renderQuote(host,x));if(!(d?.items||[]).length)empty(host,'暂无需求记录。提交新需求后会自动出现在这里。');}
   async function initOrders(){const host=$('[data-hub-orders]');if(!host)return;const d=await api('/api/console/orders');host.textContent='';(d?.items||[]).forEach(x=>renderOrder(host,x));if(!(d?.items||[]).length)empty(host,'暂无订单记录。询价确认成交后会出现在这里。');}
-  async function showOrderDetail(no){const d=await api('/api/console/orders/'+encodeURIComponent(no));if(!d)return;const host=$('[data-hub-order-detail]');if(!host)return;host.textContent='';host.hidden=false;const h=el('header');h.append(el('h3','','进度详情'));const close=el('button','btn ghost small-btn','关闭');close.type='button';close.dataset.closeOrderDetail='1';h.appendChild(close);host.appendChild(h);const t=el('div','account-center-timeline');(d.timeline||[]).forEach(x=>{const i=el('div');i.append(el('strong','',x.title||'进度'),el('p','',x.content||''),el('small','',time(x.createdAt)));t.appendChild(i);});host.appendChild(t);}
+  let paymentPoll=null;
+  function renderPayment(host,p){
+    host.textContent='';
+    if(!p)return;
+    host.appendChild(el('h3','','微信扫码支付'));
+    host.appendChild(el('p','',`${p.subject} · ¥${p.amount}`));
+    if(p.status==='CAPTURED'){
+      host.appendChild(el('strong','','已支付成功'));
+      return;
+    }
+    if(p.status==='CANCELLED'){
+      host.appendChild(el('p','','支付单已关闭，请联系客服确认新的报价。'));
+      return;
+    }
+    if(p.status==='APPROVED'&&p.expiresAt&&new Date(p.expiresAt)>new Date()){
+      const img=el('img','account-payment-qr');
+      img.src=`/api/account/payments/${encodeURIComponent(p.paymentNo)}/qr.png`;
+      img.alt='微信支付二维码';
+      img.width=240;img.height=240;
+      host.append(img,el('p','','请用微信扫描二维码付款。手机访问时可在另一台设备上打开此页扫码。'));
+      return;
+    }
+    if(p.status==='APPROVED'){
+      host.appendChild(el('p','','二维码已过期，请联系客服重新确认支付单。'));
+      return;
+    }
+    const button=el('button','btn primary small-btn','生成支付二维码');
+    button.type='button';button.dataset.startWechatPayment=p.paymentNo;
+    host.appendChild(button);
+  }
+  async function showOrderDetail(no){
+    if(paymentPoll){clearInterval(paymentPoll);paymentPoll=null;}
+    const d=await api('/api/console/orders/'+encodeURIComponent(no));if(!d)return;
+    const host=$('[data-hub-order-detail]');if(!host)return;
+    host.textContent='';host.hidden=false;
+    const h=el('header');h.append(el('h3','','进度详情'));
+    const close=el('button','btn ghost small-btn','关闭');close.type='button';close.dataset.closeOrderDetail='1';
+    h.appendChild(close);host.appendChild(h);
+    const t=el('div','account-center-timeline');
+    (d.timeline||[]).forEach(x=>{const i=el('div');i.append(el('strong','',x.title||'进度'),el('p','',x.content||''),el('small','',time(x.createdAt)));t.appendChild(i);});
+    host.appendChild(t);
+    const paymentHost=el('section','account-payment');host.appendChild(paymentHost);
+    try{
+      const p=await api(`/api/account/payments/order/${encodeURIComponent(no)}`);
+      if(!p||host.hidden)return;
+      renderPayment(paymentHost,p);
+      if(p.status==='APPROVED'){
+        paymentPoll=setInterval(async()=>{
+          if(host.hidden){clearInterval(paymentPoll);paymentPoll=null;return;}
+          try{const latest=await api(`/api/account/payments/${encodeURIComponent(p.paymentNo)}`);if(latest){renderPayment(paymentHost,latest);if(latest.status==='CAPTURED'||latest.status==='CANCELLED'){clearInterval(paymentPoll);paymentPoll=null;}}}catch(_){}
+        },10000);
+      }
+    }catch(_){/* Payment is unavailable until the merchant feature switch is enabled. */}
+  }
   function toolDisplayName(toolKey){const key=String(toolKey||'').toLowerCase();if(key.includes('mastery')||key.includes('mw4'))return 'MW4 工具存档';if(key.includes('quote'))return '询价工具存档';if(key.includes('price'))return '价格工具存档';return '工具存档';}
   async function initProgress(){const host=$('[data-hub-progress]');if(!host)return;const items=await api('/api/account/progress');host.textContent='';if(!(items||[]).length){empty(host,'还没有云端工具存档。进入 MW4 工具站后可按页面提示同步。');return;}(items||[]).forEach(x=>{const row=itemShell('云端存档',toolDisplayName(x.toolKey),'进度内容请回到对应工具继续编辑，个人中心只负责查看存档状态。',`最近同步：${time(x.updatedAt)}`);const a=el('a','btn primary small-btn','打开工具站');a.href='/mastery';row.actions.appendChild(a);host.appendChild(row.article);});}
 
-  document.addEventListener('click',async e=>{const logout=e.target.closest('[data-account-logout]');if(logout){try{await api('/api/account/logout',{method:'POST',body:{}});}finally{location.href='/';}return;}const q=e.target.closest('[data-supplement-quote]');if(q){try{await supplement('quotes',q.dataset.supplementQuote);await initRequests();}catch(err){alert(err.message);}return;}const o=e.target.closest('[data-supplement-order]');if(o){try{await supplement('orders',o.dataset.supplementOrder);await initOrders();}catch(err){alert(err.message);}return;}const d=e.target.closest('[data-order-detail]');if(d){try{await showOrderDetail(d.dataset.orderDetail);}catch(err){alert(err.message);}return;}if(e.target.closest('[data-close-order-detail]')){const host=$('[data-hub-order-detail]');if(host)host.hidden=true;}});
+  document.addEventListener('click',async e=>{const logout=e.target.closest('[data-account-logout]');if(logout){try{await api('/api/account/logout',{method:'POST',body:{}});}finally{location.href='/';}return;}const q=e.target.closest('[data-supplement-quote]');if(q){try{await supplement('quotes',q.dataset.supplementQuote);await initRequests();}catch(err){alert(err.message);}return;}const o=e.target.closest('[data-supplement-order]');if(o){try{await supplement('orders',o.dataset.supplementOrder);await initOrders();}catch(err){alert(err.message);}return;}const d=e.target.closest('[data-order-detail]');if(d){try{await showOrderDetail(d.dataset.orderDetail);}catch(err){alert(err.message);}return;}const pay=e.target.closest('[data-start-wechat-payment]');if(pay){pay.disabled=true;try{const p=await api(`/api/account/payments/${encodeURIComponent(pay.dataset.startWechatPayment)}/native`,{method:'POST',body:{}});renderPayment(pay.closest('.account-payment'),p);await showOrderDetail(p.businessNo);}catch(err){alert(err.message);pay.disabled=false;}return;}if(e.target.closest('[data-close-order-detail]')){const host=$('[data-hub-order-detail]');if(host)host.hidden=true;if(paymentPoll){clearInterval(paymentPoll);paymentPoll=null;}}});
 
   (async()=>{try{await loadIdentity();if(PAGE==='account-center-overview')await initOverview();if(PAGE==='account-center-requests')await initRequests();if(PAGE==='account-center-orders')await initOrders();if(PAGE==='account-center-progress')await initProgress();}catch(err){const host=$('[data-hub-message]');if(host){host.hidden=false;host.textContent=err.message||'加载失败，请刷新重试。';}else console.error(err);}})();
 })();

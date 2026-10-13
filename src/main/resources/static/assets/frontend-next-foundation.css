@@ -39,6 +39,8 @@ body[data-page="home"] main.container{
 html body .site-header{
   background:rgba(8,10,13,.97)!important;
   border-bottom:1px solid var(--xh-next-line);
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
 }
 .site-header .topbar{min-height:70px;gap:22px}
 .site-header .brand,.site-header .brand-mark{gap:11px;font-size:15px;letter-spacing:-.02em}

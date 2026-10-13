@@ -14,12 +14,14 @@ class XingweiReleaseHistoryContractTest {
     @Test
     void currentVersionsAndReleaseHistoryAreCentralized() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
-        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261014-v3g\""));
-        assertTrue(controller.contains("static final String TAXONOMY_VERSION = \"20261014-v3f\""));
+        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261014-v3i\""));
+        assertTrue(controller.contains("static final String TAXONOMY_VERSION = \"20261014-v3i\""));
         assertTrue(controller.contains("@GetMapping(\"/admin/xingwei/releases\")"));
         assertTrue(controller.contains("\"V3F\", \"已上线\""));
         assertTrue(controller.contains("\"V3G\", \"已上线\""));
         assertTrue(controller.contains("\"V3H\", \"待真机验收\""));
+        assertTrue(controller.contains("\"V3I\", \"开发中\""));
+        assertTrue(controller.contains("影响快照 token"));
         assertTrue(controller.contains("result.put(\"version\", CONSOLE_VERSION)"));
     }
 

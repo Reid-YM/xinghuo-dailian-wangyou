@@ -19,6 +19,7 @@
     <div class="xtax-actions">
       <span class="xw-status" id="xtaxMode"><i></i><span>权限检查中</span></span>
       <span class="xw-status" id="xtaxStatus"><i></i><span>正在读取</span></span>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei/releases">更新记录</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/catalog">返回服务目录</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
     </div>
@@ -26,11 +27,11 @@
 
   <section class="xtax-hero">
     <div>
-      <p class="xw-kicker">V3E · IMPACT PREVIEW</p>
-      <h2>先看影响，再启停；不开放新增、删除和编码修改。</h2>
-      <p>停用游戏会让该游戏下所有分类失去公开资格；停用分类会让该分类下服务失去公开资格。V3E 会先显示关联分类数、关联服务数和当前公开候选服务数，再允许管理账号填写原因并确认操作。更新后会立即清除 taxonomy 可见性缓存。</p>
+      <p class="xw-kicker">V3F · CONTROLLED MANAGEMENT</p>
+      <h2>新增默认停用，资料编辑与启停分离；启停仍先看影响。</h2>
+      <p>V3F 已支持受控新增游戏/分类以及名称、图标、说明、排序资料编辑。新增项目始终默认停用；编辑资料不会改变 code、归属关系或启停状态。真正启用/停用仍必须先查看关联分类、服务和公开候选影响，再填写原因并确认，成功后立即刷新 taxonomy 可见性缓存。</p>
     </div>
-    <div class="xtax-version"><span>当前版本</span><strong th:text="${taxonomyVersion}">20261013-v3e</strong><small th:text="${username}">admin</small></div>
+    <div class="xtax-version"><span>当前版本</span><strong th:text="${taxonomyVersion}">20261014-v3f</strong><small th:text="${username}">admin</small></div>
   </section>
 
   <section class="xtax-message" id="xtaxMessage" role="status">正在读取现有 taxonomy……</section>
@@ -52,12 +53,12 @@
 
   <div class="xtax-grid">
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>游戏</h3><p>只允许 active 启停。code、名称、资料、平台和删除仍留在旧后台。</p></div><span class="xw-pill">影响范围更大</span></div>
+      <div class="xw-data-head"><div><h3>游戏</h3><p>支持受控新增和资料编辑；code 不可修改。启停必须单独查看影响并填写原因。</p></div><span class="xw-pill">影响范围更大</span></div>
       <div class="xw-table-wrap"><table class="xw-table xtax-table"><thead><tr><th>游戏</th><th>业务状态</th><th>分类</th><th>服务</th><th>状态</th><th>操作</th></tr></thead><tbody id="xtaxGameRows"></tbody></table></div>
     </section>
 
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>分类</h3><p>只允许 active 启停。code、名称、归属游戏和删除仍留在旧后台。</p></div><span class="xw-pill">按分类隔离</span></div>
+      <div class="xw-data-head"><div><h3>分类</h3><p>支持受控新增和资料编辑；code 与所属游戏不可修改。启停独立执行影响确认。</p></div><span class="xw-pill">按分类隔离</span></div>
       <div class="xw-table-wrap"><table class="xw-table xtax-table"><thead><tr><th>分类</th><th>游戏</th><th>服务</th><th>状态</th><th>操作</th></tr></thead><tbody id="xtaxCategoryRows"></tbody></table></div>
     </section>
   </div>
@@ -83,7 +84,7 @@
       <textarea id="xtaxReason" rows="3" maxlength="500" placeholder="说明为什么要启用/停用；该原因进入现有 GAME_UPDATE / CATEGORY_UPDATE 审计"></textarea>
     </label>
 
-    <div class="xtax-note">V3E 只改变 active。不会新增/删除 taxonomy，不会修改 code、名称、说明、排序或平台。启停成功后立即清除公开可见性缓存。</div>
+    <div class="xtax-note">启停操作只改变 active，不修改 code、名称、说明、排序或归属关系。新增/资料编辑与启停保持分离；启停成功后立即清除公开可见性缓存。</div>
     <div class="xtax-dialog-actions">
       <button class="xw-button xw-button-ghost" id="xtaxCancel" type="button">取消</button>
       <button class="xw-button" id="xtaxToggle" type="button" hidden>确认启停</button>

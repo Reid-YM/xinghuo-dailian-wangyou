@@ -18,7 +18,7 @@ class XingweiTaxonomyManagementContractTest {
         assertTrue(source.contains("@PutMapping(\"/taxonomy/categories/{id}/profile\")"));
         assertTrue(source.contains("new ApiDtos.CatalogNameRequest("));
         assertTrue(source.contains("new ApiDtos.CategoryCreateRequest("));
-        assertTrue(source.contains("current.active(), request.reason()"));
+        assertTrue(source.contains("null, request.reason()"));
         assertTrue(source.contains("false, request.reason()"));
         assertTrue(source.contains("'service:manage'"));
         assertFalse(source.contains("/taxonomy/games/{code}/delete"));

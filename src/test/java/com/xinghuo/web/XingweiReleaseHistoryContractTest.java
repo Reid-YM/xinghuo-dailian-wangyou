@@ -1,5 +1,6 @@
 package com.xinghuo.web;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -30,5 +31,17 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(template.contains("后续固定规则"));
         assertTrue(template.contains("未同步则不算阶段收口"));
         assertTrue(template.contains("th:each=\"item : ${releaseHistory}\""));
+    }
+
+    @Test
+    void dashboardStatusMatchesDeliveredAndPendingStages() throws Exception {
+        String dashboard = read("resources/templates/admin-xingwei.html");
+        assertTrue(dashboard.contains("href=\"/admin/xingwei/releases\">更新记录</a>"));
+        assertTrue(dashboard.contains("V3G · CURRENT DELIVERY"));
+        assertTrue(dashboard.contains("V3G 已上线"));
+        assertTrue(dashboard.contains("V3H 待真机验收"));
+        assertTrue(dashboard.contains("V3A-V3F"));
+        assertFalse(dashboard.contains("<span>V4 整合</span>"));
+        assertFalse(dashboard.contains("PHASE 2C · DATA SCOPE ENFORCEMENT"));
     }
 }

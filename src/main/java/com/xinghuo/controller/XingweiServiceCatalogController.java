@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** V3E：服务目录真源 + 发布检查 + taxonomy 影响预览与受控启停。 */
+/** V3I：服务目录真源 + 发布检查 + taxonomy 可见性预览、快照确认与受控启停。 */
 @RestController
 @RequestMapping("/api/admin/xingwei/catalog")
 public class XingweiServiceCatalogController {
@@ -61,7 +61,7 @@ public class XingweiServiceCatalogController {
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("source", "EXISTING_SERVICE_CATALOG");
-        result.put("writeScope", "SERVICE_MANAGE_WITH_PUBLISH_PREFLIGHT_AND_TAXONOMY_TOGGLE_PREVIEW");
+        result.put("writeScope", "SERVICE_MANAGE_WITH_PUBLISH_PREFLIGHT_AND_TAXONOMY_VISIBILITY_CONFIRM");
         result.put("counts", counts);
         result.put("services", serviceRows);
         result.put("games", catalog.games());
@@ -106,6 +106,7 @@ public class XingweiServiceCatalogController {
                 code,
                 request.active(),
                 request.reason(),
+                request.impactToken(),
                 authentication.getName(),
                 httpRequest);
     }
@@ -121,6 +122,7 @@ public class XingweiServiceCatalogController {
                 id,
                 request.active(),
                 request.reason(),
+                request.impactToken(),
                 authentication.getName(),
                 httpRequest);
     }
@@ -208,6 +210,7 @@ public class XingweiServiceCatalogController {
 
     public record TaxonomyToggleRequest(
             @NotNull Boolean active,
-            @NotBlank @Size(max = 500) String reason) {
+            @NotBlank @Size(max = 500) String reason,
+            @NotBlank @Size(max = 128) String impactToken) {
     }
 }

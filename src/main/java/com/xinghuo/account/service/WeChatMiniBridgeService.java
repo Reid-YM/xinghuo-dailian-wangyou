@@ -224,7 +224,12 @@ public class WeChatMiniBridgeService {
         }
     }
 
-    private String accessToken() {
+    /**
+     * 取 access_token。加锁的原因：微信 access_token 重复获取会让旧的失效，
+     * 并发首次调用时若两次同时发出，其中一个请求就会拿到已被顶掉的 token 而失败。
+     * 这里用 synchronized 保证同一时刻只有一个线程去获取，其余线程直接命中缓存。
+     */
+    private synchronized String accessToken() {
         if (!cachedToken.isBlank() && Instant.now().isBefore(cachedTokenUntil)) {
             return cachedToken;
         }

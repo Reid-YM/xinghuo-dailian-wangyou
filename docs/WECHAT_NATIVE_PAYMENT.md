@@ -23,10 +23,10 @@ sudo systemctl show xinghuo-v2.service -p User -p Group -p WorkingDirectory -p E
 
 ## 3. 环境变量
 
-生产发布脚本让正式服务、18080 预发布和 8081 金丝雀共同读取 `/opt/xinghuo-v2/.env`。在该文件中追加下列变量，真实 `WECHAT_PAY_API_V3_KEY` 只在服务器本地填写，不写进仓库或聊天：
+生产发布脚本让正式服务、18080 预发布和 8081 金丝雀共同读取 `/opt/xinghuo-v2/.env`。先保持支付关闭；真实 `WECHAT_PAY_API_V3_KEY` 只在服务器本地填写，不写进仓库或聊天：
 
 ```dotenv
-WECHAT_PAY_ENABLED=true
+WECHAT_PAY_ENABLED=false
 WECHAT_PAY_MERCHANT_ID=1118501429
 WECHAT_PAY_APP_ID=wxcc2af059160a52da
 WECHAT_PAY_MERCHANT_SERIAL=2EC106123DD853BB0ECD7C341C9A3917CFE88A01
@@ -37,11 +37,11 @@ WECHAT_PAY_API_V3_KEY=<在服务器本地填写 32 字节密钥>
 WECHAT_PAY_NOTIFY_URL=https://wydlgf.cn/api/wechat-pay/notify
 ```
 
-先确认 `https://wydlgf.cn` 是正式收款域名、Nginx 将该路径转发到应用，再启用。环境文件应仅允许 root 和运行服务所需用户读取（例如 `root:xinghuo 0640`），不能提交 Git。不要把整份环境文件复制进工单或聊天。
+先确认 `https://wydlgf.cn` 是正式收款域名、Nginx 将该路径转发到应用，再启用。当前服务器的环境文件为 `root:xinghuo 0600`，由 systemd 读取；不要放宽权限或提交 Git。不要把整份环境文件复制进工单或聊天。启用前核对公开页面的付款、退款和隐私说明与实际运营方式一致。
 
 ## 4. 代码发布与验证
 
-支付变更须走独立分支、PR、CI、主线；生产部署需另行明确授权，按 `AGENTS.md` 使用受控发布流程。V66 仅为 `payment_order` 新增两个可空字段，旧版应用可继续运行；部署前仍需核对生产数据库迁移状态及评审清单。候选 18080 和金丝雀 8081 会连接生产数据库并执行 Flyway。
+支付变更须走独立分支、PR、CI、主线；生产部署需另行明确授权，按 `AGENTS.md` 使用受控发布流程。V66 仅为 `payment_order` 新增两个可空字段，旧版应用可继续运行。V67 只替换 `site_config` 中与旧默认文案精确匹配的付款说明，保留自定义内容；部署前仍需核对生产数据库迁移状态及评审清单。候选 18080 和金丝雀 8081 会连接生产数据库并执行 Flyway。
 
 上线验证顺序：
 

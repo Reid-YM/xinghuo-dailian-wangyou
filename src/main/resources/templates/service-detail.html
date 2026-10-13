@@ -45,7 +45,7 @@
           <a class="btn primary" th:href="@{/quote(service=${service.slug})}" href="/quote" data-primary-cta>提前询价</a>
           <a class="btn ghost" href="/contact">联系客服</a>
         </div>
-        <p class="muted">网页不收账号密码；确认报价后走淘宝 / 闲鱼担保成交。</p>
+        <p class="muted">网页不收账号密码；确认报价后可走淘宝 / 闲鱼担保，或在已开放支付的官网订单使用微信扫码。</p>
       </div>
       <img th:if="${service.coverImage != null}" th:src="${service.coverImage}" th:alt="|服务封面：${service.name}|" src="/assets/covers/mw4-weapon.svg" alt="服务封面" width="640" height="360" loading="eager" decoding="async">
       <div th:if="${service.coverImage == null}" class="service-cover service-fallback-icon"><svg class="ui-icon"><use href="/assets/icons.svg#i-service"></use></svg></div>
@@ -89,7 +89,7 @@
     <h2>从提交到完成</h2>
     <section><h2>1. 提交</h2><p>在询价页选择需求并留下联系方式，提交后立即拿到业务编号。</p></section>
     <section><h2>2. 确认</h2><p>客服核对截图与目标，确认报价、工时和可执行时间。</p></section>
-    <section><h2>3. 担保成交</h2><p>确认后走淘宝 / 闲鱼担保交易，网站本身不收取任何费用。</p></section>
+    <section><h2>3. 确认付款</h2><p>客服确认金额后，可选择淘宝 / 闲鱼担保；已绑定账号的官网订单在开放支付后可于个人中心微信扫码。</p></section>
     <section><h2>4. 执行</h2><p>按约定目标执行；遇到异常情况第一时间沟通，不硬冲。</p></section>
     <section><h2>5. 查进度</h2><p>用业务编号在「业务记录」查看当前状态与客服备注。</p></section>
     <section><h2>6. 完成</h2><p>交付并核对结果，有疑问可按服务规则处理。</p></section>

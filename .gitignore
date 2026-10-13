@@ -10,3 +10,6 @@
 /node_modules/
 /target/
 !.env.example
+*.pem
+*.p12
+*.pfx

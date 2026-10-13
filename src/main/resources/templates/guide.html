@@ -48,7 +48,7 @@
 
   <section class="guide-products" th:if="${!#lists.isEmpty(products)}">
     <div th:replace="~{fragments/page :: sectionHeader('Recommended Products','推荐商品','/services','查看全部服务','section-title-rich')}"></div>
-    <p class="muted">商品图片来自 Steam / Apple App Store / 官方商店等公开渠道，并与主站服务目录同步。价格以人工确认后的担保订单为准。</p>
+    <p class="muted">商品图片来自 Steam / Apple App Store / 官方商店等公开渠道，并与主站服务目录同步。价格以客服确认的最终金额为准，确认前不要支付。</p>
     <div class="guide-product-grid">
       <a class="card guide-product" th:each="product : ${products}" th:href="@{'/service/' + ${product.slug}}">
         <div class="guide-product-media"><img loading="lazy" th:src="${!#strings.isEmpty(product.imageUrl) ? product.imageUrl : '/assets/covers/mw4-weapon.svg'}" th:alt="${product.name + ' 商品封面'}" width="640" height="360"/><span th:if="${product.featured}" class="guide-product-hot">推荐</span></div>

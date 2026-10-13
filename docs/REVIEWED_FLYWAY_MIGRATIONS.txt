@@ -8,3 +8,5 @@ V62__wechat_mini_pairing.sql 13403a4303243618b2b7855d7ef20f61ad6be6d9 2026-10-12
 V63__xingwei_org_rbac_foundation.sql cc2a2f1e844a16b69aa439a2cd88fdeaabd7b69d 2026-10-13:additive-org-rbac-155-position-seed-reviewed
 V64__xingwei_business_ownership.sql df0a0867fa73adda18b44b919541972a75f5b32d 2026-10-13:additive-business-ownership-reviewed
 V65__session_sliding_renewal.sql 530018c0b4a099443123dcec71a05131d3cc0ac5 2026-10-13:additive-session-sliding-renewal-reviewed
+V66__wechat_native_payment_link.sql 19c75acf68fb1ff1d28f1d06579b2dc6ec904409 2026-10-13:additive-nullable-native-qr-metadata-reviewed
+V67__wechat_payment_public_copy.sql 82a03aa7cae661b0ffaba7907d3d7add9001bff4 2026-10-13:targeted-default-payment-copy-reviewed

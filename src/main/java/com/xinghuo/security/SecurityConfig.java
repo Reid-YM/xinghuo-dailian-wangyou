@@ -51,6 +51,7 @@ public class SecurityConfig {
             "/api/services", "/api/catalog", "/api/quote", "/api/records/**",
             "/api/orders/**", "/api/uploads/quote", "/api/track",
             "/api/tool-station", "/api/guides", "/api/guides/**", "/api/loadouts", "/api/account/**", "/api/console/**",
+            "/api/wechat-pay/notify",
             "/admin/login", "/error"
     };
 
@@ -83,7 +84,8 @@ public class SecurityConfig {
                         new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                         PathPatternRequestMatcher.withDefaults().matcher("/api/**")))
                 .csrf(c -> c.ignoringRequestMatchers(
-                        "/api/quote", "/api/uploads/quote", "/api/track", "/api/account/**", "/api/console/**"))
+                        "/api/quote", "/api/uploads/quote", "/api/track", "/api/account/**", "/api/console/**",
+                        "/api/wechat-pay/notify"))
                 .headers(h -> h
                         .cacheControl(c -> c.disable())
                         .contentSecurityPolicy(c -> c.policyDirectives(

@@ -16,171 +16,39 @@
 <body>
 <div class="xw-shell">
   <aside class="xw-sidebar" id="xwSidebar">
-    <div class="xw-brand">
-      <span class="xw-brand-mark" aria-hidden="true">XW</span>
-      <div>
-        <strong th:text="${workspaceName}">星维网络服务工作室</strong>
-        <small>Management Console</small>
-      </div>
-    </div>
-
-    <nav class="xw-nav" aria-label="后台导航">
-      <a class="xw-nav-item active" href="#overview"><span>01</span>运营总览</a>
-      <a class="xw-nav-item" href="#business"><span>02</span>业务中台</a>
-      <a class="xw-nav-item" href="#organization"><span>03</span>组织与权限</a>
-      <a class="xw-nav-item" href="#channels"><span>04</span>渠道与微信</a>
-      <a class="xw-nav-item" href="#system"><span>05</span>系统工具</a>
-    </nav>
-
-    <div class="xw-sidebar-foot">
-      <div class="xw-user">
-        <span class="xw-user-dot" aria-hidden="true"></span>
-        <div><strong th:text="${username}">admin</strong><small>已登录管理员</small></div>
-      </div>
-      <form action="/logout" method="post">
-        <input type="hidden" th:name="${csrf.parameterName}" th:value="${csrf.token}"/>
-        <button class="xw-button xw-button-ghost" type="submit">退出后台</button>
-      </form>
-    </div>
+    <div class="xw-brand"><span class="xw-brand-mark" aria-hidden="true">XW</span><div><strong th:text="${workspaceName}">星维网络服务工作室</strong><small>Management Console</small></div></div>
+    <nav class="xw-nav" aria-label="后台导航"><a class="xw-nav-item active" href="#overview"><span>01</span>运营总览</a><a class="xw-nav-item" href="#business"><span>02</span>业务中台</a><a class="xw-nav-item" href="#organization"><span>03</span>组织与权限</a><a class="xw-nav-item" href="#channels"><span>04</span>渠道与微信</a><a class="xw-nav-item" href="#system"><span>05</span>系统工具</a></nav>
+    <div class="xw-sidebar-foot"><div class="xw-user"><span class="xw-user-dot" aria-hidden="true"></span><div><strong th:text="${username}">admin</strong><small>已登录管理员</small></div></div><form action="/logout" method="post"><input type="hidden" th:name="${csrf.parameterName}" th:value="${csrf.token}"/><button class="xw-button xw-button-ghost" type="submit">退出后台</button></form></div>
   </aside>
-
   <main class="xw-main">
-    <header class="xw-topbar">
-      <button class="xw-menu-button" id="xwMenuButton" type="button" aria-label="打开导航" aria-expanded="false">☰</button>
-      <div>
-        <p class="xw-kicker">STARWEAVE · OPERATIONS</p>
-        <h1>星维管理后台</h1>
-      </div>
-      <div class="xw-topbar-actions">
-        <span class="xw-status" id="xwBackendStatus"><i></i>正在检查服务</span>
-        <a class="xw-button xw-button-ghost" href="/" target="_blank" rel="noopener">查看前台</a>
-        <a class="xw-button" href="/admin">进入旧后台</a>
-      </div>
-    </header>
-
-    <section class="xw-hero" id="overview">
-      <div>
-        <p class="xw-kicker">PHASE 2C · DATA SCOPE ENFORCEMENT</p>
-        <h2>细粒度权限继续下沉到数据范围：全部数据、本中心、仅本人。</h2>
-        <p>legacy ADMIN 继续保持全量兜底；未配置星维角色的 OPERATOR 保持旧行为；显式 RBAC 账号开始按角色 data_scope 裁剪员工数据，并对跨范围写入返回 403。当前先在组织与员工模块验证，后续同一规则会复用到询价与订单。</p>
-      </div>
-      <div class="xw-version-card">
-        <span>当前版本</span>
-        <strong th:text="${consoleVersion}">20261013-v2c</strong>
-        <small id="xwServerTime">等待服务响应</small>
-      </div>
+    <header class="xw-topbar"><button class="xw-menu-button" id="xwMenuButton" type="button" aria-label="打开导航" aria-expanded="false">☰</button><div><p class="xw-kicker">STARWEAVE · OPERATIONS</p><h1>星维管理后台</h1></div><div class="xw-topbar-actions"><span class="xw-status" id="xwBackendStatus"><i></i>正在检查服务</span><a class="xw-button xw-button-ghost" href="/" target="_blank" rel="noopener">查看前台</a><a class="xw-button" href="/admin">进入旧后台</a></div></header>
+    <section class="xw-hero" id="overview"><div><p class="xw-kicker">PHASE 2C · DATA SCOPE ENFORCEMENT</p><h2>细粒度权限继续下沉到数据范围：全部数据、本中心、仅本人。</h2><p>legacy ADMIN 继续保持全量兜底；未配置星维角色的 OPERATOR 保持旧行为；显式 RBAC 账号开始按角色 data_scope 裁剪员工数据，并对跨范围写入返回 403。当前先在组织与员工模块验证，后续同一规则会复用到询价与订单。</p></div><div class="xw-version-card"><span>当前版本</span><strong th:text="${consoleVersion}">20261013-v2c</strong><small id="xwServerTime">等待服务响应</small></div></section>
+    <section class="xw-command-card" aria-label="后台快捷搜索"><label for="xwModuleSearch">快速定位模块</label><div class="xw-search-row"><input id="xwModuleSearch" type="search" placeholder="搜索：订单、询价、员工、权限、微信、SEO、日志……" autocomplete="off"/><span id="xwSearchCount">正在读取可用模块</span></div></section>
+    <section class="xw-section" id="business"><div class="xw-section-head"><div><p class="xw-kicker">BUSINESS CENTER</p><h2>业务中台</h2></div><p>询价、订单、派单与员工工作台已进入新版；V3A 开始迁移服务项目与游戏资料。</p></div><div class="xw-grid">
+      <a class="xw-module" data-search="询价 客户 需求 线索 报价" href="/admin/xingwei/business?tab=quotes"><div class="xw-module-index">B01</div><h3>询价与线索</h3><p>按 ALL / DEPARTMENT / SELF 查看客户需求、询价记录与业务归属。</p><span>新版工作台 →</span></a>
+      <a class="xw-module" data-search="订单 履约 进度 派单 代练" href="/admin/xingwei/business?tab=orders"><div class="xw-module-index">B02</div><h3>订单与履约</h3><p>按真实数据范围查看订单状态、进度与负责人，并执行范围内派单。</p><span>新版工作台 →</span></a>
+      <a class="xw-module" data-search="服务 商品 价格 上下架 游戏 mw4" href="/admin/xingwei/catalog"><div class="xw-module-index">B03</div><h3>服务与商品</h3><p>服务项目、价格状态、游戏与分类资料进入 V3A 新版只读工作台。</p><span>新版工作台 →</span></a>
+      <a class="xw-module" data-search="攻略 内容 编辑 guides" href="/admin/guides"><div class="xw-module-index">B04</div><h3>攻略内容</h3><p>管理攻略组件与站内内容资产。</p><span>打开模块 →</span></a>
+    </div></section>
+    <section class="xw-section" id="organization"><div class="xw-section-head"><div><p class="xw-kicker">ORGANIZATION & RBAC</p><h2>组织与权限</h2></div><p>V2C 已在新版组织接口启用后端数据范围守卫；权限和 ALL / DEPARTMENT / SELF 范围都会在接口层执行。</p></div><div class="xw-grid">
+      <a class="xw-module" data-search="部门 组织 架构 七大中心" href="#org-console"><div class="xw-module-index">O01</div><h3>七大中心</h3><p>固定组织架构、中心编号和岗位数量实时读取数据库。</p><span>org:view →</span></a>
+      <a class="xw-module" data-search="岗位 职务 员工 企业微信 通讯录 155 淘宝 闲鱼 mw4" href="/admin/xingwei/wecom"><div class="xw-module-index">O02</div><h3>岗位与企业微信员工</h3><p>155 个正式岗位来自 V63；企业微信员工与部门实时只读。</p><span>employee:view →</span></a>
+      <a class="xw-module" data-search="角色 权限 rbac 数据范围" href="#org-roles"><div class="xw-module-index">O03</div><h3>角色与权限</h3><p>七个中心角色、权限点与 data_scope 已成为新版接口的有效授权依据。</p><span>rbac:view →</span></a>
+      <a class="xw-module" data-search="账号 用户 登录 日志" href="/admin"><div class="xw-module-index">O04</div><h3>现有账号管理</h3><p>账号创建、密码和 legacy 登录角色仍由原后台管理，作为认证与安全兜底。</p><span>现有后台承载 →</span></a>
+    </div></section>
+    <section class="xw-section xw-org-console" id="org-console"><div class="xw-section-head"><div><p class="xw-kicker">V2C · DATA SCOPE</p><h2>组织与权限控制台</h2></div><div class="xw-shadow-badge"><i></i><span>V2C 数据范围</span><small>ADMIN 全量 · OPERATOR 兼容 · RBAC 执行 ALL / DEPARTMENT / SELF</small></div></div><div class="xw-org-message" id="xwOrgMessage" role="status">正在读取组织数据……</div><div class="xw-org-kpis" id="xwOrgKpis"><div><span>中心</span><strong data-org-kpi="departments">-</strong></div><div><span>正式岗位</span><strong data-org-kpi="positions">-</strong></div><div><span>可见账号</span><strong data-org-kpi="employees">-</strong></div><div><span>已归档员工</span><strong data-org-kpi="assignedEmployees">-</strong></div><div><span>星维角色</span><strong data-org-kpi="roles">-</strong></div><div><span>权限点</span><strong data-org-kpi="permissions">-</strong></div></div>
+      <article class="xw-data-panel"><div class="xw-data-head"><div><h3>固定七大中心</h3><p>中心编号、名称与层级来自唯一正式组织架构，不在本页提供删除/改名。</p></div></div><div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>编号</th><th>中心</th><th>正式岗位数</th><th>状态</th></tr></thead><tbody id="xwDepartmentRows"></tbody></table></div></article>
+      <article class="xw-data-panel" id="org-positions"><div class="xw-data-head"><div><h3>155 岗位正式词库</h3><p>岗位编码与合同索引一致，用作员工档案和后续派单能力的标准值。</p></div><label class="xw-inline-filter">筛选中心<select id="xwPositionDepartment"><option value="">全部中心</option></select></label></div><div class="xw-table-wrap xw-table-tall"><table class="xw-table"><thead><tr><th>岗位编码</th><th>岗位</th><th>类别</th><th>所属中心</th></tr></thead><tbody id="xwPositionRows"></tbody></table></div></article>
+      <article class="xw-data-panel" id="org-employees"><div class="xw-data-head"><div><h3>员工档案</h3><p>直接扩展现有 admin_users，不新建第二套登录账号。读取和修改都会执行当前账号的数据范围。</p></div></div><div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>账号</th><th>姓名/编号</th><th>中心</th><th>岗位</th><th>星维角色</th><th>登录角色</th><th>操作</th></tr></thead><tbody id="xwEmployeeRows"></tbody></table></div></article>
+      <article class="xw-data-panel" id="org-roles"><div class="xw-data-head"><div><h3>角色与权限点</h3><p>角色权限与数据范围会直接约束已分配该角色账号对新版星维接口和模块的访问；管理层安全兜底角色保持只读。</p></div></div><div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>角色</th><th>数据范围</th><th>权限点</th><th>状态</th><th>操作</th></tr></thead><tbody id="xwRoleRows"></tbody></table></div></article>
     </section>
-
-    <section class="xw-command-card" aria-label="后台快捷搜索">
-      <label for="xwModuleSearch">快速定位模块</label>
-      <div class="xw-search-row">
-        <input id="xwModuleSearch" type="search" placeholder="搜索：订单、询价、员工、权限、微信、SEO、日志……" autocomplete="off"/>
-        <span id="xwSearchCount">正在读取可用模块</span>
-      </div>
-    </section>
-
-    <section class="xw-section" id="business">
-      <div class="xw-section-head">
-        <div><p class="xw-kicker">BUSINESS CENTER</p><h2>业务中台</h2></div>
-        <p>V2E 已把询价与订单接入新版数据范围工作台；服务、内容等其他业务模块继续沿用旧后台，逐项迁移。</p>
-      </div>
-      <div class="xw-grid">
-        <a class="xw-module" data-search="询价 客户 需求 线索 报价" href="/admin/xingwei/business?tab=quotes"><div class="xw-module-index">B01</div><h3>询价与线索</h3><p>按 ALL / DEPARTMENT / SELF 查看客户需求、询价记录与业务归属。</p><span>新版工作台 →</span></a>
-        <a class="xw-module" data-search="订单 履约 进度 派单 代练" href="/admin/xingwei/business?tab=orders"><div class="xw-module-index">B02</div><h3>订单与履约</h3><p>按真实数据范围查看订单状态、进度与负责人，并执行范围内派单。</p><span>新版工作台 →</span></a>
-        <a class="xw-module" data-search="服务 商品 价格 上下架 游戏 mw4" href="/admin"><div class="xw-module-index">B03</div><h3>服务与商品</h3><p>服务项目、价格、展示状态与游戏资料管理。</p><span>现有后台承载 →</span></a>
-        <a class="xw-module" data-search="攻略 内容 编辑 guides" href="/admin/guides"><div class="xw-module-index">B04</div><h3>攻略内容</h3><p>管理攻略组件与站内内容资产。</p><span>打开模块 →</span></a>
-      </div>
-    </section>
-
-    <section class="xw-section" id="organization">
-      <div class="xw-section-head">
-        <div><p class="xw-kicker">ORGANIZATION & RBAC</p><h2>组织与权限</h2></div>
-        <p>V2C 已在新版组织接口启用后端数据范围守卫；权限和 ALL / DEPARTMENT / SELF 范围都会在接口层执行。</p>
-      </div>
-      <div class="xw-grid">
-        <a class="xw-module" data-search="部门 组织 架构 七大中心" href="#org-console"><div class="xw-module-index">O01</div><h3>七大中心</h3><p>固定组织架构、中心编号和岗位数量实时读取数据库。</p><span>org:view →</span></a>
-        <a class="xw-module" data-search="岗位 职务 员工 企业微信 通讯录 155 淘宝 闲鱼 mw4" href="/admin/xingwei/wecom"><div class="xw-module-index">O02</div><h3>岗位与企业微信员工</h3><p>155 个正式岗位来自 V63；企业微信员工与部门实时只读。</p><span>employee:view →</span></a>
-        <a class="xw-module" data-search="角色 权限 rbac 数据范围" href="#org-roles"><div class="xw-module-index">O03</div><h3>角色与权限</h3><p>七个中心角色、权限点与 data_scope 已成为新版接口的有效授权依据。</p><span>rbac:view →</span></a>
-        <a class="xw-module" data-search="账号 用户 登录 日志" href="/admin"><div class="xw-module-index">O04</div><h3>现有账号管理</h3><p>账号创建、密码和 legacy 登录角色仍由原后台管理，作为认证与安全兜底。</p><span>现有后台承载 →</span></a>
-      </div>
-    </section>
-
-    <section class="xw-section xw-org-console" id="org-console">
-      <div class="xw-section-head">
-        <div><p class="xw-kicker">V2C · DATA SCOPE</p><h2>组织与权限控制台</h2></div>
-        <div class="xw-shadow-badge"><i></i><span>V2C 数据范围</span><small>ADMIN 全量 · OPERATOR 兼容 · RBAC 执行 ALL / DEPARTMENT / SELF</small></div>
-      </div>
-      <div class="xw-org-message" id="xwOrgMessage" role="status">正在读取组织数据……</div>
-      <div class="xw-org-kpis" id="xwOrgKpis">
-        <div><span>中心</span><strong data-org-kpi="departments">-</strong></div><div><span>正式岗位</span><strong data-org-kpi="positions">-</strong></div><div><span>可见账号</span><strong data-org-kpi="employees">-</strong></div><div><span>已归档员工</span><strong data-org-kpi="assignedEmployees">-</strong></div><div><span>星维角色</span><strong data-org-kpi="roles">-</strong></div><div><span>权限点</span><strong data-org-kpi="permissions">-</strong></div>
-      </div>
-
-      <article class="xw-data-panel">
-        <div class="xw-data-head"><div><h3>固定七大中心</h3><p>中心编号、名称与层级来自唯一正式组织架构，不在本页提供删除/改名。</p></div></div>
-        <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>编号</th><th>中心</th><th>正式岗位数</th><th>状态</th></tr></thead><tbody id="xwDepartmentRows"></tbody></table></div>
-      </article>
-
-      <article class="xw-data-panel" id="org-positions">
-        <div class="xw-data-head"><div><h3>155 岗位正式词库</h3><p>岗位编码与合同索引一致，用作员工档案和后续派单能力的标准值。</p></div><label class="xw-inline-filter">筛选中心<select id="xwPositionDepartment"><option value="">全部中心</option></select></label></div>
-        <div class="xw-table-wrap xw-table-tall"><table class="xw-table"><thead><tr><th>岗位编码</th><th>岗位</th><th>类别</th><th>所属中心</th></tr></thead><tbody id="xwPositionRows"></tbody></table></div>
-      </article>
-
-      <article class="xw-data-panel" id="org-employees">
-        <div class="xw-data-head"><div><h3>员工档案</h3><p>直接扩展现有 admin_users，不新建第二套登录账号。读取和修改都会执行当前账号的数据范围。</p></div></div>
-        <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>账号</th><th>姓名/编号</th><th>中心</th><th>岗位</th><th>星维角色</th><th>登录角色</th><th>操作</th></tr></thead><tbody id="xwEmployeeRows"></tbody></table></div>
-      </article>
-
-      <article class="xw-data-panel" id="org-roles">
-        <div class="xw-data-head"><div><h3>角色与权限点</h3><p>角色权限与数据范围会直接约束已分配该角色账号对新版星维接口和模块的访问；管理层安全兜底角色保持只读。</p></div></div>
-        <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>角色</th><th>数据范围</th><th>权限点</th><th>状态</th><th>操作</th></tr></thead><tbody id="xwRoleRows"></tbody></table></div>
-      </article>
-    </section>
-
-    <section class="xw-section" id="channels">
-      <div class="xw-section-head"><div><p class="xw-kicker">CHANNELS & WECHAT</p><h2>渠道与微信</h2></div><p>为淘宝、闲鱼、官网、小程序与微信支付预留统一管理面。</p></div>
-      <div class="xw-grid">
-        <article class="xw-module xw-module-planned" data-search="淘宝 闲鱼 渠道 商品 运营"><div class="xw-module-index">C01</div><h3>渠道运营</h3><p>后续汇总淘宝、闲鱼和官网运营状态与任务。</p><span>V4 规划</span></article>
-        <article class="xw-module xw-module-planned" data-search="微信 登录 小程序 扫码 公众号 服务号"><div class="xw-module-index">C02</div><h3>微信身份能力</h3><p>网站微信登录、小程序账号互通和后续扫码登录状态。</p><span>V4 整合</span></article>
-        <article class="xw-module xw-module-planned" data-search="微信支付 支付 退款 商户 订单"><div class="xw-module-index">C03</div><h3>微信支付</h3><p>支付订单、回调状态、退款和异常对账的后台入口。</p><span>V4 整合</span></article>
-        <a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/frontend-controls"><div class="xw-module-index">C04</div><h3>前台控制</h3><p>继续复用现有前台展示与功能开关控制。</p><span>打开模块 →</span></a>
-      </div>
-    </section>
-
-    <section class="xw-section" id="system">
-      <div class="xw-section-head"><div><p class="xw-kicker">SYSTEM & GOVERNANCE</p><h2>系统工具</h2></div><p>保留审计、SEO、站点配置和发布回滚能力。</p></div>
-      <div class="xw-grid">
-        <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin"><div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示与图片视觉。</p><span>现有后台承载 →</span></a>
-        <a class="xw-module" data-search="日志 审计 操作 安全" href="/admin"><div class="xw-module-index">S02</div><h3>操作审计</h3><p>员工档案与权限变更也会进入现有审计日志。</p><span>现有后台承载 →</span></a>
-        <article class="xw-module xw-module-planned" data-search="发布 部署 回滚 ci github 服务器"><div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>保持 GitHub PR → CI → 生产部署门禁，不在后台直接执行危险发布。</p><span>沿用现有流水线</span></article>
-        <article class="xw-module xw-module-planned" data-search="代码生成 scaffold generator 开发"><div class="xw-module-index">S04</div><h3>开发工具</h3><p>后续评估移植 scaffold-master 的代码生成与字典能力。</p><span>评估中</span></article>
-      </div>
-    </section>
-
-    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移顺序</h2></div></div><ol><li><strong>V1 并行入口</strong><span>已上线：新版后台壳、现有模块导航、服务状态检查。</span></li><li><strong>V2A 组织底座</strong><span>已上线：七大中心、155 岗位、员工档案与角色权限数据模型。</span></li><li><strong>V2B 权限执行</strong><span>已上线：新版星维接口启用混合权限守卫、模块与操作同步按权限过滤。</span></li><li><strong>V2C 数据范围</strong><span>已上线：组织与员工接口执行 ALL / DEPARTMENT / SELF；V2D 已扩展到询价与订单。</span></li><li><strong>V2E / V3</strong><span>询价与订单进入新版工作台；后续继续迁移服务、派单和完整业务操作。</span></li></ol></section>
-
+    <section class="xw-section" id="channels"><div class="xw-section-head"><div><p class="xw-kicker">CHANNELS & WECHAT</p><h2>渠道与微信</h2></div><p>为淘宝、闲鱼、官网、小程序与微信支付预留统一管理面。</p></div><div class="xw-grid"><article class="xw-module xw-module-planned" data-search="淘宝 闲鱼 渠道 商品 运营"><div class="xw-module-index">C01</div><h3>渠道运营</h3><p>后续汇总淘宝、闲鱼和官网运营状态与任务。</p><span>V4 规划</span></article><article class="xw-module xw-module-planned" data-search="微信 登录 小程序 扫码 公众号 服务号"><div class="xw-module-index">C02</div><h3>微信身份能力</h3><p>网站微信登录、小程序账号互通和后续扫码登录状态。</p><span>V4 整合</span></article><article class="xw-module xw-module-planned" data-search="微信支付 支付 退款 商户 订单"><div class="xw-module-index">C03</div><h3>微信支付</h3><p>支付订单、回调状态、退款和异常对账的后台入口。</p><span>V4 整合</span></article><a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/frontend-controls"><div class="xw-module-index">C04</div><h3>前台控制</h3><p>继续复用现有前台展示与功能开关控制。</p><span>打开模块 →</span></a></div></section>
+    <section class="xw-section" id="system"><div class="xw-section-head"><div><p class="xw-kicker">SYSTEM & GOVERNANCE</p><h2>系统工具</h2></div><p>保留审计、SEO、站点配置和发布回滚能力。</p></div><div class="xw-grid"><a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin"><div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示与图片视觉。</p><span>现有后台承载 →</span></a><a class="xw-module" data-search="日志 审计 操作 安全" href="/admin"><div class="xw-module-index">S02</div><h3>操作审计</h3><p>员工档案与权限变更也会进入现有审计日志。</p><span>现有后台承载 →</span></a><article class="xw-module xw-module-planned" data-search="发布 部署 回滚 ci github 服务器"><div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>保持 GitHub PR → CI → 生产部署门禁，不在后台直接执行危险发布。</p><span>沿用现有流水线</span></article><article class="xw-module xw-module-planned" data-search="代码生成 scaffold generator 开发"><div class="xw-module-index">S04</div><h3>开发工具</h3><p>后续评估移植 scaffold-master 的代码生成与字典能力。</p><span>评估中</span></article></div></section>
+    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移顺序</h2></div></div><ol><li><strong>V1 并行入口</strong><span>已上线：新版后台壳、现有模块导航、服务状态检查。</span></li><li><strong>V2A 组织底座</strong><span>已上线：七大中心、155 岗位、员工档案与角色权限数据模型。</span></li><li><strong>V2B 权限执行</strong><span>已上线：新版星维接口启用混合权限守卫、模块与操作同步按权限过滤。</span></li><li><strong>V2C–V2G</strong><span>已上线：数据范围、询价/订单、派单/我的工作、企业微信只读通讯录。</span></li><li><strong>V3A</strong><span>服务项目与游戏资料进入新版只读工作台；写操作待后续独立接管。</span></li></ol></section>
     <footer class="xw-footer"><span>星维网络服务工作室 · 管理后台</span><span>固定组织架构 · 后端授权 · 数据范围 · 可审计 · 可回滚 · 旧后台保留</span></footer>
   </main>
 </div>
-
-<dialog class="xw-dialog" id="xwEmployeeDialog">
-  <form method="dialog" class="xw-dialog-card" id="xwEmployeeForm">
-    <div class="xw-dialog-head"><div><p class="xw-kicker">EMPLOYEE PROFILE</p><h3 id="xwEmployeeDialogTitle">配置员工档案</h3></div><button type="button" class="xw-dialog-close" data-dialog-close="xwEmployeeDialog">×</button></div>
-    <input type="hidden" id="xwEmployeeId"/>
-    <div class="xw-form-grid"><label>姓名<input id="xwEmployeeName" maxlength="80"/></label><label>员工编号<input id="xwEmployeeNo" maxlength="32" placeholder="可留空"/></label><label>所属中心<select id="xwEmployeeDepartment"></select></label><label>正式岗位<select id="xwEmployeePosition"></select></label><label>员工状态<select id="xwEmployeeStatus"><option value="ACTIVE">在岗</option><option value="ON_LEAVE">休假/暂停</option><option value="INACTIVE">离岗</option></select></label></div>
-    <fieldset class="xw-check-group"><legend>星维角色（可多选）</legend><div id="xwEmployeeRoleChecks"></div></fieldset>
-    <label class="xw-form-wide">备注<textarea id="xwEmployeeNotes" maxlength="500" rows="3"></textarea></label>
-    <div class="xw-dialog-actions"><span id="xwEmployeeSaveState"></span><button type="button" class="xw-button xw-button-ghost" data-dialog-close="xwEmployeeDialog">取消</button><button type="submit" class="xw-button">保存档案与角色</button></div>
-  </form>
-</dialog>
-
-<dialog class="xw-dialog" id="xwRoleDialog">
-  <form method="dialog" class="xw-dialog-card" id="xwRoleForm">
-    <div class="xw-dialog-head"><div><p class="xw-kicker">EFFECTIVE PERMISSIONS</p><h3 id="xwRoleDialogTitle">配置星维权限</h3></div><button type="button" class="xw-dialog-close" data-dialog-close="xwRoleDialog">×</button></div>
-    <input type="hidden" id="xwRoleCode"/>
-    <p class="xw-dialog-note">V2C 保存后会立即影响已分配该角色账号对新版星维接口和模块的访问；员工数据还会执行角色 data_scope。legacy ADMIN 永远保留全权限，旧 /admin 仍沿用 ADMIN / OPERATOR 安全边界。</p>
-    <div class="xw-permission-grid" id="xwPermissionChecks"></div>
-    <div class="xw-dialog-actions"><span id="xwRoleSaveState"></span><button type="button" class="xw-button xw-button-ghost" data-dialog-close="xwRoleDialog">取消</button><button type="submit" class="xw-button">保存星维权限</button></div>
-  </form>
-</dialog>
+<dialog class="xw-dialog" id="xwEmployeeDialog"><form method="dialog" class="xw-dialog-card" id="xwEmployeeForm"><div class="xw-dialog-head"><div><p class="xw-kicker">EMPLOYEE PROFILE</p><h3 id="xwEmployeeDialogTitle">配置员工档案</h3></div><button type="button" class="xw-dialog-close" data-dialog-close="xwEmployeeDialog">×</button></div><input type="hidden" id="xwEmployeeId"/><div class="xw-form-grid"><label>姓名<input id="xwEmployeeName" maxlength="80"/></label><label>员工编号<input id="xwEmployeeNo" maxlength="32" placeholder="可留空"/></label><label>所属中心<select id="xwEmployeeDepartment"></select></label><label>正式岗位<select id="xwEmployeePosition"></select></label><label>员工状态<select id="xwEmployeeStatus"><option value="ACTIVE">在岗</option><option value="ON_LEAVE">休假/暂停</option><option value="INACTIVE">离岗</option></select></label></div><fieldset class="xw-check-group"><legend>星维角色（可多选）</legend><div id="xwEmployeeRoleChecks"></div></fieldset><label class="xw-form-wide">备注<textarea id="xwEmployeeNotes" maxlength="500" rows="3"></textarea></label><div class="xw-dialog-actions"><span id="xwEmployeeSaveState"></span><button type="button" class="xw-button xw-button-ghost" data-dialog-close="xwEmployeeDialog">取消</button><button type="submit" class="xw-button">保存档案与角色</button></div></form></dialog>
+<dialog class="xw-dialog" id="xwRoleDialog"><form method="dialog" class="xw-dialog-card" id="xwRoleForm"><div class="xw-dialog-head"><div><p class="xw-kicker">EFFECTIVE PERMISSIONS</p><h3 id="xwRoleDialogTitle">配置星维权限</h3></div><button type="button" class="xw-dialog-close" data-dialog-close="xwRoleDialog">×</button></div><input type="hidden" id="xwRoleCode"/><p class="xw-dialog-note">V2C 保存后会立即影响已分配该角色账号对新版星维接口和模块的访问；员工数据还会执行角色 data_scope。legacy ADMIN 永远保留全权限，旧 /admin 仍沿用 ADMIN / OPERATOR 安全边界。</p><div class="xw-permission-grid" id="xwPermissionChecks"></div><div class="xw-dialog-actions"><span id="xwRoleSaveState"></span><button type="button" class="xw-button xw-button-ghost" data-dialog-close="xwRoleDialog">取消</button><button type="submit" class="xw-button">保存星维权限</button></div></form></dialog>
 </body>
 </html>

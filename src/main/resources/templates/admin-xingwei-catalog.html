@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#101216"/>
+  <meta name="_csrf" th:content="${csrf.token}"/>
+  <meta name="_csrf_header" th:content="${csrf.headerName}"/>
+  <title>服务与游戏资料 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-catalog.css?v=20261013v3a"/>
+  <script defer src="/assets/admin-xingwei-catalog.js?v=20261013v3a"></script>
+</head>
+<body>
+<main class="xcat-shell">
+  <header class="xcat-topbar">
+    <div><p class="xw-kicker">STARWEAVE · SERVICE CATALOG</p><h1>服务与游戏资料</h1></div>
+    <div class="xcat-actions">
+      <span class="xw-status" id="xcatStatus"><i></i><span>正在读取</span></span>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
+      <a class="xw-button xw-button-ghost" href="/admin">旧后台编辑</a>
+    </div>
+  </header>
+
+  <section class="xcat-hero">
+    <div>
+      <p class="xw-kicker">V3A · READ ONLY MIGRATION</p>
+      <h2>先把服务项目、价格状态和游戏分类完整搬进新版工作台，再单独接管理写操作。</h2>
+      <p>数据直接来自现有 <strong>ServiceCatalogService</strong> 与 <strong>TaxonomyService</strong>，不新建服务表、不双写。当前只读接口要求 <strong>service:view</strong>；价格、上下架、游戏编辑仍保留在旧后台，避免一次迁移过多风险。</p>
+    </div>
+    <div class="xcat-version"><span>当前版本</span><strong th:text="${catalogVersion}">20261013-v3a</strong><small th:text="${username}">admin</small></div>
+  </section>
+
+  <section class="xcat-message" id="xcatMessage" role="status">正在读取服务与游戏资料……</section>
+
+  <section class="xcat-kpis" aria-label="服务目录指标">
+    <div><span>服务项目</span><strong id="xcatServiceCount">-</strong></div>
+    <div><span>启用服务</span><strong id="xcatActiveCount">-</strong></div>
+    <div><span>游戏</span><strong id="xcatGameCount">-</strong></div>
+    <div><span>分类</span><strong id="xcatCategoryCount">-</strong></div>
+    <div><span>平台</span><strong id="xcatPlatformCount">-</strong></div>
+  </section>
+
+  <section class="xcat-toolbar">
+    <label>搜索服务<input id="xcatSearch" type="search" placeholder="服务名 / slug / 游戏 / 分类 / 状态" autocomplete="off"/></label>
+    <label>游戏<select id="xcatGameFilter"><option value="">全部游戏</option></select></label>
+    <label>状态<select id="xcatStateFilter"><option value="">全部状态</option><option value="active">仅启用</option><option value="inactive">仅停用</option><option value="offline">仅 OFFLINE</option></select></label>
+    <button class="xw-button" id="xcatRefresh" type="button">刷新</button>
+  </section>
+
+  <section class="xw-data-panel">
+    <div class="xw-data-head"><div><h3>服务项目</h3><p>价格、状态与展示顺序来自现有生产服务表；V3A 不提供编辑按钮。</p></div><span class="xw-pill">service:view</span></div>
+    <div class="xw-table-wrap"><table class="xw-table xcat-service-table"><thead><tr><th>服务</th><th>游戏 / 分类</th><th>价格</th><th>时长</th><th>状态</th><th>排序</th></tr></thead><tbody id="xcatServiceRows"></tbody></table></div>
+  </section>
+
+  <div class="xcat-grid">
+    <section class="xw-data-panel">
+      <div class="xw-data-head"><div><h3>游戏资料</h3><p>业务状态、分类/服务数量和适用平台来自现有 taxonomy。</p></div></div>
+      <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>游戏</th><th>业务状态</th><th>分类 / 服务</th><th>平台</th></tr></thead><tbody id="xcatGameRows"></tbody></table></div>
+    </section>
+    <section class="xw-data-panel">
+      <div class="xw-data-head"><div><h3>分类资料</h3><p>按游戏归属展示正式分类与关联服务数。</p></div></div>
+      <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>编码</th><th>分类</th><th>游戏</th><th>服务数</th></tr></thead><tbody id="xcatCategoryRows"></tbody></table></div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

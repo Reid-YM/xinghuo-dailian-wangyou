@@ -1,0 +1,36 @@
+<view class="page">
+  <view class="hero">
+    <text class="eyebrow">星维网络</text>
+    <text class="title">网站扫码登录</text>
+    <text class="sub">在电脑打开 wydlgf.cn 登录页，生成二维码后使用本页扫描。小程序只确认微信身份，不会读取网站密码或游戏账号密码。</text>
+  </view>
+
+  <view class="card">
+    <text class="section-title">登录网站</text>
+    <button class="primary" bindtap="scanLogin" loading="{{busy}}" disabled="{{busy}}">扫码登录网站</button>
+    <view class="divider"><text>或手动输入 8 位登录码</text></view>
+    <input class="code" type="number" maxlength="8" value="{{pairCode}}" bindinput="onCodeInput" placeholder="00000000" />
+    <button class="secondary" bindtap="confirmCode" loading="{{busy}}" disabled="{{busy}}">确认登录码</button>
+    <text class="status {{statusType}}">{{status}}</text>
+  </view>
+
+  <view class="card">
+    <text class="section-title">当前微信关联状态</text>
+    <block wx:if="{{linked}}">
+      <text class="profile-name">{{displayName || '星维用户'}}</text>
+      <text class="profile-meta">网站用户 ID：{{userId}}</text>
+      <text class="profile-meta">业务订单：{{orderCount}} 条</text>
+    </block>
+    <text class="profile-meta" wx:else>当前微信尚未关联网站账号。首次扫码登录成功后会自动创建或进入对应星维账号。</text>
+    <button class="ghost" bindtap="refreshProfile" loading="{{profileBusy}}" disabled="{{profileBusy}}">刷新关联状态</button>
+  </view>
+
+  <view class="card" wx:if="{{linked}}">
+    <text class="section-title">账号资料</text>
+    <input class="input" maxlength="60" value="{{nickName}}" bindinput="onNickInput" placeholder="设置网站显示昵称" />
+    <button class="secondary" bindtap="syncNickName" loading="{{profileBusy}}" disabled="{{profileBusy}}">同步昵称到网站</button>
+    <button class="ghost" open-type="getPhoneNumber" bindgetphonenumber="syncPhone" loading="{{phoneBusy}}" disabled="{{phoneBusy}}">授权手机号用于业务联系</button>
+  </view>
+
+  <text class="foot">扫码只是提交一次性微信身份确认。网页仍需核对识别码并再次点击确认，二维码截图本身不能直接登录账号。</text>
+</view>

@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "pages/account/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "星维网络",
+    "navigationBarBackgroundColor": "#090b0f",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#090b0f",
+    "backgroundTextStyle": "light"
+  },
+  "networkTimeout": {
+    "request": 12000
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

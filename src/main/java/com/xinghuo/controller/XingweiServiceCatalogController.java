@@ -146,6 +146,33 @@ public class XingweiServiceCatalogController {
                 request.sortOrder(), false, request.reason()), authentication.getName(), httpRequest);
     }
 
+    // V3F: profile-only edits preserve active state, game/category codes and parent links.
+    @PutMapping("/taxonomy/games/{code}/profile")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
+    public ApiDtos.GameOptionResponse updateGameProfile(
+            @PathVariable String code, @Valid @RequestBody ApiDtos.CatalogUpdateRequest request,
+            Authentication authentication, HttpServletRequest httpRequest) {
+        ApiDtos.GameOptionResponse current = taxonomy.catalog(true).games().stream()
+                .filter(game -> game.code().equals(taxonomy.normalizeGame(code)))
+                .findFirst().orElseThrow(com.xinghuo.exception.NotFoundException::new);
+        return taxonomy.updateGame(code, new ApiDtos.CatalogUpdateRequest(
+                request.name(), request.iconKey(), request.description(), request.sortOrder(),
+                current.active(), request.reason()), authentication.getName(), httpRequest);
+    }
+
+    @PutMapping("/taxonomy/categories/{id}/profile")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
+    public ApiDtos.CategoryOptionResponse updateCategoryProfile(
+            @PathVariable Long id, @Valid @RequestBody ApiDtos.CategoryUpdateRequest request,
+            Authentication authentication, HttpServletRequest httpRequest) {
+        ApiDtos.CategoryOptionResponse current = taxonomy.catalog(true).categories().stream()
+                .filter(category -> category.id().equals(id))
+                .findFirst().orElseThrow(com.xinghuo.exception.NotFoundException::new);
+        return taxonomy.updateCategory(id, new ApiDtos.CategoryUpdateRequest(
+                request.name(), request.iconKey(), request.description(), request.sortOrder(),
+                current.active(), request.reason()), authentication.getName(), httpRequest);
+    }
+
     @PostMapping("/services")
     @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
     public ApiDtos.AdminServiceResponse createService(

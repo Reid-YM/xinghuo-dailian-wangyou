@@ -16,11 +16,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  * <p>版本号和首页阶段状态集中维护在本类，避免功能已更新但后台仍显示旧阶段。
  * 每个可交付阶段同时更新 RELEASE_HISTORY、对应模块版本、页面阶段说明与状态契约测试。
+ * V3K 进一步把版本/阶段/更新记录一致性检查下沉到 CI，遗漏同步会直接阻断合并。
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3j";
-    static final String CONSOLE_STAGE = "V3J · STABLE PRODUCTION";
+    static final String CONSOLE_VERSION = "20261014-v3k";
+    static final String CONSOLE_STAGE = "V3K · STABLE PRODUCTION";
     static final String BUSINESS_VERSION = "20261013-v2e";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -28,6 +29,9 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3K", "已上线",
+                    "版本与更新记录自动巡检",
+                    "新增 CI 版本真值校验：自动读取控制台版本/阶段并核对后台首页、更新记录、当前 ReleaseItem、V3H 待验收状态和已启用模块的 planned 标记；任一处遗漏同步都会阻断 PR/主线 CI。"),
             new ReleaseItem("2026-10-14", "V3J", "已上线",
                     "新版后台生产状态一致性与版本真值守卫",
                     "将已部署的 V3I 从发布候选同步为生产已上线；微信支付保留待真机验收状态，生产发布流水线标记为已启用。首页阶段标签改为集中版本真源，并由契约测试阻止已上线能力再次显示为候选或规划中。"),

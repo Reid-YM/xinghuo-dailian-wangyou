@@ -7,6 +7,8 @@ import com.google.zxing.common.BitMatrix;
 import com.wechat.pay.java.core.exception.ValidationException;
 import com.wechat.pay.java.core.notification.RequestParam;
 import com.xinghuo.account.model.Account;
+import com.xinghuo.account.service.RateLimiter;
+import com.xinghuo.account.service.RequestUtils;
 import com.xinghuo.account.web.AccountAuthInterceptor;
 import com.xinghuo.account.web.RequireAccount;
 import com.xinghuo.service.AuditService;
@@ -15,6 +17,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -39,15 +42,18 @@ public class WeChatPaymentController {
     private final WeChatNativePaymentService payments;
     private final WeChatMiniPaymentIdentityService miniIdentity;
     private final AuditService audit;
+    private final RateLimiter rateLimiter;
     private final String paymentAppId;
 
     public WeChatPaymentController(WeChatNativePaymentService payments,
                                    WeChatMiniPaymentIdentityService miniIdentity,
                                    AuditService audit,
+                                   RateLimiter rateLimiter,
                                    @Value("${app.wechat-pay.app-id:}") String paymentAppId) {
         this.payments = payments;
         this.miniIdentity = miniIdentity;
         this.audit = audit;
+        this.rateLimiter = rateLimiter;
         this.paymentAppId = paymentAppId == null ? "" : paymentAppId.trim();
     }
 
@@ -123,7 +129,9 @@ public class WeChatPaymentController {
 
     /** Mini-program reads only payment intents owned by the exact wx.login-linked site account. */
     @PostMapping("/api/account/wechat-mini/payments")
-    public List<PaymentView> miniPayments(@Valid @RequestBody MiniLogin body) {
+    public List<PaymentView> miniPayments(@Valid @RequestBody MiniLogin body,
+                                          HttpServletRequest request) {
+        rateLimiter.check("mini:payments:list:" + RequestUtils.clientIp(request), 30, Duration.ofMinutes(15));
         WeChatMiniPaymentIdentityService.MiniPayer payer = miniIdentity.authenticate(body.loginCode());
         requireMiniPaymentApp(payer);
         return payments.latestForAccount(payer.accountId()).stream().map(PaymentView::of).toList();
@@ -132,7 +140,11 @@ public class WeChatPaymentController {
     /** The amount and subject come exclusively from the staff-created payment intent. */
     @PostMapping("/api/account/wechat-mini/payments/{paymentNo}/prepay")
     public MiniProgramPayView miniPrepay(@PathVariable String paymentNo,
-                                         @Valid @RequestBody MiniLogin body) {
+                                         @Valid @RequestBody MiniLogin body,
+                                         HttpServletRequest request) {
+        String ip = RequestUtils.clientIp(request);
+        rateLimiter.check("mini:payments:prepay:ip:" + ip, 10, Duration.ofMinutes(15));
+        rateLimiter.check("mini:payments:prepay:no:" + paymentNo, 5, Duration.ofMinutes(15));
         WeChatMiniPaymentIdentityService.MiniPayer payer = miniIdentity.authenticate(body.loginCode());
         requireMiniPaymentApp(payer);
         return MiniProgramPayView.of(payments.miniProgramPrepay(paymentNo, payer.accountId(), payer.openId()));

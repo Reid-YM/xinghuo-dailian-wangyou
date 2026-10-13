@@ -47,7 +47,7 @@ public class XingweiAdminController {
                     "询价/订单进入新版数据范围工作台，员工领取与履约入口上线，企业微信通讯录只读接入。"),
             new ReleaseItem("2026-10-13", "V2A-V2C", "已上线",
                     "组织、RBAC 与数据范围底座",
-                    "七大中心、155 岗位、角色权限与 ALL / DEPARTMENT / SELF 数据范围成为新版后台授权基础。")
+                    "原控制台版本 20261013-v2c：七大中心、155 岗位、角色权限与 ALL / DEPARTMENT / SELF 数据范围成为新版后台授权基础。")
     );
 
     @GetMapping("/admin/xingwei")

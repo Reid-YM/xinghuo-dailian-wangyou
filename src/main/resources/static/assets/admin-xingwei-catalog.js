@@ -42,6 +42,11 @@
   const editPriority = document.getElementById('xcatEditPriority');
   const editReason = document.getElementById('xcatEditReason');
   const editSave = document.getElementById('xcatEditSave');
+  const reviewDialog = document.getElementById('xcatReviewDialog');
+  const reviewMeta = document.getElementById('xcatReviewMeta');
+  const reviewSummary = document.getElementById('xcatReviewSummary');
+  const reviewChecks = document.getElementById('xcatReviewChecks');
+  const reviewPublish = document.getElementById('xcatReviewPublish');
   const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
   const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || '';
 
@@ -49,6 +54,8 @@
   let access = null;
   let canManage = false;
   let currentEdit = null;
+  let currentReviewItem = null;
+  let currentReview = null;
 
   function normalize(value) { return String(value ?? '').toLocaleLowerCase('zh-CN').trim(); }
   function append(parent, tag, text, className = '') { const node=document.createElement(tag); if(className)node.className=className; node.textContent=text==null||text===''?'—':String(text); parent.appendChild(node); return node; }
@@ -99,7 +106,7 @@
       if(canManage){
         actionCell.appendChild(actionButton('编辑','edit',item.id));
         const offline=String(item.status).toUpperCase()==='OFFLINE'||!item.active;
-        actionCell.appendChild(actionButton(offline?'恢复':'下线',offline?'restore':'offline',item.id));
+        actionCell.appendChild(actionButton(offline?'发布检查':'下线',offline?'review':'offline',item.id,offline?'xw-button':'xw-button xw-button-ghost'));
       }else{
         append(actionCell,'span','只读','xcat-readonly');
       }
@@ -195,6 +202,7 @@
   }
 
   function closeEdit() { if(editDialog.open)editDialog.close(); currentEdit=null; }
+  function closeReview() { if(reviewDialog.open)reviewDialog.close(); currentReviewItem=null; currentReview=null; }
   function decimalOrNull(input) { if(input.disabled||input.value.trim()==='')return null; const value=Number(input.value); return Number.isFinite(value)?value:null; }
   function integerValue(input, fallback=0) { const value=Number.parseInt(input.value,10); return Number.isFinite(value)?value:fallback; }
 
@@ -265,6 +273,77 @@
     return result;
   }
 
+  function renderReview(review) {
+    currentReview=review;
+    reviewChecks.replaceChildren();
+    reviewSummary.classList.remove('ready','blocked');
+    reviewSummary.classList.add(review.ready?'ready':'blocked');
+    reviewSummary.textContent=review.ready
+      ? `检查通过 · ${review.blockers??0} 个阻断 · ${review.warnings??0} 个警告`
+      : `检查未通过 · ${review.blockers??0} 个阻断 · ${review.warnings??0} 个警告`;
+    (review.checks||[]).forEach((check)=>{
+      const row=document.createElement('div');
+      const severity=String(check.severity||'').toUpperCase();
+      row.className=`xcat-check ${check.passed?'pass':(severity==='BLOCKER'?'blocker':'warning')}`;
+      const mark=append(row,'span',check.passed?'✓':'!','xcat-check-mark');
+      mark.setAttribute('aria-hidden','true');
+      const body=document.createElement('div');
+      const title=document.createElement('div');
+      append(title,'strong',check.label,'xcat-check-title');
+      append(title,'small',severity==='BLOCKER'?'阻断项':'警告项','xcat-check-severity');
+      body.appendChild(title);
+      append(body,'p',check.detail,'xcat-check-detail');
+      row.appendChild(body);
+      reviewChecks.appendChild(row);
+    });
+    reviewPublish.hidden=!canManage||!review.ready;
+    reviewPublish.disabled=false;
+  }
+
+  async function openReview(item) {
+    if(!canManage)return;
+    currentReviewItem=item;
+    currentReview=null;
+    reviewMeta.textContent=`${item.name} · ${item.slug} · ${item.gameCode}/${item.category}`;
+    reviewSummary.classList.remove('ready','blocked');
+    reviewSummary.textContent='正在执行发布前检查……';
+    reviewChecks.replaceChildren();
+    append(reviewChecks,'p','正在核对 taxonomy、基础内容、价格和到期时间。','xcat-check-loading');
+    reviewPublish.hidden=true;
+    reviewDialog.showModal();
+    try{
+      const response=await fetch(`/api/admin/xingwei/catalog/services/${item.id}/publish-review`,{credentials:'same-origin',headers:{'Accept':'application/json'}});
+      const body=await parseResponse(response);
+      if(!response.ok)throw new Error(body?.message||body?.error||`HTTP ${response.status}`);
+      if(currentReviewItem?.id!==item.id)return;
+      renderReview(body);
+    }catch(error){
+      reviewSummary.classList.add('blocked');
+      reviewSummary.textContent='发布检查读取失败';
+      reviewChecks.replaceChildren();
+      append(reviewChecks,'p',error.message,'xcat-check-loading');
+      reviewPublish.hidden=true;
+    }
+  }
+
+  async function publishReviewed() {
+    if(!canManage||!currentReviewItem||!currentReview?.ready)return;
+    const item=currentReviewItem;
+    const confirmed=window.confirm(`最终确认上架「${item.name}」？发布后该服务会按现有 taxonomy 和状态进入公开服务目录。`);
+    if(!confirmed)return;
+    reviewPublish.disabled=true;
+    try{
+      await write(`/api/admin/xingwei/catalog/services/${item.id}/restore`,'POST');
+      closeReview();
+      await loadSnapshot(false);
+      setMessage(`「${item.name}」已通过发布检查并正式上架，SERVICE_RESTORE 已记录审计。`,'ok');
+    }catch(error){
+      setMessage(`上架失败：${error.message}`,'error');
+      reviewPublish.disabled=false;
+      if(reviewDialog.open)void openReview(item);
+    }
+  }
+
   async function loadAccess() {
     try{
       const response=await fetch('/api/admin/xingwei/access',{credentials:'same-origin',headers:{'Accept':'application/json'}});
@@ -286,7 +365,7 @@
       const body=await parseResponse(response);
       if(!response.ok) throw new Error(body?.error||body?.message||`HTTP ${response.status}`);
       snapshot=body; render(); status.classList.remove('error'); setStatus(status,'生产目录已读取',true);
-      if(showLoading)setMessage(`已读取 ${snapshot.counts?.services??0} 个服务、${snapshot.counts?.games??0} 个游戏、${snapshot.counts?.categories??0} 个分类。${canManage?'可新增/管理服务；新增服务默认离线。':'当前账号为只读模式。'}`,'ok');
+      if(showLoading)setMessage(`已读取 ${snapshot.counts?.services??0} 个服务、${snapshot.counts?.games??0} 个游戏、${snapshot.counts?.categories??0} 个分类。${canManage?'离线服务需先通过发布检查再上架。':'当前账号为只读模式。'}`,'ok');
     } catch(error) {
       status.classList.remove('ok'); status.classList.add('error'); const label=status.querySelector('span'); if(label)label.textContent='读取失败'; setMessage(`读取失败或当前账号没有 service:view：${error.message}`,'error');
     } finally { refresh.disabled=false; }
@@ -307,7 +386,7 @@
     createSave.disabled=true;
     try{
       const created=await write('/api/admin/xingwei/catalog/services','POST',payload);
-      closeCreate(); await loadSnapshot(false); setMessage(`已创建离线服务「${created?.name||payload.name}」。请检查无误后再点“恢复”正式上架；SERVICE_CREATE 已记录审计。`,'ok');
+      closeCreate(); await loadSnapshot(false); setMessage(`已创建离线服务「${created?.name||payload.name}」。下一步请执行“发布检查”，通过后再确认上架；SERVICE_CREATE 已记录审计。`,'ok');
     }catch(error){setMessage(`创建失败：${error.message}`,'error');}
     finally{createSave.disabled=false;}
   }
@@ -327,24 +406,24 @@
     finally{editSave.disabled=false;}
   }
 
-  async function changeAvailability(item, action, button) {
+  async function offlineService(item, button) {
     if(!canManage)return;
-    const restoring=action==='restore';
-    const confirmed=window.confirm(restoring?`确认恢复「${item.name}」？恢复后该服务可能重新公开，请先确认内容与价格。`:`确认下线「${item.name}」？该操作会使公开服务不可见。`);
+    const confirmed=window.confirm(`确认下线「${item.name}」？该操作会使公开服务不可见。`);
     if(!confirmed)return;
     button.disabled=true;
     try{
-      if(restoring)await write(`/api/admin/xingwei/catalog/services/${item.id}/restore`,'POST');
-      else await write(`/api/admin/xingwei/catalog/services/${item.id}`,'DELETE');
-      await loadSnapshot(false); setMessage(`${restoring?'已恢复':'已下线'}「${item.name}」，操作已进入现有审计日志。`,'ok');
-    }catch(error){setMessage(`${restoring?'恢复':'下线'}失败：${error.message}`,'error');}
+      await write(`/api/admin/xingwei/catalog/services/${item.id}`,'DELETE');
+      await loadSnapshot(false); setMessage(`已下线「${item.name}」，操作已进入现有审计日志。`,'ok');
+    }catch(error){setMessage(`下线失败：${error.message}`,'error');}
     finally{button.disabled=false;}
   }
 
   serviceRows.addEventListener('click',(event)=>{
     const button=event.target.closest('button[data-action]'); if(!button)return;
     const id=Number(button.dataset.id); const item=(snapshot?.services||[]).find((row)=>Number(row.id)===id); if(!item)return;
-    if(button.dataset.action==='edit')openEdit(item); else void changeAvailability(item,button.dataset.action,button);
+    if(button.dataset.action==='edit')openEdit(item);
+    else if(button.dataset.action==='review')void openReview(item);
+    else if(button.dataset.action==='offline')void offlineService(item,button);
   });
   createOpen.addEventListener('click',openCreate);
   createForm.addEventListener('submit',saveCreate);
@@ -356,6 +435,9 @@
   editPriceMode.addEventListener('change',()=>syncPriceFields(editPriceMode,editPriceFixed,editPriceMin,editPriceMax));
   document.getElementById('xcatEditClose').addEventListener('click',closeEdit);
   document.getElementById('xcatEditCancel').addEventListener('click',closeEdit);
+  document.getElementById('xcatReviewClose').addEventListener('click',closeReview);
+  document.getElementById('xcatReviewCancel').addEventListener('click',closeReview);
+  reviewPublish.addEventListener('click',()=>void publishReviewed());
   search.addEventListener('input',renderServices);
   gameFilter.addEventListener('change',renderServices);
   stateFilter.addEventListener('change',renderServices);

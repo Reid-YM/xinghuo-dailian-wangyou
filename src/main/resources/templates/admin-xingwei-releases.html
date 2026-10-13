@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#101216"/>
+  <title>版本与更新记录 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-releases.css?v=20261014v1"/>
+</head>
+<body>
+<main class="xwr-shell">
+  <header class="xwr-topbar">
+    <div>
+      <p class="xw-kicker">STARWEAVE · RELEASE HISTORY</p>
+      <h1>版本与更新记录</h1>
+      <p>此页作为新版后台统一版本真源。每个可交付阶段都应同步更新当前版本、模块状态、页面说明和这里的更新记录。</p>
+    </div>
+    <div class="xwr-actions">
+      <span class="xw-status ok"><i></i><span th:text="${consoleVersion}">20261014-v3g</span></span>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
+    </div>
+  </header>
+
+  <section class="xwr-rule">
+    <strong>后续固定规则</strong>
+    <span>功能完成 ≠ 记录完成。以后每个阶段在提交 PR 前，同时检查版本号、阶段说明、模块状态和本页记录；未同步则不算阶段收口。</span>
+  </section>
+
+  <section class="xwr-list" aria-label="更新记录">
+    <article class="xwr-entry" th:each="item : ${releaseHistory}">
+      <div class="xwr-meta">
+        <time th:text="${item.date}">2026-10-14</time>
+        <strong th:text="${item.version}">V3G</strong>
+        <span th:classappend="${item.status == '已上线'} ? ' live' : ' pending'" th:text="${item.status}">已上线</span>
+      </div>
+      <div class="xwr-body">
+        <h2 th:text="${item.title}">阶段标题</h2>
+        <p th:text="${item.detail}">阶段说明</p>
+      </div>
+    </article>
+  </section>
+
+  <footer class="xwr-footer">
+    <span>星维网络服务工作室 · 版本记录</span>
+    <small th:text="${username}">admin</small>
+  </footer>
+</main>
+</body>
+</html>

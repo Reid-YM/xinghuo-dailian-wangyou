@@ -11,7 +11,7 @@ class XingweiServiceCatalogWorkbenchContractTest {
     private static final Path MAIN = Path.of("src/main");
 
     @Test
-    void v3dReusesExistingCatalogServicesAndKeepsTaxonomyStructuralWritesOut() throws Exception {
+    void v3dReusesExistingCatalogServicesAndKeepsTaxonomyStructuralWritesControlled() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiServiceCatalogController.java");
         String js = read("resources/static/assets/admin-xingwei-catalog.js");
         assertTrue(controller.contains("services.adminList()"));
@@ -51,12 +51,13 @@ class XingweiServiceCatalogWorkbenchContractTest {
     }
 
     @Test
-    void v3dSafeCreateEditorAndReleasePreflightRemainPresentInV3e() throws Exception {
+    void safeCreateEditorAndReleasePreflightRemainPresentAfterV3fVersionSync() throws Exception {
         String pageController = read("java/com/xinghuo/controller/XingweiAdminController.java");
         String template = read("resources/templates/admin-xingwei-catalog.html");
         String shell = read("resources/templates/admin-xingwei.html");
         assertTrue(pageController.contains("@GetMapping(\"/admin/xingwei/catalog\")"));
-        assertTrue(pageController.contains("catalogVersion\", \"20261013-v3e\""));
+        assertTrue(pageController.contains("static final String CATALOG_VERSION = \"20261014-v3f\""));
+        assertTrue(pageController.contains("model.addAttribute(\"catalogVersion\", CATALOG_VERSION)"));
         assertTrue(template.contains("href=\"/admin\">旧后台完整编辑</a>"));
         assertTrue(template.contains("V3D · RELEASE PREFLIGHT"));
         assertTrue(template.contains("href=\"/admin/xingwei/taxonomy\""));
@@ -74,7 +75,7 @@ class XingweiServiceCatalogWorkbenchContractTest {
     }
 
     @Test
-    void v3dPublishReviewStillHasNoSecondApprovalStateInsideV3e() throws Exception {
+    void publishReviewStillHasNoSecondApprovalState() throws Exception {
         String review = read("java/com/xinghuo/service/XingweiServicePublishReviewService.java");
         String controller = read("java/com/xinghuo/controller/XingweiServiceCatalogController.java");
         assertTrue(review.contains("taxonomy.publicAllowed"));
@@ -91,7 +92,7 @@ class XingweiServiceCatalogWorkbenchContractTest {
     }
 
     @Test
-    void v3dResponsiveTablesDialogsAndChecksStayContained() throws Exception {
+    void responsiveTablesDialogsAndChecksStayContained() throws Exception {
         String css = read("resources/static/assets/admin-xingwei-catalog.css");
         String template = read("resources/templates/admin-xingwei-catalog.html");
         assertTrue(css.contains("@media(max-width:680px)"));

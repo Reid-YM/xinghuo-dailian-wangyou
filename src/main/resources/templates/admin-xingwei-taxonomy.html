@@ -7,15 +7,15 @@
   <meta name="theme-color" content="#101216"/>
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
-  <title>游戏与分类启停 · 星维管理后台</title>
+  <title>游戏与分类管理 · 星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
-  <link rel="stylesheet" href="/assets/admin-xingwei-taxonomy.css?v=20261013v3e"/>
-  <script defer src="/assets/admin-xingwei-taxonomy.js?v=20261013v3e"></script>
+  <link rel="stylesheet" href="/assets/admin-xingwei-taxonomy.css?v=20261014v3f"/>
+  <script defer src="/assets/admin-xingwei-taxonomy.js?v=20261014v3f"></script>
 </head>
 <body>
 <main class="xtax-shell">
   <header class="xtax-topbar">
-    <div><p class="xw-kicker">STARWEAVE · TAXONOMY CONTROL</p><h1>游戏与分类启停</h1></div>
+    <div><p class="xw-kicker">STARWEAVE · TAXONOMY CONTROL</p><h1>游戏与分类管理</h1></div>
     <div class="xtax-actions">
       <span class="xw-status" id="xtaxMode"><i></i><span>权限检查中</span></span>
       <span class="xw-status" id="xtaxStatus"><i></i><span>正在读取</span></span>
@@ -46,6 +46,8 @@
     <label>搜索<input id="xtaxSearch" type="search" placeholder="游戏 / 分类 / code" autocomplete="off"/></label>
     <label>状态<select id="xtaxState"><option value="">全部状态</option><option value="active">仅启用</option><option value="inactive">仅停用</option></select></label>
     <button class="xw-button" id="xtaxRefresh" type="button">刷新</button>
+    <button class="xw-button" id="xtaxAddGame" type="button" hidden>新增游戏</button>
+    <button class="xw-button" id="xtaxAddCategory" type="button" hidden>新增分类</button>
   </section>
 
   <div class="xtax-grid">
@@ -87,6 +89,19 @@
       <button class="xw-button" id="xtaxToggle" type="button" hidden>确认启停</button>
     </div>
   </section>
+</dialog>
+<dialog id="xtaxEditDialog" class="xtax-dialog" aria-labelledby="xtaxEditTitle">
+  <form id="xtaxEditForm" class="xtax-dialog-card">
+    <div class="xtax-dialog-head"><h2 id="xtaxEditTitle">维护游戏与分类</h2><button type="button" class="xw-button xw-button-ghost" id="xtaxEditClose">关闭</button></div>
+    <p id="xtaxEditHint">新增项目默认停用；编辑不改变启停状态。</p>
+    <label id="xtaxEditGameWrap">所属游戏<select id="xtaxEditGame"></select></label>
+    <label>名称<input id="xtaxEditName" maxlength="80" required autocomplete="off"/></label>
+    <label>图标标识<input id="xtaxEditIcon" maxlength="40" autocomplete="off" placeholder="gamepad / service"/></label>
+    <label>说明<textarea id="xtaxEditDescription" maxlength="240" rows="3"></textarea></label>
+    <label>排序<input id="xtaxEditSort" type="number" step="1"/></label>
+    <label>操作原因<textarea id="xtaxEditReason" maxlength="500" rows="2" required></textarea></label>
+    <div class="xtax-dialog-actions"><button type="button" class="xw-button xw-button-ghost" id="xtaxEditCancel">取消</button><button type="submit" class="xw-button" id="xtaxEditSave">保存</button></div>
+  </form>
 </dialog>
 </body>
 </html>

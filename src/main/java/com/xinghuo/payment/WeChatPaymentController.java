@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -38,13 +39,16 @@ public class WeChatPaymentController {
     private final WeChatNativePaymentService payments;
     private final WeChatMiniPaymentIdentityService miniIdentity;
     private final AuditService audit;
+    private final String paymentAppId;
 
     public WeChatPaymentController(WeChatNativePaymentService payments,
                                    WeChatMiniPaymentIdentityService miniIdentity,
-                                   AuditService audit) {
+                                   AuditService audit,
+                                   @Value("${app.wechat-pay.app-id:}") String paymentAppId) {
         this.payments = payments;
         this.miniIdentity = miniIdentity;
         this.audit = audit;
+        this.paymentAppId = paymentAppId == null ? "" : paymentAppId.trim();
     }
 
     public record QuoteAmount(BigDecimal amount, String subject) {}
@@ -117,10 +121,11 @@ public class WeChatPaymentController {
         return PaymentView.of(payments.nativeQr(paymentNo, account.getId()));
     }
 
-    /** Mini-program reads only payment intents owned by the wx.login-linked site account. */
+    /** Mini-program reads only payment intents owned by the exact wx.login-linked site account. */
     @PostMapping("/api/account/wechat-mini/payments")
     public List<PaymentView> miniPayments(@Valid @RequestBody MiniLogin body) {
         WeChatMiniPaymentIdentityService.MiniPayer payer = miniIdentity.authenticate(body.loginCode());
+        requireMiniPaymentApp(payer);
         return payments.latestForAccount(payer.accountId()).stream().map(PaymentView::of).toList();
     }
 
@@ -129,7 +134,14 @@ public class WeChatPaymentController {
     public MiniProgramPayView miniPrepay(@PathVariable String paymentNo,
                                          @Valid @RequestBody MiniLogin body) {
         WeChatMiniPaymentIdentityService.MiniPayer payer = miniIdentity.authenticate(body.loginCode());
+        requireMiniPaymentApp(payer);
         return MiniProgramPayView.of(payments.miniProgramPrepay(paymentNo, payer.accountId(), payer.openId()));
+    }
+
+    private void requireMiniPaymentApp(WeChatMiniPaymentIdentityService.MiniPayer payer) {
+        if (paymentAppId.isBlank() || !paymentAppId.equals(payer.miniAppId())) {
+            throw new IllegalStateException("小程序 AppID 尚未与微信支付配置对齐，暂不能在小程序内支付");
+        }
     }
 
     @GetMapping(value = "/api/account/payments/{paymentNo}/qr.png", produces = MediaType.IMAGE_PNG_VALUE)

@@ -1293,10 +1293,10 @@ async function loadDashboard() {
       <td><b>${esc(x.name)}</b><br><small class="muted">${esc(x.userId)}</small></td>
       <td>${esc(x.position || '未设置')}</td>
       <td>${esc((x.departments || []).join('、') || '未设置')}</td>
-      <td>${esc(x.status === 1 ? '在职' : `状态 ${x.status ?? '-'}`)}</td>
+      <td>${esc(x.status === 1 ? '在职' : x.status === 2 ? '已停用' : `状态 ${x.status ?? '-'}`)}</td>
       <td>${esc(x.mobile || x.email || x.businessEmail || '-')}</td>
       <td class="employee-actions ${employeeCanWrite() ? '' : 'hidden'}">${employeeCanWrite() ?
-        `<div class="row-actions"><button class="btn ghost small-btn" type="button" data-employee-transfer="${esc(x.userId)}">调岗</button><button class="btn ghost small-btn" type="button" data-employee-departure="${esc(x.userId)}" ${x.status === 1 ? '' : 'disabled'}>离职停用</button></div>` : ''}</td>
+        `<div class="row-actions"><button class="btn ghost small-btn" type="button" data-employee-transfer="${esc(x.userId)}">调岗</button><button class="btn ghost small-btn" type="button" data-employee-departure="${esc(x.userId)}" ${x.status === 2 ? 'disabled' : ''}>离职停用</button></div>` : ''}</td>
     </tr>`).join('') || '<tr><td colspan="6" class="empty">没有匹配的员工</td></tr>';
   }
 

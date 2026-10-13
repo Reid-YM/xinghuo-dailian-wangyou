@@ -11,41 +11,57 @@ class XingweiServiceCatalogWorkbenchContractTest {
     private static final Path MAIN = Path.of("src/main");
 
     @Test
-    void v3aUsesExistingCatalogServicesAndIsStrictlyReadOnly() throws Exception {
+    void v3bReusesExistingCatalogServicesAndLimitsWriteSurface() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiServiceCatalogController.java");
         String js = read("resources/static/assets/admin-xingwei-catalog.js");
         assertTrue(controller.contains("services.adminList()"));
         assertTrue(controller.contains("taxonomy.catalog(true)"));
-        assertTrue(controller.contains("'service:view'"));
         assertTrue(controller.contains("@GetMapping(\"/snapshot\")"));
-        assertFalse(controller.contains("@PostMapping"));
-        assertFalse(controller.contains("@PutMapping"));
+        assertTrue(controller.contains("'service:view'"));
+        assertTrue(controller.contains("@PutMapping(\"/services/{id}\")"));
+        assertTrue(controller.contains("@DeleteMapping(\"/services/{id}\")"));
+        assertTrue(controller.contains("@PostMapping(\"/services/{id}/restore\")"));
+        assertTrue(controller.split("'service:manage'", -1).length >= 4);
+        assertTrue(controller.contains("services.update(id, request"));
+        assertTrue(controller.contains("services.delete(id"));
+        assertTrue(controller.contains("services.restore(id"));
+        assertFalse(controller.contains("@PostMapping(\"/services\")"));
         assertFalse(controller.contains("@PatchMapping"));
-        assertFalse(controller.contains("@DeleteMapping"));
+        assertFalse(controller.contains("taxonomy.add"));
+        assertFalse(controller.contains("taxonomy.update"));
+        assertFalse(controller.contains("taxonomy.delete"));
         assertTrue(js.contains("/api/admin/xingwei/catalog/snapshot"));
+        assertTrue(js.contains("/api/admin/xingwei/access"));
+        assertTrue(js.contains("service:manage"));
+        assertTrue(js.contains("meta[name=\"_csrf\"]"));
+        assertTrue(js.contains("meta[name=\"_csrf_header\"]"));
         assertFalse(js.contains("innerHTML"));
         assertFalse(js.contains("insertAdjacentHTML"));
     }
 
     @Test
-    void v3aHasDedicatedPageRecoveryLinkAndConsoleEntry() throws Exception {
+    void v3bHasDedicatedPageRecoveryLinkAndControlledEditor() throws Exception {
         String pageController = read("java/com/xinghuo/controller/XingweiAdminController.java");
         String template = read("resources/templates/admin-xingwei-catalog.html");
         String shell = read("resources/templates/admin-xingwei.html");
         assertTrue(pageController.contains("@GetMapping(\"/admin/xingwei/catalog\")"));
-        assertTrue(pageController.contains("return \"admin-xingwei-catalog\""));
-        assertTrue(template.contains("href=\"/admin\">旧后台编辑</a>"));
-        assertTrue(template.contains("V3A · READ ONLY MIGRATION"));
+        assertTrue(pageController.contains("catalogVersion\", \"20261013-v3b\""));
+        assertTrue(template.contains("href=\"/admin\">旧后台完整编辑</a>"));
+        assertTrue(template.contains("V3B · CONTROLLED SERVICE MANAGEMENT"));
+        assertTrue(template.contains("id=\"xcatEditDialog\""));
+        assertTrue(template.contains("变更原因"));
+        assertTrue(template.contains("slug、游戏、分类、封面、热度、到期时间和当前上下架状态在 V3B 中保持原值"));
         assertTrue(shell.contains("href=\"/admin/xingwei/catalog\""));
         assertTrue(shell.contains("B03"));
     }
 
     @Test
-    void v3aResponsiveTableIsContainedAndAddsNoMigration() throws Exception {
+    void v3bResponsiveTableAndDialogStayContained() throws Exception {
         String css = read("resources/static/assets/admin-xingwei-catalog.css");
         String template = read("resources/templates/admin-xingwei-catalog.html");
         assertTrue(css.contains("@media(max-width:680px)"));
-        assertTrue(css.contains(".xcat-service-table{min-width:1040px}"));
+        assertTrue(css.contains(".xcat-service-table{min-width:1180px}"));
+        assertTrue(css.contains(".xcat-dialog{width:min(760px,calc(100vw - 32px))"));
         assertTrue(template.contains("xw-table-wrap"));
     }
 

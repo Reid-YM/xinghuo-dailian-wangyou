@@ -11,8 +11,11 @@ import com.xinghuo.account.web.AccountAuthInterceptor;
 import com.xinghuo.account.web.RequireAccount;
 import com.xinghuo.service.AuditService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +29,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,19 +36,34 @@ import org.springframework.web.bind.annotation.RestController;
 public class WeChatPaymentController {
     private static final Logger LOG = LoggerFactory.getLogger(WeChatPaymentController.class);
     private final WeChatNativePaymentService payments;
+    private final WeChatMiniPaymentIdentityService miniIdentity;
     private final AuditService audit;
 
-    public WeChatPaymentController(WeChatNativePaymentService payments, AuditService audit) {
+    public WeChatPaymentController(WeChatNativePaymentService payments,
+                                   WeChatMiniPaymentIdentityService miniIdentity,
+                                   AuditService audit) {
         this.payments = payments;
+        this.miniIdentity = miniIdentity;
         this.audit = audit;
     }
 
     public record QuoteAmount(BigDecimal amount, String subject) {}
+    public record MiniLogin(@NotBlank String loginCode) {}
     public record PaymentView(String paymentNo, String businessNo, String subject,
-                              BigDecimal amount, String status, java.time.Instant expiresAt) {
+                              BigDecimal amount, String status, java.time.Instant expiresAt,
+                              String channel) {
         static PaymentView of(WeChatNativePaymentService.Payment p) {
             return new PaymentView(p.paymentNo(), p.businessNo(), p.subject(), p.amount(),
-                    p.status(), p.expiresAt());
+                    p.status(), p.expiresAt(), p.channel());
+        }
+    }
+    public record MiniProgramPayView(String paymentNo, String businessNo, String subject,
+                                     BigDecimal amount, String status, java.time.Instant expiresAt,
+                                     String timeStamp, String nonceStr, String packageVal,
+                                     String signType, String paySign) {
+        static MiniProgramPayView of(WeChatNativePaymentService.MiniProgramPay p) {
+            return new MiniProgramPayView(p.paymentNo(), p.businessNo(), p.subject(), p.amount(), p.status(),
+                    p.expiresAt(), p.timeStamp(), p.nonceStr(), p.packageVal(), p.signType(), p.paySign());
         }
     }
 
@@ -100,13 +117,29 @@ public class WeChatPaymentController {
         return PaymentView.of(payments.nativeQr(paymentNo, account.getId()));
     }
 
+    /** Mini-program reads only payment intents owned by the wx.login-linked site account. */
+    @PostMapping("/api/account/wechat-mini/payments")
+    public List<PaymentView> miniPayments(@Valid @RequestBody MiniLogin body) {
+        WeChatMiniPaymentIdentityService.MiniPayer payer = miniIdentity.authenticate(body.loginCode());
+        return payments.latestForAccount(payer.accountId()).stream().map(PaymentView::of).toList();
+    }
+
+    /** The amount and subject come exclusively from the staff-created payment intent. */
+    @PostMapping("/api/account/wechat-mini/payments/{paymentNo}/prepay")
+    public MiniProgramPayView miniPrepay(@PathVariable String paymentNo,
+                                         @Valid @RequestBody MiniLogin body) {
+        WeChatMiniPaymentIdentityService.MiniPayer payer = miniIdentity.authenticate(body.loginCode());
+        return MiniProgramPayView.of(payments.miniProgramPrepay(paymentNo, payer.accountId(), payer.openId()));
+    }
+
     @GetMapping(value = "/api/account/payments/{paymentNo}/qr.png", produces = MediaType.IMAGE_PNG_VALUE)
     @RequireAccount
     public ResponseEntity<byte[]> qr(@PathVariable String paymentNo, HttpServletRequest request) throws Exception {
         Account account = AccountAuthInterceptor.requireAccount(request);
         WeChatNativePaymentService.Payment payment = payments.getForAccount(paymentNo, account.getId());
-        if (!"APPROVED".equals(payment.status()) || payment.codeUrl() == null
-                || payment.expiresAt() == null || !payment.expiresAt().isAfter(java.time.Instant.now())) {
+        if (!"APPROVED".equals(payment.status()) || !"NATIVE".equals(payment.channel())
+                || payment.codeUrl() == null || payment.expiresAt() == null
+                || !payment.expiresAt().isAfter(java.time.Instant.now())) {
             return ResponseEntity.notFound().build();
         }
         BitMatrix matrix = new MultiFormatWriter().encode(payment.codeUrl(), BarcodeFormat.QR_CODE, 320, 320);

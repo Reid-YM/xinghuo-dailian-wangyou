@@ -368,6 +368,7 @@ public class PageController {
     String admin(Model m, CsrfToken csrf, Authentication auth) {
         m.addAttribute("csrf", csrf);
         m.addAttribute("username", auth.getName());
+        m.addAttribute("isAdmin", auth.getAuthorities().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getAuthority())));
         return "admin";
     }
 

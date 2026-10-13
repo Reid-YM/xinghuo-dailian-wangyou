@@ -47,13 +47,17 @@ class XingweiWeComDirectoryContractTest {
     }
 
     @Test
-    void v2gHasDedicatedPageRouteAndOnlyReadSecrets() throws Exception {
+    void v2gHasDedicatedPageRouteConsoleEntryAndOnlyReadSecrets() throws Exception {
         String page = read("java/com/xinghuo/controller/XingweiAdminController.java");
+        String shell = read("resources/templates/admin-xingwei.html");
         String app = read("resources/application.yml");
         assertTrue(page.contains("@GetMapping(\"/admin/xingwei/wecom\")"));
         assertTrue(page.contains("return \"admin-xingwei-wecom\""));
+        assertTrue(shell.contains("href=\"/admin/xingwei/wecom\""));
+        assertTrue(shell.contains("岗位与企业微信员工"));
         assertTrue(app.contains("WECOM_CORP_ID"));
         assertTrue(app.contains("WECOM_APP_SECRET"));
+        assertFalse(app.contains("contact-secret"));
     }
 
     private static String read(String relative) throws Exception {

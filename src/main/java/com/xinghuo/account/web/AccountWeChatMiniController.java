@@ -84,7 +84,13 @@ public class AccountWeChatMiniController {
         return bridge.profile(body.loginCode());
     }
 
-    /** 小程序把微信侧授权到的昵称 / 头像同步到已关联的网站账号。 */
+    /** 手机号快速验证：把授权到的手机号存进已关联账号的联系方式。 */
+    @PostMapping(value = "/sync-phone", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PhoneResult syncPhone(@Valid @RequestBody SyncPhoneRequest body, HttpServletRequest request) {
+        rateLimiter.check("mini:syncphone:" + RequestUtils.clientIp(request), 10, Duration.ofMinutes(15));
+        return new PhoneResult(bridge.syncPhone(body.loginCode(), body.phoneCode()));
+    }
+
     /** 只同步昵称（不带头像文件）时走 JSON 变体。 */
     @PostMapping(value = "/sync-profile", consumes = MediaType.APPLICATION_JSON_VALUE)
     public WeChatMiniBridgeService.MiniProfile syncProfileJson(@Valid @RequestBody SyncProfileRequest body,
@@ -131,4 +137,6 @@ public class AccountWeChatMiniController {
     public record LoginCode(@NotBlank String loginCode) {}
     public record Confirm(@NotBlank String code, @NotBlank String loginCode) {}
     public record SyncProfileRequest(@NotBlank String loginCode, @Size(max = 60) String nickName) {}
+    public record SyncPhoneRequest(@NotBlank String loginCode, @NotBlank String phoneCode) {}
+    public record PhoneResult(String phoneMasked) {}
 }

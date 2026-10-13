@@ -27,7 +27,7 @@ class WeChatMiniBridgeServiceTest {
     private final WeChatMiniPairingRepository pairings = mock(WeChatMiniPairingRepository.class);
     private final WeChatMiniBridgeService service = new WeChatMiniBridgeService(
             accounts, identities, pairings, mock(PasswordEncoder.class),
-            mock(OrderLinkService.class), mock(UploadService.class), RestClient.builder(), "mini-app", "secret");
+            mock(OrderLinkService.class), mock(UploadService.class), mock(QuoteContactService.class), RestClient.builder(), "mini-app", "secret");
 
     @Test
     void visibleCodeAloneCannotCompleteLogin() {

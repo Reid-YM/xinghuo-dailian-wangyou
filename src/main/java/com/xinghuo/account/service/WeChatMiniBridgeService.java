@@ -8,6 +8,7 @@ import com.xinghuo.account.model.WeChatMiniPairing;
 import com.xinghuo.account.repo.AccountIdentityRepository;
 import com.xinghuo.account.repo.AccountRepository;
 import com.xinghuo.account.repo.WeChatMiniPairingRepository;
+import com.xinghuo.account.service.QuoteContactService;
 import com.xinghuo.model.UploadAsset;
 import com.xinghuo.service.UploadService;
 import java.net.URLEncoder;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,12 +35,19 @@ import org.springframework.web.multipart.MultipartFile;
 public class WeChatMiniBridgeService {
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final Duration CHALLENGE_TTL = Duration.ofMinutes(5);
+    private static final String TOKEN_ENDPOINT = "https://api.weixin.qq.com/cgi-bin/token";
+    private static final String PHONE_ENDPOINT = "https://api.weixin.qq.com/wxa/business/getuserphonenumber";
     private final AccountRepository accounts;
     private final AccountIdentityRepository identities;
     private final WeChatMiniPairingRepository pairings;
     private final PasswordEncoder encoder;
     private final OrderLinkService orders;
     private final UploadService uploads;
+    private final QuoteContactService contacts;
+
+    /** access_token 内存缓存（微信侧有效期 7200 秒，这里保守取 7000 秒）。 */
+    private volatile String cachedToken = "";
+    private volatile Instant cachedTokenUntil = Instant.EPOCH;
     /** 微信 jscode2session 返回 text/plain，需要自行解析（见 exchange）。 */
     private static final ObjectMapper JSON = new ObjectMapper();
 
@@ -48,7 +57,7 @@ public class WeChatMiniBridgeService {
 
     public WeChatMiniBridgeService(AccountRepository accounts, AccountIdentityRepository identities,
                                    WeChatMiniPairingRepository pairings, PasswordEncoder encoder,
-                                   OrderLinkService orders, UploadService uploads,
+                                   OrderLinkService orders, UploadService uploads, QuoteContactService contacts,
                                    RestClient.Builder restClientBuilder,
                                    @Value("${app.wechat-mini.app-id:}") String appId,
                                    @Value("${app.wechat-mini.app-secret:}") String appSecret) {
@@ -58,6 +67,7 @@ public class WeChatMiniBridgeService {
         this.encoder = encoder;
         this.orders = orders;
         this.uploads = uploads;
+        this.contacts = contacts;
         this.restClient = restClientBuilder.build();
         this.appId = appId == null ? "" : appId.trim();
         this.appSecret = appSecret == null ? "" : appSecret.trim();
@@ -164,6 +174,84 @@ public class WeChatMiniBridgeService {
                 : new MiniProfile(true, account.getDisplayName(),
                         account.getAvatarUrl() == null ? "" : account.getAvatarUrl(),
                         account.getPublicUserId(), orders.countOrders(account.getId()));
+    }
+
+    /**
+     * 手机号快速验证：小程序授权后，把手机号存到**已关联**账号的「联系方式」里
+     * （账号中心会显示为「手机」，客服回访直接用；不做数据库迁移、不影响登录凭据）。
+     *
+     * <p>需要服务端 access_token：由本机 IP 调 cgi-bin/token 获取，
+     * <b>生产服务器 IP 必须在小程序后台的「开发设置 → IP 白名单」里</b>，
+     * 否则微信返回 errcode 40164，这里会把它带进错误信息便于排障。
+     */
+    @Transactional
+    public String syncPhone(String loginCode, String phoneCode) {
+        MiniIdentity mini = exchange(loginCode);
+        Account account = findLinked(mini);
+        if (account == null || !account.isLoginable()) {
+            throw AccountException.badRequest("MINI_NOT_LINKED",
+                    "请先在网站获取登录码并完成账号关联，再授权手机号");
+        }
+        if (phoneCode == null || phoneCode.isBlank() || phoneCode.length() > 256) {
+            throw AccountException.badRequest("PHONE_CODE_INVALID", "手机号授权凭证无效，请重试");
+        }
+        String phone = fetchPhoneNumber(phoneCode);
+        String normalized = phone.startsWith("+86") ? phone.substring(3) : phone;
+        normalized = normalized.trim();
+        if (!normalized.matches("[0-9]{5,20}")) {
+            throw AccountException.serverError("PHONE_UNAVAILABLE", "没取到有效手机号，请稍后再试");
+        }
+        contacts.add(account, "PHONE", normalized);
+        return maskPhone(normalized);
+    }
+
+    private String fetchPhoneNumber(String phoneCode) {
+        String url = PHONE_ENDPOINT + "?access_token=" + enc(accessToken());
+        try {
+            String payload = restClient.post().uri(url)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"code\":\"" + enc(phoneCode) + "\"}")
+                    .retrieve().body(String.class);
+            JsonNode body = payload == null || payload.isBlank() ? null : JSON.readTree(payload);
+            if (body == null || body.path("errcode").asInt(0) != 0) {
+                throw AccountException.badRequest("PHONE_CODE_INVALID", "手机号授权已失效，请重新点击授权");
+            }
+            return body.path("phone_info").path("phoneNumber").asText("");
+        } catch (AccountException e) {
+            throw e;
+        } catch (Exception e) {
+            throw AccountException.serverError("PHONE_SERVICE_UNAVAILABLE", "微信服务暂不可用，请稍后重试");
+        }
+    }
+
+    private String accessToken() {
+        if (!cachedToken.isBlank() && Instant.now().isBefore(cachedTokenUntil)) {
+            return cachedToken;
+        }
+        String url = TOKEN_ENDPOINT + "?grant_type=client_credential&appid=" + enc(appId)
+                + "&secret=" + enc(appSecret);
+        try {
+            String payload = restClient.get().uri(url).retrieve().body(String.class);
+            JsonNode body = payload == null || payload.isBlank() ? null : JSON.readTree(payload);
+            String token = body == null ? "" : body.path("access_token").asText("");
+            if (token.isBlank()) {
+                String code = body == null ? "" : body.path("errcode").asText("");
+                throw AccountException.serverError("WECHAT_TOKEN_FAILED",
+                        "获取微信凭据失败" + (code.isBlank() ? "" : "（errcode " + code + "）"));
+            }
+            cachedToken = token;
+            cachedTokenUntil = Instant.now().plusSeconds(7000);
+            return token;
+        } catch (AccountException e) {
+            throw e;
+        } catch (Exception e) {
+            throw AccountException.serverError("WECHAT_TOKEN_FAILED", "获取微信凭据失败，请稍后再试");
+        }
+    }
+
+    private static String maskPhone(String phone) {
+        if (phone.length() < 7) return "";
+        return phone.substring(0, 3) + "****" + phone.substring(phone.length() - 4);
     }
 
     /**

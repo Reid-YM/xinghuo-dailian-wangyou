@@ -59,7 +59,8 @@ class FrontendBackendTotalIntegrationContractTest {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
         assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261014-v3l\""));
         assertTrue(controller.contains("\"V3H\", \"待真机验收\""));
-        assertTrue(controller.contains("真实收款关闭"));
+        assertTrue(controller.contains("PR #384 保持未合并"));
+        assertTrue(controller.contains("待 AppID/商户绑定和小额真机联调"));
     }
 
     @Test
@@ -70,8 +71,8 @@ class FrontendBackendTotalIntegrationContractTest {
 
         assertTrue(login.contains("wechat-mini-login.js"));
         assertTrue(login.contains("account-auth.js"));
-        assertTrue(account.contains("account-core.js"));
-        assertTrue(account.contains("account-overview.js"));
+        assertTrue(account.contains("account-center.js"));
+        assertTrue(account.contains("account-center-refine.js"));
         assertTrue(accountFragment.contains("account-center-shell"));
         assertTrue(accountFragment.contains("account-center-nav"));
     }

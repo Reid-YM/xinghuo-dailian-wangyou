@@ -30,8 +30,10 @@ class XingweiServiceCatalogWorkbenchContractTest {
         assertTrue(controller.contains("publishReview.requireReady(id)"));
         assertTrue(controller.contains("services.restore(id"));
         assertFalse(controller.contains("@PatchMapping"));
-        assertFalse(controller.contains("taxonomy.add"));
-        assertFalse(controller.contains("taxonomy.update"));
+        assertTrue(controller.contains("taxonomy.addGame("));
+        assertTrue(controller.contains("taxonomy.addCategory("));
+        assertTrue(controller.contains("taxonomy.updateGame("));
+        assertTrue(controller.contains("taxonomy.updateCategory("));
         assertFalse(controller.contains("taxonomy.delete"));
         assertTrue(js.contains("/api/admin/xingwei/catalog/snapshot"));
         assertTrue(js.contains("/api/admin/xingwei/access"));

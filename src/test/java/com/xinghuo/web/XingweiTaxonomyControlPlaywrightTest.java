@@ -24,7 +24,7 @@ class XingweiTaxonomyControlPlaywrightTest {
             installFetch(page, false);
             addScript(page);
 
-            page.waitForFunction("() => document.querySelectorAll('#xtaxGameRows button[data-kind]').length === 1");
+            page.waitForFunction("() => document.querySelectorAll('#xtaxGameRows button[data-kind=game]').length === 1");
             page.locator("#xtaxGameRows button[data-kind='game']").click();
             page.waitForFunction("() => document.querySelector('#xtaxDialog').open && document.querySelector('#xtaxImpact').textContent.includes('目标状态')");
 
@@ -51,7 +51,7 @@ class XingweiTaxonomyControlPlaywrightTest {
             installFetch(page, true);
             addScript(page);
 
-            page.waitForFunction("() => document.querySelectorAll('#xtaxGameRows button[data-kind]').length === 1");
+            page.waitForFunction("() => document.querySelectorAll('#xtaxGameRows button[data-kind=game]').length === 1");
             page.locator("#xtaxGameRows button[data-kind='game']").click();
             page.waitForFunction("() => document.querySelector('#xtaxDialog').open && document.querySelector('#xtaxToggle').hidden === false");
             assertTrue(page.locator("#xtaxImpactServices").textContent().contains("3"));

@@ -8,6 +8,7 @@ import com.xinghuo.service.XingweiTaxonomyControlService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.LinkedHashMap;
@@ -122,6 +123,48 @@ public class XingweiServiceCatalogController {
                 request.reason(),
                 authentication.getName(),
                 httpRequest);
+    }
+
+    // V3F: controlled creation. New taxonomy is always offline until separately enabled.
+    @PostMapping("/taxonomy/games")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
+    public ApiDtos.GameOptionResponse createGame(
+            @Valid @RequestBody ApiDtos.CatalogNameRequest request,
+            Authentication authentication, HttpServletRequest httpRequest) {
+        return taxonomy.addGame(new ApiDtos.CatalogNameRequest(
+                request.name(), request.iconKey(), request.description(), request.sortOrder(),
+                false, request.reason()), authentication.getName(), httpRequest);
+    }
+
+    @PostMapping("/taxonomy/categories")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
+    public ApiDtos.CategoryOptionResponse createCategory(
+            @Valid @RequestBody ApiDtos.CategoryCreateRequest request,
+            Authentication authentication, HttpServletRequest httpRequest) {
+        return taxonomy.addCategory(new ApiDtos.CategoryCreateRequest(
+                request.gameCode(), request.name(), request.iconKey(), request.description(),
+                request.sortOrder(), false, request.reason()), authentication.getName(), httpRequest);
+    }
+
+    // V3F: profile-only edits preserve active state, game/category codes and parent links.
+    @PutMapping("/taxonomy/games/{code}/profile")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
+    public ApiDtos.GameOptionResponse updateGameProfile(
+            @PathVariable String code, @Valid @RequestBody ApiDtos.CatalogUpdateRequest request,
+            Authentication authentication, HttpServletRequest httpRequest) {
+        return taxonomy.updateGame(code, new ApiDtos.CatalogUpdateRequest(
+                request.name(), request.iconKey(), request.description(), request.sortOrder(),
+                null, request.reason()), authentication.getName(), httpRequest);
+    }
+
+    @PutMapping("/taxonomy/categories/{id}/profile")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
+    public ApiDtos.CategoryOptionResponse updateCategoryProfile(
+            @PathVariable Long id, @Valid @RequestBody ApiDtos.CategoryUpdateRequest request,
+            Authentication authentication, HttpServletRequest httpRequest) {
+        return taxonomy.updateCategory(id, new ApiDtos.CategoryUpdateRequest(
+                request.name(), request.iconKey(), request.description(), request.sortOrder(),
+                null, request.reason()), authentication.getName(), httpRequest);
     }
 
     @PostMapping("/services")

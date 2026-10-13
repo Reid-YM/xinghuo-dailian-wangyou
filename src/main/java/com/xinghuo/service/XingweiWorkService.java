@@ -117,7 +117,7 @@ public class XingweiWorkService {
 
         String normalized = normalizeBusinessNo(businessNo);
         lockOrder(normalized);
-        Ownership current = ownership(normalized);
+        Ownership current = ownershipForUpdate(normalized);
         if (current != null && current.ownerAdminUserId() != null) {
             throw new AccessDeniedException("任务已由员工领取，请使用业务工作台转派");
         }
@@ -247,14 +247,32 @@ public class XingweiWorkService {
         }
     }
 
+    private Ownership ownershipForUpdate(String businessNo) {
+        return queryOwnership(
+                """
+                SELECT own.owner_admin_user_id, d.code AS department_code
+                FROM xw_business_ownership own
+                JOIN xw_departments d ON d.id = own.department_id
+                WHERE own.business_no = ?
+                FOR UPDATE
+                """,
+                businessNo);
+    }
+
     private Ownership ownership(String businessNo) {
-        return jdbc.query(
+        return queryOwnership(
                 """
                 SELECT own.owner_admin_user_id, d.code AS department_code
                 FROM xw_business_ownership own
                 JOIN xw_departments d ON d.id = own.department_id
                 WHERE own.business_no = ?
                 """,
+                businessNo);
+    }
+
+    private Ownership queryOwnership(String sql, String businessNo) {
+        return jdbc.query(
+                sql,
                 (rs, rowNum) -> {
                     Object ownerValue = rs.getObject("owner_admin_user_id");
                     Long ownerId = ownerValue instanceof Number number ? number.longValue() : null;

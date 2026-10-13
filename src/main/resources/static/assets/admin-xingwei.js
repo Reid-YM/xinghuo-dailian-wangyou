@@ -7,6 +7,8 @@
   const searchCount = document.getElementById('xwSearchCount');
   const backendStatus = document.getElementById('xwBackendStatus');
   const serverTime = document.getElementById('xwServerTime');
+  const declaredVersion = document.querySelector('.xw-version-card strong')?.textContent?.trim() || '';
+  const declaredStage = document.querySelector('#overview .xw-kicker')?.textContent?.trim() || '';
   const modules = Array.from(document.querySelectorAll('.xw-module'));
   const navItems = Array.from(document.querySelectorAll('.xw-nav-item'));
   const MODULE_PERMISSIONS = {
@@ -172,28 +174,72 @@
   });
   mutationObserver.observe(document.querySelector('.xw-main') || document.body, {childList: true, subtree: true});
 
+  function publishRuntimeHealth(snapshot) {
+    window.xwRuntimeHealth = snapshot;
+    document.documentElement.dataset.xwRuntimeState = snapshot.state;
+    document.dispatchEvent(new CustomEvent('xw:runtime-health', {detail: snapshot}));
+  }
+
+  function setBackendStatus(state, text, title) {
+    if (!backendStatus) return;
+    backendStatus.classList.toggle('ok', state === 'match');
+    backendStatus.classList.toggle('error', state !== 'match');
+    backendStatus.dataset.runtimeState = state;
+    if (backendStatus.lastChild) backendStatus.lastChild.textContent = text;
+    backendStatus.title = title || '';
+  }
+
+  function formatRuntimeLine(data, state) {
+    const parsed = new Date(data.serverTime || '');
+    const time = Number.isNaN(parsed.getTime()) ? '' : ` · ${parsed.toLocaleString('zh-CN')}`;
+    if (state === 'match') return `运行 ${data.version} · 版本已核对${time}`;
+    return `页面 ${declaredVersion || '未知'} · 运行 ${data.version || '未知'}${time}`;
+  }
+
   async function checkBackend() {
     if (!backendStatus) return;
     try {
       const response = await fetch('/api/admin/xingwei/health', {
         method: 'GET',
         credentials: 'same-origin',
-        headers: { 'Accept': 'application/json' }
+        headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' },
+        cache: 'no-store'
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      backendStatus.classList.remove('error');
-      backendStatus.classList.add('ok');
-      backendStatus.lastChild.textContent = '服务正常';
-      if (serverTime && data.serverTime) {
-        const parsed = new Date(data.serverTime);
-        serverTime.textContent = Number.isNaN(parsed.getTime()) ? '后端已连接' : `后端已连接 · ${parsed.toLocaleString('zh-CN')}`;
+      const runtimeVersion = String(data.version || '').trim();
+      const runtimeStage = String(data.stage || '').trim();
+      const versionMatches = Boolean(declaredVersion && runtimeVersion && declaredVersion === runtimeVersion);
+      const stageMatches = Boolean(declaredStage && runtimeStage && declaredStage === runtimeStage);
+      const state = versionMatches && stageMatches ? 'match' : 'mismatch';
+      const snapshot = {
+        state,
+        declaredVersion,
+        declaredStage,
+        runtimeVersion,
+        runtimeStage,
+        serverTime: data.serverTime || null
+      };
+      publishRuntimeHealth(snapshot);
+
+      if (state === 'match') {
+        setBackendStatus('match', `服务正常 · ${runtimeVersion} 已核对`, `页面与后端运行版本一致：${runtimeVersion} / ${runtimeStage}`);
+      } else {
+        setBackendStatus('mismatch', '版本漂移 · 请刷新并检查发布', `页面：${declaredVersion || '未知'} / ${declaredStage || '未知'}；运行：${runtimeVersion || '未知'} / ${runtimeStage || '未知'}`);
       }
+      if (serverTime) serverTime.textContent = formatRuntimeLine(data, state);
     } catch (error) {
-      backendStatus.classList.remove('ok');
-      backendStatus.classList.add('error');
-      backendStatus.lastChild.textContent = '服务检查失败';
-      if (serverTime) serverTime.textContent = '无法读取后台健康状态';
+      const snapshot = {
+        state: 'error',
+        declaredVersion,
+        declaredStage,
+        runtimeVersion: '',
+        runtimeStage: '',
+        serverTime: null
+      };
+      publishRuntimeHealth(snapshot);
+      setBackendStatus('error', '服务检查失败', '无法读取后台健康状态，版本一致性未完成核验。');
+      if (serverTime) serverTime.textContent = `页面 ${declaredVersion || '未知'} · 无法读取运行版本`;
       console.warn('Xingwei admin health check failed', error);
     }
   }

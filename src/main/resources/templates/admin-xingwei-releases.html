@@ -15,24 +15,24 @@
     <div>
       <p class="xw-kicker">STARWEAVE · RELEASE HISTORY</p>
       <h1>版本与更新记录</h1>
-      <p>此页作为新版后台统一版本真源。每个可交付阶段都应同步更新当前版本、模块状态、页面说明和这里的更新记录；V3K 起 CI 会自动校验这些内容。</p>
+      <p>此页作为新版后台统一版本真源。V3K 起 CI 自动校验版本、阶段和模块状态；V3L 起后台页面还会与后端运行版本实时核对。</p>
     </div>
     <div class="xwr-actions">
-      <span class="xw-status ok"><i></i><span th:text="${consoleVersion}">20261014-v3k</span></span>
+      <span class="xw-status ok"><i></i><span th:text="${consoleVersion}">20261014-v3l</span></span>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
     </div>
   </header>
 
   <section class="xwr-rule">
-    <strong>后续固定规则 · CI 强制</strong>
-    <span>功能完成 ≠ 记录完成。以后每个阶段在提交 PR 前，同时检查版本号、阶段说明、模块状态和本页记录；未同步会由 CI 直接阻断，不算阶段收口。</span>
+    <strong>后续固定规则 · CI + 运行时双校验</strong>
+    <span>功能完成 ≠ 记录完成。提交前由 CI 检查版本记录；上线后由浏览器核对页面版本与实际后端版本。任一处不一致都应视为阶段未完全收口。</span>
   </section>
 
   <section class="xwr-list" aria-label="更新记录">
     <article class="xwr-entry" th:each="item : ${releaseHistory}">
       <div class="xwr-meta">
         <time th:text="${item.date}">2026-10-14</time>
-        <strong th:text="${item.version}">V3K</strong>
+        <strong th:text="${item.version}">V3L</strong>
         <span th:classappend="${item.status == '已上线'} ? ' live' : ' pending'" th:text="${item.status}">已上线</span>
       </div>
       <div class="xwr-body">

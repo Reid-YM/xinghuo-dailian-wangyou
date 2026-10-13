@@ -10,8 +10,8 @@
   <title>服务与游戏资料 · 星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <link rel="stylesheet" href="/assets/admin-xingwei-catalog.css?v=20261013v3c"/>
-  <script defer src="/assets/admin-xingwei-catalog.js?v=20261013v3c"></script>
+  <link rel="stylesheet" href="/assets/admin-xingwei-catalog.css?v=20261013v3d"/>
+  <script defer src="/assets/admin-xingwei-catalog.js?v=20261013v3d"></script>
 </head>
 <body>
 <main class="xcat-shell">
@@ -27,11 +27,11 @@
 
   <section class="xcat-hero">
     <div>
-      <p class="xw-kicker">V3C · SAFE SERVICE CREATE</p>
-      <h2>服务新增进入新版工作台，但新项目默认离线，检查完成后才允许恢复上架。</h2>
-      <p>查看要求 <strong>service:view</strong>；新增、编辑、下线和恢复要求 <strong>service:manage</strong>。新增服务只能选择现有 taxonomy 中的游戏与分类，继续复用 <strong>ServiceCatalogService</strong> 的唯一 slug、价格、taxonomy 校验和 <strong>AuditService</strong>。本阶段仍不修改游戏/分类结构。</p>
+      <p class="xw-kicker">V3D · RELEASE PREFLIGHT</p>
+      <h2>新建服务保持离线；正式上架前必须先完成发布检查。</h2>
+      <p>查看要求 <strong>service:view</strong>；新增、编辑、下线和上架要求 <strong>service:manage</strong>。V3D 会检查 taxonomy、slug、名称、说明、预计时长、价格和到期时间；任何阻断项失败都不能从新版工作台上架。封面缺失仅提示警告，不额外新增审批表，也不产生第二份服务状态。</p>
     </div>
-    <div class="xcat-version"><span>当前版本</span><strong th:text="${catalogVersion}">20261013-v3c</strong><small th:text="${username}">admin</small></div>
+    <div class="xcat-version"><span>当前版本</span><strong th:text="${catalogVersion}">20261013-v3d</strong><small th:text="${username}">admin</small></div>
   </section>
 
   <section class="xcat-message" id="xcatMessage" role="status">正在读取服务与游戏资料……</section>
@@ -53,7 +53,7 @@
 
   <section class="xw-data-panel">
     <div class="xw-data-head">
-      <div><h3>服务项目</h3><p>service:view 始终可查看；service:manage 可新增、编辑、下线和恢复。新增项目默认 OFFLINE + 停用。</p></div>
+      <div><h3>服务项目</h3><p>新服务默认 OFFLINE + 停用；离线服务必须先执行发布检查，通过后才出现最终上架确认。</p></div>
       <div class="xcat-head-actions"><span class="xw-pill">service:view / service:manage</span><button class="xw-button" id="xcatCreateOpen" type="button" hidden>新增服务</button></div>
     </div>
     <div class="xw-table-wrap"><table class="xw-table xcat-service-table"><thead><tr><th>服务</th><th>游戏 / 分类</th><th>价格</th><th>时长</th><th>状态</th><th>排序</th><th>操作</th></tr></thead><tbody id="xcatServiceRows"></tbody></table></div>
@@ -61,11 +61,11 @@
 
   <div class="xcat-grid">
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>游戏资料</h3><p>V3C 仍保持结构只读；新增服务只能引用这里已有且启用的游戏。</p></div></div>
+      <div class="xw-data-head"><div><h3>游戏资料</h3><p>V3D 继续保持结构只读；发布检查会阻断已停用游戏下的服务上架。</p></div></div>
       <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>游戏</th><th>业务状态</th><th>分类 / 服务</th><th>平台</th></tr></thead><tbody id="xcatGameRows"></tbody></table></div>
     </section>
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>分类资料</h3><p>V3C 仍保持结构只读；新增服务的分类会随所选游戏联动，只能选择已有且启用的分类。</p></div></div>
+      <div class="xw-data-head"><div><h3>分类资料</h3><p>V3D 继续保持结构只读；发布检查会阻断已停用分类下的服务上架。</p></div></div>
       <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>编码</th><th>分类</th><th>游戏</th><th>服务数</th></tr></thead><tbody id="xcatCategoryRows"></tbody></table></div>
     </section>
   </div>
@@ -74,7 +74,7 @@
 <dialog id="xcatCreateDialog" class="xcat-dialog" aria-labelledby="xcatCreateTitle">
   <form id="xcatCreateForm" class="xcat-dialog-card">
     <div class="xcat-dialog-head">
-      <div><p class="xw-kicker">SERVICE · CREATE</p><h2 id="xcatCreateTitle">新增服务项目</h2><p>新服务固定以 OFFLINE + 停用状态创建，检查后再从列表执行“恢复”上架。</p></div>
+      <div><p class="xw-kicker">SERVICE · CREATE</p><h2 id="xcatCreateTitle">新增服务项目</h2><p>新服务固定以 OFFLINE + 停用状态创建，随后进入“发布检查 → 确认上架”。</p></div>
       <button type="button" class="xw-button xw-button-ghost" id="xcatCreateClose">关闭</button>
     </div>
     <div class="xcat-form-grid">
@@ -124,6 +124,22 @@
       <button type="submit" class="xw-button" id="xcatEditSave">保存修改</button>
     </div>
   </form>
+</dialog>
+
+<dialog id="xcatReviewDialog" class="xcat-dialog" aria-labelledby="xcatReviewTitle">
+  <section class="xcat-dialog-card">
+    <div class="xcat-dialog-head">
+      <div><p class="xw-kicker">SERVICE · RELEASE PREFLIGHT</p><h2 id="xcatReviewTitle">发布前检查</h2><p id="xcatReviewMeta">—</p></div>
+      <button type="button" class="xw-button xw-button-ghost" id="xcatReviewClose">关闭</button>
+    </div>
+    <div class="xcat-review-summary" id="xcatReviewSummary">正在检查……</div>
+    <div class="xcat-checks" id="xcatReviewChecks" aria-live="polite"></div>
+    <div class="xcat-dialog-note">阻断项必须全部通过才允许上架；警告项用于提醒展示质量，不会单独阻止发布。点击“通过检查并上架”后仍会进行最终确认，并再次由后端执行同一套检查。</div>
+    <div class="xcat-dialog-actions">
+      <button type="button" class="xw-button xw-button-ghost" id="xcatReviewCancel">取消</button>
+      <button type="button" class="xw-button" id="xcatReviewPublish" hidden>通过检查并上架</button>
+    </div>
+  </section>
 </dialog>
 </body>
 </html>

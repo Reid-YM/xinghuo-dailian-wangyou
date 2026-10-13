@@ -111,6 +111,6 @@ body[data-page="service-detail"] .service-detail-page>.section .grid3{grid-templ
   body[data-page="service-detail"] .service-detail-page>.card{margin:12px 0;padding:18px}
   body[data-page="service-detail"] .service-detail-page>.section .grid3{grid-template-columns:1fr}
   body[data-page="service-detail"] .mobile-dock a:nth-child(3),
-  body[data-page="service-detail"] .mobile-dock a:nth-child(4){display:none}
+  body[data-page="service-detail"] .mobile-dock a:nth-child(4){display:none!important}
   body[data-page="service-detail"] .mobile-dock{grid-template-columns:1fr 1fr 1.2fr}
 }

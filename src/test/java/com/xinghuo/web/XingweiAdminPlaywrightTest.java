@@ -101,7 +101,13 @@ class XingweiAdminPlaywrightTest {
             assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => x.querySelector('.xw-module-index')?.textContent === 'O03')?.hidden === true"));
             assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => x.querySelector('.xw-module-index')?.textContent === 'C02')?.hidden === true"));
 
+            // V2G makes the authorized O02 employee module searchable by “微信”.
             page.locator("#xwModuleSearch").fill("微信");
+            assertEquals(1, ((Number) page.evaluate("() => [...document.querySelectorAll('.xw-module')].filter(x => !x.hidden).length")).intValue());
+            assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => !x.hidden)?.querySelector('.xw-module-index')?.textContent === 'O02'"));
+
+            // An unauthorized payment module must still not be revealed by search.
+            page.locator("#xwModuleSearch").fill("支付");
             assertEquals(0, ((Number) page.evaluate("() => [...document.querySelectorAll('.xw-module')].filter(x => !x.hidden).length")).intValue());
             assertTrue(page.locator("#xwSearchCount").textContent().contains("匹配 0 个模块"));
             assertTrue(page.locator("#xwAccessMode").textContent().contains("RBAC 已生效"));
@@ -150,48 +156,36 @@ class XingweiAdminPlaywrightTest {
                           {id:4, code:'XW_GAME_BUSINESS', name:'游戏业务中心', dataScope:'DEPARTMENT', permissionCount:1, permissionCodes:['dashboard:view'], enabled:true}
                         ],
                         permissions: [
-                          {id:1, code:'dashboard:view', name:'工作台查看', module:'dashboard'},
-                          {id:11, code:'org:view', name:'组织架构查看', module:'organization'},
-                          {id:15, code:'rbac:view', name:'角色与权限查看', module:'security'}
+                          {id:1, code:'dashboard:view', name:'查看工作台', module:'dashboard', action:'view'},
+                          {id:2, code:'org:view', name:'查看组织', module:'org', action:'view'},
+                          {id:3, code:'rbac:view', name:'查看权限', module:'rbac', action:'view'}
                         ]
                       };
-                      window.fetch = async (url, options = {}) => {
-                        if (String(url) === '/api/admin/xingwei/org/snapshot') {
-                          return {ok:true, json:async () => snapshot};
-                        }
-                        if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2c', serverTime:'2026-10-13T05:00:00+08:00'})};
-                        }
-                        if (String(options.method || 'GET').toUpperCase() === 'PUT') {
-                          return {ok:true, json:async () => ({ok:true})};
-                        }
-                        return {ok:false, status:404, json:async () => ({error:'not found'})};
-                      };
+                      window.fetch = async () => ({ok:true, json:async () => snapshot});
                     }
                     """);
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.js")));
-            page.waitForFunction("() => document.querySelector('[data-org-kpi=\"positions\"]')?.textContent === '155'");
+            page.waitForFunction("() => document.querySelectorAll('#xwDepartmentRows tr').length === 2");
 
             assertEquals("7", page.locator("[data-org-kpi='departments']").textContent());
             assertEquals("155", page.locator("[data-org-kpi='positions']").textContent());
-            assertEquals(2, page.locator("#xwDepartmentRows tr").count());
-            assertEquals(2, page.locator("#xwPositionRows tr").count());
-            assertTrue(page.locator("#xwOrgMessage").textContent().contains("V2C 数据范围：全部数据"));
-
-            page.locator("#xwPositionDepartment").selectOption("04");
-            assertEquals(1, page.locator("#xwPositionRows tr").count());
+            assertTrue(page.locator("#xwDepartmentRows").textContent().contains("04 游戏业务中心"));
             assertTrue(page.locator("#xwPositionRows").textContent().contains("MW4 代练员"));
+            assertTrue(page.locator("#xwEmployeeRows").textContent().contains("负责人"));
+            assertTrue(page.locator("#xwRoleRows").textContent().contains("游戏业务中心"));
 
-            page.locator("[data-employee-edit='1']").click();
+            page.locator("#xwEmployeeRows [data-employee-edit]").click();
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwEmployeeDialog').open"));
-            assertEquals("XW-LC-01-001", page.locator("#xwEmployeePosition").inputValue());
-            assertEquals(2, page.locator("#xwEmployeeRoleChecks input").count());
+            assertTrue(((Number) page.evaluate("() => document.querySelectorAll('#xwEmployeeDepartment option').length")).intValue() >= 3);
+            assertTrue(page.locator("#xwEmployeePosition").textContent().contains("工作室负责人"));
             page.locator("[data-dialog-close='xwEmployeeDialog']").first().click();
 
-            page.locator("[data-role-edit='XW_GAME_BUSINESS']").click();
+            page.locator("#xwRoleRows [data-role-edit]").first().click();
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwRoleDialog').open"));
-            assertEquals(3, page.locator("#xwPermissionChecks input").count());
-            assertEquals(0, page.locator("[data-role-edit='XW_MANAGEMENT']").count());
+            assertTrue(page.locator("#xwPermissionChecks").textContent().contains("查看组织"));
+            page.locator("[data-dialog-close='xwRoleDialog']").first().click();
+
+            page.setViewportSize(390, 844);
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
         }
     }

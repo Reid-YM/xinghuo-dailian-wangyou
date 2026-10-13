@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#101216"/>
+  <meta name="_csrf" th:content="${csrf.token}"/>
+  <meta name="_csrf_header" th:content="${csrf.headerName}"/>
+  <title>企业微信通讯录 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-wecom.css?v=20261013v2g"/>
+  <script defer src="/assets/admin-xingwei-wecom.js?v=20261013v2g"></script>
+</head>
+<body>
+<main class="xwc-shell">
+  <header class="xwc-topbar">
+    <div>
+      <p class="xw-kicker">STARWEAVE · WECOM DIRECTORY</p>
+      <h1>企业微信通讯录</h1>
+    </div>
+    <div class="xwc-actions">
+      <span class="xw-status" id="xwcStatus"><i></i><span>正在读取</span></span>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei/work">我的工作</a>
+    </div>
+  </header>
+
+  <section class="xwc-hero">
+    <div>
+      <p class="xw-kicker">V2G · READ ONLY</p>
+      <h2>企业微信实时员工与部门，只读接入；155 个正式岗位继续以 V63 数据库为唯一真源。</h2>
+      <p>本页没有新增、调岗、停用、删除等写操作，也不读取或展示手机号、邮箱。API 统一受 <strong>employee:view</strong> 权限保护。</p>
+    </div>
+    <div class="xwc-version"><span>当前版本</span><strong th:text="${weComVersion}">20261013-v2g</strong><small th:text="${username}">admin</small></div>
+  </section>
+
+  <section class="xwc-message" id="xwcMessage" role="status">正在读取企业微信通讯录……</section>
+
+  <section class="xwc-kpis" aria-label="通讯录指标">
+    <div><span>读取配置</span><strong id="xwcConfigured">-</strong></div>
+    <div><span>实时员工</span><strong id="xwcEmployeeCount">-</strong></div>
+    <div><span>实时部门</span><strong id="xwcDepartmentCount">-</strong></div>
+    <div><span>正式岗位</span><strong id="xwcPositionCount">-</strong></div>
+  </section>
+
+  <section class="xwc-toolbar">
+    <label>搜索员工<input id="xwcSearch" type="search" placeholder="姓名 / UserID / 职务 / 部门" autocomplete="off"/></label>
+    <button class="xw-button" id="xwcRefresh" type="button">刷新实时数据</button>
+  </section>
+
+  <section class="xw-data-panel">
+    <div class="xw-data-head"><div><h3>企业微信实时员工</h3><p>仅展示最小必要字段；通讯录联系方式不会返回前端。</p></div><span class="xw-pill">employee:view</span></div>
+    <div class="xw-table-wrap"><table class="xw-table xwc-table"><thead><tr><th>员工</th><th>职务</th><th>部门</th><th>状态</th></tr></thead><tbody id="xwcEmployeeRows"></tbody></table></div>
+  </section>
+
+  <div class="xwc-grid">
+    <section class="xw-data-panel">
+      <div class="xw-data-head"><div><h3>企业微信实时部门</h3><p>直接来自企业微信部门结构。</p></div></div>
+      <div class="xw-table-wrap xwc-scroll"><table class="xw-table"><thead><tr><th>ID</th><th>部门</th><th>上级ID</th></tr></thead><tbody id="xwcDepartmentRows"></tbody></table></div>
+    </section>
+    <section class="xw-data-panel">
+      <div class="xw-data-head"><div><h3>V63 正式岗位</h3><p>不再维护第二份 positions.json，避免岗位双真源。</p></div></div>
+      <div class="xw-table-wrap xwc-scroll"><table class="xw-table"><thead><tr><th>编码</th><th>岗位</th><th>中心</th></tr></thead><tbody id="xwcPositionRows"></tbody></table></div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

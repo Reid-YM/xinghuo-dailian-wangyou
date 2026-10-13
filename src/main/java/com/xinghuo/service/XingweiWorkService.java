@@ -116,6 +116,7 @@ public class XingweiWorkService {
         }
 
         String normalized = normalizeBusinessNo(businessNo);
+        lockOrder(normalized);
         Ownership current = ownership(normalized);
         if (current != null && current.ownerAdminUserId() != null) {
             throw new AccessDeniedException("任务已由员工领取，请使用业务工作台转派");
@@ -231,6 +232,21 @@ public class XingweiWorkService {
         return new WorkClause("1=0", List.of());
     }
 
+    private void lockOrder(String businessNo) {
+        List<String> rows = jdbc.query(
+                """
+                SELECT order_no
+                FROM customer_orders
+                WHERE COALESCE(business_no, order_no) = ?
+                FOR UPDATE
+                """,
+                (rs, rowNum) -> rs.getString("order_no"),
+                businessNo);
+        if (rows.isEmpty()) {
+            throw new IllegalArgumentException("订单不存在");
+        }
+    }
+
     private Ownership ownership(String businessNo) {
         return jdbc.query(
                 """
@@ -248,7 +264,7 @@ public class XingweiWorkService {
     }
 
     private boolean selfIsActiveEmployee(Long adminUserId) {
-        Integer count = jdbc.queryForObject(
+        Long count = jdbc.queryForObject(
                 """
                 SELECT COUNT(*)
                 FROM admin_users u
@@ -259,7 +275,7 @@ public class XingweiWorkService {
                   AND p.status = 'ACTIVE'
                   AND d.enabled = TRUE
                 """,
-                Integer.class,
+                Long.class,
                 adminUserId);
         return count != null && count > 0;
     }

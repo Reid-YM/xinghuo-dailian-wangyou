@@ -10,7 +10,7 @@
   <title>星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <script defer src="/assets/admin-xingwei.js?v=20261013v2c"></script>
+  <script defer src="/assets/admin-xingwei.js?v=20261014v3l"></script>
   <script defer src="/assets/admin-xingwei-org.js?v=20261013v2c"></script>
 </head>
 <body>
@@ -61,14 +61,14 @@
 
     <section class="xw-hero" id="overview">
       <div>
-        <p class="xw-kicker" th:text="${consoleStage}">V3K · STABLE PRODUCTION</p>
-        <h2>新版后台进入稳定生产阶段，版本记录同步已从人工约定升级为 CI 强制门禁。</h2>
-        <p>V2 数据范围继续作为权限底座；V3F 已上线游戏/分类受控新增与资料编辑，V3G 已上线“星维网络”小程序扫码登录，V3I 前台可见性确认与 impactToken 防误操作已经正式进入生产。V3K 会在每次 PR / 主线 CI 自动核对版本号、阶段标签、更新记录和模块交付状态；V3H 小程序微信支付仍保持未合并、真实收款关闭，等待真机 AppID / 商户绑定与小额联调。</p>
+        <p class="xw-kicker" th:text="${consoleStage}">V3L · STABLE PRODUCTION</p>
+        <h2>新版后台增加运行版本自校验：页面版本和实际后端版本必须一致。</h2>
+        <p>V3K 已在 PR / 主线 CI 自动核对版本号、阶段标签、更新记录和模块状态；V3L 进一步在浏览器加载后台时读取 /api/admin/xingwei/health，把页面声明版本与实际运行后端版本逐项比对。若缓存旧页面或异常发布造成漂移，顶部状态会直接报错，而不会只因接口 HTTP 200 就显示“服务正常”。V3H 小程序微信支付仍保持未合并、真实收款关闭，等待真机 AppID / 商户绑定与小额联调。</p>
       </div>
       <div class="xw-version-card">
         <span>当前版本</span>
-        <strong th:text="${consoleVersion}">20261014-v3k</strong>
-        <small id="xwServerTime">等待服务响应</small>
+        <strong th:text="${consoleVersion}">20261014-v3l</strong>
+        <small id="xwServerTime">等待运行版本核验</small>
       </div>
     </section>
 
@@ -148,16 +148,16 @@
     </section>
 
     <section class="xw-section" id="system">
-      <div class="xw-section-head"><div><p class="xw-kicker">SYSTEM & GOVERNANCE</p><h2>系统工具</h2></div><p>保留审计、SEO、站点配置和发布回滚能力；版本与更新记录由集中真源和 CI 一致性校验共同保护。</p></div>
+      <div class="xw-section-head"><div><p class="xw-kicker">SYSTEM & GOVERNANCE</p><h2>系统工具</h2></div><p>保留审计、SEO、站点配置和发布回滚能力；版本真值现在同时受 CI 和浏览器运行时核验保护。</p></div>
       <div class="xw-grid">
         <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin"><div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示与图片视觉。</p><span>现有后台承载 →</span></a>
         <a class="xw-module" data-search="日志 审计 操作 安全" href="/admin"><div class="xw-module-index">S02</div><h3>操作审计</h3><p>员工档案与权限变更也会进入现有审计日志。</p><span>现有后台承载 →</span></a>
-        <article class="xw-module" data-search="发布 部署 回滚 ci github 服务器"><div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>GitHub PR → CI → 生产部署门禁与零停机发布已经启用；V3K 额外校验版本与更新记录是否同步，后台不直接执行危险发布。</p><span>生产流水线已启用</span></article>
+        <article class="xw-module" data-search="发布 部署 回滚 ci github 服务器"><div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>GitHub PR → CI → 生产部署门禁与零停机发布已经启用；V3K 校验提交记录，V3L 再核对实际运行版本，后台不直接执行危险发布。</p><span>生产流水线已启用</span></article>
         <article class="xw-module xw-module-planned" data-search="代码生成 scaffold generator 开发"><div class="xw-module-index">S04</div><h3>开发工具</h3><p>后续评估移植 scaffold-master 的代码生成与字典能力。</p><span>评估中</span></article>
       </div>
     </section>
 
-    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移与交付状态</h2></div></div><ol><li><strong>V1 / V2A-V2C</strong><span>已上线：新版后台壳、七大中心、155 岗位、混合权限守卫与 ALL / DEPARTMENT / SELF 数据范围。</span></li><li><strong>V2D-V2G</strong><span>已上线：询价与订单数据范围、业务工作台、员工工作台、企业微信通讯录只读。</span></li><li><strong>V3A-V3G</strong><span>已上线：服务目录、受控编辑/新增、发布检查、游戏与分类受控管理，以及“星维网络”小程序扫码登录。</span></li><li><strong>V3H</strong><span>开发与 CI 已完成：小程序微信支付；保持未合并、真实收款关闭，等待真机验收。</span></li><li><strong>V3I</strong><span>已上线：taxonomy 前台可见性确认、父级阻断提示与 impactToken 过期预览防护已进入生产。</span></li><li><strong>V3J</strong><span>已上线：统一生产状态真值，修正候选/规划误标，并增加状态一致性回归守卫。</span></li><li><strong>V3K</strong><span>已上线：版本、阶段、更新记录与模块交付状态进入 CI 自动巡检，遗漏同步会直接阻断合并。</span></li></ol></section>
+    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移与交付状态</h2></div></div><ol><li><strong>V1 / V2A-V2C</strong><span>已上线：新版后台壳、七大中心、155 岗位、混合权限守卫与 ALL / DEPARTMENT / SELF 数据范围。</span></li><li><strong>V2D-V2G</strong><span>已上线：询价与订单数据范围、业务工作台、员工工作台、企业微信通讯录只读。</span></li><li><strong>V3A-V3G</strong><span>已上线：服务目录、受控编辑/新增、发布检查、游戏与分类受控管理，以及“星维网络”小程序扫码登录。</span></li><li><strong>V3H</strong><span>开发与 CI 已完成：小程序微信支付；保持未合并、真实收款关闭，等待真机验收。</span></li><li><strong>V3I</strong><span>已上线：taxonomy 前台可见性确认、父级阻断提示与 impactToken 过期预览防护已进入生产。</span></li><li><strong>V3J</strong><span>已上线：统一生产状态真值，修正候选/规划误标，并增加状态一致性回归守卫。</span></li><li><strong>V3K</strong><span>已上线：版本、阶段、更新记录与模块交付状态进入 CI 自动巡检，遗漏同步会直接阻断合并。</span></li><li><strong>V3L</strong><span>已上线：后台页面与 /health 实际运行版本自动核对；版本/阶段漂移会直接显示错误状态。</span></li></ol></section>
 
     <footer class="xw-footer"><span>星维网络服务工作室 · 管理后台</span><span>固定组织架构 · 后端授权 · 数据范围 · 可审计 · 可回滚 · 旧后台保留</span></footer>
   </main>

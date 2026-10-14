@@ -8,4 +8,4 @@ V3U 已让客服按权限范围、关键词和问题类型检索售后记录。V
 
 ## 统一交付
 
-功能 PR #426 已合入 `main`，Java/Maven 与 Chromium/WebKit CI 双绿。V3V 发布候选同步控制台和业务工作台版本、Release History、页面阶段说明与版本契约测试。候选和主线 CI 通过后，按现有 `deploy/production` 的 `.deploy-request` 发布，仍需经过 18080、8081、8080 门禁；发布成功后再单独将 V3V 状态改为“已上线”。
+统一交付：功能 PR #426、版本 PR #427 已合入 `main` 并通过 Java/Maven、Chromium/WebKit CI。发布请求 `227cce0` 经 `deploy/production` 的 `.deploy-request` 门禁，将主线 `608d6b0` 发布到生产；18080 候选、8081 金丝雀、8080 正式入口及发布后核验均通过（Deploy Production #38558846475）。本状态 PR 把 V3V 从“发布候选”同步为“已上线”。

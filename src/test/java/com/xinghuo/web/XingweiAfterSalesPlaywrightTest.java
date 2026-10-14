@@ -17,8 +17,8 @@ class XingweiAfterSalesPlaywrightTest {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
             String markup = """
-                    <div id="caseTotalCount"></div><div id="casePendingCount"></div><p id="caseSummaryMessage"></p>
-                    <form id="caseFilters"><select name="status"><option value=""></option><option value="OPEN">待处理</option></select><select name="category"><option value=""></option><option value="DELIVERY">交付</option></select><select name="followup"><option value=""></option><option value="PENDING">待跟进</option></select><input name="q" maxlength="80"><button type="submit">查询</button></form>
+                    <div id="caseTotalCount"></div><div id="casePendingCount"></div><button data-case-status="OPEN" disabled aria-pressed="false"><strong id="caseOpenCount">—</strong></button><button data-case-status="IN_PROGRESS" disabled aria-pressed="false"><strong id="caseInProgressCount">—</strong></button><button data-case-status="RESOLVED" disabled aria-pressed="false"><strong id="caseResolvedCount">—</strong></button><p id="caseSummaryMessage"></p>
+                    <form id="caseFilters"><select name="status"><option value=""></option><option value="OPEN">待处理</option><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select><select name="category"><option value=""></option><option value="DELIVERY">交付</option></select><select name="followup"><option value=""></option><option value="PENDING">待跟进</option></select><input name="q" maxlength="80"><button type="submit">查询</button></form>
                     <p id="caseMessage"></p><table><tbody id="caseRows"></tbody></table>
                     <button id="casePrev"></button><span id="casePage"></span><button id="caseNext"></button>
                     <section id="caseDetail" hidden><div id="caseCurrent"></div><div id="caseFollowups"></div><div id="caseEvents"></div><form id="caseUpdate" hidden></form></section>
@@ -29,7 +29,7 @@ class XingweiAfterSalesPlaywrightTest {
             page.evaluate("""
                     () => { window.__queueUrls=[]; window.fetch=async url => {
                       if(url==='/api/admin/xingwei/access') return new Response(JSON.stringify({permissionCodes:['order:view']}));
-                      if(url==='/api/admin/xingwei/business/after-sales/cases/summary') return new Response(JSON.stringify({totalCount:10,pendingFollowupCount:4}));
+                      if(url==='/api/admin/xingwei/business/after-sales/cases/summary') return new Response(JSON.stringify({totalCount:10,pendingFollowupCount:4,openCount:3,inProgressCount:5,resolvedCount:2}));
                       if(url.startsWith('/api/admin/xingwei/business/after-sales/cases?')) {
                         window.__queueUrls.push(url);
                         return new Response(JSON.stringify({items:[],totalCount:10,hasNext:true}));
@@ -44,12 +44,57 @@ class XingweiAfterSalesPlaywrightTest {
             assertTrue((Boolean) page.evaluate("() => window.__queueUrls[0].includes('page=2') && window.__queueUrls[0].includes('status=OPEN') && window.__queueUrls[0].includes('category=DELIVERY') && window.__queueUrls[0].includes('followup=PENDING') && window.__queueUrls[0].includes('q=XW-1')"));
             assertEquals("OPEN", page.locator("#caseFilters select[name=status]").inputValue());
             assertEquals("4", page.locator("#casePendingCount").textContent());
+            assertEquals("3", page.locator("#caseOpenCount").textContent());
             page.locator("#caseNext").click();
             page.waitForFunction("() => window.__queueUrls.some(url => url.includes('page=3'))");
             assertTrue(page.url().contains("page=3"));
             page.goBack();
             page.waitForFunction("() => window.__queueUrls.length>=3 && document.querySelector('#casePage').textContent.includes('第 3 页')");
             assertTrue(page.url().contains("page=2"));
+            page.locator("[data-case-status=RESOLVED]").click();
+            page.waitForFunction("() => window.__queueUrls.some(url => url.includes('status=RESOLVED') && url.includes('page=0'))");
+            assertEquals("RESOLVED", page.locator("#caseFilters select[name=status]").inputValue());
+            assertEquals("true", page.locator("[data-case-status=RESOLVED]").getAttribute("aria-pressed"));
+            assertTrue(page.url().contains("status=RESOLVED"));
+            assertTrue(page.url().contains("category=DELIVERY"));
+            assertTrue(page.url().contains("followup=PENDING"));
+            assertTrue(page.url().contains("q=XW-1"));
+            assertTrue(!page.url().contains("page="));
+            page.goBack();
+            page.waitForFunction("() => document.querySelector('#caseFilters select[name=status]').value==='OPEN' && document.querySelector('#casePage').textContent.includes('第 3 页')");
+            assertEquals("false", page.locator("[data-case-status=RESOLVED]").getAttribute("aria-pressed"));
+        }
+    }
+
+    @Test
+    void summaryFailureLeavesQueueUsableAndDisablesStatusActions() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            String markup = """
+                    <div id="caseTotalCount">—</div><div id="casePendingCount">—</div><button data-case-status="OPEN" disabled aria-pressed="false"><strong id="caseOpenCount">—</strong></button><button data-case-status="IN_PROGRESS" disabled aria-pressed="false"><strong id="caseInProgressCount">—</strong></button><button data-case-status="RESOLVED" disabled aria-pressed="false"><strong id="caseResolvedCount">—</strong></button><p id="caseSummaryMessage"></p>
+                    <form id="caseFilters"><select name="status"><option value=""></option><option value="OPEN">待处理</option></select><select name="category"><option value=""></option></select><select name="followup"><option value=""></option></select><input name="q"><button type="submit">查询</button></form>
+                    <p id="caseMessage"></p><table><tbody id="caseRows"></tbody></table><button id="casePrev"></button><span id="casePage"></span><button id="caseNext"></button>
+                    <section id="caseDetail" hidden><div id="caseCurrent"></div><div id="caseFollowups"></div><div id="caseEvents"></div><form id="caseUpdate" hidden></form></section>
+                    """;
+            page.route("**/*", route -> route.fulfill(new com.microsoft.playwright.Route.FulfillOptions().setBody(markup)));
+            page.navigate("https://example.test/admin/xingwei/after-sales");
+            page.evaluate("""
+                    () => { window.__queueUrls=[]; window.fetch=async url => {
+                      if(url==='/api/admin/xingwei/access') return new Response(JSON.stringify({permissionCodes:['order:view']}));
+                      if(url==='/api/admin/xingwei/business/after-sales/cases/summary') return new Response(JSON.stringify({message:'概览读取失败'}),{status:503});
+                      if(url.startsWith('/api/admin/xingwei/business/after-sales/cases?')) {window.__queueUrls.push(url);return new Response(JSON.stringify({items:[],totalCount:0,hasNext:false}));}
+                      throw new Error('unexpected '+url);
+                    }; }
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(Path.of("src/main/resources/static/assets/admin-xingwei-after-sales.js")));
+            page.waitForFunction("() => document.querySelector('#caseSummaryMessage').textContent.includes('概览读取失败') && window.__queueUrls.length===1");
+            assertTrue(page.locator("[data-case-status=OPEN]").isDisabled());
+            assertEquals("—", page.locator("#caseOpenCount").textContent());
+            page.locator("#caseFilters select[name=status]").selectOption("OPEN");
+            page.locator("#caseFilters button[type=submit]").click();
+            page.waitForFunction("() => window.__queueUrls.length===2");
+            assertTrue(page.url().contains("status=OPEN"));
+            assertTrue(page.locator("#caseMessage").textContent().contains("已读取"));
         }
     }
 

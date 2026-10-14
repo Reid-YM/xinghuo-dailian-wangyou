@@ -38,6 +38,15 @@ class XingweiWeComSsoControllerTest {
     }
 
     @Test
+    void enabledEntryRequiresSecureSessionCookie() {
+        var controller = new XingweiWeComSsoController(
+                new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", true, false),
+                client, bindings, audits, "https://example.test");
+        assertThrows(ResponseStatusException.class,
+                () -> controller.login(new MockHttpServletRequest(), new MockHttpServletResponse()));
+    }
+
+    @Test
     void callbackRejectsWrongStateAndReplayBeforeCodeExchange() throws Exception {
         var controller = controller(true);
         var request = new MockHttpServletRequest();
@@ -86,7 +95,7 @@ class XingweiWeComSsoControllerTest {
 
     private XingweiWeComSsoController controller(boolean enabled) {
         return new XingweiWeComSsoController(
-                new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", enabled),
+                new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", enabled, true),
                 client, bindings, audits, "https://example.test");
     }
 

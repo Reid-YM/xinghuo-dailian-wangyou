@@ -6,7 +6,7 @@
 
 - 服务端配置 `WECOM_CORP_ID`、`WECOM_APP_SECRET`、`WECOM_AGENT_ID`，以及公网 HTTPS `APP_BASE_URL`。
 - 在企业微信自建应用设置中，将 `APP_BASE_URL` 的域名设为可信域名，并把应用主页设置为 `https://你的域名/admin/xingwei/wecom/login`。
-- `WECOM_SSO_ENABLED` 默认 `false`。只有应用可见范围、可信域名、账号绑定和权限检查完成后才可单独启用。
+- `WECOM_SSO_ENABLED` 默认 `false`。启用前必须设置 `SESSION_COOKIE_SECURE=true`，并确认应用可见范围、可信域名、账号绑定和权限；未设置安全 Cookie 时登录入口保持关闭。
 - OAuth 回调是 `/admin/xingwei/wecom/callback`，使用 `snsapi_base`，仅取得企业成员 UserID。一次性随机 `state` 在服务端 Session 中保存，五分钟过期。回调使用现有 `WECOM_APP_SECRET` 换取应用 access token 并查询 UserID；凭据与 token 不进入页面或审计记录。
 
 ## 绑定与权限

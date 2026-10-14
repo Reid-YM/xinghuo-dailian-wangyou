@@ -10,16 +10,19 @@ public class XingweiWeComProperties {
     private final String appSecret;
     private final String agentId;
     private final boolean ssoEnabled;
+    private final boolean secureCookie;
 
     public XingweiWeComProperties(
             @Value("${wecom.corp-id:}") String corpId,
             @Value("${wecom.app-secret:}") String appSecret,
             @Value("${wecom.agent-id:}") String agentId,
-            @Value("${wecom.sso-enabled:false}") boolean ssoEnabled) {
+            @Value("${wecom.sso-enabled:false}") boolean ssoEnabled,
+            @Value("${server.servlet.session.cookie.secure:false}") boolean secureCookie) {
         this.corpId = clean(corpId);
         this.appSecret = clean(appSecret);
         this.agentId = clean(agentId);
         this.ssoEnabled = ssoEnabled;
+        this.secureCookie = secureCookie;
     }
 
     public String corpId() {
@@ -35,7 +38,7 @@ public class XingweiWeComProperties {
     }
 
     public boolean ssoReady() {
-        return ssoEnabled && configured() && agentId.matches("[0-9]{1,20}");
+        return ssoEnabled && secureCookie && configured() && agentId.matches("[0-9]{1,20}");
     }
 
     public boolean configured() {

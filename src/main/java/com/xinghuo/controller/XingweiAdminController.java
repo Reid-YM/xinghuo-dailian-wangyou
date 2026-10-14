@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class XingweiAdminController {
     static final String CONSOLE_VERSION = "20261014-v3w";
-    static final String CONSOLE_STAGE = "V3W · RELEASE CANDIDATE";
+    static final String CONSOLE_STAGE = "V3W · STABLE PRODUCTION";
     static final String BUSINESS_VERSION = "20261014-v3w";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,9 +29,9 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-14", "V3W", "待发布",
+            new ReleaseItem("2026-10-14", "V3W", "已上线",
                     "服务大厅筛选链接与售后说明校验",
-                    "前端服务大厅将游戏、平台、类型和关键词筛选写入可分享网址，刷新及浏览器返回时恢复选择；后端在客户订单补充说明与售后提交入口拒绝正文中的系统保留售后标记，避免普通说明伪装成售后记录或伪造分类。前端 PR #429、后端 PR #430 已通过 Java/Maven 与 Chromium/WebKit 检查；等待统一版本和生产门禁。无数据库或配置变更，不启用真实收款和企业微信写入。"),
+                    "前端服务大厅将游戏、平台、类型和关键词筛选写入可分享网址，刷新及浏览器返回时恢复选择；后端在客户订单补充说明与售后提交入口拒绝正文中的系统保留售后标记，避免普通说明伪装成售后记录或伪造分类。前端 PR #429、后端 PR #430、统一版本 PR #431 与生产门禁均已完成。无数据库或配置变更，不启用真实收款和企业微信写入。"),
             new ReleaseItem("2026-10-14", "V3V", "已上线",
                     "售后问题记录详情查看",
                     "新版业务工作台可从已授权售后列表打开只读详情，完整查看业务编号、订单号、状态、更新时间、客户说明及内部备注；长内容保留换行并作为纯文本显示。只读角色可查看但不能调整归属，沿用 order:view 与既有数据范围。功能 PR #426、统一版本 PR #427 和生产门禁已完成。此页面不改变订单、退款、收款或企业微信写入。"),

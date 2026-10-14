@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/console")
 public class ConsoleApiController {
+    private static final String AFTER_SALES_MARKER = "[售后问题 ·";
 
     private final JdbcTemplate jdbc;
     private final AccountAuditService audit;
@@ -114,6 +115,7 @@ public class ConsoleApiController {
                                       HttpServletRequest request) {
         Account account = AccountAuthInterceptor.requireAccount(request);
         OrderItem order = findOrder(account, businessNo);
+        rejectReservedAfterSalesMarker(body.content());
         String note = appendBlock(body.content());
         int updated = jdbc.update("""
                 UPDATE customer_orders
@@ -141,6 +143,7 @@ public class ConsoleApiController {
         if (content.isEmpty()) {
             throw AccountException.badRequest("AFTER_SALES_CONTENT_REQUIRED", "请填写问题说明");
         }
+        rejectReservedAfterSalesMarker(content);
         String note = "\n\n[售后问题 · " + category + " · " + Instant.now() + "]\n" + content;
         int updated = jdbc.update("""
                 UPDATE customer_orders
@@ -259,6 +262,12 @@ public class ConsoleApiController {
 
     private static String appendBlock(String text) {
         return "\n\n[用户补充 " + Instant.now() + "]\n" + text.trim();
+    }
+
+    private static void rejectReservedAfterSalesMarker(String content) {
+        if (content != null && content.contains(AFTER_SALES_MARKER)) {
+            throw AccountException.badRequest("AFTER_SALES_MARKER_RESERVED", "说明中不能包含系统售后记录标记");
+        }
     }
 
     private static Instant toInstant(Timestamp ts) { return ts == null ? null : ts.toInstant(); }

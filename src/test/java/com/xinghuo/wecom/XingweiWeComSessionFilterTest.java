@@ -53,4 +53,57 @@ class XingweiWeComSessionFilterTest {
 
         verify(chain).doFilter(request, response);
     }
+
+    @Test
+    void activeSsoSessionCannotEnterLegacyAdmin() throws Exception {
+        var request = new MockHttpServletRequest("GET", "/admin/orders");
+        request.getSession().setAttribute(XingweiWeComSsoController.SSO_SESSION_KEY,
+                new XingweiWeComSsoController.SsoIdentity("operator", "staff_1", "OPERATOR"));
+        var user = User.withUsername("operator").password("unused").roles("OPERATOR").build();
+        SecurityContextHolder.getContext().setAuthentication(
+                UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities()));
+        when(bindings.activeSsoUser("operator", "staff_1", "OPERATOR")).thenReturn(true);
+        var response = new MockHttpServletResponse();
+        var chain = mock(FilterChain.class);
+
+        filter.doFilter(request, response, chain);
+
+        assertEquals(403, response.getStatus());
+        org.mockito.Mockito.verifyNoInteractions(chain);
+    }
+
+    @Test
+    void activeSsoSessionCanUseXingweiWork() throws Exception {
+        var request = new MockHttpServletRequest("GET", "/api/admin/xingwei/work");
+        request.getSession().setAttribute(XingweiWeComSsoController.SSO_SESSION_KEY,
+                new XingweiWeComSsoController.SsoIdentity("operator", "staff_1", "OPERATOR"));
+        var user = User.withUsername("operator").password("unused").roles("OPERATOR").build();
+        SecurityContextHolder.getContext().setAuthentication(
+                UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities()));
+        when(bindings.activeSsoUser("operator", "staff_1", "OPERATOR")).thenReturn(true);
+        var response = new MockHttpServletResponse();
+        var chain = mock(FilterChain.class);
+
+        filter.doFilter(request, response, chain);
+
+        verify(chain).doFilter(request, response);
+    }
+
+    @Test
+    void expiredSsoSessionCanRestartWeComLogin() throws Exception {
+        var request = new MockHttpServletRequest("GET", "/admin/xingwei/wecom/login");
+        request.getSession().setAttribute(XingweiWeComSsoController.SSO_SESSION_KEY,
+                new XingweiWeComSsoController.SsoIdentity("operator", "staff_1", "OPERATOR"));
+        var user = User.withUsername("operator").password("unused").roles("OPERATOR").build();
+        SecurityContextHolder.getContext().setAuthentication(
+                UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities()));
+        when(bindings.activeSsoUser("operator", "staff_1", "OPERATOR")).thenReturn(false);
+        var response = new MockHttpServletResponse();
+        var chain = mock(FilterChain.class);
+
+        filter.doFilter(request, response, chain);
+
+        verify(chain).doFilter(request, response);
+        assertEquals(200, response.getStatus());
+    }
 }

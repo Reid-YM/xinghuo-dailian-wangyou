@@ -118,10 +118,12 @@
       const roles = (employee.roleCodes || []).map(roleLabel).join('、') || '未配置';
       const name = employee.displayName || '未归档';
       const number = employee.employeeNo ? `<small class="xw-block-code">${escapeHtml(employee.employeeNo)}</small>` : '';
+      const wecomId = employee.wecomUserId && hasPermission('employee:manage')
+        ? `<small class="xw-block-code">企业微信：${escapeHtml(employee.wecomUserId)}</small>` : '';
       return `
         <tr>
           <td><strong>${escapeHtml(employee.username)}</strong></td>
-          <td>${escapeHtml(name)}${number}</td>
+          <td>${escapeHtml(name)}${number}${wecomId}</td>
           <td>${escapeHtml(employee.departmentName || '未分配')}</td>
           <td>${escapeHtml(employee.positionName || '未分配')}</td>
           <td>${escapeHtml(roles)}</td>

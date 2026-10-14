@@ -101,7 +101,7 @@ public class XingweiOrgRbacService {
         List<Map<String, Object>> rows = jdbc.query(
                 """
                 SELECT u.id, u.username, u.role AS legacy_role, u.enabled AS login_enabled,
-                       p.employee_no, p.display_name, p.status, p.notes,
+                       p.employee_no, p.display_name, p.status, p.notes, p.wecom_user_id,
                        d.code AS department_code, d.name AS department_name,
                        pos.code AS position_code, pos.name AS position_name
                 FROM admin_users u
@@ -120,6 +120,7 @@ public class XingweiOrgRbacService {
                     row.put("displayName", rs.getString("display_name"));
                     row.put("status", rs.getString("status"));
                     row.put("notes", rs.getString("notes"));
+                    row.put("wecomUserId", rs.getString("wecom_user_id"));
                     row.put("departmentCode", rs.getString("department_code"));
                     row.put("departmentName", rs.getString("department_name"));
                     row.put("positionCode", rs.getString("position_code"));
@@ -273,6 +274,15 @@ public class XingweiOrgRbacService {
                     departmentCode);
         }
 
+        List<long[]> autoRoles = jdbc.query(
+                "SELECT position_id, role_id FROM xw_wecom_auto_roles WHERE admin_user_id = ?",
+                (rs, n) -> new long[] {rs.getLong("position_id"), rs.getLong("role_id")}, adminUserId);
+        if (!autoRoles.isEmpty() && !java.util.Objects.equals(positionId, autoRoles.getFirst()[0])) {
+            jdbc.update("DELETE FROM xw_admin_roles WHERE admin_user_id = ? AND role_id = ?",
+                    adminUserId, autoRoles.getFirst()[1]);
+            jdbc.update("DELETE FROM xw_wecom_auto_roles WHERE admin_user_id = ?", adminUserId);
+        }
+
         try {
             int updated = jdbc.update(
                     """
@@ -303,6 +313,7 @@ public class XingweiOrgRbacService {
         requireAdminUser(adminUserId);
         List<String> normalized = distinctCodes(roleCodes, 48, "角色编码");
         validateCodes("xw_rbac_roles", normalized, "角色");
+        jdbc.update("DELETE FROM xw_wecom_auto_roles WHERE admin_user_id = ?", adminUserId);
         jdbc.update("DELETE FROM xw_admin_roles WHERE admin_user_id = ?", adminUserId);
         for (int i = 0; i < normalized.size(); i++) {
             jdbc.update(

@@ -26,6 +26,7 @@ public class XingweiWeComSessionFilter extends OncePerRequestFilter {
         HttpSession session = request.getSession(false);
         Object ssoUser = session == null ? null : session.getAttribute(XingweiWeComSsoController.SSO_SESSION_KEY);
         if (ssoUser instanceof XingweiWeComSsoController.SsoIdentity identity) {
+            String path = request.getRequestURI().substring(request.getContextPath().length());
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (!properties.ssoReady() || authentication == null
                     || !identity.username().equals(authentication.getName())
@@ -35,11 +36,25 @@ public class XingweiWeComSessionFilter extends OncePerRequestFilter {
                             identity.username(), identity.wecomUserId(), identity.role())) {
                 SecurityContextHolder.clearContext();
                 session.invalidate();
+                if (path.equals("/admin/xingwei/wecom/login")) {
+                    chain.doFilter(request, response);
+                    return;
+                }
                 if (request.getRequestURI().startsWith("/api/")) {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                 } else {
                     response.sendRedirect("/admin/login?wecom=expired");
                 }
+                return;
+            }
+            // A WeCom session is for the Xingwei workspace only. Password sessions retain
+            // their existing access to the legacy admin console and APIs.
+            boolean legacyAdminPage = (path.equals("/admin") || path.startsWith("/admin/"))
+                    && !(path.equals("/admin/xingwei") || path.startsWith("/admin/xingwei/"));
+            boolean legacyAdminApi = (path.equals("/api/admin") || path.startsWith("/api/admin/"))
+                    && !(path.equals("/api/admin/xingwei") || path.startsWith("/api/admin/xingwei/"));
+            if (legacyAdminPage || legacyAdminApi) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
         }

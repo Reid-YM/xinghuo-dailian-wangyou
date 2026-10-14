@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 /**
  * 企业微信通讯录只读客户端。
  *
- * <p>仅包含 gettoken、department/list、user/list 和 OAuth user/getuserinfo 的 GET 能力；
+ * <p>仅包含 gettoken、department/list、user/list、user/get 和 OAuth user/getuserinfo 的 GET 能力；
  * 不实现成员创建、更新、删除、停用等写接口。
  */
 @Component
@@ -69,6 +69,22 @@ public class XingweiWeComDirectoryClient {
         }
         return userId;
     }
+
+    /** Confirm the member remains visible to this app and read the exact current title. */
+    public Member member(String userId) {
+        ensureConfigured();
+        Map<String, String> query = new LinkedHashMap<>();
+        query.put("access_token", accessToken());
+        query.put("userid", userId);
+        JsonNode response = get("/user/get", query);
+        if (!userId.equals(response.path("userid").asText(""))) {
+            throw new IllegalStateException("企业微信成员身份不一致");
+        }
+        return new Member(userId, response.path("name").asText(userId).trim(),
+                response.path("position").asText("").trim());
+    }
+
+    public record Member(String userId, String name, String position) {}
 
     private synchronized String accessToken() {
         if (tokenState != null && tokenState.valid()) {

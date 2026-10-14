@@ -3,13 +3,14 @@ package com.xinghuo.account.web;
 import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountAuditService;
 import com.xinghuo.account.service.AccountException;
-import com.xinghuo.account.service.AfterSalesNoteParser;
+import com.xinghuo.account.service.AfterSalesLedger;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -105,7 +106,8 @@ public class ConsoleApiController {
             timeline.add(new TimelineItem("交付完成", "订单已标记完成，如有问题可联系客服处理售后。", item.updatedAt()));
         }
         QuoteItem source = item.sourceQuoteBusinessNo() == null ? null : findQuoteOrNull(account, item.sourceQuoteBusinessNo());
-        return new OrderDetailResponse(item, source, timeline, afterSalesRecords(item.customerNote()));
+        return new OrderDetailResponse(item, source, timeline,
+                afterSalesRecords(item.orderNo(), item.customerNote()));
     }
 
     @PostMapping("/orders/{businessNo}/supplement")
@@ -145,7 +147,8 @@ public class ConsoleApiController {
             throw AccountException.badRequest("AFTER_SALES_CONTENT_REQUIRED", "请填写问题说明");
         }
         rejectReservedAfterSalesMarker(content);
-        String note = "\n\n[售后问题 · " + category + " · " + Instant.now() + "]\n" + content;
+        Instant submittedAt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+        String note = "\n\n[售后问题 · " + category + " · " + submittedAt + "]\n" + content;
         int updated = jdbc.update("""
                 UPDATE customer_orders
                    SET customer_note = CONCAT(COALESCE(customer_note, ''), ?),
@@ -154,8 +157,20 @@ public class ConsoleApiController {
                    AND CHAR_LENGTH(COALESCE(customer_note, '')) + CHAR_LENGTH(?) <= 500
                 """, note, account.getId(), order.businessNo(), order.orderNo(), note);
         if (updated == 0) {
-            throw AccountException.conflict("AFTER_SALES_NOTE_FULL", "订单说明已满，请凭业务编号联系客服处理");
+            updated = jdbc.update("""
+                    UPDATE customer_orders
+                       SET version = version + 1, updated_at = CURRENT_TIMESTAMP(6)
+                     WHERE customer_account_id = ? AND (business_no = ? OR order_no = ?)
+                    """, account.getId(), order.businessNo(), order.orderNo());
+            if (updated == 0) {
+                throw AccountException.notFound("ORDER_NOT_FOUND", "订单不存在或不属于当前账号");
+            }
         }
+        jdbc.update("""
+                INSERT INTO customer_order_after_sales_records
+                    (order_no, category, category_label, content, submitted_at_ms)
+                VALUES (?, ?, ?, ?, ?)
+                """, order.orderNo(), body.category(), category, content, submittedAt.toEpochMilli());
         audit.record(account.getId(), "CONSOLE_AFTER_SALES_SUBMIT",
                 "businessNo=" + order.businessNo() + ",category=" + body.category(), request);
         return OkResponse.of("问题说明已提交，请等待客服核对");
@@ -271,8 +286,8 @@ public class ConsoleApiController {
         }
     }
 
-    private static List<AfterSalesRecord> afterSalesRecords(String note) {
-        return AfterSalesNoteParser.parse(note).stream()
+    private List<AfterSalesRecord> afterSalesRecords(String orderNo, String note) {
+        return AfterSalesLedger.recordsForOrder(jdbc, orderNo, note).stream()
                 .map(record -> new AfterSalesRecord(record.category(), record.submittedAt(), record.content()))
                 .toList();
     }

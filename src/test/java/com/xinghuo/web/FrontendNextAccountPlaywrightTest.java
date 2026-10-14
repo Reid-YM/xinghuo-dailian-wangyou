@@ -22,7 +22,7 @@ class FrontendNextAccountPlaywrightTest {
                     <body data-page="account-login">
                       <main class="container section auth-shell">
                         <section class="auth-value-panel"><span class="eyebrow">账号中心</span><h1>登录后，询价记录与交付进度集中在一处。</h1><p>账号只保存联系方式、业务编号与进度状态。</p><div class="auth-value-grid"><div><strong>记录归档</strong><span>换设备也能查。</span></div><div><strong>进度同步</strong><span>同步云端。</span></div><div><strong>设备可控</strong><span>随时下线。</span></div></div><div class="detail-list"><strong>忘记密码</strong><span>邮箱重置</span></div></section>
-                        <section class="auth-card card"><div class="auth-card-head"><h2>继续查看你的业务</h2></div><div class="mini-login"><button class="btn primary">使用星维网络小程序登录</button><div class="mini-login-challenge"><strong data-mini-code>12345678</strong></div></div><form class="account-form"><label class="field">邮箱<input value="you@example.com"></label><label class="field password-field">密码<input type="password"><button class="password-toggle" type="button">显示</button></label><button class="btn primary auth-submit">登录</button></form></section>
+                        <section class="auth-card card"><div class="auth-card-head"><h2>继续查看你的业务</h2></div><div class="mini-login"><button class="btn primary">使用星火迷彩追踪器小程序登录</button><div class="mini-login-challenge"><strong data-mini-code>12345678</strong></div></div><form class="account-form"><label class="field">邮箱<input value="you@example.com"></label><label class="field password-field">密码<input type="password"><button class="password-toggle" type="button">显示</button></label><button class="btn primary auth-submit">登录</button></form></section>
                       </main>
                     </body>
                     """);

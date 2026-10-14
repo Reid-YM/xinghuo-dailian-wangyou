@@ -15,8 +15,8 @@ class XingweiReleaseHistoryContractTest {
     @Test
     void currentVersionsStageAndReleaseHistoryAreCentralized() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
-        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261014-v3l\""));
-        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V3L · STABLE PRODUCTION\""));
+        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261014-v3n\""));
+        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V3N · RELEASE CANDIDATE\""));
         assertTrue(controller.contains("static final String TAXONOMY_VERSION = \"20261014-v3i\""));
         assertTrue(controller.contains("model.addAttribute(\"consoleStage\", CONSOLE_STAGE)"));
         assertTrue(controller.contains("@GetMapping(\"/admin/xingwei/releases\")"));
@@ -24,6 +24,9 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(controller.contains("\"V3I\", \"已上线\""));
         assertTrue(controller.contains("\"V3K\", \"已上线\""));
         assertTrue(controller.contains("\"V3L\", \"已上线\""));
+        assertTrue(controller.contains("\"V3N\", \"待发布\""));
+        assertTrue(controller.contains("\"V3M\", \"并入 V3N 待发布\""));
+        assertTrue(controller.contains("Frontend Next 与后台韧性统一交付"));
         assertTrue(controller.contains("后台运行版本自校验"));
         assertTrue(controller.contains("版本漂移告警"));
         assertTrue(controller.contains("result.put(\"version\", CONSOLE_VERSION)"));
@@ -38,25 +41,26 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(template.contains("后续固定规则 · CI + 运行时双校验"));
         assertTrue(template.contains("浏览器核对页面版本与实际后端版本"));
         assertTrue(template.contains("th:each=\"item : ${releaseHistory}\""));
-        assertTrue(template.contains(">20261014-v3l</span>"));
-        assertTrue(template.contains(">V3L</strong>"));
+        assertTrue(template.contains(">20261014-v3n</span>"));
+        assertTrue(template.contains(">V3N</strong>"));
     }
 
     @Test
-    void dashboardStatusMatchesStableProductionTruthAndPendingPayment() throws Exception {
+    void dashboardStatusMatchesReleaseCandidateTruthAndPendingPayment() throws Exception {
         String dashboard = read("resources/templates/admin-xingwei.html");
         assertTrue(dashboard.contains("href=\"/admin/xingwei/releases\">更新记录</a>"));
         assertTrue(dashboard.contains("th:text=\"${consoleStage}\""));
-        assertTrue(dashboard.contains("V3L · STABLE PRODUCTION"));
-        assertTrue(dashboard.contains("20261014-v3l"));
-        assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261014v3l"));
+        assertTrue(dashboard.contains("V3N · RELEASE CANDIDATE"));
+        assertTrue(dashboard.contains("20261014-v3n"));
+        assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261014v3n"));
         assertTrue(dashboard.contains("V3H 待真机验收"));
         assertTrue(dashboard.contains("V3I 已上线"));
         assertTrue(dashboard.contains("impactToken"));
-        assertTrue(dashboard.contains("页面版本和实际后端版本必须一致"));
+        assertTrue(dashboard.contains("V3N 统一交付候选"));
         assertTrue(dashboard.contains("生产流水线已启用"));
         assertTrue(dashboard.contains("<strong>V3L</strong>"));
-        assertFalse(dashboard.contains("RELEASE CANDIDATE"));
+        assertTrue(dashboard.contains("<strong>V3N</strong>"));
+        assertTrue(dashboard.contains("待发布：Frontend Next A1–A4"));
         assertFalse(dashboard.contains("作为本次发布候选"));
         assertFalse(dashboard.contains("<article class=\"xw-module xw-module-planned\" data-search=\"微信支付"));
         assertFalse(dashboard.contains("<article class=\"xw-module xw-module-planned\" data-search=\"发布 部署"));
@@ -71,6 +75,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(validator.contains("extract_constant CONSOLE_VERSION"));
         assertTrue(validator.contains("version/stage mismatch"));
         assertTrue(validator.contains("stable production stage"));
+        assertTrue(validator.contains("release candidate stage"));
         assertTrue(validator.contains("V3H payment is implemented/pending validation"));
     }
 

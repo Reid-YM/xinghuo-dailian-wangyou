@@ -61,6 +61,12 @@ if [[ "$console_stage" == *"STABLE PRODUCTION"* ]]; then
   fi
 fi
 
+# A release candidate must be recorded as pending until the production gates finish.
+if [[ "$console_stage" == *"RELEASE CANDIDATE"* ]]; then
+  grep -Eq "new ReleaseItem\(\"[0-9]{4}-[0-9]{2}-[0-9]{2}\", \"${stage_tag}\", \"待发布\"," "$controller" \
+    || fail "release candidate stage ${stage_tag} must have a 待发布 release item"
+fi
+
 # Known delivery truth that must not regress while real-device validation is pending.
 require_literal "$controller" '"V3H", "待真机验收"'
 require_literal "$dashboard" 'V3H 待真机验收'

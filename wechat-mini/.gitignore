@@ -1,3 +1,25 @@
-project.private.config.json
-miniprogram_npm/
+# 依赖
 node_modules/
+cloudfunctions/*/node_modules/
+miniprogram/miniprogram_npm/
+
+# 开发者工具本地私有配置（含个人设置，不进版本库）
+project.private.config.json
+
+# 工具产物
+tools/output/
+*.log
+
+# 系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 工具生成的中间产物
+tools/guide-hits.json
+
+# 命令行预览产物（二维码 / 包信息）
+preview/
+
+# 源码包产物
+dist/

@@ -1,41 +1,31 @@
-# Frontend Next + Xingwei V3M 总联调状态
+# V3N 前后端统一交付与总联调
 
 更新时间：2026-10-14
 
-## 当前性质
+## 版本真值
 
-本分支 `integration/frontend-v3m-total` 是前后端集中总联调分支，不是生产发布分支，也不代表 V3M 已上线。
+`integration/frontend-v3m-total` / PR #393 收口为 V3N 交付候选（`20261014-v3n`）。V3N 尚未进入生产；生产当前基线仍按 V3L 记录。后台阶段为 `V3N · RELEASE CANDIDATE`，更新记录状态为「待发布」。只有主线合并、主线 CI 和生产门禁完成后，才能将 V3N 改记为「已上线」。
 
-## 输入线
+## 整合输入与验证
 
-- Frontend Next Draft PR #391：A1–A4 核心用户链路已独立通过 Java/Maven 与 Chromium/WebKit。
-- Xingwei V3M Draft PR #392：后台运行时韧性已独立通过 Java/Maven 与 Chromium/WebKit。
-- 当前基线 `main`：V3L。
-
-## 本轮联调范围
-
-1. 公共壳层 / 首页 / 24 寸宽屏 / 手机端。
-2. 服务大厅、服务详情。
-3. 询价、业务记录、记录详情。
-4. 邮箱登录、星维网络小程序扫码登录页面、个人中心。
-5. 新版后台 RBAC / 数据范围 / 运行版本核验。
-6. V3M 请求超时、周期复核、visibility / online / offline 复核、权限 fail-closed。
-7. Chromium + WebKit，1920 桌面、1440 桌面、常见手机与 320px 窄屏。
-8. 公开 API 与后台受保护 API 的安全边界。
-9. SEO / canonical / JSON-LD / robots / sitemap 原有契约不得退化。
-10. 缓存和版本漂移检测不得被 Frontend Next 静态资源层绕过。
+- Frontend Next PR #391：A1–A4 公共壳层、首页、服务大厅与详情、询价和业务记录、登录与个人中心。
+- Xingwei V3M PR #392：请求超时、周期复核、visibility / online / offline 复核、stale 降级和权限 fail-closed。
+- 协作者“星火迷彩追踪器”1.0.13 源码包：替换原占位小程序客户端，保留迷彩、攻略、查单、云同步和网站账号功能；“我的”增加扫描网站登录二维码，保留手动 8 位码入口，客户端候选版本为 1.0.14。网站文案与实际小程序名称对齐。
+- PR #393：公共前端与后台运行时无交叉加载；公开 API 与受保护后台 API 保持原有安全边界；账号链路、SEO、canonical、JSON-LD、robots、sitemap、缓存和版本漂移契约继续有效。
+- 集中联调覆盖 Chromium / WebKit，1920 / 1440 桌面、常见手机与 320px 窄屏。PR #393 的 CI #920 已通过 Java 21 / Maven Build 与 Chromium + WebKit UI Regression；V3N 版本收口提交仍需再次通过完整 release CI。
+- 源码包本地静态、页面模拟、同步、图片检查通过；小程序扫码接口回归通过。实际 AppID、微信后台体验版、网站生产密钥匹配以及真机跨设备登录尚未验证。生产登录接口当前返回 `enabled: true`，只说明网站入口已开启。
 
 ## 明确排除
 
-- V3H 小程序微信支付真实收款：继续保持未合并、待真机 AppID / 商户绑定 / 小额联调。
-- V68 小程序支付数据库迁移：不得进入本轮联调分支。
-- PR #372 企业微信协作者写入能力：不在本轮联调中强行合并。
-- 不直接修改生产环境，不触发 `.deploy-request`。
+- V3H PR #384 小程序微信支付保持未合并；不引入 V68 支付 migration，不启用真实收款。AppID / 商户绑定与小额真机联调单独验收。
+- PR #372 企业微信协作者写入能力不强行合并；现有企业微信通讯录只读能力继续保留。
+- 本次收口不修改数据库 schema、生产配置或运行服务。
 
-## 收口门槛
+## 交付门禁
 
-- 本分支 Java/Maven 全绿。
-- Chromium + WebKit UI Regression 全绿。
-- Frontend Next 与 V3M 无文件级冲突或安全边界倒退。
-- 现有支付待验收状态、旧后台兜底、RBAC、SEO 和发布门禁均保持原有真值。
-- 达到以上条件后，才整理最终版本号、后台更新记录和主线合并方案。
+1. V3N 分支运行版本真值校验、`mvn clean package` 和 Chromium / WebKit UI Regression；PR #393 两项检查全部成功。
+2. 使用实际“星火迷彩追踪器”小程序的体验版，在真机完成未关联账号、已关联账号、错误/过期码、扫码和手动码、原浏览器二次确认检查；客户端上传与云函数发布独立验收，不能用 GitHub CI 代替。
+3. 检查 PR 差异、支付排除项和当前 `main`；按 GitHub PR 流程合并，禁止直接推送 `main`。
+4. 确认合并提交的 `main` CI 成功，记录目标 SHA 与可回滚版本。
+5. 获得明确生产部署授权后，才通过 `Deploy Production` 的 `main` 手动入口，或受控 `deploy/production` 的单文件 `.deploy-request` 请求发布。不得从 PR 分支触发生产发布。
+6. 沿用服务器现有零停机链路：18080 候选冒烟、8081 金丝雀与切流、8080 正式冒烟；核对服务、日志、站点核心链路和回滚信息。

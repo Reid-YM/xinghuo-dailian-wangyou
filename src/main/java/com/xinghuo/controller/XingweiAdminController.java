@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3l";
-    static final String CONSOLE_STAGE = "V3L · STABLE PRODUCTION";
+    static final String CONSOLE_VERSION = "20261014-v3n";
+    static final String CONSOLE_STAGE = "V3N · RELEASE CANDIDATE";
     static final String BUSINESS_VERSION = "20261013-v2e";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,6 +29,12 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3N", "待发布",
+                    "Frontend Next 与后台韧性统一交付",
+                    "整合 Frontend Next A1–A4 的公共壳层、首页、服务、询价/记录、登录与个人中心，以及 V3M 后台运行时韧性；接收星火迷彩追踪器 1.0.13 源码并补全网站二维码扫码入口。前后端总联调已覆盖公开与后台边界、响应式、SEO 和版本漂移；小程序真机登录仍待验收。V3H 真实收款与 PR #372 企业微信写入不在本版范围。"),
+            new ReleaseItem("2026-10-14", "V3M", "并入 V3N 待发布",
+                    "新版后台运行时韧性",
+                    "增加请求超时、周期复核、页面可见与网络恢复复核、stale 降级和权限失败关闭；与 Frontend Next 在 PR #393 完成组合验证。"),
             new ReleaseItem("2026-10-14", "V3L", "已上线",
                     "后台运行版本自校验",
                     "新版后台会把页面渲染的版本/阶段与 /api/admin/xingwei/health 返回的实际运行版本/阶段逐项核对；一致时显示运行版本已核对，浏览器缓存或异常发布造成不一致时立即显示版本漂移告警，并禁止再把单纯 HTTP 200 误判为完整健康。"),
@@ -45,8 +51,8 @@ public class XingweiAdminController {
                     "小程序微信支付闭环",
                     "JSAPI/小程序支付、直接 openid 绑定、Native/小程序通道互斥、支付状态服务端核验已完成；PR #384 保持未合并，待 AppID/商户绑定和小额真机联调。"),
             new ReleaseItem("2026-10-14", "V3G", "已上线",
-                    "星维网络小程序扫码登录",
-                    "网站生成二维码，小程序 wx.scanCode + wx.login 确认身份，原浏览器二次确认后签发会话；小程序源码已纳入 CI 并自动打包。"),
+                    "网站侧小程序登录接口",
+                    "网站登录码、二维码和原浏览器二次确认接口已上线。实际客户端改以星火迷彩追踪器为准，扫码入口随 V3N 待发布；真机登录仍需验收。"),
             new ReleaseItem("2026-10-14", "V3F", "已上线",
                     "游戏与分类受控新增及资料编辑",
                     "新增游戏/分类默认停用；资料编辑不改变 code、归属和启停状态；启停继续走影响预览、原因和审计。"),

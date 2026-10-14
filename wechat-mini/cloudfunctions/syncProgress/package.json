@@ -1,0 +1,9 @@
+{
+  "name": "syncProgress",
+  "version": "1.0.0",
+  "description": "迷彩进度云端存档与并集合并",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

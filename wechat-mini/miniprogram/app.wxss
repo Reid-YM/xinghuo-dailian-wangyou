@@ -1,0 +1,258 @@
+/* ==========================================================================
+   星火迷彩 · 全局基础样式
+   页面共用的排版、卡片和操作样式。
+   ========================================================================== */
+
+page {
+  background: #101319;
+  color: #e9ecf1;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  font-size: 28rpx;
+}
+
+view,
+text,
+input,
+button {
+  box-sizing: border-box;
+}
+
+button::after {
+  border: none;
+}
+
+.mono {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* 底部留白，避免内容被悬浮客服按钮挡住 */
+.page {
+  padding: 28rpx 28rpx 220rpx;
+}
+
+.hero {
+  padding: 12rpx 4rpx 30rpx;
+}
+
+.hero-title {
+  font-size: 42rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.hero-sub {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #98a1af;
+}
+
+.card {
+  background: #1a1e25;
+  border: 1rpx solid #2b313a;
+  border-radius: 12rpx;
+  padding: 28rpx;
+  margin-bottom: 18rpx;
+}
+
+.card-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #e9ecf1;
+  margin-bottom: 18rpx;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label {
+  font-size: 26rpx;
+  color: #98a1af;
+}
+
+.accent {
+  color: #c6f24e;
+  font-size: 26rpx;
+}
+
+.ok {
+  color: #4ade80;
+}
+
+.bar {
+  height: 12rpx;
+  border-radius: 999rpx;
+  background: #232833;
+  margin: 18rpx 0 20rpx;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #c6f24e;
+  border-radius: 999rpx;
+  transition: width 0.2s ease;
+}
+
+.actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 28rpx;
+}
+
+.btn {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 26rpx;
+  border-radius: 10rpx;
+  margin: 0;
+  padding: 0;
+}
+
+.btn.ghost {
+  background: #242a33;
+  border: 1rpx solid #37404c;
+  color: #dfe4ec;
+}
+
+.btn.ghost.danger {
+  color: #f87171;
+}
+
+.btn.primary {
+  background: #c6f24e;
+  color: #11141a;
+  font-weight: 600;
+}
+
+.btn[disabled] {
+  opacity: 0.55;
+}
+
+.empty-state {
+  padding: 56rpx 32rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid #2b313a;
+  border-radius: 12rpx;
+  background: #1a1e25;
+  text-align: center;
+}
+
+.empty-title {
+  color: #e9ecf1;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.empty-desc {
+  margin: 12rpx 0 26rpx;
+  color: #8b94a3;
+  font-size: 23rpx;
+}
+
+.empty-state .btn {
+  width: 240rpx;
+}
+
+.footer {
+  margin-top: 28rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- 客服位（两页共用） */
+
+.service {
+  border-color: #344031;
+  background: #1c241f;
+}
+
+.service-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #e9ecf1;
+}
+
+.service-desc {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: #98a1af;
+}
+
+.service-btn {
+  display: block;
+  width: 100%;
+  margin-top: 16rpx;
+  height: 68rpx;
+  line-height: 68rpx;
+  border-radius: 10rpx;
+  background: #263029;
+  border: 1rpx solid #526a42;
+  color: #d6edaa;
+  font-size: 25rpx;
+  font-weight: 600;
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------- 进度小卡（两页共用） */
+
+.mode-stats {
+  display: flex;
+  gap: 12rpx;
+}
+
+.mode-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #11141a;
+  border: 1rpx solid #262b35;
+  border-radius: 10rpx;
+  padding: 14rpx 16rpx;
+}
+
+.mode-stat-label {
+  font-size: 22rpx;
+  color: #8b94a3;
+}
+
+.mode-stat-value {
+  margin-top: 6rpx;
+  font-size: 26rpx;
+  color: #dfe4ec;
+}
+
+/* ==========================================================================
+   下面这些原来在每个页面各写了一份，现在统一放这里（页面里若还有同名规则，
+   以页面文件为准；新页面直接用即可）。
+   ========================================================================== */
+
+.source-line {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  color: #6b7280;
+}
+
+.loading {
+  padding: 28rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #8b94a3;
+}
+
+.err {
+  border-color: #4a3a2a;
+  background: #1d1a15;
+}
+
+.err-text {
+  font-size: 25rpx;
+  line-height: 1.6;
+  color: #fbbf24;
+}

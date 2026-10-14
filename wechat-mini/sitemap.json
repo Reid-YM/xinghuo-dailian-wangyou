@@ -1,9 +1,0 @@
-{
-  "desc": "星维网络小程序页面索引",
-  "rules": [
-    {
-      "action": "disallow",
-      "page": "pages/account/index"
-    }
-  ]
-}

@@ -1,0 +1,291 @@
+/* 「我的」页专属样式。 */
+
+.me-page {
+  padding-bottom: 100rpx;
+}
+
+.me-heading { padding-bottom: 20rpx; }
+
+.section-card {
+  padding: 28rpx 30rpx;
+}
+
+.section-card .card-title {
+  margin-bottom: 24rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #e9ecf1;
+}
+
+.account-card {
+  border-top: 3rpx solid #c6f24e;
+}
+
+.section-divider {
+  height: 1rpx;
+  margin: 28rpx 0;
+  background: #2b3039;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  min-height: 104rpx;
+}
+
+.avatar-wrap {
+  width: 104rpx;
+  height: 104rpx;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 50%;
+  background: #232833;
+}
+
+.avatar-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #c6f24e;
+}
+
+.account-main {
+  flex: 1;
+  margin-left: 20rpx;
+  min-width: 0;
+}
+
+.nick {
+  font-size: 34rpx;
+  font-weight: 650;
+  color: #e9ecf1;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nick-ph {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.account-id {
+  margin-top: 8rpx;
+  font-size: 23rpx;
+  color: #8b94a3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-state {
+  display: inline-block;
+  margin-top: 10rpx;
+  padding: 8rpx 14rpx;
+  border-radius: 6rpx;
+  background: #2a382a;
+  color: #bfdf80;
+  font-size: 20rpx;
+  white-space: nowrap;
+}
+
+.account-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 24rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx solid #303741;
+  color: #a6afbc;
+  font-size: 24rpx;
+}
+
+.account-meta text:last-child { color: #dfe4ec; text-align: right; }
+
+.website-card { border-color: #3b4234; }
+.website-status { color: #e9ecf1; font-size: 29rpx; font-weight: 600; line-height: 1.4; }
+.website-orders { margin-top: 9rpx; color: #b8d971; font-size: 23rpx; }
+.website-action { width: 100%; margin-top: 22rpx; }
+.website-error { margin-top: 12rpx; color: #f0b86b; font-size: 23rpx; line-height: 1.5; }
+.website-retry {
+  margin-top: 10rpx; padding: 12rpx 0; background: transparent;
+  border: 0; color: #c6f24e; font-size: 23rpx; text-align: center;
+}
+.identity-hint { margin-top: 14rpx; color: #b6c0ce; font-size: 22rpx; line-height: 1.5; }
+.field-label { color: #a6afbc; font-size: 23rpx; margin-bottom: 10rpx; }
+.profile-input {
+  width: 100%; min-height: 84rpx; padding: 16rpx 20rpx;
+  color: #e9ecf1; background: #11161d;
+  border: 1rpx solid #37404c; border-radius: 9rpx; font-size: 27rpx;
+}
+
+/* 未登录 */
+.login-title {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.login-desc {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: #98a1af;
+}
+
+.login-btn {
+  margin-top: 22rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 10rpx;
+  background: #c6f24e;
+  color: #11141a;
+  font-size: 28rpx;
+  font-weight: 700;
+  padding: 0;
+}
+
+.login-hint {
+  margin-top: 14rpx;
+  font-size: 22rpx;
+  line-height: 1.5;
+  color: #fbbf24;
+}
+
+/* 同步状态 */
+.sync-value {
+  font-size: 24rpx;
+  color: #dfe4ec;
+}
+
+.sync-hint {
+  margin-top: 10rpx;
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: #8b94a3;
+}
+
+.sync-actions {
+  margin-top: 24rpx;
+}
+
+.text-action {
+  background: transparent;
+  border: 1rpx solid #37404c;
+  color: #98a1af;
+}
+
+.overview {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.overview-number {
+  color: #c6e58a;
+  font-size: 52rpx;
+  font-weight: 600;
+}
+
+.overview-caption {
+  color: #98a1af;
+  font-size: 23rpx;
+}
+
+.setting-list {
+  margin-top: 18rpx;
+  border-top: 1rpx solid #303741;
+}
+
+.setting-row {
+  width: 100%;
+  min-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 2rpx;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1rpx solid #303741;
+  border-radius: 0;
+  color: #dfe4ec;
+  font-size: 26rpx;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.setting-row.first-row {
+  margin-top: 4rpx;
+  border-top: 1rpx solid #303741;
+}
+
+.row-arrow {
+  margin-left: 16rpx;
+  color: #788392;
+  font-size: 32rpx;
+}
+
+.danger-row {
+  color: #e9a0a0;
+  border-bottom: 0;
+}
+
+/* 关于 */
+.about {
+  margin-top: 24rpx;
+}
+
+.about-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #303741;
+  font-size: 23rpx;
+  line-height: 1.5;
+  color: #98a1af;
+}
+
+.about-key {
+  flex-shrink: 0;
+}
+
+.about-value {
+  color: #dfe4ec;
+  text-align: right;
+}
+
+.about-note {
+  margin-top: 20rpx;
+  font-size: 22rpx;
+  line-height: 1.7;
+  color: #8b94a3;
+}
+
+/* 已登录网站账号的状态行 */
+.website-signed {
+  display: flex;
+  align-items: center;
+  padding: 22rpx 0;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #4ade80;
+}
+
+.website-signed .check {
+  margin-right: 10rpx;
+  font-weight: 700;
+}

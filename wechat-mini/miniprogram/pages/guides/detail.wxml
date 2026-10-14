@@ -1,0 +1,119 @@
+<view class="page">
+  <view class="loading" wx:if="{{loading}}">正在打开攻略…</view>
+
+  <view class="card err" wx:if="{{error}}">
+    <view class="err-text">{{error}}</view>
+    <view class="actions">
+      <button class="btn ghost" bindtap="onRetry">重新加载</button>
+    </view>
+  </view>
+
+  <block wx:if="{{guide}}">
+    <view class="head">
+      <view class="g-title">{{guide.title}}</view>
+      <view class="g-sub" wx:if="{{guide.subtitle}}">{{guide.subtitle}}</view>
+      <view class="g-meta">
+        <text class="badge" wx:if="{{guide.difficulty}}">{{guide.difficulty}}</text>
+        <text class="g-meta-text" wx:if="{{guide.minutes}}">{{guide.minutes}} 分钟读完</text>
+        <text class="g-meta-text" wx:if="{{guide.author}}">{{guide.author}}</text>
+        <text class="g-meta-text" wx:if="{{updatedText}}">更新于 {{updatedText}}</text>
+      </view>
+      <view class="tags" wx:if="{{guide.tags.length}}">
+        <text class="tag" wx:for="{{guide.tags}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+
+    <image
+      class="cover"
+      wx:if="{{showImages && guide.cover}}"
+      src="{{guide.cover}}"
+      mode="widthFix"
+      bindtap="onPreviewCover"
+    ></image>
+
+    <!-- 整篇被合规过滤掉了：不展示正文，给客服入口 -->
+    <view class="card notice" wx:if="{{guide.hidden}}">
+      <view class="notice-title">内容暂不可用</view>
+      <view class="notice-text">这篇攻略当前无法展示。你可以返回列表查看其他攻略，或联系客服获取帮助。</view>
+      <view class="actions">
+        <button class="btn ghost" bindtap="onBackToList">返回攻略列表</button>
+      </view>
+      <button class="service-btn" open-type="contact" session-from="{{sessionFrom}}">{{copy.buttonText}}</button>
+    </view>
+
+    <block wx:else>
+      <view class="card sec" wx:for="{{guide.sections}}" wx:for-item="sec" wx:key="heading">
+        <view class="sec-heading" wx:if="{{sec.heading}}">{{sec.heading}}</view>
+        <image
+          class="sec-img"
+          wx:if="{{showImages && sec.image}}"
+          src="{{sec.image}}"
+          mode="widthFix"
+          lazy-load
+        ></image>
+
+        <block wx:for="{{sec.blocks}}" wx:for-item="b">
+          <view class="md-h lv{{b.level}}" wx:if="{{b.type === 'heading'}}">
+            <text wx:for="{{b.runs}}" wx:for-item="r">{{r.text}}</text>
+          </view>
+
+          <view class="md-p" wx:elif="{{b.type === 'paragraph'}}">
+            <text wx:for="{{b.runs}}" wx:for-item="r" class="{{r.bold ? 'b' : ''}}{{r.code ? ' code' : ''}}">{{r.text}}</text>
+          </view>
+
+          <view class="md-quote" wx:elif="{{b.type === 'quote'}}">
+            <text wx:for="{{b.runs}}" wx:for-item="r" class="{{r.bold ? 'b' : ''}}">{{r.text}}</text>
+          </view>
+
+          <view class="md-divider" wx:elif="{{b.type === 'divider'}}"></view>
+
+          <view class="md-list" wx:elif="{{b.type === 'list'}}">
+            <view class="md-li" wx:for="{{b.items}}" wx:for-item="it">
+              <text class="md-li-mark">{{b.ordered ? (index + 1) + '.' : '·'}}</text>
+              <view class="md-li-body">
+                <text wx:for="{{it}}" wx:for-item="r" class="{{r.bold ? 'b' : ''}}{{r.code ? ' code' : ''}}">{{r.text}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+
+      <view class="card" wx:if="{{guide.faqs.length}}">
+        <view class="card-title">常见问题</view>
+        <view class="faq" wx:for="{{guide.faqs}}" wx:key="question">
+          <view class="faq-q" data-i="{{index}}" bindtap="onToggleFaq">
+            <text class="faq-q-text">{{item.question}}</text>
+            <text class="chev {{openFaq[index] ? 'open' : ''}}">›</text>
+          </view>
+          <view class="faq-a" wx:if="{{openFaq[index]}}">{{item.answer}}</view>
+        </view>
+      </view>
+
+      <view class="card" wx:if="{{guide.related.length}}">
+        <view class="card-title">相关攻略</view>
+        <view
+          class="rel"
+          wx:for="{{guide.related}}"
+          wx:key="slug"
+          data-slug="{{item.slug}}"
+          bindtap="onTapRelated"
+        >
+          <text class="rel-title">{{item.title}}</text>
+          <text class="chev">›</text>
+        </view>
+      </view>
+
+      <view class="card service" wx:if="{{copy}}">
+        <view class="service-title">{{copy.cardTitle}}</view>
+        <view class="service-desc">{{copy.cardDesc}}</view>
+        <button class="service-btn" open-type="contact" session-from="{{sessionFrom}}">{{copy.buttonText}}</button>
+      </view>
+
+      <button class="btn primary share" open-type="share">分享这篇攻略</button>
+
+      <view class="footer">
+        内容来自星火官网攻略库，仅供参考；官方更新后小程序自动同步。
+      </view>
+    </block>
+  </block>
+</view>

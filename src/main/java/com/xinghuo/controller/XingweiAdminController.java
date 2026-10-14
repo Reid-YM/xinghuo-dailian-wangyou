@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3w";
-    static final String CONSOLE_STAGE = "V3W · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261014-v3w";
+    static final String CONSOLE_VERSION = "20261014-v3x";
+    static final String CONSOLE_STAGE = "V3X · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261014-v3x";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3X", "待发布",
+                    "客户售后历史结构化回显",
+                    "客户订单详情在原有 order、sourceQuote、timeline 字段之外，增加经订单归属校验的 afterSalesRecords 只读列表，包含问题类型、提交时间和正文。个人中心优先使用结构化记录，旧响应仍兼容；空列表明确显示暂无记录，提交后重新读取，正文按纯文本展示。后端 PR #434、前端 PR #433 已分别通过 Java/Maven 和 Chromium/WebKit 检查；等待统一版本与生产门禁。无数据库或配置变更，不改变售后处理、退款、支付或企业微信写入状态。"),
             new ReleaseItem("2026-10-14", "V3W", "已上线",
                     "服务大厅筛选链接与售后说明校验",
                     "前端服务大厅将游戏、平台、类型和关键词筛选写入可分享网址，刷新及浏览器返回时恢复选择；后端在客户订单补充说明与售后提交入口拒绝正文中的系统保留售后标记，避免普通说明伪装成售后记录或伪造分类。前端 PR #429、后端 PR #430、统一版本 PR #431 与生产门禁均已完成。无数据库或配置变更，不启用真实收款和企业微信写入。"),

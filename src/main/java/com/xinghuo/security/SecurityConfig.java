@@ -56,7 +56,8 @@ public class SecurityConfig {
             "/api/orders/**", "/api/uploads/quote", "/api/track",
             "/api/tool-station", "/api/guides", "/api/guides/**", "/api/loadouts", "/api/account/**", "/api/console/**",
             "/api/wechat-pay/notify",
-            "/admin/login", "/admin/xingwei/wecom/login", "/admin/xingwei/wecom/callback", "/error"
+            "/admin/login", "/admin/xingwei/wecom/login", "/admin/xingwei/wecom/callback",
+            "/admin/xingwei/wecom/pending", "/error"
     };
 
     @Bean

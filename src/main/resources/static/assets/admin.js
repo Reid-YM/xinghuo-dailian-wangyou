@@ -343,6 +343,7 @@
     feedback: loadFeedback,
     audits: loadAudits,
     users: loadUserPanel,
+    employees: loadEmployees,
     community: loadCommunity
   };
 
@@ -1319,6 +1320,130 @@ async function loadDashboard() {
     } catch (error) { toast(error.message, 'error'); }
     finally { setBusy(btn, false); }
   });
+
+  let employeeData = { employees: [], departments: [], positions: {}, writeConfigured: false };
+  const employeeCanWrite = () =>
+    $('meta[name="admin-is-admin"]')?.content === 'true' && employeeData.writeConfigured;
+
+  async function loadEmployees() {
+    $('#employeeSummary').textContent = '正在读取员工、部门和职务…';
+    const [people, departments, positions] = await Promise.all([
+      api('/api/admin/employees'),
+      api('/api/admin/employees/departments'),
+      api('/api/admin/employees/positions')
+    ]);
+    employeeData = {
+      employees: Array.isArray(people?.items) ? people.items : [],
+      departments: Array.isArray(departments?.items) ? departments.items : [],
+      positions: positions && typeof positions === 'object' ? positions : {},
+      writeConfigured: people?.writeConfigured === true
+    };
+    const count = Object.values(employeeData.positions).reduce((sum, jobs) => sum + (Array.isArray(jobs) ? jobs.length : 0), 0);
+    const isAdmin = $('meta[name="admin-is-admin"]')?.content === 'true';
+    $('#employeeSummary').textContent = `员工 ${employeeData.employees.length} 人 · 部门 ${employeeData.departments.length} 个 · 正式职务 ${count} 个` +
+      (isAdmin && !employeeData.writeConfigured ? ' · 通讯录写入尚未配置' : '');
+    $('#newEmployee').classList.toggle('hidden', !employeeCanWrite());
+    $$('.employee-actions-head').forEach(x => x.classList.toggle('hidden', !employeeCanWrite()));
+    $('#employeeDepartment').innerHTML = '<option value="">选择部门</option>' + employeeData.departments.map(d =>
+      `<option value="${esc(d.id)}">${esc(d.name)}</option>`).join('');
+    $('#employeePosition').innerHTML = '<option value="">选择正式职务</option>' + Object.entries(employeeData.positions).map(([center, jobs]) =>
+      `<optgroup label="${esc(center)}">${(Array.isArray(jobs) ? jobs : []).map(job =>
+        `<option value="${esc(job)}">${esc(job)}</option>`).join('')}</optgroup>`).join('');
+    $('#employeeDepartments').innerHTML = employeeData.departments.map(d =>
+      `<div>${esc(d.name)} <span class="muted">#${esc(d.id)}</span></div>`
+    ).join('') || '暂无部门';
+    $('#employeePositions').innerHTML = Object.entries(employeeData.positions).map(([center, jobs]) =>
+      `<details><summary>${esc(center)}（${Array.isArray(jobs) ? jobs.length : 0}）</summary><p class="small">${(Array.isArray(jobs) ? jobs : []).map(esc).join(' · ')}</p></details>`
+    ).join('') || '暂无职务';
+    renderEmployees();
+  }
+
+  function renderEmployees() {
+    const term = ($('#employeeSearch')?.value || '').trim().toLocaleLowerCase();
+    const rows = employeeData.employees.filter(x =>
+      [x.name, x.userId, x.position, ...(x.departments || [])].some(value => String(value || '').toLocaleLowerCase().includes(term))
+    );
+    $('#employeeRows').innerHTML = rows.map(x => `<tr>
+      <td><b>${esc(x.name)}</b><br><small class="muted">${esc(x.userId)}</small></td>
+      <td>${esc(x.position || '未设置')}</td>
+      <td>${esc((x.departments || []).join('、') || '未设置')}</td>
+      <td>${esc(x.status === 1 ? '在职' : x.status === 2 ? '已停用' : `状态 ${x.status ?? '-'}`)}</td>
+      <td>${esc(x.mobile || x.email || x.businessEmail || '-')}</td>
+      <td class="employee-actions ${employeeCanWrite() ? '' : 'hidden'}">${employeeCanWrite() ?
+        `<div class="row-actions"><button class="btn ghost small-btn" type="button" data-employee-transfer="${esc(x.userId)}">调岗</button><button class="btn ghost small-btn" type="button" data-employee-departure="${esc(x.userId)}" ${x.status === 2 ? 'disabled' : ''}>离职停用</button></div>` : ''}</td>
+    </tr>`).join('') || '<tr><td colspan="6" class="empty">没有匹配的员工</td></tr>';
+  }
+
+  function openEmployeeForm(person) {
+    if (!employeeCanWrite()) return;
+    const form = $('#employeeForm');
+    form.reset();
+    form.dataset.mode = person ? 'transfer' : 'create';
+    form.classList.remove('hidden');
+    $('#employeeFormTitle').textContent = person ? `调岗：${person.name}` : '新增员工';
+    $('#saveEmployee').textContent = person ? '确认调岗' : '新增员工';
+    $('#employeeUserId').value = person?.userId || '';
+    $('#employeeUserId').readOnly = !!person;
+    $$('[data-employee-create-only]', form).forEach(x => x.classList.toggle('hidden', !!person));
+    if (person) {
+      $('#employeeName').value = person.name || '';
+      $('#employeeDepartment').value = String(person.departmentIds?.[0] || '');
+      $('#employeePosition').value = person.position || '';
+    }
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  $('#newEmployee')?.addEventListener('click', () => openEmployeeForm(null));
+  $('#cancelEmployeeEdit')?.addEventListener('click', () => $('#employeeForm').classList.add('hidden'));
+  $('#employeeRows')?.addEventListener('click', async event => {
+    if (!employeeCanWrite()) return;
+    const transfer = event.target.closest('[data-employee-transfer]');
+    if (transfer) {
+      const person = employeeData.employees.find(x => x.userId === transfer.dataset.employeeTransfer);
+      if (person) openEmployeeForm(person);
+      return;
+    }
+    const departure = event.target.closest('[data-employee-departure]');
+    if (!departure) return;
+    const person = employeeData.employees.find(x => x.userId === departure.dataset.employeeDeparture);
+    if (!person || !window.confirm(`确认将 ${person.name} 办理离职并停用企业微信账号？该成员记录会保留，可由管理员恢复。`)) return;
+    setBusy(departure, true, '停用中…');
+    try {
+      await api(`/api/admin/employees/${encodeURIComponent(person.userId)}/departure`, { method: 'POST' });
+      toast('成员账号已停用');
+      await loadEmployees();
+    } catch (error) { toast(error.message, 'error'); }
+    finally { setBusy(departure, false); }
+  });
+  $('#employeeForm')?.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!employeeCanWrite()) return;
+    const form = event.currentTarget;
+    if (!form.reportValidity()) return;
+    const data = Object.fromEntries(new FormData(form));
+    data.departmentId = Number(data.departmentId);
+    const transfer = form.dataset.mode === 'transfer';
+    if (!transfer && !String(data.mobile || '').trim() && !String(data.email || '').trim()) return toast('手机号或邮箱至少填写一项', 'error');
+    if (!window.confirm(transfer ? `确认调整 ${$('#employeeName').value} 的部门与职务？` : `确认新增员工 ${data.name}？`)) return;
+    const button = $('#saveEmployee');
+    setBusy(button, true);
+    try {
+      if (transfer) {
+        await api(`/api/admin/employees/${encodeURIComponent(data.userId)}/assignment`, {
+          method: 'PATCH', body: JSON.stringify({ departmentId: data.departmentId, position: data.position })
+        });
+      } else {
+        await api('/api/admin/employees', { method: 'POST', body: JSON.stringify(data) });
+      }
+      toast(transfer ? '调岗已提交' : '员工已新增');
+      form.classList.add('hidden');
+      await loadEmployees();
+    } catch (error) { toast(error.message, 'error'); }
+    finally { setBusy(button, false); }
+  });
+
+  $('#employeeSearch')?.addEventListener('input', renderEmployees);
+  $('#refreshEmployees')?.addEventListener('click', () => loadEmployees().catch(error => toast(error.message, 'error')));
 
   async function loadAudits() {
     const rows = (await api('/api/admin/audits')) || [];

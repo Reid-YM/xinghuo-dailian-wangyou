@@ -17,7 +17,7 @@ import org.springframework.security.core.userdetails.User;
 class XingweiWeComSessionFilterTest {
     private final XingweiWeComBindingService bindings = mock(XingweiWeComBindingService.class);
     private final XingweiWeComProperties properties =
-            new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", true, true);
+            new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", true, true, false);
     private final XingweiWeComSessionFilter filter = new XingweiWeComSessionFilter(bindings, properties);
 
     @AfterEach

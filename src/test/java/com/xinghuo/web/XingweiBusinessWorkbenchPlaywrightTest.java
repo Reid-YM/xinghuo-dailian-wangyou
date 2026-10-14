@@ -105,7 +105,7 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             page.locator("[data-tab='after-sales']").click();
             page.waitForFunction("() => document.querySelector('#xwbOrderRows')?.textContent.includes('XH0888')");
             assertEquals("售后问题记录", page.locator("#xwbOrderHeading").textContent());
-            assertEquals("1", page.locator("#xwbOrderRows tr[data-search]").count());
+            assertEquals(1, page.locator("#xwbOrderRows tr[data-search]").count());
             assertTrue(page.locator("#xwbOrderDescription").textContent().contains("不代表退款申请或处理状态"));
             assertTrue(page.locator("#xwbOrderRows").textContent().contains("未按约定完成 <script>alert(1)</script>"));
             assertEquals(0, page.locator("#xwbOrderRows script").count());

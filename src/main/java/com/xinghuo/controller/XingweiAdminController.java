@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class XingweiAdminController {
     static final String CONSOLE_VERSION = "20261014-v3n";
-    static final String CONSOLE_STAGE = "V3N · RELEASE CANDIDATE";
+    static final String CONSOLE_STAGE = "V3N · STABLE PRODUCTION";
     static final String BUSINESS_VERSION = "20261013-v2e";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,10 +29,10 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-14", "V3N", "待发布",
+            new ReleaseItem("2026-10-14", "V3N", "已上线",
                     "Frontend Next 与后台韧性统一交付",
-                    "整合 Frontend Next A1–A4 的公共壳层、首页、服务、询价/记录、登录与个人中心，以及 V3M 后台运行时韧性；接收星火迷彩追踪器 1.0.13 源码并补全网站二维码扫码入口。前后端总联调已覆盖公开与后台边界、响应式、SEO 和版本漂移；预览版真机扫码与原网页登录主链路已验证，异常与跨设备边界仍待补充。V3H 真实收款与 PR #372 企业微信写入不在本版范围。"),
-            new ReleaseItem("2026-10-14", "V3M", "并入 V3N 待发布",
+                    "整合 Frontend Next A1–A4 的公共壳层、首页、服务、询价/记录、登录与个人中心，以及 V3M 后台运行时韧性；接收星火迷彩追踪器 1.0.13 源码并补全网站二维码扫码入口。前后端总联调已覆盖公开与后台边界、响应式、SEO 和版本漂移，并通过 PR、主线 CI 与 18080/8081/8080 零停机门禁上线。预览版真机扫码与原网页登录主链路已验证；小程序正式版发布、异常与跨设备边界仍待单独验收。V3H 真实收款与 PR #372 企业微信写入不在本版范围。"),
+            new ReleaseItem("2026-10-14", "V3M", "已上线",
                     "新版后台运行时韧性",
                     "增加请求超时、周期复核、页面可见与网络恢复复核、stale 降级和权限失败关闭；与 Frontend Next 在 PR #393 完成组合验证。"),
             new ReleaseItem("2026-10-14", "V3L", "已上线",
@@ -52,7 +52,7 @@ public class XingweiAdminController {
                     "JSAPI/小程序支付、直接 openid 绑定、Native/小程序通道互斥、支付状态服务端核验已完成；PR #384 保持未合并，待 AppID/商户绑定和小额真机联调。"),
             new ReleaseItem("2026-10-14", "V3G", "已上线",
                     "网站侧小程序登录接口",
-                    "网站登录码、二维码和原浏览器二次确认接口已上线。实际客户端改以星火迷彩追踪器为准，扫码入口随 V3N 待发布；预览版真机扫码主链路已验证，异常边界仍待补充。"),
+                    "网站登录码、二维码和原浏览器二次确认接口已上线。实际客户端改以星火迷彩追踪器为准，星火迷彩追踪器源码已随 V3N 纳入仓库；预览版真机扫码主链路已验证，正式小程序发布和异常边界仍待单独验收。"),
             new ReleaseItem("2026-10-14", "V3F", "已上线",
                     "游戏与分类受控新增及资料编辑",
                     "新增游戏/分类默认停用；资料编辑不改变 code、归属和启停状态；启停继续走影响预览、原因和审计。"),

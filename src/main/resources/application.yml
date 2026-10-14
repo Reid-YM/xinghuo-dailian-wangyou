@@ -70,3 +70,4 @@ wecom:
   app-secret: ${WECOM_APP_SECRET:}
   agent-id: ${WECOM_AGENT_ID:}
   sso-enabled: ${WECOM_SSO_ENABLED:false}
+  auto-role-enabled: ${WECOM_AUTO_ROLE_ENABLED:false}

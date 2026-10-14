@@ -105,11 +105,11 @@ public class XingweiWeComSsoController {
             wecomUserId = client.userIdForCode(code);
             Long adminUserId = bindings.boundAdminUserId(wecomUserId);
             XingweiWeComDirectoryClient.Member member = null;
-            if (adminUserId == null || positionRoles.needsRefresh(adminUserId)) {
+            if (adminUserId == null || (properties.autoRoleEnabled() && positionRoles.needsRefresh(adminUserId))) {
                 try {
                     member = client.member(wecomUserId);
                 } catch (RuntimeException unavailable) {
-                    if (adminUserId != null && positionRoles.autoManaged(adminUserId)) {
+                    if (adminUserId != null && properties.autoRoleEnabled() && positionRoles.autoManaged(adminUserId)) {
                         throw unavailable;
                     }
                     // OAuth still proves the UserID. Without verified title, register only as pending.
@@ -121,7 +121,7 @@ public class XingweiWeComSsoController {
                 audits.log("XW_WECOM_ENROLL_PENDING", "ADMIN_USER", String.valueOf(adminUserId),
                         "wecom", null, null, "企业微信成员已登记，等待星维角色分配", request);
             }
-            if (member != null && positionRoles.sync(adminUserId, member.position())) {
+            if (properties.autoRoleEnabled() && member != null && positionRoles.sync(adminUserId, member.position())) {
                 audits.log("XW_WECOM_POSITION_ROLE_SYNC", "ADMIN_USER", String.valueOf(adminUserId),
                         "wecom", null, null, "星维岗位角色已根据企业微信职务同步", request);
             }

@@ -41,7 +41,7 @@ class XingweiWeComSsoControllerTest {
     @Test
     void enabledEntryRequiresSecureSessionCookie() {
         var controller = new XingweiWeComSsoController(
-                new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", true, false),
+                new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", true, false, false),
                 client, bindings, positionRoles, audits, "https://example.test");
         assertThrows(ResponseStatusException.class,
                 () -> controller.login(new MockHttpServletRequest(), new MockHttpServletResponse()));
@@ -142,9 +142,32 @@ class XingweiWeComSsoControllerTest {
         assertEquals("wecom_account", SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
+    @Test
+    void mappedPositionStaysPendingWhenAutoRoleIsDisabled() throws Exception {
+        var controller = new XingweiWeComSsoController(
+                new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", true, true, false),
+                client, bindings, positionRoles, audits, "https://example.test");
+        var request = new MockHttpServletRequest();
+        var start = new MockHttpServletResponse();
+        controller.login(request, start);
+        String state = queryValue(start.getRedirectedUrl(), "state");
+        when(client.userIdForCode("one-time-code")).thenReturn("staff_1");
+        when(client.member("staff_1")).thenReturn(
+                new XingweiWeComDirectoryClient.Member("staff_1", "员工甲", "在线客服"));
+        when(bindings.registerPending("staff_1", "员工甲")).thenReturn(2L);
+        when(bindings.loginUser("staff_1")).thenThrow(new IllegalArgumentException("未分配角色"));
+
+        var callback = new MockHttpServletResponse();
+        controller.callback("one-time-code", state, request, callback);
+
+        assertEquals("/admin/xingwei/wecom/pending", callback.getRedirectedUrl());
+        verify(positionRoles, never()).sync(org.mockito.ArgumentMatchers.anyLong(),
+                org.mockito.ArgumentMatchers.anyString());
+    }
+
     private XingweiWeComSsoController controller(boolean enabled) {
         return new XingweiWeComSsoController(
-                new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", enabled, true),
+                new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", enabled, true, true),
                 client, bindings, positionRoles, audits, "https://example.test");
     }
 

@@ -11,18 +11,21 @@ public class XingweiWeComProperties {
     private final String agentId;
     private final boolean ssoEnabled;
     private final boolean secureCookie;
+    private final boolean autoRoleEnabled;
 
     public XingweiWeComProperties(
             @Value("${wecom.corp-id:}") String corpId,
             @Value("${wecom.app-secret:}") String appSecret,
             @Value("${wecom.agent-id:}") String agentId,
             @Value("${wecom.sso-enabled:false}") boolean ssoEnabled,
-            @Value("${server.servlet.session.cookie.secure:false}") boolean secureCookie) {
+            @Value("${server.servlet.session.cookie.secure:false}") boolean secureCookie,
+            @Value("${wecom.auto-role-enabled:false}") boolean autoRoleEnabled) {
         this.corpId = clean(corpId);
         this.appSecret = clean(appSecret);
         this.agentId = clean(agentId);
         this.ssoEnabled = ssoEnabled;
         this.secureCookie = secureCookie;
+        this.autoRoleEnabled = autoRoleEnabled;
     }
 
     public String corpId() {
@@ -39,6 +42,10 @@ public class XingweiWeComProperties {
 
     public boolean ssoReady() {
         return ssoEnabled && secureCookie && configured() && agentId.matches("[0-9]{1,20}");
+    }
+
+    public boolean autoRoleEnabled() {
+        return autoRoleEnabled;
     }
 
     public boolean configured() {

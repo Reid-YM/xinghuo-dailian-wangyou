@@ -48,7 +48,7 @@ public class XingweiAfterSalesCaseController {
             @RequestBody UpdateRequest body, Authentication authentication, HttpServletRequest request) {
         if (body == null) throw new IllegalArgumentException("请求内容不能为空");
         return cases.update(businessNo, recordId, body.status(), body.handlingNote(), body.customerReply(),
-                body.expectedVersion(), authentication, request);
+                body.acknowledgedFollowupId(), body.expectedVersion(), authentication, request);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -64,5 +64,6 @@ public class XingweiAfterSalesCaseController {
     }
 
     public record UpdateRequest(String status, String handlingNote, String customerReply,
+            Long acknowledgedFollowupId,
             long expectedVersion) {}
 }

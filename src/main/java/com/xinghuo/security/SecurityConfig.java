@@ -1,6 +1,9 @@
 package com.xinghuo.security;
 
 import com.xinghuo.service.AdminUserService;
+import com.xinghuo.wecom.XingweiWeComBindingService;
+import com.xinghuo.wecom.XingweiWeComProperties;
+import com.xinghuo.wecom.XingweiWeComSessionFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -10,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
@@ -52,7 +56,7 @@ public class SecurityConfig {
             "/api/orders/**", "/api/uploads/quote", "/api/track",
             "/api/tool-station", "/api/guides", "/api/guides/**", "/api/loadouts", "/api/account/**", "/api/console/**",
             "/api/wechat-pay/notify",
-            "/admin/login", "/error"
+            "/admin/login", "/admin/xingwei/wecom/login", "/admin/xingwei/wecom/callback", "/error"
     };
 
     @Bean
@@ -61,8 +65,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain chain(HttpSecurity http, AdminUserService users) throws Exception {
+    SecurityFilterChain chain(HttpSecurity http, AdminUserService users,
+            XingweiWeComBindingService bindings, XingweiWeComProperties weComProperties) throws Exception {
         return http
+                .addFilterBefore(new XingweiWeComSessionFilter(bindings, weComProperties), AuthorizationFilter.class)
                 .userDetailsService((UserDetailsService) users)
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(PERMIT_ALL).permitAll()

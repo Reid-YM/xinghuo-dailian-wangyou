@@ -64,7 +64,9 @@ app:
     wechat-id: ${DEFAULT_WECHAT_ID:}
     qq-id: ${DEFAULT_QQ_ID:}
 
-# V2G 企业微信只读通讯录。仅允许读取 Secret，禁止在本阶段配置写入 Secret。
+# 企业微信自建应用。登录默认关闭，启用前须配置可信域名和员工绑定。
 wecom:
   corp-id: ${WECOM_CORP_ID:}
   app-secret: ${WECOM_APP_SECRET:}
+  agent-id: ${WECOM_AGENT_ID:}
+  sso-enabled: ${WECOM_SSO_ENABLED:false}

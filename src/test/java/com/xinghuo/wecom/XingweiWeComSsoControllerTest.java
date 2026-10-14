@@ -1,0 +1,99 @@
+package com.xinghuo.wecom;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.xinghuo.service.AuditService;
+import java.net.URI;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.web.server.ResponseStatusException;
+
+class XingweiWeComSsoControllerTest {
+    private final XingweiWeComDirectoryClient client = mock(XingweiWeComDirectoryClient.class);
+    private final XingweiWeComBindingService bindings = mock(XingweiWeComBindingService.class);
+    private final AuditService audits = mock(AuditService.class);
+
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void disabledEntryNeverCallsWeCom() {
+        var controller = controller(false);
+        assertThrows(ResponseStatusException.class,
+                () -> controller.login(new MockHttpServletRequest(), new MockHttpServletResponse()));
+        verify(client, never()).userIdForCode(org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void callbackRejectsWrongStateAndReplayBeforeCodeExchange() throws Exception {
+        var controller = controller(true);
+        var request = new MockHttpServletRequest();
+        var start = new MockHttpServletResponse();
+        controller.login(request, start);
+        String authorize = start.getRedirectedUrl();
+        assertTrue(authorize.startsWith("https://open.weixin.qq.com/connect/oauth2/authorize?"));
+        assertTrue(authorize.contains("agentid=1000003"));
+        assertTrue(authorize.contains("scope=snsapi_base"));
+        assertTrue(authorize.contains("redirect_uri=https%3A%2F%2Fexample.test%2Fadmin%2Fxingwei%2Fwecom%2Fcallback"));
+        String state = queryValue(authorize, "state");
+
+        var invalid = new MockHttpServletResponse();
+        controller.callback("one-time-code", "wrong", request, invalid);
+        assertEquals(403, invalid.getStatus());
+        var replay = new MockHttpServletResponse();
+        controller.callback("one-time-code", state, request, replay);
+        assertEquals(403, replay.getStatus());
+        verify(client, never()).userIdForCode(org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void mappedMemberReceivesExistingSpringSecuritySession() throws Exception {
+        var controller = controller(true);
+        var request = new MockHttpServletRequest();
+        var start = new MockHttpServletResponse();
+        controller.login(request, start);
+        String state = queryValue(start.getRedirectedUrl(), "state");
+        when(client.userIdForCode("one-time-code")).thenReturn("staff_1");
+        when(bindings.loginUser("staff_1"))
+                .thenReturn(User.withUsername("operator").password("unused").roles("OPERATOR").build());
+
+        var callback = new MockHttpServletResponse();
+        controller.callback("one-time-code", state, request, callback);
+
+        assertEquals("/admin/xingwei/work", callback.getRedirectedUrl());
+        assertEquals("operator", SecurityContextHolder.getContext().getAuthentication().getName());
+        SecurityContext saved = (SecurityContext) request.getSession().getAttribute("SPRING_SECURITY_CONTEXT");
+        assertEquals("operator", saved.getAuthentication().getName());
+        assertTrue(callback.getHeader("Cache-Control").contains("no-store"));
+        verify(bindings).loginUser("staff_1");
+        var replay = new MockHttpServletResponse();
+        controller.callback("one-time-code", state, request, replay);
+        assertEquals(403, replay.getStatus());
+    }
+
+    private XingweiWeComSsoController controller(boolean enabled) {
+        return new XingweiWeComSsoController(
+                new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", enabled),
+                client, bindings, audits, "https://example.test");
+    }
+
+    private static String queryValue(String url, String key) {
+        return java.util.Arrays.stream(URI.create(url).getRawQuery().split("&"))
+                .filter(part -> part.startsWith(key + "="))
+                .map(part -> part.substring(key.length() + 1))
+                .findFirst().orElseThrow();
+    }
+}

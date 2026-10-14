@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
 /**
  * 企业微信通讯录只读客户端。
  *
- * <p>V2G 仅包含 gettoken / department/list / user/list 三个 GET 能力；
- * 刻意不实现成员创建、更新、删除、停用等写接口。
+ * <p>仅包含 gettoken、department/list、user/list 和 OAuth user/getuserinfo 的 GET 能力；
+ * 不实现成员创建、更新、删除、停用等写接口。
  */
 @Component
 public class XingweiWeComDirectoryClient {
@@ -54,6 +54,20 @@ public class XingweiWeComDirectoryClient {
         query.put("department_id", "1");
         query.put("fetch_child", "1");
         return get("/user/list", query);
+    }
+
+    /** 用一次性 OAuth code 换取企业成员 UserID；不接受非成员 OpenID。 */
+    public String userIdForCode(String code) {
+        ensureConfigured();
+        Map<String, String> query = new LinkedHashMap<>();
+        query.put("access_token", accessToken());
+        query.put("code", code);
+        JsonNode response = get("/user/getuserinfo", query);
+        String userId = response.path("UserId").asText("").trim();
+        if (userId.isBlank() || userId.length() > 64) {
+            throw new IllegalStateException("企业微信未返回有效成员身份");
+        }
+        return userId;
     }
 
     private synchronized String accessToken() {

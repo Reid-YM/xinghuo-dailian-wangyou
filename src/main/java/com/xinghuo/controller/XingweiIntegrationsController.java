@@ -2,6 +2,7 @@ package com.xinghuo.controller;
 
 import com.xinghuo.security.XingweiPermissionGuard;
 import com.xinghuo.service.XingweiIntegrationConfigService;
+import com.xinghuo.service.XingweiPaymentOverviewService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -14,11 +15,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class XingweiIntegrationsController {
     private final XingweiIntegrationConfigService config;
     private final XingweiPermissionGuard permissions;
+    private final XingweiPaymentOverviewService paymentOverview;
 
     public XingweiIntegrationsController(XingweiIntegrationConfigService config,
-                                         XingweiPermissionGuard permissions) {
+                                         XingweiPermissionGuard permissions,
+                                         XingweiPaymentOverviewService paymentOverview) {
         this.config = config;
         this.permissions = permissions;
+        this.paymentOverview = paymentOverview;
     }
 
     @GetMapping("/admin/xingwei/integrations")
@@ -31,6 +35,7 @@ public class XingweiIntegrationsController {
         }
         if (permissions.has(authentication, "payment:view")) {
             model.addAttribute("payment", config.payment());
+            model.addAttribute("paymentOverview", paymentOverview.overview());
         }
         return "admin-xingwei-integrations";
     }

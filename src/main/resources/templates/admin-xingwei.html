@@ -10,7 +10,7 @@
   <title>星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <script defer src="/assets/admin-xingwei.js?v=20261014v3o"></script>
+  <script defer src="/assets/admin-xingwei.js?v=20261014v3p"></script>
   <script defer src="/assets/admin-xingwei-org.js?v=20261013v2c"></script>
 </head>
 <body>
@@ -61,13 +61,13 @@
 
     <section class="xw-hero" id="overview">
       <div>
-        <p class="xw-kicker" th:text="${consoleStage}">V3O · RELEASE CANDIDATE</p>
-        <h2>V3O 发布候选：企业微信与微信支付集成配置工作台。</h2>
-        <p>V3N 的新版前端、后台韧性与总联调已上线。V3O 增加受权限保护的配置检查，帮助管理员核对企业微信读取和微信 Native 支付的服务器配置；不在页面显示密钥。V3H 小程序微信支付仍保持未合并、真实收款关闭；PR #372 企业微信写入仍待独立验收。本阶段完成 CI 后仍需正式生产发布门禁。</p>
+        <p class="xw-kicker" th:text="${consoleStage}">V3P · RELEASE CANDIDATE</p>
+        <h2>V3P 发布候选：网站微信支付只读运营概览。</h2>
+        <p>V3O 的企业微信与微信支付集成配置检查已上线。V3P 增加网站微信支付单状态汇总与最近记录，只读展示、不启用收款。V3H 小程序微信支付仍未合并；PR #372 企业微信写入仍待独立验收。本阶段通过 CI 后继续执行正式生产发布门禁。</p>
       </div>
       <div class="xw-version-card">
         <span>当前版本</span>
-        <strong th:text="${consoleVersion}">20261014-v3o</strong>
+        <strong th:text="${consoleVersion}">20261014-v3p</strong>
         <small id="xwServerTime">等待运行版本核验</small>
       </div>
     </section>
@@ -142,7 +142,7 @@
       <div class="xw-grid">
         <article class="xw-module xw-module-planned" data-search="淘宝 闲鱼 渠道 商品 运营"><div class="xw-module-index">C01</div><h3>渠道运营</h3><p>后续汇总淘宝、闲鱼和官网运营状态与任务。</p><span>后续规划</span></article>
         <article class="xw-module" data-search="微信 登录 小程序 扫码 公众号 服务号"><div class="xw-module-index">C02</div><h3>微信身份能力</h3><p>网站登录码与二次确认接口已上线；星火迷彩追踪器 1.0.14 预览版真机登录主链路已验证；小程序正式版发布、异常与跨设备边界仍待单独验收。</p><span>网站接口已上线 · 预览版主链路已验证</span></article>
-        <a class="xw-module" data-search="微信支付 支付 配置 商户 订单" href="/admin/xingwei/integrations"><div class="xw-module-index">C03</div><h3>微信支付</h3><p>查看 Native 支付服务器配置就绪状态与已有订单操作入口。V3H 小程序支付仍待真机验收。</p><span>V3H 待真机验收 →</span></a>
+        <a class="xw-module" data-search="微信支付 支付 配置 商户 订单" href="/admin/xingwei/integrations"><div class="xw-module-index">C03</div><h3>微信支付</h3><p>查看 Native 支付配置与网站支付单只读概览。V3H 小程序支付仍待真机验收。</p><span>V3H 待真机验收 →</span></a>
         <a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/frontend-controls"><div class="xw-module-index">C04</div><h3>前台控制</h3><p>继续复用现有前台展示与功能开关控制。</p><span>打开模块 →</span></a>
       </div>
     </section>
@@ -157,7 +157,7 @@
       </div>
     </section>
 
-    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移与交付状态</h2></div></div><ol><li><strong>V1 / V2A-V2C</strong><span>已上线：新版后台壳、七大中心、155 岗位、混合权限守卫与 ALL / DEPARTMENT / SELF 数据范围。</span></li><li><strong>V2D-V2G</strong><span>已上线：询价与订单数据范围、业务工作台、员工工作台、企业微信通讯录只读。</span></li><li><strong>V3A-V3G</strong><span>已上线：服务目录、受控编辑/新增、发布检查、游戏与分类受控管理，以及网站侧小程序登录接口；客户端扫码预览版主链路已验证。</span></li><li><strong>V3H</strong><span>开发与 CI 已完成：小程序微信支付；保持未合并、真实收款关闭，等待真机验收。</span></li><li><strong>V3I</strong><span>已上线：taxonomy 前台可见性确认、父级阻断提示与 impactToken 过期预览防护已进入生产。</span></li><li><strong>V3J</strong><span>已上线：统一生产状态真值，修正候选/规划误标，并增加状态一致性回归守卫。</span></li><li><strong>V3K</strong><span>已上线：版本、阶段、更新记录与模块交付状态进入 CI 自动巡检，遗漏同步会直接阻断合并。</span></li><li><strong>V3L</strong><span>已上线：后台页面与 /health 实际运行版本自动核对；版本/阶段漂移会直接显示错误状态。</span></li><li><strong>V3N</strong><span>已上线：Frontend Next A1–A4、V3M 运行时韧性与前后端总联调；星火迷彩追踪器 1.0.14 源码已纳入仓库，正式小程序发布与异常边界另行验收。</span></li><li><strong>V3O</strong><span>待发布：企业微信与微信支付集成配置检查；真实收款和写入能力继续独立验收。</span></li></ol></section>
+    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">MIGRATION ROADMAP</p><h2>迁移与交付状态</h2></div></div><ol><li><strong>V1 / V2A-V2C</strong><span>已上线：新版后台壳、七大中心、155 岗位、混合权限守卫与 ALL / DEPARTMENT / SELF 数据范围。</span></li><li><strong>V2D-V2G</strong><span>已上线：询价与订单数据范围、业务工作台、员工工作台、企业微信通讯录只读。</span></li><li><strong>V3A-V3G</strong><span>已上线：服务目录、受控编辑/新增、发布检查、游戏与分类受控管理，以及网站侧小程序登录接口；客户端扫码预览版主链路已验证。</span></li><li><strong>V3H</strong><span>开发与 CI 已完成：小程序微信支付；保持未合并、真实收款关闭，等待真机验收。</span></li><li><strong>V3I</strong><span>已上线：taxonomy 前台可见性确认、父级阻断提示与 impactToken 过期预览防护已进入生产。</span></li><li><strong>V3J</strong><span>已上线：统一生产状态真值，修正候选/规划误标，并增加状态一致性回归守卫。</span></li><li><strong>V3K</strong><span>已上线：版本、阶段、更新记录与模块交付状态进入 CI 自动巡检，遗漏同步会直接阻断合并。</span></li><li><strong>V3L</strong><span>已上线：后台页面与 /health 实际运行版本自动核对；版本/阶段漂移会直接显示错误状态。</span></li><li><strong>V3N</strong><span>已上线：Frontend Next A1–A4、V3M 运行时韧性与前后端总联调；星火迷彩追踪器 1.0.14 源码已纳入仓库，正式小程序发布与异常边界另行验收。</span></li><li><strong>V3O</strong><span>已上线：企业微信与微信支付集成配置检查；真实收款和写入能力继续独立验收。</span></li><li><strong>V3P</strong><span>待发布：网站微信支付单状态与最近记录只读概览；不启用真实收款。</span></li></ol></section>
 
     <footer class="xw-footer"><span>星维网络服务工作室 · 管理后台</span><span>固定组织架构 · 后端授权 · 数据范围 · 可审计 · 可回滚 · 旧后台保留</span></footer>
   </main>

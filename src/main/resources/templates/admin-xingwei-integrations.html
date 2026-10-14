@@ -7,7 +7,7 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <title>企业微信与微信支付配置 · 星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
-  <link rel="stylesheet" href="/assets/admin-xingwei-integrations.css?v=20261014v3o"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-integrations.css?v=20261014v3p"/>
 </head>
 <body>
 <main class="xwi-shell">
@@ -31,6 +31,20 @@
     <ul class="xwi-checks"><li th:each="check : ${payment.checks}"><span><strong th:text="${check.label}">配置项</strong><small th:text="${check.key}">WECHAT_PAY_*</small></span><b th:classappend="${check.ready} ? ' ready' : ' pending'" th:text="${check.ready} ? '已就绪' : '待核对'">待核对</b></li></ul>
     <div class="xwi-note"><strong>Native 配置</strong><span th:text="${payment.configReady} ? '字段与文件检查通过；商户绑定和回调仍需真实环境验收。' : '仍有字段或文件未通过检查。'">待核对</span></div>
     <div class="xwi-note"><strong>小程序支付</strong><span th:text="${payment.miniAppIdMatches} ? '支付 AppID 与当前小程序 AppID 一致；V3H PR #384 仍未合并，需适配星火迷彩追踪器并真机验收。' : '支付 AppID 与当前小程序 AppID 尚未匹配或小程序 AppID 未配置；V3H PR #384 仍未合并。'">待验收</span></div>
+    <div class="xwi-overview" th:if="${paymentOverview != null}">
+      <h3>网站微信支付记录</h3>
+      <p>仅查看数据库中的网站微信支付单；状态以服务端记录为准，本页不发起查单或收款操作。</p>
+      <div class="xwi-metrics">
+        <div><strong th:text="${paymentOverview.counts.total}">0</strong><span>总记录</span></div>
+        <div><strong th:text="${paymentOverview.counts.pending}">0</strong><span>待支付</span></div>
+        <div><strong th:text="${paymentOverview.counts.captured}">0</strong><span>已支付</span></div>
+        <div><strong th:text="${paymentOverview.counts.cancelled}">0</strong><span>已关闭</span></div>
+      </div>
+      <div class="xwi-table-wrap" th:if="${!paymentOverview.recent.isEmpty()}"><table class="xwi-table"><thead><tr><th>支付单</th><th>业务单</th><th>服务</th><th>金额</th><th>状态</th><th>建立时间</th></tr></thead><tbody>
+        <tr th:each="item : ${paymentOverview.recent}"><td th:text="${item.paymentNo}">支付单</td><td th:text="${item.businessNo}">业务单</td><td th:text="${item.subject}">服务</td><td th:text="|${item.amount} ${item.currency}|">金额</td><td th:text="${item.status}">状态</td><td th:text="${item.createdAt}">建立时间</td></tr>
+      </tbody></table></div>
+      <p th:if="${paymentOverview.recent.isEmpty()}">暂无网站微信支付记录。</p>
+    </div>
     <div class="xwi-actions"><a class="xw-button" href="/admin">打开现有订单与收款操作</a><a class="xw-button xw-button-ghost" href="/admin/xingwei/business?tab=orders">查看新版订单工作台</a></div>
   </section>
 

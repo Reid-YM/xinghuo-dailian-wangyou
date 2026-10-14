@@ -11,7 +11,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
- * Frontend Next parallel preview entry.
+ * Frontend Next parallel entry.
  *
  * <p>The legacy public frontend remains untouched. New UI is exposed under
  * /next so it can be integrated and replaced page-by-page with a clear rollback path.</p>
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class FrontendNextPreviewController {
     private static final String N2_RUNTIME = "<script src=\"/next/n2.js\" defer></script>";
+    private static final String N3_RUNTIME = "<script src=\"/next/n3.js\" defer></script>";
     private final ClassPathResource index = new ClassPathResource("static/next/index.html");
 
     @GetMapping({
@@ -37,6 +38,9 @@ public class FrontendNextPreviewController {
         }
         if (!html.contains(N2_RUNTIME)) {
             html = html.replace("</body>", N2_RUNTIME + "</body>");
+        }
+        if (!html.contains(N3_RUNTIME)) {
+            html = html.replace("</body>", N3_RUNTIME + "</body>");
         }
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)

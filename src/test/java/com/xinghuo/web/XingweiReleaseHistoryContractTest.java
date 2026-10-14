@@ -28,7 +28,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(controller.contains("\"V3O\", \"已上线\""));
         assertTrue(controller.contains("\"V3P\", \"已上线\""));
         assertTrue(controller.contains("\"V3Q\", \"已上线\""));
-        assertTrue(controller.contains("\"V3R\", \"待发布\""));
+        assertTrue(controller.contains("\"V3R\", \"已上线\""));
         assertTrue(controller.contains("异常订单、客户售后说明与服务大厅恢复体验"));
         assertTrue(controller.contains("\"V3M\", \"已上线\""));
         assertTrue(controller.contains("Frontend Next 与后台韧性统一交付"));

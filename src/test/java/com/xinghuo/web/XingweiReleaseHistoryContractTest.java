@@ -16,7 +16,7 @@ class XingweiReleaseHistoryContractTest {
     void currentVersionsStageAndReleaseHistoryAreCentralized() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
         assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261014-v3t\""));
-        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V3T · RELEASE CANDIDATE\""));
+        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V3T · STABLE PRODUCTION\""));
         assertTrue(controller.contains("static final String TAXONOMY_VERSION = \"20261014-v3i\""));
         assertTrue(controller.contains("model.addAttribute(\"consoleStage\", CONSOLE_STAGE)"));
         assertTrue(controller.contains("@GetMapping(\"/admin/xingwei/releases\")"));
@@ -30,7 +30,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(controller.contains("\"V3Q\", \"已上线\""));
         assertTrue(controller.contains("\"V3R\", \"已上线\""));
         assertTrue(controller.contains("\"V3S\", \"已上线\""));
-        assertTrue(controller.contains("\"V3T\", \"待发布\""));
+        assertTrue(controller.contains("\"V3T\", \"已上线\""));
         assertTrue(controller.contains("售后问题记录全范围检索与分页"));
         assertTrue(controller.contains("售后问题记录与客户订单回显"));
         assertTrue(controller.contains("异常订单、客户售后说明与服务大厅恢复体验"));
@@ -59,8 +59,8 @@ class XingweiReleaseHistoryContractTest {
         String dashboard = read("resources/templates/admin-xingwei.html");
         assertTrue(dashboard.contains("href=\"/admin/xingwei/releases\">更新记录</a>"));
         assertTrue(dashboard.contains("th:text=\"${consoleStage}\""));
-        assertTrue(dashboard.contains("V3T · RELEASE CANDIDATE"));
-        assertTrue(dashboard.contains("V3T 发布候选"));
+        assertTrue(dashboard.contains("V3T · STABLE PRODUCTION"));
+        assertTrue(dashboard.contains("V3T 已上线"));
         assertTrue(dashboard.contains("20261014-v3t"));
         assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261014v3t"));
         assertTrue(dashboard.contains("V3H 待真机验收"));

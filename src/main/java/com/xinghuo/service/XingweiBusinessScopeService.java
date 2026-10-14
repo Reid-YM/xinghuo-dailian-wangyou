@@ -73,19 +73,30 @@ public class XingweiBusinessScopeService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> orderSnapshot(Authentication authentication) {
-        return orderSnapshot(authentication, false);
+        return orderSnapshot(authentication, OrderFilter.ALL);
     }
 
     @Transactional(readOnly = true)
     public Map<String, Object> exceptionOrderSnapshot(Authentication authentication) {
-        return orderSnapshot(authentication, true);
+        return orderSnapshot(authentication, OrderFilter.EXCEPTIONS);
     }
 
-    private Map<String, Object> orderSnapshot(Authentication authentication, boolean exceptionsOnly) {
+    @Transactional(readOnly = true)
+    public Map<String, Object> afterSalesOrderSnapshot(Authentication authentication) {
+        return orderSnapshot(authentication, OrderFilter.AFTER_SALES);
+    }
+
+    private enum OrderFilter { ALL, EXCEPTIONS, AFTER_SALES }
+
+    private Map<String, Object> orderSnapshot(Authentication authentication, OrderFilter filter) {
         XingweiPermissionGuard.AccessSnapshot access = permissions.resolve(authentication);
         ScopeClause scope = scopeClause(access);
-        String restriction = scope.sql().replace("o.", "own.")
-                + (exceptionsOnly ? " AND o2.status = 'EXCEPTION'" : "");
+        String filterSql = switch (filter) {
+            case ALL -> "";
+            case EXCEPTIONS -> " AND o2.status = 'EXCEPTION'";
+            case AFTER_SALES -> " AND LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0";
+        };
+        String restriction = scope.sql().replace("o.", "own.") + filterSql;
         String sql = """
                 SELECT COALESCE(o2.business_no, o2.order_no) AS business_no,
                        o2.order_no, o2.status, o2.progress_percent, o2.progress_text,

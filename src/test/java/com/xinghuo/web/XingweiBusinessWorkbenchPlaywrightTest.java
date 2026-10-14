@@ -52,6 +52,10 @@ class XingweiBusinessWorkbenchPlaywrightTest {
                           ...orderSnapshot, visibleCount:1,
                           items:[{businessNo:'XH0999',orderNo:'XH0999',status:'EXCEPTION',progressText:'客户争议处理中',customerNote:'售后问题：进度不符',internalNote:'客服已联系',updatedAt:'2026-10-12T05:10:00Z',canAssign:true,ownership:{assigned:true,ownerAdminUserId:2,ownerUsername:'agent',departmentCode:'03'}}]
                         })};
+                        if (value === '/api/admin/xingwei/business/orders/after-sales') return {ok:true,json:async()=>({
+                          ...orderSnapshot, visibleCount:1,
+                          items:[{businessNo:'XH0888',orderNo:'XH0888',status:'IN_PROGRESS',progressText:'核对中',customerNote:'[售后问题 · 进度反馈]\\n未按约定完成 <script>alert(1)</script>',internalNote:'客服跟进中',updatedAt:'2026-10-14T05:10:00Z',canAssign:true,ownership:{assigned:true,ownerAdminUserId:2,ownerUsername:'agent',departmentCode:'03'}}]
+                        })};
                         if (value === '/api/admin/xingwei/business/ownership-candidates') return {ok:true,json:async()=>candidates};
                         if (value.includes('/ownership') && String(options.method).toUpperCase() === 'PUT') {
                           window.__lastOwnershipBody = JSON.parse(options.body);
@@ -97,6 +101,17 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             page.locator("#xwbSearch").fill("客户争议");
             assertEquals("1", page.locator("#xwbKpiFiltered").textContent());
 
+            page.locator("#xwbSearch").fill("");
+            page.locator("[data-tab='after-sales']").click();
+            page.waitForFunction("() => document.querySelector('#xwbOrderRows')?.textContent.includes('XH0888')");
+            assertEquals("售后问题记录", page.locator("#xwbOrderHeading").textContent());
+            assertEquals("1", page.locator("#xwbOrderRows tr[data-search]").count());
+            assertTrue(page.locator("#xwbOrderDescription").textContent().contains("不代表退款申请或处理状态"));
+            assertTrue(page.locator("#xwbOrderRows").textContent().contains("未按约定完成 <script>alert(1)</script>"));
+            assertEquals(0, page.locator("#xwbOrderRows script").count());
+            page.locator("#xwbSearch").fill("未按约定");
+            assertEquals("1", page.locator("#xwbKpiFiltered").textContent());
+
             page.setViewportSize(390, 844);
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwbOrdersPanel .xw-table-wrap').scrollWidth > document.querySelector('#xwbOrdersPanel .xw-table-wrap').clientWidth"));
@@ -128,6 +143,7 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             assertTrue((Boolean) page.evaluate("() => document.querySelector('[data-tab=quotes]').hidden"));
             assertFalse((Boolean) page.evaluate("() => document.querySelector('[data-tab=orders]').hidden"));
             assertFalse((Boolean) page.evaluate("() => document.querySelector('[data-tab=exceptions]').hidden"));
+            assertFalse((Boolean) page.evaluate("() => document.querySelector('[data-tab=after-sales]').hidden"));
             assertFalse((Boolean) page.evaluate("() => document.querySelector('#xwbOrdersPanel').hidden"));
             assertEquals(0, page.locator("#xwbOrderRows .xw-mini-button").count());
             assertTrue(page.locator("#xwbScopeText").textContent().contains("本中心"));

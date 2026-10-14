@@ -20,6 +20,10 @@
     return body;
   }
   function field(host,name,value){const p=node('p',`${name}：${value??'—'}`);p.className='xw-case-field';host.append(p);}
+  function syncStatusActions(){
+    const selected=$('caseFilters').elements.status.value;
+    document.querySelectorAll('[data-case-status]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.caseStatus===selected)));
+  }
   function restoreFilters(){
     const query=new URLSearchParams(location.search),form=$('caseFilters');
     for(const key of filterKeys){
@@ -28,6 +32,7 @@
     }
     const rawPage=query.get('page')||'0';
     state.page=/^(0|[1-9]\d{0,5})$/.test(rawPage)?Number(rawPage):0;
+    syncStatusActions();
   }
   function saveFiltersToUrl(){
     const url=new URL(location.href),form=$('caseFilters');
@@ -41,8 +46,16 @@
       const summary=await api('/api/admin/xingwei/business/after-sales/cases/summary');
       $('caseTotalCount').textContent=String(summary.totalCount??0);
       $('casePendingCount').textContent=String(summary.pendingFollowupCount??0);
-      $('caseSummaryMessage').textContent='全部售后记录的当前概览';
-    }catch(error){$('caseSummaryMessage').textContent=`概览暂不可用：${error.message}`;}
+      for(const [status,key,id] of [['OPEN','openCount','caseOpenCount'],['IN_PROGRESS','inProgressCount','caseInProgressCount'],['RESOLVED','resolvedCount','caseResolvedCount']]){
+        const button=document.querySelector(`[data-case-status="${status}"]`);
+        if(button){$(id).textContent=String(summary[key]??0);button.disabled=false;}
+      }
+      $('caseSummaryMessage').textContent='数字统计当前账号可查看的全部售后记录；点击状态会保留下面的问题类型、客户补充和搜索条件。';
+    }catch(error){
+      $('caseTotalCount').textContent='—';$('casePendingCount').textContent='—';
+      document.querySelectorAll('[data-case-status]').forEach(button=>{button.disabled=true;button.querySelector('strong').textContent='—';});
+      $('caseSummaryMessage').textContent=`概览暂不可用：${error.message}`;
+    }
   }
   function renderQueue(snapshot){
     state.total=snapshot.totalCount||0;state.hasNext=Boolean(snapshot.hasNext);
@@ -91,7 +104,12 @@
       message('处理历史已加载。');
     }catch(error){message(error.message);}
   }
-  $('caseFilters').addEventListener('submit',event=>{event.preventDefault();state.page=0;saveFiltersToUrl();load();});
+  $('caseFilters').addEventListener('submit',event=>{event.preventDefault();state.page=0;syncStatusActions();saveFiltersToUrl();load();});
+  document.querySelectorAll('[data-case-status]').forEach(button=>button.addEventListener('click',()=>{
+    if(button.disabled)return;
+    $('caseFilters').elements.status.value=button.dataset.caseStatus;
+    state.page=0;syncStatusActions();saveFiltersToUrl();load();
+  }));
   $('casePrev').addEventListener('click',()=>{if(state.page>0){state.page--;saveFiltersToUrl();load();}});
   $('caseNext').addEventListener('click',()=>{if(state.hasNext){state.page++;saveFiltersToUrl();load();}});
   window.addEventListener('popstate',()=>{restoreFilters();load();});

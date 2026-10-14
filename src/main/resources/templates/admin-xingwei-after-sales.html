@@ -21,6 +21,9 @@
   <section class="xw-case-summary" aria-label="售后概览">
     <div class="xw-case-summary-card"><span>全部售后记录</span><strong id="caseTotalCount">—</strong></div>
     <div class="xw-case-summary-card"><span>待跟进客户补充</span><strong id="casePendingCount">—</strong></div>
+    <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-status="OPEN" disabled aria-pressed="false"><span>待处理</span><strong id="caseOpenCount">—</strong><small>查看记录</small></button>
+    <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-status="IN_PROGRESS" disabled aria-pressed="false"><span>处理中</span><strong id="caseInProgressCount">—</strong><small>查看记录</small></button>
+    <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-status="RESOLVED" disabled aria-pressed="false"><span>已解决</span><strong id="caseResolvedCount">—</strong><small>查看记录</small></button>
     <p id="caseSummaryMessage" role="status">正在读取售后概览……</p>
   </section>
   <form id="caseFilters" class="xw-case-filters">

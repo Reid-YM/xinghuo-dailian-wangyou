@@ -1,6 +1,12 @@
 .xw-case-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
 .xw-case-summary-card{display:grid;gap:6px;padding:18px;border:1px solid #36404e;border-radius:12px;background:#171f29;color:#aeb6c2}
 .xw-case-summary-card strong{color:#f4f7fb;font-size:28px;line-height:1.2}
+.xw-case-summary-action{text-align:left;font:inherit;cursor:pointer}
+.xw-case-summary-action small{color:#81b8ff;font-size:12px}
+.xw-case-summary-action:hover:not(:disabled){border-color:#81b8ff}
+.xw-case-summary-action:focus-visible{outline:2px solid #81b8ff;outline-offset:2px}
+.xw-case-summary-action[aria-pressed="true"]{border-color:#81b8ff;background:#1b2b3d}
+.xw-case-summary-action:disabled{cursor:default;opacity:.65}
 #caseSummaryMessage{grid-column:1/-1;margin:0;color:#aeb6c2;font-size:12px}
 @media(max-width:520px){.xw-case-summary{grid-template-columns:1fr}}
 .xw-case-filters{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:20px 0}

@@ -37,6 +37,7 @@ class XingweiAfterSalesCaseServiceTest {
         jdbc.execute("CREATE TABLE customer_order_after_sales_records (id BIGINT PRIMARY KEY, order_no VARCHAR(40), category VARCHAR(24), category_label VARCHAR(32), content VARCHAR(240), submitted_at_ms BIGINT)");
         jdbc.execute("CREATE TABLE customer_order_after_sales_case_state (record_id BIGINT PRIMARY KEY, status VARCHAR(24), handling_note VARCHAR(600), handled_by_admin_user_id BIGINT, updated_at TIMESTAMP, version BIGINT)");
         jdbc.execute("CREATE TABLE customer_order_after_sales_case_events (id BIGINT AUTO_INCREMENT PRIMARY KEY, record_id BIGINT, from_status VARCHAR(24), to_status VARCHAR(24), handling_note VARCHAR(600), customer_reply VARCHAR(600), handled_by_admin_user_id BIGINT, created_at TIMESTAMP)");
+        jdbc.execute("CREATE TABLE customer_order_after_sales_case_followups (id BIGINT AUTO_INCREMENT PRIMARY KEY, record_id BIGINT, account_id BIGINT, content VARCHAR(240), created_at_ms BIGINT)");
         jdbc.execute("CREATE TABLE xw_business_ownership (business_no VARCHAR(20) PRIMARY KEY, owner_admin_user_id BIGINT, department_id BIGINT)");
         jdbc.execute("CREATE TABLE xw_departments (id BIGINT PRIMARY KEY, code VARCHAR(16))");
         jdbc.update("INSERT INTO customer_orders VALUES ('O1','XW1'),('O2','XW2')");
@@ -168,5 +169,20 @@ class XingweiAfterSalesCaseServiceTest {
                 () -> cases.update("XW1", 1, "IN_PROGRESS", "过期", "不应写入", 1, actor, null))
                 .getStatusCode().value());
         assertEquals(2, cases.history("XW1", 1, actor).events().size());
+    }
+
+    @Test
+    void scopedQueueSurfacesRecentCustomerFollowupAndHistory() {
+        jdbc.update("INSERT INTO customer_order_after_sales_records VALUES (3,'O1','OTHER','其他问题','较新问题',3000)");
+        jdbc.update("INSERT INTO customer_order_after_sales_case_followups(record_id,account_id,content,created_at_ms) VALUES (1,11,'原问题的新补充',4000),(2,12,'跨范围补充',5000)");
+
+        var queue = cases.queue(null, null, null, 0, actor);
+        assertEquals(2, queue.totalCount());
+        assertEquals(1, queue.items().getFirst().record().recordId());
+        assertEquals(4000L, queue.items().getFirst().latestCustomerFollowupAtMs());
+        assertTrue(queue.items().stream().noneMatch(item -> item.businessNo().equals("XW2")));
+        var history = cases.history("XW1", 1, actor);
+        assertEquals("原问题的新补充", history.customerFollowups().getFirst().content());
+        assertThrows(AccessDeniedException.class, () -> cases.history("XW2", 2, actor));
     }
 }

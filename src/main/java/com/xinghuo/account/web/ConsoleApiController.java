@@ -179,6 +179,36 @@ public class ConsoleApiController {
         return OkResponse.of("问题说明已提交，请等待客服核对");
     }
 
+    @PostMapping("/orders/{businessNo}/after-sales/records/{recordId}/followups")
+    @RequireAccount
+    @Transactional
+    public OkResponse followUpAfterSales(@PathVariable String businessNo, @PathVariable long recordId,
+                                         @Valid @RequestBody AfterSalesFollowupRequest body,
+                                         HttpServletRequest request) {
+        Account account = AccountAuthInterceptor.requireAccount(request);
+        OrderItem order = findOrder(account, businessNo);
+        if (recordId <= 0) throw AccountException.badRequest("AFTER_SALES_RECORD_INVALID", "售后记录编号无效");
+        String content = body.content().trim();
+        if (content.isEmpty()) throw AccountException.badRequest("AFTER_SALES_CONTENT_REQUIRED", "请填写补充说明");
+        if (content.length() > 240) throw AccountException.badRequest("AFTER_SALES_CONTENT_TOO_LONG", "补充说明不能超过 240 字");
+        rejectReservedAfterSalesMarker(content);
+        Long visible = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM customer_order_after_sales_records
+                 WHERE id = ? AND order_no = ?
+                """, Long.class, recordId, order.orderNo());
+        if (visible == null || visible == 0) {
+            throw AccountException.notFound("AFTER_SALES_RECORD_NOT_FOUND", "售后记录不存在或不属于当前订单");
+        }
+        jdbc.update("""
+                INSERT INTO customer_order_after_sales_case_followups
+                    (record_id, account_id, content, created_at_ms)
+                VALUES (?, ?, ?, ?)
+                """, recordId, account.getId(), content, Instant.now().toEpochMilli());
+        audit.record(account.getId(), "CONSOLE_AFTER_SALES_FOLLOWUP",
+                "businessNo=" + order.businessNo() + ",recordId=" + recordId, request);
+        return OkResponse.of("补充说明已提交，客服将在原记录中核对");
+    }
+
     @GetMapping("/security/logins")
     @RequireAccount
     @Transactional(readOnly = true)
@@ -296,6 +326,21 @@ public class ConsoleApiController {
     }
 
     private List<AfterSalesCaseStatus> afterSalesCases(String orderNo) {
+        Map<Long, List<AfterSalesCustomerFollowup>> followupsByRecord = jdbc.query("""
+                SELECT f.record_id, f.content, f.created_at_ms
+                  FROM customer_order_after_sales_case_followups f
+                  JOIN customer_order_after_sales_records r ON r.id = f.record_id
+                 WHERE r.order_no = ?
+                 ORDER BY f.record_id, f.id
+                """, rs -> {
+                    Map<Long, List<AfterSalesCustomerFollowup>> followups = new HashMap<>();
+                    while (rs.next()) {
+                        followups.computeIfAbsent(rs.getLong("record_id"), ignored -> new ArrayList<>())
+                                .add(new AfterSalesCustomerFollowup(rs.getString("content"),
+                                        Instant.ofEpochMilli(rs.getLong("created_at_ms"))));
+                    }
+                    return followups;
+                }, orderNo);
         Map<Long, List<AfterSalesPublicReply>> repliesByRecord = jdbc.query("""
                 SELECT e.record_id, e.to_status, e.customer_reply, e.created_at
                   FROM customer_order_after_sales_case_events e
@@ -327,7 +372,8 @@ public class ConsoleApiController {
                     return new AfterSalesCaseStatus(recordId, rs.getString("category_label"),
                             Instant.ofEpochMilli(rs.getLong("submitted_at_ms")),
                             rs.getString("content"), rs.getString("status"), latest,
-                            toInstant(rs.getTimestamp("updated_at")), replies);
+                            toInstant(rs.getTimestamp("updated_at")), replies,
+                            List.copyOf(followupsByRecord.getOrDefault(recordId, List.of())));
                 }, orderNo);
     }
 
@@ -366,6 +412,7 @@ public class ConsoleApiController {
 
     public record SupplementRequest(@NotBlank @Size(max = 1200) String content) {}
     public record AfterSalesRequest(@NotBlank String category, @NotBlank @Size(max = 240) String content) {}
+    public record AfterSalesFollowupRequest(@NotBlank @Size(max = 240) String content) {}
     public record OkResponse(boolean ok, String message) { static OkResponse of(String message) { return new OkResponse(true, message); } }
     public record SummaryResponse(long quoteTotal, long orderTotal, long activeOrders, long securityEvents,
                                   List<QuoteItem> recentQuotes, List<OrderItem> recentOrders,
@@ -378,8 +425,10 @@ public class ConsoleApiController {
     public record AfterSalesRecord(String category, Instant submittedAt, String content) {}
     public record AfterSalesCaseStatus(long recordId, String category, Instant submittedAt,
                                        String content, String status, String customerReply,
-                                       Instant updatedAt, List<AfterSalesPublicReply> replies) {}
+                                       Instant updatedAt, List<AfterSalesPublicReply> replies,
+                                       List<AfterSalesCustomerFollowup> followups) {}
     public record AfterSalesPublicReply(String status, String content, Instant repliedAt) {}
+    public record AfterSalesCustomerFollowup(String content, Instant createdAt) {}
     public record QuoteItem(String businessNo, String game, String demand, String currentProgress,
                             String platform, String expectedTime, String status, String statusText,
                             String customerSupplement, Instant createdAt, Instant updatedAt) {}

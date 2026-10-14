@@ -115,9 +115,21 @@
         item.append(el('strong','',entry.category||'售后问题'),
           el('small','',`${labels[entry.status]||'待处理'} · ${time(entry.updatedAt||entry.submittedAt)}`));
         const replies=Array.isArray(entry.replies)?entry.replies:[];
-        if(replies.length){
-          replies.forEach(reply=>item.appendChild(el('p','',`客服回复 · ${time(reply.repliedAt)}：${reply.content||''}`)));
-        }else if(entry.customerReply)item.appendChild(el('p','',`客服回复：${entry.customerReply}`));
+        const followups=Array.isArray(entry.followups)?entry.followups:[];
+        const conversation=[...replies.map(reply=>({label:'客服回复',at:reply.repliedAt,content:reply.content})),
+          ...followups.map(followup=>({label:'我的补充',at:followup.createdAt,content:followup.content}))]
+          .sort((a,b)=>new Date(a.at||0)-new Date(b.at||0));
+        if(conversation.length)conversation.forEach(line=>item.appendChild(el('p','',`${line.label} · ${time(line.at)}：${line.content||''}`)));
+        else if(entry.customerReply)item.appendChild(el('p','',`客服回复：${entry.customerReply}`));
+        if(entry.recordId){
+          const form=el('form','account-after-sales-followup');
+          form.dataset.afterSalesFollowup=detail.order?.businessNo||detail.order?.orderNo||'';
+          form.dataset.recordId=String(entry.recordId);
+          const label=el('label','','继续补充给客服');const input=el('textarea');input.name='content';input.required=true;input.maxLength=240;input.rows=2;input.placeholder='补充本条问题的进展；请勿填写密码、验证码或令牌。';label.appendChild(input);
+          const submit=el('button','btn ghost small-btn','提交补充');submit.type='submit';
+          const message=el('p','account-after-sales-message');message.dataset.followupMessage='1';message.setAttribute('role','status');
+          form.append(label,submit,message);item.appendChild(form);
+        }
         host.appendChild(item);
       });
     }
@@ -195,6 +207,23 @@
   document.addEventListener('click',async e=>{const logout=e.target.closest('[data-account-logout]');if(logout){try{await api('/api/account/logout',{method:'POST',body:{}});}finally{location.href='/';}return;}const q=e.target.closest('[data-supplement-quote]');if(q){try{await supplement('quotes',q.dataset.supplementQuote);await initRequests();}catch(err){alert(err.message);}return;}const o=e.target.closest('[data-supplement-order]');if(o){try{await supplement('orders',o.dataset.supplementOrder);await initOrders();}catch(err){alert(err.message);}return;}const d=e.target.closest('[data-order-detail]');if(d){try{await showOrderDetail(d.dataset.orderDetail);}catch(err){alert(err.message);}return;}const pay=e.target.closest('[data-start-wechat-payment]');if(pay){pay.disabled=true;try{const p=await api(`/api/account/payments/${encodeURIComponent(pay.dataset.startWechatPayment)}/native`,{method:'POST',body:{}});renderPayment(pay.closest('.account-payment'),p);await showOrderDetail(p.businessNo);}catch(err){alert(err.message);pay.disabled=false;}return;}if(e.target.closest('[data-close-order-detail]')){const host=$('[data-hub-order-detail]');if(host)host.hidden=true;if(paymentPoll){clearInterval(paymentPoll);paymentPoll=null;}}});
 
   document.addEventListener('submit',async e=>{
+    const followup=e.target.closest('[data-after-sales-followup]');
+    if(followup){
+      e.preventDefault();const button=followup.querySelector('[type=submit]'),message=followup.querySelector('[data-followup-message]');
+      const content=followup.elements.content.value.trim(),no=followup.dataset.afterSalesFollowup,id=followup.dataset.recordId;
+      if(!content){message.textContent='请填写补充说明。';return;}
+      button.disabled=true;message.textContent='正在提交…';
+      try{
+        await api(`/api/console/orders/${encodeURIComponent(no)}/after-sales/records/${encodeURIComponent(id)}/followups`,{method:'POST',body:{content}});
+        message.textContent='补充说明已提交。';
+        try{
+          const detail=await api(`/api/console/orders/${encodeURIComponent(no)}`);
+          const history=followup.closest('[data-after-sales-history]');if(history)renderAfterSalesHistory(history,detail);
+        }catch(_){message.textContent='补充说明已提交。记录暂时无法更新，请刷新页面查看。';}
+      }catch(err){message.textContent=err.message||'提交失败，请稍后重试。';}
+      finally{button.disabled=false;}
+      return;
+    }
     const form=e.target.closest('[data-after-sales-form]');if(!form)return;
     e.preventDefault();const button=form.querySelector('[type=submit]'),message=form.querySelector('[data-after-sales-message]');
     const category=form.elements.category.value,content=form.elements.content.value.trim();

@@ -22,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 class XingweiWeComSsoControllerTest {
     private final XingweiWeComDirectoryClient client = mock(XingweiWeComDirectoryClient.class);
     private final XingweiWeComBindingService bindings = mock(XingweiWeComBindingService.class);
+    private final XingweiWeComPositionRoleService positionRoles = mock(XingweiWeComPositionRoleService.class);
     private final AuditService audits = mock(AuditService.class);
 
     @AfterEach
@@ -41,7 +42,7 @@ class XingweiWeComSsoControllerTest {
     void enabledEntryRequiresSecureSessionCookie() {
         var controller = new XingweiWeComSsoController(
                 new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", true, false),
-                client, bindings, audits, "https://example.test");
+                client, bindings, positionRoles, audits, "https://example.test");
         assertThrows(ResponseStatusException.class,
                 () -> controller.login(new MockHttpServletRequest(), new MockHttpServletResponse()));
     }
@@ -76,6 +77,7 @@ class XingweiWeComSsoControllerTest {
         controller.login(request, start);
         String state = queryValue(start.getRedirectedUrl(), "state");
         when(client.userIdForCode("one-time-code")).thenReturn("staff_1");
+        when(bindings.boundAdminUserId("staff_1")).thenReturn(2L);
         when(bindings.loginUser("staff_1"))
                 .thenReturn(User.withUsername("operator").password("unused").roles("OPERATOR").build());
 
@@ -88,15 +90,62 @@ class XingweiWeComSsoControllerTest {
         assertEquals("operator", saved.getAuthentication().getName());
         assertTrue(callback.getHeader("Cache-Control").contains("no-store"));
         verify(bindings).loginUser("staff_1");
+        verify(client, never()).member("staff_1");
         var replay = new MockHttpServletResponse();
         controller.callback("one-time-code", state, request, replay);
         assertEquals(403, replay.getStatus());
     }
 
+    @Test
+    void firstVisitRegistersIdentityButWaitsForExistingRole() throws Exception {
+        var controller = controller(true);
+        var request = new MockHttpServletRequest();
+        var start = new MockHttpServletResponse();
+        controller.login(request, start);
+        String state = queryValue(start.getRedirectedUrl(), "state");
+        when(client.userIdForCode("one-time-code")).thenReturn("staff_1");
+        when(bindings.boundAdminUserId("staff_1")).thenReturn(null);
+        when(client.member("staff_1")).thenReturn(
+                new XingweiWeComDirectoryClient.Member("staff_1", "员工甲", "未知职务"));
+        when(bindings.registerPending("staff_1", "员工甲")).thenReturn(2L);
+        when(bindings.loginUser("staff_1")).thenThrow(new IllegalArgumentException("未分配角色"));
+
+        var callback = new MockHttpServletResponse();
+        controller.callback("one-time-code", state, request, callback);
+
+        assertEquals("/admin/xingwei/wecom/pending", callback.getRedirectedUrl());
+        assertTrue(SecurityContextHolder.getContext().getAuthentication() == null);
+        verify(bindings).registerPending("staff_1", "员工甲");
+    }
+
+    @Test
+    void firstVisitWithMappedPositionReceivesWorkSession() throws Exception {
+        var controller = controller(true);
+        var request = new MockHttpServletRequest();
+        var start = new MockHttpServletResponse();
+        controller.login(request, start);
+        String state = queryValue(start.getRedirectedUrl(), "state");
+        when(client.userIdForCode("one-time-code")).thenReturn("staff_1");
+        when(bindings.boundAdminUserId("staff_1")).thenReturn(null);
+        when(client.member("staff_1")).thenReturn(
+                new XingweiWeComDirectoryClient.Member("staff_1", "员工甲", "售前客服"));
+        when(bindings.registerPending("staff_1", "员工甲")).thenReturn(2L);
+        when(positionRoles.sync(2L, "售前客服")).thenReturn(true);
+        when(bindings.loginUser("staff_1"))
+                .thenReturn(User.withUsername("wecom_account").password("unused").roles("OPERATOR").build());
+
+        var callback = new MockHttpServletResponse();
+        controller.callback("one-time-code", state, request, callback);
+
+        assertEquals("/admin/xingwei/work", callback.getRedirectedUrl());
+        verify(positionRoles).sync(2L, "售前客服");
+        assertEquals("wecom_account", SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
     private XingweiWeComSsoController controller(boolean enabled) {
         return new XingweiWeComSsoController(
                 new XingweiWeComProperties("ww-test", "server-only-secret", "1000003", enabled, true),
-                client, bindings, audits, "https://example.test");
+                client, bindings, positionRoles, audits, "https://example.test");
     }
 
     private static String queryValue(String url, String key) {

@@ -50,6 +50,13 @@ public class XingweiOrgRbacController {
         List<Map<String, Object>> visibleEmployees = employeeView
                 ? scopedEmployees(authentication, castRows(source.get("employees")))
                 : List.of();
+        if (!permissions.has(authentication, "employee:manage")) {
+            visibleEmployees = visibleEmployees.stream().map(row -> {
+                Map<String, Object> safe = new LinkedHashMap<>(row);
+                safe.remove("wecomUserId");
+                return safe;
+            }).toList();
+        }
 
         Map<String, Object> result = new LinkedHashMap<>(source);
         result.put("shadowMode", false);

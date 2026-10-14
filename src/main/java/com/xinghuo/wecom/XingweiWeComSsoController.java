@@ -28,8 +28,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
-/** 企业微信内静默授权入口；只为显式绑定的活跃员工建立现有后台 Session。 */
+/** 企业微信内静默授权入口；只为具备星维角色的活跃员工建立后台 Session。 */
 @RestController
 @RequestMapping("/admin/xingwei/wecom")
 public class XingweiWeComSsoController {
@@ -42,6 +43,7 @@ public class XingweiWeComSsoController {
     private final XingweiWeComProperties properties;
     private final XingweiWeComDirectoryClient client;
     private final XingweiWeComBindingService bindings;
+    private final XingweiWeComPositionRoleService positionRoles;
     private final AuditService audits;
     private final String baseUrl;
 
@@ -49,11 +51,13 @@ public class XingweiWeComSsoController {
             XingweiWeComProperties properties,
             XingweiWeComDirectoryClient client,
             XingweiWeComBindingService bindings,
+            XingweiWeComPositionRoleService positionRoles,
             AuditService audits,
             @Value("${app.base-url}") String baseUrl) {
         this.properties = properties;
         this.client = client;
         this.bindings = bindings;
+        this.positionRoles = positionRoles;
         this.audits = audits;
         this.baseUrl = baseUrl;
     }
@@ -99,7 +103,37 @@ public class XingweiWeComSsoController {
         String wecomUserId;
         try {
             wecomUserId = client.userIdForCode(code);
-            user = bindings.loginUser(wecomUserId);
+            Long adminUserId = bindings.boundAdminUserId(wecomUserId);
+            XingweiWeComDirectoryClient.Member member = null;
+            if (adminUserId == null || positionRoles.needsRefresh(adminUserId)) {
+                try {
+                    member = client.member(wecomUserId);
+                } catch (RuntimeException unavailable) {
+                    if (adminUserId != null && positionRoles.autoManaged(adminUserId)) {
+                        throw unavailable;
+                    }
+                    // OAuth still proves the UserID. Without verified title, register only as pending.
+                    member = new XingweiWeComDirectoryClient.Member(wecomUserId, wecomUserId, "");
+                }
+            }
+            if (adminUserId == null) {
+                adminUserId = bindings.registerPending(wecomUserId, member.name());
+                audits.log("XW_WECOM_ENROLL_PENDING", "ADMIN_USER", String.valueOf(adminUserId),
+                        "wecom", null, null, "企业微信成员已登记，等待星维角色分配", request);
+            }
+            if (member != null && positionRoles.sync(adminUserId, member.position())) {
+                audits.log("XW_WECOM_POSITION_ROLE_SYNC", "ADMIN_USER", String.valueOf(adminUserId),
+                        "wecom", null, null, "星维岗位角色已根据企业微信职务同步", request);
+            }
+            try {
+                user = bindings.loginUser(wecomUserId);
+            } catch (IllegalArgumentException notApproved) {
+                session.invalidate();
+                audits.log("XW_WECOM_SSO_PENDING", "ADMIN_USER", String.valueOf(adminUserId),
+                        "wecom", null, null, "星维角色或账号状态尚未满足登录条件", request);
+                response.sendRedirect("/admin/xingwei/wecom/pending");
+                return;
+            }
         } catch (RuntimeException ex) {
             response.sendError(HttpStatus.FORBIDDEN.value());
             return;
@@ -121,6 +155,12 @@ public class XingweiWeComSsoController {
         audits.log("XW_WECOM_SSO_LOGIN", "ADMIN_USER", user.getUsername(), user.getUsername(),
                 null, null, "企业微信自建应用免登录", request);
         response.sendRedirect("/admin/xingwei/work");
+    }
+
+    @GetMapping("/pending")
+    public ModelAndView pending() {
+        requireReady();
+        return new ModelAndView("admin-xingwei-wecom-pending");
     }
 
     @PutMapping("/bindings/{adminUserId}")

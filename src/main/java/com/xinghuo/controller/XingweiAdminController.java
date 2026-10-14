@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3z";
-    static final String CONSOLE_STAGE = "V3Z · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261014-v3z";
+    static final String CONSOLE_VERSION = "20261014-v4a";
+    static final String CONSOLE_STAGE = "V4A · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261014-v4a";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V4A", "待发布",
+                    "后台售后记录处理状态与审计",
+                    "V71 为售后流水增加独立处理状态。员工可在 order:view 和业务归属范围内读取记录；持有 order:manage 的员工可填写处理说明，按版本号推进处理中、已解决或重新处理中。并发冲突返回 409，处理动作写入审计。功能 PR #443 已完成双 CI；本次统一版本仍待生产门禁。客户原文、退款、真实收款及企业微信写入均不变。"),
             new ReleaseItem("2026-10-14", "V3Z", "已上线",
                     "售后问题记录独立存储",
                     "V70 新增售后记录表；新提交在同一事务写入记录，订单备注有空间时兼容双写，备注已满仍可提交。客户详情与后台受权限范围约束的列表合并旧备注和新表记录，后台检索、分类、计数与分页覆盖两种来源。功能 PR #440、版本 PR #441 与生产门禁均已完成；不启用真实收款或企业微信写入。"),

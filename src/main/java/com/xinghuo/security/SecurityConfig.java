@@ -48,6 +48,7 @@ public class SecurityConfig {
             "/account/security", "/account/devices", "/account/activity",
             "/account/settings/profile", "/account/settings/contact", "/account/settings/security",
             "/console", "/console/**",
+            "/next", "/next/**",
             "/rules", "/rules-en", "/privacy", "/privacy-en", "/trust", "/loadouts",
             "/robots.txt", "/sitemap.xml", "/favicon.ico", "/favicon.svg",
             "/apple-touch-icon.png", "/og.png", "/assets/**",

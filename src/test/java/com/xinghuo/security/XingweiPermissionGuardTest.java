@@ -96,6 +96,8 @@ class XingweiPermissionGuardTest {
         assertFalse(snapshot.allowAll());
         assertTrue(guard.has(operator, "org:view"));
         assertTrue(guard.has(operator, "order:view"));
+        assertTrue(guard.has(operator, "payment:view"));
+        assertFalse(guard.has(operator, "payment:manage"));
         assertTrue(guard.canAccessEmployee(operator, 5L));
         assertFalse(guard.has(operator, "employee:manage"));
         assertFalse(guard.has(operator, "rbac:manage"));
@@ -127,6 +129,20 @@ class XingweiPermissionGuardTest {
         assertFalse(guard.canManageEmployeeProfile(operator, 4L, "XW-02", null));
         assertFalse(guard.canManageEmployeeProfile(operator, 4L, null, "POS-OPS"));
         assertFalse(guard.canManageEmployeeProfile(operator, 4L, null, null));
+    }
+
+    @Test
+    void paymentWriteRequiresExplicitAssignedPermissionOrAdminOverride() {
+        jdbc.update("INSERT INTO xw_permissions (id, code) VALUES (20, 'payment:view'), (21, 'payment:manage')");
+        jdbc.update("INSERT INTO xw_role_permissions (role_id, permission_id) VALUES (1, 21), (2, 20)");
+
+        assertTrue(guard.has(authentication("admin", "ROLE_ADMIN"), "payment:manage"));
+        assertTrue(guard.has(authentication("operator", "ROLE_OPERATOR"), "payment:view"));
+        assertFalse(guard.has(authentication("operator", "ROLE_OPERATOR"), "payment:manage"));
+        assertTrue(guard.has(authentication("scoped", "ROLE_OPERATOR"), "payment:view"));
+        assertFalse(guard.has(authentication("scoped", "ROLE_OPERATOR"), "payment:manage"));
+        assertTrue(guard.has(authentication("peer", "ROLE_OPERATOR"), "payment:manage"));
+        assertTrue(guard.has(authentication("peer", "ROLE_OPERATOR"), "payment:view"));
     }
 
     @Test

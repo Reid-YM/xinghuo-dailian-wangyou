@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3p";
-    static final String CONSOLE_STAGE = "V3P · RELEASE CANDIDATE";
+    static final String CONSOLE_VERSION = "20261014-v3q";
+    static final String CONSOLE_STAGE = "V3Q · RELEASE CANDIDATE";
     static final String BUSINESS_VERSION = "20261013-v2e";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,7 +29,10 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-14", "V3P", "待发布",
+            new ReleaseItem("2026-10-14", "V3Q", "待发布",
+                    "微信支付后台操作权限收口",
+                    "网站 Native 支付单读取要求 payment:view；客服确认金额后建单与关闭待支付单要求 payment:manage。旧版 ADMIN 保留全权，普通 OPERATOR 默认只读，明确授予支付管理权限的角色才可写入。真实收款开关保持关闭，小程序支付仍独立验收。"),
+            new ReleaseItem("2026-10-14", "V3P", "已上线",
                     "网站微信支付只读运营概览",
                     "新版集成配置页增加网站微信支付单状态汇总与最近记录；仅查询数据库，不调用支付接口、不读取二维码或回调原文，也不提供创建、改价、关闭或启用收款入口。V3O 已通过零停机门禁上线；企业微信写入与小程序支付继续独立验收。"),
             new ReleaseItem("2026-10-14", "V3O", "已上线",

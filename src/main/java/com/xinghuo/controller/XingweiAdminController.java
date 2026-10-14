@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class XingweiAdminController {
     static final String CONSOLE_VERSION = "20261015-v4e";
-    static final String CONSOLE_STAGE = "V4E · RELEASE CANDIDATE";
+    static final String CONSOLE_STAGE = "V4E · STABLE PRODUCTION";
     static final String BUSINESS_VERSION = "20261015-v4e";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,9 +29,9 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-15", "V4E", "待发布",
+            new ReleaseItem("2026-10-15", "V4E", "已上线",
                     "客户售后补充与员工跟进队列",
-                    "客户可在归属校验后对原 V70 售后记录补充说明；补充内容写入 V73 独立表并显示于客户与后台历史。员工队列按最近客户补充时间排序，保持 order:view 及数据范围约束。补充不会自动重开已解决记录，也不会更改订单状态、触发退款、收款或企业微信写入。待 PR、主线 CI 与生产门禁验收。"),
+                    "客户可在归属校验后对原 V70 售后记录补充说明；补充内容写入 V73 独立表并显示于客户与后台历史。员工队列按最近客户补充时间排序，保持 order:view 及数据范围约束。补充不会自动重开已解决记录，也不会更改订单状态、触发退款、收款或企业微信写入。功能 PR #453、主线双 CI、V73 哈希审核、18080/8081/8080 生产门禁及发布后核验已完成。"),
             new ReleaseItem("2026-10-15", "V4D", "已上线",
                     "售后连续回复与客户回复历史",
                     "客服可在处理中或已解决状态追加明确的客户回复，无须切换状态；仍要求内部处理说明与预期版本号，写入 V72 事件并审计。客户订单详情在归属校验后按时间展示全部公开回复，保留最新回复字段兼容旧页面，内部说明和处理人不进入客户响应。PR #451、main 双 CI、18080/8081/8080 生产门禁及发布后核验已完成。无新数据库迁移，不触发退款、真实收款或企业微信写入。"),

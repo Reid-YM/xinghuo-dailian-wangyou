@@ -16,7 +16,7 @@ class XingweiAdminPlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
     private static final Path TEMPLATE = Path.of("src/main/resources/templates/admin-xingwei.html");
     private static final String VERSION = "20261014-v4a";
-    private static final String STAGE = "V4A · RELEASE CANDIDATE";
+    private static final String STAGE = "V4A · STABLE PRODUCTION";
 
     @Test
     void desktopAndPhoneLayoutsStayInsideViewportAndNavigationWorks() throws Exception {

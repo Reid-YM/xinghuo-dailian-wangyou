@@ -11,7 +11,7 @@ class XingweiWeComDirectoryContractTest {
     private static final Path MAIN = Path.of("src/main");
 
     @Test
-    void v2gIsStrictlyReadOnlyAndUsesEmployeeViewPermission() throws Exception {
+    void v2gDirectoryRemainsReadOnlyWhileDraftWriteCredentialIsSeparate() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiWeComDirectoryController.java");
         String client = read("java/com/xinghuo/wecom/XingweiWeComDirectoryClient.java");
         String properties = read("java/com/xinghuo/wecom/XingweiWeComProperties.java");
@@ -27,7 +27,7 @@ class XingweiWeComDirectoryContractTest {
         assertFalse(client.contains("/user/update"));
         assertFalse(client.contains("/user/delete"));
         assertFalse(properties.contains("contactSecret"));
-        assertFalse(app.contains("WECOM_SECRET"));
+        assertTrue(app.contains("contact-secret: ${WECOM_SECRET:}"));
     }
 
     @Test
@@ -47,7 +47,7 @@ class XingweiWeComDirectoryContractTest {
     }
 
     @Test
-    void v2gHasDedicatedPageRouteConsoleEntryAndOnlyReadSecrets() throws Exception {
+    void v2gHasDedicatedPageRouteConsoleEntry() throws Exception {
         String page = read("java/com/xinghuo/controller/XingweiAdminController.java");
         String shell = read("resources/templates/admin-xingwei.html");
         String app = read("resources/application.yml");
@@ -57,7 +57,16 @@ class XingweiWeComDirectoryContractTest {
         assertTrue(shell.contains("岗位与企业微信员工"));
         assertTrue(app.contains("WECOM_CORP_ID"));
         assertTrue(app.contains("WECOM_APP_SECRET"));
-        assertFalse(app.contains("contact-secret"));
+        assertTrue(app.contains("contact-secret: ${WECOM_SECRET:}"));
+    }
+
+    @Test
+    void draftWritesStayAdminOnlyAndReuseV63Positions() throws Exception {
+        String controller = read("java/com/xinghuo/wecom/AdminEmployeeController.java");
+        String service = read("java/com/xinghuo/wecom/WeComHrService.java");
+        assertTrue(controller.contains("@PreAuthorize(\"hasRole('ADMIN')\")"));
+        assertTrue(service.contains("org.positions()"));
+        assertFalse(Files.exists(MAIN.resolve("resources/wecom/positions.json")));
     }
 
     private static String read(String relative) throws Exception {

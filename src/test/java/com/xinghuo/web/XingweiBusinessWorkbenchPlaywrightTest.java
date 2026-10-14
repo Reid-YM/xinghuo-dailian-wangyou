@@ -52,10 +52,16 @@ class XingweiBusinessWorkbenchPlaywrightTest {
                           ...orderSnapshot, visibleCount:1,
                           items:[{businessNo:'XH0999',orderNo:'XH0999',status:'EXCEPTION',progressText:'客户争议处理中',customerNote:'售后问题：进度不符',internalNote:'客服已联系',updatedAt:'2026-10-12T05:10:00Z',canAssign:true,ownership:{assigned:true,ownerAdminUserId:2,ownerUsername:'agent',departmentCode:'03'}}]
                         })};
-                        if (value === '/api/admin/xingwei/business/orders/after-sales') return {ok:true,json:async()=>({
-                          ...orderSnapshot, visibleCount:1,
-                          items:[{businessNo:'XH0888',orderNo:'XH0888',status:'IN_PROGRESS',progressText:'核对中',customerNote:'[售后问题 · 进度反馈]\\n未按约定完成 <script>alert(1)</script>',internalNote:'客服跟进中',updatedAt:'2026-10-14T05:10:00Z',canAssign:true,ownership:{assigned:true,ownerAdminUserId:2,ownerUsername:'agent',departmentCode:'03'}}]
-                        })};
+                        if (value.startsWith('/api/admin/xingwei/business/orders/after-sales?')) {
+                          const params = new URLSearchParams(value.split('?')[1]);
+                          const page = Number(params.get('page'));
+                          const query = params.get('q') || '';
+                          (window.__afterSalesRequests ||= []).push({page, query});
+                          const first = {businessNo:'XH0888',orderNo:'XH0888',status:'IN_PROGRESS',progressText:'核对中',customerNote:'[售后问题 · 进度反馈]\\n未按约定完成 <script>alert(1)</script>',internalNote:'客服跟进中',updatedAt:'2026-10-14T05:10:00Z',canAssign:true,ownership:{assigned:true,ownerAdminUserId:2,ownerUsername:'agent',departmentCode:'03'}};
+                          const older = {businessNo:'XH0777',orderNo:'XH0777',status:'IN_PROGRESS',progressText:'待回访',customerNote:'[售后问题 · 旧单]\\n旧单追踪',updatedAt:'2026-09-01T05:10:00Z',canAssign:true,ownership:{assigned:true,ownerAdminUserId:2,ownerUsername:'agent',departmentCode:'03'}};
+                          const items = query ? (query === '旧单' ? [older] : []) : page === 0 ? [first] : [older];
+                          return {ok:true,json:async()=>({...orderSnapshot, visibleCount:items.length, totalCount:query ? items.length : 51, page, pageSize:50, hasNext:!query && page === 0, items})};
+                        }
                         if (value === '/api/admin/xingwei/business/ownership-candidates') return {ok:true,json:async()=>candidates};
                         if (value.includes('/ownership') && String(options.method).toUpperCase() === 'PUT') {
                           window.__lastOwnershipBody = JSON.parse(options.body);
@@ -109,8 +115,16 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             assertTrue(page.locator("#xwbOrderDescription").textContent().contains("不代表退款申请或处理状态"));
             assertTrue(page.locator("#xwbOrderRows").textContent().contains("未按约定完成 <script>alert(1)</script>"));
             assertEquals(0, page.locator("#xwbOrderRows script").count());
-            page.locator("#xwbSearch").fill("未按约定");
+            assertEquals("51", page.locator("#xwbKpiVisible").textContent());
+            assertEquals("第 1 页 · 共 51 条", page.locator("#xwbAfterSalesPageText").textContent());
+            page.locator("#xwbAfterSalesNext").click();
+            page.waitForFunction("() => document.querySelector('#xwbOrderRows')?.textContent.includes('XH0777')");
+            assertEquals("第 2 页 · 共 51 条", page.locator("#xwbAfterSalesPageText").textContent());
+            page.locator("#xwbSearch").fill("旧单");
+            page.waitForFunction("() => document.querySelector('#xwbAfterSalesPageText')?.textContent.includes('共 1 条')");
+            assertEquals("1", page.locator("#xwbKpiVisible").textContent());
             assertEquals("1", page.locator("#xwbKpiFiltered").textContent());
+            assertTrue((Boolean) page.evaluate("() => window.__afterSalesRequests.some(x => x.page === 1 && !x.query) && window.__afterSalesRequests.some(x => x.page === 0 && x.query === '旧单')"));
 
             page.setViewportSize(390, 844);
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));

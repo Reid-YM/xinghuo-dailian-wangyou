@@ -62,7 +62,8 @@ class XingweiBusinessScopeContractTest {
         String service = read("java/com/xinghuo/service/XingweiBusinessScopeService.java");
 
         assertTrue(controller.contains("@GetMapping(\"/orders/after-sales\")\n    @PreAuthorize(\"@xingweiPermissionGuard.has(authentication, 'order:view')\")"));
-        assertTrue(service.contains("case AFTER_SALES -> \" AND LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0\""));
+        assertTrue(service.contains("AND LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0"));
+        assertTrue(service.contains("ORDER BY o2.updated_at DESC, o2.id DESC\n                LIMIT ? OFFSET ?"));
     }
 
     private static String read(String relative) throws Exception {

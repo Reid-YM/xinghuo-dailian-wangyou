@@ -49,8 +49,8 @@
       <button type="button" class="xwb-tab" data-tab="exceptions" role="tab" aria-selected="false">异常订单</button>
       <button type="button" class="xwb-tab" data-tab="after-sales" role="tab" aria-selected="false">售后问题记录</button>
     </div>
-    <label class="xwb-search">筛选当前列表
-      <input id="xwbSearch" type="search" placeholder="业务编号、游戏、需求、客户联系方式、负责人……" autocomplete="off"/>
+    <label class="xwb-search"><span id="xwbSearchLabel">筛选当前列表</span>
+      <input id="xwbSearch" type="search" placeholder="业务编号、游戏、需求、客户联系方式、负责人……" maxlength="80" autocomplete="off"/>
     </label>
   </section>
 
@@ -58,8 +58,8 @@
 
   <section class="xwb-kpis" aria-label="当前列表指标">
     <div><span>数据范围</span><strong id="xwbKpiScope">-</strong></div>
-    <div><span>接口可见</span><strong id="xwbKpiVisible">-</strong></div>
-    <div><span>当前筛选</span><strong id="xwbKpiFiltered">-</strong></div>
+    <div><span id="xwbKpiVisibleLabel">接口可见</span><strong id="xwbKpiVisible">-</strong></div>
+    <div><span id="xwbKpiFilteredLabel">当前筛选</span><strong id="xwbKpiFiltered">-</strong></div>
     <div><span>未归属可见</span><strong id="xwbKpiUnassigned">-</strong></div>
   </section>
 
@@ -87,6 +87,11 @@
         <tbody id="xwbOrderRows"></tbody>
       </table>
     </div>
+    <nav class="xwb-pager" id="xwbAfterSalesPager" aria-label="售后问题记录分页" hidden>
+      <button type="button" class="xw-button xw-button-ghost" id="xwbAfterSalesPrev">上一页</button>
+      <span id="xwbAfterSalesPageText" aria-live="polite">第 1 页</span>
+      <button type="button" class="xw-button xw-button-ghost" id="xwbAfterSalesNext">下一页</button>
+    </nav>
   </section>
 
   <section class="xwb-empty" id="xwbNoAccess" hidden>

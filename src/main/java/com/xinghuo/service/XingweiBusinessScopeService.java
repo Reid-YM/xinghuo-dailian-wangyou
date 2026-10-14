@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class XingweiBusinessScopeService {
     private static final int PAGE_LIMIT = 100;
+    private static final int AFTER_SALES_PAGE_SIZE = 50;
+    private static final int MAX_AFTER_SALES_PAGE = 1000;
 
     private final JdbcTemplate jdbc;
     private final XingweiPermissionGuard permissions;
@@ -83,10 +85,76 @@ public class XingweiBusinessScopeService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> afterSalesOrderSnapshot(Authentication authentication) {
-        return orderSnapshot(authentication, OrderFilter.AFTER_SALES);
+        return afterSalesOrderSnapshot(authentication, null, 0);
     }
 
-    private enum OrderFilter { ALL, EXCEPTIONS, AFTER_SALES }
+    @Transactional(readOnly = true)
+    public Map<String, Object> afterSalesOrderSnapshot(Authentication authentication, String query, int page) {
+        if (page < 0 || page > MAX_AFTER_SALES_PAGE) {
+            throw new IllegalArgumentException("页码超出范围");
+        }
+        String keyword = query == null ? "" : query.trim();
+        if (keyword.length() > 80) {
+            throw new IllegalArgumentException("搜索内容不能超过 80 字");
+        }
+
+        XingweiPermissionGuard.AccessSnapshot access = permissions.resolve(authentication);
+        ScopeClause scope = scopeClause(access);
+        String restriction = scope.sql().replace("o.", "own.")
+                + " AND LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0";
+        List<Object> args = new ArrayList<>(scope.args());
+        if (!keyword.isEmpty()) {
+            restriction += " AND (LOCATE(?, COALESCE(o2.business_no, o2.order_no)) > 0"
+                    + " OR LOCATE(?, o2.order_no) > 0"
+                    + " OR LOCATE(?, COALESCE(o2.customer_note, '')) > 0)";
+            args.add(keyword);
+            args.add(keyword);
+            args.add(keyword);
+        }
+
+        String from = """
+                FROM customer_orders o2
+                LEFT JOIN xw_business_ownership own
+                       ON own.business_no = COALESCE(o2.business_no, o2.order_no)
+                LEFT JOIN xw_departments d ON d.id = own.department_id
+                WHERE %s
+                """.formatted(restriction);
+        Long count = jdbc.queryForObject("SELECT COUNT(*) " + from, Long.class, args.toArray());
+        long totalCount = count == null ? 0L : count;
+        String sql = """
+                SELECT COALESCE(o2.business_no, o2.order_no) AS business_no,
+                       o2.order_no, o2.status, o2.progress_percent, o2.progress_text,
+                       (o2.progress_image_asset_id IS NOT NULL) AS has_progress_image,
+                       o2.customer_note, o2.internal_note, o2.updated_at, o2.version,
+                       own.owner_admin_user_id,
+                       owner.username AS owner_username,
+                       owner_profile.display_name AS owner_display_name,
+                       d.code AS department_code,
+                       d.name AS department_name
+                FROM customer_orders o2
+                LEFT JOIN xw_business_ownership own
+                       ON own.business_no = COALESCE(o2.business_no, o2.order_no)
+                LEFT JOIN admin_users owner ON owner.id = own.owner_admin_user_id
+                LEFT JOIN xw_admin_profiles owner_profile ON owner_profile.admin_user_id = owner.id
+                LEFT JOIN xw_departments d ON d.id = own.department_id
+                WHERE %s
+                ORDER BY o2.updated_at DESC, o2.id DESC
+                LIMIT ? OFFSET ?
+                """.formatted(restriction);
+        args.add(AFTER_SALES_PAGE_SIZE);
+        args.add(page * AFTER_SALES_PAGE_SIZE);
+        List<Map<String, Object>> items = jdbc.query(
+                sql, (rs, rowNum) -> orderRow(rs, authentication), args.toArray());
+        Map<String, Object> result = snapshot(access, items);
+        result.put("totalCount", totalCount);
+        result.put("page", page);
+        result.put("pageSize", AFTER_SALES_PAGE_SIZE);
+        result.put("hasNext", page < MAX_AFTER_SALES_PAGE
+                && ((long) page + 1) * AFTER_SALES_PAGE_SIZE < totalCount);
+        return result;
+    }
+
+    private enum OrderFilter { ALL, EXCEPTIONS }
 
     private Map<String, Object> orderSnapshot(Authentication authentication, OrderFilter filter) {
         XingweiPermissionGuard.AccessSnapshot access = permissions.resolve(authentication);
@@ -94,7 +162,6 @@ public class XingweiBusinessScopeService {
         String filterSql = switch (filter) {
             case ALL -> "";
             case EXCEPTIONS -> " AND o2.status = 'EXCEPTION'";
-            case AFTER_SALES -> " AND LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0";
         };
         String restriction = scope.sql().replace("o.", "own.") + filterSql;
         String sql = """

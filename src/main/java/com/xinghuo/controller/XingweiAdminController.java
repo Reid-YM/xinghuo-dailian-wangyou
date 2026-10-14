@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3s";
-    static final String CONSOLE_STAGE = "V3S · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261014-v3s";
+    static final String CONSOLE_VERSION = "20261014-v3t";
+    static final String CONSOLE_STAGE = "V3T · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261014-v3t";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3T", "待发布",
+                    "售后问题记录全范围检索与分页",
+                    "新版业务工作台在 order:view 和 ALL / DEPARTMENT / SELF 数据范围内，按业务编号、订单号或客户说明检索售后问题记录；数据库先过滤并计数，再按更新时间分页，每页 50 条。客户说明仍作为纯文本展示。功能 PR #415 已通过 Java/Maven 与 Chromium/WebKit 检查；等待统一版本及生产门禁。订单、退款、支付和企业微信写入行为不变。"),
             new ReleaseItem("2026-10-14", "V3S", "已上线",
                     "售后问题记录与客户订单回显",
                     "新版业务工作台按 order:view 与 ALL / DEPARTMENT / SELF 范围集中查看带售后说明标记的订单；数据库先过滤再截取最近 100 条。客户订单详情显示已提交的售后说明，提交后重新读取授权详情并即时回显。记录不代表工单处理或退款状态；真实收款与企业微信写入继续独立验收。"),

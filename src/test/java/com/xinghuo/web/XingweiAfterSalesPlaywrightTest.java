@@ -70,6 +70,7 @@ class XingweiAfterSalesPlaywrightTest {
             page.route("**/*", route -> route.fulfill(
                     new com.microsoft.playwright.Route.FulfillOptions().setBody(markup)));
             page.navigate("https://example.test/admin/xingwei/after-sales");
+            page.setContent(markup);
             page.evaluate("""
                     () => { window.__sent=[]; window.__queueUrls=[]; window.fetch=async (url, options={}) => {
                       let data;

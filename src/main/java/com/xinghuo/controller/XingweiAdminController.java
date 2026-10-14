@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class XingweiAdminController {
     static final String CONSOLE_VERSION = "20261015-v4h";
-    static final String CONSOLE_STAGE = "V4H · RELEASE CANDIDATE";
+    static final String CONSOLE_STAGE = "V4H · STABLE PRODUCTION";
     static final String BUSINESS_VERSION = "20261015-v4h";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,9 +29,9 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-15", "V4H", "待发布",
+            new ReleaseItem("2026-10-15", "V4H", "已上线",
                     "售后处理状态分布与快捷筛选",
-                    "后台售后概览增加待处理、处理中、已解决三种状态的按权限范围计数；点击状态可直接筛选队列并生成可分享的网址。计数保留 order:view 和 ALL / DEPARTMENT / SELF 数据范围，未建立处理状态的记录计入待处理。仅提供读取与导航，不自动改变售后状态、订单、退款、真实收款或企业微信写入。"),
+                    "后台售后概览增加待处理、处理中、已解决三种状态的按权限范围计数；点击状态可直接筛选队列并生成可分享的网址。计数保留 order:view 和 ALL / DEPARTMENT / SELF 数据范围，未建立处理状态的记录计入待处理。功能 PR #465、#466 与统一版本 PR #468 均通过双 CI、主线双 CI 和 18080/8081/8080 生产门禁；仅提供读取与导航，不自动改变售后状态、订单、退款、真实收款或企业微信写入。"),
             new ReleaseItem("2026-10-15", "V4G", "已上线",
                     "售后跟进状态与客服概览",
                     "客户订单详情只返回售后补充是否待客服跟进，不暴露内部处理游标或说明；个人中心明确提示待跟进和已解决记录的补充规则。新版售后工作台增加按权限范围汇总的售后总数、待跟进数，并支持筛选网址分享及浏览器返回恢复。汇总继续受 order:view 和 ALL / DEPARTMENT / SELF 数据范围约束；处理仍要求 order:manage。三条功能线与统一版本均通过双 CI、主线双 CI 和 18080/8081/8080 生产门禁；不改变订单或售后状态，不触发退款、真实收款或企业微信写入。"),

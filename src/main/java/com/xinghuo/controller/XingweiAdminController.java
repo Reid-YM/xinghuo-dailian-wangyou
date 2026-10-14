@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class XingweiAdminController {
     static final String CONSOLE_VERSION = "20261015-v4b";
-    static final String CONSOLE_STAGE = "V4B · RELEASE CANDIDATE";
+    static final String CONSOLE_STAGE = "V4B · STABLE PRODUCTION";
     static final String BUSINESS_VERSION = "20261015-v4b";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,9 +29,9 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-15", "V4B", "待发布",
+            new ReleaseItem("2026-10-15", "V4B", "已上线",
                     "后台售后处理队列",
-                    "按单条 V70 售后流水提供员工队列，支持 OPEN、IN_PROGRESS、RESOLVED 状态、问题类型、关键词和分页。查询与计数均在 order:view 及 ALL / DEPARTMENT / SELF 数据范围内执行；未处理流水默认 OPEN，可衔接 V4A 处理接口。功能 PR #446 已通过双 CI，本次版本仍待生产门禁。无新数据库迁移，不触发退款或支付。"),
+                    "按单条 V70 售后流水提供员工队列，支持 OPEN、IN_PROGRESS、RESOLVED 状态、问题类型、关键词和分页。查询与计数均在 order:view 及 ALL / DEPARTMENT / SELF 数据范围内执行；未处理流水默认 OPEN，可衔接 V4A 处理接口。功能 PR #446、版本 PR #447 与 18080/8081/8080 生产门禁均已完成。无新数据库迁移，不触发退款或支付。"),
             new ReleaseItem("2026-10-14", "V4A", "已上线",
                     "后台售后记录处理状态与审计",
                     "V71 为售后流水增加独立处理状态。员工可在 order:view 和业务归属范围内读取记录；持有 order:manage 的员工可填写处理说明，按版本号推进处理中、已解决或重新处理中。并发冲突返回 409，处理动作写入审计。功能 PR #443、版本 PR #444 和生产门禁均已完成；18080、8081、8080 冒烟通过。客户原文、退款、真实收款及企业微信写入均不变。"),

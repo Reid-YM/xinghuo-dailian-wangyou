@@ -2,6 +2,7 @@ package com.xinghuo.controller;
 
 import com.xinghuo.service.XingweiAfterSalesCaseService;
 import com.xinghuo.service.XingweiAfterSalesCaseService.CaseRecord;
+import com.xinghuo.service.XingweiAfterSalesCaseService.CaseHistory;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
@@ -34,12 +35,19 @@ public class XingweiAfterSalesCaseController {
         return cases.records(businessNo, authentication);
     }
 
+    @GetMapping("/{recordId}/history")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'order:view')")
+    public CaseHistory history(@PathVariable String businessNo, @PathVariable long recordId,
+            Authentication authentication) {
+        return cases.history(businessNo, recordId, authentication);
+    }
+
     @PutMapping("/{recordId}")
     @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'order:manage')")
     public CaseRecord update(@PathVariable String businessNo, @PathVariable long recordId,
             @RequestBody UpdateRequest body, Authentication authentication, HttpServletRequest request) {
         if (body == null) throw new IllegalArgumentException("请求内容不能为空");
-        return cases.update(businessNo, recordId, body.status(), body.handlingNote(),
+        return cases.update(businessNo, recordId, body.status(), body.handlingNote(), body.customerReply(),
                 body.expectedVersion(), authentication, request);
     }
 
@@ -55,5 +63,6 @@ public class XingweiAfterSalesCaseController {
         return Map.of("ok", false, "error", ex.getMessage() == null ? "超出当前数据范围" : ex.getMessage());
     }
 
-    public record UpdateRequest(String status, String handlingNote, long expectedVersion) {}
+    public record UpdateRequest(String status, String handlingNote, String customerReply,
+            long expectedVersion) {}
 }

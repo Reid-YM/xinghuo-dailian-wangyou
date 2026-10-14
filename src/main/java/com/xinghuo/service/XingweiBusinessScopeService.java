@@ -73,8 +73,19 @@ public class XingweiBusinessScopeService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> orderSnapshot(Authentication authentication) {
+        return orderSnapshot(authentication, false);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> exceptionOrderSnapshot(Authentication authentication) {
+        return orderSnapshot(authentication, true);
+    }
+
+    private Map<String, Object> orderSnapshot(Authentication authentication, boolean exceptionsOnly) {
         XingweiPermissionGuard.AccessSnapshot access = permissions.resolve(authentication);
         ScopeClause scope = scopeClause(access);
+        String restriction = scope.sql().replace("o.", "own.")
+                + (exceptionsOnly ? " AND o2.status = 'EXCEPTION'" : "");
         String sql = """
                 SELECT COALESCE(o2.business_no, o2.order_no) AS business_no,
                        o2.order_no, o2.status, o2.progress_percent, o2.progress_text,
@@ -94,7 +105,7 @@ public class XingweiBusinessScopeService {
                 WHERE %s
                 ORDER BY o2.updated_at DESC
                 LIMIT %d
-                """.formatted(scope.sql().replace("o.", "own."), PAGE_LIMIT);
+                """.formatted(restriction, PAGE_LIMIT);
 
         List<Map<String, Object>> items = jdbc.query(
                 sql,

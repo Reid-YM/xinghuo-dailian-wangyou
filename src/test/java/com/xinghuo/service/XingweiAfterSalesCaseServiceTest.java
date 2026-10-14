@@ -133,6 +133,42 @@ class XingweiAfterSalesCaseServiceTest {
     }
 
     @Test
+    void summaryCountsAllScopedCasesAndOnlyUnseenCustomerFollowups() {
+        jdbc.update("INSERT INTO customer_order_after_sales_records VALUES (3,'O1','OTHER','其他问题','第二条问题',3000)");
+        jdbc.update("INSERT INTO customer_order_after_sales_case_followups(record_id,account_id,content,created_at_ms) VALUES (1,11,'已查看',4000),(1,11,'新补充',5000),(2,12,'跨范围',6000)");
+        long acknowledgedId = jdbc.queryForObject("SELECT MIN(id) FROM customer_order_after_sales_case_followups WHERE record_id = 1", Long.class);
+        jdbc.update("INSERT INTO customer_order_after_sales_case_state(record_id,status,handled_through_followup_id,version) VALUES (1,'RESOLVED',?,1)", acknowledgedId);
+
+        assertEquals(2, cases.summary(actor).totalCount());
+        assertEquals(1, cases.summary(actor).pendingFollowupCount());
+        assertEquals(cases.queue(null, null, "PENDING", null, 0, actor).totalCount(),
+                cases.summary(actor).pendingFollowupCount());
+
+        long latestId = jdbc.queryForObject("SELECT MAX(id) FROM customer_order_after_sales_case_followups WHERE record_id = 1", Long.class);
+        jdbc.update("UPDATE customer_order_after_sales_case_state SET handled_through_followup_id = ? WHERE record_id = 1", latestId);
+        assertEquals(0, cases.summary(actor).pendingFollowupCount());
+        assertEquals(2, cases.summary(actor).totalCount());
+    }
+
+    @Test
+    void summaryUsesQueueScopesAndRequiresOrderView() {
+        jdbc.update("INSERT INTO customer_order_after_sales_case_followups(record_id,account_id,content,created_at_ms) VALUES (1,11,'本部门',4000),(2,12,'其他部门',5000)");
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(1, 1), cases.summary(actor));
+
+        when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
+                "RBAC", false, List.of("order:view"), List.of(), "DEPARTMENT", 7L, "03"));
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(1, 1), cases.summary(actor));
+        when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
+                "LEGACY_ADMIN", true, List.of("order:view"), List.of(), "ALL", 7L, null));
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(2, 2), cases.summary(actor));
+        when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
+                "DENIED", false, List.of(), List.of(), "ALL", null, null));
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(0, 0), cases.summary(actor));
+        when(permissions.has(actor, "order:view")).thenReturn(false);
+        assertThrows(AccessDeniedException.class, () -> cases.summary(actor));
+    }
+
+    @Test
     void publicReplyAndInternalNoteAreSeparatelyRecordedInHistory() {
         var result = cases.update("XW1", 1, "IN_PROGRESS", "内部核对订单", "正在核对，请稍候",
                 0, actor, null);

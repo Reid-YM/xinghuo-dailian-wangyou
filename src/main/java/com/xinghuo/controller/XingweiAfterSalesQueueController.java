@@ -2,6 +2,7 @@ package com.xinghuo.controller;
 
 import com.xinghuo.service.XingweiAfterSalesCaseService;
 import com.xinghuo.service.XingweiAfterSalesCaseService.QueueSnapshot;
+import com.xinghuo.service.XingweiAfterSalesCaseService.CaseSummary;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -33,6 +34,12 @@ public class XingweiAfterSalesQueueController {
             @RequestParam(defaultValue = "0") int page,
             Authentication authentication) {
         return cases.queue(status, category, followup, q, page, authentication);
+    }
+
+    @GetMapping("/summary")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'order:view')")
+    public CaseSummary summary(Authentication authentication) {
+        return cases.summary(authentication);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -79,11 +79,7 @@ public class XingweiAfterSalesCaseService {
 
         XingweiPermissionGuard.AccessSnapshot access = permissions.resolve(authentication);
         StringBuilder where = new StringBuilder(scopeSql(access));
-        List<Object> args = new ArrayList<>();
-        if ("DEPARTMENT".equals(access.dataScope()) && !access.allowAll() && !"DENIED".equals(access.mode())
-                && access.departmentCode() != null) args.add(access.departmentCode());
-        if ("SELF".equals(access.dataScope()) && !access.allowAll() && !"DENIED".equals(access.mode())
-                && access.adminUserId() != null) args.add(access.adminUserId());
+        List<Object> args = scopeArgs(access);
         if (!normalizedStatus.isEmpty()) {
             where.append(" AND COALESCE(s.status, 'OPEN') = ?");
             args.add(normalizedStatus);
@@ -102,20 +98,7 @@ public class XingweiAfterSalesCaseService {
             args.add(keyword);
             args.add(keyword);
         }
-        String from = """
-                FROM customer_order_after_sales_records r
-                JOIN customer_orders o ON o.order_no = r.order_no
-                LEFT JOIN xw_business_ownership own
-                       ON own.business_no = COALESCE(o.business_no, o.order_no)
-                LEFT JOIN xw_departments d ON d.id = own.department_id
-                LEFT JOIN customer_order_after_sales_case_state s ON s.record_id = r.id
-                LEFT JOIN (
-                    SELECT record_id, MAX(created_at_ms) AS latest_followup_at_ms,
-                           MAX(id) AS latest_followup_id
-                      FROM customer_order_after_sales_case_followups GROUP BY record_id
-                ) f ON f.record_id = r.id
-                WHERE %s
-                """.formatted(where);
+        String from = queueFrom(where.toString());
         Long total = jdbc.queryForObject("SELECT COUNT(*) " + from, Long.class, args.toArray());
         String sql = """
                 SELECT COALESCE(o.business_no, o.order_no) AS business_no,
@@ -141,6 +124,50 @@ public class XingweiAfterSalesCaseService {
         return new QueueSnapshot(items, count, page, QUEUE_PAGE_SIZE, normalizedStatus,
                 normalizedCategory, normalizedFollowup, keyword,
                 page < MAX_QUEUE_PAGE && ((long) page + 1) * QUEUE_PAGE_SIZE < count);
+    }
+
+    /** Aggregate across the same scoped V70 ledger as the queue, without its filters or page limit. */
+    @Transactional(readOnly = true)
+    public CaseSummary summary(Authentication authentication) {
+        if (!permissions.has(authentication, "order:view")) {
+            throw new AccessDeniedException("缺少订单查看权限");
+        }
+        XingweiPermissionGuard.AccessSnapshot access = permissions.resolve(authentication);
+        return jdbc.queryForObject("""
+                SELECT COUNT(*) AS total_count,
+                       COALESCE(SUM(CASE WHEN f.latest_followup_id >
+                           COALESCE(s.handled_through_followup_id, 0) THEN 1 ELSE 0 END), 0)
+                           AS pending_followup_count
+                %s
+                """.formatted(queueFrom(scopeSql(access))),
+                (rs, rowNum) -> new CaseSummary(rs.getLong("total_count"),
+                        rs.getLong("pending_followup_count")), scopeArgs(access).toArray());
+    }
+
+    private List<Object> scopeArgs(XingweiPermissionGuard.AccessSnapshot access) {
+        List<Object> args = new ArrayList<>();
+        if ("DEPARTMENT".equals(access.dataScope()) && !access.allowAll() && !"DENIED".equals(access.mode())
+                && access.departmentCode() != null) args.add(access.departmentCode());
+        if ("SELF".equals(access.dataScope()) && !access.allowAll() && !"DENIED".equals(access.mode())
+                && access.adminUserId() != null) args.add(access.adminUserId());
+        return args;
+    }
+
+    private String queueFrom(String where) {
+        return """
+                FROM customer_order_after_sales_records r
+                JOIN customer_orders o ON o.order_no = r.order_no
+                LEFT JOIN xw_business_ownership own
+                       ON own.business_no = COALESCE(o.business_no, o.order_no)
+                LEFT JOIN xw_departments d ON d.id = own.department_id
+                LEFT JOIN customer_order_after_sales_case_state s ON s.record_id = r.id
+                LEFT JOIN (
+                    SELECT record_id, MAX(created_at_ms) AS latest_followup_at_ms,
+                           MAX(id) AS latest_followup_id
+                      FROM customer_order_after_sales_case_followups GROUP BY record_id
+                ) f ON f.record_id = r.id
+                WHERE %s
+                """.formatted(where);
     }
 
     private String scopeSql(XingweiPermissionGuard.AccessSnapshot access) {
@@ -326,4 +353,6 @@ public class XingweiAfterSalesCaseService {
 
     public record QueueSnapshot(List<QueueItem> items, long totalCount, int page, int pageSize,
             String status, String category, String followup, String query, boolean hasNext) {}
+
+    public record CaseSummary(long totalCount, long pendingFollowupCount) {}
 }

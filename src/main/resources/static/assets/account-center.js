@@ -126,6 +126,18 @@
     const t=el('div','account-center-timeline');
     (d.timeline||[]).forEach(x=>{const i=el('div');i.append(el('strong','',x.title||'进度'),el('p','',x.content||''),el('small','',time(x.createdAt)));t.appendChild(i);});
     host.appendChild(t);
+    const afterSales=el('form','account-after-sales');
+    afterSales.dataset.afterSalesForm=d.order?.businessNo||d.order?.orderNo||no;
+    afterSales.append(el('h3','','售后问题说明'),el('p','','提交后由客服按业务编号核对。此处不会自动取消订单或发起退款；淘宝、闲鱼订单仍按对应平台规则处理。'));
+    const categoryLabel=el('label','','问题类型');const category=el('select');category.name='category';category.required=true;
+    [['','选择问题类型'],['DELIVERY','交付或进度'],['CANCELLATION','取消服务'],['REFUND_REVIEW','退款核对'],['OTHER','其他问题']].forEach(([value,label])=>{const option=el('option','',label);option.value=value;category.appendChild(option);});
+    categoryLabel.appendChild(category);
+    const descriptionLabel=el('label','','问题说明');const description=el('textarea');description.name='content';description.required=true;description.maxLength=240;description.rows=4;description.placeholder='说明问题、期望客服核对的内容；请勿填写游戏密码、验证码或令牌。';descriptionLabel.appendChild(description);
+    const submit=el('button','btn primary small-btn','提交问题说明');submit.type='submit';
+    const message=el('p','account-after-sales-message');message.dataset.afterSalesMessage='1';message.setAttribute('role','status');
+    afterSales.append(categoryLabel,descriptionLabel,submit,message);
+    host.appendChild(afterSales);
+    const contact=el('a','btn ghost small-btn','联系客服');contact.href='/contact';host.appendChild(contact);
     const paymentHost=el('section','account-payment');host.appendChild(paymentHost);
     try{
       const p=await api(`/api/account/payments/order/${encodeURIComponent(no)}`);
@@ -143,6 +155,17 @@
   async function initProgress(){const host=$('[data-hub-progress]');if(!host)return;const items=await api('/api/account/progress');host.textContent='';if(!(items||[]).length){empty(host,'还没有云端工具存档。进入 MW4 工具站后可按页面提示同步。');return;}(items||[]).forEach(x=>{const row=itemShell('云端存档',toolDisplayName(x.toolKey),'进度内容请回到对应工具继续编辑，个人中心只负责查看存档状态。',`最近同步：${time(x.updatedAt)}`);const a=el('a','btn primary small-btn','打开工具站');a.href='/mastery';row.actions.appendChild(a);host.appendChild(row.article);});}
 
   document.addEventListener('click',async e=>{const logout=e.target.closest('[data-account-logout]');if(logout){try{await api('/api/account/logout',{method:'POST',body:{}});}finally{location.href='/';}return;}const q=e.target.closest('[data-supplement-quote]');if(q){try{await supplement('quotes',q.dataset.supplementQuote);await initRequests();}catch(err){alert(err.message);}return;}const o=e.target.closest('[data-supplement-order]');if(o){try{await supplement('orders',o.dataset.supplementOrder);await initOrders();}catch(err){alert(err.message);}return;}const d=e.target.closest('[data-order-detail]');if(d){try{await showOrderDetail(d.dataset.orderDetail);}catch(err){alert(err.message);}return;}const pay=e.target.closest('[data-start-wechat-payment]');if(pay){pay.disabled=true;try{const p=await api(`/api/account/payments/${encodeURIComponent(pay.dataset.startWechatPayment)}/native`,{method:'POST',body:{}});renderPayment(pay.closest('.account-payment'),p);await showOrderDetail(p.businessNo);}catch(err){alert(err.message);pay.disabled=false;}return;}if(e.target.closest('[data-close-order-detail]')){const host=$('[data-hub-order-detail]');if(host)host.hidden=true;if(paymentPoll){clearInterval(paymentPoll);paymentPoll=null;}}});
+
+  document.addEventListener('submit',async e=>{
+    const form=e.target.closest('[data-after-sales-form]');if(!form)return;
+    e.preventDefault();const button=form.querySelector('[type=submit]'),message=form.querySelector('[data-after-sales-message]');
+    const category=form.elements.category.value,content=form.elements.content.value.trim();
+    if(!category||!content){message.textContent='请选择问题类型并填写说明。';return;}
+    button.disabled=true;message.textContent='正在提交…';
+    try{const result=await api(`/api/console/orders/${encodeURIComponent(form.dataset.afterSalesForm)}/after-sales`,{method:'POST',body:{category,content}});if(!result)return;message.textContent=result.message||'问题说明已提交';form.elements.content.value='';form.elements.category.value='';}
+    catch(err){message.textContent=err.message||'提交失败，请稍后重试。';}
+    finally{button.disabled=false;}
+  });
 
   (async()=>{try{await loadIdentity();if(PAGE==='account-center-overview')await initOverview();if(PAGE==='account-center-requests')await initRequests();if(PAGE==='account-center-orders')await initOrders();if(PAGE==='account-center-progress')await initProgress();}catch(err){const host=$('[data-hub-message]');if(host){host.hidden=false;host.textContent=err.message||'加载失败，请刷新重试。';}else console.error(err);}})();
 })();

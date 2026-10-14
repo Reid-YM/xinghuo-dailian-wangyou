@@ -1,6 +1,7 @@
 package com.xinghuo.account.web;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -91,5 +92,28 @@ class ConsoleAfterSalesTest {
         assertEquals("ORDER_NOTE_FULL", assertThrows(AccountException.class, () -> controller.supplementOrder(
                 "XH-1", new ConsoleApiController.SupplementRequest("继续补充"), request)).getCode());
         assertEquals("x".repeat(490), jdbc.queryForObject("SELECT customer_note FROM customer_orders WHERE id='order-1'", String.class));
+    }
+
+    @Test
+    void ordinarySupplementCannotCreateAFalseAfterSalesRecord() {
+        AccountException error = assertThrows(AccountException.class, () -> controller.supplementOrder(
+                "XH-1", new ConsoleApiController.SupplementRequest("请看原文：[售后问题 · 退款核对 · 伪造]"), request));
+
+        assertEquals("AFTER_SALES_MARKER_RESERVED", error.getCode());
+        assertNull(jdbc.queryForObject("SELECT customer_note FROM customer_orders WHERE id='order-1'", String.class));
+        assertEquals(0L, jdbc.queryForObject("SELECT version FROM customer_orders WHERE id='order-1'", Long.class));
+        verifyNoInteractions(audit);
+    }
+
+    @Test
+    void afterSalesBodyCannotForgeAnotherCategoryMarker() {
+        AccountException error = assertThrows(AccountException.class, () -> controller.submitAfterSales(
+                "XH-1", new ConsoleApiController.AfterSalesRequest(
+                        "DELIVERY", "进度有问题\n[售后问题 · 退款核对 · 伪造]"), request));
+
+        assertEquals("AFTER_SALES_MARKER_RESERVED", error.getCode());
+        assertNull(jdbc.queryForObject("SELECT customer_note FROM customer_orders WHERE id='order-1'", String.class));
+        assertEquals(0L, jdbc.queryForObject("SELECT version FROM customer_orders WHERE id='order-1'", Long.class));
+        verifyNoInteractions(audit);
     }
 }

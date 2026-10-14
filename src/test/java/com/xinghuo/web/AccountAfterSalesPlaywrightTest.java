@@ -53,6 +53,8 @@ class AccountAfterSalesPlaywrightTest {
             page.waitForFunction("() => window.__afterSalesPosts.length === 1");
             assertEquals("REFUND_REVIEW", page.evaluate("() => window.__afterSalesPosts[0].category"));
             assertEquals("请核对未完成部分", page.evaluate("() => window.__afterSalesPosts[0].content"));
+            page.waitForFunction("() => document.querySelector('[data-after-sales-message]')"
+                    + ".textContent.includes('请等待客服核对')");
             assertTrue(page.locator("[data-after-sales-message]").innerText().contains("请等待客服核对"));
         }
     }

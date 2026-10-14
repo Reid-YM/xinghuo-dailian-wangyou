@@ -43,7 +43,7 @@ class AccountAfterSalesPlaywrightTest {
             assertTrue(history.contains("处理中"));
             assertTrue(history.contains("正在处理 <img src=x onerror=alert(1)>"));
             assertTrue(history.indexOf("正在处理 <img") < history.indexOf("第二条回复"));
-            assertEquals(2, page.locator("[data-after-sales-history] .account-after-sales-entry").last().locator("p").count());
+            assertEquals(2, page.locator("[data-after-sales-history] .account-after-sales-entry").last().locator(":scope > p").count());
             page.locator(".account-after-sales-followup textarea").fill("新的补充 <img src=x onerror=alert(1)>");
             page.locator(".account-after-sales-followup button[type=submit]").click();
             page.waitForFunction("() => window.__followups.length===1 && document.querySelector('[data-after-sales-history]').textContent.includes('新的补充')");

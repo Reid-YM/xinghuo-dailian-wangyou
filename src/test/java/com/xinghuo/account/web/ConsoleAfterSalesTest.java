@@ -44,6 +44,7 @@ class ConsoleAfterSalesTest {
                 """);
         jdbc.execute("CREATE TABLE customer_order_after_sales_case_state (record_id BIGINT PRIMARY KEY, status VARCHAR(24), handling_note VARCHAR(600), handled_by_admin_user_id BIGINT, updated_at TIMESTAMP, version BIGINT)");
         jdbc.execute("CREATE TABLE customer_order_after_sales_case_events (id BIGINT AUTO_INCREMENT PRIMARY KEY, record_id BIGINT, from_status VARCHAR(24), to_status VARCHAR(24), handling_note VARCHAR(600), customer_reply VARCHAR(600), handled_by_admin_user_id BIGINT, created_at TIMESTAMP)");
+        jdbc.execute("CREATE TABLE customer_order_after_sales_case_followups (id BIGINT AUTO_INCREMENT PRIMARY KEY, record_id BIGINT, account_id BIGINT, content VARCHAR(240), created_at_ms BIGINT)");
         jdbc.update("""
                 INSERT INTO customer_orders(id,order_no,business_no,customer_account_id,status,progress_text,version,created_at,updated_at)
                 VALUES('order-1','ORD-1','XH-1',1,'COMPLETED','交付完成',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
@@ -215,5 +216,35 @@ class ConsoleAfterSalesTest {
         request.setAttribute(AccountAuthInterceptor.ATTR_ACCOUNT, Account.builder().id(2L).build());
         assertEquals("ORDER_NOT_FOUND", assertThrows(AccountException.class,
                 () -> controller.order("XH-1", request)).getCode());
+    }
+
+    @Test
+    void customerCanFollowUpOnlyOnOwnExistingCaseWithoutChangingOrderState() {
+        controller.submitAfterSales("XH-1",
+                new ConsoleApiController.AfterSalesRequest("DELIVERY", "请核对进度"), request);
+        long recordId = jdbc.queryForObject("SELECT id FROM customer_order_after_sales_records", Long.class);
+
+        var result = controller.followUpAfterSales("XH-1", recordId,
+                new ConsoleApiController.AfterSalesFollowupRequest("新的进度截图已准备好"), request);
+        assertTrue(result.ok());
+        var detail = controller.order("XH-1", request);
+        assertEquals("新的进度截图已准备好", detail.afterSalesCases().getFirst().followups().getFirst().content());
+        assertEquals("COMPLETED", detail.order().status());
+        assertEquals("OPEN", detail.afterSalesCases().getFirst().status());
+        assertEquals(1L, jdbc.queryForObject("SELECT COUNT(*) FROM customer_order_after_sales_case_followups", Long.class));
+
+        assertEquals("AFTER_SALES_RECORD_NOT_FOUND", assertThrows(AccountException.class,
+                () -> controller.followUpAfterSales("XH-1", recordId + 1,
+                        new ConsoleApiController.AfterSalesFollowupRequest("跨记录"), request)).getCode());
+        assertEquals("AFTER_SALES_CONTENT_TOO_LONG", assertThrows(AccountException.class,
+                () -> controller.followUpAfterSales("XH-1", recordId,
+                        new ConsoleApiController.AfterSalesFollowupRequest("字".repeat(241)), request)).getCode());
+        request.setAttribute(AccountAuthInterceptor.ATTR_ACCOUNT, Account.builder().id(2L).build());
+        assertEquals("ORDER_NOT_FOUND", assertThrows(AccountException.class,
+                () -> controller.followUpAfterSales("XH-1", recordId,
+                        new ConsoleApiController.AfterSalesFollowupRequest("不属于我"), request)).getCode());
+        assertEquals("ORDER_NOT_FOUND", assertThrows(AccountException.class,
+                () -> controller.order("XH-1", request)).getCode());
+        assertEquals(1L, jdbc.queryForObject("SELECT COUNT(*) FROM customer_order_after_sales_case_followups", Long.class));
     }
 }

@@ -96,6 +96,10 @@ public class XingweiAfterSalesCaseService {
                        ON own.business_no = COALESCE(o.business_no, o.order_no)
                 LEFT JOIN xw_departments d ON d.id = own.department_id
                 LEFT JOIN customer_order_after_sales_case_state s ON s.record_id = r.id
+                LEFT JOIN (
+                    SELECT record_id, MAX(created_at_ms) AS latest_followup_at_ms
+                      FROM customer_order_after_sales_case_followups GROUP BY record_id
+                ) f ON f.record_id = r.id
                 WHERE %s
                 """.formatted(where);
         Long total = jdbc.queryForObject("SELECT COUNT(*) " + from, Long.class, args.toArray());
@@ -103,15 +107,20 @@ public class XingweiAfterSalesCaseService {
                 SELECT COALESCE(o.business_no, o.order_no) AS business_no,
                        r.id, r.order_no, r.category, r.category_label, r.content,
                        r.submitted_at_ms, s.status, s.handling_note,
-                       s.handled_by_admin_user_id, s.updated_at, s.version
+                       s.handled_by_admin_user_id, s.updated_at, s.version,
+                       f.latest_followup_at_ms
                 %s
-                ORDER BY r.submitted_at_ms DESC, r.id DESC
+                ORDER BY GREATEST(r.submitted_at_ms, COALESCE(f.latest_followup_at_ms, 0)) DESC, r.id DESC
                 LIMIT ? OFFSET ?
                 """.formatted(from);
         args.add(QUEUE_PAGE_SIZE);
         args.add(page * QUEUE_PAGE_SIZE);
         List<QueueItem> items = jdbc.query(sql,
-                (rs, rowNum) -> new QueueItem(rs.getString("business_no"), map(rs, rowNum)), args.toArray());
+                (rs, rowNum) -> {
+                    Object latest = rs.getObject("latest_followup_at_ms");
+                    return new QueueItem(rs.getString("business_no"), map(rs, rowNum),
+                            latest == null ? null : ((Number) latest).longValue());
+                }, args.toArray());
         long count = total == null ? 0L : total;
         return new QueueSnapshot(items, count, page, QUEUE_PAGE_SIZE, normalizedStatus,
                 normalizedCategory, keyword,
@@ -212,7 +221,13 @@ public class XingweiAfterSalesCaseService {
                         rs.getString("handling_note"), rs.getString("customer_reply"),
                         rs.getLong("handled_by_admin_user_id"),
                         rs.getTimestamp("created_at").toInstant()), recordId);
-        return new CaseHistory(current, events);
+        List<CustomerFollowup> customerFollowups = jdbc.query("""
+                SELECT id, content, created_at_ms
+                  FROM customer_order_after_sales_case_followups
+                 WHERE record_id = ? ORDER BY id
+                """, (rs, rowNum) -> new CustomerFollowup(rs.getLong("id"),
+                        rs.getString("content"), java.time.Instant.ofEpochMilli(rs.getLong("created_at_ms"))), recordId);
+        return new CaseHistory(current, events, customerFollowups);
     }
 
     private String orderNo(String businessNo, Authentication authentication, String permission) {
@@ -262,9 +277,12 @@ public class XingweiAfterSalesCaseService {
     public record CaseEvent(long eventId, String fromStatus, String toStatus, String handlingNote,
             String customerReply, long handledByAdminUserId, java.time.Instant createdAt) {}
 
-    public record CaseHistory(CaseRecord current, List<CaseEvent> events) {}
+    public record CustomerFollowup(long followupId, String content, java.time.Instant createdAt) {}
 
-    public record QueueItem(String businessNo, CaseRecord record) {}
+    public record CaseHistory(CaseRecord current, List<CaseEvent> events,
+                              List<CustomerFollowup> customerFollowups) {}
+
+    public record QueueItem(String businessNo, CaseRecord record, Long latestCustomerFollowupAtMs) {}
 
     public record QueueSnapshot(List<QueueItem> items, long totalCount, int page, int pageSize,
             String status, String category, String query, boolean hasNext) {}

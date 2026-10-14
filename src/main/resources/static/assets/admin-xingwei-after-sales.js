@@ -23,7 +23,8 @@
     const rows=$('caseRows');rows.replaceChildren();
     for(const item of snapshot.items||[]){
       const r=item.record,tr=document.createElement('tr');
-      for(const value of [item.businessNo,r.categoryLabel,r.content,labels[r.status]||r.status,date(r.submittedAtMs)])tr.append(node('td',value));
+      const activity=item.latestCustomerFollowupAtMs?`客户补充 · ${date(item.latestCustomerFollowupAtMs)}`:date(r.submittedAtMs);
+      for(const value of [item.businessNo,r.categoryLabel,r.content,labels[r.status]||r.status,activity])tr.append(node('td',value));
       const cell=document.createElement('td'),button=node('button','查看处理','xw-button xw-button-ghost');button.type='button';button.addEventListener('click',()=>openCase(item.businessNo,r.recordId));cell.append(button);tr.append(cell);rows.append(tr);
     }
     if(!rows.children.length){const tr=document.createElement('tr'),td=node('td','当前筛选没有售后记录');td.colSpan=6;tr.append(td);rows.append(tr);}
@@ -40,12 +41,14 @@
     catch(error){message(error.message);}
   }
   async function openCase(businessNo,recordId){
-    state.businessNo=businessNo;state.selected=null;$('caseDetail').hidden=false;$('caseCurrent').replaceChildren();$('caseEvents').replaceChildren();$('caseUpdate').hidden=true;
+    state.businessNo=businessNo;state.selected=null;$('caseDetail').hidden=false;$('caseCurrent').replaceChildren();$('caseFollowups').replaceChildren();$('caseEvents').replaceChildren();$('caseUpdate').hidden=true;
     message('正在读取处理历史……');
     try{
       const history=await api(`/api/admin/xingwei/business/orders/${encodeURIComponent(businessNo)}/after-sales/records/${encodeURIComponent(recordId)}/history`);
       const current=history.current;state.selected=current;
       field($('caseCurrent'),'业务编号',businessNo);field($('caseCurrent'),'问题类型',current.categoryLabel);field($('caseCurrent'),'客户说明',current.content);field($('caseCurrent'),'当前状态',labels[current.status]||current.status);field($('caseCurrent'),'内部处理说明',current.handlingNote);
+      for(const followup of history.customerFollowups||[]){const article=node('article','', 'xw-case-event');article.append(node('strong',`客户补充 · ${date(followup.createdAt)}`));field(article,'补充内容',followup.content);$('caseFollowups').append(article);}
+      if(!(history.customerFollowups||[]).length)$('caseFollowups').append(node('p','暂无客户补充。'));
       for(const event of history.events||[]){const article=node('article','', 'xw-case-event');const change=event.fromStatus===event.toStatus?'追加客户回复':`${labels[event.fromStatus]||event.fromStatus} → ${labels[event.toStatus]||event.toStatus}`;article.append(node('strong',`${change} · ${date(event.createdAt)}`));field(article,'内部处理说明',event.handlingNote);if(event.customerReply)field(article,'客户回复',event.customerReply);$('caseEvents').append(article);}
       if(!(history.events||[]).length)$('caseEvents').append(node('p','暂无 V4C 处理事件；此前处理动作可在审计记录查看。'));
       if(can('order:manage')){

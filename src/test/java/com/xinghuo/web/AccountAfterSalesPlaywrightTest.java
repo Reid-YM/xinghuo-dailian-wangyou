@@ -18,15 +18,18 @@ class AccountAfterSalesPlaywrightTest {
             Page page = browser.newPage();
             page.setContent("<body data-page='account-center-orders'><div data-hub-orders></div><aside data-hub-order-detail hidden></aside></body>");
             page.evaluate("""
-                    () => { window.fetch = async (url) => {
+                    () => { window.__followups=[]; window.fetch = async (url, options={}) => {
                       let data;
                       if (url === '/api/account/me') data={displayName:'客户'};
                       else if (url === '/api/console/orders') data={items:[{businessNo:'XH-1',serviceName:'服务'}]};
                       else if (url === '/api/console/orders/XH-1') data={order:{businessNo:'XH-1'},timeline:[],
                         afterSalesRecords:[{category:'交付或进度',submittedAt:'2026-10-15T00:00:00Z',content:'请核对'}],
-                        afterSalesCases:[{category:'交付或进度',status:'IN_PROGRESS',submittedAt:'2026-10-15T00:00:00Z',customerReply:'第二条回复',
+                        afterSalesCases:[{recordId:5,category:'交付或进度',status:'IN_PROGRESS',submittedAt:'2026-10-15T00:00:00Z',customerReply:'第二条回复',
                           replies:[{status:'IN_PROGRESS',content:'正在处理 <img src=x onerror=alert(1)>',repliedAt:'2026-10-15T01:00:00Z'},
-                                   {status:'IN_PROGRESS',content:'第二条回复',repliedAt:'2026-10-15T02:00:00Z'}]}]};
+                                   {status:'IN_PROGRESS',content:'第二条回复',repliedAt:'2026-10-15T02:00:00Z'}],followups:window.__followups}]};
+                      else if (url.endsWith('/after-sales/records/5/followups') && options.method==='POST') {
+                        window.__followups.push({content:JSON.parse(options.body).content,createdAt:'2026-10-15T03:00:00Z'});data={ok:true};
+                      }
                       else if (url === '/api/account/payments/order/XH-1') return new Response('{}',{status:404});
                       else throw new Error('unexpected fetch '+url);
                       return new Response(JSON.stringify(data),{status:200,headers:{'Content-Type':'application/json'}});
@@ -40,7 +43,12 @@ class AccountAfterSalesPlaywrightTest {
             assertTrue(history.contains("处理中"));
             assertTrue(history.contains("正在处理 <img src=x onerror=alert(1)>"));
             assertTrue(history.indexOf("正在处理 <img") < history.indexOf("第二条回复"));
-            assertEquals(2, page.locator("[data-after-sales-history] .account-after-sales-entry").last().locator("p").count());
+            assertEquals(2, page.locator("[data-after-sales-history] .account-after-sales-entry").last().locator(":scope > p").count());
+            page.locator(".account-after-sales-followup textarea").fill("新的补充 <img src=x onerror=alert(1)>");
+            page.locator(".account-after-sales-followup button[type=submit]").click();
+            page.waitForFunction("() => window.__followups.length===1 && document.querySelector('[data-after-sales-history]').textContent.includes('新的补充')");
+            assertTrue(page.locator("[data-after-sales-history]").innerText().contains("我的补充"));
+            assertEquals(0, page.locator("[data-after-sales-history] img").count());
             assertTrue(!history.contains("内部处理说明"));
             assertEquals(0, page.locator("[data-after-sales-history] img").count());
         }

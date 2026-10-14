@@ -21,7 +21,7 @@ class XingweiAfterSalesPlaywrightTest {
                     <form id="caseFilters"><select name="status"><option value=""></option></select><select name="category"><option value=""></option></select><input name="q"></form>
                     <p id="caseMessage"></p><table><tbody id="caseRows"></tbody></table>
                     <button id="casePrev"></button><span id="casePage"></span><button id="caseNext"></button>
-                    <section id="caseDetail" hidden><div id="caseCurrent"></div><div id="caseEvents"></div>
+                    <section id="caseDetail" hidden><div id="caseCurrent"></div><div id="caseFollowups"></div><div id="caseEvents"></div>
                       <form id="caseUpdate" hidden><select name="status"><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select><textarea name="handlingNote"></textarea><textarea name="customerReply"></textarea><button type="submit">保存</button></form>
                     </section>
                     """);
@@ -29,8 +29,8 @@ class XingweiAfterSalesPlaywrightTest {
                     () => { window.__sent=[]; window.fetch=async (url, options={}) => {
                       let data;
                       if(url==='/api/admin/xingwei/access') data={permissionCodes:['order:view','order:manage']};
-                      else if(url.startsWith('/api/admin/xingwei/business/after-sales/cases?')) data={items:[{businessNo:'XW-1',record:{recordId:5,categoryLabel:'交付或进度',content:'请核对',status:'IN_PROGRESS',submittedAtMs:1000}}],totalCount:1,hasNext:false};
-                      else if(url.endsWith('/history')) data={current:{recordId:5,categoryLabel:'交付或进度',content:'请核对',status:'IN_PROGRESS',version:window.__sent.length?2:1},events:[]};
+                      else if(url.startsWith('/api/admin/xingwei/business/after-sales/cases?')) data={items:[{businessNo:'XW-1',record:{recordId:5,categoryLabel:'交付或进度',content:'请核对',status:'IN_PROGRESS',submittedAtMs:1000},latestCustomerFollowupAtMs:2000}],totalCount:1,hasNext:false};
+                      else if(url.endsWith('/history')) data={current:{recordId:5,categoryLabel:'交付或进度',content:'请核对',status:'IN_PROGRESS',version:window.__sent.length?2:1},events:[],customerFollowups:[{content:'客户有新补充',createdAt:'2026-10-15T03:00:00Z'}]};
                       else if(options.method==='PUT'){window.__sent.push(JSON.parse(options.body));data={status:'IN_PROGRESS',version:2};}
                       else throw new Error('unexpected '+url);
                       return new Response(JSON.stringify(data),{status:200,headers:{'Content-Type':'application/json'}});
@@ -39,6 +39,8 @@ class XingweiAfterSalesPlaywrightTest {
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(
                     Path.of("src/main/resources/static/assets/admin-xingwei-after-sales.js")));
             page.locator("#caseRows button").click();
+            assertTrue(page.locator("#caseRows").innerText().contains("客户补充"));
+            page.locator("#caseFollowups").getByText("客户有新补充").waitFor();
             page.waitForFunction("() => Boolean(document.querySelector('#caseUpdate option[data-same-status]'))");
             page.locator("#caseUpdate select[name=status]").selectOption("IN_PROGRESS");
             page.locator("#caseUpdate textarea[name=handlingNote]").fill("内部跟进");

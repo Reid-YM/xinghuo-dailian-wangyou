@@ -1,5 +1,6 @@
 package com.xinghuo.service;
 
+import com.xinghuo.account.service.AfterSalesNoteParser;
 import com.xinghuo.security.XingweiPermissionGuard;
 import jakarta.servlet.http.HttpServletRequest;
 import java.sql.ResultSet;
@@ -162,7 +163,11 @@ public class XingweiBusinessScopeService {
         args.add(AFTER_SALES_PAGE_SIZE);
         args.add(page * AFTER_SALES_PAGE_SIZE);
         List<Map<String, Object>> items = jdbc.query(
-                sql, (rs, rowNum) -> orderRow(rs, authentication), args.toArray());
+                sql, (rs, rowNum) -> {
+                    Map<String, Object> row = orderRow(rs, authentication);
+                    row.put("afterSalesRecords", AfterSalesNoteParser.parse(rs.getString("customer_note")));
+                    return row;
+                }, args.toArray());
         Map<String, Object> result = snapshot(access, items);
         result.put("totalCount", totalCount);
         result.put("page", page);

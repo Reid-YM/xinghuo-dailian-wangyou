@@ -11,7 +11,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.xinghuo.account.service.AfterSalesNoteParser;
 import com.xinghuo.security.XingweiPermissionGuard;
+import java.sql.ResultSet;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -21,6 +24,44 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.core.Authentication;
 
 class XingweiExceptionQueueTest {
+    @Test
+    void afterSalesListReturnsOnlyParsedHistoryInEachScopedOrder() throws Exception {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        XingweiPermissionGuard permissions = mock(XingweiPermissionGuard.class);
+        Authentication authentication = mock(Authentication.class);
+        ResultSet row = mock(ResultSet.class);
+        String note = """
+                普通备注
+
+                [售后问题 · 退款核对 · 2026-10-14T10:00:00Z]
+                请核对金额
+
+                [用户补充 2026-10-14T11:00:00Z]
+                新的普通备注
+                """;
+        when(row.getString("customer_note")).thenReturn(note);
+        when(row.getString("business_no")).thenReturn("XH-1");
+        when(permissions.resolve(authentication)).thenReturn(new XingweiPermissionGuard.AccessSnapshot(
+                "SHADOW_RBAC", false, List.of("order:view"), List.of("XW_CUSTOMER_ORDER"),
+                "DEPARTMENT", 9L, "03"));
+        when(jdbc.queryForObject(anyString(), eq(Long.class), any(Object[].class))).thenReturn(1L);
+        when(jdbc.query(anyString(), any(RowMapper.class), any(Object[].class))).thenAnswer(invocation -> {
+            RowMapper<Map<String, Object>> mapper = invocation.getArgument(1);
+            return List.of(mapper.mapRow(row, 0));
+        });
+
+        var result = new XingweiBusinessScopeService(jdbc, permissions, mock(AuditService.class))
+                .afterSalesOrderSnapshot(authentication, null, 0);
+        @SuppressWarnings("unchecked")
+        var items = (List<Map<String, Object>>) result.get("items");
+        assertEquals(1, items.size());
+        assertEquals(note, items.getFirst().get("customerNote"));
+        assertEquals(List.of(new AfterSalesNoteParser.AfterSalesRecord(
+                        "退款核对", Instant.parse("2026-10-14T10:00:00Z"), "请核对金额")),
+                items.getFirst().get("afterSalesRecords"));
+        assertEquals("DEPARTMENT", result.get("dataScope"));
+    }
+
     @Test
     void exceptionFilterAndDepartmentScopeAreAppliedBeforeTheOrderLimit() {
         JdbcTemplate jdbc = mock(JdbcTemplate.class);

@@ -3,6 +3,7 @@ package com.xinghuo.account.web;
 import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountAuditService;
 import com.xinghuo.account.service.AccountException;
+import com.xinghuo.account.service.AfterSalesNoteParser;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -11,8 +12,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/console")
 public class ConsoleApiController {
     private static final String AFTER_SALES_MARKER = "[售后问题 ·";
-    private static final Pattern NOTE_BLOCK_HEADER = Pattern.compile(
-            "(?:\\A|(?<=\\n\\n))\\[(?:售后问题 · (交付或进度|取消服务|退款核对|其他问题) · ([^\\]\\n]+)|用户补充 ([^\\]\\n]+))\\]\\n");
 
     private final JdbcTemplate jdbc;
     private final AccountAuditService audit;
@@ -275,32 +272,9 @@ public class ConsoleApiController {
     }
 
     private static List<AfterSalesRecord> afterSalesRecords(String note) {
-        if (note == null || note.isEmpty()) return List.of();
-        List<AfterSalesRecord> records = new ArrayList<>();
-        Matcher headers = NOTE_BLOCK_HEADER.matcher(note);
-        String category = null;
-        Instant submittedAt = null;
-        int contentStart = -1;
-        while (headers.find()) {
-            String timestamp = headers.group(2) == null ? headers.group(3) : headers.group(2);
-            Instant parsedAt;
-            try {
-                parsedAt = Instant.parse(timestamp);
-            } catch (RuntimeException invalidTimestamp) {
-                continue;
-            }
-            if (category != null) {
-                records.add(new AfterSalesRecord(category, submittedAt,
-                        note.substring(contentStart, headers.start()).strip()));
-            }
-            category = headers.group(1);
-            submittedAt = category == null ? null : parsedAt;
-            contentStart = category == null ? -1 : headers.end();
-        }
-        if (category != null) {
-            records.add(new AfterSalesRecord(category, submittedAt, note.substring(contentStart).strip()));
-        }
-        return List.copyOf(records);
+        return AfterSalesNoteParser.parse(note).stream()
+                .map(record -> new AfterSalesRecord(record.category(), record.submittedAt(), record.content()))
+                .toList();
     }
 
     private static Instant toInstant(Timestamp ts) { return ts == null ? null : ts.toInstant(); }

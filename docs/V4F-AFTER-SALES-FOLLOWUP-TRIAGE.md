@@ -6,4 +6,4 @@ V4E 客户补充已经出现在员工队列和详情；V4F 增加“客户补充
 
 V74 仅在 V71 状态表增加默认 0 的游标列，旧版本插入/更新可继续运行，适合 18080、8081、8080 并行切换。精确 Git blob hash 已纳入迁移审核清单。回滚 JAR 不会回退 V74 列或已确认游标；数据库数据保留。无需生产配置，也不触发退款、真实收款或企业微信写入。V3H 小程序支付 PR #384、企业微信写入 PR #372 继续独立验收。
 
-发布路径：功能 PR 与主线 Java/Maven、Chromium/WebKit CI → `deploy/production` 的 `.deploy-request` 精确主线 SHA → 18080、8081、8080 与发布后核验。生产通过后，再将后台阶段和 Release History 从候选同步为已上线。
+发布验收：功能 PR #455 和主线 CI #38622707713 均通过 Java/Maven、Chromium/WebKit。受控发布请求 `b4fc462` 将主线 `7934e49ea083839c39b9f7ee87e4465bee29ccaf` 发布到生产；Deploy Production #38623083440 通过 V74 精确哈希审核、18080 候选、8081 金丝雀、8080 正式入口与发布后核验。正式 JAR SHA256 为 `13897d46eec4790e4f9e4af48e4e3bc63a9c37a3989d031e818ed18118b8acad`。本状态 PR 将后台阶段及 Release History 同步为已上线，仍须通过主线 CI 和同一发布门禁。

@@ -10,6 +10,7 @@
   const quotePanel = document.getElementById('xwbQuotesPanel');
   const orderPanel = document.getElementById('xwbOrdersPanel');
   const orderHeading = document.getElementById('xwbOrderHeading');
+  const orderDescription = document.getElementById('xwbOrderDescription');
   const noAccess = document.getElementById('xwbNoAccess');
   const quoteRows = document.getElementById('xwbQuoteRows');
   const orderRows = document.getElementById('xwbOrderRows');
@@ -269,7 +270,10 @@
   function updatePanels() {
     quotePanel.hidden = activeTab !== 'quotes';
     orderPanel.hidden = activeTab === 'quotes';
-    if (orderHeading) orderHeading.textContent = activeTab === 'exceptions' ? '异常订单' : '订单与履约';
+    if (orderHeading) orderHeading.textContent = activeTab === 'exceptions' ? '异常订单' : activeTab === 'after-sales' ? '售后问题记录' : '订单与履约';
+    if (orderDescription) orderDescription.textContent = activeTab === 'after-sales'
+      ? '这里集中展示客户曾提交售后说明的订单，按当前账号的数据范围筛选。记录不代表退款申请或处理状态。'
+      : '询价转订单后沿用同一个 business_no，因此负责人和中心归属自动继承。异常订单由后端按状态和数据范围独立筛选。';
     tabs.forEach((button) => button.setAttribute('aria-selected', String(button.dataset.tab === activeTab)));
   }
 
@@ -278,10 +282,10 @@
     if (tab !== 'quotes' && !can('order:view')) return;
     activeTab = tab;
     updatePanels();
-    const label = tab === 'quotes' ? '询价' : tab === 'exceptions' ? '异常订单' : '订单';
+    const label = tab === 'quotes' ? '询价' : tab === 'exceptions' ? '异常订单' : tab === 'after-sales' ? '售后问题' : '订单';
     setMessage(`正在读取${label}数据……`);
     try {
-      const endpoint = tab === 'exceptions' ? 'orders/exceptions' : tab;
+      const endpoint = tab === 'exceptions' ? 'orders/exceptions' : tab === 'after-sales' ? 'orders/after-sales' : tab;
       const snapshot = await fetchJson(`/api/admin/xingwei/business/${endpoint}`);
       currentSnapshot = snapshot;
       if (tab === 'quotes') renderQuotes(snapshot.items || []);
@@ -390,6 +394,7 @@
 
   function selectInitialTab() {
     const requested = new URLSearchParams(location.search).get('tab');
+    if (requested === 'after-sales' && can('order:view')) return 'after-sales';
     if (requested === 'exceptions' && can('order:view')) return 'exceptions';
     if (requested === 'orders' && can('order:view')) return 'orders';
     if (requested === 'quotes' && can('quote:view')) return 'quotes';
@@ -407,6 +412,7 @@
       tabs.find((button) => button.dataset.tab === 'quotes').hidden = !can('quote:view');
       tabs.find((button) => button.dataset.tab === 'orders').hidden = !can('order:view');
       tabs.find((button) => button.dataset.tab === 'exceptions').hidden = !can('order:view');
+      tabs.find((button) => button.dataset.tab === 'after-sales').hidden = !can('order:view');
       activeTab = selectInitialTab();
       if (!activeTab) {
         noAccess.hidden = false;

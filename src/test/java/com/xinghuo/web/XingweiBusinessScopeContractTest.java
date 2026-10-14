@@ -51,9 +51,18 @@ class XingweiBusinessScopeContractTest {
         String service = read("java/com/xinghuo/service/XingweiBusinessScopeService.java");
 
         assertTrue(controller.contains("@GetMapping(\"/orders/exceptions\")\n    @PreAuthorize(\"@xingweiPermissionGuard.has(authentication, 'order:view')\")"));
-        assertTrue(service.contains("exceptionsOnly ? \" AND o2.status = 'EXCEPTION'\" : \"\""));
+        assertTrue(service.contains("case EXCEPTIONS -> \" AND o2.status = 'EXCEPTION'\""));
         assertTrue(service.contains("WHERE %s\n                ORDER BY o2.updated_at DESC\n                LIMIT %d"));
         assertTrue(service.contains("ScopeClause scope = scopeClause(access)"));
+    }
+
+    @Test
+    void afterSalesRecordListRequiresOrderViewAndFiltersInsideScope() throws Exception {
+        String controller = read("java/com/xinghuo/controller/XingweiBusinessScopeController.java");
+        String service = read("java/com/xinghuo/service/XingweiBusinessScopeService.java");
+
+        assertTrue(controller.contains("@GetMapping(\"/orders/after-sales\")\n    @PreAuthorize(\"@xingweiPermissionGuard.has(authentication, 'order:view')\")"));
+        assertTrue(service.contains("case AFTER_SALES -> \" AND LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0\""));
     }
 
     private static String read(String relative) throws Exception {

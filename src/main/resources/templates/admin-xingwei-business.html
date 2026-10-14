@@ -47,6 +47,7 @@
       <button type="button" class="xwb-tab" data-tab="quotes" role="tab" aria-selected="false">询价与线索</button>
       <button type="button" class="xwb-tab" data-tab="orders" role="tab" aria-selected="false">订单与履约</button>
       <button type="button" class="xwb-tab" data-tab="exceptions" role="tab" aria-selected="false">异常订单</button>
+      <button type="button" class="xwb-tab" data-tab="after-sales" role="tab" aria-selected="false">售后问题记录</button>
     </div>
     <label class="xwb-search">筛选当前列表
       <input id="xwbSearch" type="search" placeholder="业务编号、游戏、需求、客户联系方式、负责人……" autocomplete="off"/>
@@ -77,7 +78,7 @@
 
   <section class="xw-data-panel xwb-panel" id="xwbOrdersPanel" hidden>
     <div class="xw-data-head">
-      <div><h3 id="xwbOrderHeading">订单与履约</h3><p>询价转订单后沿用同一个 business_no，因此负责人和中心归属自动继承。异常订单由后端按状态和数据范围独立筛选。</p></div>
+      <div><h3 id="xwbOrderHeading">订单与履约</h3><p id="xwbOrderDescription">询价转订单后沿用同一个 business_no，因此负责人和中心归属自动继承。异常订单由后端按状态和数据范围独立筛选。</p></div>
       <span class="xw-pill" id="xwbOrderPermission">order:view</span>
     </div>
     <div class="xw-table-wrap xw-table-tall">

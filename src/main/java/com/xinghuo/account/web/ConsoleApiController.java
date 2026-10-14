@@ -113,13 +113,17 @@ public class ConsoleApiController {
                                       @Valid @RequestBody SupplementRequest body,
                                       HttpServletRequest request) {
         Account account = AccountAuthInterceptor.requireAccount(request);
-        findOrder(account, businessNo);
+        OrderItem order = findOrder(account, businessNo);
+        String note = appendBlock(body.content());
         int updated = jdbc.update("""
                 UPDATE customer_orders
                    SET customer_note = CONCAT(COALESCE(customer_note, ''), ?), version = version + 1, updated_at = CURRENT_TIMESTAMP(6)
                  WHERE customer_account_id = ? AND (business_no = ? OR order_no = ?)
-                """, appendBlock(body.content()), account.getId(), businessNo, businessNo);
-        if (updated == 0) throw AccountException.notFound("ORDER_NOT_FOUND", "订单不存在或不属于当前账号");
+                   AND CHAR_LENGTH(COALESCE(customer_note, '')) + CHAR_LENGTH(?) <= 500
+                """, note, account.getId(), order.businessNo(), order.orderNo(), note);
+        if (updated == 0) {
+            throw AccountException.conflict("ORDER_NOTE_FULL", "订单说明已满，请凭业务编号联系客服处理");
+        }
         audit.record(account.getId(), "CONSOLE_ORDER_SUPPLEMENT", "businessNo=" + businessNo, request);
         return OkResponse.of("订单补充说明已提交");
     }

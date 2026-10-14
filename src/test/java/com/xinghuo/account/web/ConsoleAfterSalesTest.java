@@ -79,4 +79,17 @@ class ConsoleAfterSalesTest {
         assertEquals("x".repeat(490), jdbc.queryForObject("SELECT customer_note FROM customer_orders WHERE id='order-1'", String.class));
         verifyNoInteractions(audit);
     }
+
+    @Test
+    void ordinaryOrderSupplementUsesSameCapacityGuard() {
+        assertTrue(controller.supplementOrder("ORD-1",
+                new ConsoleApiController.SupplementRequest("请补充进度"), request).ok());
+        String original = jdbc.queryForObject("SELECT customer_note FROM customer_orders WHERE id='order-1'", String.class);
+        assertTrue(original.contains("请补充进度"));
+
+        jdbc.update("UPDATE customer_orders SET customer_note=? WHERE id='order-1'", "x".repeat(490));
+        assertEquals("ORDER_NOTE_FULL", assertThrows(AccountException.class, () -> controller.supplementOrder(
+                "XH-1", new ConsoleApiController.SupplementRequest("继续补充"), request)).getCode());
+        assertEquals("x".repeat(490), jdbc.queryForObject("SELECT customer_note FROM customer_orders WHERE id='order-1'", String.class));
+    }
 }

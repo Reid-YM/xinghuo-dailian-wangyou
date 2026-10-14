@@ -196,7 +196,7 @@ class ConsoleAfterSalesTest {
         controller.submitAfterSales("XH-1",
                 new ConsoleApiController.AfterSalesRequest("DELIVERY", "请核对进度"), request);
         long recordId = jdbc.queryForObject("SELECT id FROM customer_order_after_sales_records", Long.class);
-        jdbc.update("INSERT INTO customer_order_after_sales_case_state VALUES (?, 'IN_PROGRESS', '内部核对金额', 7, CURRENT_TIMESTAMP, 1)", recordId);
+        jdbc.update("INSERT INTO customer_order_after_sales_case_state(record_id,status,handling_note,handled_by_admin_user_id,updated_at,version) VALUES (?, 'IN_PROGRESS', '内部核对金额', 7, CURRENT_TIMESTAMP, 1)", recordId);
         jdbc.update("INSERT INTO customer_order_after_sales_case_events(record_id,from_status,to_status,handling_note,customer_reply,handled_by_admin_user_id,created_at) VALUES (?, 'OPEN', 'IN_PROGRESS', '内部核对金额', '正在核对进度', 7, CURRENT_TIMESTAMP)", recordId);
         jdbc.update("INSERT INTO customer_order_after_sales_case_events(record_id,from_status,to_status,handling_note,customer_reply,handled_by_admin_user_id,created_at) VALUES (?, 'IN_PROGRESS', 'IN_PROGRESS', '内部继续联系', '已经联系负责人', 7, CURRENT_TIMESTAMP)", recordId);
         jdbc.update("INSERT INTO customer_order_after_sales_case_events(record_id,from_status,to_status,handling_note,customer_reply,handled_by_admin_user_id,created_at) VALUES (?, 'IN_PROGRESS', 'IN_PROGRESS', '仅内部备注', NULL, 7, CURRENT_TIMESTAMP)", recordId);

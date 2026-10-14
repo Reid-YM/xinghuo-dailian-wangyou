@@ -1,6 +1,6 @@
 # V3Z 售后记录独立存储
 
-状态：功能 PR #440 已通过 Java/Maven、Chromium/WebKit CI 并合入 `main`；V3Z 统一版本待经主线 CI 与生产门禁发布。
+状态：功能 PR #440 与版本 PR #441 已通过 Java/Maven、Chromium/WebKit CI 并合入 `main`；主线 CI #38583132442 双绿。发布请求 `eb83992` 经 `deploy/production` 的 `.deploy-request` 门禁，将主线 `a04d31e` 发布到生产；V70 精确内容评审通过，18080 候选、8081 金丝雀、8080 正式入口与发布后核验全部通过（Deploy Production #38583642151）。本状态 PR 将 V3Z 标记为已上线。
 
 V3Z 在订单备注之外增加 `customer_order_after_sales_records`。新提交在同一事务内更新订单版本、写入独立记录并记录审计；备注有空间时仍写入旧格式，便于旧版本回滚。备注已满时保留原文，售后提交仍可成功，独立记录会在客户订单详情和后台售后列表返回。
 

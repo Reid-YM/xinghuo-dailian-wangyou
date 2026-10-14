@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class XingweiAdminController {
     static final String CONSOLE_VERSION = "20261014-v3z";
-    static final String CONSOLE_STAGE = "V3Z · RELEASE CANDIDATE";
+    static final String CONSOLE_STAGE = "V3Z · STABLE PRODUCTION";
     static final String BUSINESS_VERSION = "20261014-v3z";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,9 +29,9 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-14", "V3Z", "待发布",
+            new ReleaseItem("2026-10-14", "V3Z", "已上线",
                     "售后问题记录独立存储",
-                    "V70 新增售后记录表；新提交在同一事务写入记录，订单备注有空间时兼容双写，备注已满仍可提交。客户详情与后台受权限范围约束的列表合并旧备注和新表记录，后台检索、分类、计数与分页覆盖两种来源。功能 PR #440 已合并，等待主线 CI 与生产门禁；不启用真实收款或企业微信写入。"),
+                    "V70 新增售后记录表；新提交在同一事务写入记录，订单备注有空间时兼容双写，备注已满仍可提交。客户详情与后台受权限范围约束的列表合并旧备注和新表记录，后台检索、分类、计数与分页覆盖两种来源。功能 PR #440、版本 PR #441 与生产门禁均已完成；不启用真实收款或企业微信写入。"),
             new ReleaseItem("2026-10-14", "V3Y", "已上线",
                     "后台售后记录结构化接口",
                     "后台售后列表在现有权限、数据范围、检索、分类和分页下，为每条可见订单新增 afterSalesRecords；与客户订单详情共用规范售后记录解析规则。保留 customerNote 等原字段，不改变前端、数据库、支付或企业微信写入。后端 PR #437、版本 PR #438 与生产门禁均已完成。"),

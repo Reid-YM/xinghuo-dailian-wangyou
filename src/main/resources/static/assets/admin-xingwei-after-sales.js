@@ -50,7 +50,7 @@
         const button=document.querySelector(`[data-case-status="${status}"]`);
         if(button){$(id).textContent=String(summary[key]??0);button.disabled=false;}
       }
-      $('caseSummaryMessage').textContent='全部售后记录的当前概览';
+      $('caseSummaryMessage').textContent='数字统计当前账号可查看的全部售后记录；点击状态会保留下面的问题类型、客户补充和搜索条件。';
     }catch(error){
       $('caseTotalCount').textContent='—';$('casePendingCount').textContent='—';
       document.querySelectorAll('[data-case-status]').forEach(button=>{button.disabled=true;button.querySelector('strong').textContent='—';});

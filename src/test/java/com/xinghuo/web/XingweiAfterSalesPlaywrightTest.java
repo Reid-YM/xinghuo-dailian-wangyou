@@ -45,6 +45,7 @@ class XingweiAfterSalesPlaywrightTest {
             assertEquals("OPEN", page.locator("#caseFilters select[name=status]").inputValue());
             assertEquals("4", page.locator("#casePendingCount").textContent());
             assertEquals("3", page.locator("#caseOpenCount").textContent());
+            assertTrue(page.locator("#caseSummaryMessage").textContent().contains("保留下面的问题类型"));
             page.locator("#caseNext").click();
             page.waitForFunction("() => window.__queueUrls.some(url => url.includes('page=3'))");
             assertTrue(page.url().contains("page=3"));

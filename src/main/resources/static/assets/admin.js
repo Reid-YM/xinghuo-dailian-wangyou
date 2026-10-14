@@ -1045,6 +1045,7 @@ async function loadDashboard() {
   $('#quoteSearch')?.addEventListener('input', renderQuotes);
 
   let orders = [];
+  let canManagePayment = false;
   async function loadOrders() {
     orders = (await api('/api/admin/orders')) || [];
     renderOrders();
@@ -1075,9 +1076,10 @@ async function loadDashboard() {
     if (!payment) {
       status.textContent = '尚未开放支付。请先确认最终报价。';
       close.classList.add('hidden');
-      prepare.disabled = false;
-      amount.disabled = false;
-      subject.disabled = false;
+      prepare.classList.toggle('hidden', !canManagePayment);
+      prepare.disabled = !canManagePayment;
+      amount.disabled = !canManagePayment;
+      subject.disabled = !canManagePayment;
       return;
     }
     const labels = { CREATED: '待生成二维码', APPROVED: '等待客户扫码', CAPTURED: '已支付', CANCELLED: '已关闭' };
@@ -1086,17 +1088,24 @@ async function loadDashboard() {
     subject.value = payment.subject;
     const active = payment.status === 'CREATED' || payment.status === 'APPROVED';
     close.dataset.paymentNo = payment.paymentNo;
-    close.classList.toggle('hidden', !active);
-    prepare.disabled = active || payment.status === 'CAPTURED';
-    amount.disabled = active || payment.status === 'CAPTURED';
-    subject.disabled = active || payment.status === 'CAPTURED';
+    close.classList.toggle('hidden', !active || !canManagePayment);
+    prepare.classList.toggle('hidden', !canManagePayment);
+    prepare.disabled = !canManagePayment || active || payment.status === 'CAPTURED';
+    amount.disabled = !canManagePayment || active || payment.status === 'CAPTURED';
+    subject.disabled = !canManagePayment || active || payment.status === 'CAPTURED';
   }
 
   async function loadOrderPayment(orderNo) {
     const panel = $('#orderPaymentPanel');
     panel.classList.add('hidden');
+    canManagePayment = false;
     if (!orderNo) return;
     try {
+      const access = await api('/api/admin/xingwei/access');
+      const permissions = access?.permissionCodes || [];
+      const canViewPayment = access?.allowAll || permissions.includes('payment:view') || permissions.includes('payment:manage');
+      if (!canViewPayment) return;
+      canManagePayment = Boolean(access?.allowAll || permissions.includes('payment:manage'));
       const payment = await api(`/api/admin/orders/${encodeURIComponent(orderNo)}/wechat-payment`);
       if ($('#orderForm').dataset.orderNo !== orderNo) return;
       panel.classList.remove('hidden');
@@ -1128,6 +1137,7 @@ async function loadDashboard() {
   }
 
   $('#orderPaymentPrepare')?.addEventListener('click', async () => {
+    if (!canManagePayment) return;
     const no = $('#orderForm').dataset.orderNo;
     const amount = $('#orderPaymentAmount').value.trim();
     const subject = $('#orderPaymentSubject').value.trim();
@@ -1146,6 +1156,7 @@ async function loadDashboard() {
   });
 
   $('#orderPaymentClose')?.addEventListener('click', async () => {
+    if (!canManagePayment) return;
     const button = $('#orderPaymentClose');
     const paymentNo = button.dataset.paymentNo;
     if (!paymentNo || !confirm('确认关闭这笔待支付单？关闭后客户不能再使用原二维码。')) return;

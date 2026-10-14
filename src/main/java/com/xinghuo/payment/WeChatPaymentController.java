@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,6 +52,7 @@ public class WeChatPaymentController {
     }
 
     @PostMapping("/api/admin/orders/{orderNo}/wechat-payment")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'payment:manage')")
     public PaymentView prepare(@PathVariable String orderNo, @RequestBody QuoteAmount body,
                                Authentication admin, HttpServletRequest request) {
         if (admin == null) throw new IllegalStateException("需要后台登录");
@@ -61,6 +63,7 @@ public class WeChatPaymentController {
     }
 
     @GetMapping("/api/admin/orders/{orderNo}/wechat-payment")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'payment:view')")
     public ResponseEntity<PaymentView> adminLatest(@PathVariable String orderNo, Authentication admin) {
         if (admin == null) throw new IllegalStateException("需要后台登录");
         WeChatNativePaymentService.Payment payment = payments.latestForAdminOrder(orderNo);
@@ -68,6 +71,7 @@ public class WeChatPaymentController {
     }
 
     @PostMapping("/api/admin/wechat-payments/{paymentNo}/close")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'payment:manage')")
     public Map<String, String> close(@PathVariable String paymentNo, Authentication admin,
                                      HttpServletRequest request) {
         if (admin == null) throw new IllegalStateException("需要后台登录");

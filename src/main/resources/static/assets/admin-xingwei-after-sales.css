@@ -1,3 +1,8 @@
+.xw-case-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.xw-case-summary-card{display:grid;gap:6px;padding:18px;border:1px solid #36404e;border-radius:12px;background:#171f29;color:#aeb6c2}
+.xw-case-summary-card strong{color:#f4f7fb;font-size:28px;line-height:1.2}
+#caseSummaryMessage{grid-column:1/-1;margin:0;color:#aeb6c2;font-size:12px}
+@media(max-width:520px){.xw-case-summary{grid-template-columns:1fr}}
 .xw-case-filters{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:20px 0}
 .xw-case-filters label,.xw-case-detail label{display:grid;gap:6px;color:#aeb6c2;font-size:12px}
 .xw-case-filters input,.xw-case-filters select,.xw-case-detail textarea,.xw-case-detail select{min-height:39px;padding:9px 11px;border:1px solid #36404e;border-radius:9px;background:#111820;color:#f4f7fb;font:inherit}

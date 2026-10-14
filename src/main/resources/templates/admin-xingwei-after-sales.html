@@ -9,8 +9,8 @@
   <title>售后处理 · 星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261014v3x"/>
-  <link rel="stylesheet" href="/assets/admin-xingwei-after-sales.css?v=20261015v4c"/>
-  <script defer src="/assets/admin-xingwei-after-sales.js?v=20261015v4f"></script>
+  <link rel="stylesheet" href="/assets/admin-xingwei-after-sales.css?v=20261015v4g"/>
+  <script defer src="/assets/admin-xingwei-after-sales.js?v=20261015v4g"></script>
 </head>
 <body>
 <main class="xwb-shell">
@@ -18,6 +18,11 @@
     <div class="xwb-top-actions"><a class="xw-button xw-button-ghost" href="/admin/xingwei/business?tab=after-sales">业务工作台</a><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回后台</a></div>
   </header>
   <section class="xwb-hero"><div><p class="xw-kicker">V4F · STABLE PRODUCTION</p><h2>按记录处理客户售后问题</h2><p>客户补充会显示在原售后记录中，待跟进筛选帮助客服集中处理新补充。客服提交处理时只确认已查看的补充，新到内容仍保留待跟进。只有明确填写的客服回复会显示给客户。内部处理说明和处理历史仅供有权限的员工查看；此处不发起退款。</p></div></section>
+  <section class="xw-case-summary" aria-label="售后概览">
+    <div class="xw-case-summary-card"><span>全部售后记录</span><strong id="caseTotalCount">—</strong></div>
+    <div class="xw-case-summary-card"><span>待跟进客户补充</span><strong id="casePendingCount">—</strong></div>
+    <p id="caseSummaryMessage" role="status">正在读取售后概览……</p>
+  </section>
   <form id="caseFilters" class="xw-case-filters">
     <label>处理状态<select name="status"><option value="">全部</option><option value="OPEN">待处理</option><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select></label>
     <label>问题类型<select name="category"><option value="">全部</option><option value="DELIVERY">交付或进度</option><option value="CANCELLATION">取消服务</option><option value="REFUND_REVIEW">退款核对</option><option value="OTHER">其他问题</option></select></label>

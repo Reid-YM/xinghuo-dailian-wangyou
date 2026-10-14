@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261015-v4f";
-    static final String CONSOLE_STAGE = "V4F · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261015-v4f";
+    static final String CONSOLE_VERSION = "20261015-v4g";
+    static final String CONSOLE_STAGE = "V4G · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261015-v4g";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-15", "V4G", "待发布",
+                    "售后跟进状态与客服概览",
+                    "客户订单详情只返回售后补充是否待客服跟进，不暴露内部处理游标或说明；个人中心明确提示待跟进和已解决记录的补充规则。新版售后工作台增加按权限范围汇总的售后总数、待跟进数，并支持筛选网址分享及浏览器返回恢复。汇总继续受 order:view 和 ALL / DEPARTMENT / SELF 数据范围约束；处理仍要求 order:manage。三条功能线通过各自 CI 后统一发布，不改变订单或售后状态，不触发退款、真实收款或企业微信写入。"),
             new ReleaseItem("2026-10-15", "V4F", "已上线",
                     "客户补充待跟进筛选与处理确认",
                     "客服可按待跟进客户补充筛选售后队列，查看后在原有版本保护的处理动作中确认已看到的补充编号；处理期间新到的补充继续待跟进。V74 只为处理状态增加可兼容的游标列；查询保留 order:view 和 ALL / DEPARTMENT / SELF 数据范围，确认仍要求 order:manage。不会自动改售后或订单状态，也不触发退款、真实收款或企业微信写入。功能 PR #455、主线双 CI、V74 哈希审核、18080/8081/8080 生产门禁及发布后核验已完成。"),

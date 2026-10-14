@@ -11,3 +11,4 @@ V65__session_sliding_renewal.sql 530018c0b4a099443123dcec71a05131d3cc0ac5 2026-1
 V66__wechat_native_payment_link.sql 19c75acf68fb1ff1d28f1d06579b2dc6ec904409 2026-10-13:additive-nullable-native-qr-metadata-reviewed
 V67__wechat_payment_public_copy.sql 82a03aa7cae661b0ffaba7907d3d7add9001bff4 2026-10-13:targeted-default-payment-copy-reviewed
 V68__xingwei_wecom_user_binding.sql 892b44827338a3c512b1b9a87beab17526761cb7 2026-10-14:additive-nullable-unique-wecom-user-binding-reviewed
+V69__xingwei_wecom_auto_role_tracking.sql b2faeff041b1f6fb14863da061e725f021f07e50 2026-10-14:additive-wecom-auto-role-tracking-reviewed

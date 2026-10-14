@@ -53,7 +53,7 @@ class XingweiBusinessWorkbenchPlaywrightTest {
                           items:[{businessNo:'XH0999',orderNo:'XH0999',status:'EXCEPTION',progressText:'客户争议处理中',customerNote:'售后问题：进度不符',internalNote:'客服已联系',updatedAt:'2026-10-12T05:10:00Z',canAssign:true,ownership:{assigned:true,ownerAdminUserId:2,ownerUsername:'agent',departmentCode:'03'}}]
                         })};
                         if (value.startsWith('/api/admin/xingwei/business/orders/after-sales?')) {
-                          const params = new URL(value, location.origin).searchParams;
+                          const params = new URLSearchParams(value.split('?')[1]);
                           const page = Number(params.get('page'));
                           const query = params.get('q') || '';
                           (window.__afterSalesRequests ||= []).push({page, query});

@@ -15,8 +15,8 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 class XingweiAdminPlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
     private static final Path TEMPLATE = Path.of("src/main/resources/templates/admin-xingwei.html");
-    private static final String VERSION = "20261014-v3r";
-    private static final String STAGE = "V3R · STABLE PRODUCTION";
+    private static final String VERSION = "20261014-v3s";
+    private static final String STAGE = "V3S · RELEASE CANDIDATE";
 
     @Test
     void desktopAndPhoneLayoutsStayInsideViewportAndNavigationWorks() throws Exception {
@@ -49,7 +49,7 @@ class XingweiAdminPlaywrightTest {
             assertTrue(page.locator("#xwServerTime").textContent().contains(VERSION));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
             assertEquals("286px", page.evaluate("() => getComputedStyle(document.querySelector('.xw-shell')).gridTemplateColumns.split(' ')[0]"));
-            assertEquals(16, ((Number) page.evaluate("() => document.querySelectorAll('.xw-module').length")).intValue());
+            assertEquals(17, ((Number) page.evaluate("() => document.querySelectorAll('.xw-module').length")).intValue());
 
             page.locator("#xwModuleSearch").fill("微信");
             assertTrue(((Number) page.evaluate("() => [...document.querySelectorAll('.xw-module')].filter(x => !x.hidden).length")).intValue() >= 2);
@@ -99,6 +99,7 @@ class XingweiAdminPlaywrightTest {
 
             assertTrue((Boolean) page.evaluate("() => !document.querySelector('.xw-module-index:nth-child(1)') || true"));
             assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => x.querySelector('.xw-module-index')?.textContent === 'B02')?.hidden === false"));
+            assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => x.querySelector('.xw-module-index')?.textContent === 'B05')?.hidden === false"));
             assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => x.querySelector('.xw-module-index')?.textContent === 'O02')?.hidden === false"));
             assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => x.querySelector('.xw-module-index')?.textContent === 'O03')?.hidden === true"));
             assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => x.querySelector('.xw-module-index')?.textContent === 'C02')?.hidden === true"));
@@ -148,10 +149,10 @@ class XingweiAdminPlaywrightTest {
 
             assertTrue(page.locator("#xwBackendStatus").textContent().contains("版本漂移"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwBackendStatus').classList.contains('error')"));
-            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261014-v3r"));
+            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261014-v3s"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("运行 20261014-v3k"));
             assertEquals("mismatch", page.evaluate("() => window.xwRuntimeHealth.state"));
-            assertEquals("20261014-v3r", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
+            assertEquals("20261014-v3s", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
             assertEquals("20261014-v3k", page.evaluate("() => window.xwRuntimeHealth.runtimeVersion"));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
         }

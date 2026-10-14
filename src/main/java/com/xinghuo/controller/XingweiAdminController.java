@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3r";
-    static final String CONSOLE_STAGE = "V3R · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261014-v3r";
+    static final String CONSOLE_VERSION = "20261014-v3s";
+    static final String CONSOLE_STAGE = "V3S · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261014-v3s";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3S", "待发布",
+                    "售后问题记录与客户订单回显",
+                    "新版业务工作台按 order:view 与 ALL / DEPARTMENT / SELF 范围集中查看带售后说明标记的订单；数据库先过滤再截取最近 100 条。客户订单详情显示已提交的售后说明，提交后重新读取授权详情并即时回显。记录不代表工单处理或退款状态；真实收款与企业微信写入继续独立验收。"),
             new ReleaseItem("2026-10-14", "V3R", "已上线",
                     "异常订单、客户售后说明与服务大厅恢复体验",
                     "业务工作台按 order:view、ALL / DEPARTMENT / SELF 范围和 EXCEPTION 状态独立查询异常订单，并分别显示客户说明与内部备注。客户可在个人中心提交分类售后问题，由客服核对；服务端校验订单归属、备注容量并记审计，不自动取消订单或发起退款。服务大厅数据读取失败时保留已有内容并可重试，筛选无结果时可清除条件。真实收款与企业微信写入仍独立验收。"),

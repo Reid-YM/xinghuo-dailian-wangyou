@@ -131,6 +131,13 @@ public class XingweiAfterSalesCaseService {
     @Transactional
     public CaseRecord update(String businessNo, long recordId, String status, String handlingNote,
             long expectedVersion, Authentication authentication, HttpServletRequest request) {
+        return update(businessNo, recordId, status, handlingNote, null,
+                expectedVersion, authentication, request);
+    }
+
+    @Transactional
+    public CaseRecord update(String businessNo, long recordId, String status, String handlingNote,
+            String customerReply, long expectedVersion, Authentication authentication, HttpServletRequest request) {
         String orderNo = orderNo(businessNo, authentication, "order:manage");
         Long actorId = permissions.resolve(authentication).adminUserId();
         if (actorId == null) throw new AccessDeniedException("当前账号没有员工身份");
@@ -142,6 +149,10 @@ public class XingweiAfterSalesCaseService {
         String note = handlingNote == null ? "" : handlingNote.trim();
         if (note.isEmpty() || note.length() > 600) {
             throw new IllegalArgumentException("处理说明须为 1 至 600 字");
+        }
+        String reply = customerReply == null ? null : customerReply.trim();
+        if (reply != null && (reply.isEmpty() || reply.length() > 600)) {
+            throw new IllegalArgumentException("客户回复须为 1 至 600 字，或不填写");
         }
         CaseRecord before = record(orderNo, recordId);
         if (before == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "售后记录不存在");
@@ -172,10 +183,36 @@ public class XingweiAfterSalesCaseService {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "售后记录已由其他人更新，请刷新后重试");
             }
         }
+        jdbc.update("""
+                INSERT INTO customer_order_after_sales_case_events
+                    (record_id, from_status, to_status, handling_note, customer_reply,
+                     handled_by_admin_user_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, NOW(6))
+                """, recordId, before.status(), next, note, reply, actorId);
         CaseRecord after = record(orderNo, recordId);
         audit.log("XW_AFTER_SALES_CASE_UPDATE", "AFTER_SALES_RECORD", String.valueOf(recordId),
                 authentication.getName(), before, after, note, request);
         return after;
+    }
+
+    @Transactional(readOnly = true)
+    public CaseHistory history(String businessNo, long recordId, Authentication authentication) {
+        String orderNo = orderNo(businessNo, authentication, "order:view");
+        if (recordId <= 0) throw new IllegalArgumentException("记录编号无效");
+        CaseRecord current = record(orderNo, recordId);
+        if (current == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "售后记录不存在");
+        List<CaseEvent> events = jdbc.query("""
+                SELECT e.id, e.from_status, e.to_status, e.handling_note,
+                       e.customer_reply, e.handled_by_admin_user_id, e.created_at
+                  FROM customer_order_after_sales_case_events e
+                 WHERE e.record_id = ?
+                 ORDER BY e.id
+                """, (rs, rowNum) -> new CaseEvent(rs.getLong("id"),
+                        rs.getString("from_status"), rs.getString("to_status"),
+                        rs.getString("handling_note"), rs.getString("customer_reply"),
+                        rs.getLong("handled_by_admin_user_id"),
+                        rs.getTimestamp("created_at").toInstant()), recordId);
+        return new CaseHistory(current, events);
     }
 
     private String orderNo(String businessNo, Authentication authentication, String permission) {
@@ -221,6 +258,11 @@ public class XingweiAfterSalesCaseService {
     public record CaseRecord(long recordId, String orderNo, String category, String categoryLabel,
             String content, long submittedAtMs, String status, String handlingNote,
             Long handledByAdminUserId, java.time.Instant updatedAt, long version) {}
+
+    public record CaseEvent(long eventId, String fromStatus, String toStatus, String handlingNote,
+            String customerReply, long handledByAdminUserId, java.time.Instant createdAt) {}
+
+    public record CaseHistory(CaseRecord current, List<CaseEvent> events) {}
 
     public record QueueItem(String businessNo, CaseRecord record) {}
 

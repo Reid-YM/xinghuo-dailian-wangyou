@@ -36,6 +36,7 @@ class XingweiAfterSalesCaseServiceTest {
         jdbc.execute("CREATE TABLE customer_orders (order_no VARCHAR(40) PRIMARY KEY, business_no VARCHAR(20))");
         jdbc.execute("CREATE TABLE customer_order_after_sales_records (id BIGINT PRIMARY KEY, order_no VARCHAR(40), category VARCHAR(24), category_label VARCHAR(32), content VARCHAR(240), submitted_at_ms BIGINT)");
         jdbc.execute("CREATE TABLE customer_order_after_sales_case_state (record_id BIGINT PRIMARY KEY, status VARCHAR(24), handling_note VARCHAR(600), handled_by_admin_user_id BIGINT, updated_at TIMESTAMP, version BIGINT)");
+        jdbc.execute("CREATE TABLE customer_order_after_sales_case_events (id BIGINT AUTO_INCREMENT PRIMARY KEY, record_id BIGINT, from_status VARCHAR(24), to_status VARCHAR(24), handling_note VARCHAR(600), customer_reply VARCHAR(600), handled_by_admin_user_id BIGINT, created_at TIMESTAMP)");
         jdbc.execute("CREATE TABLE xw_business_ownership (business_no VARCHAR(20) PRIMARY KEY, owner_admin_user_id BIGINT, department_id BIGINT)");
         jdbc.execute("CREATE TABLE xw_departments (id BIGINT PRIMARY KEY, code VARCHAR(16))");
         jdbc.update("INSERT INTO customer_orders VALUES ('O1','XW1'),('O2','XW2')");
@@ -128,5 +129,23 @@ class XingweiAfterSalesCaseServiceTest {
         when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
                 "DENIED", false, List.of(), List.of(), "ALL", null, null));
         assertEquals(0, cases.queue(null, null, null, 0, actor).totalCount());
+    }
+
+    @Test
+    void publicReplyAndInternalNoteAreSeparatelyRecordedInHistory() {
+        var result = cases.update("XW1", 1, "IN_PROGRESS", "内部核对订单", "正在核对，请稍候",
+                0, actor, null);
+        assertEquals("IN_PROGRESS", result.status());
+        var history = cases.history("XW1", 1, actor);
+        assertEquals(1, history.events().size());
+        assertEquals("OPEN", history.events().getFirst().fromStatus());
+        assertEquals("内部核对订单", history.events().getFirst().handlingNote());
+        assertEquals("正在核对，请稍候", history.events().getFirst().customerReply());
+        assertEquals(404, assertThrows(ResponseStatusException.class,
+                () -> cases.history("XW1", 2, actor)).getStatusCode().value());
+        assertThrows(AccessDeniedException.class, () -> cases.history("XW2", 2, actor));
+        assertThrows(IllegalArgumentException.class,
+                () -> cases.update("XW1", 1, "RESOLVED", "已解决", " ", 1, actor, null));
+        assertEquals(1, cases.history("XW1", 1, actor).events().size());
     }
 }

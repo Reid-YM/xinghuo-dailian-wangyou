@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261015-v4b";
-    static final String CONSOLE_STAGE = "V4B · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261015-v4b";
+    static final String CONSOLE_VERSION = "20261015-v4c";
+    static final String CONSOLE_STAGE = "V4C · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261015-v4c";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-15", "V4C", "待发布",
+                    "售后处理闭环与客户可见回复",
+                    "售后状态变更写入独立事件历史，员工按原有权限查看并填写可选客户回复；客户订单详情仅展示状态和明确回复，不暴露内部处理说明。统一售后工作台提供筛选、历史和受控处理。V72 为增量迁移；退款、真实收款和企业微信写入继续保持独立。"),
             new ReleaseItem("2026-10-15", "V4B", "已上线",
                     "后台售后处理队列",
                     "按单条 V70 售后流水提供员工队列，支持 OPEN、IN_PROGRESS、RESOLVED 状态、问题类型、关键词和分页。查询与计数均在 order:view 及 ALL / DEPARTMENT / SELF 数据范围内执行；未处理流水默认 OPEN，可衔接 V4A 处理接口。功能 PR #446、版本 PR #447 与 18080/8081/8080 生产门禁均已完成。无新数据库迁移，不触发退款或支付。"),
@@ -134,6 +137,12 @@ public class XingweiAdminController {
         common(model, csrf, authentication);
         model.addAttribute("businessVersion", BUSINESS_VERSION);
         return "admin-xingwei-business";
+    }
+
+    @GetMapping("/admin/xingwei/after-sales/cases")
+    String afterSalesCases(Model model, CsrfToken csrf, Authentication authentication) {
+        common(model, csrf, authentication);
+        return "admin-xingwei-after-sales";
     }
 
     @GetMapping("/admin/xingwei/work")

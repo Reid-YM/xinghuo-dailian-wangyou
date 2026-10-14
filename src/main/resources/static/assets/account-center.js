@@ -106,6 +106,18 @@
       item.append(el('strong','',record.category||''),el('small','',time(record.submittedAt)),el('p','',record.content||''));
       host.appendChild(item);
     });
+    const cases=Array.isArray(detail?.afterSalesCases)?detail.afterSalesCases:[];
+    if(cases.length){
+      host.appendChild(el('h3','','处理进度'));
+      const labels={OPEN:'待处理',IN_PROGRESS:'处理中',RESOLVED:'已解决'};
+      cases.forEach(entry=>{
+        const item=el('article','account-after-sales-entry');
+        item.append(el('strong','',entry.category||'售后问题'),
+          el('small','',`${labels[entry.status]||'待处理'} · ${time(entry.updatedAt||entry.submittedAt)}`));
+        if(entry.customerReply)item.appendChild(el('p','',`客服回复：${entry.customerReply}`));
+        host.appendChild(item);
+      });
+    }
   }
   function renderPayment(host,p){
     host.textContent='';

@@ -13,6 +13,36 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 @EnabledIfEnvironmentVariable(named = "PLAYWRIGHT_UI_TESTS", matches = "1")
 class AccountAfterSalesPlaywrightTest {
     @Test
+    void customerSeesExplicitReplyAsTextWithoutInternalNote() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setContent("<body data-page='account-center-orders'><div data-hub-orders></div><aside data-hub-order-detail hidden></aside></body>");
+            page.evaluate("""
+                    () => { window.fetch = async (url) => {
+                      let data;
+                      if (url === '/api/account/me') data={displayName:'客户'};
+                      else if (url === '/api/console/orders') data={items:[{businessNo:'XH-1',serviceName:'服务'}]};
+                      else if (url === '/api/console/orders/XH-1') data={order:{businessNo:'XH-1'},timeline:[],
+                        afterSalesRecords:[{category:'交付或进度',submittedAt:'2026-10-15T00:00:00Z',content:'请核对'}],
+                        afterSalesCases:[{category:'交付或进度',status:'IN_PROGRESS',submittedAt:'2026-10-15T00:00:00Z',customerReply:'正在处理 <img src=x onerror=alert(1)>'}]};
+                      else if (url === '/api/account/payments/order/XH-1') return new Response('{}',{status:404});
+                      else throw new Error('unexpected fetch '+url);
+                      return new Response(JSON.stringify(data),{status:200,headers:{'Content-Type':'application/json'}});
+                    }; }
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(
+                    Path.of("src/main/resources/static/assets/account-center.js")));
+            page.locator("[data-order-detail]").click();
+            page.locator("[data-after-sales-history] h3").last().waitFor();
+            String history = page.locator("[data-after-sales-history]").innerText();
+            assertTrue(history.contains("处理中"));
+            assertTrue(history.contains("正在处理 <img src=x onerror=alert(1)>"));
+            assertTrue(!history.contains("内部处理说明"));
+            assertEquals(0, page.locator("[data-after-sales-history] img").count());
+        }
+    }
+
+    @Test
     void structuredHistoryOverridesLegacyNoteAndRefreshesAfterSubmission() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();

@@ -107,7 +107,8 @@ public class ConsoleApiController {
         }
         QuoteItem source = item.sourceQuoteBusinessNo() == null ? null : findQuoteOrNull(account, item.sourceQuoteBusinessNo());
         return new OrderDetailResponse(item, source, timeline,
-                afterSalesRecords(item.orderNo(), item.customerNote()));
+                afterSalesRecords(item.orderNo(), item.customerNote()),
+                afterSalesCases(item.orderNo()));
     }
 
     @PostMapping("/orders/{businessNo}/supplement")
@@ -292,6 +293,25 @@ public class ConsoleApiController {
                 .toList();
     }
 
+    private List<AfterSalesCaseStatus> afterSalesCases(String orderNo) {
+        return jdbc.query("""
+                SELECT r.id, r.category_label, r.content, r.submitted_at_ms,
+                       COALESCE(s.status, 'OPEN') AS status, s.updated_at,
+                       (SELECT e.customer_reply
+                          FROM customer_order_after_sales_case_events e
+                         WHERE e.record_id = r.id AND e.customer_reply IS NOT NULL
+                         ORDER BY e.id DESC LIMIT 1) AS customer_reply
+                  FROM customer_order_after_sales_records r
+                  LEFT JOIN customer_order_after_sales_case_state s ON s.record_id = r.id
+                 WHERE r.order_no = ?
+                 ORDER BY r.submitted_at_ms, r.id
+                """, (rs, rowNum) -> new AfterSalesCaseStatus(
+                        rs.getLong("id"), rs.getString("category_label"),
+                        Instant.ofEpochMilli(rs.getLong("submitted_at_ms")),
+                        rs.getString("content"), rs.getString("status"),
+                        rs.getString("customer_reply"), toInstant(rs.getTimestamp("updated_at"))), orderNo);
+    }
+
     private static Instant toInstant(Timestamp ts) { return ts == null ? null : ts.toInstant(); }
 
     private static String quoteStatusText(String status) {
@@ -334,8 +354,12 @@ public class ConsoleApiController {
     public record QuoteListResponse(List<QuoteItem> items, long total, int page, int size) {}
     public record OrderListResponse(List<OrderItem> items, long total, int page, int size) {}
     public record OrderDetailResponse(OrderItem order, QuoteItem sourceQuote, List<TimelineItem> timeline,
-                                      List<AfterSalesRecord> afterSalesRecords) {}
+                                      List<AfterSalesRecord> afterSalesRecords,
+                                      List<AfterSalesCaseStatus> afterSalesCases) {}
     public record AfterSalesRecord(String category, Instant submittedAt, String content) {}
+    public record AfterSalesCaseStatus(long recordId, String category, Instant submittedAt,
+                                       String content, String status, String customerReply,
+                                       Instant updatedAt) {}
     public record QuoteItem(String businessNo, String game, String demand, String currentProgress,
                             String platform, String expectedTime, String status, String statusText,
                             String customerSupplement, Instant createdAt, Instant updatedAt) {}

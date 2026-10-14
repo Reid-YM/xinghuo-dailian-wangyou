@@ -42,6 +42,8 @@ class ConsoleAfterSalesTest {
                   id BIGINT AUTO_INCREMENT PRIMARY KEY, order_no VARCHAR(40), category VARCHAR(24),
                   category_label VARCHAR(32), content VARCHAR(240), submitted_at_ms BIGINT)
                 """);
+        jdbc.execute("CREATE TABLE customer_order_after_sales_case_state (record_id BIGINT PRIMARY KEY, status VARCHAR(24), handling_note VARCHAR(600), handled_by_admin_user_id BIGINT, updated_at TIMESTAMP, version BIGINT)");
+        jdbc.execute("CREATE TABLE customer_order_after_sales_case_events (id BIGINT AUTO_INCREMENT PRIMARY KEY, record_id BIGINT, from_status VARCHAR(24), to_status VARCHAR(24), handling_note VARCHAR(600), customer_reply VARCHAR(600), handled_by_admin_user_id BIGINT, created_at TIMESTAMP)");
         jdbc.update("""
                 INSERT INTO customer_orders(id,order_no,business_no,customer_account_id,status,progress_text,version,created_at,updated_at)
                 VALUES('order-1','ORD-1','XH-1',1,'COMPLETED','交付完成',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
@@ -184,6 +186,26 @@ class ConsoleAfterSalesTest {
                 "\n\n[售后问题 · 其他问题 · 2026-10-14T10:00:00Z]\n私有内容");
         request.setAttribute(AccountAuthInterceptor.ATTR_ACCOUNT, Account.builder().id(2L).build());
 
+        assertEquals("ORDER_NOT_FOUND", assertThrows(AccountException.class,
+                () -> controller.order("XH-1", request)).getCode());
+    }
+
+    @Test
+    void orderDetailShowsOnlyPublicCaseStatusAndReply() {
+        controller.submitAfterSales("XH-1",
+                new ConsoleApiController.AfterSalesRequest("DELIVERY", "请核对进度"), request);
+        long recordId = jdbc.queryForObject("SELECT id FROM customer_order_after_sales_records", Long.class);
+        jdbc.update("INSERT INTO customer_order_after_sales_case_state VALUES (?, 'IN_PROGRESS', '内部核对金额', 7, CURRENT_TIMESTAMP, 1)", recordId);
+        jdbc.update("INSERT INTO customer_order_after_sales_case_events(record_id,from_status,to_status,handling_note,customer_reply,handled_by_admin_user_id,created_at) VALUES (?, 'OPEN', 'IN_PROGRESS', '内部核对金额', '正在核对进度', 7, CURRENT_TIMESTAMP)", recordId);
+
+        var detail = controller.order("XH-1", request);
+        assertEquals(1, detail.afterSalesCases().size());
+        assertEquals(recordId, detail.afterSalesCases().getFirst().recordId());
+        assertEquals("IN_PROGRESS", detail.afterSalesCases().getFirst().status());
+        assertEquals("正在核对进度", detail.afterSalesCases().getFirst().customerReply());
+        assertTrue(!detail.afterSalesCases().toString().contains("内部核对金额"));
+
+        request.setAttribute(AccountAuthInterceptor.ATTR_ACCOUNT, Account.builder().id(2L).build());
         assertEquals("ORDER_NOT_FOUND", assertThrows(AccountException.class,
                 () -> controller.order("XH-1", request)).getCode());
     }

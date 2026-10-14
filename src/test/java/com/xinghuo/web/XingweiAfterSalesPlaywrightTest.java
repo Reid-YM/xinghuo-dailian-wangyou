@@ -39,7 +39,7 @@ class XingweiAfterSalesPlaywrightTest {
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(
                     Path.of("src/main/resources/static/assets/admin-xingwei-after-sales.js")));
             page.locator("#caseRows button").click();
-            page.locator("#caseUpdate option[data-same-status]").waitFor();
+            page.waitForFunction("() => Boolean(document.querySelector('#caseUpdate option[data-same-status]'))");
             page.locator("#caseUpdate select[name=status]").selectOption("IN_PROGRESS");
             page.locator("#caseUpdate textarea[name=handlingNote]").fill("内部跟进");
             page.locator("#caseUpdate textarea[name=customerReply]").fill("仍在处理");

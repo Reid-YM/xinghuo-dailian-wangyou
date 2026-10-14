@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.core.io.ClassPathResource;
+import com.xinghuo.service.XingweiOrgRbacService;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -23,21 +21,16 @@ public class WeComHrService {
     private final WeComClient client;
     private final ObjectMapper mapper;
 
-    /**
-     * 固定155职务体系。
-     *
-     * 数据来自：
-     * classpath:wecom/positions.json
-     */
-    private final JsonNode positions;
+    private final XingweiOrgRbacService org;
 
     public WeComHrService(
             WeComClient client,
-            ObjectMapper mapper) {
+            ObjectMapper mapper,
+            XingweiOrgRbacService org) {
 
         this.client = client;
         this.mapper = mapper;
-        this.positions = loadPositions(mapper);
+        this.org = org;
     }
 
     /**
@@ -177,13 +170,17 @@ public class WeComHrService {
         );
     }
 
-    /**
-     * 星维唯一正式职务体系。
-     *
-     * 当前只读取，不允许网页端修改。
-     */
+    /** Reuse the V63 position table instead of maintaining a second JSON source. */
     public JsonNode positions() {
-        return positions.deepCopy();
+        ObjectNode result = mapper.createObjectNode();
+        for (Map<String, Object> row : org.positions()) {
+            if (!Boolean.TRUE.equals(row.get("enabled"))) continue;
+            String department = String.valueOf(row.get("departmentName"));
+            String name = String.valueOf(row.get("name"));
+            if (!result.has(department)) result.putArray(department);
+            ((ArrayNode) result.get(department)).add(name);
+        }
+        return result;
     }
 
     public void createEmployee(NewEmployeeRequest request) {
@@ -247,11 +244,8 @@ public class WeComHrService {
 
     private void checkedPosition(String position) {
         if (position.isBlank()) throw bad("请选择正式职务");
-        var centers = positions.fields();
-        while (centers.hasNext()) {
-            for (JsonNode job : centers.next().getValue()) {
-                if (position.equals(job.asText())) return;
-            }
+        for (Map<String, Object> row : org.positions()) {
+            if (Boolean.TRUE.equals(row.get("enabled")) && position.equals(row.get("name"))) return;
         }
         throw bad("职务不在正式职务表中");
     }
@@ -333,87 +327,6 @@ public class WeComHrService {
         }
 
         return value.asText("");
-    }
-
-    private JsonNode loadPositions(
-            ObjectMapper mapper) {
-
-        ClassPathResource resource =
-                new ClassPathResource(
-                        "wecom/positions.json"
-                );
-
-        try (
-                InputStream input =
-                        resource.getInputStream()
-        ) {
-
-            JsonNode json =
-                    mapper.readTree(
-                            input
-                    );
-
-            validatePositions(json);
-
-            return json;
-
-        } catch (IOException e) {
-
-            throw new IllegalStateException(
-                    "无法读取正式职务配置",
-                    e
-            );
-        }
-    }
-
-    /**
-     * 应用启动时再次验证职务数量。
-     *
-     * 避免后续误修改 positions.json，
-     * 导致正式职务体系悄悄发生变化。
-     */
-    private void validatePositions(
-            JsonNode json) {
-
-        if (json == null
-                || !json.isObject()) {
-
-            throw new IllegalStateException(
-                    "正式职务配置格式错误"
-            );
-        }
-
-        int total = 0;
-
-        var fields =
-                json.fields();
-
-        while (fields.hasNext()) {
-
-            Map.Entry<String, JsonNode> entry =
-                    fields.next();
-
-            JsonNode jobs =
-                    entry.getValue();
-
-            if (!jobs.isArray()) {
-
-                throw new IllegalStateException(
-                        "职务中心格式错误："
-                                + entry.getKey()
-                );
-            }
-
-            total += jobs.size();
-        }
-
-        if (total != 155) {
-
-            throw new IllegalStateException(
-                    "正式职务数量异常，应为155，实际为"
-                            + total
-            );
-        }
     }
 
     public record EmployeeListResponse(

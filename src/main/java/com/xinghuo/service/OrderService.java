@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -31,11 +33,19 @@ public class OrderService {
     private final CustomerOrderRepository repo;
     private final UploadService uploads;
     private final AuditService audit;
+    private final JdbcTemplate jdbc;
 
     public OrderService(CustomerOrderRepository repo, UploadService uploads, AuditService audit) {
+        this(repo, uploads, audit, null);
+    }
+
+    @Autowired
+    public OrderService(CustomerOrderRepository repo, UploadService uploads, AuditService audit,
+                        JdbcTemplate jdbc) {
         this.repo = repo;
         this.uploads = uploads;
         this.audit = audit;
+        this.jdbc = jdbc;
     }
 
     @Transactional(readOnly = true)
@@ -275,6 +285,14 @@ public class OrderService {
     @Transactional
     public void delete(String orderNo, String operator, HttpServletRequest httpRequest) {
         CustomerOrder order = findByOrderNo(orderNo);
+        if (jdbc != null) {
+            Long payments = jdbc.queryForObject(
+                    "SELECT COUNT(*) FROM payment_order WHERE business_no=?",
+                    Long.class, order.getBusinessNo());
+            if (payments != null && payments > 0) {
+                throw new ConflictException("订单已有支付记录，不能删除；请联系客服核对支付与履约状态");
+            }
+        }
         ApiDtos.AdminOrderResponse before = admin(order);
         repo.delete(order);
         audit.log(

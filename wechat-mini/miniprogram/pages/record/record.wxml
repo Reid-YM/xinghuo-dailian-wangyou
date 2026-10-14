@@ -1,0 +1,91 @@
+<view class="page">
+  <view class="hero">
+    <view class="hero-title">查询进度</view>
+    <view class="hero-sub">输入业务单号，查看当前办理进度</view>
+  </view>
+
+  <view class="card">
+    <input
+      class="no-input"
+      placeholder="业务单号"
+      placeholder-class="no-ph"
+      value="{{no}}"
+      bindinput="onInput"
+      confirm-type="search"
+      bindconfirm="onQuery"
+    />
+    <view class="actions">
+      <button class="btn ghost" bindtap="onScan">扫码</button>
+      <button class="btn primary" bindtap="onQuery" disabled="{{loading}}">{{loading ? '查询中…' : '查询进度'}}</button>
+    </view>
+  </view>
+
+  <!-- 查不到 / 维护中 -->
+  <view class="card err" wx:if="{{error}}">
+    <view class="err-text">{{error}}</view>
+    <button class="service-btn" open-type="contact" session-from="{{sessionFrom}}">联系客服</button>
+  </view>
+
+  <!-- 查到了 -->
+  <view class="card" wx:if="{{result}}">
+    <view class="row-between">
+      <text class="mono result-no">{{result.businessNo}}</text>
+      <text class="badge">{{result.statusText}}</text>
+    </view>
+    <view class="result-title">{{result.title}}</view>
+    <view class="result-meta">{{result.stageText}} · 更新于 {{result.updatedText}}</view>
+
+    <block wx:if="{{result.hasPercent}}">
+      <view class="bar">
+        <view class="bar-fill" style="width: {{result.progressPercent}}%"></view>
+      </view>
+      <view class="row-between">
+        <text class="label">当前进度</text>
+        <text class="mono accent">{{result.progressPercent}}%</text>
+      </view>
+    </block>
+
+    <view class="progress-text" wx:if="{{result.progressText}}">{{result.progressText}}</view>
+
+    <view class="result-row" wx:if="{{result.expectedTime}}">
+      <text class="label">预计时间</text>
+      <text class="value">{{result.expectedTime}}</text>
+    </view>
+    <view class="result-row" wx:if="{{result.createdText}}">
+      <text class="label">提交时间</text>
+      <text class="value">{{result.createdText}}</text>
+    </view>
+    <view class="result-row column" wx:if="{{result.customerNote}}">
+      <text class="label">客服备注</text>
+      <text class="value note">{{result.customerNote}}</text>
+    </view>
+
+    <image
+      class="shot"
+      wx:if="{{showImages && result.imageUrl}}"
+      src="{{result.imageUrl}}"
+      mode="widthFix"
+      bindtap="onPreviewImage"
+    ></image>
+    <view class="shot-hint" wx:if="{{showImages && result.hasProgressImage}}">点图片看大图</view>
+  </view>
+
+  <!-- 最近查过的单号 -->
+  <view class="card" wx:if="{{history.length}}">
+    <view class="row-between">
+      <text class="card-title">最近查过</text>
+      <text class="link" bindtap="onClearHistory">清空</text>
+    </view>
+    <view class="his" wx:for="{{history}}" wx:key="*this" data-no="{{item}}" bindtap="onTapHistory">{{item}}</view>
+  </view>
+
+  <!-- 已经在上面给过客服入口了，出错时不再重复 -->
+  <view class="card support-card" wx:if="{{copy && !error}}">
+    <view class="service-title">查询协助</view>
+    <view class="service-desc">如无法查询业务单，请核对单号或联系在线客服。</view>
+    <button class="btn ghost support-btn" wx:if="{{kfReady}}" bindtap="onContact">联系客服</button>
+    <button class="btn ghost support-btn" wx:else open-type="contact" session-from="{{sessionFrom}}">联系客服</button>
+  </view>
+
+  <view class="footer">业务单号是客服在确认需求后发给你的那一串，一般以 XH 开头。</view>
+</view>

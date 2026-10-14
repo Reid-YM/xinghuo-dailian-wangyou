@@ -56,6 +56,20 @@ public class AccountSession {
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
+    /**
+     * 空闲窗口（秒）。活跃时把 expires_at 推到 now + idle_seconds，也就是滑动续期。
+     * 为空表示这是升级前的老会话，保持「固定到期」语义，不再延长。
+     */
+    @Column(name = "idle_seconds")
+    private Integer idleSeconds;
+
+    /**
+     * 绝对上限：无论多活跃，到点必须重新登录。
+     * 会话 id 是持有即可登录的凭据，滑动续期不能把它变成永久有效。
+     */
+    @Column(name = "absolute_expires_at")
+    private Instant absoluteExpiresAt;
+
     @Column(name = "revoked_at")
     private Instant revokedAt;
 
@@ -93,6 +107,10 @@ public class AccountSession {
         private Instant lastSeenAt;
         @Generated
         private Instant expiresAt;
+        @Generated
+        private Integer idleSeconds;
+        @Generated
+        private Instant absoluteExpiresAt;
         @Generated
         private Instant revokedAt;
 
@@ -149,6 +167,18 @@ public class AccountSession {
         }
 
         @Generated
+        public AccountSessionBuilder idleSeconds(Integer integer) {
+            this.idleSeconds = integer;
+            return this;
+        }
+
+        @Generated
+        public AccountSessionBuilder absoluteExpiresAt(Instant instant) {
+            this.absoluteExpiresAt = instant;
+            return this;
+        }
+
+        @Generated
         public AccountSessionBuilder revokedAt(Instant instant) {
             this.revokedAt = instant;
             return this;
@@ -156,12 +186,12 @@ public class AccountSession {
 
         @Generated
         public AccountSession build() {
-            return new AccountSession(this.id, this.userId, this.ip, this.userAgent, this.deviceLabel, this.createdAt, this.lastSeenAt, this.expiresAt, this.revokedAt);
+            return new AccountSession(this.id, this.userId, this.ip, this.userAgent, this.deviceLabel, this.createdAt, this.lastSeenAt, this.expiresAt, this.idleSeconds, this.absoluteExpiresAt, this.revokedAt);
         }
 
         @Generated
         public String toString() {
-            return "AccountSessionBuilder(id=" + this.id + ", userId=" + this.userId + ", ip=" + this.ip + ", userAgent=" + this.userAgent + ", deviceLabel=" + this.deviceLabel + ", createdAt=" + String.valueOf(this.createdAt) + ", lastSeenAt=" + String.valueOf(this.lastSeenAt) + ", expiresAt=" + String.valueOf(this.expiresAt) + ", revokedAt=" + String.valueOf(this.revokedAt) + ")";
+            return "AccountSessionBuilder(id=" + this.id + ", userId=" + this.userId + ", ip=" + this.ip + ", userAgent=" + this.userAgent + ", deviceLabel=" + this.deviceLabel + ", createdAt=" + String.valueOf(this.createdAt) + ", lastSeenAt=" + String.valueOf(this.lastSeenAt) + ", expiresAt=" + String.valueOf(this.expiresAt) + ", idleSeconds=" + String.valueOf(this.idleSeconds) + ", absoluteExpiresAt=" + String.valueOf(this.absoluteExpiresAt) + ", revokedAt=" + String.valueOf(this.revokedAt) + ")";
         }
     }
 }

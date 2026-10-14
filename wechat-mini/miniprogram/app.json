@@ -1,0 +1,43 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/guides/guides",
+    "pages/guides/detail",
+    "pages/record/record",
+    "pages/me/me"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#111318",
+    "navigationBarTitleText": "星火迷彩追踪器",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0d0f13",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#8b94a3",
+    "selectedColor": "#c6f24e",
+    "backgroundColor": "#111318",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "迷彩进度"
+      },
+      {
+        "pagePath": "pages/guides/guides",
+        "text": "攻略"
+      },
+      {
+        "pagePath": "pages/record/record",
+        "text": "查单"
+      },
+      {
+        "pagePath": "pages/me/me",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

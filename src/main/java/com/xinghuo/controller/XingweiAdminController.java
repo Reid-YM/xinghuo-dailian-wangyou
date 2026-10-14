@@ -2,6 +2,7 @@ package com.xinghuo.controller;
 
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -13,40 +14,115 @@ import org.springframework.web.bind.annotation.ResponseBody;
 /**
  * 星维网络服务工作室新版后台入口。
  *
- * <p>V2C 在 V2B 混合权限基础上开始执行 ALL / DEPARTMENT / SELF 数据范围。
- * legacy ADMIN 永远全权，未配置星维角色的 OPERATOR 继续保持兼容行为；
- * 已配置星维角色的 OPERATOR 同时按权限点和数据范围执行。旧 /admin 边界保持原有行为。
- * V2E 增加独立询价/订单业务工作台，直接使用 V2D 后端范围接口。
- * V2F 增加派单后的员工“我的工作”入口，领取与履约更新继续复用同一业务归属。
+ * <p>版本号和首页阶段状态集中维护在本类，避免功能已更新但后台仍显示旧阶段。
+ * 每个可交付阶段同时更新 RELEASE_HISTORY、对应模块版本、页面阶段说明与状态契约测试。
+ * V3K 把版本/阶段/更新记录一致性检查下沉到 CI；V3L 再由浏览器核对页面声明与实际运行后端版本。
  */
 @Controller
 public class XingweiAdminController {
+    static final String CONSOLE_VERSION = "20261014-v3o";
+    static final String CONSOLE_STAGE = "V3O · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261013-v2e";
+    static final String WORK_VERSION = "20261013-v2f";
+    static final String WECOM_VERSION = "20261013-v2g";
+    static final String CATALOG_VERSION = "20261014-v3f";
+    static final String TAXONOMY_VERSION = "20261014-v3i";
+
+    private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3O", "待发布",
+                    "企业微信与微信支付集成配置工作台",
+                    "新版后台增加受权限保护的服务器配置检查，逐项显示企业微信读取与微信 Native 支付的配置状态，不返回密钥、证书内容或路径。员工写入 PR #372 和小程序支付 PR #384 仍独立待验收；本阶段不启用真实收款、不发布小程序。"),
+            new ReleaseItem("2026-10-14", "V3N", "已上线",
+                    "Frontend Next 与后台韧性统一交付",
+                    "整合 Frontend Next A1–A4 的公共壳层、首页、服务、询价/记录、登录与个人中心，以及 V3M 后台运行时韧性；接收星火迷彩追踪器 1.0.13 源码并补全网站二维码扫码入口。前后端总联调已覆盖公开与后台边界、响应式、SEO 和版本漂移，并通过 PR、主线 CI 与 18080/8081/8080 零停机门禁上线。预览版真机扫码与原网页登录主链路已验证；小程序正式版发布、异常与跨设备边界仍待单独验收。V3H 真实收款与 PR #372 企业微信写入不在本版范围。"),
+            new ReleaseItem("2026-10-14", "V3M", "已上线",
+                    "新版后台运行时韧性",
+                    "增加请求超时、周期复核、页面可见与网络恢复复核、stale 降级和权限失败关闭；与 Frontend Next 在 PR #393 完成组合验证。"),
+            new ReleaseItem("2026-10-14", "V3L", "已上线",
+                    "后台运行版本自校验",
+                    "新版后台会把页面渲染的版本/阶段与 /api/admin/xingwei/health 返回的实际运行版本/阶段逐项核对；一致时显示运行版本已核对，浏览器缓存或异常发布造成不一致时立即显示版本漂移告警，并禁止再把单纯 HTTP 200 误判为完整健康。"),
+            new ReleaseItem("2026-10-14", "V3K", "已上线",
+                    "版本与更新记录自动巡检",
+                    "新增 CI 版本真值校验：自动读取控制台版本/阶段并核对后台首页、更新记录、当前 ReleaseItem、V3H 待验收状态和已启用模块的 planned 标记；任一处遗漏同步都会阻断 PR/主线 CI。"),
+            new ReleaseItem("2026-10-14", "V3J", "已上线",
+                    "新版后台生产状态一致性与版本真值守卫",
+                    "将已部署的 V3I 从发布候选同步为生产已上线；微信支付保留待真机验收状态，生产发布流水线标记为已启用。首页阶段标签改为集中版本真源，并由契约测试阻止已上线能力再次显示为候选或规划中。"),
+            new ReleaseItem("2026-10-14", "V3I", "已上线",
+                    "游戏/分类前台可见性确认与过期预览防护",
+                    "启停前显示当前与操作后的前台服务数量、父级游戏阻断和风险提示；提交携带影响快照 token，预览后数据发生变化会拒绝旧确认并要求重新查看。Java/Maven 与 Chromium/WebKit 自动化验证通过，并已通过零停机生产发布流程上线。"),
+            new ReleaseItem("2026-10-14", "V3H", "待真机验收",
+                    "小程序微信支付闭环",
+                    "JSAPI/小程序支付、直接 openid 绑定、Native/小程序通道互斥、支付状态服务端核验已完成；PR #384 保持未合并，待 AppID/商户绑定和小额真机联调。"),
+            new ReleaseItem("2026-10-14", "V3G", "已上线",
+                    "网站侧小程序登录接口",
+                    "网站登录码、二维码和原浏览器二次确认接口已上线。实际客户端改以星火迷彩追踪器为准，星火迷彩追踪器源码已随 V3N 纳入仓库；预览版真机扫码主链路已验证，正式小程序发布和异常边界仍待单独验收。"),
+            new ReleaseItem("2026-10-14", "V3F", "已上线",
+                    "游戏与分类受控新增及资料编辑",
+                    "新增游戏/分类默认停用；资料编辑不改变 code、归属和启停状态；启停继续走影响预览、原因和审计。"),
+            new ReleaseItem("2026-10-13", "V3E", "已上线",
+                    "游戏与分类影响预览及受控启停",
+                    "启停前展示分类、服务和公开候选影响，要求填写原因并立即刷新公开可见性缓存。"),
+            new ReleaseItem("2026-10-13", "V3A-V3D", "已上线",
+                    "新版服务目录工作台",
+                    "完成服务目录只读工作台、基础编辑、服务新增、恢复上架发布检查，并继续复用现有业务真源。"),
+            new ReleaseItem("2026-10-13", "V2E-V2G", "已上线",
+                    "业务工作台、员工工作台与企业微信目录",
+                    "询价/订单进入新版数据范围工作台，员工领取与履约入口上线，企业微信通讯录只读接入。"),
+            new ReleaseItem("2026-10-13", "V2A-V2C", "已上线",
+                    "组织、RBAC 与数据范围底座",
+                    "原控制台版本 20261013-v2c：七大中心、155 岗位、角色权限与 ALL / DEPARTMENT / SELF 数据范围成为新版后台授权基础。")
+    );
 
     @GetMapping("/admin/xingwei")
     String console(Model model, CsrfToken csrf, Authentication authentication) {
-        model.addAttribute("csrf", csrf);
-        model.addAttribute("username", authentication == null ? "admin" : authentication.getName());
-        model.addAttribute("workspaceName", "星维网络服务工作室");
-        model.addAttribute("consoleVersion", "20261013-v2c");
+        common(model, csrf, authentication);
+        model.addAttribute("consoleVersion", CONSOLE_VERSION);
+        model.addAttribute("consoleStage", CONSOLE_STAGE);
+        model.addAttribute("releaseHistory", RELEASE_HISTORY);
         return "admin-xingwei";
+    }
+
+    @GetMapping("/admin/xingwei/releases")
+    String releases(Model model, CsrfToken csrf, Authentication authentication) {
+        common(model, csrf, authentication);
+        model.addAttribute("consoleVersion", CONSOLE_VERSION);
+        model.addAttribute("releaseHistory", RELEASE_HISTORY);
+        return "admin-xingwei-releases";
     }
 
     @GetMapping("/admin/xingwei/business")
     String businessWorkbench(Model model, CsrfToken csrf, Authentication authentication) {
-        model.addAttribute("csrf", csrf);
-        model.addAttribute("username", authentication == null ? "admin" : authentication.getName());
-        model.addAttribute("workspaceName", "星维网络服务工作室");
-        model.addAttribute("businessVersion", "20261013-v2e");
+        common(model, csrf, authentication);
+        model.addAttribute("businessVersion", BUSINESS_VERSION);
         return "admin-xingwei-business";
     }
 
     @GetMapping("/admin/xingwei/work")
     String employeeWorkbench(Model model, CsrfToken csrf, Authentication authentication) {
-        model.addAttribute("csrf", csrf);
-        model.addAttribute("username", authentication == null ? "admin" : authentication.getName());
-        model.addAttribute("workspaceName", "星维网络服务工作室");
-        model.addAttribute("workVersion", "20261013-v2f");
+        common(model, csrf, authentication);
+        model.addAttribute("workVersion", WORK_VERSION);
         return "admin-xingwei-work";
+    }
+
+    @GetMapping("/admin/xingwei/wecom")
+    String weComDirectory(Model model, CsrfToken csrf, Authentication authentication) {
+        common(model, csrf, authentication);
+        model.addAttribute("weComVersion", WECOM_VERSION);
+        return "admin-xingwei-wecom";
+    }
+
+    @GetMapping("/admin/xingwei/catalog")
+    String serviceCatalog(Model model, CsrfToken csrf, Authentication authentication) {
+        common(model, csrf, authentication);
+        model.addAttribute("catalogVersion", CATALOG_VERSION);
+        return "admin-xingwei-catalog";
+    }
+
+    @GetMapping("/admin/xingwei/taxonomy")
+    String taxonomyControl(Model model, CsrfToken csrf, Authentication authentication) {
+        common(model, csrf, authentication);
+        model.addAttribute("taxonomyVersion", TAXONOMY_VERSION);
+        return "admin-xingwei-taxonomy";
     }
 
     @GetMapping("/api/admin/xingwei/health")
@@ -55,9 +131,18 @@ public class XingweiAdminController {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("ok", true);
         result.put("workspace", "星维网络服务工作室");
-        result.put("version", "20261013-v2c");
+        result.put("version", CONSOLE_VERSION);
+        result.put("stage", CONSOLE_STAGE);
         result.put("user", authentication == null ? "unknown" : authentication.getName());
         result.put("serverTime", OffsetDateTime.now().toString());
         return result;
     }
+
+    private void common(Model model, CsrfToken csrf, Authentication authentication) {
+        model.addAttribute("csrf", csrf);
+        model.addAttribute("username", authentication == null ? "admin" : authentication.getName());
+        model.addAttribute("workspaceName", "星维网络服务工作室");
+    }
+
+    public record ReleaseItem(String date, String version, String status, String title, String detail) {}
 }

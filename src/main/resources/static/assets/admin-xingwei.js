@@ -7,8 +7,12 @@
   const searchCount = document.getElementById('xwSearchCount');
   const backendStatus = document.getElementById('xwBackendStatus');
   const serverTime = document.getElementById('xwServerTime');
+  const declaredVersion = document.querySelector('.xw-version-card strong')?.textContent?.trim() || '';
+  const declaredStage = document.querySelector('#overview .xw-kicker')?.textContent?.trim() || '';
   const modules = Array.from(document.querySelectorAll('.xw-module'));
   const navItems = Array.from(document.querySelectorAll('.xw-nav-item'));
+  const REQUEST_TIMEOUT_MS = 8000;
+  const HEALTH_CHECK_INTERVAL_MS = 60000;
   const MODULE_PERMISSIONS = {
     B01: 'quote:view', B02: 'order:view', B03: 'service:view', B04: 'content:view',
     O01: 'org:view', O02: 'employee:view', O03: 'rbac:view', O04: 'employee:view',
@@ -16,6 +20,9 @@
     S01: 'site:view', S02: 'audit:view', S03: 'deploy:view', S04: 'site:view'
   };
   let access = null;
+  let healthTimer = 0;
+  let healthInFlight = false;
+  let healthFailures = 0;
 
   function setMenu(open) {
     if (!sidebar || !menuButton) return;
@@ -45,6 +52,16 @@
 
   function normalize(value) {
     return String(value || '').toLocaleLowerCase('zh-CN').trim();
+  }
+
+  async function fetchWithTimeout(url, options = {}) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      return await fetch(url, {...options, signal: controller.signal});
+    } finally {
+      window.clearTimeout(timer);
+    }
   }
 
   function can(permission) {
@@ -128,9 +145,10 @@
   async function loadAccess() {
     const badge = ensureAccessBadge();
     try {
-      const response = await fetch('/api/admin/xingwei/access', {
+      const response = await fetchWithTimeout('/api/admin/xingwei/access', {
         credentials: 'same-origin',
-        headers: {'Accept': 'application/json'}
+        cache: 'no-store',
+        headers: {'Accept': 'application/json', 'Cache-Control': 'no-cache'}
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       access = await response.json();
@@ -140,6 +158,7 @@
       if (badge) {
         badge.textContent = modeLabel(access);
         badge.classList.toggle('ok', access.mode !== 'DENIED');
+        badge.classList.remove('error');
         badge.title = access.mode === 'SHADOW_RBAC'
           ? `角色：${(access.roleCodes || []).join('、') || '无'}；权限点：${(access.permissionCodes || []).length}；数据范围：${scopeLabel(access)}`
           : '旧后台仍沿用原 ADMIN / OPERATOR 安全边界。';
@@ -153,7 +172,10 @@
       window.xwHasPermission = can;
       window.xwCanManageGlobalRbac = canManageGlobalRbac;
       if (badge) {
-        badge.textContent = '新版权限读取失败 · 受控模块已隐藏';
+        badge.textContent = error?.name === 'AbortError'
+          ? '新版权限读取超时 · 受控模块已隐藏'
+          : '新版权限读取失败 · 受控模块已隐藏';
+        badge.classList.remove('ok');
         badge.classList.add('error');
       }
       filterModules();
@@ -172,32 +194,152 @@
   });
   mutationObserver.observe(document.querySelector('.xw-main') || document.body, {childList: true, subtree: true});
 
-  async function checkBackend() {
+  function publishRuntimeHealth(snapshot) {
+    window.xwRuntimeHealth = snapshot;
+    document.documentElement.dataset.xwRuntimeState = snapshot.state;
+    document.dispatchEvent(new CustomEvent('xw:runtime-health', {detail: snapshot}));
+  }
+
+  function setBackendStatus(state, text, title) {
     if (!backendStatus) return;
-    try {
-      const response = await fetch('/api/admin/xingwei/health', {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: { 'Accept': 'application/json' }
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      backendStatus.classList.remove('error');
-      backendStatus.classList.add('ok');
-      backendStatus.lastChild.textContent = '服务正常';
-      if (serverTime && data.serverTime) {
-        const parsed = new Date(data.serverTime);
-        serverTime.textContent = Number.isNaN(parsed.getTime()) ? '后端已连接' : `后端已连接 · ${parsed.toLocaleString('zh-CN')}`;
-      }
-    } catch (error) {
-      backendStatus.classList.remove('ok');
-      backendStatus.classList.add('error');
-      backendStatus.lastChild.textContent = '服务检查失败';
-      if (serverTime) serverTime.textContent = '无法读取后台健康状态';
-      console.warn('Xingwei admin health check failed', error);
+    backendStatus.classList.toggle('ok', state === 'match');
+    backendStatus.classList.toggle('error', state !== 'match');
+    backendStatus.dataset.runtimeState = state;
+    if (backendStatus.lastChild) backendStatus.lastChild.textContent = text;
+    backendStatus.title = title || '';
+  }
+
+  function formatRuntimeLine(data, state) {
+    const parsed = new Date(data.serverTime || '');
+    const time = Number.isNaN(parsed.getTime()) ? '' : ` · ${parsed.toLocaleString('zh-CN')}`;
+    if (state === 'match') return `运行 ${data.version} · 版本已核对${time}`;
+    return `页面 ${declaredVersion || '未知'} · 运行 ${data.version || '未知'}${time}`;
+  }
+
+  function clearHealthTimer() {
+    if (!healthTimer) return;
+    window.clearTimeout(healthTimer);
+    healthTimer = 0;
+  }
+
+  function scheduleHealthCheck() {
+    clearHealthTimer();
+    if (document.hidden) return;
+    healthTimer = window.setTimeout(() => checkBackend('interval'), HEALTH_CHECK_INTERVAL_MS);
+  }
+
+  function publishOfflineState() {
+    const previous = window.xwRuntimeHealth;
+    const snapshot = {
+      state: 'offline',
+      declaredVersion,
+      declaredStage,
+      runtimeVersion: previous?.runtimeVersion || '',
+      runtimeStage: previous?.runtimeStage || '',
+      serverTime: previous?.serverTime || null,
+      checkedAt: new Date().toISOString(),
+      reason: 'offline',
+      failures: healthFailures
+    };
+    publishRuntimeHealth(snapshot);
+    setBackendStatus('offline', '网络已断开 · 等待恢复后复核', '浏览器当前离线；网络恢复后会立即重新核对运行版本。');
+    if (serverTime) {
+      serverTime.textContent = snapshot.runtimeVersion
+        ? `上次核对 ${snapshot.runtimeVersion} · 当前离线`
+        : `页面 ${declaredVersion || '未知'} · 当前离线`;
     }
   }
 
+  async function checkBackend(reason = 'manual') {
+    if (!backendStatus || healthInFlight) return;
+    if (navigator.onLine === false) {
+      clearHealthTimer();
+      publishOfflineState();
+      return;
+    }
+
+    healthInFlight = true;
+    clearHealthTimer();
+    try {
+      const response = await fetchWithTimeout('/api/admin/xingwei/health', {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' },
+        cache: 'no-store'
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      const runtimeVersion = String(data.version || '').trim();
+      const runtimeStage = String(data.stage || '').trim();
+      const versionMatches = Boolean(declaredVersion && runtimeVersion && declaredVersion === runtimeVersion);
+      const stageMatches = Boolean(declaredStage && runtimeStage && declaredStage === runtimeStage);
+      const state = versionMatches && stageMatches ? 'match' : 'mismatch';
+      healthFailures = 0;
+      const snapshot = {
+        state,
+        declaredVersion,
+        declaredStage,
+        runtimeVersion,
+        runtimeStage,
+        serverTime: data.serverTime || null,
+        checkedAt: new Date().toISOString(),
+        reason,
+        failures: 0
+      };
+      publishRuntimeHealth(snapshot);
+
+      if (state === 'match') {
+        setBackendStatus('match', `服务正常 · ${runtimeVersion} 已核对`, `页面与后端运行版本一致：${runtimeVersion} / ${runtimeStage}`);
+      } else {
+        setBackendStatus('mismatch', '版本漂移 · 请刷新并检查发布', `页面：${declaredVersion || '未知'} / ${declaredStage || '未知'}；运行：${runtimeVersion || '未知'} / ${runtimeStage || '未知'}`);
+      }
+      if (serverTime) serverTime.textContent = formatRuntimeLine(data, state);
+    } catch (error) {
+      healthFailures += 1;
+      const previous = window.xwRuntimeHealth;
+      const hasVerifiedSnapshot = Boolean(previous?.runtimeVersion && previous?.state === 'match');
+      const state = hasVerifiedSnapshot && healthFailures === 1 ? 'stale' : 'error';
+      const snapshot = {
+        state,
+        declaredVersion,
+        declaredStage,
+        runtimeVersion: previous?.runtimeVersion || '',
+        runtimeStage: previous?.runtimeStage || '',
+        serverTime: previous?.serverTime || null,
+        checkedAt: new Date().toISOString(),
+        reason,
+        failures: healthFailures,
+        error: error?.name === 'AbortError' ? 'timeout' : 'request_failed'
+      };
+      publishRuntimeHealth(snapshot);
+
+      if (state === 'stale') {
+        setBackendStatus('stale', '复核暂时失败 · 保留上次已核对版本', `最近一次已核对 ${snapshot.runtimeVersion}；本次${snapshot.error === 'timeout' ? '请求超时' : '请求失败'}，稍后自动重试。`);
+        if (serverTime) serverTime.textContent = `上次核对 ${snapshot.runtimeVersion} · 当前等待自动复核`;
+      } else {
+        setBackendStatus('error', error?.name === 'AbortError' ? '服务检查超时' : '服务检查失败', '无法读取后台健康状态，版本一致性未完成核验。');
+        if (serverTime) serverTime.textContent = `页面 ${declaredVersion || '未知'} · 无法读取运行版本`;
+      }
+      console.warn('Xingwei admin health check failed', error);
+    } finally {
+      healthInFlight = false;
+      scheduleHealthCheck();
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearHealthTimer();
+      return;
+    }
+    checkBackend('visibility');
+  });
+  window.addEventListener('online', () => checkBackend('online'));
+  window.addEventListener('offline', () => {
+    clearHealthTimer();
+    publishOfflineState();
+  });
+
   loadAccess();
-  checkBackend();
+  checkBackend('initial');
 })();

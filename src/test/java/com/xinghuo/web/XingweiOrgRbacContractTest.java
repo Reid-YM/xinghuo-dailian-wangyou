@@ -115,7 +115,7 @@ class XingweiOrgRbacContractTest {
     }
 
     @Test
-    void consoleLoadsOrganizationAssetsAndV2cScopeStatus() throws Exception {
+    void consoleKeepsV2cOrganizationScopeWhileDashboardAdvancesToV3l() throws Exception {
         String template = read("resources/templates/admin-xingwei.html");
         String orgJs = read("resources/static/assets/admin-xingwei-org.js");
         String mainJs = read("resources/static/assets/admin-xingwei.js");
@@ -123,10 +123,11 @@ class XingweiOrgRbacContractTest {
         String accessController = read("java/com/xinghuo/controller/XingweiPermissionController.java");
 
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
-        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261013v2c"));
+        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261014v3o"));
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
-        assertTrue(template.contains("PHASE 2C · DATA SCOPE ENFORCEMENT"));
-        assertTrue(template.contains("全部数据、本中心、仅本人"));
+        assertTrue(template.contains("V3O · RELEASE CANDIDATE"));
+        assertTrue(template.contains("V2C · DATA SCOPE"));
+        assertTrue(template.contains("ADMIN 全量 · OPERATOR 兼容 · RBAC 执行 ALL / DEPARTMENT / SELF"));
         assertTrue(orgJs.contains("/api/admin/xingwei/org/snapshot"));
         assertTrue(orgJs.contains("form.dataset.canProfile"));
         assertTrue(orgJs.contains("form.dataset.canRoles"));
@@ -141,8 +142,10 @@ class XingweiOrgRbacContractTest {
         assertTrue(mainJs.contains("case 'DEPARTMENT'"));
         assertTrue(mainJs.contains("case 'SELF'"));
         assertTrue(mainJs.contains("dataScope: 'NONE'"));
+        assertTrue(mainJs.contains("xw:runtime-health"));
         assertTrue(accessController.contains("@GetMapping(\"/access\")"));
         assertTrue(controller.contains("20261013-v2c"));
+        assertTrue(controller.contains("20261014-v3o"));
     }
 
     private static int occurrences(String source, String needle) {

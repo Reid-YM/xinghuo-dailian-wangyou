@@ -1,0 +1,1195 @@
+{
+  "mw4-weapon-leveling-fast": {
+    "guide": {
+      "id": 43,
+      "gameCode": "CODMW4",
+      "gameName": "使命召唤 MW4",
+      "slug": "mw4-weapon-leveling-fast",
+      "title": "如何在《使命召唤：现代战争4》中快速升级武器（以及何时应该直接购买）",
+      "subtitle": "武器经验来源、双倍经验窗口与购买边界",
+      "summary": "武器等级决定配件和配装上限。这篇攻略解释武器经验从哪里来、如何叠倍率，以及什么情况下找人代肝比自己慢慢打更合适。",
+      "coverImage": "/assets/covers/service/codmw4-1.jpg",
+      "difficulty": "BEGINNER",
+      "estimatedMinutes": 7,
+      "language": "zh-CN",
+      "authorName": "星火攻略组",
+      "sourceName": "UPBLAZED",
+      "sourceUrl": "https://upblazed.com/guides/how-to-level-up-weapons-fast-in-cod",
+      "status": "PUBLISHED",
+      "featured": false,
+      "sortOrder": 120,
+      "tags": [
+        "武器升级",
+        "配件解锁",
+        "双倍经验",
+        "效率"
+      ],
+      "seoTitle": "MW4 武器快速升级攻略与代肝建议 | 星火网游代练平台",
+      "seoDescription": "MW4 武器怎么升级最快，武器经验来源、双倍经验叠加、代肝适合什么情况，以及哪些玩家应该自己练枪。",
+      "canonicalUrl": "https://wydlgf.cn/guides/mw4-weapon-leveling-fast",
+      "viewCount": 62,
+      "publishedAt": "2026-10-03T00:13:11Z",
+      "updatedAt": "2026-10-12T04:37:16Z",
+      "sectionCount": 5,
+      "productCount": 2
+    },
+    "sections": [
+      {
+        "id": 259,
+        "sectionKey": "why",
+        "heading": "武器等级为什么是门槛",
+        "bodyMarkdown": "每把武器从基础版开始，瞄具、枪管、握把和完整配装都锁在等级后面。没有等级，很多打法根本组不出来。\r\n\r\n武器升级不是可做可不做的支线，而是进入正式配装的前置条件。先确定要用的两三把主武器，再集中资源升级，比平均分配更快形成可用配装。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 10
+      },
+      {
+        "id": 260,
+        "sectionKey": "xp-source",
+        "heading": "武器经验来自参与度",
+        "bodyMarkdown": "只盯击杀会低估经验效率。占点、助攻、连杀和完成目标同样会提供武器经验，节奏快的目标模式通常比慢节奏模式收益更高。\r\n\r\n- 目标模式：持续交战，经验来源稳定\r\n- 击杀确认：击杀与拾取都能推进节奏\r\n- 长时间架枪：击杀数可能不低，但每分钟经验偏低\r\n\r\n想快速升级，优先选择能持续把你送回交战区的模式。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 20
+      },
+      {
+        "id": 261,
+        "sectionKey": "multipliers",
+        "heading": "叠加倍率",
+        "bodyMarkdown": "最有效的做法是等双倍武器经验窗口再消耗武器经验代币，而不是在普通时间单独使用。\r\n\r\n- 双倍经验活动开启时集中升级主武器\r\n- 代币留到活动叠加时使用\r\n- 同一把武器连续打完，减少切换成本\r\n- 优先升能通用的主武器，再处理特定模式武器\r\n\r\n倍率叠加的核心是集中投入，而不是每天少量分散。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 30
+      },
+      {
+        "id": 262,
+        "sectionKey": "buy-or-not",
+        "heading": "什么时候值得找人代肝",
+        "bodyMarkdown": "适合代肝的情况是：等级只是挡住你使用完整配装，或者你在为排位、迷彩任务提前准备武器。\r\n\r\n不适合代肝的情况也很明确：如果你享受一边升级一边熟悉后坐力和节奏，或者只差一把枪的最后一两个配件，自己打一个晚上更划算。\r\n\r\n站内武器升级服务按目标等级和当前进度报价，下单前请说明平台、武器、目标等级和可操作时间。网页不收账号密码、验证码或令牌，具体交付方式先和客服确认。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 40
+      },
+      {
+        "id": 263,
+        "sectionKey": "checklist",
+        "heading": "下单前准备",
+        "bodyMarkdown": "为了让报价准确，先整理这些信息：\r\n\r\n- 平台与区服\r\n- 武器名称和当前等级\r\n- 目标等级或目标配件\r\n- 是否需要在某个时间窗口前完成\r\n- 是否同时需要迷彩、账号等级或活动任务\r\n\r\n信息越完整，越容易判断工作量，也越不容易出现重复报价。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 50
+      }
+    ],
+    "products": [
+      {
+        "serviceId": 1,
+        "slug": "weapon-leveling",
+        "name": "武器升级",
+        "category": "WEAPON",
+        "shortDesc": "按目标等级与当前进度报价，配件一并解锁",
+        "priceMode": "RANGE",
+        "priceFixed": null,
+        "priceMin": 20.0,
+        "priceMax": 60.0,
+        "durationText": "约 30–90 分钟",
+        "imageUrl": "/assets/covers/service/codmw4-1.jpg",
+        "label": "武器升级",
+        "description": "",
+        "featured": true,
+        "sortOrder": 10
+      },
+      {
+        "serviceId": 2,
+        "slug": "camo-task",
+        "name": "MW4 全迷彩代练",
+        "category": "CAMO",
+        "shortDesc": "多人、战区和 DMZ 精通迷彩整枪进度推进",
+        "priceMode": "QUOTE",
+        "priceFixed": null,
+        "priceMin": 80.0,
+        "priceMax": null,
+        "durationText": "按剩余进度确认",
+        "imageUrl": "/assets/covers/service/camo/mw4-camo-boost.webp",
+        "label": "迷彩任务",
+        "description": "",
+        "featured": false,
+        "sortOrder": 20
+      }
+    ],
+    "faqs": [
+      {
+        "id": 198,
+        "question": "快速升级武器最关键的是什么？",
+        "answer": "选择高节奏目标模式，并把武器经验代币留到双倍武器经验窗口集中使用。",
+        "sortOrder": 10
+      },
+      {
+        "id": 199,
+        "question": "只靠击杀能升级武器吗？",
+        "answer": "能，但占点、助攻和连杀等参与行为同样提供经验，单纯架枪的效率通常更低。",
+        "sortOrder": 20
+      },
+      {
+        "id": 200,
+        "question": "什么时候适合直接购买升级服务？",
+        "answer": "当目标是一整套配装、排位准备或迷彩前置，而升级本身只是重复劳动时更合适。",
+        "sortOrder": 30
+      },
+      {
+        "id": 201,
+        "question": "自己练枪的玩家应该买吗？",
+        "answer": "如果你享受熟悉武器的过程，或者只差少量配件，自己打更合适。",
+        "sortOrder": 40
+      }
+    ],
+    "relatedGuides": [
+      {
+        "id": 42,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-best-settings",
+        "title": "MW4 最佳设置：控制器、画面、音频和视野",
+        "coverImage": "/assets/covers/guides/mw4-korea-village.png"
+      },
+      {
+        "id": 45,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-mastery-camos",
+        "title": "MW4 精通迷彩：所有多人游戏、战区和 DMZ 迷彩",
+        "coverImage": "/assets/covers/service/codmw4-2.jpg"
+      },
+      {
+        "id": 49,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "cod-account-leveling",
+        "title": "使命召唤账号等级详解：军衔、声望以及人们为何要刷等级",
+        "coverImage": "/assets/covers/service/codmw4-4.jpg"
+      }
+    ]
+  },
+  "mw4-kd-explained": {
+    "guide": {
+      "id": 47,
+      "gameCode": "CODMW4",
+      "gameName": "使命召唤 MW4",
+      "slug": "mw4-kd-explained",
+      "title": "K/D 值提升机制：每局最低值，而不是平均值",
+      "subtitle": "最低 K/D、判定方式与真实提升边界",
+      "summary": "K/D 提升常被误解成把生涯平均值刷到某个数字。实际服务通常按每局最低值计算。这篇攻略解释判定方式、模式范围和现实限制。",
+      "coverImage": "/assets/covers/service/codmw4-6.jpg",
+      "difficulty": "INTERMEDIATE",
+      "estimatedMinutes": 7,
+      "language": "zh-CN",
+      "authorName": "星火攻略组",
+      "sourceName": "UPBLAZED",
+      "sourceUrl": "https://upblazed.com/guides/kd-boosting-explained",
+      "status": "PUBLISHED",
+      "featured": false,
+      "sortOrder": 160,
+      "tags": [
+        "K/D",
+        "数据",
+        "对局",
+        "排位"
+      ],
+      "seoTitle": "MW4 K/D 提升机制：每局最低值怎么计算 | 星火网游代练平台",
+      "seoDescription": "MW4 K/D 提升按每局最低值还是生涯平均值？判定方式、模式范围、漏单补偿和生涯数据变化的现实限制一次讲清。",
+      "canonicalUrl": "https://wydlgf.cn/guides/mw4-kd-explained",
+      "viewCount": 63,
+      "publishedAt": "2026-10-03T00:13:11Z",
+      "updatedAt": "2026-10-12T04:37:16Z",
+      "sectionCount": 5,
+      "productCount": 2
+    },
+    "sections": [
+      {
+        "id": 278,
+        "sectionKey": "floor",
+        "heading": "最低值不是平均值",
+        "bodyMarkdown": "K/D 提升通常由指定目标决定每局最低值，例如 2.0、3.0、4.0 或 5.0。每局结束都必须达到或超过该值，而不是几局平均值达标。\r\n\r\n- 一场高数据对局不能抵消一场低数据对局\r\n- 超过最低值的部分仍然计入结果\r\n- 未达到最低值的对局通常需要额外补打\r\n- 目标越高，单局难度和报价通常越高",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 10
+      },
+      {
+        "id": 279,
+        "sectionKey": "measure",
+        "heading": "如何判定一局",
+        "bodyMarkdown": "判定依据是游戏结算面板显示的击杀与死亡数据，而不是第三方截图。连杀奖励产生的击杀按游戏结算方式计入。\r\n\r\n服务过程中应提供每局结算截图，让用户自己核对，而不是只给最终总结。对局记录不会被删除；未达标对局会保留在对局历史里，补打是在原有对局之外额外进行。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 20
+      },
+      {
+        "id": 280,
+        "sectionKey": "modes",
+        "heading": "可用模式范围",
+        "bodyMarkdown": "MW4 正式发售前，K/D 服务只能基于核心多人模式。\r\n\r\n- MW4 核心多人：短局、快复活，但匹配会持续调整对手强度\r\n- 战区 Resurgence：地图较小、复活快、交战密度高\r\n- 战区大逃杀：单局时间长、变量多，保持最低值更难，成本通常更高\r\n- 排位和夺金模式通常不属于 K/D 服务范围\r\n\r\n不同模式的工作量和风险不同，不能用同一价格简单换算。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 30
+      },
+      {
+        "id": 281,
+        "sectionKey": "lifetime",
+        "heading": "生涯 K/D 能提升多少",
+        "bodyMarkdown": "生涯 K/D 是所有历史对局的平均值。新账号对局少，变化更快；有几千局历史的老账号，同样局数带来的变化会小很多。\r\n\r\n因此，服务通常按每局最低值计算，而不是承诺把生涯 K/D 提升到固定数字。下单前提供当前 K/D 和对局数，才能得到相对可靠的局数估算。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 40
+      },
+      {
+        "id": 282,
+        "sectionKey": "risk",
+        "heading": "风险与边界",
+        "bodyMarkdown": "K/D 提升通常需要代打，也就是由他人登录账号操作。任何代打都存在账号安全、平台规则和处罚风险，没有商家能承诺绝对安全。\r\n\r\n本站不在网页收集账号密码、验证码或令牌。是否采用代打、如何交付、账号风险由用户自行判断。如果只想让数据立刻明显变化，或者你本来就会大量自己打，短单可能并不划算，先咨询再决定。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 50
+      }
+    ],
+    "products": [
+      {
+        "serviceId": 8,
+        "slug": "rank-boost",
+        "name": "排位 / 段位",
+        "category": "RANK",
+        "shortDesc": "按当前段位到目标段位报价",
+        "priceMode": "QUOTE",
+        "priceFixed": null,
+        "priceMin": 100.0,
+        "priceMax": null,
+        "durationText": "按段差确认",
+        "imageUrl": "/assets/covers/service/codmw4-6.jpg",
+        "label": "排位 / 段位",
+        "description": "",
+        "featured": true,
+        "sortOrder": 10
+      },
+      {
+        "serviceId": 4,
+        "slug": "other-task",
+        "name": "其他任务 / 人工询价",
+        "category": "OTHER",
+        "shortDesc": "未列出的 MW4 需求可走人工评估，按截图与目标报价",
+        "priceMode": "QUOTE",
+        "priceFixed": null,
+        "priceMin": null,
+        "priceMax": null,
+        "durationText": "按进度确认",
+        "imageUrl": "/assets/covers/service/codmw4-4.jpg",
+        "label": "其他任务 / 人工询价",
+        "description": "",
+        "featured": false,
+        "sortOrder": 20
+      }
+    ],
+    "faqs": [
+      {
+        "id": 214,
+        "question": "最低 K/D 是什么意思？",
+        "answer": "每局结束都必须达到指定数值，例如 3.0 表示每局至少三击杀一死亡，而不是看多局平均。",
+        "sortOrder": 10
+      },
+      {
+        "id": 215,
+        "question": "未达到最低值怎么办？",
+        "answer": "通常补打一局，未达标对局仍保留在对局历史里。",
+        "sortOrder": 20
+      },
+      {
+        "id": 216,
+        "question": "哪些模式可以提升 K/D？",
+        "answer": "MW4 核心多人模式；战区可选 Resurgence 或大逃杀，排位和夺金通常不在范围内。",
+        "sortOrder": 30
+      },
+      {
+        "id": 217,
+        "question": "生涯 K/D 会提升多少？",
+        "answer": "取决于账号已有对局数量。新账号变化快，老账号需要更多局数才有明显变化。",
+        "sortOrder": 40
+      }
+    ],
+    "relatedGuides": [
+      {
+        "id": 46,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-ranked-play",
+        "title": "MW4 排位赛：目前已确认的内容（以及尚未确认的内容）",
+        "coverImage": "/assets/covers/guides/mw4-dmz-tune-in.jpg"
+      },
+      {
+        "id": 48,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-nuke-guide",
+        "title": "如何在《使命召唤：现代战争4》中获得核弹（30 连杀）",
+        "coverImage": "/assets/covers/guides/mw4-forest-squad.jpg"
+      },
+      {
+        "id": 42,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-best-settings",
+        "title": "MW4 最佳设置：控制器、画面、音频和视野",
+        "coverImage": "/assets/covers/guides/mw4-korea-village.png"
+      }
+    ]
+  },
+  "cod-account-leveling": {
+    "guide": {
+      "id": 49,
+      "gameCode": "CODMW4",
+      "gameName": "使命召唤 MW4",
+      "slug": "cod-account-leveling",
+      "title": "使命召唤账号等级详解：军衔、声望以及人们为何要刷等级",
+      "subtitle": "账号等级解锁内容、声望机制与效率建议",
+      "summary": "账号等级决定基础武器、装备、特长和配装槽位的开放速度，声望则是在满级后重置显示等级换取奖励。这篇攻略解释两者区别和升级时机。",
+      "coverImage": "/assets/covers/service/codmw4-4.jpg",
+      "difficulty": "BEGINNER",
+      "estimatedMinutes": 6,
+      "language": "zh-CN",
+      "authorName": "星火攻略组",
+      "sourceName": "UPBLAZED",
+      "sourceUrl": "https://upblazed.com/guides/cod-account-leveling-explained",
+      "status": "PUBLISHED",
+      "featured": false,
+      "sortOrder": 180,
+      "tags": [
+        "账号等级",
+        "声望",
+        "军衔",
+        "解锁"
+      ],
+      "seoTitle": "使命召唤 MW4 账号等级与声望机制攻略 | 星火网游代练平台",
+      "seoDescription": "MW4 账号等级解锁什么、声望是什么、为什么新账号升级更急迫，以及双倍经验和效率升级的实用建议。",
+      "canonicalUrl": "https://wydlgf.cn/guides/cod-account-leveling",
+      "viewCount": 60,
+      "publishedAt": "2026-10-03T00:13:11Z",
+      "updatedAt": "2026-10-12T04:37:16Z",
+      "sectionCount": 5,
+      "productCount": 2
+    },
+    "sections": [
+      {
+        "id": 288,
+        "sectionKey": "unlocks",
+        "heading": "账号等级解锁什么",
+        "bodyMarkdown": "账号等级来自总经验，无论胜负每局都会累积。等级提升会逐步开放：\r\n\r\n- 基础武器与装备\r\n- 特长和战地升级\r\n- Create-a-Class 配装槽位\r\n- 后续赛季的等级相关奖励\r\n\r\n低等级账号只能用一小部分工具，恰好也是最需要完整配装的阶段。提前升级可以缩短这段受限期。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 10
+      },
+      {
+        "id": 289,
+        "sectionKey": "prestige",
+        "heading": "声望是什么",
+        "bodyMarkdown": "账号达到等级上限后，可以进入声望阶段。声望会重置显示等级，但不会拿走已经获得的核心内容，并通常提供新的徽章、奖励和长期目标。\r\n\r\n简单说，账号等级是解锁工具，声望是展示投入时间的长期进度。两者相关，但不是同一件事。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 20
+      },
+      {
+        "id": 290,
+        "sectionKey": "when",
+        "heading": "什么情况值得推进等级",
+        "bodyMarkdown": "适合集中升级的情况：\r\n\r\n- 新账号或回归账号缺少常用武器、特长和配装槽位\r\n- 想尽快进入排位、战区或迷彩任务的前置准备\r\n- 想要声望奖励，但不想用几十个小时重复对局\r\n\r\n如果你是刚开始学习地图、枪法和移动的新玩家，早期对局也是建立基础的过程，直接跳过等级并不会自动提升技术。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 30
+      },
+      {
+        "id": 291,
+        "sectionKey": "efficiency",
+        "heading": "效率升级建议",
+        "bodyMarkdown": "账号经验来自每一局，但不同模式的单位时间经验不同：\r\n\r\n- 高节奏目标模式通常比慢节奏模式更快\r\n- 双倍经验活动期间集中游玩，效率最高\r\n- 魔爪活动等双倍经验来源可提前累积\r\n- 先完成每日和周常挑战，再按目标模式推进\r\n- 固定两到三套配装，减少反复调整时间\r\n\r\n账号等级只代表可用工具更多，不代表技术水平同步提升。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 40
+      },
+      {
+        "id": 292,
+        "sectionKey": "service",
+        "heading": "下单前准备",
+        "bodyMarkdown": "如果想安排账号等级服务，先整理：\r\n\r\n- 当前等级和目标等级\r\n- 平台、区服和常用模式\r\n- 是否同时需要武器等级或活动任务\r\n- 期望完成时间\r\n\r\n站内相关服务按目标进度报价。网页不收账号密码、验证码或令牌，具体交付方式请在咨询时确认。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 50
+      }
+    ],
+    "products": [
+      {
+        "serviceId": 4,
+        "slug": "other-task",
+        "name": "其他任务 / 人工询价",
+        "category": "OTHER",
+        "shortDesc": "未列出的 MW4 需求可走人工评估，按截图与目标报价",
+        "priceMode": "QUOTE",
+        "priceFixed": null,
+        "priceMin": null,
+        "priceMax": null,
+        "durationText": "按进度确认",
+        "imageUrl": "/assets/covers/service/codmw4-4.jpg",
+        "label": "其他任务 / 人工询价",
+        "description": "",
+        "featured": true,
+        "sortOrder": 10
+      },
+      {
+        "serviceId": 1,
+        "slug": "weapon-leveling",
+        "name": "武器升级",
+        "category": "WEAPON",
+        "shortDesc": "按目标等级与当前进度报价，配件一并解锁",
+        "priceMode": "RANGE",
+        "priceFixed": null,
+        "priceMin": 20.0,
+        "priceMax": 60.0,
+        "durationText": "约 30–90 分钟",
+        "imageUrl": "/assets/covers/service/codmw4-1.jpg",
+        "label": "武器升级",
+        "description": "",
+        "featured": false,
+        "sortOrder": 20
+      }
+    ],
+    "faqs": [
+      {
+        "id": 222,
+        "question": "账号等级解锁什么？",
+        "answer": "基础武器、装备、特长、战地升级和 Create-a-Class 配装槽位等。",
+        "sortOrder": 10
+      },
+      {
+        "id": 223,
+        "question": "账号等级和声望有什么区别？",
+        "answer": "等级是总经验进度，声望是满级后的长期重置与奖励系统，不会拿走已获得的核心内容。",
+        "sortOrder": 20
+      },
+      {
+        "id": 224,
+        "question": "升级账号会让人变强吗？",
+        "answer": "等级提升会增加可用工具，但不会自动提升地图理解、枪法和移动技术。",
+        "sortOrder": 30
+      },
+      {
+        "id": 225,
+        "question": "怎样升级效率更高？",
+        "answer": "打高节奏目标模式，把双倍经验留到集中游玩时使用，并优先完成每日和周常挑战。",
+        "sortOrder": 40
+      }
+    ],
+    "relatedGuides": [
+      {
+        "id": 43,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-weapon-leveling-fast",
+        "title": "如何在《使命召唤：现代战争4》中快速升级武器（以及何时应该直接购买）",
+        "coverImage": "/assets/covers/service/codmw4-1.jpg"
+      },
+      {
+        "id": 50,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-battle-pass-value",
+        "title": "战斗通行证加速真的值得吗？一份诚实的分析",
+        "coverImage": "/assets/covers/service/codmw4-5.jpg"
+      },
+      {
+        "id": 41,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-monster-energy-codes",
+        "title": "MW4 魔爪能量饮料兑换码：如何获取、兑换及所有奖励",
+        "coverImage": "/assets/covers/service/codmw4-3.jpg"
+      }
+    ]
+  },
+  "mw4-monster-energy-codes": {
+    "guide": {
+      "id": 41,
+      "gameCode": "CODMW4",
+      "gameName": "使命召唤 MW4",
+      "slug": "mw4-monster-energy-codes",
+      "title": "MW4 魔爪能量饮料兑换码：如何获取、兑换及所有奖励",
+      "subtitle": "魔爪联名活动规则、六个奖励与兑换步骤",
+      "summary": "整理 MW4 魔爪能量饮料联动的兑换规则、六个奖励、活动时间与双倍经验上限，帮助你在活动结束前按正确顺序兑换。",
+      "coverImage": "/assets/covers/service/codmw4-3.jpg",
+      "difficulty": "BEGINNER",
+      "estimatedMinutes": 7,
+      "language": "zh-CN",
+      "authorName": "星火攻略组",
+      "sourceName": "UPBLAZED",
+      "sourceUrl": "https://upblazed.com/guides/mw4-monster-energy-promotion-whats-next",
+      "status": "PUBLISHED",
+      "featured": true,
+      "sortOrder": 100,
+      "tags": [
+        "促销",
+        "兑换码",
+        "双倍经验",
+        "MW4",
+        "奖励"
+      ],
+      "seoTitle": "MW4 魔爪能量饮料兑换码与奖励攻略 | 星火网游代练平台",
+      "seoDescription": "MW4 魔爪能量饮料兑换码怎么获取、怎么兑换，六个奖励分别是什么，双倍经验上限和活动截止时间一次看懂。",
+      "canonicalUrl": "https://wydlgf.cn/guides/mw4-monster-energy-codes",
+      "viewCount": 70,
+      "publishedAt": "2026-10-03T00:13:11Z",
+      "updatedAt": "2026-10-12T04:37:16Z",
+      "sectionCount": 6,
+      "productCount": 2
+    },
+    "sections": [
+      {
+        "id": 248,
+        "sectionKey": "rules",
+        "heading": "兑换码能拿到什么",
+        "bodyMarkdown": "每个有效兑换码提供 **1 点积分 + 15 分钟双倍经验**。积分用于解锁奖励，前 6 点各对应一个奖励，之后继续累计双倍经验。\r\n\r\n- 双倍经验每天最多累积 1 小时\r\n- 单账号总上限约 40 小时，通常对应 160 个码\r\n- 第 161 个码关联额外神秘物品，具体发放时间以活动公告为准",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 10
+      },
+      {
+        "id": 249,
+        "sectionKey": "rewards",
+        "heading": "六个奖励与兑换顺序",
+        "bodyMarkdown": "奖励按积分顺序发放，不能跳级领取。前六点依次对应：\r\n\r\n1. **Tagged** 大型贴花\r\n2. **Green Light** 武器蓝图\r\n3. **OG Green** 特战兵皮肤\r\n4. **Canned** 武器蓝图\r\n5. **Zero Chill** 特战兵皮肤\r\n6. 隐藏神秘奖励，后续公布\r\n\r\n如果只想要某一件外观，先确认它对应的积分档位，再决定要收集多少个码。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 20
+      },
+      {
+        "id": 250,
+        "sectionKey": "steps",
+        "heading": "兑换步骤",
+        "bodyMarkdown": "按下面的顺序操作，避免在错误的页面反复试码：\r\n\r\n1. 打开官方活动页，输入罐底拉环下的码，或扫描罐身二维码\r\n2. 活动页会返回一个 Call of Duty 兑换码\r\n3. 登录 Activision 账号，在官方兑换页提交该码\r\n4. 外观奖励进入 MW4 账号，双倍经验按规则累计\r\n\r\n每个码只能成功兑换一次。公开流传的码通常会被第一个使用者占用，不要把它当成稳定来源。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 30
+      },
+      {
+        "id": 251,
+        "sectionKey": "window",
+        "heading": "活动时间与地区限制",
+        "bodyMarkdown": "活动从 2026 年 9 月 1 日开始，持续到 2027 年 3 月 31 日，兑换码有效期到 2027 年 4 月 30 日。\r\n\r\n- 参与包装为 16 盎司的 Monster Energy Original、Zero Sugar 和 Zero Ultra\r\n- 并非所有国家和地区都能在货架上买到活动包装\r\n- 活动开始后，双倍经验可在部分现有使命召唤作品中先使用，未用完的部分可带入 MW4 多人模式\r\n\r\n购买前先确认包装、地区与有效期，避免买到已经过期的码。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 40
+      },
+      {
+        "id": 252,
+        "sectionKey": "use-xp",
+        "heading": "双倍经验怎么用更划算",
+        "bodyMarkdown": "双倍经验本身不产生进度，关键是用在目标明确的地方：\r\n\r\n- 账号等级和武器等级：越早用，越早解锁配件和配装空间\r\n- 战斗通行证：赛季末补进度时价值最高\r\n- 活动任务：和限时任务叠加时，能减少重复对局\r\n\r\n活动码适合在正式开局或赛季冲刺阶段使用。平时先保留，等到有双倍经验活动或目标集中时再消耗。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 50
+      },
+      {
+        "id": 253,
+        "sectionKey": "safety",
+        "heading": "注意事项",
+        "bodyMarkdown": "官方兑换只在活动页和使命召唤兑换页完成，不需要提供账号密码、验证码或令牌。\r\n\r\n- 不要从来路不明的页面提交登录信息\r\n- 罐装码和 QR 码都只应通过官方页面兑换\r\n- 活动日期与奖励以 Activision、Monster Energy 公告为准\r\n- 站内只提供活动任务代练与咨询，不代替官方兑换",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 60
+      }
+    ],
+    "products": [
+      {
+        "serviceId": 3,
+        "slug": "event-task",
+        "name": "当前活动",
+        "category": "ACTIVITY",
+        "shortDesc": "限时活动全清，按剩余天数报价",
+        "priceMode": "QUOTE",
+        "priceFixed": null,
+        "priceMin": 20.0,
+        "priceMax": null,
+        "durationText": "按活动剩余时间",
+        "imageUrl": "/assets/covers/service/codmw4-3.jpg",
+        "label": "当前活动与限时任务",
+        "description": "",
+        "featured": true,
+        "sortOrder": 10
+      },
+      {
+        "serviceId": 4,
+        "slug": "other-task",
+        "name": "其他任务 / 人工询价",
+        "category": "OTHER",
+        "shortDesc": "未列出的 MW4 需求可走人工评估，按截图与目标报价",
+        "priceMode": "QUOTE",
+        "priceFixed": null,
+        "priceMin": null,
+        "priceMax": null,
+        "durationText": "按进度确认",
+        "imageUrl": "/assets/covers/service/codmw4-4.jpg",
+        "label": "其他任务 / 人工询价",
+        "description": "",
+        "featured": false,
+        "sortOrder": 20
+      }
+    ],
+    "faqs": [
+      {
+        "id": 190,
+        "question": "一个魔爪兑换码给什么？",
+        "answer": "每个码提供 1 点积分和 15 分钟双倍经验，前 6 点依次解锁 6 个奖励。",
+        "sortOrder": 10
+      },
+      {
+        "id": 191,
+        "question": "兑换码在包装的什么位置？",
+        "answer": "多数在拉环下方，部分包装使用二维码，参与规格为 16 盎司的 Original、Zero Sugar 和 Zero Ultra。",
+        "sortOrder": 20
+      },
+      {
+        "id": 192,
+        "question": "双倍经验可以留到 MW4 再用吗？",
+        "answer": "可以。活动开始后可在部分现有使命召唤作品中使用，未用完的双倍经验可带入 MW4 多人模式。",
+        "sortOrder": 30
+      },
+      {
+        "id": 193,
+        "question": "活动什么时候结束？",
+        "answer": "活动持续到 2027 年 3 月 31 日，兑换码有效期到 2027 年 4 月 30 日。",
+        "sortOrder": 40
+      }
+    ],
+    "relatedGuides": [
+      {
+        "id": 42,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-best-settings",
+        "title": "MW4 最佳设置：控制器、画面、音频和视野",
+        "coverImage": "/assets/covers/guides/mw4-korea-village.png"
+      },
+      {
+        "id": 49,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "cod-account-leveling",
+        "title": "使命召唤账号等级详解：军衔、声望以及人们为何要刷等级",
+        "coverImage": "/assets/covers/service/codmw4-4.jpg"
+      },
+      {
+        "id": 50,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-battle-pass-value",
+        "title": "战斗通行证加速真的值得吗？一份诚实的分析",
+        "coverImage": "/assets/covers/service/codmw4-5.jpg"
+      }
+    ]
+  },
+  "mw4-battle-pass-value": {
+    "guide": {
+      "id": 50,
+      "gameCode": "CODMW4",
+      "gameName": "使命召唤 MW4",
+      "slug": "mw4-battle-pass-value",
+      "title": "战斗通行证加速真的值得吗？一份诚实的分析",
+      "subtitle": "通行证机制、价值误区与加速时机",
+      "summary": "战斗通行证加速本质上是买时间，而不是买奖励。这篇攻略解释通行证到期规则、价值计算和什么时间点才值得补进度。",
+      "coverImage": "/assets/covers/service/codmw4-5.jpg",
+      "difficulty": "BEGINNER",
+      "estimatedMinutes": 6,
+      "language": "zh-CN",
+      "authorName": "星火攻略组",
+      "sourceName": "UPBLAZED",
+      "sourceUrl": "https://upblazed.com/guides/is-a-battle-pass-boost-worth-it",
+      "status": "PUBLISHED",
+      "featured": false,
+      "sortOrder": 190,
+      "tags": [
+        "战斗通行证",
+        "赛季",
+        "等级",
+        "奖励"
+      ],
+      "seoTitle": "MW4 战斗通行证加速值得吗？赛季末补进度攻略 | 星火网游代练平台",
+      "seoDescription": "战斗通行证加速值不值得买？通行证到期规则、价值误区、赛季末补进度时机和效率建议一次说明。",
+      "canonicalUrl": "https://wydlgf.cn/guides/mw4-battle-pass-value",
+      "viewCount": 61,
+      "publishedAt": "2026-10-03T00:13:11Z",
+      "updatedAt": "2026-10-12T04:37:16Z",
+      "sectionCount": 5,
+      "productCount": 2
+    },
+    "sections": [
+      {
+        "id": 293,
+        "sectionKey": "how",
+        "heading": "通行证机制",
+        "bodyMarkdown": "战斗通行证是一条约一个赛季的奖励轨道，通过游戏获得通行证经验并逐级解锁。购买后，达到对应等级即可领取武器蓝图、外观和部分返还货币。\r\n\r\n通行证最大的限制是时间。赛季结束后，未达到的等级会关闭，已经购买但没解锁的奖励无法补领。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 10
+      },
+      {
+        "id": 294,
+        "sectionKey": "value",
+        "heading": "价值误区",
+        "bodyMarkdown": "很多人说通行证完成会返还货币，相当于免费，但这个计算只在完整完成时成立。\r\n\r\n- 完成整条通行证，返还货币才有意义\r\n- 只完成一半，不是拿一半价值，而是错过另一半已付费奖励\r\n- 赛季结束时未解锁的等级不会保留\r\n\r\n所以加速不是买奖励，而是买在截止日期前拿到奖励的时间。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 20
+      },
+      {
+        "id": 295,
+        "sectionKey": "worth",
+        "heading": "什么时候值得加速",
+        "bodyMarkdown": "值得考虑的情况通常是赛季接近结束、剩余等级很多、但现实时间不够：\r\n\r\n- 距离赛季结束只剩几天或一周\r\n- 还差大量等级，正常游玩无法完成\r\n- 已经购买通行证，奖励即将过期\r\n- 工作或学习导致无法在截止日前游玩\r\n\r\n如果你只是想提前拿到某个外观，先确认剩余等级和时间，再决定是否值得。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 30
+      },
+      {
+        "id": 296,
+        "sectionKey": "skip",
+        "heading": "什么时候应该跳过",
+        "bodyMarkdown": "以下情况通常不需要加速：\r\n\r\n- 赛季刚开始，还有数周时间\r\n- 每天都能稳定游玩，正常进度足够完成\r\n- 通行证里大部分奖励你并不使用\r\n- 升级本身是你享受赛季目标的一部分\r\n\r\n单纯为了把界面清空而补进度，通常是花钱整理菜单，没有实际收益。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 40
+      },
+      {
+        "id": 297,
+        "sectionKey": "service",
+        "heading": "站内咨询方式",
+        "bodyMarkdown": "如果要咨询通行证进度服务，先说明：\r\n\r\n- 当前等级和目标等级\r\n- 赛季剩余天数\r\n- 平台与区服\r\n- 是否还需要活动任务或账号等级\r\n\r\n站内当前活动服务可以承接赛季和限时任务。网页不收账号密码、验证码或令牌，交付方式请先与客服确认。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 50
+      }
+    ],
+    "products": [
+      {
+        "serviceId": 3,
+        "slug": "event-task",
+        "name": "当前活动",
+        "category": "ACTIVITY",
+        "shortDesc": "限时活动全清，按剩余天数报价",
+        "priceMode": "QUOTE",
+        "priceFixed": null,
+        "priceMin": 20.0,
+        "priceMax": null,
+        "durationText": "按活动剩余时间",
+        "imageUrl": "/assets/covers/service/codmw4-3.jpg",
+        "label": "当前活动与限时任务",
+        "description": "",
+        "featured": true,
+        "sortOrder": 10
+      },
+      {
+        "serviceId": 4,
+        "slug": "other-task",
+        "name": "其他任务 / 人工询价",
+        "category": "OTHER",
+        "shortDesc": "未列出的 MW4 需求可走人工评估，按截图与目标报价",
+        "priceMode": "QUOTE",
+        "priceFixed": null,
+        "priceMin": null,
+        "priceMax": null,
+        "durationText": "按进度确认",
+        "imageUrl": "/assets/covers/service/codmw4-4.jpg",
+        "label": "其他任务 / 人工询价",
+        "description": "",
+        "featured": false,
+        "sortOrder": 20
+      }
+    ],
+    "faqs": [
+      {
+        "id": 226,
+        "question": "战斗通行证加速值得买吗？",
+        "answer": "取决于剩余时间。赛季接近结束且等级差距大时更值得，赛季刚开或你能稳定游玩时不建议。",
+        "sortOrder": 10
+      },
+      {
+        "id": 227,
+        "question": "通行证没打完会怎样？",
+        "answer": "赛季结束后未达到的等级会关闭，未解锁的已购奖励无法再领取。",
+        "sortOrder": 20
+      },
+      {
+        "id": 228,
+        "question": "通行证会返还货币吗？",
+        "answer": "完整完成时通常会返还部分货币，但只有达到对应等级才能领取。",
+        "sortOrder": 30
+      },
+      {
+        "id": 229,
+        "question": "什么时候应该跳过加速？",
+        "answer": "赛季时间充足、你能稳定游玩、或者大部分奖励你并不需要时。",
+        "sortOrder": 40
+      }
+    ],
+    "relatedGuides": [
+      {
+        "id": 49,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "cod-account-leveling",
+        "title": "使命召唤账号等级详解：军衔、声望以及人们为何要刷等级",
+        "coverImage": "/assets/covers/service/codmw4-4.jpg"
+      },
+      {
+        "id": 41,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-monster-energy-codes",
+        "title": "MW4 魔爪能量饮料兑换码：如何获取、兑换及所有奖励",
+        "coverImage": "/assets/covers/service/codmw4-3.jpg"
+      },
+      {
+        "id": 46,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-ranked-play",
+        "title": "MW4 排位赛：目前已确认的内容（以及尚未确认的内容）",
+        "coverImage": "/assets/covers/guides/mw4-dmz-tune-in.jpg"
+      }
+    ]
+  },
+  "mw4-mastery-camos": {
+    "guide": {
+      "id": 45,
+      "gameCode": "CODMW4",
+      "gameName": "使命召唤 MW4",
+      "slug": "mw4-mastery-camos",
+      "title": "MW4 精通迷彩：所有多人游戏、战区和 DMZ 迷彩",
+      "subtitle": "九款精通迷彩、Pyroclast 系列与当前确认信息",
+      "summary": "MW4 的迷彩进度横跨多人、战区和 DMZ，共有九款精通迷彩和一套 Pyroclast 系列。这篇攻略整理名单、模式归属和尚未确认的部分。",
+      "coverImage": "/assets/covers/service/codmw4-2.jpg",
+      "difficulty": "INTERMEDIATE",
+      "estimatedMinutes": 8,
+      "language": "zh-CN",
+      "authorName": "星火攻略组",
+      "sourceName": "UPBLAZED",
+      "sourceUrl": "https://upblazed.com/guides/mw4-mastery-camos",
+      "status": "PUBLISHED",
+      "featured": true,
+      "sortOrder": 140,
+      "tags": [
+        "迷彩",
+        "精通迷彩",
+        "多人",
+        "战区",
+        "DMZ",
+        "Pyroclast"
+      ],
+      "seoTitle": "MW4 精通迷彩名单与解锁攻略 | 星火网游代练平台",
+      "seoDescription": "MW4 精通迷彩有哪些？九款多人、战区和 DMZ 迷彩名单、Pyroclast 系列、当前已确认与未确认信息一次整理。",
+      "canonicalUrl": "https://wydlgf.cn/guides/mw4-mastery-camos",
+      "viewCount": 65,
+      "publishedAt": "2026-10-03T00:13:11Z",
+      "updatedAt": "2026-10-12T04:37:16Z",
+      "sectionCount": 5,
+      "productCount": 2
+    },
+    "sections": [
+      {
+        "id": 269,
+        "sectionKey": "structure",
+        "heading": "迷彩进度结构",
+        "bodyMarkdown": "MW4 使用共享迷彩进度，多人、战区和 DMZ 的武器进度互相连接，之后开放精通迷彩。\r\n\r\n- 精通迷彩共九款，每个模式三款\r\n- 另有四款 Pyroclast 迷彩，属于独立系列\r\n- 迷彩名称来自测试阶段展示，具体挑战尚未全部公布\r\n- 每款迷彩的上下层级和最终顶阶还未完全确认\r\n\r\n先按模式准备武器等级，再等官方公布具体挑战，会比盲目刷更有效。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 10
+      },
+      {
+        "id": 270,
+        "sectionKey": "mp-wz",
+        "heading": "多人模式与战区迷彩",
+        "bodyMarkdown": "多人模式展示的三款：\r\n\r\n- **Mercurial Drift**：MW4 新迷彩\r\n- **Polyatomic Reforged**：MW2 经典名称的 MW4 重制版\r\n- **Orion Reforged**：MW2 经典名称的 MW4 重制版\r\n\r\n战区展示的三款：\r\n\r\n- **Parallax**：MW4 新战区迷彩\r\n- **Damascus Reforged**：MW 2019 经典名称，本次归在战区\r\n- **Empyros**：MW4 新战区迷彩\r\n\r\n重制名称不代表沿用旧解锁条件，MW4 会使用自己的迷彩系统。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 20
+      },
+      {
+        "id": 271,
+        "sectionKey": "dmz",
+        "heading": "DMZ 与 Pyroclast 系列",
+        "bodyMarkdown": "DMZ 在 MW4 中作为完整模式回归，并拥有独立迷彩：\r\n\r\n- **Chiral**\r\n- **Ripple Tide**\r\n- **Helio**\r\n\r\nPyroclast 系列包括 **Pyroclast**、**Pyroclast Verge**、**Pyroclast Scatter** 和 **Pyroclast Cascade**，属于声望相关的独立路线，不是九款精通迷彩的一部分。具体是武器声望还是账号声望解锁，目前尚未公布。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 30
+      },
+      {
+        "id": 272,
+        "sectionKey": "confirmed",
+        "heading": "目前确认与未确认",
+        "bodyMarkdown": "已经确认的内容：\r\n\r\n- 九款精通迷彩按多人、战区、DMZ 各三款划分\r\n- Pyroclast 是独立的四款系列\r\n- 首发共有 33 把武器，其中 22 把已公布名称\r\n- 测试阶段展示了迷彩名称，但无法完成完整迷彩进度\r\n- 测试进度不会继承，正式迷彩从 2026 年 10 月 23 日游戏上线后开始\r\n\r\n尚未确认的内容：每款迷彩的具体挑战、各模式的最顶阶迷彩，以及 Pyroclast 的声望解锁条件。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 40
+      },
+      {
+        "id": 273,
+        "sectionKey": "prepare",
+        "heading": "上线前的准备建议",
+        "bodyMarkdown": "迷彩挑战公布前，可以先做这些准备：\r\n\r\n- 集中升级计划使用的武器，减少上线后的等待时间\r\n- 确认自己要打多人、战区还是 DMZ，提前熟悉模式节奏\r\n- 关注官方公告，不要照搬旧作的迷彩条件\r\n- 如果想节省时间，可先咨询站内迷彩任务服务，等挑战公布后再确认工作量\r\n\r\n本站迷彩任务按剩余挑战和目标模式报价。网页不收账号密码、验证码或令牌，交付方式请先与客服确认。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 50
+      }
+    ],
+    "products": [
+      {
+        "serviceId": 2,
+        "slug": "camo-task",
+        "name": "MW4 全迷彩代练",
+        "category": "CAMO",
+        "shortDesc": "多人、战区和 DMZ 精通迷彩整枪进度推进",
+        "priceMode": "QUOTE",
+        "priceFixed": null,
+        "priceMin": 80.0,
+        "priceMax": null,
+        "durationText": "按剩余进度确认",
+        "imageUrl": "/assets/covers/service/camo/mw4-camo-boost.webp",
+        "label": "迷彩任务",
+        "description": "",
+        "featured": true,
+        "sortOrder": 10
+      },
+      {
+        "serviceId": 1,
+        "slug": "weapon-leveling",
+        "name": "武器升级",
+        "category": "WEAPON",
+        "shortDesc": "按目标等级与当前进度报价，配件一并解锁",
+        "priceMode": "RANGE",
+        "priceFixed": null,
+        "priceMin": 20.0,
+        "priceMax": 60.0,
+        "durationText": "约 30–90 分钟",
+        "imageUrl": "/assets/covers/service/codmw4-1.jpg",
+        "label": "武器升级",
+        "description": "",
+        "featured": false,
+        "sortOrder": 20
+      }
+    ],
+    "faqs": [
+      {
+        "id": 206,
+        "question": "MW4 一共有多少款精通迷彩？",
+        "answer": "九款精通迷彩，每个模式三款，另有四款 Pyroclast 声望系列迷彩。",
+        "sortOrder": 10
+      },
+      {
+        "id": 207,
+        "question": "每款迷彩的具体解锁条件公布了吗？",
+        "answer": "尚未全部公布。测试阶段只展示了名称，具体挑战和层级仍待官方确认。",
+        "sortOrder": 20
+      },
+      {
+        "id": 208,
+        "question": "Damascus Reforged 属于哪个模式？",
+        "answer": "本次展示在战区，不是多人模式。",
+        "sortOrder": 30
+      },
+      {
+        "id": 209,
+        "question": "测试阶段的迷彩进度会继承吗？",
+        "answer": "不会，正式迷彩进度从游戏上线后开始。",
+        "sortOrder": 40
+      }
+    ],
+    "relatedGuides": [
+      {
+        "id": 43,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-weapon-leveling-fast",
+        "title": "如何在《使命召唤：现代战争4》中快速升级武器（以及何时应该直接购买）",
+        "coverImage": "/assets/covers/service/codmw4-1.jpg"
+      },
+      {
+        "id": 46,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-ranked-play",
+        "title": "MW4 排位赛：目前已确认的内容（以及尚未确认的内容）",
+        "coverImage": "/assets/covers/guides/mw4-dmz-tune-in.jpg"
+      },
+      {
+        "id": 41,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-monster-energy-codes",
+        "title": "MW4 魔爪能量饮料兑换码：如何获取、兑换及所有奖励",
+        "coverImage": "/assets/covers/service/codmw4-3.jpg"
+      }
+    ]
+  },
+  "mw4-ranked-play": {
+    "guide": {
+      "id": 46,
+      "gameCode": "CODMW4",
+      "gameName": "使命召唤 MW4",
+      "slug": "mw4-ranked-play",
+      "title": "MW4 排位赛：目前已确认的内容（以及尚未确认的内容）",
+      "subtitle": "已确认的多人内容、排位现状与上线前准备",
+      "summary": "MW4 已公布发售平台、首发地图和多人机制，但排位系统仍没有官方细节。这篇攻略区分已确认信息与合理推测，避免被网络传言带偏。",
+      "coverImage": "/assets/covers/guides/mw4-dmz-tune-in.jpg",
+      "difficulty": "BEGINNER",
+      "estimatedMinutes": 6,
+      "language": "zh-CN",
+      "authorName": "星火攻略组",
+      "sourceName": "UPBLAZED",
+      "sourceUrl": "https://upblazed.com/guides/mw4-ranked-system-what-we-know",
+      "status": "PUBLISHED",
+      "featured": false,
+      "sortOrder": 150,
+      "tags": [
+        "排位",
+        "SR",
+        "赛季",
+        "多人"
+      ],
+      "seoTitle": "MW4 排位赛已确认内容与上线前准备 | 星火网游代练平台",
+      "seoDescription": "MW4 排位赛有哪些确认信息？发售平台、首发地图、多人机制、排位系统现状以及上线前可以准备什么一次说明。",
+      "canonicalUrl": "https://wydlgf.cn/guides/mw4-ranked-play",
+      "viewCount": 61,
+      "publishedAt": "2026-10-03T00:13:11Z",
+      "updatedAt": "2026-10-12T04:37:16Z",
+      "sectionCount": 4,
+      "productCount": 2
+    },
+    "sections": [
+      {
+        "id": 274,
+        "sectionKey": "confirmed",
+        "heading": "已确认的发售信息",
+        "bodyMarkdown": "MW4 在 2026 年 10 月 23 日发售，登陆 PS5、Xbox Series X|S、PC，并首次登陆 Nintendo Switch 2，不支持 PS4 和 Xbox One。\r\n\r\n- 开发方：Infinity Ward\r\n- 首发模式：战役、多人、DMZ\r\n- 背景设定：韩国\r\n- 数字预购可获得 2026 年 10 月 16 日开始的战役抢先体验",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 10
+      },
+      {
+        "id": 275,
+        "sectionKey": "multiplayer",
+        "heading": "已确认的多人内容",
+        "bodyMarkdown": "首发多人内容比预期更完整：\r\n\r\n- 12 张全新 6v6 核心地图\r\n- 独立的 Gunfight 地图\r\n- 支持步兵与载具的大战场地图\r\n- Kill Block 模块化地图，包含 500 种以上组合\r\n- 取消腰射扩散，重做移动、Create-a-Class 和剧场模式\r\n- 不回归 Omnimovement\r\n\r\n这些是官方已经公布的内容，可以作为上线前练习重点。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 20
+      },
+      {
+        "id": 276,
+        "sectionKey": "ranked-status",
+        "heading": "排位系统现状",
+        "bodyMarkdown": "目前 Activision 没有公布 MW4 排位系统的具体细节，包括 SR 规则、段位层级、定级结构和奖励。任何直接给出完整段位表的内容，都应先核对官方来源。\r\n\r\n根据近十年的使命召唤排位模式，可以合理预期：定级阶段、SR 阶梯、赛季重置和中段位长期爬分。但预期不等于官方信息，正式规则公布后应以官方为准。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 30
+      },
+      {
+        "id": 277,
+        "sectionKey": "prepare",
+        "heading": "上线前能准备什么",
+        "bodyMarkdown": "排位规则未定，不代表只能等：\r\n\r\n- 预购数字版，提前体验战役并在首发期熟悉枪械手感\r\n- 先把计划使用的武器升到可配装等级\r\n- 用最佳设置和 Kill Block 指南熟悉基础操作与地图思路\r\n- 想提前安排排位服务时，先说明平台、目标与时间窗口，等官方公布规则后再确认具体方案\r\n\r\n站内排位服务按目标段位和当前进度确认工作量，网页不收集账号密码、验证码或令牌。",
+        "imageUrl": "",
+        "imageAlt": "",
+        "sortOrder": 40
+      }
+    ],
+    "products": [
+      {
+        "serviceId": 8,
+        "slug": "rank-boost",
+        "name": "排位 / 段位",
+        "category": "RANK",
+        "shortDesc": "按当前段位到目标段位报价",
+        "priceMode": "QUOTE",
+        "priceFixed": null,
+        "priceMin": 100.0,
+        "priceMax": null,
+        "durationText": "按段差确认",
+        "imageUrl": "/assets/covers/service/codmw4-6.jpg",
+        "label": "排位 / 段位",
+        "description": "",
+        "featured": true,
+        "sortOrder": 10
+      },
+      {
+        "serviceId": 1,
+        "slug": "weapon-leveling",
+        "name": "武器升级",
+        "category": "WEAPON",
+        "shortDesc": "按目标等级与当前进度报价，配件一并解锁",
+        "priceMode": "RANGE",
+        "priceFixed": null,
+        "priceMin": 20.0,
+        "priceMax": 60.0,
+        "durationText": "约 30–90 分钟",
+        "imageUrl": "/assets/covers/service/codmw4-1.jpg",
+        "label": "武器升级",
+        "description": "",
+        "featured": false,
+        "sortOrder": 20
+      }
+    ],
+    "faqs": [
+      {
+        "id": 210,
+        "question": "MW4 什么时候发售？",
+        "answer": "2026 年 10 月 23 日，登陆 PS5、Xbox Series X|S、PC 和 Nintendo Switch 2。",
+        "sortOrder": 10
+      },
+      {
+        "id": 211,
+        "question": "MW4 排位系统公布了吗？",
+        "answer": "尚未公布。SR、段位、定级和奖励等细节仍没有官方信息。",
+        "sortOrder": 20
+      },
+      {
+        "id": 212,
+        "question": "上线前可以准备什么？",
+        "answer": "预购数字版、升级常用武器、熟悉设置和地图，并等官方公布排位规则后再确认代练方案。",
+        "sortOrder": 30
+      },
+      {
+        "id": 213,
+        "question": "首发有多少张多人地图？",
+        "answer": "12 张全新 6v6 核心地图，另有 Gunfight 和大战场地图。",
+        "sortOrder": 40
+      }
+    ],
+    "relatedGuides": [
+      {
+        "id": 42,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-best-settings",
+        "title": "MW4 最佳设置：控制器、画面、音频和视野",
+        "coverImage": "/assets/covers/guides/mw4-korea-village.png"
+      },
+      {
+        "id": 44,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-kill-block-guide",
+        "title": "杀戮连锁指南（MW4）：最佳枪械、装备搭配及地图解读",
+        "coverImage": "/assets/covers/guides/mw4-dmz-interior.jpg"
+      },
+      {
+        "id": 47,
+        "gameCode": "CODMW4",
+        "gameName": "使命召唤 MW4",
+        "slug": "mw4-kd-explained",
+        "title": "K/D 值提升机制：每局最低值，而不是平均值",
+        "coverImage": "/assets/covers/service/codmw4-6.jpg"
+      }
+    ]
+  }
+}

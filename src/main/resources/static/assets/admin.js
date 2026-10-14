@@ -1067,6 +1067,46 @@ async function loadDashboard() {
   }
   $('#orderSearch')?.addEventListener('input', renderOrders);
 
+  function showOrderPayment(payment) {
+    const status = $('#orderPaymentStatus');
+    const close = $('#orderPaymentClose');
+    const prepare = $('#orderPaymentPrepare');
+    const amount = $('#orderPaymentAmount');
+    const subject = $('#orderPaymentSubject');
+    if (!payment) {
+      status.textContent = '尚未开放支付。请先确认最终报价。';
+      close.classList.add('hidden');
+      prepare.disabled = false;
+      amount.disabled = false;
+      subject.disabled = false;
+      return;
+    }
+    const labels = { CREATED: '待生成二维码', APPROVED: '等待客户扫码', CAPTURED: '已支付', CANCELLED: '已关闭' };
+    status.textContent = `支付单 ${payment.paymentNo} · ${labels[payment.status] || payment.status} · ¥${payment.amount}`;
+    amount.value = payment.amount;
+    subject.value = payment.subject;
+    const active = payment.status === 'CREATED' || payment.status === 'APPROVED';
+    close.dataset.paymentNo = payment.paymentNo;
+    close.classList.toggle('hidden', !active);
+    prepare.disabled = active || payment.status === 'CAPTURED';
+    amount.disabled = active || payment.status === 'CAPTURED';
+    subject.disabled = active || payment.status === 'CAPTURED';
+  }
+
+  async function loadOrderPayment(orderNo) {
+    const panel = $('#orderPaymentPanel');
+    panel.classList.add('hidden');
+    if (!orderNo) return;
+    try {
+      const payment = await api(`/api/admin/orders/${encodeURIComponent(orderNo)}/wechat-payment`);
+      if ($('#orderForm').dataset.orderNo !== orderNo) return;
+      panel.classList.remove('hidden');
+      showOrderPayment(payment);
+    } catch (_) {
+      // The feature switch remains off until server credentials are installed.
+    }
+  }
+
   function editOrder(no) {
     const o = orders.find(x => x.orderNo === no);
     const modal = $('#orderModal');
@@ -1082,8 +1122,42 @@ async function loadDashboard() {
     f.customerNote.value = o?.customerNote || '';
     f.internalNote.value = o?.internalNote || '';
     $('#orderModalTitle').textContent = o ? `编辑业务 ${o.businessNo || o.orderNo}` : '新建订单';
+    $('#orderPaymentAmount').value = '';
+    $('#orderPaymentSubject').value = '';
+    loadOrderPayment(o?.orderNo);
     requestAnimationFrame(()=>{ f.scrollTop=0; modal.scrollTop=0; });
   }
+
+  $('#orderPaymentPrepare')?.addEventListener('click', async () => {
+    const no = $('#orderForm').dataset.orderNo;
+    const amount = $('#orderPaymentAmount').value.trim();
+    const subject = $('#orderPaymentSubject').value.trim();
+    if (!no || !amount || !subject) return toast('请填写最终金额和服务名称', 'error');
+    if (!confirm(`确认客服已与客户核对最终报价 ¥${amount}？确认后客户即可扫码支付。`)) return;
+    const button = $('#orderPaymentPrepare');
+    setBusy(button, true, '处理中…');
+    try {
+      const payment = await api(`/api/admin/orders/${encodeURIComponent(no)}/wechat-payment`, {
+        method: 'POST', body: JSON.stringify({ amount, subject })
+      });
+      showOrderPayment(payment);
+      toast('支付金额已确认，客户可在我的订单中扫码付款');
+    } catch (error) { toast(error.message, 'error'); }
+    finally { setBusy(button, false); }
+  });
+
+  $('#orderPaymentClose')?.addEventListener('click', async () => {
+    const button = $('#orderPaymentClose');
+    const paymentNo = button.dataset.paymentNo;
+    if (!paymentNo || !confirm('确认关闭这笔待支付单？关闭后客户不能再使用原二维码。')) return;
+    setBusy(button, true, '关闭中…');
+    try {
+      const result = await api(`/api/admin/wechat-payments/${encodeURIComponent(paymentNo)}/close`, { method: 'POST' });
+      await loadOrderPayment($('#orderForm').dataset.orderNo);
+      toast(result?.status === 'CAPTURED' ? '微信侧已支付，支付单未关闭' : '支付单已关闭');
+    } catch (error) { toast(error.message, 'error'); }
+    finally { setBusy(button, false); }
+  });
 
   $('#newOrder')?.addEventListener('click', () => editOrder(null));
   $('#closeOrderModal')?.addEventListener('click', () => $('#orderModal').classList.add('hidden'));

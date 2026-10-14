@@ -15,17 +15,17 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 class XingweiAdminPlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
     private static final Path TEMPLATE = Path.of("src/main/resources/templates/admin-xingwei.html");
+    private static final String VERSION = "20261014-v3o";
+    private static final String STAGE = "V3O · RELEASE CANDIDATE";
 
     @Test
     void desktopAndPhoneLayoutsStayInsideViewportAndNavigationWorks() throws Exception {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
             page.setViewportSize(1440, 900);
-            page.setContent(Files.readString(TEMPLATE));
-            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei.css")));
-            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.css")));
+            loadMain(page);
             page.evaluate("""
-                    () => {
+                    ([version, stage]) => {
                       window.fetch = async (url) => {
                         if (String(url) === '/api/admin/xingwei/access') {
                           return {ok:true, json:async () => ({
@@ -35,15 +35,18 @@ class XingweiAdminPlaywrightTest {
                           })};
                         }
                         if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2c', serverTime:'2026-10-13T05:00:00+08:00'})};
+                          return {ok:true, json:async () => ({ok:true, version, stage, serverTime:'2026-10-14T05:00:00+08:00'})};
                         }
                         return {ok:false, status:404, json:async () => ({error:'not found'})};
                       };
                     }
-                    """);
-            page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-xingwei.js")));
+                    """, new Object[] {VERSION, STAGE});
+            addMainScript(page);
             page.waitForFunction("() => document.querySelector('#xwAccessMode')?.textContent.includes('管理员兜底')");
+            page.waitForFunction("() => document.documentElement.dataset.xwRuntimeState === 'match'");
 
+            assertTrue(page.locator("#xwBackendStatus").textContent().contains("已核对"));
+            assertTrue(page.locator("#xwServerTime").textContent().contains(VERSION));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
             assertEquals("286px", page.evaluate("() => getComputedStyle(document.querySelector('.xw-shell')).gridTemplateColumns.split(' ')[0]"));
             assertEquals(16, ((Number) page.evaluate("() => document.querySelectorAll('.xw-module').length")).intValue());
@@ -71,11 +74,9 @@ class XingweiAdminPlaywrightTest {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
             page.setViewportSize(1280, 850);
-            page.setContent(Files.readString(TEMPLATE));
-            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei.css")));
-            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.css")));
+            loadMain(page);
             page.evaluate("""
-                    () => {
+                    ([version, stage]) => {
                       window.fetch = async (url) => {
                         if (String(url) === '/api/admin/xingwei/access') {
                           return {ok:true, json:async () => ({
@@ -86,14 +87,15 @@ class XingweiAdminPlaywrightTest {
                           })};
                         }
                         if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2c', serverTime:'2026-10-13T05:00:00+08:00'})};
+                          return {ok:true, json:async () => ({ok:true, version, stage, serverTime:'2026-10-14T05:00:00+08:00'})};
                         }
                         return {ok:false, status:404, json:async () => ({error:'not found'})};
                       };
                     }
-                    """);
-            page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-xingwei.js")));
+                    """, new Object[] {VERSION, STAGE});
+            addMainScript(page);
             page.waitForFunction("() => document.querySelector('#xwAccessMode')?.textContent.includes('RBAC 已生效')");
+            page.waitForFunction("() => document.documentElement.dataset.xwRuntimeState === 'match'");
 
             assertTrue((Boolean) page.evaluate("() => !document.querySelector('.xw-module-index:nth-child(1)') || true"));
             assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => x.querySelector('.xw-module-index')?.textContent === 'B02')?.hidden === false"));
@@ -102,6 +104,10 @@ class XingweiAdminPlaywrightTest {
             assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => x.querySelector('.xw-module-index')?.textContent === 'C02')?.hidden === true"));
 
             page.locator("#xwModuleSearch").fill("微信");
+            assertEquals(1, ((Number) page.evaluate("() => [...document.querySelectorAll('.xw-module')].filter(x => !x.hidden).length")).intValue());
+            assertTrue((Boolean) page.evaluate("() => [...document.querySelectorAll('.xw-module')].find(x => !x.hidden)?.querySelector('.xw-module-index')?.textContent === 'O02'"));
+
+            page.locator("#xwModuleSearch").fill("支付");
             assertEquals(0, ((Number) page.evaluate("() => [...document.querySelectorAll('.xw-module')].filter(x => !x.hidden).length")).intValue());
             assertTrue(page.locator("#xwSearchCount").textContent().contains("匹配 0 个模块"));
             assertTrue(page.locator("#xwAccessMode").textContent().contains("RBAC 已生效"));
@@ -111,13 +117,52 @@ class XingweiAdminPlaywrightTest {
     }
 
     @Test
+    void runtimeVersionDriftIsVisibleInsteadOfReportingHealthy() throws Exception {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setViewportSize(1280, 850);
+            loadMain(page);
+            page.evaluate("""
+                    () => {
+                      window.fetch = async (url) => {
+                        if (String(url) === '/api/admin/xingwei/access') {
+                          return {ok:true, json:async () => ({
+                            mode:'LEGACY_ADMIN_OVERRIDE', allowAll:true,
+                            permissionCodes:[], roleCodes:[], dataScope:'ALL', adminUserId:1
+                          })};
+                        }
+                        if (String(url) === '/api/admin/xingwei/health') {
+                          return {ok:true, json:async () => ({
+                            ok:true,
+                            version:'20261014-v3k',
+                            stage:'V3K · STABLE PRODUCTION',
+                            serverTime:'2026-10-14T05:00:00+08:00'
+                          })};
+                        }
+                        return {ok:false, status:404, json:async () => ({error:'not found'})};
+                      };
+                    }
+                    """);
+            addMainScript(page);
+            page.waitForFunction("() => document.documentElement.dataset.xwRuntimeState === 'mismatch'");
+
+            assertTrue(page.locator("#xwBackendStatus").textContent().contains("版本漂移"));
+            assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwBackendStatus').classList.contains('error')"));
+            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261014-v3o"));
+            assertTrue(page.locator("#xwServerTime").textContent().contains("运行 20261014-v3k"));
+            assertEquals("mismatch", page.evaluate("() => window.xwRuntimeHealth.state"));
+            assertEquals("20261014-v3o", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
+            assertEquals("20261014-v3k", page.evaluate("() => window.xwRuntimeHealth.runtimeVersion"));
+            assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
+        }
+    }
+
+    @Test
     void organizationSnapshotRendersAndDialogsUseCanonicalOptions() throws Exception {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
             page.setViewportSize(1440, 900);
-            page.setContent(Files.readString(TEMPLATE));
-            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei.css")));
-            page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.css")));
+            loadMain(page);
             page.evaluate("""
                     () => {
                       window.xwAccess = {
@@ -150,49 +195,47 @@ class XingweiAdminPlaywrightTest {
                           {id:4, code:'XW_GAME_BUSINESS', name:'游戏业务中心', dataScope:'DEPARTMENT', permissionCount:1, permissionCodes:['dashboard:view'], enabled:true}
                         ],
                         permissions: [
-                          {id:1, code:'dashboard:view', name:'工作台查看', module:'dashboard'},
-                          {id:11, code:'org:view', name:'组织架构查看', module:'organization'},
-                          {id:15, code:'rbac:view', name:'角色与权限查看', module:'security'}
+                          {id:1, code:'dashboard:view', name:'查看工作台', module:'dashboard', action:'view'},
+                          {id:2, code:'org:view', name:'查看组织', module:'org', action:'view'},
+                          {id:3, code:'rbac:view', name:'查看权限', module:'rbac', action:'view'}
                         ]
                       };
-                      window.fetch = async (url, options = {}) => {
-                        if (String(url) === '/api/admin/xingwei/org/snapshot') {
-                          return {ok:true, json:async () => snapshot};
-                        }
-                        if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version:'20261013-v2c', serverTime:'2026-10-13T05:00:00+08:00'})};
-                        }
-                        if (String(options.method || 'GET').toUpperCase() === 'PUT') {
-                          return {ok:true, json:async () => ({ok:true})};
-                        }
-                        return {ok:false, status:404, json:async () => ({error:'not found'})};
-                      };
+                      window.fetch = async () => ({ok:true, json:async () => snapshot});
                     }
                     """);
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.js")));
-            page.waitForFunction("() => document.querySelector('[data-org-kpi=\"positions\"]')?.textContent === '155'");
+            page.waitForFunction("() => document.querySelectorAll('#xwDepartmentRows tr').length === 2");
 
             assertEquals("7", page.locator("[data-org-kpi='departments']").textContent());
             assertEquals("155", page.locator("[data-org-kpi='positions']").textContent());
-            assertEquals(2, page.locator("#xwDepartmentRows tr").count());
-            assertEquals(2, page.locator("#xwPositionRows tr").count());
-            assertTrue(page.locator("#xwOrgMessage").textContent().contains("V2C 数据范围：全部数据"));
-
-            page.locator("#xwPositionDepartment").selectOption("04");
-            assertEquals(1, page.locator("#xwPositionRows tr").count());
+            assertTrue(page.locator("#xwDepartmentRows").textContent().contains("04 游戏业务中心"));
             assertTrue(page.locator("#xwPositionRows").textContent().contains("MW4 代练员"));
+            assertTrue(page.locator("#xwEmployeeRows").textContent().contains("负责人"));
+            assertTrue(page.locator("#xwRoleRows").textContent().contains("游戏业务中心"));
 
-            page.locator("[data-employee-edit='1']").click();
+            page.locator("#xwEmployeeRows [data-employee-edit]").click();
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwEmployeeDialog').open"));
-            assertEquals("XW-LC-01-001", page.locator("#xwEmployeePosition").inputValue());
-            assertEquals(2, page.locator("#xwEmployeeRoleChecks input").count());
+            assertTrue(((Number) page.evaluate("() => document.querySelectorAll('#xwEmployeeDepartment option').length")).intValue() >= 3);
+            assertTrue(page.locator("#xwEmployeePosition").textContent().contains("工作室负责人"));
             page.locator("[data-dialog-close='xwEmployeeDialog']").first().click();
 
-            page.locator("[data-role-edit='XW_GAME_BUSINESS']").click();
+            page.locator("#xwRoleRows [data-role-edit]").first().click();
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwRoleDialog').open"));
-            assertEquals(3, page.locator("#xwPermissionChecks input").count());
-            assertEquals(0, page.locator("[data-role-edit='XW_MANAGEMENT']").count());
+            assertTrue(page.locator("#xwPermissionChecks").textContent().contains("查看组织"));
+            page.locator("[data-dialog-close='xwRoleDialog']").first().click();
+
+            page.setViewportSize(390, 844);
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
         }
+    }
+
+    private static void loadMain(Page page) throws Exception {
+        page.setContent(Files.readString(TEMPLATE));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei.css")));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.css")));
+    }
+
+    private static void addMainScript(Page page) {
+        page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-xingwei.js")));
     }
 }

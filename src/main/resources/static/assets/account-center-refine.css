@@ -266,3 +266,8 @@
     grid-template-columns:1fr 1fr;
   }
 }
+
+.account-payment{margin-top:18px;padding-top:18px;border-top:1px solid var(--nx-line-soft)}
+.account-payment h3{margin:0 0 8px;font-size:16px}
+.account-payment p{margin:8px 0;color:var(--nx-muted);line-height:1.6}
+.account-payment-qr{display:block;max-width:100%;height:auto;margin:12px 0;background:#fff;border:8px solid #fff;border-radius:8px}

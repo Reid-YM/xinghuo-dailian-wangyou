@@ -9,6 +9,8 @@
   const code = root.querySelector('[data-mini-code]');
   const state = root.querySelector('[data-mini-state]');
   const unavailable = root.querySelector('[data-mini-unavailable]');
+  const qrWrap = root.querySelector('[data-mini-qr-wrap]');
+  const qr = root.querySelector('[data-mini-qr]');
   let timer = null;
   let active = false;
 
@@ -57,13 +59,21 @@
     active = false;
     complete.hidden = true;
     code.textContent = '--------';
+    if (qrWrap) qrWrap.hidden = true;
+    if (qr) qr.removeAttribute('src');
     start.disabled = true;
     state.textContent = '正在生成登录码…';
     panel.hidden = false;
     try {
       const result = await post('/api/account/wechat-mini/challenge');
       code.textContent = result.code.slice(0, 4) + ' ' + result.code.slice(4);
-      state.textContent = result.binding ? '在小程序确认后会关联当前网站账号。' : '打开星火小程序 → 我的 → 登录网站，输入上方登录码。';
+      if (qrWrap && qr && result.qrImage) {
+        qr.src = result.qrImage;
+        qrWrap.hidden = false;
+      }
+      state.textContent = result.binding
+        ? '在“星火迷彩追踪器”小程序扫码或输入关联码，确认后会关联当前网站账号。'
+        : '打开“星火迷彩追踪器”小程序 → 扫码登录网站，扫描二维码；也可以手动输入上方登录码。';
       active = true;
       timer = setTimeout(poll, 2800);
     } catch (error) {

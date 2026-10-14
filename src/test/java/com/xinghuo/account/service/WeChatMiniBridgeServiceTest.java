@@ -1,5 +1,6 @@
 package com.xinghuo.account.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -61,6 +62,55 @@ class WeChatMiniBridgeServiceTest {
         assertThrows(AccountException.class, () -> service.complete("browser-secret", 1L));
         verify(pairings, never()).consume(org.mockito.ArgumentMatchers.anyString(),
                 org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void browserPollingNeverApprovesAnExpiredOrConsumedCode() {
+        WeChatMiniPairing pairing = readyPairing();
+        when(pairings.findByBrowserHash(anyString())).thenReturn(Optional.of(pairing));
+        pairing.setMiniOpenId(null);
+        assertEquals("pending", service.poll("browser-secret").status());
+        pairing.setMiniOpenId("mini-open-id");
+        assertEquals("ready", service.poll("browser-secret").status());
+        assertEquals("pen-id", service.poll("browser-secret").identityHint());
+
+        pairing.setConsumedAt(Instant.now());
+        assertEquals("expired", service.poll("browser-secret").status());
+        pairing.setConsumedAt(null);
+        pairing.setExpiresAt(Instant.now().minusSeconds(1));
+        assertEquals("expired", service.poll("browser-secret").status());
+    }
+
+    @Test
+    void duplicateOrExpiredCodeCannotCompleteLogin() {
+        WeChatMiniPairing pairing = readyPairing();
+        when(pairings.findByBrowserHash(anyString())).thenReturn(Optional.of(pairing));
+        pairing.setConsumedAt(Instant.now());
+        assertEquals("PAIR_EXPIRED", assertThrows(AccountException.class,
+                () -> service.complete("browser-secret", null)).getCode());
+        pairing.setConsumedAt(null);
+        pairing.setExpiresAt(Instant.now().minusSeconds(1));
+        assertEquals("PAIR_EXPIRED", assertThrows(AccountException.class,
+                () -> service.complete("browser-secret", null)).getCode());
+        verify(pairings, never()).consume(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void invalidDuplicateOrExpiredCodeCannotBeConfirmedAgain() {
+        assertEquals("PAIR_CODE_INVALID", assertThrows(AccountException.class,
+                () -> service.confirm("123", "wechat-code")).getCode());
+        assertEquals("PAIR_CODE_INVALID", assertThrows(AccountException.class,
+                () -> service.confirm("12345678", "wechat-code")).getCode());
+
+        WeChatMiniPairing pairing = readyPairing();
+        when(pairings.findByCodeHash(anyString())).thenReturn(Optional.of(pairing));
+        assertEquals("PAIR_CODE_INVALID", assertThrows(AccountException.class,
+                () -> service.confirm("12345678", "wechat-code")).getCode());
+        pairing.setMiniOpenId(null);
+        pairing.setExpiresAt(Instant.now().minusSeconds(1));
+        assertEquals("PAIR_CODE_INVALID", assertThrows(AccountException.class,
+                () -> service.confirm("12345678", "wechat-code")).getCode());
     }
 
     private static WeChatMiniPairing readyPairing() {

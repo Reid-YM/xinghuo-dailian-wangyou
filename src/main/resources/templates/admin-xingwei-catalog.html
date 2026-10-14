@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#101216"/>
+  <meta name="_csrf" th:content="${csrf.token}"/>
+  <meta name="_csrf_header" th:content="${csrf.headerName}"/>
+  <title>服务与游戏资料 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-catalog.css?v=20261013v3d"/>
+  <script defer src="/assets/admin-xingwei-catalog.js?v=20261013v3d"></script>
+</head>
+<body>
+<main class="xcat-shell">
+  <header class="xcat-topbar">
+    <div><p class="xw-kicker">STARWEAVE · SERVICE CATALOG</p><h1>服务与游戏资料</h1></div>
+    <div class="xcat-actions">
+      <span class="xw-status" id="xcatManageMode"><i></i><span>权限检查中</span></span>
+      <span class="xw-status" id="xcatStatus"><i></i><span>正在读取</span></span>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei/taxonomy">游戏/分类启停</a>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
+      <a class="xw-button xw-button-ghost" href="/admin">旧后台完整编辑</a>
+    </div>
+  </header>
+
+  <section class="xcat-hero">
+    <div>
+      <p class="xw-kicker">V3D · RELEASE PREFLIGHT</p>
+      <h2>新建服务保持离线；正式上架前必须先完成发布检查。</h2>
+      <p>查看要求 <strong>service:view</strong>；新增、编辑、下线和上架要求 <strong>service:manage</strong>。V3D 会检查 taxonomy、slug、名称、说明、预计时长、价格和到期时间；任何阻断项失败都不能从新版工作台上架。封面缺失仅提示警告，不额外新增审批表，也不产生第二份服务状态。游戏/分类 active 启停已拆到 V3E 独立工作台，必须先查看影响。</p>
+    </div>
+    <div class="xcat-version"><span>当前版本</span><strong th:text="${catalogVersion}">20261013-v3e</strong><small th:text="${username}">admin</small></div>
+  </section>
+
+  <section class="xcat-message" id="xcatMessage" role="status">正在读取服务与游戏资料……</section>
+
+  <section class="xcat-kpis" aria-label="服务目录指标">
+    <div><span>服务项目</span><strong id="xcatServiceCount">-</strong></div>
+    <div><span>启用服务</span><strong id="xcatActiveCount">-</strong></div>
+    <div><span>游戏</span><strong id="xcatGameCount">-</strong></div>
+    <div><span>分类</span><strong id="xcatCategoryCount">-</strong></div>
+    <div><span>平台</span><strong id="xcatPlatformCount">-</strong></div>
+  </section>
+
+  <section class="xcat-toolbar">
+    <label>搜索服务<input id="xcatSearch" type="search" placeholder="服务名 / slug / 游戏 / 分类 / 状态" autocomplete="off"/></label>
+    <label>游戏<select id="xcatGameFilter"><option value="">全部游戏</option></select></label>
+    <label>状态<select id="xcatStateFilter"><option value="">全部状态</option><option value="active">仅启用</option><option value="inactive">仅停用</option><option value="offline">仅 OFFLINE</option></select></label>
+    <button class="xw-button" id="xcatRefresh" type="button">刷新</button>
+  </section>
+
+  <section class="xw-data-panel">
+    <div class="xw-data-head">
+      <div><h3>服务项目</h3><p>新服务默认 OFFLINE + 停用；离线服务必须先执行发布检查，通过后才出现最终上架确认。</p></div>
+      <div class="xcat-head-actions"><span class="xw-pill">service:view / service:manage</span><button class="xw-button" id="xcatCreateOpen" type="button" hidden>新增服务</button></div>
+    </div>
+    <div class="xw-table-wrap"><table class="xw-table xcat-service-table"><thead><tr><th>服务</th><th>游戏 / 分类</th><th>价格</th><th>时长</th><th>状态</th><th>排序</th><th>操作</th></tr></thead><tbody id="xcatServiceRows"></tbody></table></div>
+  </section>
+
+  <div class="xcat-grid">
+    <section class="xw-data-panel">
+      <div class="xw-data-head"><div><h3>游戏资料</h3><p>结构仍保持只读；active 启停请进入 V3E 独立工作台并先查看影响。</p></div></div>
+      <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>游戏</th><th>业务状态</th><th>分类 / 服务</th><th>平台</th></tr></thead><tbody id="xcatGameRows"></tbody></table></div>
+    </section>
+    <section class="xw-data-panel">
+      <div class="xw-data-head"><div><h3>分类资料</h3><p>结构仍保持只读；active 启停请进入 V3E 独立工作台并先查看影响。</p></div></div>
+      <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>编码</th><th>分类</th><th>游戏</th><th>服务数</th></tr></thead><tbody id="xcatCategoryRows"></tbody></table></div>
+    </section>
+  </div>
+</main>
+
+<dialog id="xcatCreateDialog" class="xcat-dialog" aria-labelledby="xcatCreateTitle">
+  <form id="xcatCreateForm" class="xcat-dialog-card">
+    <div class="xcat-dialog-head">
+      <div><p class="xw-kicker">SERVICE · CREATE</p><h2 id="xcatCreateTitle">新增服务项目</h2><p>新服务固定以 OFFLINE + 停用状态创建，随后进入“发布检查 → 确认上架”。</p></div>
+      <button type="button" class="xw-button xw-button-ghost" id="xcatCreateClose">关闭</button>
+    </div>
+    <div class="xcat-form-grid">
+      <label>游戏<select id="xcatCreateGame" required></select></label>
+      <label>分类<select id="xcatCreateCategory" required></select></label>
+      <label class="xcat-span-2">服务标识 slug<input id="xcatCreateSlug" maxlength="100" pattern="[a-z0-9-]{2,100}" placeholder="例如 weapon-mastery" autocomplete="off" required/></label>
+      <label class="xcat-span-2">服务名称<input id="xcatCreateName" maxlength="120" required/></label>
+      <label class="xcat-span-2">简短说明<textarea id="xcatCreateShortDesc" maxlength="240" rows="3" required></textarea></label>
+      <label>价格模式<select id="xcatCreatePriceMode" required><option value="QUOTE">询价</option><option value="FIXED">固定价</option><option value="RANGE">区间价</option></select></label>
+      <label>固定价<input id="xcatCreatePriceFixed" type="number" min="0" step="0.01" inputmode="decimal"/></label>
+      <label>最低价<input id="xcatCreatePriceMin" type="number" min="0" step="0.01" inputmode="decimal"/></label>
+      <label>最高价<input id="xcatCreatePriceMax" type="number" min="0" step="0.01" inputmode="decimal"/></label>
+      <label>预计时长<input id="xcatCreateDuration" maxlength="100" placeholder="例如 1-2 天" required/></label>
+      <label>展示排序<input id="xcatCreateSortOrder" type="number" step="1" value="0" required/></label>
+      <label>人工优先级<input id="xcatCreatePriority" type="number" step="1" value="0" required/></label>
+      <label class="xcat-span-2">新增原因<textarea id="xcatCreateReason" maxlength="500" rows="2" required placeholder="说明为什么新增该服务，进入 SERVICE_CREATE 审计"></textarea></label>
+    </div>
+    <div class="xcat-dialog-note">安全默认：status=OFFLINE、active=false、coverImage=null、hotScore=0、expiresAt=null。游戏和分类只能从现有 taxonomy 选择；不在本页创建或修改 taxonomy。</div>
+    <div class="xcat-dialog-actions">
+      <button type="button" class="xw-button xw-button-ghost" id="xcatCreateCancel">取消</button>
+      <button type="submit" class="xw-button" id="xcatCreateSave">创建离线服务</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="xcatEditDialog" class="xcat-dialog" aria-labelledby="xcatEditTitle">
+  <form id="xcatEditForm" class="xcat-dialog-card">
+    <div class="xcat-dialog-head">
+      <div><p class="xw-kicker">SERVICE · MANAGE</p><h2 id="xcatEditTitle">编辑服务项目</h2><p id="xcatEditMeta">—</p></div>
+      <button type="button" class="xw-button xw-button-ghost" id="xcatEditClose">关闭</button>
+    </div>
+    <div class="xcat-form-grid">
+      <label class="xcat-span-2">服务名称<input id="xcatEditName" maxlength="120" required/></label>
+      <label class="xcat-span-2">简短说明<textarea id="xcatEditShortDesc" maxlength="240" rows="3" required></textarea></label>
+      <label>价格模式<select id="xcatEditPriceMode" required><option value="FIXED">固定价</option><option value="RANGE">区间价</option><option value="QUOTE">询价</option></select></label>
+      <label>固定价<input id="xcatEditPriceFixed" type="number" min="0" step="0.01" inputmode="decimal"/></label>
+      <label>最低价<input id="xcatEditPriceMin" type="number" min="0" step="0.01" inputmode="decimal"/></label>
+      <label>最高价<input id="xcatEditPriceMax" type="number" min="0" step="0.01" inputmode="decimal"/></label>
+      <label>预计时长<input id="xcatEditDuration" maxlength="100" required/></label>
+      <label>展示排序<input id="xcatEditSortOrder" type="number" step="1" required/></label>
+      <label>人工优先级<input id="xcatEditPriority" type="number" step="1" required/></label>
+      <label class="xcat-span-2">变更原因<textarea id="xcatEditReason" maxlength="500" rows="2" required placeholder="写清本次调整原因，进入审计日志"></textarea></label>
+    </div>
+    <div class="xcat-dialog-note">slug、游戏、分类、封面、热度、到期时间和当前上下架状态在基础编辑中保持原值；需要完整结构调整时仍使用旧后台。</div>
+    <div class="xcat-dialog-actions">
+      <button type="button" class="xw-button xw-button-ghost" id="xcatEditCancel">取消</button>
+      <button type="submit" class="xw-button" id="xcatEditSave">保存修改</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="xcatReviewDialog" class="xcat-dialog" aria-labelledby="xcatReviewTitle">
+  <section class="xcat-dialog-card">
+    <div class="xcat-dialog-head">
+      <div><p class="xw-kicker">SERVICE · RELEASE PREFLIGHT</p><h2 id="xcatReviewTitle">发布前检查</h2><p id="xcatReviewMeta">—</p></div>
+      <button type="button" class="xw-button xw-button-ghost" id="xcatReviewClose">关闭</button>
+    </div>
+    <div class="xcat-review-summary" id="xcatReviewSummary">正在检查……</div>
+    <div class="xcat-checks" id="xcatReviewChecks" aria-live="polite"></div>
+    <div class="xcat-dialog-note">阻断项必须全部通过才允许上架；警告项用于提醒展示质量，不会单独阻止发布。点击“通过检查并上架”后仍会进行最终确认，并再次由后端执行同一套检查。</div>
+    <div class="xcat-dialog-actions">
+      <button type="button" class="xw-button xw-button-ghost" id="xcatReviewCancel">取消</button>
+      <button type="button" class="xw-button" id="xcatReviewPublish" hidden>通过检查并上架</button>
+    </div>
+  </section>
+</dialog>
+</body>
+</html>

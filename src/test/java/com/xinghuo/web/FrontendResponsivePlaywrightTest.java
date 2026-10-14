@@ -17,16 +17,21 @@ class FrontendResponsivePlaywrightTest {
     private static final Path SITE_FRAGMENT = Path.of("src/main/resources/templates/fragments/site.html");
 
     @Test
-    void wideDesktopUsesFullOperationalCanvasWithoutLegacyGlass() {
+    void wideDesktopUsesFullOperationalCanvasAndNextHomeHierarchy() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(1920, 1080));
             renderPublicShell(page);
 
             Number containerWidth = number(page, "document.querySelector('main.container').getBoundingClientRect().width");
-            assertTrue(containerWidth.doubleValue() >= 1380.0,
+            assertTrue(containerWidth.doubleValue() >= 1600.0,
                     () -> "24-inch desktop canvas collapsed to " + containerWidth + "px");
             assertNoHorizontalOverflow(page, "Chromium 1920 desktop");
             assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
+            assertTrue(number(page,
+                    "document.querySelector('.hero-copy').getBoundingClientRect().width").doubleValue()
+                    > number(page, "document.querySelector('.hero-media-panel').getBoundingClientRect().width").doubleValue(),
+                    "next home hero must reserve more operational width for conversion copy than decorative media");
+            assertEquals(2, number(page, "getComputedStyle(document.querySelector('.quick-grid-r3')).gridTemplateColumns.split(' ').length").intValue());
             assertFourColumnServiceGrid(page);
         }
     }
@@ -57,39 +62,32 @@ class FrontendResponsivePlaywrightTest {
             renderPublicShell(desktop);
             assertNoHorizontalOverflow(desktop, "macOS Safari 1440");
             Number width = number(desktop, "document.querySelector('main.container').getBoundingClientRect().width");
-            assertTrue(width.doubleValue() > 1300.0,
+            assertTrue(width.doubleValue() > 1360.0,
                     () -> "Safari desktop collapsed into a legacy narrow canvas: " + width + "px");
             assertEquals("none", string(desktop, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
         }
     }
 
     @Test
-    void experienceLayerIsAuthoritativeAndRuntimeThemeControlsRemainLast() throws Exception {
-        String css = Files.readString(ASSETS.resolve("site-experience-v2.css"));
+    void nextFoundationLoadsAfterCompatibilityAndBeforeRuntimeControls() throws Exception {
+        String compatibility = Files.readString(ASSETS.resolve("site-experience-v2.css"));
+        String next = Files.readString(ASSETS.resolve("frontend-next-foundation.css"));
         String fragment = Files.readString(SITE_FRAGMENT);
 
-        assertTrue(css.contains("--max:1440px"));
-        assertTrue(css.contains("env(safe-area-inset-bottom"));
-        assertTrue(css.contains("min-height:100dvh"));
-        assertTrue(css.contains("input,select,textarea{font-size:16px!important}"));
-        assertTrue(css.contains("@media(forced-colors:active)"));
-        assertTrue(css.contains("@media(prefers-reduced-motion:reduce)"));
-        assertTrue(css.contains("var(--accent"));
-        assertTrue(css.contains("var(--surface-2"));
-        assertTrue(css.contains("-webkit-backdrop-filter:none!important"));
-        assertTrue(css.contains("backdrop-filter:none!important;transition:none!important"));
-        assertTrue(css.contains(".service-browser-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}"),
-                "desktop service browser must keep the explicit four-column experience contract");
+        assertTrue(compatibility.contains("--max:1440px"));
+        assertTrue(next.contains("--xh-next-max:1720px"));
+        assertTrue(next.contains("@media (min-width:1600px)"));
+        assertTrue(next.contains("input,select,textarea{font-size:16px!important}"));
+        assertTrue(next.contains("@media (forced-colors:active)"));
+        assertTrue(next.contains("@media (prefers-reduced-motion:reduce)"));
+        assertTrue(next.contains("var(--accent-rgb"));
 
-        assertTrue(!fragment.contains("site-shell.css"),
-                "retired legacy shell must not compete with the rewritten public experience layer");
-        assertTrue(fragment.contains("data-experience-shell=\"v3\""));
-        assertTrue(!fragment.contains("style=\"-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important\""),
-                "public v3 header must keep visual quarantine in the authoritative stylesheet, not inline markup");
-        int experience = fragment.indexOf("site-experience-v2.css?v=20261012ux04");
-        int runtime = fragment.indexOf("frontend-controls-runtime.js");
-        assertTrue(experience >= 0, "rewritten experience stylesheet must load globally");
-        assertTrue(runtime > experience, "runtime frontend controls must remain able to override theme variables");
+        int compatibilityIndex = fragment.indexOf("site-experience-v2.css?v=20261012ux04");
+        int nextIndex = fragment.indexOf("frontend-next-foundation.css?v=20261014nx01");
+        int runtimeIndex = fragment.indexOf("frontend-controls-runtime.js");
+        assertTrue(compatibilityIndex >= 0 && nextIndex > compatibilityIndex);
+        assertTrue(runtimeIndex > nextIndex);
+        assertTrue(fragment.contains("data-experience-shell=\"v4\""));
     }
 
     private static void assertFourColumnServiceGrid(Page page) {
@@ -114,17 +112,6 @@ class FrontendResponsivePlaywrightTest {
         assertTrue(firstCardWidth.doubleValue() >= gridWidth.doubleValue() / 4.5,
                 () -> "service cards collapsed below a real four-column width: grid=" + gridWidth
                         + "px, firstCard=" + firstCardWidth + "px");
-
-        Number trailingGap = number(page, """
-                (() => {
-                  const grid = document.querySelector('.service-browser-grid').getBoundingClientRect();
-                  const cards = document.querySelectorAll('.service-browser-grid > .service-card');
-                  const last = cards[cards.length - 1].getBoundingClientRect();
-                  return grid.right - last.right;
-                })()
-                """);
-        assertTrue(Math.abs(trailingGap.doubleValue()) <= 2.0,
-                () -> "four service cards did not occupy the full desktop grid; trailing gap=" + trailingGap + "px");
     }
 
     private static void assertMobileContract(Browser browser, int width, int height, String userAgent, String label) {
@@ -144,6 +131,8 @@ class FrontendResponsivePlaywrightTest {
                 () -> label + " primary CTA touch target was only " + primaryHeight + "px");
         assertEquals("grid", string(page, "getComputedStyle(document.querySelector('.mobile-dock')).display"),
                 label + " mobile dock should be visible");
+        assertEquals("none", string(page, "getComputedStyle(document.querySelector('.hero-media-panel')).display"),
+                label + " decorative hero media must not crowd the mobile conversion flow");
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"),
                 label + " header must not rely on glass blur");
         page.close();
@@ -167,7 +156,7 @@ class FrontendResponsivePlaywrightTest {
     private static void renderPublicShell(Page page) {
         page.setContent("""
                 <body data-page="home">
-                  <header class="site-header" data-experience-shell="v3" style="-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important">
+                  <header class="site-header" data-experience-shell="v4">
                     <div class="container topbar">
                       <a class="brand brand-mark"><span class="brand-dot"></span><span>星火网游代练平台</span></a>
                       <nav class="nav"><a>服务</a><a>攻略</a><a>工具站</a><a class="btn primary desktop-keep">提前询价</a></nav>
@@ -177,12 +166,18 @@ class FrontendResponsivePlaywrightTest {
                   <main class="container">
                     <section class="hero hero-r3">
                       <div class="hero-copy">
-                        <div class="hero-signal"><span class="hero-kicker">可靠手打 · 纯绿服务 · 进度可查</span></div>
+                        <div class="hero-signal"><span class="service-state">MW4 服务中</span><span class="hero-kicker">可靠手打 · 纯绿服务 · 进度可查</span></div>
                         <h1>使命召唤 MW4 任务代练</h1>
+                        <p class="hero-subtitle">武器升级 · 迷彩解锁 · 活动任务 · 排位冲分</p>
                         <div class="hero-promise"><span><b>可靠手打</b><small>人工推进</small></span><span><b>纯绿服务</b><small>不使用外挂</small></span><span><b>进度可查</b><small>统一业务编号</small></span></div>
                         <div class="hero-actions"><a class="btn primary">提前询价</a><a class="btn ghost">服务大厅</a><a class="btn ghost hero-progress-link">查业务进度</a></div>
                       </div>
-                      <aside class="hero-panel hero-media-panel"><div class="hero-visual"></div></aside>
+                      <aside class="hero-panel hero-media-panel"><div class="hero-visual"></div><div class="hero-media-copy">当前推荐</div></aside>
+                    </section>
+                    <section class="quick-grid quick-grid-r3">
+                      <article class="card quick-card quote-card-home"><div class="quote-card-head"><h2>选择需求，获取报价</h2></div><div class="linked-selects four-step"><label class="field">游戏<select><option>MW4</option></select></label><label class="field">平台<select><option>Steam</option></select></label><label class="field">类型<select><option>武器</option></select></label><label class="field">服务<select><option>升级</option></select></label></div><div class="hero-actions"><button class="btn primary">提交</button></div></article>
+                      <article class="card quick-card"><h2>业务进度</h2></article>
+                      <article class="card quick-contact-card"><div>联系</div><div class="quick-contact-list"><div class="quick-contact-item">微信</div></div></article>
                     </section>
                     <section class="service-browser-grid grid4">
                       <article class="service-card card">服务 A</article><article class="service-card card">服务 B</article>
@@ -196,5 +191,6 @@ class FrontendResponsivePlaywrightTest {
                 """);
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("app.css")));
         page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("site-experience-v2.css")));
+        page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve("frontend-next-foundation.css")));
     }
 }

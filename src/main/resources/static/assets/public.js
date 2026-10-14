@@ -642,7 +642,7 @@
       </div>
       <div class="success-contact-box">
         ${qr ? `${wechatLink ? `<a href="${esc(wechatLink)}" target="_blank" rel="noopener noreferrer" aria-label="打开微信客服">` : ''}<img class="success-qr" src="${esc(qr)}" alt="${esc(primary.label || '微信')}二维码">${wechatLink ? '</a>' : ''}` : `<div class="success-qr success-qr-text">微信<br><strong>${esc(wechatDisplay)}</strong></div>`}
-        <div><strong>${esc(primary.label || '微信')} <span id="successWechatId">${esc(wechatDisplay)}</span></strong><span>${esc(primary.note || '把业务编号发给客服，确认报价后再走淘宝/闲鱼付款。')}</span>${wechatLink ? `<a class="btn small-btn ghost" href="${esc(wechatLink)}" target="_blank" rel="noopener noreferrer">打开微信</a>` : '<button class="btn small-btn ghost copy-btn" type="button" data-copy="#successWechatId">复制微信号</button>'}</div>
+        <div><strong>${esc(primary.label || '微信')} <span id="successWechatId">${esc(wechatDisplay)}</span></strong><span>${esc(primary.note || '把业务编号发给客服确认报价；可走淘宝/闲鱼，官网订单开放支付后也可在个人中心微信扫码。')}</span>${wechatLink ? `<a class="btn small-btn ghost" href="${esc(wechatLink)}" target="_blank" rel="noopener noreferrer">打开微信</a>` : '<button class="btn small-btn ghost copy-btn" type="button" data-copy="#successWechatId">复制微信号</button>'}</div>
       </div>
       ${channels.length > 1 ? `<div class="success-channel-strip">${channels.slice(1, 4).map(c => `<span>${esc(c.label || '客服')} · ${esc(c.wechatId || '扫码添加')}</span>`).join('')}</div>` : ''}
       <div class="success-market-actions">

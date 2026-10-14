@@ -1,0 +1,34 @@
+{
+  "description": "星火迷彩追踪器 · MW4 迷彩进度记录工具（免费工具 + 客服入口）",
+  "appid": "wx659acdb58a685b88",
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "compileType": "miniprogram",
+  "libVersion": "3.5.5",
+  "projectname": "xinghuo-camo-tracker",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "coverView": true,
+    "ignoreDevUnusedFiles": false,
+    "ignoreUploadUnusedFiles": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "packOptions": {
+    "include": [
+      {
+        "type": "folder",
+        "value": "images"
+      }
+    ],
+    "ignore": []
+  },
+  "condition": {}
+}

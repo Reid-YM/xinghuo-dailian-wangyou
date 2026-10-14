@@ -1,0 +1,107 @@
+<view class="page me-page">
+  <view class="hero me-heading">
+    <view class="hero-title">我的</view>
+    <view class="hero-sub">个人信息、进度与网站账号</view>
+  </view>
+
+  <view class="card section-card account-card">
+    <view class="account" wx:if="{{cloud.loggedIn || website.linked}}">
+      <button class="avatar-wrap" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" aria-label="更换头像">
+          <image class="avatar" wx:if="{{displayAvatar}}" src="{{displayAvatar}}" mode="aspectFill"></image>
+          <view class="avatar avatar-text" wx:else>{{avatarText}}</view>
+        </button>
+      <view class="account-main">
+        <view class="nick">{{displayName}}</view>
+        <view class="account-id">{{accountText}}</view>
+        <text class="account-state">{{website.linked ? '网站已关联' : '进度已连接'}}</text>
+      </view>
+    </view>
+    <view wx:else>
+      <view class="login-title">当前未登录</view>
+      <view class="login-desc">进度保存在本机。登录后可将进度同步至云端，并在其他设备恢复。</view>
+      <button class="login-btn" bindtap="onLogin">微信登录</button>
+      <view class="login-hint" wx:if="{{!cloud.available}}">{{cloud.hint || '云端服务暂不可用，进度仍保存在本机。'}}</view>
+    </view>
+    <view class="account-meta" wx:if="{{cloud.loggedIn}}">
+      <text>进度同步</text><text>{{cloud.syncText}}</text>
+    </view>
+  </view>
+
+  <view class="card section-card website-card">
+    <view class="card-title">网站账号</view>
+    <view class="website-status" wx:if="{{website.loading}}">正在确认账号…</view>
+    <view class="website-status" wx:elif="{{website.linked}}">已关联 · {{website.displayName}}</view>
+    <view class="website-status" wx:elif="{{website.checked && !website.error}}">尚未关联星火网站账号</view>
+    <view class="website-status" wx:else>网站账号</view>
+    <view class="website-orders" wx:if="{{website.linked}}">网站订单 {{website.orderCount}} 笔 · 详情请在网站账号中心查看</view>
+    <view class="website-error" wx:if="{{website.error}}">{{website.error}}</view>
+    <view class="sync-hint">在电脑上打开网站登录页，点「使用星火迷彩追踪器小程序登录」会显示二维码和 8 位登录码。在这里扫码或输入登录码，再回网站核对识别码尾号并确认。</view>
+    <view class="sync-hint" wx:if="{{website.linked}}">头像与昵称可以在这里改，会同步到网站账号。</view>
+    <view class="identity-hint" wx:if="{{identityHint}}">微信识别码尾号 {{identityHint}} · 请与网站确认页核对</view>
+    <view class="website-signed" wx:if="{{website.linked}}">
+      <text class="check">✓</text>
+      <text>网站账号已关联</text>
+    </view>
+    <!-- 浏览器登录每次都靠这个入口：之前只在「未关联」时显示，已关联的账号就再也输不了登录码，网站会一直停在登录页 -->
+    <button class="btn primary website-action" bindtap="scanWebsiteLogin" disabled="{{!website.available || website.loading}}">扫码登录网站</button>
+    <button class="btn ghost website-action" bindtap="onPairWebsite" disabled="{{!website.available || website.loading}}">{{website.linked ? '在浏览器登录网站（输入登录码）' : '输入登录码 / 关联账号'}}</button>
+    <view class="website-phone" wx:if="{{website.linked}}">
+      <view class="row-between">
+        <text class="label">客服联系电话</text>
+        <text class="mono website-phone-value" wx:if="{{phoneMasked}}">{{phoneMasked}}</text>
+      </view>
+      <button class="website-phone-btn" wx:if="{{!phoneMasked}}" open-type="getPhoneNumber" bindgetphonenumber="onGetPhone">授权手机号</button>
+      <view class="sync-hint" wx:else>已保存到网站账号，客服回访时可直接看到。</view>
+    </view>
+  </view>
+
+  <view class="card section-card" wx:if="{{cloud.loggedIn}}">
+    <view class="card-title">个人资料与同步</view>
+    <view class="field-label">小程序昵称</view>
+    <input class="profile-input" type="nickname" placeholder="设置小程序昵称" value="{{profile.nickName}}" bindblur="onNickChange" />
+    <view class="sync-hint">关联网站账号后，这里设置的头像与昵称会同步到网站账号。</view>
+    <view class="actions sync-actions">
+      <button class="btn ghost" bindtap="onSync" disabled="{{cloud.syncing}}">{{cloud.syncing ? '同步中…' : '立即同步'}}</button>
+      <button class="btn text-action" bindtap="onLogout">退出小程序登录</button>
+    </view>
+  </view>
+
+  <view class="card section-card">
+    <view class="card-title">进度概览</view>
+    <view class="overview">
+      <text class="overview-number">{{summary.pct}}%</text>
+      <text class="overview-caption">已完成 {{summary.count}} / {{summary.total}} 项</text>
+    </view>
+    <view class="bar"><view class="bar-fill" style="width: {{summary.pct}}%"></view></view>
+    <button class="setting-row first-row" bindtap="onCopySummary">
+      <text>复制进度摘要</text><text class="row-arrow">›</text>
+    </button>
+  </view>
+
+  <view class="card section-card">
+    <view class="card-title">数据管理</view>
+    <view class="sync-hint">分享码可用于手动备份或在其他设备导入进度。</view>
+    <view class="setting-list">
+      <button class="setting-row" bindtap="onShareCode"><text>复制分享码</text><text class="row-arrow">›</text></button>
+      <button class="setting-row" bindtap="onImportCode"><text>导入分享码</text><text class="row-arrow">›</text></button>
+      <button class="setting-row danger-row" bindtap="onClear"><text>清空全部进度</text><text class="row-arrow">›</text></button>
+    </view>
+  </view>
+
+  <view class="card section-card" wx:if="{{copy}}">
+    <view class="card-title">帮助与支持</view>
+    <view class="sync-hint">如需协助查询或使用本工具，可联系在线客服。</view>
+    <view class="setting-list">
+      <button class="setting-row" wx:if="{{kfReady}}" bindtap="onContact"><text>联系客服</text><text class="row-arrow">›</text></button>
+      <button class="setting-row" wx:else open-type="contact" session-from="{{sessionFrom}}"><text>联系客服</text><text class="row-arrow">›</text></button>
+    </view>
+  </view>
+
+  <view class="card section-card about">
+    <view class="card-title">关于本工具</view>
+    <view class="about-row"><text class="about-key">应用名称</text><text class="about-value">{{brand.name}}</text></view>
+    <view class="about-row"><text class="about-key">版本</text><text class="about-value">{{version}}</text></view>
+    <view class="about-row"><text class="about-key">数据来源</text><text class="about-value">{{dataSource || '读取中…'}}</text></view>
+    <view class="about-note">武器与迷彩数据来自星火官网工具站。本工具用于个人进度记录与查询。</view>
+  </view>
+</view>

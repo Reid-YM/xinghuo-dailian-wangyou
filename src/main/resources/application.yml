@@ -47,6 +47,16 @@ app:
   wechat-mini:
     app-id: ${WECHAT_MINI_APP_ID:}
     app-secret: ${WECHAT_MINI_APP_SECRET:}
+  wechat-pay:
+    enabled: ${WECHAT_PAY_ENABLED:false}
+    merchant-id: ${WECHAT_PAY_MERCHANT_ID:}
+    app-id: ${WECHAT_PAY_APP_ID:}
+    merchant-serial: ${WECHAT_PAY_MERCHANT_SERIAL:}
+    private-key-path: ${WECHAT_PAY_PRIVATE_KEY_PATH:}
+    public-key-path: ${WECHAT_PAY_PUBLIC_KEY_PATH:}
+    public-key-id: ${WECHAT_PAY_PUBLIC_KEY_ID:}
+    api-v3-key: ${WECHAT_PAY_API_V3_KEY:}
+    notify-url: ${WECHAT_PAY_NOTIFY_URL:}
   bootstrap-admin:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:}
@@ -54,8 +64,7 @@ app:
     wechat-id: ${DEFAULT_WECHAT_ID:}
     qq-id: ${DEFAULT_QQ_ID:}
 
-# 企业微信通讯录 / 人事管理
-# Secret 仅来自服务器环境变量，不写入源码。
+# 企业微信通讯录与待验收的人事写入。Secret 仅来自服务器环境变量。
 wecom:
   corp-id: ${WECOM_CORP_ID:}
   app-secret: ${WECOM_APP_SECRET:}

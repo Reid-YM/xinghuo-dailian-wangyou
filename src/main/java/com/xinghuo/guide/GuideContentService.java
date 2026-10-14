@@ -268,8 +268,8 @@ public class GuideContentService {
         List<GuideModels.SectionInput> sections = List.of(
                 new GuideModels.SectionInput("service-map", gameName + " 当前可接服务", serviceMapBody(gameName, services), null, "1", 10),
                 new GuideModels.SectionInput("route", "推荐推进顺序", routeBody(gameName, services), null, null, 20),
-                new GuideModels.SectionInput("safety", "交付与账号安全", "网页只收集需求、截图与联系方式，不收账号密码、验证码或令牌。\n\n确认报价后走淘宝或闲鱼担保交易。开工前请核对区服、平台、目标、可操作时间和异常处理方式；确认不满足条件时，不承诺立即履约。\n\n如果需要分阶段推进，可以先把当前截图或进度说明发客服，由客服按阶段拆分任务，避免一次承诺过多内容。", null, null, 30),
-                new GuideModels.SectionInput("checklist", "下单前检查清单", "1. 确认游戏区服与登录平台，例如 Steam、Battle.net、PlayStation、Xbox、移动端或国服。\n2. 确认当前进度和目标进度，最好准备角色、段位、任务或库存截图。\n3. 说明每天可操作时段和是否允许组队，减少等待与冲突。\n4. 如涉及活动截止、赛季结算或周赛资格，先确认剩余时间是否足够。\n5. 价格以人工确认后的担保订单为准，确认前不要支付。", null, null, 40)
+                new GuideModels.SectionInput("safety", "交付与账号安全", "网页只收集需求、截图与联系方式，不收账号密码、验证码或令牌。\n\n客服确认金额后，可选择淘宝或闲鱼担保；已开放支付的官网订单可在个人中心使用微信扫码。开工前请核对区服、平台、目标、可操作时间和异常处理方式；确认不满足条件时，不承诺立即履约。\n\n如果需要分阶段推进，可以先把当前截图或进度说明发客服，由客服按阶段拆分任务，避免一次承诺过多内容。", null, null, 30),
+                new GuideModels.SectionInput("checklist", "下单前检查清单", "1. 确认游戏区服与登录平台，例如 Steam、Battle.net、PlayStation、Xbox、移动端或国服。\n2. 确认当前进度和目标进度，最好准备角色、段位、任务或库存截图。\n3. 说明每天可操作时段和是否允许组队，减少等待与冲突。\n4. 如涉及活动截止、赛季结算或周赛资格，先确认剩余时间是否足够。\n5. 价格以客服确认的最终金额为准，确认前不要支付。", null, null, 40)
         );
         List<GuideModels.ProductInput> products = new ArrayList<>();
         int order = 10;
@@ -287,7 +287,7 @@ public class GuideContentService {
         List<GuideModels.FaqInput> faqs = List.of(
                 new GuideModels.FaqInput("现在可以直接下单吗？", "页面会显示当前运营状态。处于预约或可预约状态时，可以先提交需求；客服确认报价、区服与时间后才安排开工。", 10),
                 new GuideModels.FaqInput("需要提供账号密码吗？", "不需要。攻略页和询价页都不要求账号密码、验证码或登录令牌；具体上号或组队方式只在客服确认后单独沟通。", 20),
-                new GuideModels.FaqInput("价格怎么计算？", "按当前进度到目标进度的差距、预计耗时和活动截止时间综合报价。网页展示的参考价不是最终结算价，最终以担保订单确认金额为准。", 30)
+                new GuideModels.FaqInput("价格怎么计算？", "按当前进度到目标进度的差距、预计耗时和活动截止时间综合报价。网页展示的参考价不是最终结算价，最终以客服确认金额为准。", 30)
         );
         String difficulty = services.stream().anyMatch(x -> Set.of("RANKED", "CHAMPION", "EVENT", "CAMO", "POWER").contains(string(x.get("category")).toUpperCase(Locale.ROOT)))
                 ? "INTERMEDIATE" : "BEGINNER";

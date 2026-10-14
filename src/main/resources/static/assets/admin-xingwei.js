@@ -14,7 +14,7 @@
   const REQUEST_TIMEOUT_MS = 8000;
   const HEALTH_CHECK_INTERVAL_MS = 60000;
   const MODULE_PERMISSIONS = {
-    B01: 'quote:view', B02: 'order:view', B03: 'service:view', B04: 'content:view',
+    B01: 'quote:view', B02: 'order:view', B03: 'service:view', B04: 'content:view', B05: 'order:view',
     O01: 'org:view', O02: 'employee:view', O03: 'rbac:view', O04: 'employee:view',
     C01: 'channel:view', C02: 'wechat:view', C03: 'payment:view', C04: 'site:view',
     S01: 'site:view', S02: 'audit:view', S03: 'deploy:view', S04: 'site:view'

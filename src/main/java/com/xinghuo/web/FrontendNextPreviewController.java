@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class FrontendNextPreviewController {
     private static final String N2_RUNTIME = "<script src=\"/next/n2.js\" defer></script>";
     private static final String N3_RUNTIME = "<script src=\"/next/n3.js\" defer></script>";
+    private static final String N4_RUNTIME = "<script src=\"/next/n4.js\" defer></script>";
     private final ClassPathResource index = new ClassPathResource("static/next/index.html");
 
     @GetMapping({
@@ -41,6 +42,9 @@ public class FrontendNextPreviewController {
         }
         if (!html.contains(N3_RUNTIME)) {
             html = html.replace("</body>", N3_RUNTIME + "</body>");
+        }
+        if (!html.contains(N4_RUNTIME)) {
+            html = html.replace("</body>", N4_RUNTIME + "</body>");
         }
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)

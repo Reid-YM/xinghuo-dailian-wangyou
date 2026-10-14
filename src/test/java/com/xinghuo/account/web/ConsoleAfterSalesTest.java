@@ -116,4 +116,67 @@ class ConsoleAfterSalesTest {
         assertEquals(0L, jdbc.queryForObject("SELECT version FROM customer_orders WHERE id='order-1'", Long.class));
         verifyNoInteractions(audit);
     }
+
+    @Test
+    void orderDetailReturnsStructuredHistoryWithoutChangingExistingFields() {
+        jdbc.update("UPDATE customer_orders SET customer_note=? WHERE id='order-1'", """
+                原始订单说明
+
+                [售后问题 · 交付或进度 · 2026-10-13T10:00:00Z]
+                请核对进度
+                并联系我
+
+                [用户补充 2026-10-13T11:00:00Z]
+                普通补充说明
+
+                [售后问题 · 退款核对 · 2026-10-14T10:00:00Z]
+                请核对金额
+                """);
+
+        var detail = controller.order("ORD-1", request);
+
+        assertEquals("ORD-1", detail.order().orderNo());
+        assertNull(detail.sourceQuote());
+        assertEquals("订单创建", detail.timeline().get(0).title());
+        assertEquals(2, detail.afterSalesRecords().size());
+        assertEquals(new ConsoleApiController.AfterSalesRecord("交付或进度",
+                        java.time.Instant.parse("2026-10-13T10:00:00Z"), "请核对进度\n并联系我"),
+                detail.afterSalesRecords().get(0));
+        assertEquals(new ConsoleApiController.AfterSalesRecord("退款核对",
+                        java.time.Instant.parse("2026-10-14T10:00:00Z"), "请核对金额"),
+                detail.afterSalesRecords().get(1));
+    }
+
+    @Test
+    void orderDetailIgnoresMalformedUnknownAndInlineMarkers() {
+        jdbc.update("UPDATE customer_orders SET customer_note=? WHERE id='order-1'", """
+                普通说明 [售后问题 · 退款核对 · 2026-10-13T10:00:00Z]
+                不是记录
+
+                [售后问题 · 未知类型 · 2026-10-13T10:00:00Z]
+                不是记录
+
+                [售后问题 · 其他问题 · 伪造时间]
+                不是记录
+
+                [售后问题 · 取消服务 · 2026-10-14T10:00:00Z]
+                有效记录
+                """);
+
+        var records = controller.order("XH-1", request).afterSalesRecords();
+
+        assertEquals(1, records.size());
+        assertEquals("取消服务", records.get(0).category());
+        assertEquals("有效记录", records.get(0).content());
+    }
+
+    @Test
+    void orderDetailDoesNotExposeAnotherCustomersHistory() {
+        jdbc.update("UPDATE customer_orders SET customer_note=? WHERE id='order-1'",
+                "\n\n[售后问题 · 其他问题 · 2026-10-14T10:00:00Z]\n私有内容");
+        request.setAttribute(AccountAuthInterceptor.ATTR_ACCOUNT, Account.builder().id(2L).build());
+
+        assertEquals("ORDER_NOT_FOUND", assertThrows(AccountException.class,
+                () -> controller.order("XH-1", request)).getCode());
+    }
 }

@@ -24,6 +24,7 @@ public class FrontendNextPreviewController {
     private static final String N4_MINI_RUNTIME = "<script src=\"/next/n4-mini.js\" defer></script>";
     private static final String N5_RUNTIME = "<script src=\"/next/n5.js\" defer></script>";
     private static final String N5_ACTIONS_RUNTIME = "<script src=\"/next/n5-actions.js\" defer></script>";
+    private static final String N6_RUNTIME = "<script src=\"/next/n6-account-security.js\" defer></script>";
     private final ClassPathResource index = new ClassPathResource("static/next/index.html");
 
     @GetMapping({
@@ -57,6 +58,9 @@ public class FrontendNextPreviewController {
         }
         if (!html.contains(N5_ACTIONS_RUNTIME)) {
             html = html.replace("</body>", N5_ACTIONS_RUNTIME + "</body>");
+        }
+        if (!html.contains(N6_RUNTIME)) {
+            html = html.replace("</body>", N6_RUNTIME + "</body>");
         }
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)

@@ -359,7 +359,11 @@ public class ConsoleApiController {
                 }, orderNo);
         return jdbc.query("""
                 SELECT r.id, r.category_label, r.content, r.submitted_at_ms,
-                       COALESCE(s.status, 'OPEN') AS status, s.updated_at
+                       COALESCE(s.status, 'OPEN') AS status, s.updated_at,
+                       COALESCE((SELECT MAX(f.id)
+                                   FROM customer_order_after_sales_case_followups f
+                                  WHERE f.record_id = r.id), 0) AS latest_followup_id,
+                       COALESCE(s.handled_through_followup_id, 0) AS handled_through_followup_id
                   FROM customer_order_after_sales_records r
                   LEFT JOIN customer_order_after_sales_case_state s ON s.record_id = r.id
                  WHERE r.order_no = ?
@@ -373,7 +377,8 @@ public class ConsoleApiController {
                             Instant.ofEpochMilli(rs.getLong("submitted_at_ms")),
                             rs.getString("content"), rs.getString("status"), latest,
                             toInstant(rs.getTimestamp("updated_at")), replies,
-                            List.copyOf(followupsByRecord.getOrDefault(recordId, List.of())));
+                            List.copyOf(followupsByRecord.getOrDefault(recordId, List.of())),
+                            rs.getLong("latest_followup_id") > rs.getLong("handled_through_followup_id"));
                 }, orderNo);
     }
 
@@ -426,7 +431,8 @@ public class ConsoleApiController {
     public record AfterSalesCaseStatus(long recordId, String category, Instant submittedAt,
                                        String content, String status, String customerReply,
                                        Instant updatedAt, List<AfterSalesPublicReply> replies,
-                                       List<AfterSalesCustomerFollowup> followups) {}
+                                       List<AfterSalesCustomerFollowup> followups,
+                                       boolean pendingCustomerFollowup) {}
     public record AfterSalesPublicReply(String status, String content, Instant repliedAt) {}
     public record AfterSalesCustomerFollowup(String content, Instant createdAt) {}
     public record QuoteItem(String businessNo, String game, String demand, String currentProgress,

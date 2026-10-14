@@ -278,6 +278,8 @@
 .account-after-sales-history>p,.account-after-sales-entry small{color:var(--nx-muted)}
 .account-after-sales-entry{display:grid;gap:5px;padding:12px;border:1px solid var(--nx-line-soft);border-radius:8px;overflow-wrap:anywhere}
 .account-after-sales-entry p{white-space:pre-wrap;line-height:1.6}
+.account-after-sales-entry .account-after-sales-pending{justify-self:start;padding:3px 9px;border-radius:999px;background:rgba(245,158,11,.14);color:#fbbf24;font-weight:700}
+.account-after-sales-entry .account-after-sales-guidance{color:var(--nx-muted);font-size:13px}
 .account-after-sales-followup{display:grid;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--nx-line-soft)}
 .account-after-sales-followup label{display:grid;gap:6px}
 .account-after-sales-followup textarea{width:100%;box-sizing:border-box;min-height:70px;padding:10px 12px;border:1px solid var(--nx-line-soft);border-radius:8px;background:var(--nx-panel,#111b2b);color:inherit;font:inherit;resize:vertical}

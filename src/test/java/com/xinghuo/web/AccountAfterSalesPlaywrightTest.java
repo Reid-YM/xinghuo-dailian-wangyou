@@ -18,13 +18,13 @@ class AccountAfterSalesPlaywrightTest {
             Page page = browser.newPage();
             page.setContent("<body data-page='account-center-orders'><div data-hub-orders></div><aside data-hub-order-detail hidden></aside></body>");
             page.evaluate("""
-                    () => { window.__followups=[]; window.fetch = async (url, options={}) => {
+                    () => { window.__followups=[]; window.__handled=false; window.__caseStatus='IN_PROGRESS'; window.fetch = async (url, options={}) => {
                       let data;
                       if (url === '/api/account/me') data={displayName:'客户'};
                       else if (url === '/api/console/orders') data={items:[{businessNo:'XH-1',serviceName:'服务'}]};
                       else if (url === '/api/console/orders/XH-1') data={order:{businessNo:'XH-1'},timeline:[],
                         afterSalesRecords:[{category:'交付或进度',submittedAt:'2026-10-15T00:00:00Z',content:'请核对'}],
-                        afterSalesCases:[{recordId:5,category:'交付或进度',status:'IN_PROGRESS',submittedAt:'2026-10-15T00:00:00Z',customerReply:'第二条回复',
+                        afterSalesCases:[{recordId:5,category:'交付或进度',status:window.__caseStatus,pendingCustomerFollowup:window.__followups.length>0&&!window.__handled,submittedAt:'2026-10-15T00:00:00Z',customerReply:'第二条回复',
                           replies:[{status:'IN_PROGRESS',content:'正在处理 <img src=x onerror=alert(1)>',repliedAt:'2026-10-15T01:00:00Z'},
                                    {status:'IN_PROGRESS',content:'第二条回复',repliedAt:'2026-10-15T02:00:00Z'}],followups:window.__followups}]};
                       else if (url.endsWith('/after-sales/records/5/followups') && options.method==='POST') {
@@ -48,9 +48,17 @@ class AccountAfterSalesPlaywrightTest {
             page.locator(".account-after-sales-followup button[type=submit]").click();
             page.waitForFunction("() => window.__followups.length===1 && document.querySelector('[data-after-sales-history]').textContent.includes('新的补充')");
             assertTrue(page.locator("[data-after-sales-history]").innerText().contains("我的补充"));
+            page.locator(".account-after-sales-pending").waitFor();
+            assertTrue(page.locator(".account-after-sales-pending").innerText().contains("待客服跟进"));
             assertEquals(0, page.locator("[data-after-sales-history] img").count());
             assertTrue(!history.contains("内部处理说明"));
             assertEquals(0, page.locator("[data-after-sales-history] img").count());
+            page.evaluate("() => { window.__handled=true; window.__caseStatus='RESOLVED'; }");
+            page.locator("[data-close-order-detail]").click();
+            page.locator("[data-order-detail]").click();
+            page.locator(".account-after-sales-guidance").waitFor();
+            assertTrue(page.locator(".account-after-sales-guidance").innerText().contains("处理状态不会自动变化"));
+            assertEquals(0, page.locator(".account-after-sales-pending").count());
         }
     }
 

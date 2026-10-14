@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class XingweiAdminController {
     static final String CONSOLE_VERSION = "20261014-v3s";
-    static final String CONSOLE_STAGE = "V3S · RELEASE CANDIDATE";
+    static final String CONSOLE_STAGE = "V3S · STABLE PRODUCTION";
     static final String BUSINESS_VERSION = "20261014-v3s";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,7 +29,7 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-14", "V3S", "待发布",
+            new ReleaseItem("2026-10-14", "V3S", "已上线",
                     "售后问题记录与客户订单回显",
                     "新版业务工作台按 order:view 与 ALL / DEPARTMENT / SELF 范围集中查看带售后说明标记的订单；数据库先过滤再截取最近 100 条。客户订单详情显示已提交的售后说明，提交后重新读取授权详情并即时回显。记录不代表工单处理或退款状态；真实收款与企业微信写入继续独立验收。"),
             new ReleaseItem("2026-10-14", "V3R", "已上线",

@@ -33,7 +33,7 @@
       <div class="xwr-meta">
         <time th:text="${item.date}">2026-10-14</time>
         <strong th:text="${item.version}">V3S</strong>
-        <span th:classappend="${item.status == '已上线'} ? ' live' : ' pending'" th:text="${item.status}">待发布</span>
+        <span th:classappend="${item.status == '已上线'} ? ' live' : ' pending'" th:text="${item.status}">已上线</span>
       </div>
       <div class="xwr-body">
         <h2 th:text="${item.title}">阶段标题</h2>

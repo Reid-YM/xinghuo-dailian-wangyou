@@ -48,6 +48,10 @@ class XingweiBusinessWorkbenchPlaywrightTest {
                         if (value === '/api/admin/xingwei/access') return {ok:true,json:async()=>({mode:'LEGACY_ADMIN_OVERRIDE',allowAll:true,permissionCodes:[],roleCodes:['XW_MANAGEMENT'],dataScope:'ALL',departmentCode:'01',adminUserId:1})};
                         if (value === '/api/admin/xingwei/business/quotes') return {ok:true,json:async()=>quoteSnapshot};
                         if (value === '/api/admin/xingwei/business/orders') return {ok:true,json:async()=>orderSnapshot};
+                        if (value === '/api/admin/xingwei/business/orders/exceptions') return {ok:true,json:async()=>({
+                          ...orderSnapshot, visibleCount:1,
+                          items:[{businessNo:'XH0999',orderNo:'XH0999',status:'EXCEPTION',progressText:'客户争议处理中',updatedAt:'2026-10-12T05:10:00Z',canAssign:true,ownership:{assigned:true,ownerAdminUserId:2,ownerUsername:'agent',departmentCode:'03'}}]
+                        })};
                         if (value === '/api/admin/xingwei/business/ownership-candidates') return {ok:true,json:async()=>candidates};
                         if (value.includes('/ownership') && String(options.method).toUpperCase() === 'PUT') {
                           window.__lastOwnershipBody = JSON.parse(options.body);
@@ -83,6 +87,14 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             page.waitForFunction("() => document.querySelector('#xwbOrderRows')?.textContent.includes('XH1002')");
             assertEquals("35%", page.locator("#xwbOrderRows .xwb-progress .xwb-primary").textContent());
 
+            page.locator("[data-tab='exceptions']").click();
+            page.waitForFunction("() => document.querySelector('#xwbOrderRows')?.textContent.includes('XH0999')");
+            assertEquals("异常订单", page.locator("#xwbOrderHeading").textContent());
+            assertEquals(1, page.locator("#xwbOrderRows tr[data-search]").count());
+            assertFalse(page.locator("#xwbOrderRows").textContent().contains("XH1002"));
+            page.locator("#xwbSearch").fill("客户争议");
+            assertEquals("1", page.locator("#xwbKpiFiltered").textContent());
+
             page.setViewportSize(390, 844);
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwbOrdersPanel .xw-table-wrap').scrollWidth > document.querySelector('#xwbOrdersPanel .xw-table-wrap').clientWidth"));
@@ -113,6 +125,7 @@ class XingweiBusinessWorkbenchPlaywrightTest {
 
             assertTrue((Boolean) page.evaluate("() => document.querySelector('[data-tab=quotes]').hidden"));
             assertFalse((Boolean) page.evaluate("() => document.querySelector('[data-tab=orders]').hidden"));
+            assertFalse((Boolean) page.evaluate("() => document.querySelector('[data-tab=exceptions]').hidden"));
             assertFalse((Boolean) page.evaluate("() => document.querySelector('#xwbOrdersPanel').hidden"));
             assertEquals(0, page.locator("#xwbOrderRows .xw-mini-button").count());
             assertTrue(page.locator("#xwbScopeText").textContent().contains("本中心"));

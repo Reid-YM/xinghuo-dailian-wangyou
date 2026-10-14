@@ -45,6 +45,17 @@ class XingweiBusinessScopeContractTest {
                 "V2D must not tighten legacy /api/admin business endpoints yet");
     }
 
+    @Test
+    void exceptionQueueFiltersBeforeLimitAndRequiresOrderView() throws Exception {
+        String controller = read("java/com/xinghuo/controller/XingweiBusinessScopeController.java");
+        String service = read("java/com/xinghuo/service/XingweiBusinessScopeService.java");
+
+        assertTrue(controller.contains("@GetMapping(\"/orders/exceptions\")\n    @PreAuthorize(\"@xingweiPermissionGuard.has(authentication, 'order:view')\")"));
+        assertTrue(service.contains("exceptionsOnly ? \" AND o2.status = 'EXCEPTION'\" : \"\""));
+        assertTrue(service.contains("WHERE %s\n                ORDER BY o2.updated_at DESC\n                LIMIT %d"));
+        assertTrue(service.contains("ScopeClause scope = scopeClause(access)"));
+    }
+
     private static String read(String relative) throws Exception {
         return Files.readString(ROOT.resolve(relative));
     }

@@ -271,3 +271,10 @@
 .account-payment h3{margin:0 0 8px;font-size:16px}
 .account-payment p{margin:8px 0;color:var(--nx-muted);line-height:1.6}
 .account-payment-qr{display:block;max-width:100%;height:auto;margin:12px 0;background:#fff;border:8px solid #fff;border-radius:8px}
+.account-after-sales{display:grid;gap:10px;margin:18px 0;padding:18px 0;border-top:1px solid var(--nx-line-soft)}
+.account-after-sales h3{margin:0;font-size:16px}
+.account-after-sales p{margin:0;color:var(--nx-muted);line-height:1.6}
+.account-after-sales select,.account-after-sales textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--nx-line-soft);border-radius:8px;background:var(--nx-panel,#111b2b);color:inherit;font:inherit}
+.account-after-sales textarea{resize:vertical;min-height:100px}
+.account-after-sales button{justify-self:start}
+.account-after-sales .account-after-sales-message{min-height:1.5em}

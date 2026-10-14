@@ -113,15 +113,48 @@ public class ConsoleApiController {
                                       @Valid @RequestBody SupplementRequest body,
                                       HttpServletRequest request) {
         Account account = AccountAuthInterceptor.requireAccount(request);
-        findOrder(account, businessNo);
+        OrderItem order = findOrder(account, businessNo);
+        String note = appendBlock(body.content());
         int updated = jdbc.update("""
                 UPDATE customer_orders
                    SET customer_note = CONCAT(COALESCE(customer_note, ''), ?), version = version + 1, updated_at = CURRENT_TIMESTAMP(6)
                  WHERE customer_account_id = ? AND (business_no = ? OR order_no = ?)
-                """, appendBlock(body.content()), account.getId(), businessNo, businessNo);
-        if (updated == 0) throw AccountException.notFound("ORDER_NOT_FOUND", "订单不存在或不属于当前账号");
+                   AND CHAR_LENGTH(COALESCE(customer_note, '')) + CHAR_LENGTH(?) <= 500
+                """, note, account.getId(), order.businessNo(), order.orderNo(), note);
+        if (updated == 0) {
+            throw AccountException.conflict("ORDER_NOTE_FULL", "订单说明已满，请凭业务编号联系客服处理");
+        }
         audit.record(account.getId(), "CONSOLE_ORDER_SUPPLEMENT", "businessNo=" + businessNo, request);
         return OkResponse.of("订单补充说明已提交");
+    }
+
+    @PostMapping("/orders/{businessNo}/after-sales")
+    @RequireAccount
+    @Transactional
+    public OkResponse submitAfterSales(@PathVariable String businessNo,
+                                       @Valid @RequestBody AfterSalesRequest body,
+                                       HttpServletRequest request) {
+        Account account = AccountAuthInterceptor.requireAccount(request);
+        OrderItem order = findOrder(account, businessNo);
+        String category = afterSalesCategory(body.category());
+        String content = body.content().trim();
+        if (content.isEmpty()) {
+            throw AccountException.badRequest("AFTER_SALES_CONTENT_REQUIRED", "请填写问题说明");
+        }
+        String note = "\n\n[售后问题 · " + category + " · " + Instant.now() + "]\n" + content;
+        int updated = jdbc.update("""
+                UPDATE customer_orders
+                   SET customer_note = CONCAT(COALESCE(customer_note, ''), ?),
+                       version = version + 1, updated_at = CURRENT_TIMESTAMP(6)
+                 WHERE customer_account_id = ? AND (business_no = ? OR order_no = ?)
+                   AND CHAR_LENGTH(COALESCE(customer_note, '')) + CHAR_LENGTH(?) <= 500
+                """, note, account.getId(), order.businessNo(), order.orderNo(), note);
+        if (updated == 0) {
+            throw AccountException.conflict("AFTER_SALES_NOTE_FULL", "订单说明已满，请凭业务编号联系客服处理");
+        }
+        audit.record(account.getId(), "CONSOLE_AFTER_SALES_SUBMIT",
+                "businessNo=" + order.businessNo() + ",category=" + body.category(), request);
+        return OkResponse.of("问题说明已提交，请等待客服核对");
     }
 
     @GetMapping("/security/logins")
@@ -251,7 +284,18 @@ public class ConsoleApiController {
         };
     }
 
+    private static String afterSalesCategory(String category) {
+        return switch (category == null ? "" : category) {
+            case "DELIVERY" -> "交付或进度";
+            case "CANCELLATION" -> "取消服务";
+            case "REFUND_REVIEW" -> "退款核对";
+            case "OTHER" -> "其他问题";
+            default -> throw AccountException.badRequest("AFTER_SALES_CATEGORY_INVALID", "请选择问题类型");
+        };
+    }
+
     public record SupplementRequest(@NotBlank @Size(max = 1200) String content) {}
+    public record AfterSalesRequest(@NotBlank String category, @NotBlank @Size(max = 240) String content) {}
     public record OkResponse(boolean ok, String message) { static OkResponse of(String message) { return new OkResponse(true, message); } }
     public record SummaryResponse(long quoteTotal, long orderTotal, long activeOrders, long securityEvents,
                                   List<QuoteItem> recentQuotes, List<OrderItem> recentOrders,

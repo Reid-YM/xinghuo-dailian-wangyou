@@ -13,3 +13,4 @@ V67__wechat_payment_public_copy.sql 82a03aa7cae661b0ffaba7907d3d7add9001bff4 202
 V68__xingwei_wecom_user_binding.sql 892b44827338a3c512b1b9a87beab17526761cb7 2026-10-14:additive-nullable-unique-wecom-user-binding-reviewed
 V69__xingwei_wecom_auto_role_tracking.sql b2faeff041b1f6fb14863da061e725f021f07e50 2026-10-14:additive-wecom-auto-role-tracking-reviewed
 V70__customer_order_after_sales_records.sql 20dd7b16b37cac737129abbc92704fec8836a7fc 2026-10-14:additive-customer-after-sales-ledger-reviewed
+V71__customer_order_after_sales_case_state.sql 1cc9235f8158a26c1725e8b41a96d811bc196e14 2026-10-14:additive-after-sales-case-state-reviewed

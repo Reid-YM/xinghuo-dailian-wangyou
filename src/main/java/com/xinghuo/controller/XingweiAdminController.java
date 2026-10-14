@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3t";
-    static final String CONSOLE_STAGE = "V3T · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261014-v3t";
+    static final String CONSOLE_VERSION = "20261014-v3u";
+    static final String CONSOLE_STAGE = "V3U · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261014-v3u";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3U", "待发布",
+                    "售后问题记录按类型筛选",
+                    "新版业务工作台按客户提交时的交付或进度、取消服务、退款核对、其他问题四类筛选售后记录；类型与关键词、order:view 和 ALL / DEPARTMENT / SELF 数据范围一起进入数据库计数与分页。功能 PR #418 已通过 Java/Maven 与 Chromium/WebKit 检查；等待统一版本与生产门禁。此筛选不是工单处理状态，不触发退款或收款，V3H 小程序支付与企业微信写入继续独立验收。"),
             new ReleaseItem("2026-10-14", "V3T", "已上线",
                     "售后问题记录全范围检索与分页",
                     "新版业务工作台在 order:view 和 ALL / DEPARTMENT / SELF 数据范围内，按业务编号、订单号或客户说明检索售后问题记录；数据库先过滤并计数，再按更新时间分页，每页 50 条。客户说明仍作为纯文本展示。功能 PR #415、统一版本 PR #416 与生产门禁已完成。订单、退款、支付和企业微信写入行为不变。"),

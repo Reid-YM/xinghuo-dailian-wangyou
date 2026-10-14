@@ -9,6 +9,7 @@
   const tabs = Array.from(document.querySelectorAll('[data-tab]'));
   const quotePanel = document.getElementById('xwbQuotesPanel');
   const orderPanel = document.getElementById('xwbOrdersPanel');
+  const orderHeading = document.getElementById('xwbOrderHeading');
   const noAccess = document.getElementById('xwbNoAccess');
   const quoteRows = document.getElementById('xwbQuoteRows');
   const orderRows = document.getElementById('xwbOrderRows');
@@ -233,7 +234,9 @@
       tr.appendChild(progressCell);
 
       const noteCell = document.createElement('td');
-      appendText(noteCell, 'span', item.internalNote || item.customerNote || '—', item.internalNote || item.customerNote ? 'xwb-secondary' : 'xw-muted-label');
+      if (item.customerNote) appendText(noteCell, 'span', `客户说明：${item.customerNote}`, 'xwb-secondary');
+      if (item.internalNote) appendText(noteCell, 'small', `内部备注：${item.internalNote}`, 'xwb-secondary');
+      if (!item.customerNote && !item.internalNote) appendText(noteCell, 'span', '—', 'xw-muted-label');
       tr.appendChild(noteCell);
 
       tr.appendChild(ownershipCell(item.ownership));
@@ -245,7 +248,7 @@
 
   function applySearch() {
     const query = normalize(search?.value);
-    const tbody = activeTab === 'orders' ? orderRows : quoteRows;
+    const tbody = activeTab === 'quotes' ? quoteRows : orderRows;
     if (!tbody) return;
     let count = 0;
     tbody.querySelectorAll('tr[data-search]').forEach((row) => {
@@ -265,23 +268,26 @@
 
   function updatePanels() {
     quotePanel.hidden = activeTab !== 'quotes';
-    orderPanel.hidden = activeTab !== 'orders';
+    orderPanel.hidden = activeTab === 'quotes';
+    if (orderHeading) orderHeading.textContent = activeTab === 'exceptions' ? '异常订单' : '订单与履约';
     tabs.forEach((button) => button.setAttribute('aria-selected', String(button.dataset.tab === activeTab)));
   }
 
   async function loadTab(tab, force = false) {
     if (tab === 'quotes' && !can('quote:view')) return;
-    if (tab === 'orders' && !can('order:view')) return;
+    if (tab !== 'quotes' && !can('order:view')) return;
     activeTab = tab;
     updatePanels();
-    setMessage(`正在读取${tab === 'quotes' ? '询价' : '订单'}数据……`);
+    const label = tab === 'quotes' ? '询价' : tab === 'exceptions' ? '异常订单' : '订单';
+    setMessage(`正在读取${label}数据……`);
     try {
-      const snapshot = await fetchJson(`/api/admin/xingwei/business/${tab}`);
+      const endpoint = tab === 'exceptions' ? 'orders/exceptions' : tab;
+      const snapshot = await fetchJson(`/api/admin/xingwei/business/${endpoint}`);
       currentSnapshot = snapshot;
       if (tab === 'quotes') renderQuotes(snapshot.items || []);
       else renderOrders(snapshot.items || []);
       updateKpis(snapshot);
-      setMessage(`已按 ${scopeLabel(snapshot)} 加载 ${snapshot.visibleCount ?? 0} 条${tab === 'quotes' ? '询价' : '订单'}记录。`, 'ok');
+      setMessage(`已按 ${scopeLabel(snapshot)} 加载 ${snapshot.visibleCount ?? 0} 条${label}记录。`, 'ok');
       if (force) candidates = null;
     } catch (error) {
       currentSnapshot = null;
@@ -384,6 +390,7 @@
 
   function selectInitialTab() {
     const requested = new URLSearchParams(location.search).get('tab');
+    if (requested === 'exceptions' && can('order:view')) return 'exceptions';
     if (requested === 'orders' && can('order:view')) return 'orders';
     if (requested === 'quotes' && can('quote:view')) return 'quotes';
     if (can('quote:view')) return 'quotes';
@@ -399,6 +406,7 @@
       scopeText.textContent = `${modeLabel(access)} · 权限点 ${(access.permissionCodes || []).length}`;
       tabs.find((button) => button.dataset.tab === 'quotes').hidden = !can('quote:view');
       tabs.find((button) => button.dataset.tab === 'orders').hidden = !can('order:view');
+      tabs.find((button) => button.dataset.tab === 'exceptions').hidden = !can('order:view');
       activeTab = selectInitialTab();
       if (!activeTab) {
         noAccess.hidden = false;

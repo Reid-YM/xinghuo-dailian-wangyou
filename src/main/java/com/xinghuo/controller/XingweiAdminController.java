@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3q";
-    static final String CONSOLE_STAGE = "V3Q · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261013-v2e";
+    static final String CONSOLE_VERSION = "20261014-v3r";
+    static final String CONSOLE_STAGE = "V3R · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261014-v3r";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3R", "待发布",
+                    "新版后台异常订单独立队列",
+                    "业务工作台增加异常订单入口。后端先按 order:view、ALL / DEPARTMENT / SELF 数据范围和 EXCEPTION 状态筛选，再按更新时间返回最近记录；旧异常单不会被普通订单列表的数量上限挤出。只读查看与既有受控归属操作沿用原接口，未新增支付、退款或企业微信写入能力。"),
             new ReleaseItem("2026-10-14", "V3Q", "已上线",
                     "微信支付后台操作权限收口",
                     "网站 Native 支付单读取要求 payment:view；客服确认金额后建单与关闭待支付单要求 payment:manage。旧版 ADMIN 保留全权，普通 OPERATOR 默认只读，明确授予支付管理权限的角色才可写入。真实收款开关保持关闭，小程序支付仍独立验收。"),

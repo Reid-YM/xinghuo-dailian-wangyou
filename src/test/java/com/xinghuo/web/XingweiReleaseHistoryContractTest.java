@@ -79,6 +79,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(dashboard.contains("<strong>V3T</strong>"));
         assertTrue(dashboard.contains("<strong>V3U</strong>"));
         assertTrue(dashboard.contains("<strong>V3V</strong>"));
+        assertTrue(dashboard.contains("<strong>V3W</strong>"));
         assertTrue(dashboard.contains("<strong>V3X</strong>"));
         assertTrue(dashboard.contains("客户订单售后说明回显"));
         assertTrue(dashboard.contains("服务大厅支持读取失败重试"));

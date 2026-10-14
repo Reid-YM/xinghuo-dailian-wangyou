@@ -6,4 +6,4 @@
 
 V73 只新增表和索引，旧版本不会查询该表，符合候选/金丝雀与 8080 并行期间的兼容要求。迁移内容已与审核清单中的精确 Git blob hash 绑定。回滚应用 JAR 不会移除 V73 表；表内补充数据应保留。无需新增生产配置，不涉及退款、真实收款或企业微信写入。V3H 小程序支付 PR #384 和企业微信写入 PR #372 继续单独验收。
 
-发布路径：功能 PR 与主线 Java/Maven、Chromium/WebKit CI → `deploy/production` 上 `.deploy-request` 精确主线 SHA → 18080、8081、8080 及发布后核验。生产通过后，再将后台阶段和 Release History 从候选同步为已上线。
+发布验收：功能 PR #453 和主线 CI #38619183414 均通过 Java/Maven、Chromium/WebKit；受控请求 `f050d9d` 将主线 `d1d5174b890e9dca3208630ece6d36794333a160` 发布到生产。Deploy Production #38619657576 通过 V73 精确哈希审核、18080 候选、8081 金丝雀、8080 正式入口及发布后核验。正式 JAR SHA256 为 `42b77e767802c4d0efa8001cf2182f6fc585dc886c8fe4f37fd4518c00683713`。此状态 PR 将后台阶段与 Release History 同步为已上线，仍须通过主线 CI 和同一发布门禁。

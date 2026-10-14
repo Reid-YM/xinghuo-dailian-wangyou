@@ -137,11 +137,19 @@ public class XingweiAfterSalesCaseService {
                 SELECT COUNT(*) AS total_count,
                        COALESCE(SUM(CASE WHEN f.latest_followup_id >
                            COALESCE(s.handled_through_followup_id, 0) THEN 1 ELSE 0 END), 0)
-                           AS pending_followup_count
+                           AS pending_followup_count,
+                       COALESCE(SUM(CASE WHEN COALESCE(s.status, 'OPEN') = 'OPEN' THEN 1 ELSE 0 END), 0)
+                           AS open_count,
+                       COALESCE(SUM(CASE WHEN s.status = 'IN_PROGRESS' THEN 1 ELSE 0 END), 0)
+                           AS in_progress_count,
+                       COALESCE(SUM(CASE WHEN s.status = 'RESOLVED' THEN 1 ELSE 0 END), 0)
+                           AS resolved_count
                 %s
                 """.formatted(queueFrom(scopeSql(access))),
                 (rs, rowNum) -> new CaseSummary(rs.getLong("total_count"),
-                        rs.getLong("pending_followup_count")), scopeArgs(access).toArray());
+                        rs.getLong("pending_followup_count"), rs.getLong("open_count"),
+                        rs.getLong("in_progress_count"), rs.getLong("resolved_count")),
+                scopeArgs(access).toArray());
     }
 
     private List<Object> scopeArgs(XingweiPermissionGuard.AccessSnapshot access) {
@@ -354,5 +362,6 @@ public class XingweiAfterSalesCaseService {
     public record QueueSnapshot(List<QueueItem> items, long totalCount, int page, int pageSize,
             String status, String category, String followup, String query, boolean hasNext) {}
 
-    public record CaseSummary(long totalCount, long pendingFollowupCount) {}
+    public record CaseSummary(long totalCount, long pendingFollowupCount,
+                              long openCount, long inProgressCount, long resolvedCount) {}
 }

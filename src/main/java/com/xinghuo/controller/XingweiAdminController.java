@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261015-v4c";
-    static final String CONSOLE_STAGE = "V4C · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261015-v4c";
+    static final String CONSOLE_VERSION = "20261015-v4d";
+    static final String CONSOLE_STAGE = "V4D · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261015-v4d";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-15", "V4D", "待发布",
+                    "售后连续回复与客户回复历史",
+                    "客服可在处理中或已解决状态追加明确的客户回复，无须切换状态；仍要求内部处理说明与预期版本号，写入 V72 事件并审计。客户订单详情在归属校验后按时间展示全部公开回复，保留最新回复字段兼容旧页面，内部说明和处理人不进入客户响应。无新数据库迁移，不触发退款、真实收款或企业微信写入。"),
             new ReleaseItem("2026-10-15", "V4C", "已上线",
                     "售后处理闭环与客户可见回复",
                     "售后状态变更写入独立事件历史，员工按原有权限查看并填写可选客户回复；客户订单详情仅展示状态和明确回复，不暴露内部处理说明。统一售后工作台提供筛选、历史和受控处理。V72 增量迁移已通过内容校验，PR #449、主线双 CI、18080/8081/8080 生产门禁与发布后核验已完成；退款、真实收款和企业微信写入继续保持独立。"),

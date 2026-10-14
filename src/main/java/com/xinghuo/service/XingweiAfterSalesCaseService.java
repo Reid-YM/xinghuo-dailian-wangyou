@@ -159,8 +159,8 @@ public class XingweiAfterSalesCaseService {
         if (before.version() != expectedVersion) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "售后记录已由其他人更新，请刷新后重试");
         }
-        if (next.equals(before.status())) {
-            throw new IllegalArgumentException("处理状态未发生变化");
+        if (next.equals(before.status()) && reply == null) {
+            throw new IllegalArgumentException("状态不变时须填写客户回复");
         }
         if (before.version() == 0) {
             try {

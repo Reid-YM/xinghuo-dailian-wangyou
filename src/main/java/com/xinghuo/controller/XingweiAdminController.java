@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3n";
-    static final String CONSOLE_STAGE = "V3N · STABLE PRODUCTION";
+    static final String CONSOLE_VERSION = "20261014-v3o";
+    static final String CONSOLE_STAGE = "V3O · RELEASE CANDIDATE";
     static final String BUSINESS_VERSION = "20261013-v2e";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,6 +29,9 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3O", "待发布",
+                    "企业微信与微信支付集成配置工作台",
+                    "新版后台增加受权限保护的服务器配置检查，逐项显示企业微信读取与微信 Native 支付的配置状态，不返回密钥、证书内容或路径。员工写入 PR #372 和小程序支付 PR #384 仍独立待验收；本阶段不启用真实收款、不发布小程序。"),
             new ReleaseItem("2026-10-14", "V3N", "已上线",
                     "Frontend Next 与后台韧性统一交付",
                     "整合 Frontend Next A1–A4 的公共壳层、首页、服务、询价/记录、登录与个人中心，以及 V3M 后台运行时韧性；接收星火迷彩追踪器 1.0.13 源码并补全网站二维码扫码入口。前后端总联调已覆盖公开与后台边界、响应式、SEO 和版本漂移，并通过 PR、主线 CI 与 18080/8081/8080 零停机门禁上线。预览版真机扫码与原网页登录主链路已验证；小程序正式版发布、异常与跨设备边界仍待单独验收。V3H 真实收款与 PR #372 企业微信写入不在本版范围。"),

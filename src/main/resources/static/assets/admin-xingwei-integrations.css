@@ -1,0 +1,11 @@
+:root{color-scheme:dark}
+body{margin:0;background:#0b0d10;color:#e9edf1;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.xwi-shell{max-width:1120px;margin:0 auto;padding:32px 22px 72px}
+.xwi-top,.xwi-heading,.xwi-actions{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.xwi-top h1{font-size:clamp(26px,4vw,40px);margin:8px 0 0}.xwi-intro{max-width:880px;color:#aeb8c2;line-height:1.8;margin:22px 0 30px}
+.xwi-card{border:1px solid rgba(255,255,255,.13);border-radius:22px;padding:26px;margin:22px 0;background:linear-gradient(145deg,#1b2027,#111418)}
+.xwi-heading h2{font-size:25px;margin:6px 0}.xwi-card>p{color:#aeb8c2;line-height:1.7;max-width:850px}.xwi-badge{border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:8px 12px;font-size:12px}
+.xwi-badge.ready,.xwi-checks b.ready{color:#a7eac5;border-color:rgba(105,213,156,.45)}.xwi-badge.pending,.xwi-checks b.pending{color:#f5d487;border-color:rgba(245,212,135,.4)}
+.xwi-checks{list-style:none;margin:24px 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.xwi-checks li{border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}.xwi-checks strong,.xwi-checks small{display:block}.xwi-checks strong{font-size:13px}.xwi-checks small{color:#87929d;font-size:11px;margin-top:5px;overflow-wrap:anywhere}.xwi-checks b{font-size:11px;border:1px solid;border-radius:999px;padding:5px 8px;white-space:nowrap}
+.xwi-note{display:flex;gap:12px;padding:13px 0;border-top:1px solid rgba(255,255,255,.1);font-size:12px;line-height:1.6}.xwi-note strong{min-width:82px}.xwi-note span{color:#b7c1cb}.xwi-actions{justify-content:flex-start;margin-top:22px}.xwi-footer{margin-top:28px;color:#87929d;font-size:11px;line-height:1.6}
+@media(max-width:700px){.xwi-shell{padding:20px 15px 50px}.xwi-card{padding:19px}.xwi-checks{grid-template-columns:1fr}.xwi-top{align-items:flex-start}.xwi-note{display:block}.xwi-note strong{display:block;margin-bottom:3px}}

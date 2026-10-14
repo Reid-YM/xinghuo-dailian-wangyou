@@ -34,8 +34,8 @@ class XingweiRuntimeResiliencePlaywrightTest {
                           const first = healthCalls === 1;
                           return {ok:true, json:async () => ({
                             ok:true,
-                            version:first ? '20261015-v4f' : '20261014-v3l',
-                            stage:first ? 'V4F · STABLE PRODUCTION' : 'V3L · STABLE PRODUCTION',
+                            version:first ? '20261015-v4g' : '20261014-v3l',
+                            stage:first ? 'V4G · RELEASE CANDIDATE' : 'V3L · STABLE PRODUCTION',
                             serverTime:'2026-10-14T06:00:00+08:00'
                           })};
                         }
@@ -51,7 +51,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
             page.waitForFunction("() => window.xwRuntimeHealth?.state === 'mismatch'");
             assertEquals("online", page.evaluate("() => window.xwRuntimeHealth.reason"));
             assertTrue(page.locator("#xwBackendStatus").textContent().contains("版本漂移"));
-            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261015-v4f"));
+            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261015-v4g"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("运行 20261014-v3l"));
         }
     }
@@ -69,7 +69,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
                         }
                         if (String(url) === '/api/admin/xingwei/health') {
                           return {ok:true, json:async () => ({
-                            ok:true, version:'20261015-v4f', stage:'V4F · STABLE PRODUCTION',
+                            ok:true, version:'20261015-v4g', stage:'V4G · RELEASE CANDIDATE',
                             serverTime:'2026-10-14T06:00:00+08:00'
                           })};
                         }
@@ -89,7 +89,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
                 <body>
                   <main class="xw-main">
                     <header><div class="xw-topbar-actions"><span class="xw-status" id="xwBackendStatus"><i></i>正在检查服务</span></div></header>
-                    <section id="overview"><p class="xw-kicker">V4F · STABLE PRODUCTION</p><div class="xw-version-card"><strong>20261015-v4f</strong><small id="xwServerTime">等待</small></div></section>
+                    <section id="overview"><p class="xw-kicker">V4G · RELEASE CANDIDATE</p><div class="xw-version-card"><strong>20261015-v4g</strong><small id="xwServerTime">等待</small></div></section>
                     <input id="xwModuleSearch"/>
                     <span id="xwSearchCount"></span>
                     <article class="xw-module"><div class="xw-module-index">B02</div>订单</article>

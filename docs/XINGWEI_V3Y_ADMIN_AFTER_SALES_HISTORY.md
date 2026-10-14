@@ -1,6 +1,6 @@
 # V3Y 后台售后记录接口
 
-状态：后端 PR #437 已通过 Java/Maven 与 Chromium/WebKit CI 并合入 `main`；V3Y 统一版本作为待发布候选，须经主线 CI 与生产门禁后才标记已上线。
+状态：后端 PR #437 与版本 PR #438 已通过 Java/Maven、Chromium/WebKit CI 并合入 `main`；主线 CI #38578260053 双绿。发布请求 `045971f` 经 `deploy/production` 的 `.deploy-request` 门禁，将主线 `7239e0f` 发布到生产；18080 候选、8081 金丝雀、8080 正式入口与发布后核验全部通过（Deploy Production #38578842092）。本状态 PR 将 V3Y 标记为已上线。
 
 `GET /api/admin/xingwei/business/orders/after-sales` 保留原有权限、数据范围、搜索、分类和分页逻辑。每个可见订单现在增加 `afterSalesRecords` 数组，记录包含 `category`（中文问题类型）、`submittedAt`（ISO 时间）和 `content`（纯文本说明）。原有 `customerNote` 等字段继续返回，未发现规范售后记录时数组为空。
 

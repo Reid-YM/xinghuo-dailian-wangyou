@@ -39,6 +39,12 @@ public class XingweiBusinessScopeController {
         return business.orderSnapshot(authentication);
     }
 
+    @GetMapping("/orders/exceptions")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'order:view')")
+    public Map<String, Object> exceptionOrders(Authentication authentication) {
+        return business.exceptionOrderSnapshot(authentication);
+    }
+
     @GetMapping("/ownership-candidates")
     @PreAuthorize("@xingweiPermissionGuard.hasAny(authentication, 'quote:manage', 'order:assign')")
     public List<Map<String, Object>> ownershipCandidates(Authentication authentication) {

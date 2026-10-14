@@ -10,8 +10,8 @@
   <title>业务工作台 · 星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261013v2e"/>
-  <script defer src="/assets/admin-xingwei-business.js?v=20261013v2e"></script>
+  <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261014v3r"/>
+  <script defer src="/assets/admin-xingwei-business.js?v=20261014v3r"></script>
 </head>
 <body>
 <main class="xwb-shell">
@@ -37,7 +37,7 @@
     </div>
     <div class="xwb-scope-card">
       <span>当前工作台版本</span>
-      <strong th:text="${businessVersion}">20261013-v2e</strong>
+      <strong th:text="${businessVersion}">20261014-v3r</strong>
       <small id="xwbScopeText">等待权限快照</small>
     </div>
   </section>
@@ -46,6 +46,7 @@
     <div class="xwb-tabs" role="tablist" aria-label="业务类型">
       <button type="button" class="xwb-tab" data-tab="quotes" role="tab" aria-selected="false">询价与线索</button>
       <button type="button" class="xwb-tab" data-tab="orders" role="tab" aria-selected="false">订单与履约</button>
+      <button type="button" class="xwb-tab" data-tab="exceptions" role="tab" aria-selected="false">异常订单</button>
     </div>
     <label class="xwb-search">筛选当前列表
       <input id="xwbSearch" type="search" placeholder="业务编号、游戏、需求、客户联系方式、负责人……" autocomplete="off"/>
@@ -76,7 +77,7 @@
 
   <section class="xw-data-panel xwb-panel" id="xwbOrdersPanel" hidden>
     <div class="xw-data-head">
-      <div><h3>订单与履约</h3><p>询价转订单后沿用同一个 business_no，因此负责人和中心归属自动继承。</p></div>
+      <div><h3 id="xwbOrderHeading">订单与履约</h3><p>询价转订单后沿用同一个 business_no，因此负责人和中心归属自动继承。异常订单由后端按状态和数据范围独立筛选。</p></div>
       <span class="xw-pill" id="xwbOrderPermission">order:view</span>
     </div>
     <div class="xw-table-wrap xw-table-tall">

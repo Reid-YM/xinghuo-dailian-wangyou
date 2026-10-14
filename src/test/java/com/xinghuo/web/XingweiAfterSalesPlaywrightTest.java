@@ -93,7 +93,7 @@ class XingweiAfterSalesPlaywrightTest {
             assertEquals("—", page.locator("#caseOpenCount").textContent());
             page.locator("#caseFilters select[name=status]").selectOption("OPEN");
             page.locator("#caseFilters button[type=submit]").click();
-            page.waitForFunction("() => window.__queueUrls.length===2");
+            page.waitForFunction("() => window.__queueUrls.length===2 && document.querySelector('#caseMessage').textContent.includes('已读取')");
             assertTrue(page.url().contains("status=OPEN"));
             assertTrue(page.locator("#caseMessage").textContent().contains("已读取"));
         }

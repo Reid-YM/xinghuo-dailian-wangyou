@@ -15,7 +15,7 @@ class XingweiWeComPositionRoleServiceTest {
         JdbcTemplate jdbc = database();
         var service = new XingweiWeComPositionRoleService(jdbc);
 
-        assertTrue(service.sync(1, "售前客服"));
+        assertTrue(service.sync(1, "在线客服"));
         assertEquals(3L, jdbc.queryForObject(
                 "SELECT role_id FROM xw_admin_roles WHERE admin_user_id = 1", Long.class));
         assertEquals(3L, jdbc.queryForObject(
@@ -34,12 +34,13 @@ class XingweiWeComPositionRoleServiceTest {
 
         jdbc.update("INSERT INTO xw_admin_roles VALUES (1, 7, TRUE, CURRENT_TIMESTAMP)");
         assertFalse(service.needsRefresh(1));
-        assertFalse(service.sync(1, "售前客服"));
+        assertFalse(service.sync(1, "在线客服"));
         assertEquals(7L, jdbc.queryForObject(
                 "SELECT role_id FROM xw_admin_roles WHERE admin_user_id = 1", Long.class));
         jdbc.update("DELETE FROM xw_admin_roles WHERE admin_user_id = 1");
         assertFalse(service.sync(1, "工作室负责人"));
         assertFalse(service.sync(1, "异常订单处理专员"));
+        assertFalse(service.sync(1, "服务器运维工程师"));
         assertEquals(0L, jdbc.queryForObject(
                 "SELECT COUNT(*) FROM xw_admin_roles WHERE admin_user_id = 1", Long.class));
     }
@@ -54,9 +55,9 @@ class XingweiWeComPositionRoleServiceTest {
         jdbc.execute("CREATE TABLE xw_admin_profiles (admin_user_id BIGINT PRIMARY KEY, department_id BIGINT, position_id BIGINT, status VARCHAR(24), updated_at TIMESTAMP)");
         jdbc.execute("CREATE TABLE xw_admin_roles (admin_user_id BIGINT, role_id BIGINT, is_primary BOOLEAN, created_at TIMESTAMP)");
         jdbc.execute("CREATE TABLE xw_wecom_auto_roles (admin_user_id BIGINT PRIMARY KEY, position_id BIGINT, role_id BIGINT, wecom_position VARCHAR(80), updated_at TIMESTAMP)");
-        jdbc.update("INSERT INTO xw_departments VALUES (1,'01',TRUE),(3,'03',TRUE),(4,'04',TRUE)");
-        jdbc.update("INSERT INTO xw_positions VALUES (1,1,'工作室负责人',TRUE,TRUE),(38,3,'售前客服',TRUE,TRUE),(40,3,'异常订单处理专员',TRUE,TRUE),(80,4,'异常订单处理专员',TRUE,TRUE)");
-        jdbc.update("INSERT INTO xw_rbac_roles VALUES (3,'XW_CUSTOMER_ORDER',TRUE,'DEPARTMENT'),(7,'XW_GENERAL_SUPPORT',TRUE,'DEPARTMENT')");
+        jdbc.update("INSERT INTO xw_departments VALUES (1,'01',TRUE),(3,'03',TRUE),(4,'04',TRUE),(5,'05',TRUE)");
+        jdbc.update("INSERT INTO xw_positions VALUES (1,1,'工作室负责人',TRUE,TRUE),(38,3,'在线客服',TRUE,TRUE),(40,3,'异常订单处理专员',TRUE,TRUE),(80,4,'异常订单处理专员',TRUE,TRUE),(100,5,'服务器运维工程师',TRUE,TRUE)");
+        jdbc.update("INSERT INTO xw_rbac_roles VALUES (3,'XW_CUSTOMER_ORDER',TRUE,'DEPARTMENT'),(5,'XW_TECH_PRODUCT',TRUE,'DEPARTMENT'),(7,'XW_GENERAL_SUPPORT',TRUE,'DEPARTMENT')");
         jdbc.update("INSERT INTO xw_admin_profiles VALUES (1,NULL,NULL,'ACTIVE',CURRENT_TIMESTAMP)");
         return jdbc;
     }

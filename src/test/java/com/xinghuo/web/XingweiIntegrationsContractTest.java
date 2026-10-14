@@ -23,10 +23,12 @@ class XingweiIntegrationsContractTest {
         assertTrue(controller.contains("@PreAuthorize(\"@xingweiPermissionGuard.hasAny(authentication, 'employee:view', 'payment:view')\")"));
         assertTrue(controller.contains("permissions.has(authentication, \"employee:view\")"));
         assertTrue(controller.contains("permissions.has(authentication, \"payment:view\")"));
+        assertTrue(controller.contains("paymentOverview.overview()"));
         assertTrue(template.contains("${weCom != null}"));
         assertTrue(template.contains("${payment != null}"));
         assertFalse(template.contains("weCom.appSecret"));
         assertFalse(template.contains("payment.apiV3Key"));
+        assertFalse(template.contains("nativeCodeUrl"));
     }
 
     @Test
@@ -46,6 +48,8 @@ class XingweiIntegrationsContractTest {
         context.setVariable("payment", new XingweiIntegrationConfigService.PaymentStatus(
                 List.of(new XingweiIntegrationConfigService.Check("WECHAT_PAY_MERCHANT_ID", "商户号", false)),
                 false, false, false));
+        context.setVariable("paymentOverview", new com.xinghuo.service.XingweiPaymentOverviewService.Overview(
+                new com.xinghuo.service.XingweiPaymentOverviewService.Counts(2, 1, 1, 0), List.of()));
 
         String html = engine.process("admin-xingwei-integrations", context);
         assertTrue(html.contains("读取配置齐全"));
@@ -53,9 +57,12 @@ class XingweiIntegrationsContractTest {
         assertTrue(html.contains("WECOM_CORP_ID"));
         assertTrue(html.contains("WECHAT_PAY_MERCHANT_ID"));
         assertTrue(html.contains("<h2>微信支付</h2>"));
+        assertTrue(html.contains("网站微信支付记录"));
+        assertTrue(html.contains("暂无网站微信支付记录"));
 
         context.setVariable("payment", null);
         String weComOnly = engine.process("admin-xingwei-integrations", context);
         assertFalse(weComOnly.contains("<h2>微信支付</h2>"));
+        assertFalse(weComOnly.contains("网站微信支付记录"));
     }
 }

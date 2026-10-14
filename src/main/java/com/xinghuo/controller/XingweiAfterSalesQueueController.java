@@ -28,10 +28,11 @@ public class XingweiAfterSalesQueueController {
     @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'order:view')")
     public QueueSnapshot queue(@RequestParam(required = false) String status,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) String followup,
             @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "0") int page,
             Authentication authentication) {
-        return cases.queue(status, category, q, page, authentication);
+        return cases.queue(status, category, followup, q, page, authentication);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261015-v4e";
-    static final String CONSOLE_STAGE = "V4E · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261015-v4e";
+    static final String CONSOLE_VERSION = "20261015-v4f";
+    static final String CONSOLE_STAGE = "V4F · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261015-v4f";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-15", "V4F", "待发布",
+                    "客户补充待跟进筛选与处理确认",
+                    "客服可按待跟进客户补充筛选售后队列，查看后在原有版本保护的处理动作中确认已看到的补充编号；处理期间新到的补充继续待跟进。V74 只为处理状态增加可兼容的游标列；查询保留 order:view 和 ALL / DEPARTMENT / SELF 数据范围，确认仍要求 order:manage。不会自动改售后或订单状态，也不触发退款、真实收款或企业微信写入。待 PR、主线 CI 与生产门禁验收。"),
             new ReleaseItem("2026-10-15", "V4E", "已上线",
                     "客户售后补充与员工跟进队列",
                     "客户可在归属校验后对原 V70 售后记录补充说明；补充内容写入 V73 独立表并显示于客户与后台历史。员工队列按最近客户补充时间排序，保持 order:view 及数据范围约束。补充不会自动重开已解决记录，也不会更改订单状态、触发退款、收款或企业微信写入。功能 PR #453、主线双 CI、V73 哈希审核、18080/8081/8080 生产门禁及发布后核验已完成。"),

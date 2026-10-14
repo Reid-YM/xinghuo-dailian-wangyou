@@ -35,7 +35,7 @@ class XingweiAfterSalesCaseServiceTest {
                 "jdbc:h2:mem:xw_cases_" + System.nanoTime() + ";MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", ""));
         jdbc.execute("CREATE TABLE customer_orders (order_no VARCHAR(40) PRIMARY KEY, business_no VARCHAR(20))");
         jdbc.execute("CREATE TABLE customer_order_after_sales_records (id BIGINT PRIMARY KEY, order_no VARCHAR(40), category VARCHAR(24), category_label VARCHAR(32), content VARCHAR(240), submitted_at_ms BIGINT)");
-        jdbc.execute("CREATE TABLE customer_order_after_sales_case_state (record_id BIGINT PRIMARY KEY, status VARCHAR(24), handling_note VARCHAR(600), handled_by_admin_user_id BIGINT, updated_at TIMESTAMP, version BIGINT)");
+        jdbc.execute("CREATE TABLE customer_order_after_sales_case_state (record_id BIGINT PRIMARY KEY, status VARCHAR(24), handling_note VARCHAR(600), handled_by_admin_user_id BIGINT, handled_through_followup_id BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMP, version BIGINT)");
         jdbc.execute("CREATE TABLE customer_order_after_sales_case_events (id BIGINT AUTO_INCREMENT PRIMARY KEY, record_id BIGINT, from_status VARCHAR(24), to_status VARCHAR(24), handling_note VARCHAR(600), customer_reply VARCHAR(600), handled_by_admin_user_id BIGINT, created_at TIMESTAMP)");
         jdbc.execute("CREATE TABLE customer_order_after_sales_case_followups (id BIGINT AUTO_INCREMENT PRIMARY KEY, record_id BIGINT, account_id BIGINT, content VARCHAR(240), created_at_ms BIGINT)");
         jdbc.execute("CREATE TABLE xw_business_ownership (business_no VARCHAR(20) PRIMARY KEY, owner_admin_user_id BIGINT, department_id BIGINT)");
@@ -184,5 +184,46 @@ class XingweiAfterSalesCaseServiceTest {
         var history = cases.history("XW1", 1, actor);
         assertEquals("原问题的新补充", history.customerFollowups().getFirst().content());
         assertThrows(AccessDeniedException.class, () -> cases.history("XW2", 2, actor));
+    }
+
+    @Test
+    void pendingFollowupRemainsUntilStaffHandlesTheSeenMessage() {
+        jdbc.update("INSERT INTO customer_order_after_sales_case_followups(record_id,account_id,content,created_at_ms) VALUES (1,11,'第一条补充',4000)");
+        long firstId = jdbc.queryForObject("SELECT MAX(id) FROM customer_order_after_sales_case_followups WHERE record_id = 1", Long.class);
+        assertEquals(1, cases.queue(null, null, "PENDING", null, 0, actor).totalCount());
+        assertTrue(cases.queue(null, null, "PENDING", null, 0, actor).items().getFirst().pendingCustomerFollowup());
+
+        jdbc.update("INSERT INTO customer_order_after_sales_case_followups(record_id,account_id,content,created_at_ms) VALUES (1,11,'处理期间的新补充',5000)");
+        assertEquals("IN_PROGRESS", cases.update("XW1", 1, "IN_PROGRESS", "已核对第一条",
+                "正在处理", firstId, 0, actor, null).status());
+        assertEquals(firstId, cases.history("XW1", 1, actor).handledThroughFollowupId());
+        assertEquals(1, cases.queue(null, null, "PENDING", null, 0, actor).totalCount());
+
+        long secondId = jdbc.queryForObject("SELECT MAX(id) FROM customer_order_after_sales_case_followups WHERE record_id = 1", Long.class);
+        assertThrows(ResponseStatusException.class, () -> cases.update("XW1", 1, "RESOLVED",
+                "过期操作", null, secondId, 0, actor, null));
+        assertEquals(firstId, cases.history("XW1", 1, actor).handledThroughFollowupId());
+        assertThrows(IllegalArgumentException.class, () -> cases.update("XW1", 1, "RESOLVED",
+                "伪造编号", null, secondId + 100, 1, actor, null));
+        assertEquals("RESOLVED", cases.update("XW1", 1, "RESOLVED", "已核对第二条",
+                "已完成", secondId, 1, actor, null).status());
+        assertEquals(0, cases.queue(null, null, "PENDING", null, 0, actor).totalCount());
+        assertEquals(secondId, cases.history("XW1", 1, actor).handledThroughFollowupId());
+    }
+
+    @Test
+    void pendingFilterRespectsScopeAndRejectsUnknownValue() {
+        jdbc.update("INSERT INTO customer_order_after_sales_case_followups(record_id,account_id,content,created_at_ms) VALUES (2,12,'其他部门补充',5000)");
+        assertEquals(0, cases.queue(null, null, "PENDING", null, 0, actor).totalCount());
+        assertThrows(IllegalArgumentException.class,
+                () -> cases.queue(null, null, "MAYBE", null, 0, actor));
+    }
+
+    @Test
+    void olderStaffClientDoesNotSilentlyAcknowledgeCustomerFollowup() {
+        jdbc.update("INSERT INTO customer_order_after_sales_case_followups(record_id,account_id,content,created_at_ms) VALUES (1,11,'待客服核对',4000)");
+        cases.update("XW1", 1, "IN_PROGRESS", "开始核对", "已经开始", 0, actor, null);
+        assertEquals(0, cases.history("XW1", 1, actor).handledThroughFollowupId());
+        assertEquals(1, cases.queue(null, null, "PENDING", null, 0, actor).totalCount());
     }
 }

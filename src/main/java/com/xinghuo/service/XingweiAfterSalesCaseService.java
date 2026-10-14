@@ -51,6 +51,12 @@ public class XingweiAfterSalesCaseService {
     @Transactional(readOnly = true)
     public QueueSnapshot queue(String status, String category, String query, int page,
             Authentication authentication) {
+        return queue(status, category, null, query, page, authentication);
+    }
+
+    @Transactional(readOnly = true)
+    public QueueSnapshot queue(String status, String category, String followup, String query, int page,
+            Authentication authentication) {
         if (!permissions.has(authentication, "order:view")) {
             throw new AccessDeniedException("缺少订单查看权限");
         }
@@ -63,6 +69,10 @@ public class XingweiAfterSalesCaseService {
         if (!normalizedCategory.isEmpty()
                 && !List.of("DELIVERY", "CANCELLATION", "REFUND_REVIEW", "OTHER").contains(normalizedCategory)) {
             throw new IllegalArgumentException("问题类型无效");
+        }
+        String normalizedFollowup = followup == null ? "" : followup.trim();
+        if (!normalizedFollowup.isEmpty() && !"PENDING".equals(normalizedFollowup)) {
+            throw new IllegalArgumentException("客户补充筛选无效");
         }
         String keyword = query == null ? "" : query.trim();
         if (keyword.length() > 80) throw new IllegalArgumentException("搜索内容不能超过 80 字");
@@ -82,6 +92,9 @@ public class XingweiAfterSalesCaseService {
             where.append(" AND r.category = ?");
             args.add(normalizedCategory);
         }
+        if ("PENDING".equals(normalizedFollowup)) {
+            where.append(" AND f.latest_followup_id > COALESCE(s.handled_through_followup_id, 0)");
+        }
         if (!keyword.isEmpty()) {
             where.append(" AND (LOCATE(?, COALESCE(o.business_no, o.order_no)) > 0")
                     .append(" OR LOCATE(?, o.order_no) > 0 OR LOCATE(?, r.content) > 0)");
@@ -97,7 +110,8 @@ public class XingweiAfterSalesCaseService {
                 LEFT JOIN xw_departments d ON d.id = own.department_id
                 LEFT JOIN customer_order_after_sales_case_state s ON s.record_id = r.id
                 LEFT JOIN (
-                    SELECT record_id, MAX(created_at_ms) AS latest_followup_at_ms
+                    SELECT record_id, MAX(created_at_ms) AS latest_followup_at_ms,
+                           MAX(id) AS latest_followup_id
                       FROM customer_order_after_sales_case_followups GROUP BY record_id
                 ) f ON f.record_id = r.id
                 WHERE %s
@@ -108,7 +122,8 @@ public class XingweiAfterSalesCaseService {
                        r.id, r.order_no, r.category, r.category_label, r.content,
                        r.submitted_at_ms, s.status, s.handling_note,
                        s.handled_by_admin_user_id, s.updated_at, s.version,
-                       f.latest_followup_at_ms
+                       f.latest_followup_at_ms, f.latest_followup_id,
+                       COALESCE(s.handled_through_followup_id, 0) AS handled_through_followup_id
                 %s
                 ORDER BY GREATEST(r.submitted_at_ms, COALESCE(f.latest_followup_at_ms, 0)) DESC, r.id DESC
                 LIMIT ? OFFSET ?
@@ -119,11 +134,12 @@ public class XingweiAfterSalesCaseService {
                 (rs, rowNum) -> {
                     Object latest = rs.getObject("latest_followup_at_ms");
                     return new QueueItem(rs.getString("business_no"), map(rs, rowNum),
-                            latest == null ? null : ((Number) latest).longValue());
+                            latest == null ? null : ((Number) latest).longValue(),
+                            rs.getLong("latest_followup_id") > rs.getLong("handled_through_followup_id"));
                 }, args.toArray());
         long count = total == null ? 0L : total;
         return new QueueSnapshot(items, count, page, QUEUE_PAGE_SIZE, normalizedStatus,
-                normalizedCategory, keyword,
+                normalizedCategory, normalizedFollowup, keyword,
                 page < MAX_QUEUE_PAGE && ((long) page + 1) * QUEUE_PAGE_SIZE < count);
     }
 
@@ -147,6 +163,14 @@ public class XingweiAfterSalesCaseService {
     @Transactional
     public CaseRecord update(String businessNo, long recordId, String status, String handlingNote,
             String customerReply, long expectedVersion, Authentication authentication, HttpServletRequest request) {
+        return update(businessNo, recordId, status, handlingNote, customerReply, null,
+                expectedVersion, authentication, request);
+    }
+
+    @Transactional
+    public CaseRecord update(String businessNo, long recordId, String status, String handlingNote,
+            String customerReply, Long acknowledgedFollowupId, long expectedVersion,
+            Authentication authentication, HttpServletRequest request) {
         String orderNo = orderNo(businessNo, authentication, "order:manage");
         Long actorId = permissions.resolve(authentication).adminUserId();
         if (actorId == null) throw new AccessDeniedException("当前账号没有员工身份");
@@ -168,6 +192,14 @@ public class XingweiAfterSalesCaseService {
         if (before.version() != expectedVersion) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "售后记录已由其他人更新，请刷新后重试");
         }
+        long acknowledged = acknowledgedFollowupId == null ? 0L : acknowledgedFollowupId;
+        Long matchingFollowups = acknowledged > 0 ? jdbc.queryForObject("""
+                SELECT COUNT(*) FROM customer_order_after_sales_case_followups
+                 WHERE record_id = ? AND id = ?
+                """, Long.class, recordId, acknowledged) : 0L;
+        if (acknowledged < 0 || (acknowledged > 0 && (matchingFollowups == null || matchingFollowups == 0))) {
+            throw new IllegalArgumentException("已查看的客户补充编号无效");
+        }
         if (next.equals(before.status()) && reply == null) {
             throw new IllegalArgumentException("状态不变时须填写客户回复");
         }
@@ -175,9 +207,10 @@ public class XingweiAfterSalesCaseService {
             try {
                 jdbc.update("""
                         INSERT INTO customer_order_after_sales_case_state
-                            (record_id, status, handling_note, handled_by_admin_user_id, updated_at, version)
-                        VALUES (?, ?, ?, ?, NOW(6), 1)
-                        """, recordId, next, note, actorId);
+                            (record_id, status, handling_note, handled_by_admin_user_id,
+                             handled_through_followup_id, updated_at, version)
+                        VALUES (?, ?, ?, ?, ?, NOW(6), 1)
+                        """, recordId, next, note, actorId, acknowledged);
             } catch (DuplicateKeyException ex) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "售后记录已由其他人更新，请刷新后重试", ex);
             }
@@ -185,9 +218,10 @@ public class XingweiAfterSalesCaseService {
             int updated = jdbc.update("""
                     UPDATE customer_order_after_sales_case_state
                        SET status = ?, handling_note = ?, handled_by_admin_user_id = ?,
+                           handled_through_followup_id = GREATEST(handled_through_followup_id, ?),
                            updated_at = NOW(6), version = version + 1
                      WHERE record_id = ? AND version = ?
-                    """, next, note, actorId, recordId, expectedVersion);
+                    """, next, note, actorId, acknowledged, recordId, expectedVersion);
             if (updated != 1) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "售后记录已由其他人更新，请刷新后重试");
             }
@@ -227,7 +261,12 @@ public class XingweiAfterSalesCaseService {
                  WHERE record_id = ? ORDER BY id
                 """, (rs, rowNum) -> new CustomerFollowup(rs.getLong("id"),
                         rs.getString("content"), java.time.Instant.ofEpochMilli(rs.getLong("created_at_ms"))), recordId);
-        return new CaseHistory(current, events, customerFollowups);
+        Long handledThrough = jdbc.queryForObject("""
+                SELECT COALESCE(MAX(handled_through_followup_id), 0)
+                  FROM customer_order_after_sales_case_state WHERE record_id = ?
+                """, Long.class, recordId);
+        return new CaseHistory(current, events, customerFollowups,
+                handledThrough == null ? 0L : handledThrough);
     }
 
     private String orderNo(String businessNo, Authentication authentication, String permission) {
@@ -280,10 +319,11 @@ public class XingweiAfterSalesCaseService {
     public record CustomerFollowup(long followupId, String content, java.time.Instant createdAt) {}
 
     public record CaseHistory(CaseRecord current, List<CaseEvent> events,
-                              List<CustomerFollowup> customerFollowups) {}
+                              List<CustomerFollowup> customerFollowups, long handledThroughFollowupId) {}
 
-    public record QueueItem(String businessNo, CaseRecord record, Long latestCustomerFollowupAtMs) {}
+    public record QueueItem(String businessNo, CaseRecord record, Long latestCustomerFollowupAtMs,
+                            boolean pendingCustomerFollowup) {}
 
     public record QueueSnapshot(List<QueueItem> items, long totalCount, int page, int pageSize,
-            String status, String category, String query, boolean hasNext) {}
+            String status, String category, String followup, String query, boolean hasNext) {}
 }

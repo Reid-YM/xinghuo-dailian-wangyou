@@ -197,13 +197,20 @@ class ConsoleAfterSalesTest {
         long recordId = jdbc.queryForObject("SELECT id FROM customer_order_after_sales_records", Long.class);
         jdbc.update("INSERT INTO customer_order_after_sales_case_state VALUES (?, 'IN_PROGRESS', '内部核对金额', 7, CURRENT_TIMESTAMP, 1)", recordId);
         jdbc.update("INSERT INTO customer_order_after_sales_case_events(record_id,from_status,to_status,handling_note,customer_reply,handled_by_admin_user_id,created_at) VALUES (?, 'OPEN', 'IN_PROGRESS', '内部核对金额', '正在核对进度', 7, CURRENT_TIMESTAMP)", recordId);
+        jdbc.update("INSERT INTO customer_order_after_sales_case_events(record_id,from_status,to_status,handling_note,customer_reply,handled_by_admin_user_id,created_at) VALUES (?, 'IN_PROGRESS', 'IN_PROGRESS', '内部继续联系', '已经联系负责人', 7, CURRENT_TIMESTAMP)", recordId);
+        jdbc.update("INSERT INTO customer_order_after_sales_case_events(record_id,from_status,to_status,handling_note,customer_reply,handled_by_admin_user_id,created_at) VALUES (?, 'IN_PROGRESS', 'IN_PROGRESS', '仅内部备注', NULL, 7, CURRENT_TIMESTAMP)", recordId);
 
         var detail = controller.order("XH-1", request);
         assertEquals(1, detail.afterSalesCases().size());
         assertEquals(recordId, detail.afterSalesCases().getFirst().recordId());
         assertEquals("IN_PROGRESS", detail.afterSalesCases().getFirst().status());
-        assertEquals("正在核对进度", detail.afterSalesCases().getFirst().customerReply());
+        assertEquals("已经联系负责人", detail.afterSalesCases().getFirst().customerReply());
+        assertEquals(2, detail.afterSalesCases().getFirst().replies().size());
+        assertEquals("正在核对进度", detail.afterSalesCases().getFirst().replies().getFirst().content());
+        assertEquals("已经联系负责人", detail.afterSalesCases().getFirst().replies().getLast().content());
         assertTrue(!detail.afterSalesCases().toString().contains("内部核对金额"));
+        assertTrue(!detail.afterSalesCases().toString().contains("内部继续联系"));
+        assertTrue(!detail.afterSalesCases().toString().contains("仅内部备注"));
 
         request.setAttribute(AccountAuthInterceptor.ATTR_ACCOUNT, Account.builder().id(2L).build());
         assertEquals("ORDER_NOT_FOUND", assertThrows(AccountException.class,

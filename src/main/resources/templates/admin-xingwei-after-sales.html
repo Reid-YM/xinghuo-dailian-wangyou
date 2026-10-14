@@ -10,14 +10,14 @@
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261014v3x"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-after-sales.css?v=20261015v4c"/>
-  <script defer src="/assets/admin-xingwei-after-sales.js?v=20261015v4c"></script>
+  <script defer src="/assets/admin-xingwei-after-sales.js?v=20261015v4d"></script>
 </head>
 <body>
 <main class="xwb-shell">
   <header class="xwb-topbar"><div><p class="xw-kicker">STARWEAVE · AFTER SALES</p><h1>售后处理</h1></div>
     <div class="xwb-top-actions"><a class="xw-button xw-button-ghost" href="/admin/xingwei/business?tab=after-sales">业务工作台</a><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回后台</a></div>
   </header>
-  <section class="xwb-hero"><div><p class="xw-kicker">V4C · STABLE PRODUCTION</p><h2>按记录处理客户售后问题</h2><p>只有明确填写的客户回复会显示给客户。内部处理说明和处理历史仅供有权限的员工查看；此处不发起退款。</p></div></section>
+  <section class="xwb-hero"><div><p class="xw-kicker">V4D · RELEASE CANDIDATE</p><h2>按记录处理客户售后问题</h2><p>只有明确填写的客户回复会显示给客户。内部处理说明和处理历史仅供有权限的员工查看；此处不发起退款。</p></div></section>
   <form id="caseFilters" class="xw-case-filters">
     <label>处理状态<select name="status"><option value="">全部</option><option value="OPEN">待处理</option><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select></label>
     <label>问题类型<select name="category"><option value="">全部</option><option value="DELIVERY">交付或进度</option><option value="CANCELLATION">取消服务</option><option value="REFUND_REVIEW">退款核对</option><option value="OTHER">其他问题</option></select></label>
@@ -28,7 +28,7 @@
   <section class="xw-data-panel xwb-panel" aria-label="售后处理队列"><div class="xw-table-wrap xw-table-tall"><table class="xw-table xwb-table"><thead><tr><th>业务编号</th><th>问题类型</th><th>客户说明</th><th>状态</th><th>提交时间</th><th>操作</th></tr></thead><tbody id="caseRows"></tbody></table></div></section>
   <div class="xw-case-pager"><button class="xw-button xw-button-ghost" id="casePrev" type="button">上一页</button><span id="casePage"></span><button class="xw-button xw-button-ghost" id="caseNext" type="button">下一页</button></div>
   <section id="caseDetail" class="xw-data-panel xwb-panel xw-case-detail" hidden><h2>处理详情</h2><div id="caseCurrent"></div><h3>处理历史</h3><div id="caseEvents"></div>
-    <form id="caseUpdate" hidden><label>推进状态<select name="status"><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select></label><label>内部处理说明<textarea name="handlingNote" minlength="1" maxlength="600" required></textarea></label><label>客户回复（可选，填写后客户可见）<textarea name="customerReply" maxlength="600"></textarea></label><button class="xw-button" type="submit">保存处理结果</button></form>
+    <form id="caseUpdate" hidden><label>处理状态<select name="status"><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select></label><label>内部处理说明<textarea name="handlingNote" minlength="1" maxlength="600" required></textarea></label><label>客户回复（可选，填写后客户可见；状态不变时必填）<textarea name="customerReply" maxlength="600"></textarea></label><button class="xw-button" type="submit">保存处理结果</button></form>
   </section>
 </main>
 </body>

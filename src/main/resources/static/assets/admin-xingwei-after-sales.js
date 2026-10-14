@@ -46,9 +46,17 @@
       const history=await api(`/api/admin/xingwei/business/orders/${encodeURIComponent(businessNo)}/after-sales/records/${encodeURIComponent(recordId)}/history`);
       const current=history.current;state.selected=current;
       field($('caseCurrent'),'业务编号',businessNo);field($('caseCurrent'),'问题类型',current.categoryLabel);field($('caseCurrent'),'客户说明',current.content);field($('caseCurrent'),'当前状态',labels[current.status]||current.status);field($('caseCurrent'),'内部处理说明',current.handlingNote);
-      for(const event of history.events||[]){const article=node('article','', 'xw-case-event');article.append(node('strong',`${labels[event.fromStatus]||event.fromStatus} → ${labels[event.toStatus]||event.toStatus} · ${date(event.createdAt)}`));field(article,'内部处理说明',event.handlingNote);if(event.customerReply)field(article,'客户回复',event.customerReply);$('caseEvents').append(article);}
+      for(const event of history.events||[]){const article=node('article','', 'xw-case-event');const change=event.fromStatus===event.toStatus?'追加客户回复':`${labels[event.fromStatus]||event.fromStatus} → ${labels[event.toStatus]||event.toStatus}`;article.append(node('strong',`${change} · ${date(event.createdAt)}`));field(article,'内部处理说明',event.handlingNote);if(event.customerReply)field(article,'客户回复',event.customerReply);$('caseEvents').append(article);}
       if(!(history.events||[]).length)$('caseEvents').append(node('p','暂无 V4C 处理事件；此前处理动作可在审计记录查看。'));
-      if(can('order:manage')){const form=$('caseUpdate');form.hidden=false;form.elements.status.value=current.status==='IN_PROGRESS'?'RESOLVED':'IN_PROGRESS';form.elements.handlingNote.value='';form.elements.customerReply.value='';}
+      if(can('order:manage')){
+        const form=$('caseUpdate'),status=form.elements.status;
+        status.querySelector('[data-same-status]')?.remove();
+        if(current.status==='IN_PROGRESS'||current.status==='RESOLVED'){
+          const same=node('option','保持当前状态（追加客户回复）');same.value=current.status;same.dataset.sameStatus='1';status.append(same);
+        }
+        form.hidden=false;status.value=current.status==='IN_PROGRESS'?'RESOLVED':'IN_PROGRESS';
+        form.elements.handlingNote.value='';form.elements.customerReply.value='';
+      }
       message('处理历史已加载。');
     }catch(error){message(error.message);}
   }
@@ -59,6 +67,7 @@
     event.preventDefault();if(!state.selected||!can('order:manage'))return;
     const form=event.currentTarget,record=state.selected;
     const payload={status:form.elements.status.value,handlingNote:form.elements.handlingNote.value.trim(),customerReply:form.elements.customerReply.value.trim()||null,expectedVersion:record.version};
+    if(payload.status===record.status&&!payload.customerReply){message('保持当前状态时须填写客户回复。');return;}
     message('正在保存处理结果……');
     try{await api(`/api/admin/xingwei/business/orders/${encodeURIComponent(state.businessNo)}/after-sales/records/${record.recordId}`,{method:'PUT',body:JSON.stringify(payload)});await openCase(state.businessNo,record.recordId);await load();message('处理结果已保存。');}
     catch(error){if(error.status===409)await openCase(state.businessNo,record.recordId);message(error.message);}

@@ -12,7 +12,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -294,22 +296,39 @@ public class ConsoleApiController {
     }
 
     private List<AfterSalesCaseStatus> afterSalesCases(String orderNo) {
+        Map<Long, List<AfterSalesPublicReply>> repliesByRecord = jdbc.query("""
+                SELECT e.record_id, e.to_status, e.customer_reply, e.created_at
+                  FROM customer_order_after_sales_case_events e
+                  JOIN customer_order_after_sales_records r ON r.id = e.record_id
+                 WHERE r.order_no = ? AND e.customer_reply IS NOT NULL
+                 ORDER BY e.record_id, e.id
+                """, rs -> {
+                    Map<Long, List<AfterSalesPublicReply>> replies = new HashMap<>();
+                    while (rs.next()) {
+                        replies.computeIfAbsent(rs.getLong("record_id"), ignored -> new ArrayList<>())
+                                .add(new AfterSalesPublicReply(rs.getString("to_status"),
+                                        rs.getString("customer_reply"),
+                                        rs.getTimestamp("created_at").toInstant()));
+                    }
+                    return replies;
+                }, orderNo);
         return jdbc.query("""
                 SELECT r.id, r.category_label, r.content, r.submitted_at_ms,
-                       COALESCE(s.status, 'OPEN') AS status, s.updated_at,
-                       (SELECT e.customer_reply
-                          FROM customer_order_after_sales_case_events e
-                         WHERE e.record_id = r.id AND e.customer_reply IS NOT NULL
-                         ORDER BY e.id DESC LIMIT 1) AS customer_reply
+                       COALESCE(s.status, 'OPEN') AS status, s.updated_at
                   FROM customer_order_after_sales_records r
                   LEFT JOIN customer_order_after_sales_case_state s ON s.record_id = r.id
                  WHERE r.order_no = ?
                  ORDER BY r.submitted_at_ms, r.id
-                """, (rs, rowNum) -> new AfterSalesCaseStatus(
-                        rs.getLong("id"), rs.getString("category_label"),
-                        Instant.ofEpochMilli(rs.getLong("submitted_at_ms")),
-                        rs.getString("content"), rs.getString("status"),
-                        rs.getString("customer_reply"), toInstant(rs.getTimestamp("updated_at"))), orderNo);
+                """, (rs, rowNum) -> {
+                    long recordId = rs.getLong("id");
+                    List<AfterSalesPublicReply> replies = List.copyOf(
+                            repliesByRecord.getOrDefault(recordId, List.of()));
+                    String latest = replies.isEmpty() ? null : replies.getLast().content();
+                    return new AfterSalesCaseStatus(recordId, rs.getString("category_label"),
+                            Instant.ofEpochMilli(rs.getLong("submitted_at_ms")),
+                            rs.getString("content"), rs.getString("status"), latest,
+                            toInstant(rs.getTimestamp("updated_at")), replies);
+                }, orderNo);
     }
 
     private static Instant toInstant(Timestamp ts) { return ts == null ? null : ts.toInstant(); }
@@ -359,7 +378,8 @@ public class ConsoleApiController {
     public record AfterSalesRecord(String category, Instant submittedAt, String content) {}
     public record AfterSalesCaseStatus(long recordId, String category, Instant submittedAt,
                                        String content, String status, String customerReply,
-                                       Instant updatedAt) {}
+                                       Instant updatedAt, List<AfterSalesPublicReply> replies) {}
+    public record AfterSalesPublicReply(String status, String content, Instant repliedAt) {}
     public record QuoteItem(String businessNo, String game, String demand, String currentProgress,
                             String platform, String expectedTime, String status, String statusText,
                             String customerSupplement, Instant createdAt, Instant updatedAt) {}

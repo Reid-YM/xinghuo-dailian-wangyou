@@ -148,4 +148,25 @@ class XingweiAfterSalesCaseServiceTest {
                 () -> cases.update("XW1", 1, "RESOLVED", "已解决", " ", 1, actor, null));
         assertEquals(1, cases.history("XW1", 1, actor).events().size());
     }
+
+    @Test
+    void sameStatusFollowUpRequiresPublicReplyAndKeepsVersionProtection() {
+        cases.update("XW1", 1, "IN_PROGRESS", "开始核对", "已经开始核对", 0, actor, null);
+        assertThrows(IllegalArgumentException.class,
+                () -> cases.update("XW1", 1, "IN_PROGRESS", "继续核对", null, 1, actor, null));
+
+        var followedUp = cases.update("XW1", 1, "IN_PROGRESS", "内部继续核对",
+                "已取得新进展", 1, actor, null);
+        assertEquals("IN_PROGRESS", followedUp.status());
+        assertEquals(2, followedUp.version());
+        var history = cases.history("XW1", 1, actor);
+        assertEquals(2, history.events().size());
+        assertEquals("IN_PROGRESS", history.events().getLast().fromStatus());
+        assertEquals("IN_PROGRESS", history.events().getLast().toStatus());
+        assertEquals("已取得新进展", history.events().getLast().customerReply());
+        assertEquals(409, assertThrows(ResponseStatusException.class,
+                () -> cases.update("XW1", 1, "IN_PROGRESS", "过期", "不应写入", 1, actor, null))
+                .getStatusCode().value());
+        assertEquals(2, cases.history("XW1", 1, actor).events().size());
+    }
 }

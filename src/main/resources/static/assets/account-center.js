@@ -100,7 +100,7 @@
       ? detail.afterSalesRecords
       : legacyAfterSalesRecords(detail?.order?.customerNote);
     host.append(el('h3','','已提交的售后问题'),el('p','','客服将按业务编号核对，处理结果以客服沟通为准。'));
-    if(!records.length){host.appendChild(el('p','account-after-sales-empty','暂无已提交的售后问题。'));return;}
+    if(!records.length)host.appendChild(el('p','account-after-sales-empty','暂无已提交的售后问题。'));
     records.forEach(record=>{
       const item=el('article','account-after-sales-entry');
       item.append(el('strong','',record.category||''),el('small','',time(record.submittedAt)),el('p','',record.content||''));
@@ -114,7 +114,10 @@
         const item=el('article','account-after-sales-entry');
         item.append(el('strong','',entry.category||'售后问题'),
           el('small','',`${labels[entry.status]||'待处理'} · ${time(entry.updatedAt||entry.submittedAt)}`));
-        if(entry.customerReply)item.appendChild(el('p','',`客服回复：${entry.customerReply}`));
+        const replies=Array.isArray(entry.replies)?entry.replies:[];
+        if(replies.length){
+          replies.forEach(reply=>item.appendChild(el('p','',`客服回复 · ${time(reply.repliedAt)}：${reply.content||''}`)));
+        }else if(entry.customerReply)item.appendChild(el('p','',`客服回复：${entry.customerReply}`));
         host.appendChild(item);
       });
     }

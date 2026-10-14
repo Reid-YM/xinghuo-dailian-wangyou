@@ -234,7 +234,9 @@
       tr.appendChild(progressCell);
 
       const noteCell = document.createElement('td');
-      appendText(noteCell, 'span', item.internalNote || item.customerNote || '—', item.internalNote || item.customerNote ? 'xwb-secondary' : 'xw-muted-label');
+      if (item.customerNote) appendText(noteCell, 'span', `客户说明：${item.customerNote}`, 'xwb-secondary');
+      if (item.internalNote) appendText(noteCell, 'small', `内部备注：${item.internalNote}`, 'xwb-secondary');
+      if (!item.customerNote && !item.internalNote) appendText(noteCell, 'span', '—', 'xw-muted-label');
       tr.appendChild(noteCell);
 
       tr.appendChild(ownershipCell(item.ownership));

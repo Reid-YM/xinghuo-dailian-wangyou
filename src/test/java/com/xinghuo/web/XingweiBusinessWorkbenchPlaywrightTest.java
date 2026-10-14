@@ -50,7 +50,7 @@ class XingweiBusinessWorkbenchPlaywrightTest {
                         if (value === '/api/admin/xingwei/business/orders') return {ok:true,json:async()=>orderSnapshot};
                         if (value === '/api/admin/xingwei/business/orders/exceptions') return {ok:true,json:async()=>({
                           ...orderSnapshot, visibleCount:1,
-                          items:[{businessNo:'XH0999',orderNo:'XH0999',status:'EXCEPTION',progressText:'客户争议处理中',updatedAt:'2026-10-12T05:10:00Z',canAssign:true,ownership:{assigned:true,ownerAdminUserId:2,ownerUsername:'agent',departmentCode:'03'}}]
+                          items:[{businessNo:'XH0999',orderNo:'XH0999',status:'EXCEPTION',progressText:'客户争议处理中',customerNote:'售后问题：进度不符',internalNote:'客服已联系',updatedAt:'2026-10-12T05:10:00Z',canAssign:true,ownership:{assigned:true,ownerAdminUserId:2,ownerUsername:'agent',departmentCode:'03'}}]
                         })};
                         if (value === '/api/admin/xingwei/business/ownership-candidates') return {ok:true,json:async()=>candidates};
                         if (value.includes('/ownership') && String(options.method).toUpperCase() === 'PUT') {
@@ -92,6 +92,8 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             assertEquals("异常订单", page.locator("#xwbOrderHeading").textContent());
             assertEquals(1, page.locator("#xwbOrderRows tr[data-search]").count());
             assertFalse(page.locator("#xwbOrderRows").textContent().contains("XH1002"));
+            assertTrue(page.locator("#xwbOrderRows").textContent().contains("客户说明：售后问题：进度不符"));
+            assertTrue(page.locator("#xwbOrderRows").textContent().contains("内部备注：客服已联系"));
             page.locator("#xwbSearch").fill("客户争议");
             assertEquals("1", page.locator("#xwbKpiFiltered").textContent());
 

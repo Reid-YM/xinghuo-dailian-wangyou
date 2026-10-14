@@ -15,8 +15,8 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 class XingweiAdminPlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
     private static final Path TEMPLATE = Path.of("src/main/resources/templates/admin-xingwei.html");
-    private static final String VERSION = "20261014-v3w";
-    private static final String STAGE = "V3W · STABLE PRODUCTION";
+    private static final String VERSION = "20261014-v3x";
+    private static final String STAGE = "V3X · RELEASE CANDIDATE";
 
     @Test
     void desktopAndPhoneLayoutsStayInsideViewportAndNavigationWorks() throws Exception {
@@ -149,10 +149,10 @@ class XingweiAdminPlaywrightTest {
 
             assertTrue(page.locator("#xwBackendStatus").textContent().contains("版本漂移"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwBackendStatus').classList.contains('error')"));
-            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261014-v3w"));
+            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261014-v3x"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("运行 20261014-v3k"));
             assertEquals("mismatch", page.evaluate("() => window.xwRuntimeHealth.state"));
-            assertEquals("20261014-v3w", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
+            assertEquals("20261014-v3x", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
             assertEquals("20261014-v3k", page.evaluate("() => window.xwRuntimeHealth.runtimeVersion"));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
         }

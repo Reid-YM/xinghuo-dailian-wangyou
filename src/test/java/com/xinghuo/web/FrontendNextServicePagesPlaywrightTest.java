@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.Route;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -100,6 +101,70 @@ class FrontendNextServicePagesPlaywrightTest {
             page.locator("[data-reset-service-filters]").click();
             assertEquals("", page.locator("#publicServiceSearch").inputValue());
             assertTrue(page.locator("#list").textContent().contains("迷彩服务"));
+        }
+    }
+
+    @Test
+    void serviceFiltersStayShareableAcrossRefreshAndBrowserBack() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.route("**/*", route -> route.fulfill(new Route.FulfillOptions()
+                    .setContentType("text/html")
+                    .setBody("""
+                            <body data-page="services"><main>
+                              <input id="publicServiceSearch" type="search">
+                              <div id="publicGameFilters"></div><div id="publicPlatformFilters"></div>
+                              <div id="publicCategoryFilters"></div>
+                              <div id="publicServiceSummary"></div><div id="list"></div>
+                            </main></body>
+                            """)));
+            page.navigate("https://example.test/services?game=CODMW4&category=camo&q=%E8%BF%B7%E5%BD%A9");
+            page.evaluate("""
+                    () => {
+                      window.XH = {
+                        $: selector => document.querySelector(selector),
+                        loadConfig: async () => ({}),
+                        loadServices: async () => [
+                          { gameCode: 'CODMW4', category: 'CAMO', name: '迷彩服务' },
+                          { gameCode: 'CODMW4', category: 'LEVEL', name: '升级服务' }
+                        ],
+                        loadTaxonomy: async () => ({
+                          games: [{ code: 'CODMW4', name: '使命召唤' }],
+                          categories: [], platforms: [], gamePlatforms: []
+                        }),
+                        esc: value => String(value), gameLabel: () => '使命召唤',
+                        categoryLabel: code => code === 'CAMO' ? '迷彩' : '升级',
+                        serviceCard: service => `<a class="service-card">${service.name}</a>`
+                      };
+                    }
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("pages.js")));
+            page.waitForSelector("#list .service-card");
+            assertEquals("迷彩", page.locator("#publicServiceSearch").inputValue());
+            assertEquals("迷彩服务", page.locator("#list").textContent());
+            assertEquals("true", page.locator("[data-category-filter='camo']").getAttribute("aria-pressed"));
+
+            page.locator("[data-category-filter='level']").click();
+            assertTrue(page.url().contains("category=level"));
+            page.evaluate("history.back()");
+            page.waitForFunction("() => new URL(location.href).searchParams.get('category') === 'camo'");
+            assertEquals("迷彩服务", page.locator("#list").textContent());
+
+            page.locator("#publicServiceSearch").fill("升级");
+            assertTrue(page.url().contains("q=%E5%8D%87%E7%BA%A7"));
+            page.reload();
+            page.evaluate("""
+                    () => { window.XH = {
+                      $: selector => document.querySelector(selector), loadConfig: async () => ({}),
+                      loadServices: async () => [{ gameCode: 'CODMW4', category: 'CAMO', name: '迷彩服务' }],
+                      loadTaxonomy: async () => ({ games: [{ code: 'CODMW4', name: '使命召唤' }], categories: [], platforms: [], gamePlatforms: [] }),
+                      esc: value => String(value), gameLabel: () => '使命召唤', categoryLabel: () => '迷彩',
+                      serviceCard: service => `<a class="service-card">${service.name}</a>`
+                    }; }
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("pages.js")));
+            page.waitForSelector("[data-reset-service-filters]");
+            assertEquals("升级", page.locator("#publicServiceSearch").inputValue());
         }
     }
 

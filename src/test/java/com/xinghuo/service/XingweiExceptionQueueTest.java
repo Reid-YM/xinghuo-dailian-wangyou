@@ -80,5 +80,39 @@ class XingweiExceptionQueueTest {
                 () -> service.afterSalesOrderSnapshot(authentication, "", -1));
         assertThrows(IllegalArgumentException.class,
                 () -> service.afterSalesOrderSnapshot(authentication, "x".repeat(81), 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.afterSalesOrderSnapshot(authentication, "", 0, "UNLISTED"));
+    }
+
+    @Test
+    void afterSalesCategoryUsesWhitelistedMarkerWithinScopeForCountAndPage() {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        XingweiPermissionGuard permissions = mock(XingweiPermissionGuard.class);
+        Authentication authentication = mock(Authentication.class);
+        when(permissions.resolve(authentication)).thenReturn(new XingweiPermissionGuard.AccessSnapshot(
+                "SHADOW_RBAC", false, List.of("order:view"), List.of("XW_CUSTOMER_ORDER"),
+                "DEPARTMENT", 9L, "03"));
+        when(jdbc.query(anyString(), any(RowMapper.class), any(Object[].class))).thenReturn(List.of());
+        when(jdbc.queryForObject(anyString(), eq(Long.class), any(Object[].class))).thenReturn(1L);
+
+        XingweiBusinessScopeService service = new XingweiBusinessScopeService(jdbc, permissions, mock(AuditService.class));
+        Map<String, Object> result = service.afterSalesOrderSnapshot(authentication, " XH100 ", 0, "REFUND_REVIEW");
+
+        ArgumentCaptor<String> pageSql = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Object[]> pageArgs = ArgumentCaptor.forClass(Object[].class);
+        verify(jdbc).query(pageSql.capture(), any(RowMapper.class), pageArgs.capture());
+        assertTrue(pageSql.getValue().contains("WHERE d.code = ? AND LOCATE('[售后问题 ·'"));
+        assertTrue(pageSql.getValue().contains("AND LOCATE(?, COALESCE(o2.customer_note, '')) > 0"));
+        assertArrayEquals(new Object[] {"03", "[售后问题 · 退款核对 · ", "XH100", "XH100", "XH100", 50, 0},
+                pageArgs.getValue());
+
+        ArgumentCaptor<String> countSql = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Object[]> countArgs = ArgumentCaptor.forClass(Object[].class);
+        verify(jdbc).queryForObject(countSql.capture(), eq(Long.class), countArgs.capture());
+        assertTrue(countSql.getValue().contains("AND LOCATE(?, COALESCE(o2.customer_note, '')) > 0"));
+        assertArrayEquals(new Object[] {"03", "[售后问题 · 退款核对 · ", "XH100", "XH100", "XH100"},
+                countArgs.getValue());
+        assertEquals("REFUND_REVIEW", result.get("category"));
+        assertEquals(1L, result.get("totalCount"));
     }
 }

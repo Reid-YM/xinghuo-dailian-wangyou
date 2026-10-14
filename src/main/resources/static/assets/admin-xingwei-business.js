@@ -7,6 +7,8 @@
   const refreshButton = document.getElementById('xwbRefresh');
   const search = document.getElementById('xwbSearch');
   const searchLabel = document.getElementById('xwbSearchLabel');
+  const afterSalesCategoryLabel = document.getElementById('xwbAfterSalesCategoryLabel');
+  const afterSalesCategory = document.getElementById('xwbAfterSalesCategory');
   const tabs = Array.from(document.querySelectorAll('[data-tab]'));
   const quotePanel = document.getElementById('xwbQuotesPanel');
   const orderPanel = document.getElementById('xwbOrdersPanel');
@@ -285,6 +287,7 @@
     quotePanel.hidden = activeTab !== 'quotes';
     orderPanel.hidden = activeTab === 'quotes';
     if (afterSalesPager) afterSalesPager.hidden = activeTab !== 'after-sales';
+    if (afterSalesCategoryLabel) afterSalesCategoryLabel.hidden = activeTab !== 'after-sales';
     if (kpiVisibleLabel) kpiVisibleLabel.textContent = activeTab === 'after-sales' ? '匹配总数' : '接口可见';
     if (kpiFilteredLabel) kpiFilteredLabel.textContent = activeTab === 'after-sales' ? '本页条数' : '当前筛选';
     if (searchLabel) searchLabel.textContent = activeTab === 'after-sales' ? '检索全部售后问题记录' : '筛选当前列表';
@@ -311,7 +314,7 @@
     try {
       const endpoint = tab === 'exceptions' ? 'orders/exceptions' : tab === 'after-sales' ? 'orders/after-sales' : tab;
       const params = tab === 'after-sales'
-        ? `?page=${afterSalesPage}&q=${encodeURIComponent(search?.value.trim() || '')}`
+        ? `?page=${afterSalesPage}&q=${encodeURIComponent(search?.value.trim() || '')}&category=${encodeURIComponent(afterSalesCategory?.value || '')}`
         : '';
       const snapshot = await fetchJson(`/api/admin/xingwei/business/${endpoint}${params}`);
       if (thisRequest !== requestVersion) return;
@@ -481,6 +484,13 @@
     requestVersion += 1;
     afterSalesPage = 0;
     searchTimer = setTimeout(() => loadTab('after-sales'), 250);
+  });
+  afterSalesCategory?.addEventListener('change', () => {
+    if (activeTab !== 'after-sales') return;
+    clearTimeout(searchTimer);
+    requestVersion += 1;
+    afterSalesPage = 0;
+    loadTab('after-sales');
   });
   afterSalesPrev?.addEventListener('click', () => {
     if (afterSalesPage > 0) {

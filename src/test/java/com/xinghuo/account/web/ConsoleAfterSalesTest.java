@@ -37,6 +37,11 @@ class ConsoleAfterSalesTest {
                   customer_account_id BIGINT, status VARCHAR(32), progress_percent INT, progress_text VARCHAR(240),
                   customer_note VARCHAR(500), version BIGINT, created_at TIMESTAMP, updated_at TIMESTAMP)
                 """);
+        jdbc.execute("""
+                CREATE TABLE customer_order_after_sales_records(
+                  id BIGINT AUTO_INCREMENT PRIMARY KEY, order_no VARCHAR(40), category VARCHAR(24),
+                  category_label VARCHAR(32), content VARCHAR(240), submitted_at_ms BIGINT)
+                """);
         jdbc.update("""
                 INSERT INTO customer_orders(id,order_no,business_no,customer_account_id,status,progress_text,version,created_at,updated_at)
                 VALUES('order-1','ORD-1','XH-1',1,'COMPLETED','交付完成',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
@@ -56,6 +61,8 @@ class ConsoleAfterSalesTest {
         assertEquals("COMPLETED", jdbc.queryForObject("SELECT status FROM customer_orders WHERE id='order-1'", String.class));
         assertTrue(jdbc.queryForObject("SELECT customer_note FROM customer_orders WHERE id='order-1'", String.class)
                 .contains("[售后问题 · 退款核对"));
+        assertEquals(1L, jdbc.queryForObject("SELECT COUNT(*) FROM customer_order_after_sales_records", Long.class));
+        assertEquals(1, controller.order("XH-1", request).afterSalesRecords().size());
         assertEquals(1L, jdbc.queryForObject("SELECT version FROM customer_orders WHERE id='order-1'", Long.class));
         verify(audit).record(eq(1L), eq("CONSOLE_AFTER_SALES_SUBMIT"),
                 eq("businessNo=XH-1,category=REFUND_REVIEW"), any());
@@ -73,12 +80,13 @@ class ConsoleAfterSalesTest {
     }
 
     @Test
-    void fullCustomerNoteReturnsConflictWithoutLosingExistingText() {
+    void fullCustomerNoteStillAcceptsDurableAfterSalesRecord() {
         jdbc.update("UPDATE customer_orders SET customer_note=? WHERE id='order-1'", "x".repeat(490));
-        assertEquals("AFTER_SALES_NOTE_FULL", assertThrows(AccountException.class, () -> controller.submitAfterSales(
-                "XH-1", new ConsoleApiController.AfterSalesRequest("OTHER", "继续处理"), request)).getCode());
+        assertTrue(controller.submitAfterSales("XH-1",
+                new ConsoleApiController.AfterSalesRequest("OTHER", "继续处理"), request).ok());
         assertEquals("x".repeat(490), jdbc.queryForObject("SELECT customer_note FROM customer_orders WHERE id='order-1'", String.class));
-        verifyNoInteractions(audit);
+        assertEquals("继续处理", controller.order("XH-1", request).afterSalesRecords().getFirst().content());
+        assertEquals(1L, jdbc.queryForObject("SELECT version FROM customer_orders WHERE id='order-1'", Long.class));
     }
 
     @Test

@@ -41,6 +41,7 @@ class XingweiExceptionQueueTest {
                 """;
         when(row.getString("customer_note")).thenReturn(note);
         when(row.getString("business_no")).thenReturn("XH-1");
+        when(row.getString("order_no")).thenReturn("ORD-1");
         when(permissions.resolve(authentication)).thenReturn(new XingweiPermissionGuard.AccessSnapshot(
                 "SHADOW_RBAC", false, List.of("order:view"), List.of("XW_CUSTOMER_ORDER"),
                 "DEPARTMENT", 9L, "03"));
@@ -100,13 +101,14 @@ class XingweiExceptionQueueTest {
         ArgumentCaptor<Object[]> args = ArgumentCaptor.forClass(Object[].class);
         verify(jdbc).query(sql.capture(), any(RowMapper.class), args.capture());
         String query = sql.getValue();
-        assertTrue(query.contains("WHERE d.code = ? AND LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0"));
+        assertTrue(query.contains("WHERE d.code = ? AND (LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0"));
+        assertTrue(query.contains("OR EXISTS (SELECT 1 FROM customer_order_after_sales_records ar"));
         assertTrue(query.contains("LOCATE(?, COALESCE(o2.business_no, o2.order_no)) > 0"));
         assertTrue(query.indexOf("LOCATE('[售后问题 ·'") < query.indexOf("LIMIT ? OFFSET ?"));
-        assertArrayEquals(new Object[] {"03", "XH100", "XH100", "XH100", 50, 50}, args.getValue());
+        assertArrayEquals(new Object[] {"03", "XH100", "XH100", "XH100", "XH100", 50, 50}, args.getValue());
         ArgumentCaptor<String> countSql = ArgumentCaptor.forClass(String.class);
         verify(jdbc).queryForObject(countSql.capture(), eq(Long.class), any(Object[].class));
-        assertTrue(countSql.getValue().contains("WHERE d.code = ? AND LOCATE('[售后问题 ·'"));
+        assertTrue(countSql.getValue().contains("WHERE d.code = ? AND (LOCATE('[售后问题 ·'"));
         assertEquals(120L, result.get("totalCount"));
         assertEquals(1, result.get("page"));
         assertTrue(Boolean.TRUE.equals(result.get("hasNext")));
@@ -142,16 +144,16 @@ class XingweiExceptionQueueTest {
         ArgumentCaptor<String> pageSql = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Object[]> pageArgs = ArgumentCaptor.forClass(Object[].class);
         verify(jdbc).query(pageSql.capture(), any(RowMapper.class), pageArgs.capture());
-        assertTrue(pageSql.getValue().contains("WHERE d.code = ? AND LOCATE('[售后问题 ·'"));
-        assertTrue(pageSql.getValue().contains("AND LOCATE(?, COALESCE(o2.customer_note, '')) > 0"));
-        assertArrayEquals(new Object[] {"03", "[售后问题 · 退款核对 · ", "XH100", "XH100", "XH100", 50, 0},
+        assertTrue(pageSql.getValue().contains("WHERE d.code = ? AND (LOCATE('[售后问题 ·'"));
+        assertTrue(pageSql.getValue().contains("AND (LOCATE(?, COALESCE(o2.customer_note, '')) > 0"));
+        assertArrayEquals(new Object[] {"03", "[售后问题 · 退款核对 · ", "REFUND_REVIEW", "XH100", "XH100", "XH100", "XH100", 50, 0},
                 pageArgs.getValue());
 
         ArgumentCaptor<String> countSql = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Object[]> countArgs = ArgumentCaptor.forClass(Object[].class);
         verify(jdbc).queryForObject(countSql.capture(), eq(Long.class), countArgs.capture());
-        assertTrue(countSql.getValue().contains("AND LOCATE(?, COALESCE(o2.customer_note, '')) > 0"));
-        assertArrayEquals(new Object[] {"03", "[售后问题 · 退款核对 · ", "XH100", "XH100", "XH100"},
+        assertTrue(countSql.getValue().contains("AND (LOCATE(?, COALESCE(o2.customer_note, '')) > 0"));
+        assertArrayEquals(new Object[] {"03", "[售后问题 · 退款核对 · ", "REFUND_REVIEW", "XH100", "XH100", "XH100", "XH100"},
                 countArgs.getValue());
         assertEquals("REFUND_REVIEW", result.get("category"));
         assertEquals(1L, result.get("totalCount"));

@@ -1,5 +1,6 @@
 package com.xinghuo.service;
 
+import com.xinghuo.account.service.AfterSalesLedger;
 import com.xinghuo.account.service.AfterSalesNoteParser;
 import com.xinghuo.security.XingweiPermissionGuard;
 import jakarta.servlet.http.HttpServletRequest;
@@ -116,16 +117,23 @@ public class XingweiBusinessScopeService {
         XingweiPermissionGuard.AccessSnapshot access = permissions.resolve(authentication);
         ScopeClause scope = scopeClause(access);
         String restriction = scope.sql().replace("o.", "own.")
-                + " AND LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0";
+                + " AND (LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0"
+                + " OR EXISTS (SELECT 1 FROM customer_order_after_sales_records ar WHERE ar.order_no = o2.order_no))";
         List<Object> args = new ArrayList<>(scope.args());
         if (categoryLabel != null) {
-            restriction += " AND LOCATE(?, COALESCE(o2.customer_note, '')) > 0";
+            restriction += " AND (LOCATE(?, COALESCE(o2.customer_note, '')) > 0"
+                    + " OR EXISTS (SELECT 1 FROM customer_order_after_sales_records ar"
+                    + " WHERE ar.order_no = o2.order_no AND ar.category = ?))";
             args.add("[售后问题 · " + categoryLabel + " · ");
+            args.add(category);
         }
         if (!keyword.isEmpty()) {
             restriction += " AND (LOCATE(?, COALESCE(o2.business_no, o2.order_no)) > 0"
                     + " OR LOCATE(?, o2.order_no) > 0"
-                    + " OR LOCATE(?, COALESCE(o2.customer_note, '')) > 0)";
+                    + " OR LOCATE(?, COALESCE(o2.customer_note, '')) > 0"
+                    + " OR EXISTS (SELECT 1 FROM customer_order_after_sales_records ar"
+                    + " WHERE ar.order_no = o2.order_no AND LOCATE(?, ar.content) > 0))";
+            args.add(keyword);
             args.add(keyword);
             args.add(keyword);
             args.add(keyword);
@@ -163,11 +171,15 @@ public class XingweiBusinessScopeService {
         args.add(AFTER_SALES_PAGE_SIZE);
         args.add(page * AFTER_SALES_PAGE_SIZE);
         List<Map<String, Object>> items = jdbc.query(
-                sql, (rs, rowNum) -> {
-                    Map<String, Object> row = orderRow(rs, authentication);
-                    row.put("afterSalesRecords", AfterSalesNoteParser.parse(rs.getString("customer_note")));
-                    return row;
-                }, args.toArray());
+                sql, (rs, rowNum) -> orderRow(rs, authentication), args.toArray());
+        List<String> orderNos = items.stream().map(row -> (String) row.get("orderNo")).toList();
+        Map<String, List<AfterSalesNoteParser.AfterSalesRecord>> stored =
+                AfterSalesLedger.recordsForOrders(jdbc, orderNos);
+        for (Map<String, Object> row : items) {
+            String orderNo = (String) row.get("orderNo");
+            row.put("afterSalesRecords", AfterSalesLedger.combine(
+                    (String) row.get("customerNote"), stored.getOrDefault(orderNo, List.of())));
+        }
         Map<String, Object> result = snapshot(access, items);
         result.put("totalCount", totalCount);
         result.put("page", page);

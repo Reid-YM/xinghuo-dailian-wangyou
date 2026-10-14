@@ -98,7 +98,8 @@ public class SecurityConfig {
                         .cacheControl(c -> c.disable())
                         .contentSecurityPolicy(c -> c.policyDirectives(
                                 "default-src 'self'; img-src 'self' data: https:; "
-                                        + "style-src 'self' 'unsafe-inline'; script-src 'self'; "
+                                        + "style-src 'self' 'unsafe-inline'; "
+                                        + "script-src 'self' 'sha256-Ua8FBICmLZGVLagGDb98azul9qj4MC8YNXHvKEOHidg='; "
                                         + "connect-src 'self'; object-src 'none'; "
                                         + "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"))
                         .referrerPolicy(r -> r.policy(

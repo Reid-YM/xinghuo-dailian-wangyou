@@ -141,6 +141,9 @@ class XingweiAfterSalesCaseServiceTest {
 
         assertEquals(2, cases.summary(actor).totalCount());
         assertEquals(1, cases.summary(actor).pendingFollowupCount());
+        assertEquals(1, cases.summary(actor).openCount());
+        assertEquals(0, cases.summary(actor).inProgressCount());
+        assertEquals(1, cases.summary(actor).resolvedCount());
         assertEquals(cases.queue(null, null, "PENDING", null, 0, actor).totalCount(),
                 cases.summary(actor).pendingFollowupCount());
 
@@ -153,19 +156,51 @@ class XingweiAfterSalesCaseServiceTest {
     @Test
     void summaryUsesQueueScopesAndRequiresOrderView() {
         jdbc.update("INSERT INTO customer_order_after_sales_case_followups(record_id,account_id,content,created_at_ms) VALUES (1,11,'本部门',4000),(2,12,'其他部门',5000)");
-        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(1, 1), cases.summary(actor));
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(1, 1, 1, 0, 0), cases.summary(actor));
 
         when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
                 "RBAC", false, List.of("order:view"), List.of(), "DEPARTMENT", 7L, "03"));
-        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(1, 1), cases.summary(actor));
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(1, 1, 1, 0, 0), cases.summary(actor));
         when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
                 "LEGACY_ADMIN", true, List.of("order:view"), List.of(), "ALL", 7L, null));
-        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(2, 2), cases.summary(actor));
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(2, 2, 2, 0, 0), cases.summary(actor));
         when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
                 "DENIED", false, List.of(), List.of(), "ALL", null, null));
-        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(0, 0), cases.summary(actor));
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(0, 0, 0, 0, 0), cases.summary(actor));
         when(permissions.has(actor, "order:view")).thenReturn(false);
         assertThrows(AccessDeniedException.class, () -> cases.summary(actor));
+    }
+
+    @Test
+    void summaryStatusCountsFollowWorkflowAndScopedQueue() {
+        jdbc.update("INSERT INTO customer_order_after_sales_records VALUES (3,'O1','OTHER','其他问题','本人的第二条',3000)");
+        jdbc.update("INSERT INTO customer_order_after_sales_records VALUES (4,'O2','OTHER','其他问题','其他部门第二条',4000)");
+        cases.update("XW1", 1, "IN_PROGRESS", "正在处理", 0, actor, null);
+
+        var self = cases.summary(actor);
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(2, 0, 1, 1, 0), self);
+        assertEquals(self.totalCount(), self.openCount() + self.inProgressCount() + self.resolvedCount());
+        // Record 3 has no case-state row, so it is still an OPEN case.
+        assertEquals(1, self.openCount());
+        assertEquals(cases.queue("OPEN", null, null, 0, actor).totalCount(), self.openCount());
+        assertEquals(cases.queue("IN_PROGRESS", null, null, 0, actor).totalCount(), self.inProgressCount());
+
+        cases.update("XW1", 1, "RESOLVED", "已经处理", 1, actor, null);
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(2, 0, 1, 0, 1), cases.summary(actor));
+
+        when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
+                "RBAC", false, List.of("order:view"), List.of(), "DEPARTMENT", 8L, "04"));
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(2, 0, 2, 0, 0), cases.summary(actor));
+
+        when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
+                "LEGACY_ADMIN", true, List.of("order:view"), List.of(), "ALL", 7L, null));
+        var all = cases.summary(actor);
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(4, 0, 3, 0, 1), all);
+        assertEquals(all.totalCount(), all.openCount() + all.inProgressCount() + all.resolvedCount());
+
+        when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
+                "DENIED", false, List.of(), List.of(), "ALL", null, null));
+        assertEquals(new XingweiAfterSalesCaseService.CaseSummary(0, 0, 0, 0, 0), cases.summary(actor));
     }
 
     @Test

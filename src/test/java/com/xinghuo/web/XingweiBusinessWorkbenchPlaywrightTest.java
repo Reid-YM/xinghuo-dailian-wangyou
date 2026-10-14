@@ -117,6 +117,13 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             assertTrue(page.locator("#xwbOrderDescription").textContent().contains("不代表退款申请或处理状态"));
             assertTrue(page.locator("#xwbOrderRows").textContent().contains("未按约定完成 <script>alert(1)</script>"));
             assertEquals(0, page.locator("#xwbOrderRows script").count());
+            page.locator("#xwbOrderRows .xw-mini-button").first().click();
+            assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwbAfterSalesDetailDialog').open"));
+            assertTrue(page.locator("#xwbAfterSalesDetailMeta").textContent().contains("XH0888"));
+            assertTrue(page.locator("#xwbAfterSalesDetailNote").textContent().contains("未按约定完成 <script>alert(1)</script>"));
+            assertEquals(0, page.locator("#xwbAfterSalesDetailDialog script").count());
+            page.locator("#xwbAfterSalesDetailClose").click();
+            assertFalse((Boolean) page.evaluate("() => document.querySelector('#xwbAfterSalesDetailDialog').open"));
             assertEquals("51", page.locator("#xwbKpiVisible").textContent());
             assertEquals("第 1 页 · 共 51 条", page.locator("#xwbAfterSalesPageText").textContent());
             page.locator("#xwbAfterSalesNext").click();
@@ -139,6 +146,9 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             page.setViewportSize(390, 844);
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwbOrdersPanel .xw-table-wrap').scrollWidth > document.querySelector('#xwbOrdersPanel .xw-table-wrap').clientWidth"));
+            page.locator("#xwbOrderRows .xw-mini-button").first().click();
+            assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwbAfterSalesDetailDialog').getBoundingClientRect().right <= innerWidth + 1"));
+            assertTrue(page.locator("#xwbAfterSalesDetailNote").textContent().contains("请核对"));
         }
     }
 
@@ -157,6 +167,7 @@ class XingweiBusinessWorkbenchPlaywrightTest {
                         const value = String(url);
                         if (value === '/api/admin/xingwei/access') return {ok:true,json:async()=>({mode:'SHADOW_RBAC',allowAll:false,permissionCodes:['order:view'],roleCodes:['XW_CUSTOMER_ORDER'],dataScope:'DEPARTMENT',departmentCode:'03',adminUserId:9})};
                         if (value === '/api/admin/xingwei/business/orders') return {ok:true,json:async()=>({dataScope:'DEPARTMENT',departmentCode:'03',adminUserId:9,visibleCount:1,unassignedVisible:false,unassignedCount:0,items:[{businessNo:'XH2001',orderNo:'XH2001',status:'IN_PROGRESS',progressPercent:10,progressText:'已接单',updatedAt:'2026-10-13T05:00:00Z',canAssign:false,ownership:{assigned:true,ownerAdminUserId:8,ownerUsername:'peer',ownerDisplayName:'同中心员工',departmentCode:'03',departmentName:'03 客服与订单中心'}}]})};
+                        if (value.startsWith('/api/admin/xingwei/business/orders/after-sales?')) return {ok:true,json:async()=>({dataScope:'DEPARTMENT',departmentCode:'03',adminUserId:9,visibleCount:1,totalCount:1,page:0,pageSize:50,hasNext:false,unassignedVisible:false,unassignedCount:0,items:[{businessNo:'XH2001',orderNo:'XH2001',status:'IN_PROGRESS',customerNote:'[售后问题 · 其他问题] 需要回访',updatedAt:'2026-10-13T05:00:00Z',canAssign:false,ownership:{assigned:true,departmentCode:'03'}}]})};
                         return {ok:false,status:404,json:async()=>({error:'not found'})};
                       };
                     }
@@ -170,6 +181,12 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             assertFalse((Boolean) page.evaluate("() => document.querySelector('[data-tab=after-sales]').hidden"));
             assertFalse((Boolean) page.evaluate("() => document.querySelector('#xwbOrdersPanel').hidden"));
             assertEquals(0, page.locator("#xwbOrderRows .xw-mini-button").count());
+            page.locator("[data-tab='after-sales']").click();
+            page.waitForFunction("() => document.querySelector('#xwbOrderRows')?.textContent.includes('需要回访')");
+            assertEquals(1, page.locator("#xwbOrderRows .xw-mini-button").count());
+            page.locator("#xwbOrderRows .xw-mini-button").click();
+            assertTrue(page.locator("#xwbAfterSalesDetailNote").textContent().contains("需要回访"));
+            assertEquals(0, page.locator("#xwbAssignDialog[open]").count());
             assertTrue(page.locator("#xwbScopeText").textContent().contains("本中心"));
             assertEquals("不可见", page.locator("#xwbKpiUnassigned").textContent());
         }

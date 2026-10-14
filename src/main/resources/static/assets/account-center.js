@@ -114,6 +114,8 @@
         const item=el('article','account-after-sales-entry');
         item.append(el('strong','',entry.category||'售后问题'),
           el('small','',`${labels[entry.status]||'待处理'} · ${time(entry.updatedAt||entry.submittedAt)}`));
+        if(entry.pendingCustomerFollowup)item.appendChild(el('p','account-after-sales-pending','待客服跟进'));
+        if(entry.status==='RESOLVED')item.appendChild(el('p','account-after-sales-guidance','仍可在原记录补充说明；补充后处理状态不会自动变化，客服会继续核对。'));
         const replies=Array.isArray(entry.replies)?entry.replies:[];
         const followups=Array.isArray(entry.followups)?entry.followups:[];
         const conversation=[...replies.map(reply=>({label:'客服回复',at:reply.repliedAt,content:reply.content})),

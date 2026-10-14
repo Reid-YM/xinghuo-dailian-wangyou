@@ -42,7 +42,7 @@ class ConsoleAfterSalesTest {
                   id BIGINT AUTO_INCREMENT PRIMARY KEY, order_no VARCHAR(40), category VARCHAR(24),
                   category_label VARCHAR(32), content VARCHAR(240), submitted_at_ms BIGINT)
                 """);
-        jdbc.execute("CREATE TABLE customer_order_after_sales_case_state (record_id BIGINT PRIMARY KEY, status VARCHAR(24), handling_note VARCHAR(600), handled_by_admin_user_id BIGINT, updated_at TIMESTAMP, version BIGINT)");
+        jdbc.execute("CREATE TABLE customer_order_after_sales_case_state (record_id BIGINT PRIMARY KEY, status VARCHAR(24), handling_note VARCHAR(600), handled_by_admin_user_id BIGINT, handled_through_followup_id BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMP, version BIGINT)");
         jdbc.execute("CREATE TABLE customer_order_after_sales_case_events (id BIGINT AUTO_INCREMENT PRIMARY KEY, record_id BIGINT, from_status VARCHAR(24), to_status VARCHAR(24), handling_note VARCHAR(600), customer_reply VARCHAR(600), handled_by_admin_user_id BIGINT, created_at TIMESTAMP)");
         jdbc.execute("CREATE TABLE customer_order_after_sales_case_followups (id BIGINT AUTO_INCREMENT PRIMARY KEY, record_id BIGINT, account_id BIGINT, content VARCHAR(240), created_at_ms BIGINT)");
         jdbc.update("""
@@ -229,9 +229,16 @@ class ConsoleAfterSalesTest {
         assertTrue(result.ok());
         var detail = controller.order("XH-1", request);
         assertEquals("新的进度截图已准备好", detail.afterSalesCases().getFirst().followups().getFirst().content());
+        assertTrue(detail.afterSalesCases().getFirst().pendingCustomerFollowup());
         assertEquals("COMPLETED", detail.order().status());
         assertEquals("OPEN", detail.afterSalesCases().getFirst().status());
         assertEquals(1L, jdbc.queryForObject("SELECT COUNT(*) FROM customer_order_after_sales_case_followups", Long.class));
+        long followupId = jdbc.queryForObject("SELECT MAX(id) FROM customer_order_after_sales_case_followups", Long.class);
+        jdbc.update("INSERT INTO customer_order_after_sales_case_state(record_id,status,handled_through_followup_id,version) VALUES (?,'IN_PROGRESS',?,1)", recordId, followupId);
+        assertTrue(!controller.order("XH-1", request).afterSalesCases().getFirst().pendingCustomerFollowup());
+        controller.followUpAfterSales("XH-1", recordId,
+                new ConsoleApiController.AfterSalesFollowupRequest("还有一项需要核对"), request);
+        assertTrue(controller.order("XH-1", request).afterSalesCases().getFirst().pendingCustomerFollowup());
 
         assertEquals("AFTER_SALES_RECORD_NOT_FOUND", assertThrows(AccountException.class,
                 () -> controller.followUpAfterSales("XH-1", recordId + 1,
@@ -245,6 +252,6 @@ class ConsoleAfterSalesTest {
                         new ConsoleApiController.AfterSalesFollowupRequest("不属于我"), request)).getCode());
         assertEquals("ORDER_NOT_FOUND", assertThrows(AccountException.class,
                 () -> controller.order("XH-1", request)).getCode());
-        assertEquals(1L, jdbc.queryForObject("SELECT COUNT(*) FROM customer_order_after_sales_case_followups", Long.class));
+        assertEquals(2L, jdbc.queryForObject("SELECT COUNT(*) FROM customer_order_after_sales_case_followups", Long.class));
     }
 }

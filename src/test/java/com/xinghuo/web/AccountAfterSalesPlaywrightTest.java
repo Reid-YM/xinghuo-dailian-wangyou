@@ -13,6 +13,59 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 @EnabledIfEnvironmentVariable(named = "PLAYWRIGHT_UI_TESTS", matches = "1")
 class AccountAfterSalesPlaywrightTest {
     @Test
+    void structuredHistoryOverridesLegacyNoteAndRefreshesAfterSubmission() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setContent("""
+                    <body data-page="account-center-orders">
+                      <div data-hub-orders></div>
+                      <aside data-hub-order-detail hidden></aside>
+                    </body>
+                    """);
+            page.evaluate("""
+                    () => {
+                      window.__records = [];
+                      window.__orderGets = 0;
+                      window.fetch = async (url, options = {}) => {
+                        const method = options.method || 'GET';
+                        let data;
+                        if (url === '/api/account/me') data = {displayName:'测试用户'};
+                        else if (url === '/api/console/orders') data = {items:[{businessNo:'XH-2',serviceName:'服务'}]};
+                        else if (url === '/api/console/orders/XH-2' && method === 'GET') {
+                          window.__orderGets++;
+                          data = {order:{businessNo:'XH-2',customerNote:'[售后问题 · 取消服务 · 2026-10-13T10:00:00Z]\\n旧备注不可显示'},
+                                  afterSalesRecords:window.__records, timeline:[]};
+                        }
+                        else if (url === '/api/account/payments/order/XH-2') return new Response('{}', {status:404});
+                        else if (url === '/api/console/orders/XH-2/after-sales' && method === 'POST') {
+                          window.__records.push({category:'退款核对',submittedAt:'2026-10-14T10:00:00Z',content:JSON.parse(options.body).content});
+                          data = {ok:true,message:'问题说明已提交，请等待客服核对'};
+                        } else throw new Error('unexpected fetch ' + url + ' ' + method);
+                        return new Response(JSON.stringify(data), {status:200,headers:{'Content-Type':'application/json'}});
+                      };
+                    }
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(
+                    Path.of("src/main/resources/static/assets/account-center.js")));
+            page.locator("[data-order-detail]").click();
+            page.locator("[data-after-sales-history]").waitFor();
+            assertTrue(page.locator("[data-after-sales-history]").innerText().contains("暂无已提交的售后问题"));
+            assertEquals(0, page.locator("[data-after-sales-history] .account-after-sales-entry").count());
+            assertTrue(!page.locator("[data-after-sales-history]").innerText().contains("旧备注不可显示"));
+            page.locator("[data-after-sales-form] select").selectOption("REFUND_REVIEW");
+            page.locator("[data-after-sales-form] textarea").fill("请核对 <img src=x onerror=alert(1)>\n第二行");
+            page.locator("[data-after-sales-form] button[type=submit]").click();
+            page.waitForFunction("() => window.__orderGets === 2 && "
+                    + "document.querySelectorAll('[data-after-sales-history] .account-after-sales-entry').length === 1");
+            assertEquals("退款核对", page.locator("[data-after-sales-history] .account-after-sales-entry strong").innerText());
+            assertTrue(page.locator("[data-after-sales-history] .account-after-sales-entry").textContent()
+                    .contains("请核对 <img src=x onerror=alert(1)>\n第二行"));
+            assertEquals(0, page.locator("[data-after-sales-history] img").count());
+            assertTrue(!page.locator("[data-after-sales-history]").innerText().contains("旧备注不可显示"));
+        }
+    }
+
+    @Test
     void orderIssueFormSubmitsCategoryAndContentWithoutPaymentAction() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();

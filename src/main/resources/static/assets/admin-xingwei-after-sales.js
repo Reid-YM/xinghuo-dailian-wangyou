@@ -24,6 +24,10 @@
     const selected=$('caseFilters').elements.status.value;
     document.querySelectorAll('[data-case-status]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.caseStatus===selected)));
   }
+  function syncCategoryActions(){
+    const selected=$('caseFilters').elements.category.value;
+    document.querySelectorAll('[data-case-category]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.caseCategory===selected)));
+  }
   function restoreFilters(){
     const query=new URLSearchParams(location.search),form=$('caseFilters');
     for(const key of filterKeys){
@@ -33,6 +37,7 @@
     const rawPage=query.get('page')||'0';
     state.page=/^(0|[1-9]\d{0,5})$/.test(rawPage)?Number(rawPage):0;
     syncStatusActions();
+    syncCategoryActions();
   }
   function saveFiltersToUrl(){
     const url=new URL(location.href),form=$('caseFilters');
@@ -55,6 +60,21 @@
       $('caseTotalCount').textContent='—';$('casePendingCount').textContent='—';
       document.querySelectorAll('[data-case-status]').forEach(button=>{button.disabled=true;button.querySelector('strong').textContent='—';});
       $('caseSummaryMessage').textContent=`概览暂不可用：${error.message}`;
+    }
+  }
+  async function loadCategorySummary(){
+    const actions=[...document.querySelectorAll('[data-case-category]')],host=$('caseCategorySummaryMessage');
+    if(!actions.length||!host)return;
+    try{
+      const summary=await api('/api/admin/xingwei/business/after-sales/cases/category-summary');
+      for(const [category,key,id] of [['DELIVERY','deliveryCount','caseDeliveryCount'],['CANCELLATION','cancellationCount','caseCancellationCount'],['REFUND_REVIEW','refundReviewCount','caseRefundReviewCount'],['OTHER','otherCount','caseOtherCount']]){
+        const button=document.querySelector(`[data-case-category="${category}"]`);
+        if(button&&$(id)){$(id).textContent=String(summary[key]??0);button.disabled=false;}
+      }
+      host.textContent='问题类型数字统计当前账号可查看的全部售后记录；点击问题类型会保留处理状态、客户补充和搜索条件。';
+    }catch(error){
+      actions.forEach(button=>{button.disabled=true;const strong=button.querySelector('strong');if(strong)strong.textContent='—';});
+      host.textContent=`问题类型分布暂不可用：${error.message}`;
     }
   }
   function renderQueue(snapshot){
@@ -104,11 +124,16 @@
       message('处理历史已加载。');
     }catch(error){message(error.message);}
   }
-  $('caseFilters').addEventListener('submit',event=>{event.preventDefault();state.page=0;syncStatusActions();saveFiltersToUrl();load();});
+  $('caseFilters').addEventListener('submit',event=>{event.preventDefault();state.page=0;syncStatusActions();syncCategoryActions();saveFiltersToUrl();load();});
   document.querySelectorAll('[data-case-status]').forEach(button=>button.addEventListener('click',()=>{
     if(button.disabled)return;
     $('caseFilters').elements.status.value=button.dataset.caseStatus;
     state.page=0;syncStatusActions();saveFiltersToUrl();load();
+  }));
+  document.querySelectorAll('[data-case-category]').forEach(button=>button.addEventListener('click',()=>{
+    if(button.disabled)return;
+    $('caseFilters').elements.category.value=button.dataset.caseCategory;
+    state.page=0;syncCategoryActions();saveFiltersToUrl();load();
   }));
   $('casePrev').addEventListener('click',()=>{if(state.page>0){state.page--;saveFiltersToUrl();load();}});
   $('caseNext').addEventListener('click',()=>{if(state.hasNext){state.page++;saveFiltersToUrl();load();}});
@@ -123,5 +148,15 @@
     catch(error){if(error.status===409)await openCase(state.businessNo,record.recordId);message(error.message);}
   });
   restoreFilters();
-  api('/api/admin/xingwei/access').then(access=>{state.access=access;load();if(can('order:view'))loadSummary();else $('caseSummaryMessage').textContent='当前账号没有订单查看权限。';}).catch(error=>{message(error.message);$('caseSummaryMessage').textContent='售后概览暂不可用。';});
+  api('/api/admin/xingwei/access').then(access=>{
+    state.access=access;load();
+    if(can('order:view')){loadSummary();loadCategorySummary();}
+    else{
+      $('caseSummaryMessage').textContent='当前账号没有订单查看权限。';
+      if($('caseCategorySummaryMessage'))$('caseCategorySummaryMessage').textContent='当前账号没有订单查看权限。';
+    }
+  }).catch(error=>{
+    message(error.message);$('caseSummaryMessage').textContent='售后概览暂不可用。';
+    if($('caseCategorySummaryMessage'))$('caseCategorySummaryMessage').textContent='问题类型分布暂不可用。';
+  });
 })();

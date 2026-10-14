@@ -7,7 +7,7 @@
 .xw-case-summary-action:focus-visible{outline:2px solid #81b8ff;outline-offset:2px}
 .xw-case-summary-action[aria-pressed="true"]{border-color:#81b8ff;background:#1b2b3d}
 .xw-case-summary-action:disabled{cursor:default;opacity:.65}
-#caseSummaryMessage{grid-column:1/-1;margin:0;color:#aeb6c2;font-size:12px}
+#caseSummaryMessage,#caseCategorySummaryMessage{grid-column:1/-1;margin:0;color:#aeb6c2;font-size:12px}
 @media(max-width:520px){.xw-case-summary{grid-template-columns:1fr}}
 .xw-case-filters{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:20px 0}
 .xw-case-filters label,.xw-case-detail label{display:grid;gap:6px;color:#aeb6c2;font-size:12px}

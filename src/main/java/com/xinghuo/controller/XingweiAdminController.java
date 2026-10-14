@@ -30,8 +30,8 @@ public class XingweiAdminController {
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
             new ReleaseItem("2026-10-14", "V3R", "待发布",
-                    "新版后台异常订单独立队列",
-                    "业务工作台增加异常订单入口。后端先按 order:view、ALL / DEPARTMENT / SELF 数据范围和 EXCEPTION 状态筛选，再按更新时间返回最近记录；旧异常单不会被普通订单列表的数量上限挤出。只读查看与既有受控归属操作沿用原接口，未新增支付、退款或企业微信写入能力。"),
+                    "异常订单、客户售后说明与服务大厅恢复体验",
+                    "业务工作台按 order:view、ALL / DEPARTMENT / SELF 范围和 EXCEPTION 状态独立查询异常订单，并分别显示客户说明与内部备注。客户可在个人中心提交分类售后问题，由客服核对；服务端校验订单归属、备注容量并记审计，不自动取消订单或发起退款。服务大厅数据读取失败时保留已有内容并可重试，筛选无结果时可清除条件。真实收款与企业微信写入仍独立验收。"),
             new ReleaseItem("2026-10-14", "V3Q", "已上线",
                     "微信支付后台操作权限收口",
                     "网站 Native 支付单读取要求 payment:view；客服确认金额后建单与关闭待支付单要求 payment:manage。旧版 ADMIN 保留全权，普通 OPERATOR 默认只读，明确授予支付管理权限的角色才可写入。真实收款开关保持关闭，小程序支付仍独立验收。"),

@@ -82,6 +82,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(dashboard.contains("20261015-v4h"));
         assertTrue(read("resources/templates/admin-xingwei-business.html").contains("th:text=\"${businessVersion}\">20261015-v4h"));
         assertTrue(read("resources/templates/admin-xingwei-after-sales.html").contains("V4H · RELEASE CANDIDATE"));
+        assertTrue(read("resources/templates/admin-xingwei-after-sales.html").contains("admin-xingwei-after-sales.js?v=20261015v4h"));
         assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261014v3x"));
         assertTrue(dashboard.contains("V3H 待真机验收"));
         assertTrue(dashboard.contains("V3I 已上线"));

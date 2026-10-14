@@ -84,6 +84,18 @@ class ReviewedFlywayMigrationContractTest {
                 "review manifest must bind V65 to its exact git blob hash");
     }
 
+    @Test
+    void reviewedV68WeComBindingMatchesExactMigrationBlob() throws Exception {
+        Path migration = Path.of("src/main/resources/db/migration/V68__xingwei_wecom_user_binding.sql");
+        String gitBlobSha = gitBlobSha(migration);
+        String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
+
+        assertEquals("892b44827338a3c512b1b9a87beab17526761cb7", gitBlobSha,
+                "V68 content changed after review; re-review and update the exact blob hash");
+        assertTrue(manifest.contains("V68__xingwei_wecom_user_binding.sql " + gitBlobSha),
+                "review manifest must bind V68 to its exact git blob hash");
+    }
+
     private void assertHistoricalMigration(String filename, int expectedChecksum, String expectedBlobSha) throws Exception {
         Path migration = Path.of("src/main/resources/db/migration", filename);
         CRC32 crc = new CRC32();

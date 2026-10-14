@@ -52,6 +52,15 @@
     <label class="xwb-search"><span id="xwbSearchLabel">筛选当前列表</span>
       <input id="xwbSearch" type="search" placeholder="业务编号、游戏、需求、客户联系方式、负责人……" maxlength="80" autocomplete="off"/>
     </label>
+    <label class="xwb-category" id="xwbAfterSalesCategoryLabel" hidden><span>问题类型</span>
+      <select id="xwbAfterSalesCategory">
+        <option value="">全部类型</option>
+        <option value="DELIVERY">交付或进度</option>
+        <option value="CANCELLATION">取消服务</option>
+        <option value="REFUND_REVIEW">退款核对</option>
+        <option value="OTHER">其他问题</option>
+      </select>
+    </label>
   </section>
 
   <div class="xw-org-message" id="xwbMessage" role="status">正在加载业务工作台……</div>

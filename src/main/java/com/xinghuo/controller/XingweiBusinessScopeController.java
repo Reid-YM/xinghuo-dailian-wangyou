@@ -51,8 +51,9 @@ public class XingweiBusinessScopeController {
     public Map<String, Object> afterSalesOrders(
             @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String category,
             Authentication authentication) {
-        return business.afterSalesOrderSnapshot(authentication, q, page);
+        return business.afterSalesOrderSnapshot(authentication, q, page, category);
     }
 
     @GetMapping("/ownership-candidates")

@@ -90,6 +90,12 @@ public class XingweiBusinessScopeService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> afterSalesOrderSnapshot(Authentication authentication, String query, int page) {
+        return afterSalesOrderSnapshot(authentication, query, page, null);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> afterSalesOrderSnapshot(
+            Authentication authentication, String query, int page, String category) {
         if (page < 0 || page > MAX_AFTER_SALES_PAGE) {
             throw new IllegalArgumentException("页码超出范围");
         }
@@ -97,12 +103,24 @@ public class XingweiBusinessScopeService {
         if (keyword.length() > 80) {
             throw new IllegalArgumentException("搜索内容不能超过 80 字");
         }
+        String categoryLabel = switch (category == null ? "" : category) {
+            case "" -> null;
+            case "DELIVERY" -> "交付或进度";
+            case "CANCELLATION" -> "取消服务";
+            case "REFUND_REVIEW" -> "退款核对";
+            case "OTHER" -> "其他问题";
+            default -> throw new IllegalArgumentException("问题类型无效");
+        };
 
         XingweiPermissionGuard.AccessSnapshot access = permissions.resolve(authentication);
         ScopeClause scope = scopeClause(access);
         String restriction = scope.sql().replace("o.", "own.")
                 + " AND LOCATE('[售后问题 ·', COALESCE(o2.customer_note, '')) > 0";
         List<Object> args = new ArrayList<>(scope.args());
+        if (categoryLabel != null) {
+            restriction += " AND LOCATE(?, COALESCE(o2.customer_note, '')) > 0";
+            args.add("[售后问题 · " + categoryLabel + " · ");
+        }
         if (!keyword.isEmpty()) {
             restriction += " AND (LOCATE(?, COALESCE(o2.business_no, o2.order_no)) > 0"
                     + " OR LOCATE(?, o2.order_no) > 0"
@@ -149,6 +167,7 @@ public class XingweiBusinessScopeService {
         result.put("totalCount", totalCount);
         result.put("page", page);
         result.put("pageSize", AFTER_SALES_PAGE_SIZE);
+        result.put("category", category == null ? "" : category);
         result.put("hasNext", page < MAX_AFTER_SALES_PAGE
                 && ((long) page + 1) * AFTER_SALES_PAGE_SIZE < totalCount);
         return result;

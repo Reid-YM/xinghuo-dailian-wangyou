@@ -9,6 +9,7 @@ const root = path.join(__dirname, '..', 'miniprogram')
 const siteAccountPath = path.join(root, 'utils', 'site-account.js')
 const requests = []
 const confirmations = []
+let confirmationError = null
 require.cache[require.resolve(siteAccountPath)] = {
   id: siteAccountPath,
   filename: siteAccountPath,
@@ -19,6 +20,7 @@ require.cache[require.resolve(siteAccountPath)] = {
     },
     confirm(code) {
       confirmations.push(code)
+      if (confirmationError) return Promise.reject(confirmationError)
       return Promise.resolve({ linked: true })
     }
   }
@@ -80,9 +82,11 @@ function flush() { return new Promise(function (resolve) { setImmediate(resolve)
   assert.strictEqual(page.data.website.available, true)
 
   const notices = []
+  const errors = []
   wx.showLoading = function () {}
   wx.hideLoading = function () {}
   wx.showToast = function (value) { notices.push(value.title) }
+  wx.showModal = function (value) { errors.push(value.content) }
   wx.scanCode = function (value) { value.success({ result: 'xingwei-login:12345678' }) }
   page.scanWebsiteLogin()
   assert.deepStrictEqual(confirmations, ['12345678'])
@@ -95,6 +99,22 @@ function flush() { return new Promise(function (resolve) { setImmediate(resolve)
   page.scanWebsiteLogin()
   assert.deepStrictEqual(confirmations, ['12345678'])
   assert.ok(notices.includes('这不是网站登录二维码'))
+
+  wx.scanCode = function (value) { value.fail({ errMsg: 'scanCode:fail cancel' }) }
+  page.scanWebsiteLogin()
+  assert.deepStrictEqual(confirmations, ['12345678'])
+  assert.ok(!notices.includes('扫码失败，请输入登录码'))
+
+  wx.scanCode = function (value) { value.success({ result: 'xingwei-login:1234567' }) }
+  page.scanWebsiteLogin()
+  assert.deepStrictEqual(confirmations, ['12345678'])
+
+  confirmationError = new Error('登录码无效或已过期，请在网站重新获取')
+  wx.scanCode = function (value) { value.success({ result: 'xingwei-login:87654321' }) }
+  page.scanWebsiteLogin()
+  await flush()
+  assert.deepStrictEqual(confirmations, ['12345678', '87654321'])
+  assert.ok(errors.includes('登录码无效或已过期，请在网站重新获取'))
   console.log('网站账号页面状态回归通过')
 })().catch(function (error) {
   console.error(error)

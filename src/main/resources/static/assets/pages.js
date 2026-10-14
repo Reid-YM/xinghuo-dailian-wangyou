@@ -117,13 +117,29 @@
 
   async function initServices() {
     await XH.loadConfig();
-    const [services, taxonomy] = await Promise.all([XH.loadServices(), XH.loadTaxonomy()]);
     const list = $('#list');
     const gameBox = $('#publicGameFilters');
     const platformBox = $('#publicPlatformFilters');
     const categoryBox = $('#publicCategoryFilters');
     const search = $('#publicServiceSearch');
     const summary = $('#publicServiceSummary');
+    let services;
+    let taxonomy;
+    try {
+      [services, taxonomy] = await Promise.all([XH.loadServices(), XH.loadTaxonomy()]);
+    } catch (error) {
+      console.error('[service hall]', error);
+      // Keep the server-rendered cards available while the service API is down.
+      if (summary) {
+        summary.innerHTML = '<span>最新服务暂时读取失败，页面已有内容仍可查看。</span> <button type="button" class="service-browser-retry">重新读取</button>';
+        summary.querySelector('button')?.addEventListener('click', () => {
+          summary.textContent = '正在重新读取服务…';
+          initServices();
+        }, { once: true });
+      }
+      if (list && !list.children.length) list.innerHTML = '<div class="empty card service-browser-empty"><strong>服务暂时无法加载</strong><a class="btn primary" href="/quote">提交需求</a></div>';
+      return;
+    }
     const params = new URLSearchParams(location.search);
     let selectedGame = params.get('game')?.toUpperCase() || 'all';
     let selectedPlatform = params.get('platform')?.toUpperCase() || 'all';
@@ -142,7 +158,7 @@
 
     const renderGameFilters = () => {
       if (!gameBox) return;
-      gameBox.innerHTML = `<button class="filter-btn ${selectedGame==='all'?'active':''}" data-game-filter="all">全部游戏</button>` + serviceGames.map(g => `<button class="filter-btn ${selectedGame===g.code?'active':''}" data-game-filter="${XH.esc(g.code)}">${XH.esc(g.name)}</button>`).join('');
+      gameBox.innerHTML = `<button class="filter-btn ${selectedGame==='all'?'active':''}" data-game-filter="all" aria-pressed="${selectedGame==='all'}">全部游戏</button>` + serviceGames.map(g => `<button class="filter-btn ${selectedGame===g.code?'active':''}" data-game-filter="${XH.esc(g.code)}" aria-pressed="${selectedGame===g.code}">${XH.esc(g.name)}</button>`).join('');
     };
     const renderPlatformFilters = () => {
       if (!platformBox) return;
@@ -150,14 +166,14 @@
       const codes = [...new Set(games.flatMap(platformCodesForGame))];
       const rows = taxonomy.platforms.filter(p => codes.includes(String(p.code||'').toUpperCase()) && p.active !== false);
       if (selectedPlatform !== 'all' && !codes.includes(selectedPlatform)) selectedPlatform = 'all';
-      platformBox.innerHTML = `<button class="filter-btn ${selectedPlatform==='all'?'active':''}" data-platform-filter="all">全部平台</button>` + rows.map(p => `<button class="filter-btn ${selectedPlatform===String(p.code).toUpperCase()?'active':''}" data-platform-filter="${XH.esc(String(p.code).toUpperCase())}">${XH.esc(p.name)}</button>`).join('');
+      platformBox.innerHTML = `<button class="filter-btn ${selectedPlatform==='all'?'active':''}" data-platform-filter="all" aria-pressed="${selectedPlatform==='all'}">全部平台</button>` + rows.map(p => `<button class="filter-btn ${selectedPlatform===String(p.code).toUpperCase()?'active':''}" data-platform-filter="${XH.esc(String(p.code).toUpperCase())}" aria-pressed="${selectedPlatform===String(p.code).toUpperCase()}">${XH.esc(p.name)}</button>`).join('');
     };
     const renderCategoryFilters = () => {
       if (!categoryBox) return;
       const available = services.filter(s => (selectedGame === 'all' || String(s.gameCode || '').toUpperCase() === selectedGame) && serviceMatchesPlatform(s));
       const codes = [...new Set(available.map(s => String(s.category || '').toUpperCase()).filter(Boolean))];
       if (selectedCategory !== 'all' && !codes.includes(selectedCategory.toUpperCase())) selectedCategory = 'all';
-      categoryBox.innerHTML = `<button class="filter-btn ${selectedCategory==='all'?'active':''}" data-category-filter="all">全部需求</button>` + codes.map(code => `<button class="filter-btn ${String(selectedCategory).toUpperCase()===code?'active':''}" data-category-filter="${XH.esc(code.toLowerCase())}">${XH.esc(XH.categoryLabel(code, selectedGame==='all'?null:selectedGame))}</button>`).join('');
+      categoryBox.innerHTML = `<button class="filter-btn ${selectedCategory==='all'?'active':''}" data-category-filter="all" aria-pressed="${selectedCategory==='all'}">全部需求</button>` + codes.map(code => `<button class="filter-btn ${String(selectedCategory).toUpperCase()===code?'active':''}" data-category-filter="${XH.esc(code.toLowerCase())}" aria-pressed="${String(selectedCategory).toUpperCase()===code}">${XH.esc(XH.categoryLabel(code, selectedGame==='all'?null:selectedGame))}</button>`).join('');
     };
     const render = () => {
       renderPlatformFilters();
@@ -167,7 +183,7 @@
         .filter(serviceMatchesPlatform)
         .filter(s => selectedCategory==='all' || String(s.category||'').toLowerCase()===String(selectedCategory).toLowerCase())
         .filter(s => !q || [s.name,s.shortDesc,XH.gameLabel(s.gameCode),XH.categoryLabel(s.category,s.gameCode)].some(v=>String(v||'').toLowerCase().includes(q)));
-      if (list) list.innerHTML = rows.length ? rows.map(s => XH.serviceCard(s)).join('') : '<div class="empty card service-browser-empty"><strong>暂时没有匹配服务</strong><a class="btn primary" href="/quote">提交需求</a></div>';
+      if (list) list.innerHTML = rows.length ? rows.map(s => XH.serviceCard(s)).join('') : '<div class="empty card service-browser-empty"><strong>暂时没有匹配服务</strong><button type="button" class="btn ghost" data-reset-service-filters>清除筛选</button><a class="btn primary" href="/quote">提交需求</a></div>';
       if(summary) {
         const platformName = taxonomy.platforms.find(p => String(p.code||'').toUpperCase()===selectedPlatform)?.name;
         summary.textContent=`${rows.length} 个可接服务${selectedGame==='all'?'':` · ${XH.gameLabel(selectedGame)}`}${selectedPlatform==='all'?'':` · ${platformName||selectedPlatform}`}`;
@@ -179,6 +195,15 @@
     platformBox?.addEventListener('click',e=>{const btn=e.target.closest('[data-platform-filter]');if(!btn)return;selectedPlatform=btn.dataset.platformFilter;selectedCategory='all';render();});
     categoryBox?.addEventListener('click',e=>{const btn=e.target.closest('[data-category-filter]');if(!btn)return;selectedCategory=btn.dataset.categoryFilter;render();});
     search?.addEventListener('input',render);
+    list?.addEventListener('click', e => {
+      if (!e.target.closest('[data-reset-service-filters]')) return;
+      selectedGame = 'all';
+      selectedPlatform = 'all';
+      selectedCategory = 'all';
+      if (search) search.value = '';
+      render();
+      search?.focus();
+    });
   }
 
   async function initQuote() {

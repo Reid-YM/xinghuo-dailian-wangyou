@@ -2,17 +2,17 @@
   <title>多游戏任务代练服务 - 星火网游代练平台</title><meta name="description" content="浏览星火网游代练平台当前可接的 COD MW4、DMZ、战区、战狗等游戏任务服务。">
   <link rel="canonical" href="https://wydlgf.cn/services"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta property="og:type" content="website"><meta property="og:site_name" content="星火网游代练平台"><meta property="og:title" content="多游戏任务代练服务 - 星火网游代练平台"><meta property="og:description" content="浏览 COD MW4、DMZ、战区、战狗等当前可接的游戏任务服务。"><meta property="og:url" content="https://wydlgf.cn/services"><meta property="og:image" content="https://wydlgf.cn/og.png">
-  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer src="/assets/public.js?v=20261008audit01"></script><script defer src="/assets/ui-refresh.js?v=20261003rv2"></script><script defer src="/assets/pages.js?v=20260928v016"></script><link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008a1"/>
+  <link rel="stylesheet" href="/assets/app.css?v=20261005v031"><script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer src="/assets/public.js?v=20261008audit01"></script><script defer src="/assets/ui-refresh.js?v=20261003rv2"></script><script defer src="/assets/pages.js?v=20261014service01"></script><link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008a1"/>
 </head><body data-page="services">
 <header th:replace="~{fragments/site :: header}"></header>
 <main class="container section page-shell services-browser">
   <div th:replace="~{fragments/page :: compactQuoteHero('服务大厅','COD MW4 / DMZ / 战区 任务服务','可靠手打 · 纯绿服务 · 进度可查 · 下单前确认需求','● 多游戏服务大厅 · 按当前进度确认报价','','','service-browser-hero')}"></div>
   <section class="service-browser-console" aria-label="服务筛选">
-    <div class="service-browser-search"><span class="search-icon" aria-hidden="true">⌕</span><input id="publicServiceSearch" type="search" placeholder="搜索游戏或服务" autocomplete="off"></div>
-    <div class="browser-row"><span class="browser-label">游戏</span><div id="publicGameFilters" class="filters game-filter-rail"><button class="filter-btn active" data-game-filter="all">全部游戏</button></div></div>
-    <div class="browser-row"><span class="browser-label">平台</span><div id="publicPlatformFilters" class="filters platform-filter-rail"><button class="filter-btn active" data-platform-filter="all">全部平台</button></div></div>
-    <div class="browser-row"><span class="browser-label">需求</span><div id="publicCategoryFilters" class="filters service-filterbar"><button class="filter-btn active" data-category-filter="all">全部需求</button></div></div>
-    <div class="service-browser-summary" id="publicServiceSummary">正在读取服务…</div>
+    <div class="service-browser-search"><span class="search-icon" aria-hidden="true">⌕</span><label class="service-browser-search-label" for="publicServiceSearch">搜索游戏或服务</label><input id="publicServiceSearch" type="search" placeholder="搜索游戏或服务" autocomplete="off"></div>
+    <div class="browser-row"><span class="browser-label">游戏</span><div id="publicGameFilters" class="filters game-filter-rail"><button class="filter-btn active" data-game-filter="all" aria-pressed="true">全部游戏</button></div></div>
+    <div class="browser-row"><span class="browser-label">平台</span><div id="publicPlatformFilters" class="filters platform-filter-rail"><button class="filter-btn active" data-platform-filter="all" aria-pressed="true">全部平台</button></div></div>
+    <div class="browser-row"><span class="browser-label">需求</span><div id="publicCategoryFilters" class="filters service-filterbar"><button class="filter-btn active" data-category-filter="all" aria-pressed="true">全部需求</button></div></div>
+    <div class="service-browser-summary" id="publicServiceSummary" role="status" aria-live="polite">正在读取服务…</div>
   </section>
   <div id="list" class="grid4 section service-browser-grid">
     <a class="service-card card" th:each="svc : ${hallServices}" th:href="@{'/service/' + ${svc.slug}}" th:attr="data-game-code=${svc.gameCode},data-category=${svc.category}">

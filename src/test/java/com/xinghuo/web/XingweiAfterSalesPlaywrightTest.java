@@ -23,7 +23,7 @@ class XingweiAfterSalesPlaywrightTest {
                     <button id="casePrev"></button><span id="casePage"></span><button id="caseNext"></button>
                     <section id="caseDetail" hidden><div id="caseCurrent"></div><div id="caseFollowups"></div><div id="caseEvents"></div><form id="caseUpdate" hidden></form></section>
                     """;
-            page.route("https://example.test/**", route -> route.fulfill(
+            page.route("**/*", route -> route.fulfill(
                     new com.microsoft.playwright.Route.FulfillOptions().setBody(markup)));
             page.navigate("https://example.test/admin/xingwei/after-sales?status=OPEN&category=DELIVERY&followup=PENDING&q=XW-1&page=2");
             page.evaluate("""
@@ -67,7 +67,7 @@ class XingweiAfterSalesPlaywrightTest {
                       <form id="caseUpdate" hidden><select name="status"><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select><textarea name="handlingNote"></textarea><textarea name="customerReply"></textarea><button type="submit">保存</button></form>
                     </section>
                     """;
-            page.route("https://example.test/**", route -> route.fulfill(
+            page.route("**/*", route -> route.fulfill(
                     new com.microsoft.playwright.Route.FulfillOptions().setBody(markup)));
             page.navigate("https://example.test/admin/xingwei/after-sales");
             page.evaluate("""
@@ -84,7 +84,7 @@ class XingweiAfterSalesPlaywrightTest {
                     """);
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(
                     Path.of("src/main/resources/static/assets/admin-xingwei-after-sales.js")));
-            page.waitForFunction("() => document.querySelector('#casePendingCount').textContent==='3'");
+            page.waitForFunction("() => document.querySelector('#casePendingCount')?.textContent==='3'");
             assertEquals("12", page.locator("#caseTotalCount").textContent());
             page.locator("#caseRows button").click();
             assertTrue(page.locator("#caseRows").innerText().contains("客户补充"));

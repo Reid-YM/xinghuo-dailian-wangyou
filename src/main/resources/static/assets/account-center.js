@@ -86,18 +86,24 @@
   async function initRequests(){const host=$('[data-hub-requests]');if(!host)return;const d=await api('/api/console/quotes');host.textContent='';(d?.items||[]).forEach(x=>renderQuote(host,x));if(!(d?.items||[]).length)empty(host,'暂无需求记录。提交新需求后会自动出现在这里。');}
   async function initOrders(){const host=$('[data-hub-orders]');if(!host)return;const d=await api('/api/console/orders');host.textContent='';(d?.items||[]).forEach(x=>renderOrder(host,x));if(!(d?.items||[]).length)empty(host,'暂无订单记录。询价确认成交后会出现在这里。');}
   let paymentPoll=null;
-  function renderAfterSalesHistory(host,note){
-    host.textContent='';
+  function legacyAfterSalesRecords(note){
     const source=String(note||'');
     const entries=[...source.matchAll(/^\[售后问题 · (交付或进度|取消服务|退款核对|其他问题) · ([^\]\n]+)\]\n/gm)];
-    host.hidden=entries.length===0;
-    if(!entries.length)return;
-    host.append(el('h3','','已提交的售后问题'),el('p','','客服将按业务编号核对，处理结果以客服沟通为准。'));
-    entries.forEach((entry,index)=>{
+    return entries.map((entry,index)=>{
       const untilNext=source.slice(entry.index+entry[0].length,entries[index+1]?.index??source.length);
-      const content=untilNext.split(/\n\n\[用户补充 [^\]\n]+\]\n/,1)[0].trim();
+      return {category:entry[1],submittedAt:entry[2],content:untilNext.split(/\n\n\[用户补充 [^\]\n]+\]\n/,1)[0].trim()};
+    });
+  }
+  function renderAfterSalesHistory(host,detail){
+    host.textContent='';
+    const records=Array.isArray(detail?.afterSalesRecords)
+      ? detail.afterSalesRecords
+      : legacyAfterSalesRecords(detail?.order?.customerNote);
+    host.append(el('h3','','已提交的售后问题'),el('p','','客服将按业务编号核对，处理结果以客服沟通为准。'));
+    if(!records.length){host.appendChild(el('p','account-after-sales-empty','暂无已提交的售后问题。'));return;}
+    records.forEach(record=>{
       const item=el('article','account-after-sales-entry');
-      item.append(el('strong','',entry[1]),el('small','',time(entry[2])),el('p','',content));
+      item.append(el('strong','',record.category||''),el('small','',time(record.submittedAt)),el('p','',record.content||''));
       host.appendChild(item);
     });
   }
@@ -142,7 +148,7 @@
     (d.timeline||[]).forEach(x=>{const i=el('div');i.append(el('strong','',x.title||'进度'),el('p','',x.content||''),el('small','',time(x.createdAt)));t.appendChild(i);});
     host.appendChild(t);
     const afterSalesHistory=el('section','account-after-sales-history');afterSalesHistory.dataset.afterSalesHistory='1';
-    renderAfterSalesHistory(afterSalesHistory,d.order?.customerNote);host.appendChild(afterSalesHistory);
+    renderAfterSalesHistory(afterSalesHistory,d);host.appendChild(afterSalesHistory);
     const afterSales=el('form','account-after-sales');
     afterSales.dataset.afterSalesForm=d.order?.businessNo||d.order?.orderNo||no;
     afterSales.append(el('h3','','售后问题说明'),el('p','','提交后由客服按业务编号核对。此处不会自动取消订单或发起退款；淘宝、闲鱼订单仍按对应平台规则处理。'));
@@ -187,7 +193,7 @@
       try{
         const detail=await api(`/api/console/orders/${encodeURIComponent(no)}`);
         const history=form.parentElement?.querySelector('[data-after-sales-history]');
-        if(detail&&history)renderAfterSalesHistory(history,detail.order?.customerNote);
+        if(detail&&history)renderAfterSalesHistory(history,detail);
       }catch(_){message.textContent='问题说明已提交。记录暂时无法更新，请刷新页面查看。';}
     }
     catch(err){message.textContent=err.message||'提交失败，请稍后重试。';}

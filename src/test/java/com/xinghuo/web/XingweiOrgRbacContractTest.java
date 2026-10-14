@@ -123,9 +123,9 @@ class XingweiOrgRbacContractTest {
         String accessController = read("java/com/xinghuo/controller/XingweiPermissionController.java");
 
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
-        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261014v3n"));
+        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261014v3o"));
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
-        assertTrue(template.contains("V3N · STABLE PRODUCTION"));
+        assertTrue(template.contains("V3O · RELEASE CANDIDATE"));
         assertTrue(template.contains("V2C · DATA SCOPE"));
         assertTrue(template.contains("ADMIN 全量 · OPERATOR 兼容 · RBAC 执行 ALL / DEPARTMENT / SELF"));
         assertTrue(orgJs.contains("/api/admin/xingwei/org/snapshot"));
@@ -145,7 +145,7 @@ class XingweiOrgRbacContractTest {
         assertTrue(mainJs.contains("xw:runtime-health"));
         assertTrue(accessController.contains("@GetMapping(\"/access\")"));
         assertTrue(controller.contains("20261013-v2c"));
-        assertTrue(controller.contains("20261014-v3n"));
+        assertTrue(controller.contains("20261014-v3o"));
     }
 
     private static int occurrences(String source, String needle) {

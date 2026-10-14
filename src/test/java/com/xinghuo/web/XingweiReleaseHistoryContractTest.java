@@ -15,8 +15,8 @@ class XingweiReleaseHistoryContractTest {
     @Test
     void currentVersionsStageAndReleaseHistoryAreCentralized() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
-        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261014-v3u\""));
-        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V3U · STABLE PRODUCTION\""));
+        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261014-v3v\""));
+        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V3V · RELEASE CANDIDATE\""));
         assertTrue(controller.contains("static final String TAXONOMY_VERSION = \"20261014-v3i\""));
         assertTrue(controller.contains("model.addAttribute(\"consoleStage\", CONSOLE_STAGE)"));
         assertTrue(controller.contains("@GetMapping(\"/admin/xingwei/releases\")"));
@@ -32,6 +32,8 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(controller.contains("\"V3S\", \"已上线\""));
         assertTrue(controller.contains("\"V3T\", \"已上线\""));
         assertTrue(controller.contains("\"V3U\", \"已上线\""));
+        assertTrue(controller.contains("\"V3V\", \"待发布\""));
+        assertTrue(controller.contains("售后问题记录详情查看"));
         assertTrue(controller.contains("售后问题记录按类型筛选"));
         assertTrue(controller.contains("售后问题记录全范围检索与分页"));
         assertTrue(controller.contains("售后问题记录与客户订单回显"));
@@ -52,8 +54,8 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(template.contains("后续固定规则 · CI + 运行时双校验"));
         assertTrue(template.contains("浏览器核对页面版本与实际后端版本"));
         assertTrue(template.contains("th:each=\"item : ${releaseHistory}\""));
-        assertTrue(template.contains(">20261014-v3u</span>"));
-        assertTrue(template.contains(">V3U</strong>"));
+        assertTrue(template.contains(">20261014-v3v</span>"));
+        assertTrue(template.contains(">V3V</strong>"));
     }
 
     @Test
@@ -61,10 +63,10 @@ class XingweiReleaseHistoryContractTest {
         String dashboard = read("resources/templates/admin-xingwei.html");
         assertTrue(dashboard.contains("href=\"/admin/xingwei/releases\">更新记录</a>"));
         assertTrue(dashboard.contains("th:text=\"${consoleStage}\""));
-        assertTrue(dashboard.contains("V3U · STABLE PRODUCTION"));
-        assertTrue(dashboard.contains("V3U 已上线"));
-        assertTrue(dashboard.contains("20261014-v3u"));
-        assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261014v3u"));
+        assertTrue(dashboard.contains("V3V · RELEASE CANDIDATE"));
+        assertTrue(dashboard.contains("V3V 发布候选"));
+        assertTrue(dashboard.contains("20261014-v3v"));
+        assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261014v3v"));
         assertTrue(dashboard.contains("V3H 待真机验收"));
         assertTrue(dashboard.contains("V3I 已上线"));
         assertTrue(dashboard.contains("impactToken"));
@@ -74,6 +76,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(dashboard.contains("<strong>V3S</strong>"));
         assertTrue(dashboard.contains("<strong>V3T</strong>"));
         assertTrue(dashboard.contains("<strong>V3U</strong>"));
+        assertTrue(dashboard.contains("<strong>V3V</strong>"));
         assertTrue(dashboard.contains("客户订单售后说明回显"));
         assertTrue(dashboard.contains("服务大厅支持读取失败重试"));
         assertTrue(dashboard.contains("已上线：企业微信与微信支付集成配置检查"));

@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261014-v3u";
-    static final String CONSOLE_STAGE = "V3U · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261014-v3u";
+    static final String CONSOLE_VERSION = "20261014-v3v";
+    static final String CONSOLE_STAGE = "V3V · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261014-v3v";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-14", "V3V", "待发布",
+                    "售后问题记录详情查看",
+                    "新版业务工作台可从已授权售后列表打开只读详情，完整查看业务编号、订单号、状态、更新时间、客户说明及内部备注；长内容保留换行并作为纯文本显示。只读角色可查看但不能调整归属，沿用 order:view 与既有数据范围。功能 PR #426 已通过 Java/Maven 与 Chromium/WebKit 检查；等待统一版本与生产门禁。此页面不改变订单、退款、收款或企业微信写入。"),
             new ReleaseItem("2026-10-14", "V3U", "已上线",
                     "售后问题记录按类型筛选",
                     "新版业务工作台按客户提交时的交付或进度、取消服务、退款核对、其他问题四类筛选售后记录；类型与关键词、order:view 和 ALL / DEPARTMENT / SELF 数据范围一起进入数据库计数与分页。功能 PR #418、统一版本 PR #420 及生产门禁已完成。此筛选不是工单处理状态，不触发退款或收款，V3H 小程序支付与企业微信写入继续独立验收。"),

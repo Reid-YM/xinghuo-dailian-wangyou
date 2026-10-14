@@ -2,6 +2,7 @@ package com.xinghuo.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -35,8 +36,12 @@ class XingweiAfterSalesCaseServiceTest {
         jdbc.execute("CREATE TABLE customer_orders (order_no VARCHAR(40) PRIMARY KEY, business_no VARCHAR(20))");
         jdbc.execute("CREATE TABLE customer_order_after_sales_records (id BIGINT PRIMARY KEY, order_no VARCHAR(40), category VARCHAR(24), category_label VARCHAR(32), content VARCHAR(240), submitted_at_ms BIGINT)");
         jdbc.execute("CREATE TABLE customer_order_after_sales_case_state (record_id BIGINT PRIMARY KEY, status VARCHAR(24), handling_note VARCHAR(600), handled_by_admin_user_id BIGINT, updated_at TIMESTAMP, version BIGINT)");
+        jdbc.execute("CREATE TABLE xw_business_ownership (business_no VARCHAR(20) PRIMARY KEY, owner_admin_user_id BIGINT, department_id BIGINT)");
+        jdbc.execute("CREATE TABLE xw_departments (id BIGINT PRIMARY KEY, code VARCHAR(16))");
         jdbc.update("INSERT INTO customer_orders VALUES ('O1','XW1'),('O2','XW2')");
-        jdbc.update("INSERT INTO customer_order_after_sales_records VALUES (1,'O1','PROGRESS','进度问题','请核对进度',1000),(2,'O2','OTHER','其他','跨范围记录',2000)");
+        jdbc.update("INSERT INTO customer_order_after_sales_records VALUES (1,'O1','DELIVERY','交付或进度','请核对进度',1000),(2,'O2','OTHER','其他问题','跨范围记录',2000)");
+        jdbc.update("INSERT INTO xw_departments VALUES (3,'03'),(4,'04')");
+        jdbc.update("INSERT INTO xw_business_ownership VALUES ('XW1',7,3),('XW2',8,4)");
         permissions = mock(XingweiPermissionGuard.class);
         scope = mock(XingweiBusinessScopeService.class);
         audit = mock(AuditService.class);
@@ -83,5 +88,45 @@ class XingweiAfterSalesCaseServiceTest {
         assertThrows(AccessDeniedException.class,
                 () -> cases.update("XW1", 1, "RESOLVED", "无权限", 0, actor, null));
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM customer_order_after_sales_case_state", Integer.class));
+    }
+
+    @Test
+    void queueFiltersWithinScopeBeforeCountAndPagination() {
+        jdbc.update("INSERT INTO customer_order_after_sales_records VALUES (3,'O1','OTHER','其他问题','另一条说明',3000)");
+        cases.update("XW1", 1, "RESOLVED", "已处理", 0, actor, null);
+
+        var all = cases.queue(null, null, null, 0, actor);
+        assertEquals(2, all.totalCount());
+        assertEquals(3, all.items().getFirst().record().recordId());
+        assertEquals("XW1", all.items().getFirst().businessNo());
+        assertTrue(all.items().stream().noneMatch(item -> "XW2".equals(item.businessNo())));
+
+        var open = cases.queue("OPEN", "OTHER", "另一条", 0, actor);
+        assertEquals(1, open.totalCount());
+        assertEquals(3, open.items().getFirst().record().recordId());
+        assertEquals(0, cases.queue("OPEN", null, "跨范围", 0, actor).totalCount());
+        assertEquals(1, cases.queue("RESOLVED", null, null, 0, actor).totalCount());
+    }
+
+    @Test
+    void queueRejectsInvalidFiltersAndWithoutReadPermission() {
+        assertThrows(IllegalArgumentException.class, () -> cases.queue("UNKNOWN", null, null, 0, actor));
+        assertThrows(IllegalArgumentException.class, () -> cases.queue(null, "UNKNOWN", null, 0, actor));
+        assertThrows(IllegalArgumentException.class, () -> cases.queue(null, null, null, -1, actor));
+        when(permissions.has(actor, "order:view")).thenReturn(false);
+        assertThrows(AccessDeniedException.class, () -> cases.queue(null, null, null, 0, actor));
+    }
+
+    @Test
+    void queueAppliesDepartmentAllAndDeniedScopesToCountsAndItems() {
+        when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
+                "RBAC", false, List.of("order:view"), List.of(), "DEPARTMENT", 7L, "03"));
+        assertEquals(1, cases.queue(null, null, null, 0, actor).totalCount());
+        when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
+                "LEGACY_ADMIN", true, List.of("order:view"), List.of(), "ALL", 7L, null));
+        assertEquals(2, cases.queue(null, null, null, 0, actor).totalCount());
+        when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
+                "DENIED", false, List.of(), List.of(), "ALL", null, null));
+        assertEquals(0, cases.queue(null, null, null, 0, actor).totalCount());
     }
 }

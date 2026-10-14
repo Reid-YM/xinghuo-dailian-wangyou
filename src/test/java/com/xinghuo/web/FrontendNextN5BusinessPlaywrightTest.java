@@ -71,6 +71,12 @@ class FrontendNextN5BusinessPlaywrightTest {
             page.locator("#n5ClaimButton").click();
             page.waitForFunction("() => window.__claimBody && window.__claimBody.businessNo==='XH-O-LEGACY-1'");
             assertEquals("XMLHttpRequest", page.evaluate("() => window.__claimHeader"));
+            page.waitForFunction("""
+                    () => {
+                      const message=document.querySelector('#n5Message')?.textContent||'';
+                      return message.includes('认领成功') || message.includes('真实业务数据已读取');
+                    }
+                    """);
             assertTrue(page.locator("#n5Message").textContent().contains("真实业务数据已读取")
                     || page.locator("#n5Message").textContent().contains("认领成功"));
         }

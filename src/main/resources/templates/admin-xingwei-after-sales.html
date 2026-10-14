@@ -9,8 +9,8 @@
   <title>售后处理 · 星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261014v3x"/>
-  <link rel="stylesheet" href="/assets/admin-xingwei-after-sales.css?v=20261015v4h"/>
-  <script defer src="/assets/admin-xingwei-after-sales.js?v=20261015v4h"></script>
+  <link rel="stylesheet" href="/assets/admin-xingwei-after-sales.css?v=20261015v4i"/>
+  <script defer src="/assets/admin-xingwei-after-sales.js?v=20261015v4i"></script>
 </head>
 <body>
 <main class="xwb-shell">
@@ -25,6 +25,11 @@
     <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-status="IN_PROGRESS" disabled aria-pressed="false"><span>处理中</span><strong id="caseInProgressCount">—</strong><small>查看记录</small></button>
     <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-status="RESOLVED" disabled aria-pressed="false"><span>已解决</span><strong id="caseResolvedCount">—</strong><small>查看记录</small></button>
     <p id="caseSummaryMessage" role="status">正在读取售后概览……</p>
+    <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-category="DELIVERY" disabled aria-pressed="false"><span>交付或进度</span><strong id="caseDeliveryCount">—</strong><small>按问题类型筛选</small></button>
+    <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-category="CANCELLATION" disabled aria-pressed="false"><span>取消服务</span><strong id="caseCancellationCount">—</strong><small>按问题类型筛选</small></button>
+    <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-category="REFUND_REVIEW" disabled aria-pressed="false"><span>退款核对</span><strong id="caseRefundReviewCount">—</strong><small>按问题类型筛选</small></button>
+    <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-category="OTHER" disabled aria-pressed="false"><span>其他问题</span><strong id="caseOtherCount">—</strong><small>按问题类型筛选</small></button>
+    <p id="caseCategorySummaryMessage" role="status">正在读取问题类型分布……</p>
   </section>
   <form id="caseFilters" class="xw-case-filters">
     <label>处理状态<select name="status"><option value="">全部</option><option value="OPEN">待处理</option><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select></label>

@@ -140,14 +140,31 @@
       if (list && !list.children.length) list.innerHTML = '<div class="empty card service-browser-empty"><strong>服务暂时无法加载</strong><a class="btn primary" href="/quote">提交需求</a></div>';
       return;
     }
-    const params = new URLSearchParams(location.search);
-    let selectedGame = params.get('game')?.toUpperCase() || 'all';
-    let selectedPlatform = params.get('platform')?.toUpperCase() || 'all';
+    let selectedGame = 'all';
+    let selectedPlatform = 'all';
     let selectedCategory = 'all';
 
     const serviceGameCodes = [...new Set(services.map(s => String(s.gameCode || '').toUpperCase()).filter(Boolean))];
     const serviceGames = serviceGameCodes.map(code => taxonomy.games.find(g => g.code === code)).filter(Boolean);
-    if (selectedGame !== 'all' && !serviceGameCodes.includes(selectedGame)) selectedGame = 'all';
+    const readFiltersFromUrl = () => {
+      const params = new URLSearchParams(location.search);
+      selectedGame = params.has('game') ? params.get('game').toUpperCase() : 'all';
+      selectedPlatform = params.has('platform') ? params.get('platform').toUpperCase() : 'all';
+      selectedCategory = (params.get('category') || 'all').toLowerCase();
+      if (selectedGame !== 'all' && !serviceGameCodes.includes(selectedGame)) selectedGame = 'all';
+      if (search) search.value = params.get('q') || '';
+    };
+    const updateFilterUrl = method => {
+      const url = new URL(location.href);
+      if (!/^https?:$/.test(url.protocol)) return;
+      const set = (key, value, empty) => value === empty ? url.searchParams.delete(key) : url.searchParams.set(key, value);
+      set('game', selectedGame, 'all');
+      set('platform', selectedPlatform, 'all');
+      set('category', selectedCategory, 'all');
+      set('q', (search?.value || '').trim(), '');
+      if (url.href !== location.href) history[method](history.state, '', url);
+    };
+    readFiltersFromUrl();
 
     const platformCodesForGame = gameCode => taxonomy.gamePlatforms.filter(x => x.active !== false && String(x.gameCode||'').toUpperCase() === gameCode).map(x => String(x.platformCode||'').toUpperCase());
     const serviceMatchesPlatform = service => {
@@ -191,10 +208,11 @@
       renderGameFilters();
     };
     render();
-    gameBox?.addEventListener('click',e=>{const btn=e.target.closest('[data-game-filter]');if(!btn)return;selectedGame=btn.dataset.gameFilter;selectedPlatform='all';selectedCategory='all';render();});
-    platformBox?.addEventListener('click',e=>{const btn=e.target.closest('[data-platform-filter]');if(!btn)return;selectedPlatform=btn.dataset.platformFilter;selectedCategory='all';render();});
-    categoryBox?.addEventListener('click',e=>{const btn=e.target.closest('[data-category-filter]');if(!btn)return;selectedCategory=btn.dataset.categoryFilter;render();});
-    search?.addEventListener('input',render);
+    gameBox?.addEventListener('click',e=>{const btn=e.target.closest('[data-game-filter]');if(!btn)return;selectedGame=btn.dataset.gameFilter;selectedPlatform='all';selectedCategory='all';render();updateFilterUrl('pushState');});
+    platformBox?.addEventListener('click',e=>{const btn=e.target.closest('[data-platform-filter]');if(!btn)return;selectedPlatform=btn.dataset.platformFilter;selectedCategory='all';render();updateFilterUrl('pushState');});
+    categoryBox?.addEventListener('click',e=>{const btn=e.target.closest('[data-category-filter]');if(!btn)return;selectedCategory=btn.dataset.categoryFilter;render();updateFilterUrl('pushState');});
+    search?.addEventListener('input',()=>{render();updateFilterUrl('replaceState');});
+    window.addEventListener('popstate',()=>{readFiltersFromUrl();render();});
     list?.addEventListener('click', e => {
       if (!e.target.closest('[data-reset-service-filters]')) return;
       selectedGame = 'all';
@@ -202,6 +220,7 @@
       selectedCategory = 'all';
       if (search) search.value = '';
       render();
+      updateFilterUrl('pushState');
       search?.focus();
     });
   }

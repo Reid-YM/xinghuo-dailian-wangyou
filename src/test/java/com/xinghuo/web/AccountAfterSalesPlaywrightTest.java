@@ -45,6 +45,7 @@ class AccountAfterSalesPlaywrightTest {
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(
                     Path.of("src/main/resources/static/assets/account-center.js")));
             page.locator("[data-order-detail]").click();
+            page.locator("[data-after-sales-form]").waitFor();
             assertTrue(page.locator("[data-after-sales-form]").isVisible());
             page.locator("[data-after-sales-form] select").selectOption("REFUND_REVIEW");
             page.locator("[data-after-sales-form] textarea").fill("请核对未完成部分");

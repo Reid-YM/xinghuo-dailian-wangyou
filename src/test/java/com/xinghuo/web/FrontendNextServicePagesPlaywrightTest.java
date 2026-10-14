@@ -53,6 +53,57 @@ class FrontendNextServicePagesPlaywrightTest {
     }
 
     @Test
+    void serviceHallKeepsServerCardsOnFailureThenRecoversAndClearsEmptySearch() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setContent("""
+                    <body data-page="services"><main>
+                      <section class="service-browser-console">
+                        <input id="publicServiceSearch" type="search">
+                        <div id="publicGameFilters"></div><div id="publicPlatformFilters"></div>
+                        <div id="publicCategoryFilters"></div>
+                        <div id="publicServiceSummary">正在读取服务…</div>
+                      </section>
+                      <div id="list"><a class="service-card" href="/service/server-card">服务端卡片</a></div>
+                    </main></body>
+                    """);
+            page.evaluate("""
+                    () => {
+                      let calls = 0;
+                      window.XH = {
+                        $: selector => document.querySelector(selector),
+                        loadConfig: async () => ({}),
+                        loadServices: async () => {
+                          if (++calls === 1) throw new Error('temporary service outage');
+                          return [{ gameCode: 'CODMW4', category: 'CAMO', name: '迷彩服务', shortDesc: '可预约' }];
+                        },
+                        loadTaxonomy: async () => ({
+                          games: [{ code: 'CODMW4', name: '使命召唤' }], categories: [],
+                          platforms: [], gamePlatforms: []
+                        }),
+                        esc: value => String(value), gameLabel: () => '使命召唤',
+                        categoryLabel: () => '迷彩',
+                        serviceCard: service => `<a class="service-card" href="/service/camo">${service.name}</a>`
+                      };
+                    }
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("pages.js")));
+            page.waitForSelector(".service-browser-retry");
+            assertTrue(page.locator("#list").textContent().contains("服务端卡片"));
+
+            page.locator(".service-browser-retry").click();
+            page.waitForSelector("#list .service-card:has-text('迷彩服务')");
+            assertEquals("true", page.locator("[data-game-filter='all']").getAttribute("aria-pressed"));
+
+            page.locator("#publicServiceSearch").fill("不存在的服务");
+            page.waitForSelector("[data-reset-service-filters]");
+            page.locator("[data-reset-service-filters]").click();
+            assertEquals("", page.locator("#publicServiceSearch").inputValue());
+            assertTrue(page.locator("#list").textContent().contains("迷彩服务"));
+        }
+    }
+
+    @Test
     void detailDesktopAndMobileKeepConversionReadable() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.webkit().launch()) {
             Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(1440, 900));

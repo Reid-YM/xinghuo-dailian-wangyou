@@ -33,6 +33,10 @@
   const assignCurrent = document.getElementById('xwbAssignCurrent');
   const assignTarget = document.getElementById('xwbAssignTarget');
   const assignState = document.getElementById('xwbAssignState');
+  const afterSalesDetailDialog = document.getElementById('xwbAfterSalesDetailDialog');
+  const afterSalesDetailMeta = document.getElementById('xwbAfterSalesDetailMeta');
+  const afterSalesDetailNote = document.getElementById('xwbAfterSalesDetailNote');
+  const afterSalesDetailInternal = document.getElementById('xwbAfterSalesDetailInternal');
   const csrfToken = document.querySelector('meta[name="_csrf"]')?.content || '';
   const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
 
@@ -143,8 +147,16 @@
 
   function actionCell(type, item) {
     const td = document.createElement('td');
+    if (activeTab === 'after-sales') {
+      const detailButton = document.createElement('button');
+      detailButton.type = 'button';
+      detailButton.className = 'xw-mini-button';
+      detailButton.textContent = '查看说明';
+      detailButton.addEventListener('click', () => openAfterSalesDetail(item));
+      td.appendChild(detailButton);
+    }
     if (!item.canAssign) {
-      appendText(td, 'span', '只读', 'xw-muted-label');
+      if (activeTab !== 'after-sales') appendText(td, 'span', '只读', 'xw-muted-label');
       return td;
     }
     const button = document.createElement('button');
@@ -154,6 +166,13 @@
     button.addEventListener('click', () => openAssignment(type, item));
     td.appendChild(button);
     return td;
+  }
+
+  function openAfterSalesDetail(item) {
+    afterSalesDetailMeta.textContent = `业务编号 ${item.businessNo || '—'} · 订单号 ${item.orderNo || '—'} · ${item.status || '状态未知'} · 更新于 ${formatTime(item.updatedAt)}`;
+    afterSalesDetailNote.textContent = item.customerNote || '暂无客户说明';
+    afterSalesDetailInternal.textContent = item.internalNote || '暂无内部备注';
+    afterSalesDetailDialog.showModal();
   }
 
   function quoteSearchText(item) {
@@ -508,6 +527,7 @@
   assignForm?.addEventListener('submit', saveAssignment);
   document.getElementById('xwbAssignClose')?.addEventListener('click', () => dialog.close());
   document.getElementById('xwbAssignCancel')?.addEventListener('click', () => dialog.close());
+  document.getElementById('xwbAfterSalesDetailClose')?.addEventListener('click', () => afterSalesDetailDialog.close());
   dialog?.addEventListener('close', () => { assignment = null; assignState.textContent = ''; });
 
   init();

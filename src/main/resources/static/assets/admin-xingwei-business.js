@@ -6,6 +6,7 @@
   const message = document.getElementById('xwbMessage');
   const refreshButton = document.getElementById('xwbRefresh');
   const search = document.getElementById('xwbSearch');
+  const searchLabel = document.getElementById('xwbSearchLabel');
   const tabs = Array.from(document.querySelectorAll('[data-tab]'));
   const quotePanel = document.getElementById('xwbQuotesPanel');
   const orderPanel = document.getElementById('xwbOrdersPanel');
@@ -14,8 +15,14 @@
   const noAccess = document.getElementById('xwbNoAccess');
   const quoteRows = document.getElementById('xwbQuoteRows');
   const orderRows = document.getElementById('xwbOrderRows');
+  const afterSalesPager = document.getElementById('xwbAfterSalesPager');
+  const afterSalesPrev = document.getElementById('xwbAfterSalesPrev');
+  const afterSalesNext = document.getElementById('xwbAfterSalesNext');
+  const afterSalesPageText = document.getElementById('xwbAfterSalesPageText');
   const kpiScope = document.getElementById('xwbKpiScope');
+  const kpiVisibleLabel = document.getElementById('xwbKpiVisibleLabel');
   const kpiVisible = document.getElementById('xwbKpiVisible');
+  const kpiFilteredLabel = document.getElementById('xwbKpiFilteredLabel');
   const kpiFiltered = document.getElementById('xwbKpiFiltered');
   const kpiUnassigned = document.getElementById('xwbKpiUnassigned');
   const dialog = document.getElementById('xwbAssignDialog');
@@ -32,6 +39,9 @@
   let currentSnapshot = null;
   let candidates = null;
   let assignment = null;
+  let afterSalesPage = 0;
+  let searchTimer = null;
+  let requestVersion = 0;
 
   function normalize(value) {
     return String(value ?? '').toLocaleLowerCase('zh-CN').trim();
@@ -204,7 +214,7 @@
       tr.className = 'xwb-row-empty';
       const td = document.createElement('td');
       td.colSpan = 7;
-      td.textContent = '当前数据范围内没有订单记录';
+      td.textContent = activeTab === 'after-sales' ? '当前范围没有匹配的售后问题记录' : '当前数据范围内没有订单记录';
       tr.appendChild(td);
       orderRows.appendChild(tr);
       return;
@@ -248,6 +258,10 @@
   }
 
   function applySearch() {
+    if (activeTab === 'after-sales') {
+      if (kpiFiltered) kpiFiltered.textContent = String(currentSnapshot?.visibleCount ?? 0);
+      return;
+    }
     const query = normalize(search?.value);
     const tbody = activeTab === 'quotes' ? quoteRows : orderRows;
     if (!tbody) return;
@@ -262,7 +276,7 @@
 
   function updateKpis(snapshot) {
     if (kpiScope) kpiScope.textContent = scopeLabel(snapshot);
-    if (kpiVisible) kpiVisible.textContent = String(snapshot?.visibleCount ?? 0);
+    if (kpiVisible) kpiVisible.textContent = String(activeTab === 'after-sales' ? snapshot?.totalCount ?? 0 : snapshot?.visibleCount ?? 0);
     if (kpiUnassigned) kpiUnassigned.textContent = snapshot?.unassignedVisible ? String(snapshot?.unassignedCount ?? 0) : '不可见';
     applySearch();
   }
@@ -270,6 +284,13 @@
   function updatePanels() {
     quotePanel.hidden = activeTab !== 'quotes';
     orderPanel.hidden = activeTab === 'quotes';
+    if (afterSalesPager) afterSalesPager.hidden = activeTab !== 'after-sales';
+    if (kpiVisibleLabel) kpiVisibleLabel.textContent = activeTab === 'after-sales' ? '匹配总数' : '接口可见';
+    if (kpiFilteredLabel) kpiFilteredLabel.textContent = activeTab === 'after-sales' ? '本页条数' : '当前筛选';
+    if (searchLabel) searchLabel.textContent = activeTab === 'after-sales' ? '检索全部售后问题记录' : '筛选当前列表';
+    if (search) search.placeholder = activeTab === 'after-sales'
+      ? '业务编号、订单号或客户说明……'
+      : '业务编号、游戏、需求、客户联系方式、负责人……';
     if (orderHeading) orderHeading.textContent = activeTab === 'exceptions' ? '异常订单' : activeTab === 'after-sales' ? '售后问题记录' : '订单与履约';
     if (orderDescription) orderDescription.textContent = activeTab === 'after-sales'
       ? '这里集中展示客户曾提交售后说明的订单，按当前账号的数据范围筛选。记录不代表退款申请或处理状态。'
@@ -280,20 +301,36 @@
   async function loadTab(tab, force = false) {
     if (tab === 'quotes' && !can('quote:view')) return;
     if (tab !== 'quotes' && !can('order:view')) return;
+    if (tab !== 'after-sales') clearTimeout(searchTimer);
+    if (tab === 'after-sales' && activeTab !== 'after-sales') afterSalesPage = 0;
     activeTab = tab;
     updatePanels();
+    const thisRequest = ++requestVersion;
     const label = tab === 'quotes' ? '询价' : tab === 'exceptions' ? '异常订单' : tab === 'after-sales' ? '售后问题' : '订单';
     setMessage(`正在读取${label}数据……`);
     try {
       const endpoint = tab === 'exceptions' ? 'orders/exceptions' : tab === 'after-sales' ? 'orders/after-sales' : tab;
-      const snapshot = await fetchJson(`/api/admin/xingwei/business/${endpoint}`);
+      const params = tab === 'after-sales'
+        ? `?page=${afterSalesPage}&q=${encodeURIComponent(search?.value.trim() || '')}`
+        : '';
+      const snapshot = await fetchJson(`/api/admin/xingwei/business/${endpoint}${params}`);
+      if (thisRequest !== requestVersion) return;
       currentSnapshot = snapshot;
       if (tab === 'quotes') renderQuotes(snapshot.items || []);
       else renderOrders(snapshot.items || []);
       updateKpis(snapshot);
-      setMessage(`已按 ${scopeLabel(snapshot)} 加载 ${snapshot.visibleCount ?? 0} 条${label}记录。`, 'ok');
+      if (tab === 'after-sales') {
+        afterSalesPage = snapshot.page ?? afterSalesPage;
+        afterSalesPrev.disabled = afterSalesPage === 0;
+        afterSalesNext.disabled = !snapshot.hasNext;
+        afterSalesPageText.textContent = `第 ${afterSalesPage + 1} 页 · 共 ${snapshot.totalCount ?? 0} 条`;
+      }
+      setMessage(tab === 'after-sales'
+        ? `已按 ${scopeLabel(snapshot)} 检索到 ${snapshot.totalCount ?? 0} 条售后问题记录。`
+        : `已按 ${scopeLabel(snapshot)} 加载 ${snapshot.visibleCount ?? 0} 条${label}记录。`, 'ok');
       if (force) candidates = null;
     } catch (error) {
+      if (thisRequest !== requestVersion) return;
       currentSnapshot = null;
       setMessage(`读取业务数据失败：${error.message}`, 'error');
       if (kpiVisible) kpiVisible.textContent = '—';
@@ -435,7 +472,28 @@
   }
 
   tabs.forEach((button) => button.addEventListener('click', () => loadTab(button.dataset.tab)));
-  search?.addEventListener('input', applySearch);
+  search?.addEventListener('input', () => {
+    if (activeTab !== 'after-sales') {
+      applySearch();
+      return;
+    }
+    clearTimeout(searchTimer);
+    requestVersion += 1;
+    afterSalesPage = 0;
+    searchTimer = setTimeout(() => loadTab('after-sales'), 250);
+  });
+  afterSalesPrev?.addEventListener('click', () => {
+    if (afterSalesPage > 0) {
+      afterSalesPage -= 1;
+      loadTab('after-sales');
+    }
+  });
+  afterSalesNext?.addEventListener('click', () => {
+    if (!afterSalesNext.disabled) {
+      afterSalesPage += 1;
+      loadTab('after-sales');
+    }
+  });
   refreshButton?.addEventListener('click', () => activeTab && loadTab(activeTab, true));
   assignForm?.addEventListener('submit', saveAssignment);
   document.getElementById('xwbAssignClose')?.addEventListener('click', () => dialog.close());

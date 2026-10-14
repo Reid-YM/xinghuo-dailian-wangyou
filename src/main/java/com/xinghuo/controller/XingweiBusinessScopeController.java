@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,8 +48,11 @@ public class XingweiBusinessScopeController {
 
     @GetMapping("/orders/after-sales")
     @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'order:view')")
-    public Map<String, Object> afterSalesOrders(Authentication authentication) {
-        return business.afterSalesOrderSnapshot(authentication);
+    public Map<String, Object> afterSalesOrders(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            Authentication authentication) {
+        return business.afterSalesOrderSnapshot(authentication, q, page);
     }
 
     @GetMapping("/ownership-candidates")

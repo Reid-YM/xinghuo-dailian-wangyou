@@ -151,7 +151,7 @@ class FrontendNextServicePagesPlaywrightTest {
             assertEquals("迷彩服务", page.locator("#list").textContent());
 
             page.locator("#publicServiceSearch").fill("升级");
-            assertTrue(page.url().contains("q=%E5%8D%87%E7%BA%A7"));
+            assertEquals("升级", page.evaluate("() => new URLSearchParams(location.search).get('q')"), page.url());
             page.reload();
             page.evaluate("""
                     () => { window.XH = {

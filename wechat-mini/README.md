@@ -1,36 +1,69 @@
-# 星维网络微信小程序（网站扫码登录）
+# 星火迷彩小程序
 
-这是与网站 `https://wydlgf.cn` 同仓库版本化的小程序客户端。当前第一阶段只做账号互通，不使用云开发，不把网站密码、AppSecret、微信服务端凭据或游戏账号信息放进小程序。
+仓库中的 `wechat-mini/` 现以协作者提供的“星火迷彩追踪器”1.0.13 源码包为基础。原独立的“星维网络”演示客户端不再作为实际发布源码；网站登录码与二维码协议保持兼容。扫码入口变更后的客户端候选版本为 1.0.14。此目录是源码交付，不代表微信后台已将该版本发布或完成真机验收。
 
-## 导入微信开发者工具
+在“我的 → 网站账号”可扫描网站登录页的 `xingwei-login:<8位码>` 二维码，也可手动输入 8 位码。小程序确认后仍须回到原浏览器核对微信识别码尾号，并点击确认登录。网站登录接口已上线，实际小程序扫码流程需用这个 AppID 的体验版真机验证。
 
-1. 微信开发者工具选择“导入项目”，目录选择本仓库的 `wechat-mini/`。
-2. `project.config.json` 中使用 `touristappid` 只是仓库安全占位。导入后在开发者工具的本地项目设置中选择已经注册的“星维网络”小程序 AppID；不要把 AppSecret 写进任何客户端文件。
-3. 小程序后台 `request` 合法域名需要包含 `https://wydlgf.cn`。
-4. 当前版本不上传头像，因此不要求 `uploadFile` 合法域名。手机号授权由网站服务端调用微信接口完成。
+微信小程序项目，提供 MW4 迷彩进度记录、攻略阅读、业务进度查询与账户数据管理。当前项目包含 5 个页面：迷彩进度、攻略列表、攻略详情、查单、我的。
 
-## 登录流程
+## 项目结构
 
-1. 用户在网站 `/account/login` 点击“使用星维网络小程序登录”。
-2. 网站生成 5 分钟有效、一次性的 8 位登录码，同时把同一个码编码为二维码；服务端只保存登录码哈希。
-3. 用户在小程序点击“扫码登录网站”，二维码内容格式为 `xingwei-login:12345678`。
-4. 小程序重新调用 `wx.login` 获取一次性 code，并提交到 `/api/account/wechat-mini/confirm`。
-5. 网站原浏览器轮询到 ready 后显示微信识别码尾号，用户在原浏览器再次点击确认，才会绑定账号并签发网站会话。
+| 目录 | 用途 |
+| --- | --- |
+| `miniprogram/pages/` | 页面、模板与样式 |
+| `miniprogram/config/business.js` | 品牌、版本、数据源与客服配置 |
+| `miniprogram/utils/` | 数据请求、缓存、统计、同步与内容处理 |
+| `miniprogram/data/` | 离线武器/迷彩快照与图片映射 |
+| `miniprogram/images/` | 包内武器和迷彩图 |
+| `cloudfunctions/login/` | 获取当前用户身份 |
+| `cloudfunctions/syncProgress/` | 进度与收藏的云端同步 |
+| `tools/` | 校验、模拟和数据维护脚本 |
+| `docs/` | 优化方案、上线清单和业务说明 |
 
-二维码被截屏或登录码泄露都不能单独领取网站会话，因为最后一步必须持有原浏览器的 HttpOnly 高熵 Cookie。
+## 本地开发
 
-## 已接接口
+在微信开发者工具中打开本目录（`project.config.json` 所在目录）。项目使用 `miniprogram/` 作为小程序根目录，`cloudfunctions/` 作为云函数根目录。
 
-- `POST /api/account/wechat-mini/confirm`：扫码/输入登录码后确认微信身份。
-- `POST /api/account/wechat-mini/profile`：读取当前微信是否已关联网站账号。
-- `POST /api/account/wechat-mini/sync-profile`：同步网站显示昵称。
-- `POST /api/account/wechat-mini/sync-phone`：授权手机号后写入已关联账号联系方式。
+项目脚本使用 Node.js：
 
-所有请求都会在调用前重新执行一次 `wx.login`，不会复用已经消费的一次性微信 code。
+```bash
+node tools/validate.js
+node tools/simulate.js
+node tools/test-sync.js
+node tools/check-images.js
+node tools/compliance.js
+```
+
+上述脚本分别检查页面结构、页面逻辑、同步增删与并发、图片映射、页面文案与远端攻略内容。`compliance.js` 的结果只供人工复核，不能保证平台审核结果。
+
+macOS 上开启开发者工具的“服务端口”后，可用以下命令生成预览二维码：
+
+```bash
+/Applications/wechatwebdevtools.app/Contents/MacOS/cli preview \
+  --project "$(pwd)" \
+  --qr-format image \
+  --qr-output "$(pwd)/preview/preview.png"
+```
+
+CLI 显示的代码包体积不能证明包内图片已经在真机可用。发布前应扫描预览二维码，在手机上检查迷彩图、武器图和攻略封面。
+
+## 数据与同步
+
+武器/迷彩数据优先从 `https://wydlgf.cn/api/tool-station` 获取；请求失败时使用本机缓存或 `miniprogram/data/weapons.js` 离线快照。攻略列表和详情也有本机缓存。正式环境需要在小程序管理后台配置相应请求与图片域名。
+
+云端环境 ID 在 `miniprogram/config/business.js` 的 `CLOUD_ENV`。客户端和 `syncProgress` 云函数使用协议 2：同步勾选、取消、收藏与跨设备变更。**修改本地云函数文件不会更新云端函数**；发布前应核对线上版本并完成跨设备验证。若云端仍是旧版，客户端会提示版本过旧并保留本机进度。
+
+清空迷彩进度会删除勾选记录，收藏保留。分享码可用于手动导入/导出；正常跨设备使用推荐先确认云端同步成功。
 
 ## 发布前检查
 
-- 网站生产环境已配置 `WECHAT_MINI_APP_ID` 与 `WECHAT_MINI_APP_SECRET`。
-- 生产服务器公网 IP 已加入微信小程序后台 IP 白名单（手机号授权需要）。
-- `https://wydlgf.cn` 已加入 request 合法域名。
-- 用两台设备验证：新微信首次登录、已关联微信登录、错误码、过期码、重复扫码、二维码截图后二次确认保护。
+详见 [上线清单](docs/上线清单.md) 和 [全局优化方案](docs/全局优化方案.md)。最低限度需要确认：
+
+1. 本地脚本和微信开发者工具编译通过。
+2. 真机检查五个页面、大小字体、网络失败状态及图片。
+3. 核对数据接口域名、客服入口和云环境。
+4. 两台设备验证勾选、取消、收藏、清空、退出与重新登录。
+5. 人工复核远端攻略内容及平台要求。
+6. 记录客户端版本、云函数版本、数据快照与预览结果。
+
+本项目用于个人进度记录与查询。界面不以“官方出品”等表述暗示未经确认的官方身份。

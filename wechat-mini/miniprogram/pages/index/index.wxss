@@ -1,0 +1,567 @@
+/* 首页专属样式。公共部分（page/card/btn/bar/footer 等）在 app.wxss 里。 */
+
+/* ---------------------------------------------------------------- 云状态条 */
+
+.cloud-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1a1e25;
+  border: 1rpx solid #2b313a;
+  border-left: 4rpx solid #b8d971;
+  border-radius: 10rpx;
+  padding: 18rpx 22rpx;
+  margin-bottom: 18rpx;
+}
+
+.cloud-strip.done {
+  border-left-color: #4ade80;
+}
+
+.cloud-strip.off {
+  border-left-color: #3a4150;
+}
+
+.cloud-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: #cbd2dc;
+  line-height: 1.5;
+}
+
+.cloud-btn {
+  flex-shrink: 0;
+  margin-left: 20rpx;
+  padding: 12rpx 26rpx;
+  border-radius: 8rpx;
+  background: #c6f24e;
+  color: #11141a;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- 悬浮客服入口 */
+
+
+/* ---------------------------------------------------------------- 三段迷彩说明 */
+
+.guide-body {
+  margin-top: 18rpx;
+}
+
+.guide-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20rpx;
+  padding: 20rpx 0 0;
+  border-top: 1rpx solid #303741;
+  color: #cbd2dc;
+  font-size: 24rpx;
+}
+
+.guide-row {
+  display: flex;
+  padding: 16rpx 0;
+  border-top: 1rpx solid #222731;
+}
+
+.guide-tier {
+  width: 64rpx;
+  flex-shrink: 0;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #c6f24e;
+}
+
+.guide-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.guide-line {
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: #cbd2dc;
+}
+
+.guide-line.dim {
+  margin-top: 4rpx;
+  color: #7c8595;
+}
+
+/* ---------------------------------------------------------------- 模式切换 */
+
+
+/* ---------------------------------------------------------------- 迷彩概览 */
+
+.camo-row {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+}
+
+.camo-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+}
+
+.camo-name {
+  flex: 1;
+  font-size: 26rpx;
+}
+
+.camo-count {
+  font-size: 24rpx;
+  color: #8b94a3;
+}
+
+/* ---------------------------------------------------------------- 筛选 */
+
+.filter-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 30rpx 4rpx 18rpx;
+}
+
+.filter-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #e9ecf1;
+}
+
+.filter-count {
+  font-size: 22rpx;
+  color: #8b94a3;
+}
+
+.filters {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.search {
+  flex: 1;
+  height: 76rpx;
+  background: #171a21;
+  border: 1rpx solid #262b35;
+  border-radius: 12rpx;
+  padding: 0 22rpx;
+  font-size: 26rpx;
+  color: #e9ecf1;
+}
+
+.search-ph {
+  color: #6b7280;
+}
+
+.picker {
+  height: 76rpx;
+  line-height: 76rpx;
+  background: #171a21;
+  border: 1rpx solid #262b35;
+  border-radius: 12rpx;
+  padding: 0 22rpx;
+  font-size: 26rpx;
+  color: #dfe4ec;
+  max-width: 260rpx;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.chips {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.chip {
+  padding: 12rpx 24rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #262b35;
+  background: #171a21;
+  font-size: 24rpx;
+  color: #98a1af;
+}
+
+.chip.on {
+  border-color: #c6f24e;
+  color: #c6f24e;
+}
+
+.filter-reset {
+  margin: -4rpx 4rpx 20rpx;
+  color: #c6e58a;
+  font-size: 23rpx;
+}
+
+/* ---------------------------------------------------------------- 武器列表 */
+
+.group {
+  margin-bottom: 20rpx;
+}
+
+.group-head {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 22rpx;
+  background: #171a21;
+  border: 1rpx solid #262b35;
+  border-radius: 10rpx;
+}
+
+.group-head.static {
+  border-radius: 14rpx 14rpx 0 0;
+}
+
+.group-name {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.group-count {
+  font-size: 24rpx;
+  color: #8b94a3;
+  margin-right: 14rpx;
+}
+
+.chev {
+  font-size: 34rpx;
+  line-height: 1;
+  color: #6b7280;
+  transform: rotate(0deg);
+}
+
+.chev.open {
+  transform: rotate(90deg);
+}
+
+.weapons {
+  margin-top: 12rpx;
+}
+
+.weapon {
+  background: #14171d;
+  border: 1rpx solid #222731;
+  border-radius: 12rpx;
+  margin-bottom: 12rpx;
+  overflow: hidden;
+}
+
+.weapon-head {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 18rpx;
+}
+
+.star {
+  width: 56rpx;
+  text-align: center;
+  font-size: 34rpx;
+  color: #3a4150;
+  flex-shrink: 0;
+}
+
+.star.on {
+  color: #c6f24e;
+}
+
+.weapon-name {
+  flex: 1;
+  font-size: 28rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tier-btns {
+  display: flex;
+  gap: 6rpx;
+  margin-right: 10rpx;
+}
+
+.tier-btn {
+  width: 64rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  text-align: center;
+  border-radius: 10rpx;
+  border: 2rpx solid #2f3542;
+  font-size: 24rpx;
+  color: #8b94a3;
+}
+
+.tier-btn.on {
+  background: #c6f24e;
+  border-color: #c6f24e;
+  color: #11141a;
+  font-weight: 700;
+}
+
+.weapon-count {
+  width: 66rpx;
+  text-align: right;
+  font-size: 24rpx;
+  color: #8b94a3;
+  flex-shrink: 0;
+}
+
+.weapon-detail {
+  border-top: 1rpx solid #222731;
+  padding: 8rpx 18rpx 18rpx;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.tier-dot {
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: #2f3542;
+  margin-right: 16rpx;
+}
+
+.tier-dot.on {
+  background: #c6f24e;
+}
+
+.detail-camo {
+  flex: 1;
+  font-size: 25rpx;
+  color: #cbd2dc;
+}
+
+.detail-state {
+  font-size: 23rpx;
+  color: #8b94a3;
+}
+
+.hint {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  line-height: 1.5;
+  color: #7c8595;
+}
+
+.event-badge {
+  width: 56rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.btn.share {
+  display: block;
+  width: 100%;
+  margin-top: 20rpx;
+}
+
+/* ==================================================================
+   下面这些是「数据改成读官网接口」之后新增的样式
+   ================================================================== */
+
+
+
+.data-note {
+  margin-top: 14rpx;
+  font-size: 21rpx;
+  line-height: 1.5;
+  color: #fbbf24;
+}
+
+.guide-foot {
+  margin-top: 16rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #222731;
+  font-size: 22rpx;
+  color: #8b94a3;
+}
+
+/* 迷彩概览：中文名 + 英文名，三档各一个颜色 */
+.camo-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.camo-name {
+  flex: none;
+  font-size: 26rpx;
+}
+
+.camo-name-en {
+  font-size: 20rpx;
+  color: #6b7280;
+}
+
+.camo-dot.t1 {
+  background: #c6f24e;
+}
+
+.camo-dot.t2 {
+  background: #7dd3fc;
+}
+
+.camo-dot.t3 {
+  background: #f0abfc;
+}
+
+/* 武器行：图标 + 中英文名 */
+.w-img {
+  width: 76rpx;
+  height: 50rpx;
+  margin-right: 14rpx;
+  border-radius: 6rpx;
+  background: #1c2027;
+  flex-shrink: 0;
+}
+
+.weapon-name-box {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.weapon-name {
+  flex: none;
+  font-size: 28rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.weapon-name-en {
+  font-size: 20rpx;
+  color: #6b7280;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 展开后的档位行 */
+.detail-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-camo {
+  flex: none;
+  font-size: 25rpx;
+  color: #cbd2dc;
+}
+
+.detail-camo-en {
+  font-size: 20rpx;
+  color: #6b7280;
+}
+
+/* 底部查单入口 */
+.record-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24rpx;
+  padding: 22rpx 24rpx;
+  background: #1a1e25;
+  border: 1rpx solid #2b313a;
+  border-radius: 10rpx;
+}
+
+.record-link-text {
+  font-size: 25rpx;
+  color: #cbd2dc;
+}
+
+/* ==================================================================
+   这次改版新增：迷彩图进追踪器、模式卡片可点、登录后「数据已保存」
+   ================================================================== */
+
+/* 登录后的状态条 */
+.cloud-strip.saved {
+  border-left-color: #4ade80;
+}
+
+.check {
+  color: #4ade80;
+  font-weight: 700;
+  margin-right: 8rpx;
+}
+
+.cloud-link {
+  flex-shrink: 0;
+  margin-left: 20rpx;
+  padding: 8rpx 0;
+  font-size: 23rpx;
+  color: #8b94a3;
+}
+
+/* 模式卡片：可点 + 当前模式高亮 */
+.mode-stat.on {
+  border-color: #4a5a2a;
+  background: #1b2019;
+}
+
+.mode-stat.on .mode-stat-label {
+  color: #c6f24e;
+}
+
+.mode-hint {
+  margin-top: 12rpx;
+  font-size: 21rpx;
+  color: #6b7280;
+}
+
+/* 三档迷彩的官方图 */
+.camo-thumb {
+  width: 104rpx;
+  height: 62rpx;
+  border-radius: 8rpx;
+  background: #11141a;
+  margin-right: 18rpx;
+  flex-shrink: 0;
+}
+
+.camo-thumb-empty {
+  width: 104rpx;
+  margin-right: 18rpx;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.camo-thumb-empty .camo-dot {
+  margin-right: 0;
+}
+
+.camo-tap-hint {
+  margin-top: 14rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #222731;
+  font-size: 20rpx;
+  color: #6b7280;
+}
+
+/* 展开武器时每一档的迷彩小图 */
+.detail-thumb {
+  width: 76rpx;
+  height: 46rpx;
+  border-radius: 6rpx;
+  background: #11141a;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}

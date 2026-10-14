@@ -1,0 +1,243 @@
+<view class="page">
+  <view class="hero">
+    <view class="hero-title">星火迷彩追踪器</view>
+    <view class="hero-sub">{{weaponCount}} 把武器 · {{stats.total}} 项进度 · 自动保存</view>
+    <view class="source-line">{{sourceText}}</view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">正在读取官网数据…</view>
+
+  <!-- 登录 / 同步状态条（云开发没开通时自动换文案） -->
+  <view class="cloud-strip" wx:if="{{cloud.available && !cloud.loggedIn}}">
+    <view class="cloud-text">{{cloud.syncing ? '正在登录…' : '登录微信保存数据'}}</view>
+    <view class="cloud-btn" wx:if="{{!cloud.syncing}}" bindtap="onLogin">微信登录</view>
+  </view>
+  <view class="cloud-strip saved" wx:elif="{{cloud.loggedIn}}">
+    <view class="cloud-text"><text class="check">✓</text> 已登录 · {{cloud.syncText}}</view>
+    <view class="cloud-link" bindtap="onSync">{{cloud.syncing ? '同步中…' : '同步'}}</view>
+  </view>
+  <view class="cloud-strip off" wx:elif="{{cloud.hint}}">
+    <view class="cloud-text">{{cloud.hint}}</view>
+  </view>
+
+  <view class="card">
+    <view class="row-between">
+      <text class="label">总进度</text>
+      <text class="mono accent">{{stats.count}} / {{stats.total}} · {{stats.pct}}%</text>
+    </view>
+    <view class="bar">
+      <view class="bar-fill" style="width: {{stats.pct}}%"></view>
+    </view>
+    <view class="mode-stats">
+      <view
+        class="mode-stat {{activeMode === item.code ? 'on' : ''}}"
+        wx:for="{{modeStats}}"
+        wx:key="code"
+        data-key="{{item.code}}"
+        bindtap="onMode"
+        role="button"
+        aria-label="查看{{item.short}}模式，已完成{{item.count}}项，共{{item.total}}项"
+      >
+        <text class="mode-stat-label">{{item.short}}</text>
+        <text class="mono mode-stat-value {{item.pct === 100 ? 'ok' : ''}}">{{item.count}}/{{item.total}}</text>
+      </view>
+    </view>
+    <view class="mode-hint">选择模式，查看对应迷彩与武器进度</view>
+    <view class="data-note" wx:if="{{dataNote}}">{{dataNote}}</view>
+  </view>
+
+  <view class="card service" wx:if="{{copy}}">
+    <view class="service-title">{{copy.cardTitle}}</view>
+    <view class="service-desc">{{copy.cardDesc}}</view>
+    <button class="service-btn" wx:if="{{kfReady}}" bindtap="onContact">{{kfButtonText}}</button>
+    <button class="service-btn" wx:else open-type="contact" session-from="{{sessionFrom}}">{{copy.buttonText}}</button>
+  </view>
+
+  <view class="card mode-detail">
+    <view class="card-title">{{activeModeName}}进度</view>
+    <view class="camo-row" wx:for="{{tierCounts}}" wx:key="tier">
+      <image
+        class="camo-thumb"
+        wx:if="{{showImages && item.image}}"
+        src="{{item.image}}"
+        binderror="onImgError"
+        mode="aspectFill"
+        lazy-load
+        data-url="{{item.image}}"
+        bindtap="onPreviewCamo"
+      ></image>
+      <view class="camo-thumb-empty" wx:else>
+        <view class="camo-dot t{{item.tier}}"></view>
+      </view>
+      <view class="camo-text">
+        <text class="camo-name">T{{item.tier}} · {{item.name}}</text>
+        <text class="camo-name-en">{{item.nameEn}}</text>
+      </view>
+      <text class="mono camo-count {{item.count === weaponCount ? 'ok' : ''}}">{{item.count}}/{{weaponCount}}</text>
+    </view>
+    <view class="camo-tap-hint" wx:if="{{showImages}}">点迷彩图看大图</view>
+    <view class="guide-toggle" bindtap="onToggleGuide">
+      <text>{{guideOpen ? '收起解锁要求' : '查看解锁要求'}}</text>
+      <text class="chev {{guideOpen ? 'open' : ''}}">›</text>
+    </view>
+    <view wx:if="{{guideOpen}}" class="guide-body">
+      <view class="guide-row" wx:for="{{activeTiers}}" wx:key="tier">
+        <text class="guide-tier">T{{item.tier}}</text>
+        <view class="guide-text">
+          <text class="guide-line">{{item.nameZh}} · {{item.name}}</text>
+          <text class="guide-line dim">{{item.requirement}}</text>
+        </view>
+      </view>
+      <view class="guide-foot" wx:if="{{finalCamo}}">本模式终局迷彩：{{finalCamo}}</view>
+    </view>
+  </view>
+
+  <view class="filter-head">
+    <text class="filter-title">武器进度</text>
+    <text class="filter-count">显示 {{visibleCount}} 项</text>
+  </view>
+  <view class="filters">
+    <input
+      class="search"
+      placeholder="搜索武器（中英文都行）"
+      placeholder-class="search-ph"
+      value="{{keyword}}"
+      bindinput="onSearch"
+      confirm-type="search"
+    />
+    <picker
+      mode="selector"
+      range="{{classOptions}}"
+      value="{{classIndex}}"
+      bindchange="onClassChange"
+    >
+      <view class="picker">{{classOptions[classIndex]}}</view>
+    </picker>
+  </view>
+
+  <view class="chips">
+    <view class="chip {{statusFilter === 'all' ? 'on' : ''}}" data-v="all" bindtap="onStatus">全部</view>
+    <view class="chip {{statusFilter === 'todo' ? 'on' : ''}}" data-v="todo" bindtap="onStatus">未完成</view>
+    <view class="chip {{statusFilter === 'done' ? 'on' : ''}}" data-v="done" bindtap="onStatus">已完成</view>
+    <view class="chip {{statusFilter === 'fav' ? 'on' : ''}}" data-v="fav" bindtap="onStatus">收藏</view>
+  </view>
+
+  <view class="filter-reset" wx:if="{{hasActiveFilters && visibleCount > 0}}" bindtap="onResetFilters">清除筛选条件</view>
+  <view class="empty-state" wx:if="{{!loading && visibleCount === 0}}">
+    <view class="empty-title">没有符合条件的项目</view>
+    <view class="empty-desc">请更换关键词或清除筛选条件。</view>
+    <button class="btn ghost" bindtap="onResetFilters">清除筛选</button>
+  </view>
+
+  <view class="group" wx:for="{{groups}}" wx:key="cls">
+    <view class="group-head" data-cls="{{item.cls}}" bindtap="onToggleClass">
+      <text class="group-name">{{item.cls}}</text>
+      <text class="mono group-count">{{item.count}}/{{item.total}}</text>
+      <text class="chev {{item.collapsed ? '' : 'open'}}">›</text>
+    </view>
+
+    <view class="weapons" wx:if="{{!item.collapsed}}">
+      <view class="weapon" wx:for="{{item.weapons}}" wx:for-item="w" wx:key="code">
+        <view class="weapon-head">
+          <view
+            class="star {{w.fav ? 'on' : ''}}"
+            data-weapon="{{w.code}}"
+            catchtap="onToggleFav"
+            role="button"
+            aria-label="{{w.fav ? '取消收藏' : '收藏'}}{{w.nameZh}}"
+          >★</view>
+          <image
+            class="w-img"
+            wx:if="{{showImages && w.image}}"
+            src="{{w.image}}"
+            binderror="onImgError"
+            mode="aspectFit"
+            lazy-load
+          ></image>
+          <view class="weapon-name-box" data-weapon="{{w.code}}" catchtap="onToggleExpand">
+            <text class="weapon-name">{{w.nameZh}}</text>
+            <text class="weapon-name-en">{{w.name}}</text>
+          </view>
+          <view class="tier-btns">
+            <view
+              class="tier-btn {{t.on ? 'on' : ''}}"
+              wx:for="{{w.tiers}}"
+              wx:for-item="t"
+              wx:key="key"
+              data-key="{{t.key}}"
+              catchtap="onToggleTier"
+              role="button"
+              aria-label="{{w.nameZh}}第{{t.tier}}档，{{t.on ? '已获得' : '未获得'}}"
+            >{{t.tier}}</view>
+          </view>
+          <text class="mono weapon-count {{w.complete ? 'ok' : ''}}">{{w.count}}/{{w.total}}</text>
+          <view
+            class="chev {{w.expanded ? 'open' : ''}}"
+            data-weapon="{{w.code}}"
+            catchtap="onToggleExpand"
+          >›</view>
+        </view>
+
+        <view class="weapon-detail" wx:if="{{w.expanded}}">
+          <view
+            class="detail-row"
+            wx:for="{{w.tiers}}"
+            wx:for-item="t"
+            wx:key="key"
+            data-key="{{t.key}}"
+            bindtap="onToggleTier"
+          >
+            <image
+              class="detail-thumb"
+              wx:if="{{showImages && t.image}}"
+              src="{{t.image}}"
+              binderror="onImgError"
+              mode="aspectFill"
+              lazy-load
+              data-url="{{t.image}}"
+              catchtap="onPreviewCamo"
+            ></image>
+            <view class="tier-dot {{t.on ? 'on' : ''}}" wx:else></view>
+            <view class="detail-text">
+              <text class="detail-camo">T{{t.tier}} · {{t.name}}</text>
+              <text class="detail-camo-en">{{t.nameEn}}</text>
+            </view>
+            <text class="detail-state">{{t.on ? '已获得' : '未获得'}}</text>
+          </view>
+          <view class="hint">{{w.hint}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="group" wx:if="{{eventList.length}}">
+    <view class="group-head static">
+      <text class="group-name">{{eventTitle}}</text>
+      <text class="mono group-count">{{eventList.length}} 项 · 独立进度</text>
+    </view>
+    <view class="weapons">
+      <view class="weapon" wx:for="{{eventList}}" wx:key="code">
+        <view class="weapon-head">
+          <view class="event-badge">EV</view>
+          <view class="weapon-name-box">
+            <text class="weapon-name">{{item.name}}</text>
+            <text class="weapon-name-en">{{item.nameEn}}</text>
+          </view>
+          <text class="mono weapon-count {{item.on ? 'ok' : ''}}">{{item.on ? '1/1' : '0/1'}}</text>
+          <view class="tier-btn {{item.on ? 'on' : ''}}" data-key="{{item.key}}" catchtap="onToggleTier" role="button" aria-label="{{item.name}}{{item.on ? '已完成' : '未完成'}}">✓</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+
+
+  <button class="btn ghost share" open-type="share">分享星火迷彩追踪器</button>
+
+  <view class="record-link" bindtap="onGoRecord">
+    <text class="record-link-text">查询业务单进度</text>
+    <text class="chev">›</text>
+  </view>
+
+  <view class="footer">{{brand}} · 数据来自星火官网工具站。本工具用于个人进度记录与查询。</view>
+</view>

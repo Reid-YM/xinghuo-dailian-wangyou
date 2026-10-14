@@ -1,0 +1,236 @@
+/* 攻略详情页样式。公共部分在 app.wxss 里。 */
+
+.loading {
+  padding: 60rpx 0;
+  text-align: center;
+  font-size: 25rpx;
+  color: #8b94a3;
+}
+
+
+/* 标题区 */
+.head {
+  padding: 8rpx 4rpx 20rpx;
+}
+
+.g-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.g-sub {
+  margin-top: 12rpx;
+  font-size: 25rpx;
+  line-height: 1.6;
+  color: #98a1af;
+}
+
+.g-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+
+.badge {
+  padding: 4rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(198, 242, 78, 0.14);
+  border: 1rpx solid #4a5a2a;
+  font-size: 21rpx;
+  color: #c6f24e;
+}
+
+.g-meta-text {
+  font-size: 22rpx;
+  color: #8b94a3;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 16rpx;
+}
+
+.tag {
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: #1c2027;
+  font-size: 20rpx;
+  color: #7c8595;
+}
+
+.cover {
+  width: 100%;
+  border-radius: 14rpx;
+  background: #11141a;
+  margin-bottom: 20rpx;
+}
+
+/* 正文 */
+.sec {
+  padding: 26rpx 24rpx;
+}
+
+.sec-heading {
+  font-size: 32rpx;
+  font-weight: 700;
+  padding-bottom: 14rpx;
+  margin-bottom: 18rpx;
+  border-bottom: 1rpx solid #262b35;
+}
+
+.sec-img {
+  width: 100%;
+  border-radius: 10rpx;
+  margin: 6rpx 0 16rpx;
+  background: #11141a;
+}
+
+.md-h {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin: 22rpx 0 10rpx;
+}
+
+.md-h.lv1 {
+  font-size: 32rpx;
+}
+
+.md-h.lv2 {
+  font-size: 30rpx;
+}
+
+.md-p {
+  margin: 14rpx 0;
+  font-size: 27rpx;
+  line-height: 1.75;
+  color: #cbd2dc;
+}
+
+.md-quote {
+  margin: 16rpx 0;
+  padding: 16rpx 20rpx;
+  border-left: 6rpx solid #3a4a2a;
+  background: #14171d;
+  border-radius: 0 10rpx 10rpx 0;
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: #98a1af;
+}
+
+.md-divider {
+  height: 1rpx;
+  background: #262b35;
+  margin: 26rpx 0;
+}
+
+.md-list {
+  margin: 14rpx 0;
+}
+
+.md-li {
+  display: flex;
+  align-items: flex-start;
+  margin: 10rpx 0;
+}
+
+.md-li-mark {
+  width: 40rpx;
+  flex-shrink: 0;
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: #c6f24e;
+}
+
+.md-li-body {
+  flex: 1;
+  min-width: 0;
+  font-size: 27rpx;
+  line-height: 1.7;
+  color: #cbd2dc;
+}
+
+.b {
+  font-weight: 700;
+  color: #e9ecf1;
+}
+
+.code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 24rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+  background: #1c2027;
+  color: #c6f24e;
+}
+
+/* 常见问题 */
+.faq {
+  margin-top: 6rpx;
+}
+
+.faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-top: 1rpx solid #222731;
+}
+
+.faq-q-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #dfe4ec;
+}
+
+.faq-a {
+  padding: 0 0 20rpx;
+  font-size: 25rpx;
+  line-height: 1.7;
+  color: #98a1af;
+}
+
+/* 相关攻略 */
+.rel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-top: 1rpx solid #222731;
+}
+
+.rel-title {
+  flex: 1;
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: #dfe4ec;
+}
+
+.btn.share {
+  display: block;
+  width: 100%;
+  margin-top: 20rpx;
+}
+
+/* 合规提示 */
+.notice {
+  border-color: #4a3a2a;
+  background: #1d1a15;
+}
+
+.notice-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.notice-text {
+  margin-top: 14rpx;
+  font-size: 25rpx;
+  line-height: 1.7;
+  color: #98a1af;
+}

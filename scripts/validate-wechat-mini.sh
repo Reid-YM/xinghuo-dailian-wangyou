@@ -2,78 +2,45 @@
 set -euo pipefail
 
 root="${1:-wechat-mini}"
+client="$root/miniprogram"
 
-required=(
-  "$root/app.js"
-  "$root/app.json"
-  "$root/app.wxss"
-  "$root/project.config.json"
-  "$root/sitemap.json"
-  "$root/pages/account/index.js"
-  "$root/pages/account/index.json"
-  "$root/pages/account/index.wxml"
-  "$root/pages/account/index.wxss"
-)
-
-for file in "${required[@]}"; do
-  if [[ ! -f "$file" ]]; then
-    echo "::error::Missing WeChat mini-program file: $file"
-    exit 1
-  fi
+for file in "$root/project.config.json" "$client/app.js" "$client/app.json" \
+  "$client/pages/me/me.js" "$client/pages/me/me.wxml" \
+  "$client/utils/site-account.js" "$root/cloudfunctions/login/index.js" \
+  "$root/cloudfunctions/syncProgress/index.js"; do
+  [[ -f "$file" ]] || { echo "::error::Missing mini-program file: $file"; exit 1; }
 done
-
-echo "Node: $(node --version)"
-node --check "$root/app.js"
-node --check "$root/pages/account/index.js"
 
 node - "$root" <<'NODE'
 const fs = require('fs');
 const path = require('path');
 const root = process.argv[2];
-const jsonFiles = [
-  'app.json',
-  'project.config.json',
-  'sitemap.json',
-  'pages/account/index.json'
-];
-for (const relative of jsonFiles) {
-  const file = path.join(root, relative);
-  JSON.parse(fs.readFileSync(file, 'utf8'));
-  console.log(`JSON OK: ${relative}`);
-}
 const project = JSON.parse(fs.readFileSync(path.join(root, 'project.config.json'), 'utf8'));
-if (project.appid !== 'touristappid') {
-  throw new Error('project.config.json must keep touristappid; select the real AppID only in local WeChat DevTools settings.');
+const app = JSON.parse(fs.readFileSync(path.join(root, 'miniprogram/app.json'), 'utf8'));
+if (project.miniprogramRoot !== 'miniprogram/' || project.cloudfunctionRoot !== 'cloudfunctions/') {
+  throw new Error('Mini-program root or cloud-function root changed');
 }
-const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
-if (!app.includes("apiBase: 'https://wydlgf.cn'")) {
-  throw new Error('app.js must use the production HTTPS API base https://wydlgf.cn');
-}
+if (!/^wx[0-9a-f]{16}$/i.test(project.appid)) throw new Error('Expected the collaborator mini-program AppID');
+if (!app.pages.includes('pages/me/me')) throw new Error('Website account page is not registered');
+const business = fs.readFileSync(path.join(root, 'miniprogram/config/business.js'), 'utf8');
+if (!business.includes("base: 'https://wydlgf.cn'")) throw new Error('Website API origin changed');
+const page = fs.readFileSync(path.join(root, 'miniprogram/pages/me/me.js'), 'utf8');
+if (!page.includes('wx.scanCode') || !page.includes('xingwei-login:')) throw new Error('Website QR login flow is missing');
+const account = fs.readFileSync(path.join(root, 'miniprogram/utils/site-account.js'), 'utf8');
+if (!account.includes("'/api/account/wechat-mini/confirm'")) throw new Error('Website confirmation API is missing');
+if (!account.includes('wx.login')) throw new Error('Fresh WeChat identity exchange is missing');
+console.log('Mini-program project and website login contract OK');
 NODE
 
-# Client-side source must never contain server credentials or cloud-development calls.
-if grep -RInE --exclude='README.md' --exclude='.gitignore' \
-  'WECHAT_MINI_APP_SECRET|appSecret|app_secret|AppSecret|wx\.cloud|cloudfunctionsRoot' "$root"; then
-  echo "::error::Forbidden server secret/cloud-development reference found in WeChat mini-program client source."
+if grep -RIlE 'WECHAT_MINI_APP_SECRET[[:space:]]*=|API_V3_KEY[[:space:]]*=|-----BEGIN PRIVATE KEY-----' \
+  "$client" "$root/cloudfunctions"; then
+  echo '::error::Client/cloud source contains a server secret.'
   exit 1
 fi
 
-# The scan-login contract should remain explicit and tied to the existing website API.
-grep -Fq "xingwei-login:" "$root/pages/account/index.js" || {
-  echo "::error::Missing xingwei-login QR payload parser."
-  exit 1
-}
-grep -Fq "/api/account/wechat-mini/confirm" "$root/pages/account/index.js" || {
-  echo "::error::Missing mini-program confirmation endpoint."
-  exit 1
-}
-grep -Fq "wx.scanCode" "$root/pages/account/index.js" || {
-  echo "::error::Missing wx.scanCode login flow."
-  exit 1
-}
-grep -Fq "wx.login" "$root/pages/account/index.js" || {
-  echo "::error::Missing wx.login identity exchange flow."
-  exit 1
-}
-
-echo "PASS: WeChat mini-program source validation succeeded."
+node "$root/tools/validate.js"
+node "$root/tools/simulate.js"
+node "$root/tools/test-sync.js"
+node "$root/tools/check-images.js"
+node "$root/tools/test-site-account-page.js"
+echo 'PASS: collaborator mini-program source and website login validation succeeded.'

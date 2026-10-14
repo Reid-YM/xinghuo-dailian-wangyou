@@ -11,9 +11,10 @@ class FrontendStyleLayerContractTest {
     private static final Path MAIN = Path.of("src/main");
 
     @Test
-    void sharedSiteUsesSingleAuthoritativeExperienceLayer() throws Exception {
+    void sharedSiteLoadsCompatibilityThenNextFoundation() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
         assertTrue(site.contains("/assets/site-experience-v2.css?v=20261012ux04"));
+        assertTrue(site.contains("/assets/frontend-next-foundation.css?v=20261014nx01"));
         assertTrue(site.contains("/assets/site-shell.js?v=20261012ss06"));
         assertTrue(site.contains("/assets/brand-logo.svg?v=20261008logo01"));
         assertTrue(site.contains("width=\"32\" height=\"32\" decoding=\"async\""));
@@ -23,6 +24,32 @@ class FrontendStyleLayerContractTest {
         assertFalse(site.contains("site-surface-refine.css"));
         assertFalse(site.contains("site-surface-refine.js"));
         assertFalse(site.contains("style=\"-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important\""));
+
+        int compatibility = site.indexOf("site-experience-v2.css?v=20261012ux04");
+        int next = site.indexOf("frontend-next-foundation.css?v=20261014nx01");
+        int runtime = site.indexOf("frontend-controls-runtime.js");
+        assertTrue(compatibility >= 0 && next > compatibility,
+                "Frontend Next must override the existing compatibility layer without deleting business CSS contracts");
+        assertTrue(runtime > next,
+                "runtime frontend controls must remain after visual CSS so theme variables and visibility controls still work");
+        assertTrue(site.contains("data-experience-shell=\"v4\""));
+    }
+
+    @Test
+    void nextFoundationOwnsWideCanvasHomeHierarchyAndMobileSafety() throws Exception {
+        String css = Files.readString(MAIN.resolve("resources/static/assets/frontend-next-foundation.css"));
+        assertTrue(css.contains("--xh-next-max:1720px"));
+        assertTrue(css.contains("body[data-page=\"home\"] .hero.hero-r3"));
+        assertTrue(css.contains("grid-template-columns:minmax(0,1.28fr) minmax(360px,.72fr)"));
+        assertTrue(css.contains(".linked-selects.four-step"));
+        assertTrue(css.contains("@media (min-width:1600px)"));
+        assertTrue(css.contains("@media (max-width:760px)"));
+        assertTrue(css.contains("input,select,textarea{font-size:16px!important}"));
+        assertTrue(css.contains("env(safe-area-inset-bottom,0px)"));
+        assertTrue(css.contains("@media (prefers-reduced-motion:reduce)"));
+        assertTrue(css.contains("@media (forced-colors:active)"));
+        assertTrue(css.contains("var(--accent-rgb"));
+        assertFalse(css.contains("width:1920px"), "wide layout must stay fluid rather than hard-code one monitor size");
     }
 
     @Test
@@ -37,7 +64,7 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
-    void experienceLayerOwnsZIndexFloatingSupportSecurityAndBrandAssets() throws Exception {
+    void compatibilityLayerStillOwnsSharedBehaviorAssets() throws Exception {
         String css = Files.readString(MAIN.resolve("resources/static/assets/site-experience-v2.css"));
         String js = Files.readString(MAIN.resolve("resources/static/assets/site-shell.js"));
         String logo = Files.readString(MAIN.resolve("resources/static/assets/brand-logo.svg"));

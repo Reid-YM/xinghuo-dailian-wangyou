@@ -2,7 +2,9 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const labels={OPEN:'待处理',IN_PROGRESS:'处理中',RESOLVED:'已解决'};
-  const state={page:0,hasNext:false,total:0,access:null,selected:null,businessNo:null,acknowledgedFollowupId:0};
+  const state={page:0,hasNext:false,total:0,access:null,selected:null,businessNo:null,acknowledgedFollowupId:0,queueRequest:0};
+  const filterKeys=['status','category','followup','q'];
+  const allowed={status:['','OPEN','IN_PROGRESS','RESOLVED'],category:['','DELIVERY','CANCELLATION','REFUND_REVIEW','OTHER'],followup:['','PENDING']};
   const csrf=document.querySelector('meta[name="_csrf"]')?.content;
   const csrfHeader=document.querySelector('meta[name="_csrf_header"]')?.content||'X-CSRF-TOKEN';
   function node(tag,text,klass){const e=document.createElement(tag);if(klass)e.className=klass;e.textContent=String(text??'');return e;}
@@ -18,6 +20,30 @@
     return body;
   }
   function field(host,name,value){const p=node('p',`${name}：${value??'—'}`);p.className='xw-case-field';host.append(p);}
+  function restoreFilters(){
+    const query=new URLSearchParams(location.search),form=$('caseFilters');
+    for(const key of filterKeys){
+      const raw=query.get(key)||'';
+      form.elements[key].value=key==='q'?raw.slice(0,80):(allowed[key].includes(raw)?raw:'');
+    }
+    const rawPage=query.get('page')||'0';
+    state.page=/^(0|[1-9]\d{0,5})$/.test(rawPage)?Number(rawPage):0;
+  }
+  function saveFiltersToUrl(){
+    const url=new URL(location.href),form=$('caseFilters');
+    for(const key of [...filterKeys,'page'])url.searchParams.delete(key);
+    for(const key of filterKeys){const value=String(form.elements[key].value||'').trim();if(value)url.searchParams.set(key,value);}
+    if(state.page)url.searchParams.set('page',String(state.page));
+    history.pushState(null,'',url);
+  }
+  async function loadSummary(){
+    try{
+      const summary=await api('/api/admin/xingwei/business/after-sales/cases/summary');
+      $('caseTotalCount').textContent=String(summary.totalCount??0);
+      $('casePendingCount').textContent=String(summary.pendingFollowupCount??0);
+      $('caseSummaryMessage').textContent='全部售后记录的当前概览';
+    }catch(error){$('caseSummaryMessage').textContent=`概览暂不可用：${error.message}`;}
+  }
   function renderQueue(snapshot){
     state.total=snapshot.totalCount||0;state.hasNext=Boolean(snapshot.hasNext);
     const rows=$('caseRows');rows.replaceChildren();
@@ -34,11 +60,12 @@
   }
   async function load(){
     if(!can('order:view')){message('当前账号没有订单查看权限。');return;}
+    const request=++state.queueRequest;
     const form=new FormData($('caseFilters')),query=new URLSearchParams({page:String(state.page)});
     for(const key of ['status','category','followup','q']){const value=String(form.get(key)||'').trim();if(value)query.set(key,value);}
     message('正在读取售后记录……');
-    try{renderQueue(await api(`/api/admin/xingwei/business/after-sales/cases?${query}`));}
-    catch(error){message(error.message);}
+    try{const snapshot=await api(`/api/admin/xingwei/business/after-sales/cases?${query}`);if(request===state.queueRequest)renderQueue(snapshot);}
+    catch(error){if(request===state.queueRequest)message(error.message);}
   }
   async function openCase(businessNo,recordId){
     state.businessNo=businessNo;state.selected=null;state.acknowledgedFollowupId=0;$('caseDetail').hidden=false;$('caseCurrent').replaceChildren();$('caseFollowups').replaceChildren();$('caseEvents').replaceChildren();$('caseUpdate').hidden=true;
@@ -64,17 +91,19 @@
       message('处理历史已加载。');
     }catch(error){message(error.message);}
   }
-  $('caseFilters').addEventListener('submit',event=>{event.preventDefault();state.page=0;load();});
-  $('casePrev').addEventListener('click',()=>{if(state.page>0){state.page--;load();}});
-  $('caseNext').addEventListener('click',()=>{if(state.hasNext){state.page++;load();}});
+  $('caseFilters').addEventListener('submit',event=>{event.preventDefault();state.page=0;saveFiltersToUrl();load();});
+  $('casePrev').addEventListener('click',()=>{if(state.page>0){state.page--;saveFiltersToUrl();load();}});
+  $('caseNext').addEventListener('click',()=>{if(state.hasNext){state.page++;saveFiltersToUrl();load();}});
+  window.addEventListener('popstate',()=>{restoreFilters();load();});
   $('caseUpdate').addEventListener('submit',async event=>{
     event.preventDefault();if(!state.selected||!can('order:manage'))return;
     const form=event.currentTarget,record=state.selected;
     const payload={status:form.elements.status.value,handlingNote:form.elements.handlingNote.value.trim(),customerReply:form.elements.customerReply.value.trim()||null,acknowledgedFollowupId:state.acknowledgedFollowupId,expectedVersion:record.version};
     if(payload.status===record.status&&!payload.customerReply){message('保持当前状态时须填写客户回复。');return;}
     message('正在保存处理结果……');
-    try{await api(`/api/admin/xingwei/business/orders/${encodeURIComponent(state.businessNo)}/after-sales/records/${record.recordId}`,{method:'PUT',body:JSON.stringify(payload)});await openCase(state.businessNo,record.recordId);await load();message('处理结果已保存。');}
+    try{await api(`/api/admin/xingwei/business/orders/${encodeURIComponent(state.businessNo)}/after-sales/records/${record.recordId}`,{method:'PUT',body:JSON.stringify(payload)});await openCase(state.businessNo,record.recordId);await load();await loadSummary();message('处理结果已保存。');}
     catch(error){if(error.status===409)await openCase(state.businessNo,record.recordId);message(error.message);}
   });
-  api('/api/admin/xingwei/access').then(access=>{state.access=access;load();}).catch(error=>message(error.message));
+  restoreFilters();
+  api('/api/admin/xingwei/access').then(access=>{state.access=access;load();if(can('order:view'))loadSummary();else $('caseSummaryMessage').textContent='当前账号没有订单查看权限。';}).catch(error=>{message(error.message);$('caseSummaryMessage').textContent='售后概览暂不可用。';});
 })();

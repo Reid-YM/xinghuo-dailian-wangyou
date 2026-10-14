@@ -1,6 +1,7 @@
 package com.xinghuo.wecom;
 
 import java.util.List;
+import java.util.Map;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 /** Syncs a role only when a verified WeCom title uniquely matches a built-in business position. */
 @Service
 public class XingweiWeComPositionRoleService {
+    // Reviewed against the live WeCom directory and the current center permissions.
+    // Additions require an explicit permission review; the 155-position catalog alone is not approval.
+    private static final Map<String, String> APPROVED_TITLES = Map.of(
+            "在线客服", "XW_CUSTOMER_ORDER");
     private final JdbcTemplate jdbc;
 
     public XingweiWeComPositionRoleService(JdbcTemplate jdbc) {
@@ -80,7 +85,8 @@ public class XingweiWeComPositionRoleService {
     }
 
     private Position resolveUniqueBusinessPosition(String title) {
-        if (title.isBlank() || title.length() > 80) {
+        String approvedRole = APPROVED_TITLES.get(title);
+        if (approvedRole == null || title.length() > 80) {
             return null;
         }
         List<Candidate> candidates = jdbc.query("""
@@ -106,7 +112,7 @@ public class XingweiWeComPositionRoleService {
             case "07" -> "XW_GENERAL_SUPPORT";
             default -> null;
         };
-        if (roleCode == null) {
+        if (!approvedRole.equals(roleCode)) {
             return null;
         }
         List<Long> roleIds = jdbc.queryForList(

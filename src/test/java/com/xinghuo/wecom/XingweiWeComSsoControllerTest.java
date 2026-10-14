@@ -128,9 +128,9 @@ class XingweiWeComSsoControllerTest {
         when(client.userIdForCode("one-time-code")).thenReturn("staff_1");
         when(bindings.boundAdminUserId("staff_1")).thenReturn(null);
         when(client.member("staff_1")).thenReturn(
-                new XingweiWeComDirectoryClient.Member("staff_1", "员工甲", "售前客服"));
+                new XingweiWeComDirectoryClient.Member("staff_1", "员工甲", "在线客服"));
         when(bindings.registerPending("staff_1", "员工甲")).thenReturn(2L);
-        when(positionRoles.sync(2L, "售前客服")).thenReturn(true);
+        when(positionRoles.sync(2L, "在线客服")).thenReturn(true);
         when(bindings.loginUser("staff_1"))
                 .thenReturn(User.withUsername("wecom_account").password("unused").roles("OPERATOR").build());
 
@@ -138,7 +138,7 @@ class XingweiWeComSsoControllerTest {
         controller.callback("one-time-code", state, request, callback);
 
         assertEquals("/admin/xingwei/work", callback.getRedirectedUrl());
-        verify(positionRoles).sync(2L, "售前客服");
+        verify(positionRoles).sync(2L, "在线客服");
         assertEquals("wecom_account", SecurityContextHolder.getContext().getAuthentication().getName());
     }
 

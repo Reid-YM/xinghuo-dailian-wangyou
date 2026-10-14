@@ -35,7 +35,7 @@
     <view class="website-status" wx:else>网站账号</view>
     <view class="website-orders" wx:if="{{website.linked}}">网站订单 {{website.orderCount}} 笔 · 详情请在网站账号中心查看</view>
     <view class="website-error" wx:if="{{website.error}}">{{website.error}}</view>
-    <view class="sync-hint">在电脑上打开网站登录页，点「使用星维网络小程序登录」会显示二维码和 8 位登录码。在这里扫码或输入登录码，再回网站核对识别码尾号并确认。</view>
+    <view class="sync-hint">在电脑上打开网站登录页，点「使用星火迷彩追踪器小程序登录」会显示二维码和 8 位登录码。在这里扫码或输入登录码，再回网站核对识别码尾号并确认。</view>
     <view class="sync-hint" wx:if="{{website.linked}}">头像与昵称可以在这里改，会同步到网站账号。</view>
     <view class="identity-hint" wx:if="{{identityHint}}">微信识别码尾号 {{identityHint}} · 请与网站确认页核对</view>
     <view class="website-signed" wx:if="{{website.linked}}">

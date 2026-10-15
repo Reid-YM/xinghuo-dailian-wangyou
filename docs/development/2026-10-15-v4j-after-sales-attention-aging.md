@@ -2,7 +2,7 @@
 
 日期：2026-10-15
 
-状态：统一 V4J Release Candidate，尚未发布生产。
+状态：候选版本已通过生产门禁，正在进行 Stable Production 状态收口。
 
 ## 目标
 
@@ -40,8 +40,19 @@
 - 动态内容继续使用 `textContent`，不引入 `innerHTML`。
 - 功能 PR #476 已通过 Java/Maven、版本真值守卫和 Chromium/WebKit 双 CI，并 squash 合入 `main`。
 - 功能合并主线 SHA：`d9341f646806efb3f1833abf32d0eb7fc7ffd577`。
-- 统一候选版本已切为 `20261015-v4j` / `V4J · RELEASE CANDIDATE`，V4J Release History 保持“待发布”，V4I 继续保持“已上线”。
-- 售后页 CSS/JS 资产缓存参数提升为 `20261015v4j`。
+- 统一候选 PR #477 已通过双 CI 并合入，候选主线 SHA：`ebadafea77e22137de581307ec09f4aec06caf7d`。
+- 精确候选 main SHA 的主线 Java/Maven、版本真值守卫与 Chromium/WebKit 双 CI 已全部通过。
+- Deploy Production #205 已成功完成受控生产发布。
+- 服务器 Maven：453 tests，0 failures，0 errors，82 skipped。
+- 18080 预发布完整冒烟：通过。
+- 8081 金丝雀完整冒烟：通过。
+- Nginx 金丝雀切流：通过。
+- 8080 正式完整冒烟：通过。
+- Nginx 最终恢复到 8080；8081 金丝雀已停止。
+- 候选生产 JAR SHA256：`e4fead9ec237f3f05d564aef87f9524a7a2de97dc947b509713322c2b4f1e2bc`。
+- 当前候选生产 release：`/opt/xinghuo-v2/releases/xinghuo-v2-standard-20261015153522.jar`。
+- 上一版 release：`/opt/xinghuo-v2/releases/xinghuo-v2-standard-20261015150731.jar`，继续保留用于回滚。
+- 状态收口分支将版本真值从 `V4J · RELEASE CANDIDATE / 待发布` 同步为 `V4J · STABLE PRODUCTION / 已上线`，版本号及售后资产缓存继续保持 `20261015-v4j / 20261015v4j`。
 
 ## 风险边界
 
@@ -51,8 +62,8 @@
 - 无售后状态写入逻辑变更。
 - 无退款、真实收款、微信支付或企业微信写入变更。
 - V3H 小程序支付与企业微信写入继续独立验收。
-- 功能 PR 阶段保持 V4I 生产真值；统一 RC 阶段仅切版本、阶段、更新记录、页面说明和资产缓存，不把 V4J 提前标记为“已上线”。
-- 旧后台与当前 V4I 生产 release 均继续保留，生产门禁失败时不改变现网真值。
+- Stable 状态收口只修改版本真值、页面说明、契约测试与开发记录，不修改 V4J 业务实现。
+- 旧后台与上一版 production release 均继续保留，可回滚。
 
 ## 测试覆盖
 
@@ -63,11 +74,12 @@
 - 控制器：四个稳定 JSON 字段。
 - Chromium：四个时效数字渲染、统计定义说明、现有筛选和 URL 不被时效概览读取修改。
 - 统一版本：CONSOLE_VERSION / CONSOLE_STAGE / BUSINESS_VERSION、更新记录、后台首页、售后资产缓存、运行版本漂移与 RBAC 契约。
+- 候选生产：服务器 Maven 与 18080 → 8081 → 8080 完整生产门禁。
 
 ## 下一步
 
-1. 为统一 V4J Release Candidate 创建 PR。
-2. 运行 Java/Maven、`validate-xingwei-release-state.sh` 与 Chromium/WebKit 双 CI。
-3. CI 全绿后合入 `main`，再对精确主线 SHA 复核双 CI。
-4. 使用现有 `deploy/production` 受控流程执行 18080 → 8081 → 8080 生产门禁。
-5. 只有候选版本真实通过生产门禁和发布后核验后，才另开状态-only PR 将 V4J 从“待发布”同步为“已上线 / STABLE PRODUCTION”。
+1. 状态-only Stable Production PR 通过 Java/Maven、版本真值守卫及 Chromium/WebKit 双 CI。
+2. 合入后对精确 stable main SHA 再跑主线双 CI。
+3. 仅更新 `deploy/production` 的 `.deploy-request` 指向 stable main SHA。
+4. 再执行一次 18080 → 8081 → 8080 状态-only 生产发布，使生产页面、`/api/admin/xingwei/health` 和仓库真值完全一致。
+5. 发布后再次记录最终 JAR SHA256、current/previous release 与回滚目标，V4J 才完成最终稳定收口。

@@ -15,9 +15,9 @@ class XingweiReleaseHistoryContractTest {
     @Test
     void currentVersionsStageAndReleaseHistoryAreCentralized() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
-        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261015-v4i\""));
-        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V4I · STABLE PRODUCTION\""));
-        assertTrue(controller.contains("static final String BUSINESS_VERSION = \"20261015-v4i\""));
+        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261015-v4j\""));
+        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V4J · RELEASE CANDIDATE\""));
+        assertTrue(controller.contains("static final String BUSINESS_VERSION = \"20261015-v4j\""));
         assertTrue(controller.contains("static final String TAXONOMY_VERSION = \"20261014-v3i\""));
         assertTrue(controller.contains("model.addAttribute(\"consoleStage\", CONSOLE_STAGE)"));
         assertTrue(controller.contains("@GetMapping(\"/admin/xingwei/releases\")"));
@@ -47,6 +47,8 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(controller.contains("\"V4G\", \"已上线\""));
         assertTrue(controller.contains("\"V4H\", \"已上线\""));
         assertTrue(controller.contains("\"V4I\", \"已上线\""));
+        assertTrue(controller.contains("\"V4J\", \"待发布\""));
+        assertTrue(controller.contains("售后待跟进时效分布"));
         assertTrue(controller.contains("售后问题类型分布与快捷筛选"));
         assertTrue(controller.contains("售后问题记录详情查看"));
         assertTrue(controller.contains("售后问题记录按类型筛选"));
@@ -69,8 +71,8 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(template.contains("后续固定规则 · CI + 运行时双校验"));
         assertTrue(template.contains("浏览器核对页面版本与实际后端版本"));
         assertTrue(template.contains("th:each=\"item : ${releaseHistory}\""));
-        assertTrue(template.contains(">20261015-v4i</span>"));
-        assertTrue(template.contains(">V4I</strong>"));
+        assertTrue(template.contains(">20261015-v4j</span>"));
+        assertTrue(template.contains(">V4J</strong>"));
     }
 
     @Test
@@ -78,13 +80,13 @@ class XingweiReleaseHistoryContractTest {
         String dashboard = read("resources/templates/admin-xingwei.html");
         assertTrue(dashboard.contains("href=\"/admin/xingwei/releases\">更新记录</a>"));
         assertTrue(dashboard.contains("th:text=\"${consoleStage}\""));
-        assertTrue(dashboard.contains("V4I · STABLE PRODUCTION"));
+        assertTrue(dashboard.contains("V4J · RELEASE CANDIDATE"));
         assertTrue(dashboard.contains("V3Y 已上线"));
-        assertTrue(dashboard.contains("<strong>V4I</strong>"));
-        assertTrue(dashboard.contains("20261015-v4i"));
-        assertTrue(read("resources/templates/admin-xingwei-business.html").contains("th:text=\"${businessVersion}\">20261015-v4i"));
-        assertTrue(read("resources/templates/admin-xingwei-after-sales.html").contains("V4I · STABLE PRODUCTION"));
-        assertTrue(read("resources/templates/admin-xingwei-after-sales.html").contains("admin-xingwei-after-sales.js?v=20261015v4i"));
+        assertTrue(dashboard.contains("<strong>V4J</strong>"));
+        assertTrue(dashboard.contains("20261015-v4j"));
+        assertTrue(read("resources/templates/admin-xingwei-business.html").contains("th:text=\"${businessVersion}\">20261015-v4j"));
+        assertTrue(read("resources/templates/admin-xingwei-after-sales.html").contains("V4J · RELEASE CANDIDATE"));
+        assertTrue(read("resources/templates/admin-xingwei-after-sales.html").contains("admin-xingwei-after-sales.js?v=20261015v4j"));
         assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261014v3x"));
         assertTrue(dashboard.contains("V3H 待真机验收"));
         assertTrue(dashboard.contains("V3I 已上线"));

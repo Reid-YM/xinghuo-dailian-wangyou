@@ -2,7 +2,7 @@
 
 日期：2026-10-15
 
-状态：统一 Release Candidate，未发布生产。
+状态：生产已发布，正在同步稳定生产真值。
 
 ## 本阶段目标
 
@@ -18,9 +18,18 @@
 - 浏览器返回/前进继续通过 URL 恢复筛选状态。
 - 分类汇总读取失败时只禁用分类卡片，不影响原售后队列和 V4H 状态概览使用。
 - 功能 PR #470 已通过 Java/Maven、版本真值校验和 Chromium/WebKit CI，并 squash 合入 `main`。
-- 统一版本分支已快进到包含 Frontend Next N5/N6 的最新 `main`，避免覆盖并行前端开发。
-- 后台统一版本已切为 `20261015-v4i` / `V4I · RELEASE CANDIDATE`；V4I Release History 保持“待发布”，V4H 保持“已上线”。
-- 售后页 CSS/JS 缓存参数已提升到 `20261015v4i`。
+- 统一版本 PR #474 已通过双 CI 并 squash 合入 `main`，候选主线 SHA 为 `3e1870701a158fe0cd21703864de939b1dc221d0`。
+- 后台统一版本为 `20261015-v4i`；候选阶段已完成生产门禁，本状态分支只同步 `V4I · STABLE PRODUCTION` / “已上线”真值。
+- 售后页 CSS/JS 缓存参数保持 `20261015v4i`。
+- Deploy Production run #203 已成功发布候选主线 SHA `3e1870701a158fe0cd21703864de939b1dc221d0`。
+- 服务器本地 Maven 构建共运行 449 个测试：0 Failure、0 Error；81 个需要浏览器环境的测试在该构建上下文跳过，完整浏览器回归已由 GitHub CI 单独通过。
+- 18080 预发布完整冒烟通过。
+- 8081 金丝雀完整冒烟通过，nginx 临时切流验证后已停止金丝雀实例。
+- 正式 8080 完整冒烟通过，nginx 已切回 `127.0.0.1:8080`。
+- 发布后确认 18080 / 8081 均不再监听，正式服务与 nginx 均正常。
+- 生产候选 JAR SHA256：`1834201ba9c87dc50b168c0971f78493577534cd22a618cf3f77b19205acc03c`。
+- 当前生产 release：`/opt/xinghuo-v2/releases/xinghuo-v2-standard-20261015145130.jar`。
+- 上一生产 release 继续保留：`/opt/xinghuo-v2/releases/xinghuo-v2-standard-20261015065741.jar`，可按现有原子软链接流程回滚。
 
 ## 修改文件
 
@@ -35,7 +44,7 @@
 - `src/test/java/com/xinghuo/controller/XingweiAfterSalesCategorySummaryControllerTest.java`
 - `src/test/java/com/xinghuo/web/XingweiAfterSalesCategorySummaryPlaywrightTest.java`
 
-统一版本阶段：
+统一版本与生产真值阶段：
 
 - `src/main/java/com/xinghuo/controller/XingweiAdminController.java`
 - `src/main/resources/templates/admin-xingwei.html`
@@ -50,8 +59,9 @@
 - 无生产配置变更。
 - 无订单、售后状态、退款、支付或企业微信写入变更。
 - 全部新增业务能力为只读统计和前端筛选入口。
-- 当前只切 Release Candidate，不把 V4I 标记为“已上线”；生产门禁完成前 V4I 必须保持“待发布”。
+- 第一轮生产发布已完成；当前状态分支仅同步生产真值，不增加业务行为。
 - 旧后台继续保留，不替换现有回退入口。
+- 真实收款继续关闭；V3H 小程序支付与企业微信写入继续独立验收。
 
 ## 测试覆盖
 
@@ -59,10 +69,11 @@
 - 控制器：四个稳定 JSON 字段。
 - 浏览器：分类数字渲染、分类快捷筛选、其他筛选条件保留、页码归零。
 - 统一版本：CONSOLE_VERSION / CONSOLE_STAGE / BUSINESS_VERSION、更新记录、后台首页、售后资产缓存版本、运行版本漂移与 RBAC 契约。
+- 生产：main 双 CI + 18080 预发布 + 8081 金丝雀 + 8080 正式服务 + 发布后端口/JAR 哈希核验。
 
 ## 下一步
 
-1. 为统一 V4I Release Candidate 创建 PR。
-2. 跑 Java/Maven、`validate-xingwei-release-state.sh` 与 Chromium/WebKit 双 CI。
-3. CI 全绿后合入 `main`，再对精确主线 SHA 复核双 CI。
-4. 只有生产 18080 / 8081 / 8080 门禁和发布后核验完成后，才单独把 V4I 从“待发布”同步为“已上线”。
+1. 状态-only 分支将 V4I 从 `RELEASE CANDIDATE / 待发布` 同步为 `STABLE PRODUCTION / 已上线`。
+2. 状态 PR 跑 Java/Maven、版本真值守卫与 Chromium/WebKit 双 CI。
+3. 合入后对新的精确 main SHA 再跑主线双 CI。
+4. 使用同一受控 `deploy/production` 流程执行状态-only 第二次发布，使生产页面和 `/api/admin/xingwei/health` 与实际已上线状态完全一致。

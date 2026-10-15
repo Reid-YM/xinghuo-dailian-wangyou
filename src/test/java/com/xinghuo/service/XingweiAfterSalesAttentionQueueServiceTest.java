@@ -2,6 +2,7 @@ package com.xinghuo.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -59,11 +60,18 @@ class XingweiAfterSalesAttentionQueueServiceTest {
         var within = queue.queue("WITHIN_24H", null, null, null, null, 0, actor);
         assertEquals(1, within.totalCount());
         assertEquals(1L, within.items().getFirst().record().recordId());
+        assertEquals("WITHIN_24H", within.items().getFirst().ageBucket());
+        assertTrue(within.items().getFirst().waitingMs() >= Duration.ofMinutes(59).toMillis());
+        assertTrue(within.items().getFirst().waitingMs() < Duration.ofHours(24).toMillis());
 
         var middle = queue.queue("FROM_24_TO_72H", null, null, null, null, 0, actor);
         assertEquals(1, middle.totalCount());
         assertEquals(2L, middle.items().getFirst().record().recordId());
         assertEquals(true, middle.items().getFirst().pendingCustomerFollowup());
+        assertEquals("FROM_24_TO_72H", middle.items().getFirst().ageBucket());
+        assertEquals(middle.items().getFirst().latestCustomerFollowupAtMs(),
+                middle.items().getFirst().attentionAtMs());
+        assertTrue(middle.items().getFirst().waitingMs() >= Duration.ofHours(30).minusMinutes(1).toMillis());
 
         var allAttention = queue.queue("ATTENTION", null, null, null, null, 0, actor);
         assertEquals(2, allAttention.totalCount());
@@ -76,6 +84,8 @@ class XingweiAfterSalesAttentionQueueServiceTest {
         var department = queue.queue("OVER_72H", null, null, null, null, 0, actor);
         assertEquals(1, department.totalCount());
         assertEquals(3L, department.items().getFirst().record().recordId());
+        assertEquals("OVER_72H", department.items().getFirst().ageBucket());
+        assertTrue(department.items().getFirst().waitingMs() >= Duration.ofHours(80).minusMinutes(1).toMillis());
 
         when(permissions.resolve(actor)).thenReturn(new AccessSnapshot(
                 "LEGACY_ADMIN", true, List.of("order:view"), List.of(), "ALL", 7L, null));

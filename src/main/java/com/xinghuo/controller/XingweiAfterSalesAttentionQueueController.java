@@ -1,7 +1,7 @@
 package com.xinghuo.controller;
 
 import com.xinghuo.service.XingweiAfterSalesAttentionQueueService;
-import com.xinghuo.service.XingweiAfterSalesCaseService.QueueSnapshot;
+import com.xinghuo.service.XingweiAfterSalesAttentionQueueService.AttentionQueueSnapshot;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,7 +26,7 @@ public class XingweiAfterSalesAttentionQueueController {
 
     @GetMapping("/attention-queue")
     @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'order:view')")
-    public QueueSnapshot queue(@RequestParam String age,
+    public AttentionQueueSnapshot queue(@RequestParam String age,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String followup,

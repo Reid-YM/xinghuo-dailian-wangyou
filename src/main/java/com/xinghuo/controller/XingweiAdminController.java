@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261016-v4k";
-    static final String CONSOLE_STAGE = "V4K · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261016-v4k";
+    static final String CONSOLE_VERSION = "20261016-v4l";
+    static final String CONSOLE_STAGE = "V4L · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261016-v4l";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-16", "V4L", "待发布",
+                    "售后待跟进优先级排序",
+                    "在 V4K 已上线的独立只读待跟进时效队列基础上，增加最新待跟进优先与最久未响应优先两种排序。默认 NEWEST_FIRST 保持 V4K 既有顺序，OLDEST_FIRST 按统一 attention_at_ms 将等待最久的记录排在前面；sort 与原 status / category / followup / q / page 一起进入 URL，刷新、前进后退与分页均可恢复。继续沿用 order:view 与 ALL / DEPARTMENT / SELF / DENIED 数据范围，不新增数据库迁移或业务写入。功能 PR #484 已通过 Java/Maven、版本真值守卫与 Chromium/WebKit 双 CI并合入 main；精确功能主线 ffc9c17da74d21dcc1724deb00a04b0e0b0b84e7 的 main CI #1149 也已双绿。本统一候选只有通过生产门禁后才能标记已上线，不改变订单、售后状态、退款、真实收款、微信支付或企业微信写入。"),
             new ReleaseItem("2026-10-16", "V4K", "已上线",
                     "售后待跟进时效快捷队列",
                     "在 V4J 已上线的需跟进时效分布基础上，增加独立只读时效队列与快捷入口。客服可查看全部需跟进、24 小时内、24–72 小时、72 小时以上四种范围，并继续组合处理状态、问题类型、待跟进客户补充和关键词；筛选状态写入 URL，支持刷新、前进后退和分页。队列继续沿用 order:view 以及 ALL / DEPARTMENT / SELF / DENIED 数据范围，具体处理仍返回原 V4J 售后处理页。功能 PR #481、统一候选 PR #482 和精确 main 双 CI 均通过；候选主线 c2112185dc6760b1dbf22e6fa30806c6d2d85151 已通过 Deploy Production #209、服务器 Maven 471 tests / 0 failures / 0 errors、18080 预发布、8081 金丝雀、8080 正式冒烟及发布后核验，Nginx 最终恢复 8080，金丝雀已停止。无数据库迁移、生产配置或业务写入变更，不改变订单、售后状态、退款、真实收款、微信支付或企业微信写入。"),

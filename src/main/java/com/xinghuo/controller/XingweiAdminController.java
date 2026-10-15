@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261015-v4j";
-    static final String CONSOLE_STAGE = "V4J · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261015-v4j";
+    static final String CONSOLE_VERSION = "20261016-v4k";
+    static final String CONSOLE_STAGE = "V4K · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261016-v4k";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-16", "V4K", "待发布",
+                    "售后待跟进时效快捷队列",
+                    "在 V4J 已上线的需跟进时效分布基础上，增加独立只读时效队列与快捷入口。客服可查看全部需跟进、24 小时内、24–72 小时、72 小时以上四种范围，并继续组合处理状态、问题类型、待跟进客户补充和关键词；筛选状态写入 URL，支持刷新、前进后退和分页。队列继续沿用 order:view 以及 ALL / DEPARTMENT / SELF / DENIED 数据范围，具体处理仍返回原 V4J 售后处理页。功能 PR #481 已通过 Java/Maven、版本真值守卫及 Chromium/WebKit 双 CI并合入主线；本统一候选不新增数据库迁移、生产配置或业务写入，不改变订单、售后状态、退款、真实收款、微信支付或企业微信写入，只有生产门禁通过后才能标记已上线。"),
             new ReleaseItem("2026-10-15", "V4J", "已上线",
                     "售后待跟进时效分布",
                     "在 V4I 售后概览基础上增加按当前账号数据范围统计的需跟进总数，以及 24 小时内、24–72 小时、72 小时以上三档互斥时效分布。需跟进仅包含尚未开始处理的 OPEN 记录，或存在客服尚未确认到最新客户补充的记录；有新补充时从最新补充时间计时，否则从原始售后提交时间计时。继续受 order:view 和 ALL / DEPARTMENT / SELF 数据范围约束，仅提供只读运营提示，不新增数据库迁移，不改变订单、售后处理、退款、真实收款或企业微信写入。功能 PR #476、统一候选 PR #477 和精确 main 双 CI 均通过；候选主线 ebadafea77e22137de581307ec09f4aec06caf7d 已通过 Deploy Production #205、服务器 Maven 453 tests / 0 failures / 0 errors、18080 预发布、8081 金丝雀、8080 正式冒烟及发布后核验，Nginx 最终恢复 8080，金丝雀已停止。"),
@@ -118,7 +121,7 @@ public class XingweiAdminController {
                     "JSAPI/小程序支付、直接 openid 绑定、Native/小程序通道互斥、支付状态服务端核验已完成；PR #384 保持未合并，待 AppID/商户绑定和小额真机联调。"),
             new ReleaseItem("2026-10-14", "V3G", "已上线",
                     "网站侧小程序登录接口",
-                    "网站登录码、二维码和原浏览器二次确认接口已上线。实际客户端改以星火迷彩追踪器为准，星火迷彩追踪器源码已随 V3N 纳入仓库；预览版真机扫码主链路已验证，正式小程序发布和异常边界仍待单独验收。"),
+                    "提供登录码、二维码和二次确认接口；当前由受控网页入口使用，正式小程序发布后由小程序端确认登录。"),
             new ReleaseItem("2026-10-14", "V3F", "已上线",
                     "游戏与分类受控新增及资料编辑",
                     "新增游戏/分类默认停用；资料编辑不改变 code、归属和启停状态；启停继续走影响预览、原因和审计。"),

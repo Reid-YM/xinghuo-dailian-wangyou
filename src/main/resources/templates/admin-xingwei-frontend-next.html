@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#101216"/>
+  <meta name="_csrf" th:content="${csrf.token}"/>
+  <meta name="_csrf_header" th:content="${csrf.headerName}"/>
+  <title>Frontend Next 灰度入口 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <style>
+    .fnr-shell{width:min(1040px,calc(100% - 28px));margin:0 auto;padding:30px 0 64px}
+    .fnr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px}
+    .fnr-top h1{margin:.2rem 0;font-size:clamp(27px,4vw,42px)}
+    .fnr-top p{max-width:720px;color:var(--xw-muted,#8f97a2);line-height:1.75}
+    .fnr-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .fnr-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);gap:16px}
+    .fnr-card{border:1px solid rgba(255,255,255,.09);border-radius:18px;background:#11151a;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.24)}
+    .fnr-card h2{margin:0 0 8px}.fnr-card p{color:#8e96a0;line-height:1.7;font-size:13px}
+    .fnr-kicker{color:#d9b64e;font-size:11px;letter-spacing:.15em;font-weight:900;text-transform:uppercase}
+    .fnr-current{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;border:1px solid rgba(255,203,45,.2);border-radius:12px;background:rgba(255,203,45,.05);margin:16px 0}
+    .fnr-current strong{color:#ffcf38}.fnr-current code{color:#e9ebed}
+    .fnr-field{display:grid;gap:7px;margin-top:15px}.fnr-field label{font-size:12px;font-weight:800}.fnr-field select{width:100%;min-height:46px;border:1px solid rgba(255,255,255,.12);border-radius:11px;background:#090d11;color:#edf0f2;padding:0 12px;outline:none}.fnr-field select:focus{border-color:#f5c536;box-shadow:0 0 0 3px rgba(245,197,54,.08)}
+    .fnr-save{width:100%;margin-top:14px}.fnr-note{margin-top:12px;padding:12px;border-radius:11px;background:#0b0f13;border:1px solid rgba(255,255,255,.07);font-size:11px;color:#858d96;line-height:1.65}
+    .fnr-message{min-height:20px;margin-top:10px;font-size:12px}.fnr-message.ok{color:#64db98}.fnr-message.error{color:#ff8f8f}
+    .fnr-list{display:grid;gap:9px;margin-top:14px}.fnr-item{padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:#0c1014}.fnr-item b{display:block;margin-bottom:4px}.fnr-item span{font-size:11px;color:#858d96;line-height:1.55}
+    .fnr-safe{color:#6ee2a1}.fnr-warn{color:#ffc768}
+    @media(max-width:760px){.fnr-top{display:grid}.fnr-grid{grid-template-columns:1fr}.fnr-actions{width:100%}.fnr-actions .xw-button{flex:1}}
+  </style>
+</head>
+<body>
+<main class="fnr-shell">
+  <header class="fnr-top">
+    <div>
+      <div class="fnr-kicker">Frontend Next · N9 Rollout Candidate</div>
+      <h1>服务入口灰度控制</h1>
+      <p>只控制公共页头、手机导航抽屉和页脚中的“服务”入口。默认保持旧版 <code>/services</code>，切到新版时目标变为 <code>/next/services</code>。两个页面都继续存在，随时可以恢复旧版。</p>
+    </div>
+    <div class="fnr-actions">
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回新版后台</a>
+      <a class="xw-button xw-button-ghost" href="/services" target="_blank" rel="noopener">预览旧版</a>
+      <a class="xw-button" href="/next/services" target="_blank" rel="noopener">预览新版</a>
+    </div>
+  </header>
+
+  <section class="fnr-grid">
+    <article class="fnr-card">
+      <div class="fnr-kicker">Controlled Rollout</div>
+      <h2>当前公共服务入口</h2>
+      <div class="fnr-current">
+        <span>当前模式</span>
+        <strong id="rolloutModeLabel">读取中…</strong>
+        <code id="rolloutHref">—</code>
+      </div>
+
+      <form id="frontendNextRolloutForm">
+        <div class="fnr-field">
+          <label for="servicesEntryMode">服务入口目标</label>
+          <select id="servicesEntryMode" name="servicesEntryMode">
+            <option value="legacy">旧版稳定入口 · /services</option>
+            <option value="next">新版候选入口 · /next/services</option>
+          </select>
+        </div>
+        <button class="xw-button fnr-save" type="submit" id="saveRolloutMode">保存入口目标</button>
+        <div class="fnr-message" id="rolloutMessage" role="status" aria-live="polite"></div>
+      </form>
+
+      <div class="fnr-note">
+        <b>安全边界：</b>这里不是自由 URL 输入框，只允许 <code>legacy</code> / <code>next</code> 两个后端白名单值。切换动作使用现有全局前端配置接口并进入操作审计；接口失败时公共模板默认仍指向旧版。
+      </div>
+    </article>
+
+    <aside class="fnr-card">
+      <div class="fnr-kicker">Scope</div>
+      <h2>这一阶段会 / 不会改变什么</h2>
+      <div class="fnr-list">
+        <div class="fnr-item"><b class="fnr-safe">✓ 会改变</b><span>公共页头“服务”、动态手机导航抽屉、公共页脚“服务大厅”的点击目标。</span></div>
+        <div class="fnr-item"><b class="fnr-safe">✓ 旧版保留</b><span><code>/services</code> 本身不会删除或重定向，出现问题可立即把模式恢复为 legacy。</span></div>
+        <div class="fnr-item"><b class="fnr-warn">— 暂不改变</b><span>首页默认路由 <code>/</code>、询价 <code>/quote</code>、账号 <code>/account</code>、服务详情和其它页面内深层链接继续按原逻辑工作。</span></div>
+        <div class="fnr-item"><b class="fnr-warn">— 不涉及</b><span>订单、售后、支付、退款、企业微信写入和数据库结构。</span></div>
+      </div>
+    </aside>
+  </section>
+</main>
+<script defer src="/assets/admin-frontend-next-rollout.js?v=20261015n9"></script>
+</body>
+</html>

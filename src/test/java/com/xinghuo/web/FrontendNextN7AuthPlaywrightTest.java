@@ -34,6 +34,8 @@ class FrontendNextN7AuthPlaywrightTest {
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(NEXT.resolve("n7-auth.js")));
             page.waitForSelector("#n7AuthSwitcher");
 
+            assertEquals(2, page.locator(".n4-login > *").count());
+            assertEquals(1, page.locator("#n7AuthHost > #n4LoginForm").count());
             assertEquals(1, page.locator("#n4ContactType option").count());
             assertEquals("EMAIL", page.locator("#n4ContactType").inputValue());
             assertEquals("email", page.locator("#n4ContactValue").getAttribute("type"));

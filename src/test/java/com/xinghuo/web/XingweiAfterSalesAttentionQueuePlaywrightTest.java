@@ -51,7 +51,7 @@ class XingweiAfterSalesAttentionQueuePlaywrightTest {
     }
 
     @Test
-    void attentionQueueRestoresUrlAndPaginatesInChromium() {
+    void attentionQueueRestoresUrlSortAndPaginatesInChromium() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
             String markup = """
@@ -60,6 +60,7 @@ class XingweiAfterSalesAttentionQueuePlaywrightTest {
                       <select name="status"><option value=""></option><option value="OPEN">待处理</option><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select>
                       <select name="category"><option value=""></option><option value="DELIVERY">交付</option><option value="CANCELLATION">取消</option><option value="REFUND_REVIEW">退款</option><option value="OTHER">其他</option></select>
                       <select name="followup"><option value=""></option><option value="PENDING">待跟进</option></select>
+                      <select name="sort"><option value="NEWEST_FIRST">最新</option><option value="OLDEST_FIRST">最久</option></select>
                       <input name="q" maxlength="80"><button type="submit">查询</button>
                     </form>
                     <p id="attentionMessage"></p>
@@ -71,7 +72,7 @@ class XingweiAfterSalesAttentionQueuePlaywrightTest {
                             .setStatus(200)
                             .setContentType("text/html; charset=utf-8")
                             .setBody(markup)));
-            page.navigate("https://example.test/admin/xingwei/after-sales/attention?age=FROM_24_TO_72H&status=OPEN&category=OTHER&followup=PENDING&q=XW-7&page=2");
+            page.navigate("https://example.test/admin/xingwei/after-sales/attention?age=FROM_24_TO_72H&status=OPEN&category=OTHER&followup=PENDING&sort=OLDEST_FIRST&q=XW-7&page=2");
             page.evaluate("""
                     () => { window.__queueUrls=[]; window.fetch=async url => {
                       if(url==='/api/admin/xingwei/access') return new Response(JSON.stringify({permissionCodes:['order:view']}));
@@ -94,15 +95,19 @@ class XingweiAfterSalesAttentionQueuePlaywrightTest {
             assertTrue(first.contains("status=OPEN"));
             assertTrue(first.contains("category=OTHER"));
             assertTrue(first.contains("followup=PENDING"));
+            assertTrue(first.contains("sort=OLDEST_FIRST"));
             assertTrue(first.contains("q=XW-7"));
             assertTrue(first.contains("page=2"));
             assertEquals("FROM_24_TO_72H", page.locator("select[name=age]").inputValue());
+            assertEquals("OLDEST_FIRST", page.locator("select[name=sort]").inputValue());
             assertTrue(page.locator("#attentionRows a").getAttribute("href").contains("q=XW-7"));
 
             page.locator("#attentionPrev").click();
             page.waitForFunction("() => window.__queueUrls.length===2");
             assertTrue(page.url().contains("page=1"));
+            assertTrue(page.url().contains("sort=OLDEST_FIRST"));
             assertTrue(((String) page.evaluate("() => window.__queueUrls[1]")).contains("page=1"));
+            assertTrue(((String) page.evaluate("() => window.__queueUrls[1]")).contains("sort=OLDEST_FIRST"));
         }
     }
 }

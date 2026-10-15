@@ -51,7 +51,7 @@ class XingweiAfterSalesAttentionQueuePlaywrightTest {
     }
 
     @Test
-    void attentionQueueRestoresUrlSortAndPaginatesInChromium() {
+    void attentionQueueRestoresUrlSortPaginatesAndShowsWaitingDurationInChromium() {
         try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
             String markup = """
@@ -79,7 +79,7 @@ class XingweiAfterSalesAttentionQueuePlaywrightTest {
                       if(url.startsWith('/api/admin/xingwei/business/after-sales/cases/attention-queue?')) {
                         window.__queueUrls.push(url);
                         return new Response(JSON.stringify({
-                          items:[{businessNo:'XW-7',record:{recordId:7,orderNo:'O7',category:'OTHER',categoryLabel:'其他问题',content:'需要跟进',submittedAtMs:1000,status:'OPEN',handlingNote:null,handledByAdminUserId:null,updatedAt:null,version:0},latestCustomerFollowupAtMs:2000,pendingCustomerFollowup:true}],
+                          items:[{businessNo:'XW-7',record:{recordId:7,orderNo:'O7',category:'OTHER',categoryLabel:'其他问题',content:'需要跟进',submittedAtMs:1000,status:'OPEN',handlingNote:null,handledByAdminUserId:null,updatedAt:null,version:0},latestCustomerFollowupAtMs:2000,pendingCustomerFollowup:true,attentionAtMs:2000,waitingMs:108000000,ageBucket:'FROM_24_TO_72H'}],
                           totalCount:101,page:2,pageSize:50,status:'OPEN',category:'OTHER',followup:'PENDING',query:'XW-7',hasNext:true
                         }));
                       }
@@ -100,6 +100,8 @@ class XingweiAfterSalesAttentionQueuePlaywrightTest {
             assertTrue(first.contains("page=2"));
             assertEquals("FROM_24_TO_72H", page.locator("select[name=age]").inputValue());
             assertEquals("OLDEST_FIRST", page.locator("select[name=sort]").inputValue());
+            assertTrue(page.locator("#attentionRows").textContent().contains("1天6小时"));
+            assertTrue(page.locator("#attentionRows").textContent().contains("24–72小时"));
             assertTrue(page.locator("#attentionRows a").getAttribute("href").contains("q=XW-7"));
 
             page.locator("#attentionPrev").click();

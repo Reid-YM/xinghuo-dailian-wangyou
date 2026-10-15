@@ -2,7 +2,7 @@
 
 日期：2026-10-15
 
-状态：功能开发候选，尚未切换统一 V4J Release Candidate，未发布生产。
+状态：统一 V4J Release Candidate，尚未发布生产。
 
 ## 目标
 
@@ -38,6 +38,10 @@
 - 时效接口异常只影响时效卡片，不影响现有售后队列、状态分布和问题类型分布。
 - 员工保存售后处理结果后自动刷新时效分布。
 - 动态内容继续使用 `textContent`，不引入 `innerHTML`。
+- 功能 PR #476 已通过 Java/Maven、版本真值守卫和 Chromium/WebKit 双 CI，并 squash 合入 `main`。
+- 功能合并主线 SHA：`d9341f646806efb3f1833abf32d0eb7fc7ffd577`。
+- 统一候选版本已切为 `20261015-v4j` / `V4J · RELEASE CANDIDATE`，V4J Release History 保持“待发布”，V4I 继续保持“已上线”。
+- 售后页 CSS/JS 资产缓存参数提升为 `20261015v4j`。
 
 ## 风险边界
 
@@ -47,7 +51,8 @@
 - 无售后状态写入逻辑变更。
 - 无退款、真实收款、微信支付或企业微信写入变更。
 - V3H 小程序支付与企业微信写入继续独立验收。
-- 本功能 PR 保持 V4I 生产版本真值与 `20261015v4i` 资产缓存参数不变；只有功能合入并通过双 CI 后，才另行建立统一 V4J Release Candidate。
+- 功能 PR 阶段保持 V4I 生产真值；统一 RC 阶段仅切版本、阶段、更新记录、页面说明和资产缓存，不把 V4J 提前标记为“已上线”。
+- 旧后台与当前 V4I 生产 release 均继续保留，生产门禁失败时不改变现网真值。
 
 ## 测试覆盖
 
@@ -57,11 +62,12 @@
 - 服务层：缺少 `order:view` 时拒绝访问。
 - 控制器：四个稳定 JSON 字段。
 - Chromium：四个时效数字渲染、统计定义说明、现有筛选和 URL 不被时效概览读取修改。
+- 统一版本：CONSOLE_VERSION / CONSOLE_STAGE / BUSINESS_VERSION、更新记录、后台首页、售后资产缓存、运行版本漂移与 RBAC 契约。
 
 ## 下一步
 
-1. 创建 V4J 功能 PR。
-2. 运行 Java/Maven、版本真值守卫与 Chromium/WebKit 双 CI。
-3. CI 全绿后合入 main，并确认没有覆盖并行 Frontend Next 成果。
-4. 另开统一 V4J Release Candidate，只在该阶段切 `20261015-v4j`、Release History 和资产缓存版本。
-5. 继续使用精确 main SHA + `deploy/production` + 18080 → 8081 → 8080 受控生产门禁。
+1. 为统一 V4J Release Candidate 创建 PR。
+2. 运行 Java/Maven、`validate-xingwei-release-state.sh` 与 Chromium/WebKit 双 CI。
+3. CI 全绿后合入 `main`，再对精确主线 SHA 复核双 CI。
+4. 使用现有 `deploy/production` 受控流程执行 18080 → 8081 → 8080 生产门禁。
+5. 只有候选版本真实通过生产门禁和发布后核验后，才另开状态-only PR 将 V4J 从“待发布”同步为“已上线 / STABLE PRODUCTION”。

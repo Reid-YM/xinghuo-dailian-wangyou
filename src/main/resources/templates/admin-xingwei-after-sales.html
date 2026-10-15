@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261014v3x"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-after-sales.css?v=20261015v4j"/>
   <script defer src="/assets/admin-xingwei-after-sales.js?v=20261015v4j"></script>
+  <script defer src="/assets/admin-xingwei-after-sales-v4k-links.js?v=20261016v4k-dev"></script>
 </head>
 <body>
 <main class="xwb-shell">
@@ -35,6 +36,12 @@
     <div class="xw-case-summary-card"><span>24–72 小时</span><strong id="caseAttention24To72hCount">—</strong><small>最近客户动作</small></div>
     <div class="xw-case-summary-card"><span>72 小时以上</span><strong id="caseAttentionOver72hCount">—</strong><small>优先复核</small></div>
     <p id="caseAttentionAgeMessage" role="status">正在读取待跟进时效……</p>
+    <div class="xw-case-pager" aria-label="待跟进时效快捷筛选">
+      <a class="xw-button xw-button-ghost" data-case-attention-age-link="ATTENTION" href="/admin/xingwei/after-sales/attention?age=ATTENTION">全部需跟进</a>
+      <a class="xw-button xw-button-ghost" data-case-attention-age-link="WITHIN_24H" href="/admin/xingwei/after-sales/attention?age=WITHIN_24H">24 小时内</a>
+      <a class="xw-button xw-button-ghost" data-case-attention-age-link="FROM_24_TO_72H" href="/admin/xingwei/after-sales/attention?age=FROM_24_TO_72H">24–72 小时</a>
+      <a class="xw-button xw-button-ghost" data-case-attention-age-link="OVER_72H" href="/admin/xingwei/after-sales/attention?age=OVER_72H">72 小时以上</a>
+    </div>
   </section>
   <form id="caseFilters" class="xw-case-filters">
     <label>处理状态<select name="status"><option value="">全部</option><option value="OPEN">待处理</option><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select></label>

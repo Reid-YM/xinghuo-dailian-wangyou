@@ -2,8 +2,6 @@ package com.xinghuo.service;
 
 import com.xinghuo.security.XingweiPermissionGuard;
 import com.xinghuo.service.XingweiAfterSalesCaseService.CaseRecord;
-import com.xinghuo.service.XingweiAfterSalesCaseService.QueueItem;
-import com.xinghuo.service.XingweiAfterSalesCaseService.QueueSnapshot;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -31,14 +29,14 @@ public class XingweiAfterSalesAttentionQueueService {
     }
 
     @Transactional(readOnly = true)
-    public QueueSnapshot queue(String age, String status, String category, String followup, String query, int page,
-            Authentication authentication) {
+    public AttentionQueueSnapshot queue(String age, String status, String category, String followup, String query,
+            int page, Authentication authentication) {
         return queue(age, status, category, followup, query, "NEWEST_FIRST", page, authentication);
     }
 
     @Transactional(readOnly = true)
-    public QueueSnapshot queue(String age, String status, String category, String followup, String query, String sort,
-            int page, Authentication authentication) {
+    public AttentionQueueSnapshot queue(String age, String status, String category, String followup, String query,
+            String sort, int page, Authentication authentication) {
         if (!permissions.has(authentication, "order:view")) {
             throw new AccessDeniedException("缺少订单查看权限");
         }
@@ -151,17 +149,19 @@ public class XingweiAfterSalesAttentionQueueService {
                 SELECT business_no, id, order_no, category, category_label, content,
                        submitted_at_ms, status, handling_note, handled_by_admin_user_id,
                        updated_at, version, latest_followup_at_ms, latest_followup_id,
-                       handled_through_followup_id
+                       handled_through_followup_id, attention_at_ms
                   FROM (%s) attention
                  WHERE %s
                  ORDER BY %s
                  LIMIT ? OFFSET ?
                 """.formatted(inner, ageWhere, orderBy);
-        List<QueueItem> items = jdbc.query(sql, (rs, rowNum) -> {
+        List<AttentionQueueItem> items = jdbc.query(sql, (rs, rowNum) -> {
             Object handler = rs.getObject("handled_by_admin_user_id");
             Timestamp updated = rs.getTimestamp("updated_at");
             Object version = rs.getObject("version");
             Object latest = rs.getObject("latest_followup_at_ms");
+            long attentionAtMs = rs.getLong("attention_at_ms");
+            long waitingMs = Math.max(0L, now - attentionAtMs);
             CaseRecord record = new CaseRecord(
                     rs.getLong("id"), rs.getString("order_no"),
                     rs.getString("category"), rs.getString("category_label"),
@@ -171,15 +171,22 @@ public class XingweiAfterSalesAttentionQueueService {
                     handler == null ? null : ((Number) handler).longValue(),
                     updated == null ? null : updated.toInstant(),
                     version == null ? 0 : ((Number) version).longValue());
-            return new QueueItem(rs.getString("business_no"), record,
+            return new AttentionQueueItem(rs.getString("business_no"), record,
                     latest == null ? null : ((Number) latest).longValue(),
-                    rs.getLong("latest_followup_id") > rs.getLong("handled_through_followup_id"));
+                    rs.getLong("latest_followup_id") > rs.getLong("handled_through_followup_id"),
+                    attentionAtMs, waitingMs, ageBucket(waitingMs));
         }, itemArgs.toArray());
 
         long count = total == null ? 0L : total;
-        return new QueueSnapshot(items, count, page, QUEUE_PAGE_SIZE, normalizedStatus,
+        return new AttentionQueueSnapshot(items, count, page, QUEUE_PAGE_SIZE, normalizedStatus,
                 normalizedCategory, normalizedFollowup, keyword,
                 page < MAX_QUEUE_PAGE && ((long) page + 1) * QUEUE_PAGE_SIZE < count);
+    }
+
+    private String ageBucket(long waitingMs) {
+        if (waitingMs >= H72_MS) return "OVER_72H";
+        if (waitingMs >= H24_MS) return "FROM_24_TO_72H";
+        return "WITHIN_24H";
     }
 
     private List<Object> scopeArgs(XingweiPermissionGuard.AccessSnapshot access) {
@@ -198,4 +205,12 @@ public class XingweiAfterSalesAttentionQueueService {
         if ("SELF".equals(access.dataScope()) && access.adminUserId() != null) return "own.owner_admin_user_id = ?";
         return "1 = 0";
     }
+
+    public record AttentionQueueItem(String businessNo, CaseRecord record, Long latestCustomerFollowupAtMs,
+                                     boolean pendingCustomerFollowup, long attentionAtMs,
+                                     long waitingMs, String ageBucket) {}
+
+    public record AttentionQueueSnapshot(List<AttentionQueueItem> items, long totalCount, int page, int pageSize,
+                                         String status, String category, String followup, String query,
+                                         boolean hasNext) {}
 }

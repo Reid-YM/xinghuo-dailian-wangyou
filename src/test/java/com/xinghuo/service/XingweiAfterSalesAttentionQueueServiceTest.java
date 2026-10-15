@@ -100,6 +100,18 @@ class XingweiAfterSalesAttentionQueueServiceTest {
     }
 
     @Test
+    void queueSupportsOldestFirstWithoutChangingTheDefaultOrder() {
+        var newest = queue.queue("ATTENTION", null, null, null, null, "NEWEST_FIRST", 0, actor);
+        assertEquals(List.of(1L, 2L), newest.items().stream().map(item -> item.record().recordId()).toList());
+
+        var oldest = queue.queue("ATTENTION", null, null, null, null, "OLDEST_FIRST", 0, actor);
+        assertEquals(List.of(2L, 1L), oldest.items().stream().map(item -> item.record().recordId()).toList());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> queue.queue("ATTENTION", null, null, null, null, "UNKNOWN", 0, actor));
+    }
+
+    @Test
     void queueRequiresOrderViewPermission() {
         when(permissions.has(actor, "order:view")).thenReturn(false);
         assertThrows(AccessDeniedException.class,

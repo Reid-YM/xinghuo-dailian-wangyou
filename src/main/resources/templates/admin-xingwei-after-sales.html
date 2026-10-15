@@ -30,6 +30,11 @@
     <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-category="REFUND_REVIEW" disabled aria-pressed="false"><span>退款核对</span><strong id="caseRefundReviewCount">—</strong><small>按问题类型筛选</small></button>
     <button class="xw-case-summary-card xw-case-summary-action" type="button" data-case-category="OTHER" disabled aria-pressed="false"><span>其他问题</span><strong id="caseOtherCount">—</strong><small>按问题类型筛选</small></button>
     <p id="caseCategorySummaryMessage" role="status">正在读取问题类型分布……</p>
+    <div class="xw-case-summary-card"><span>当前需跟进</span><strong id="caseAttentionCount">—</strong><small>待处理或有新补充</small></div>
+    <div class="xw-case-summary-card"><span>24 小时内</span><strong id="caseAttentionWithin24hCount">—</strong><small>最近客户动作</small></div>
+    <div class="xw-case-summary-card"><span>24–72 小时</span><strong id="caseAttention24To72hCount">—</strong><small>最近客户动作</small></div>
+    <div class="xw-case-summary-card"><span>72 小时以上</span><strong id="caseAttentionOver72hCount">—</strong><small>优先复核</small></div>
+    <p id="caseAttentionAgeMessage" role="status">正在读取待跟进时效……</p>
   </section>
   <form id="caseFilters" class="xw-case-filters">
     <label>处理状态<select name="status"><option value="">全部</option><option value="OPEN">待处理</option><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select></label>

@@ -77,6 +77,19 @@
       host.textContent=`问题类型分布暂不可用：${error.message}`;
     }
   }
+  async function loadAttentionAgeSummary(){
+    const host=$('caseAttentionAgeMessage');
+    if(!host)return;
+    const fields=[['attentionCount','caseAttentionCount'],['within24hCount','caseAttentionWithin24hCount'],['from24To72hCount','caseAttention24To72hCount'],['over72hCount','caseAttentionOver72hCount']];
+    try{
+      const summary=await api('/api/admin/xingwei/business/after-sales/cases/attention-age-summary');
+      for(const [key,id] of fields){if($(id))$(id).textContent=String(summary[key]??0);}
+      host.textContent='需跟进 = 尚未开始处理，或存在尚未确认的客户补充；时长从最近一次需要客服响应的客户动作开始计算。';
+    }catch(error){
+      for(const [,id] of fields){if($(id))$(id).textContent='—';}
+      host.textContent=`待跟进时效暂不可用：${error.message}`;
+    }
+  }
   function renderQueue(snapshot){
     state.total=snapshot.totalCount||0;state.hasNext=Boolean(snapshot.hasNext);
     const rows=$('caseRows');rows.replaceChildren();
@@ -144,19 +157,21 @@
     const payload={status:form.elements.status.value,handlingNote:form.elements.handlingNote.value.trim(),customerReply:form.elements.customerReply.value.trim()||null,acknowledgedFollowupId:state.acknowledgedFollowupId,expectedVersion:record.version};
     if(payload.status===record.status&&!payload.customerReply){message('保持当前状态时须填写客户回复。');return;}
     message('正在保存处理结果……');
-    try{await api(`/api/admin/xingwei/business/orders/${encodeURIComponent(state.businessNo)}/after-sales/records/${record.recordId}`,{method:'PUT',body:JSON.stringify(payload)});await openCase(state.businessNo,record.recordId);await load();await loadSummary();message('处理结果已保存。');}
+    try{await api(`/api/admin/xingwei/business/orders/${encodeURIComponent(state.businessNo)}/after-sales/records/${record.recordId}`,{method:'PUT',body:JSON.stringify(payload)});await openCase(state.businessNo,record.recordId);await load();await loadSummary();await loadAttentionAgeSummary();message('处理结果已保存。');}
     catch(error){if(error.status===409)await openCase(state.businessNo,record.recordId);message(error.message);}
   });
   restoreFilters();
   api('/api/admin/xingwei/access').then(access=>{
     state.access=access;load();
-    if(can('order:view')){loadSummary();loadCategorySummary();}
+    if(can('order:view')){loadSummary();loadCategorySummary();loadAttentionAgeSummary();}
     else{
       $('caseSummaryMessage').textContent='当前账号没有订单查看权限。';
       if($('caseCategorySummaryMessage'))$('caseCategorySummaryMessage').textContent='当前账号没有订单查看权限。';
+      if($('caseAttentionAgeMessage'))$('caseAttentionAgeMessage').textContent='当前账号没有订单查看权限。';
     }
   }).catch(error=>{
     message(error.message);$('caseSummaryMessage').textContent='售后概览暂不可用。';
     if($('caseCategorySummaryMessage'))$('caseCategorySummaryMessage').textContent='问题类型分布暂不可用。';
+    if($('caseAttentionAgeMessage'))$('caseAttentionAgeMessage').textContent='待跟进时效暂不可用。';
   });
 })();

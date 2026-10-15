@@ -33,6 +33,12 @@ public class XingweiAfterSalesAttentionQueueService {
     @Transactional(readOnly = true)
     public QueueSnapshot queue(String age, String status, String category, String followup, String query, int page,
             Authentication authentication) {
+        return queue(age, status, category, followup, query, "NEWEST_FIRST", page, authentication);
+    }
+
+    @Transactional(readOnly = true)
+    public QueueSnapshot queue(String age, String status, String category, String followup, String query, String sort,
+            int page, Authentication authentication) {
         if (!permissions.has(authentication, "order:view")) {
             throw new AccessDeniedException("缺少订单查看权限");
         }
@@ -54,6 +60,10 @@ public class XingweiAfterSalesAttentionQueueService {
         String normalizedFollowup = followup == null ? "" : followup.trim();
         if (!normalizedFollowup.isEmpty() && !"PENDING".equals(normalizedFollowup)) {
             throw new IllegalArgumentException("客户补充筛选无效");
+        }
+        String normalizedSort = sort == null || sort.isBlank() ? "NEWEST_FIRST" : sort.trim();
+        if (!List.of("NEWEST_FIRST", "OLDEST_FIRST").contains(normalizedSort)) {
+            throw new IllegalArgumentException("待跟进排序无效");
         }
         String keyword = query == null ? "" : query.trim();
         if (keyword.length() > 80) throw new IllegalArgumentException("搜索内容不能超过 80 字");
@@ -134,6 +144,9 @@ public class XingweiAfterSalesAttentionQueueService {
         List<Object> itemArgs = new ArrayList<>(countArgs);
         itemArgs.add(QUEUE_PAGE_SIZE);
         itemArgs.add(page * QUEUE_PAGE_SIZE);
+        String orderBy = "OLDEST_FIRST".equals(normalizedSort)
+                ? "attention_at_ms ASC, id ASC"
+                : "attention_at_ms DESC, id DESC";
         String sql = """
                 SELECT business_no, id, order_no, category, category_label, content,
                        submitted_at_ms, status, handling_note, handled_by_admin_user_id,
@@ -141,9 +154,9 @@ public class XingweiAfterSalesAttentionQueueService {
                        handled_through_followup_id
                   FROM (%s) attention
                  WHERE %s
-                 ORDER BY GREATEST(submitted_at_ms, COALESCE(latest_followup_at_ms, 0)) DESC, id DESC
+                 ORDER BY %s
                  LIMIT ? OFFSET ?
-                """.formatted(inner, ageWhere);
+                """.formatted(inner, ageWhere, orderBy);
         List<QueueItem> items = jdbc.query(sql, (rs, rowNum) -> {
             Object handler = rs.getObject("handled_by_admin_user_id");
             Timestamp updated = rs.getTimestamp("updated_at");

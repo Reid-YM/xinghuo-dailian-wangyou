@@ -87,7 +87,7 @@ class XingweiOrgRbacContractTest {
     }
 
     @Test
-    void consoleKeepsV2cOrganizationScopeWhileDashboardAdvancesToV4l() throws Exception {
+    void consoleKeepsV2cOrganizationScopeWhileDashboardAdvancesToV4m() throws Exception {
         String template = read("resources/templates/admin-xingwei.html");
         String orgJs = read("resources/static/assets/admin-xingwei-org.js");
         String mainJs = read("resources/static/assets/admin-xingwei.js");
@@ -96,7 +96,7 @@ class XingweiOrgRbacContractTest {
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
         assertTrue(template.contains("/assets/admin-xingwei.js?v=20261014v3x"));
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
-        assertTrue(template.contains("V4L · STABLE PRODUCTION"));
+        assertTrue(template.contains("V4M · RELEASE CANDIDATE"));
         assertTrue(template.contains("V2C · DATA SCOPE"));
         assertTrue(template.contains("ADMIN 全量 · OPERATOR 兼容 · RBAC 执行 ALL / DEPARTMENT / SELF"));
         assertTrue(orgJs.contains("/api/admin/xingwei/org/snapshot"));
@@ -116,7 +116,7 @@ class XingweiOrgRbacContractTest {
         assertTrue(mainJs.contains("xw:runtime-health"));
         assertTrue(accessController.contains("@GetMapping(\"/access\")"));
         assertTrue(controller.contains("20261013-v2c"));
-        assertTrue(controller.contains("20261016-v4l"));
+        assertTrue(controller.contains("20261016-v4m"));
     }
 
     private static int occurrences(String source, String needle) {

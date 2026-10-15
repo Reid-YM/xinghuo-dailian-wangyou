@@ -15,9 +15,9 @@ class XingweiReleaseHistoryContractTest {
     @Test
     void currentVersionsStageAndReleaseHistoryAreCentralized() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
-        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261016-v4l\""));
-        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V4L · STABLE PRODUCTION\""));
-        assertTrue(controller.contains("static final String BUSINESS_VERSION = \"20261016-v4l\""));
+        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261016-v4m\""));
+        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V4M · RELEASE CANDIDATE\""));
+        assertTrue(controller.contains("static final String BUSINESS_VERSION = \"20261016-v4m\""));
         assertTrue(controller.contains("static final String TAXONOMY_VERSION = \"20261014-v3i\""));
         assertTrue(controller.contains("model.addAttribute(\"consoleStage\", CONSOLE_STAGE)"));
         assertTrue(controller.contains("@GetMapping(\"/admin/xingwei/releases\")"));
@@ -50,6 +50,8 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(controller.contains("\"V4J\", \"已上线\""));
         assertTrue(controller.contains("\"V4K\", \"已上线\""));
         assertTrue(controller.contains("\"V4L\", \"已上线\""));
+        assertTrue(controller.contains("\"V4M\", \"待发布\""));
+        assertTrue(controller.contains("售后待跟进等待时长与时效标记"));
         assertTrue(controller.contains("售后待跟进优先级排序"));
         assertTrue(controller.contains("售后待跟进时效快捷队列"));
         assertTrue(controller.contains("售后待跟进时效分布"));
@@ -63,14 +65,12 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(controller.contains("Frontend Next 与后台韧性统一交付"));
         assertTrue(controller.contains("后台运行版本自校验"));
         assertTrue(controller.contains("版本漂移告警"));
-        assertTrue(controller.contains("Deploy Production #209"));
-        assertTrue(controller.contains("471 tests / 0 failures / 0 errors"));
-        assertTrue(controller.contains("PR #484"));
-        assertTrue(controller.contains("PR #485"));
-        assertTrue(controller.contains("main CI #1151"));
-        assertTrue(controller.contains("Deploy Production #211"));
+        assertTrue(controller.contains("PR #488"));
+        assertTrue(controller.contains("main CI #1157"));
+        assertTrue(controller.contains("PR #486"));
+        assertTrue(controller.contains("Deploy Production #212"));
         assertTrue(controller.contains("472 tests / 0 failures / 0 errors / 88 skipped"));
-        assertTrue(controller.contains("0f4afe01e504489dadabfe5b6fff82c832da4b5634bb7185f054251405d360c6"));
+        assertTrue(controller.contains("9e2ee6d4ac53ef54fb1e008f5add885b4bf352e4a48d992d51da9c61e1a8f09c"));
         assertTrue(controller.contains("result.put(\"version\", CONSOLE_VERSION)"));
         assertTrue(controller.contains("result.put(\"stage\", CONSOLE_STAGE)"));
         assertFalse(controller.contains("\"V3I\", \"开发完成\""));
@@ -83,8 +83,8 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(template.contains("后续固定规则 · CI + 运行时双校验"));
         assertTrue(template.contains("浏览器核对页面版本与实际后端版本"));
         assertTrue(template.contains("th:each=\"item : ${releaseHistory}\""));
-        assertTrue(template.contains(">20261016-v4l</span>"));
-        assertTrue(template.contains(">V4L</strong>"));
+        assertTrue(template.contains(">20261016-v4m</span>"));
+        assertTrue(template.contains(">V4M</strong>"));
     }
 
     @Test
@@ -94,18 +94,20 @@ class XingweiReleaseHistoryContractTest {
         String attention = read("resources/templates/admin-xingwei-after-sales-attention.html");
         assertTrue(dashboard.contains("href=\"/admin/xingwei/releases\">更新记录</a>"));
         assertTrue(dashboard.contains("th:text=\"${consoleStage}\""));
-        assertTrue(dashboard.contains("V4L · STABLE PRODUCTION"));
+        assertTrue(dashboard.contains("V4M · RELEASE CANDIDATE"));
         assertTrue(dashboard.contains("V3Y 已上线"));
         assertTrue(dashboard.contains("<strong>V4J</strong>"));
         assertTrue(dashboard.contains("<strong>V4K</strong>"));
         assertTrue(dashboard.contains("<strong>V4L</strong>"));
-        assertTrue(dashboard.contains("20261016-v4l"));
-        assertTrue(read("resources/templates/admin-xingwei-business.html").contains("th:text=\"${businessVersion}\">20261016-v4l"));
-        assertTrue(afterSales.contains("V4L · STABLE PRODUCTION"));
+        assertTrue(dashboard.contains("<strong>V4M</strong>"));
+        assertTrue(dashboard.contains("20261016-v4m"));
+        assertTrue(read("resources/templates/admin-xingwei-business.html").contains("th:text=\"${businessVersion}\">20261016-v4m"));
+        assertTrue(afterSales.contains("V4M · RELEASE CANDIDATE"));
         assertTrue(afterSales.contains("admin-xingwei-after-sales.js?v=20261016v4k"));
         assertTrue(afterSales.contains("admin-xingwei-after-sales-v4k-links.js?v=20261016v4k"));
-        assertTrue(attention.contains("V4L · STABLE PRODUCTION"));
-        assertTrue(attention.contains("admin-xingwei-after-sales-attention.js?v=20261016v4l"));
+        assertTrue(attention.contains("V4M · RELEASE CANDIDATE"));
+        assertTrue(attention.contains("admin-xingwei-after-sales-attention.js?v=20261016v4m"));
+        assertTrue(attention.contains("等待时长"));
         assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261014v3x"));
         assertTrue(dashboard.contains("V3H 待真机验收"));
         assertTrue(dashboard.contains("V3I 已上线"));
@@ -126,7 +128,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(dashboard.contains("生产流水线已启用"));
         assertTrue(dashboard.contains("<strong>V3L</strong>"));
         assertTrue(dashboard.contains("已上线：Frontend Next A1–A4"));
-        assertTrue(dashboard.contains("V4L 已上线 →"));
+        assertTrue(dashboard.contains("V4M 待发布 →"));
         assertTrue(dashboard.contains("/admin/xingwei/integrations"));
         assertFalse(dashboard.contains("<article class=\"xw-module xw-module-planned\" data-search=\"微信支付"));
         assertFalse(dashboard.contains("<article class=\"xw-module xw-module-planned\" data-search=\"发布 部署"));

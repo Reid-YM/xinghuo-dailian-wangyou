@@ -2,7 +2,6 @@
   'use strict';
 
   const $ = (selector, root = document) => root.querySelector(selector);
-  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
   const STAGE = 'N8 · TOTAL INTEGRATION';
   const HOME_PROGRESS_COPY = '示意进度卡仅用于展示界面，不代表当前账号真实订单；登录后请以个人中心真实业务记录为准。';
@@ -90,6 +89,7 @@
     const expected = [
       'XHFrontendNextN2',
       'XHFrontendNextN3',
+      'XHFrontendNextN4',
       'XHFrontendNextN4Mini',
       'XHFrontendNextN5',
       'XHFrontendNextN5Actions',

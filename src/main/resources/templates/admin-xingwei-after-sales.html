@@ -18,7 +18,7 @@
   <header class="xwb-topbar"><div><p class="xw-kicker">STARWEAVE · AFTER SALES</p><h1>售后处理</h1></div>
     <div class="xwb-top-actions"><a class="xw-button xw-button-ghost" href="/admin/xingwei/business?tab=after-sales">业务工作台</a><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回后台</a></div>
   </header>
-  <section class="xwb-hero"><div><p class="xw-kicker">V4K · STABLE PRODUCTION</p><h2>按记录处理客户售后问题</h2><p>V4K 已上线：在 V4J 已上线的待跟进时效分布基础上，把全部需跟进、24 小时内、24–72 小时和 72 小时以上变成可进入的只读时效队列。进入队列时会保留当前处理状态、问题类型、客户补充和搜索条件，页码归零；时效队列继续受 order:view 与 ALL / DEPARTMENT / SELF 数据范围约束，具体处理仍回到原售后处理页。本阶段不新增数据库迁移，不自动改变售后、订单、退款、收款或企业微信状态。</p></div></section>
+  <section class="xwb-hero"><div><p class="xw-kicker">V4L · RELEASE CANDIDATE</p><h2>按记录处理客户售后问题</h2><p>V4K 的独立只读时效队列已经稳定上线。V4L 候选在不改变默认顺序的前提下增加“最新待跟进优先 / 最久未响应优先”，排序统一使用当前真正需要客服响应的 attention_at_ms，并与时效、状态、问题类型、客户补充、关键词和分页一起保存在 URL。继续受 order:view 与 ALL / DEPARTMENT / SELF 数据范围约束，具体处理仍回到原售后处理页；本候选不新增数据库迁移，不自动改变售后、订单、退款、收款或企业微信状态。</p></div></section>
   <section class="xw-case-summary" aria-label="售后概览">
     <div class="xw-case-summary-card"><span>全部售后记录</span><strong id="caseTotalCount">—</strong></div>
     <div class="xw-case-summary-card"><span>待跟进客户补充</span><strong id="casePendingCount">—</strong></div>

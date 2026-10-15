@@ -96,7 +96,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(afterSales.contains("admin-xingwei-after-sales.js?v=20261016v4k"));
         assertTrue(afterSales.contains("admin-xingwei-after-sales-v4k-links.js?v=20261016v4k"));
         assertTrue(attention.contains("V4K · STABLE PRODUCTION"));
-        assertTrue(attention.contains("admin-xingwei-after-sales-attention.js?v=20261016v4k"));
+        assertTrue(attention.contains("admin-xingwei-after-sales-attention.js?v=20261016v4l"));
         assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261014v3x"));
         assertTrue(dashboard.contains("V3H 待真机验收"));
         assertTrue(dashboard.contains("V3I 已上线"));

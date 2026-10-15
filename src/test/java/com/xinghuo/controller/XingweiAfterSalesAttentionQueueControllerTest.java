@@ -17,12 +17,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 class XingweiAfterSalesAttentionQueueControllerTest {
     @Test
-    void attentionQueuePublishesExistingQueueShape() throws Exception {
+    void attentionQueuePublishesExistingQueueShapeAndSortParameter() throws Exception {
         var service = mock(XingweiAfterSalesAttentionQueueService.class);
         var actor = new UsernamePasswordAuthenticationToken("staff", "", List.of());
         var record = new CaseRecord(9L, "O9", "OTHER", "其他问题", "需要跟进",
                 1000L, "OPEN", null, null, null, 0L);
-        when(service.queue("OVER_72H", "OPEN", "OTHER", "PENDING", "XW9", 0, actor))
+        when(service.queue("OVER_72H", "OPEN", "OTHER", "PENDING", "XW9", "OLDEST_FIRST", 0, actor))
                 .thenReturn(new QueueSnapshot(List.of(new QueueItem("XW9", record, 2000L, true)),
                         1L, 0, 50, "OPEN", "OTHER", "PENDING", "XW9", false));
 
@@ -33,6 +33,7 @@ class XingweiAfterSalesAttentionQueueControllerTest {
                         .param("category", "OTHER")
                         .param("followup", "PENDING")
                         .param("q", "XW9")
+                        .param("sort", "OLDEST_FIRST")
                         .principal(actor))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalCount").value(1))

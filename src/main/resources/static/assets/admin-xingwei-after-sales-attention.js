@@ -6,7 +6,8 @@
     age:['ATTENTION','WITHIN_24H','FROM_24_TO_72H','OVER_72H'],
     status:['','OPEN','IN_PROGRESS','RESOLVED'],
     category:['','DELIVERY','CANCELLATION','REFUND_REVIEW','OTHER'],
-    followup:['','PENDING']
+    followup:['','PENDING'],
+    sort:['NEWEST_FIRST','OLDEST_FIRST']
   };
   const state={page:0,hasNext:false,total:0,access:null,request:0};
 
@@ -30,6 +31,8 @@
       const value=query.get(key)||'';
       form.elements[key].value=allowed[key].includes(value)?value:'';
     }
+    const sort=query.get('sort')||'NEWEST_FIRST';
+    form.elements.sort.value=allowed.sort.includes(sort)?sort:'NEWEST_FIRST';
     form.elements.q.value=(query.get('q')||'').slice(0,80);
     const rawPage=query.get('page')||'0';
     state.page=/^(0|[1-9]\d{0,5})$/.test(rawPage)?Number(rawPage):0;
@@ -37,9 +40,11 @@
 
   function save(){
     const url=new URL(location.href),form=$('attentionFilters');
-    for(const key of ['age','status','category','followup','q','page'])url.searchParams.delete(key);
+    for(const key of ['age','status','category','followup','sort','q','page'])url.searchParams.delete(key);
     const age=form.elements.age.value||'ATTENTION';
     url.searchParams.set('age',age);
+    const sort=form.elements.sort.value||'NEWEST_FIRST';
+    if(sort!=='NEWEST_FIRST')url.searchParams.set('sort',sort);
     for(const key of ['status','category','followup','q']){
       const value=String(form.elements[key].value||'').trim();
       if(value)url.searchParams.set(key,value);
@@ -73,7 +78,11 @@
   async function load(){
     if(!can('order:view')){message('当前账号没有订单查看权限。');return;}
     const request=++state.request,form=new FormData($('attentionFilters'));
-    const query=new URLSearchParams({age:String(form.get('age')||'ATTENTION'),page:String(state.page)});
+    const query=new URLSearchParams({
+      age:String(form.get('age')||'ATTENTION'),
+      sort:String(form.get('sort')||'NEWEST_FIRST'),
+      page:String(state.page)
+    });
     for(const key of ['status','category','followup','q']){
       const value=String(form.get(key)||'').trim();
       if(value)query.set(key,value);

@@ -19,7 +19,7 @@
     const style = document.createElement('style');
     style.id = 'frontend-next-n8-style';
     style.textContent = `
-      .n8-network-status{position:fixed;z-index:260;left:50%;top:86px;transform:translateX(-50%);width:min(760px,calc(100% - 28px));padding:11px 14px;border:1px solid #ff9d2e66;border-radius:12px;background:#171109f2;color:#f2c17f;font-size:11px;line-height:1.55;box-shadow:0 16px 42px #0008;backdrop-filter:blur(12px)}
+      .n8-network-status{box-sizing:border-box;position:fixed;z-index:260;left:50%;top:86px;transform:translateX(-50%);width:min(760px,calc(100% - 28px));padding:11px 14px;border:1px solid #ff9d2e66;border-radius:12px;background:#171109f2;color:#f2c17f;font-size:11px;line-height:1.55;box-shadow:0 16px 42px #0008;backdrop-filter:blur(12px)}
       .n8-network-status[hidden]{display:none}
       .badge[title]{cursor:help}
       @media(max-width:680px){.n8-network-status{top:72px}}

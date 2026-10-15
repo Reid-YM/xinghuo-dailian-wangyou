@@ -31,9 +31,10 @@ public class XingweiAfterSalesAttentionQueueController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String followup,
             @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "NEWEST_FIRST") String sort,
             @RequestParam(defaultValue = "0") int page,
             Authentication authentication) {
-        return queue.queue(age, status, category, followup, q, page, authentication);
+        return queue.queue(age, status, category, followup, q, sort, page, authentication);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

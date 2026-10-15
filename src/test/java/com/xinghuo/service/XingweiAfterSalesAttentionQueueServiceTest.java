@@ -69,7 +69,7 @@ class XingweiAfterSalesAttentionQueueServiceTest {
         assertEquals(2L, middle.items().getFirst().record().recordId());
         assertEquals(true, middle.items().getFirst().pendingCustomerFollowup());
         assertEquals("FROM_24_TO_72H", middle.items().getFirst().ageBucket());
-        assertEquals(middle.items().getFirst().latestCustomerFollowupAtMs(),
+        assertEquals(middle.items().getFirst().latestCustomerFollowupAtMs().longValue(),
                 middle.items().getFirst().attentionAtMs());
         assertTrue(middle.items().getFirst().waitingMs() >= Duration.ofHours(30).minusMinutes(1).toMillis());
 

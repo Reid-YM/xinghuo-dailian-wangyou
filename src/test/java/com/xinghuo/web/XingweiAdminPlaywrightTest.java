@@ -15,8 +15,8 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 class XingweiAdminPlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
     private static final Path TEMPLATE = Path.of("src/main/resources/templates/admin-xingwei.html");
-    private static final String VERSION = "20261015-v4j";
-    private static final String STAGE = "V4J · STABLE PRODUCTION";
+    private static final String VERSION = "20261016-v4k";
+    private static final String STAGE = "V4K · RELEASE CANDIDATE";
 
     @Test
     void desktopAndPhoneLayoutsStayInsideViewportAndNavigationWorks() throws Exception {
@@ -35,7 +35,7 @@ class XingweiAdminPlaywrightTest {
                           })};
                         }
                         if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version, stage, serverTime:'2026-10-14T05:00:00+08:00'})};
+                          return {ok:true, json:async () => ({ok:true, version, stage, serverTime:'2026-10-16T01:00:00+08:00'})};
                         }
                         return {ok:false, status:404, json:async () => ({error:'not found'})};
                       };
@@ -87,7 +87,7 @@ class XingweiAdminPlaywrightTest {
                           })};
                         }
                         if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version, stage, serverTime:'2026-10-14T05:00:00+08:00'})};
+                          return {ok:true, json:async () => ({ok:true, version, stage, serverTime:'2026-10-16T01:00:00+08:00'})};
                         }
                         return {ok:false, status:404, json:async () => ({error:'not found'})};
                       };
@@ -149,10 +149,10 @@ class XingweiAdminPlaywrightTest {
 
             assertTrue(page.locator("#xwBackendStatus").textContent().contains("版本漂移"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwBackendStatus').classList.contains('error')"));
-            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261015-v4j"));
+            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261016-v4k"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("运行 20261014-v3k"));
             assertEquals("mismatch", page.evaluate("() => window.xwRuntimeHealth.state"));
-            assertEquals("20261015-v4j", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
+            assertEquals("20261016-v4k", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
             assertEquals("20261014-v3k", page.evaluate("() => window.xwRuntimeHealth.runtimeVersion"));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
         }

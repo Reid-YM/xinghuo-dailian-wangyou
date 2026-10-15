@@ -35,7 +35,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
                           return {ok:true, json:async () => ({
                             ok:true,
                             version:first ? '20261015-v4j' : '20261014-v3l',
-                            stage:first ? 'V4J · RELEASE CANDIDATE' : 'V3L · STABLE PRODUCTION',
+                            stage:first ? 'V4J · STABLE PRODUCTION' : 'V3L · STABLE PRODUCTION',
                             serverTime:'2026-10-14T06:00:00+08:00'
                           })};
                         }
@@ -69,7 +69,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
                         }
                         if (String(url) === '/api/admin/xingwei/health') {
                           return {ok:true, json:async () => ({
-                            ok:true, version:'20261015-v4j', stage:'V4J · RELEASE CANDIDATE',
+                            ok:true, version:'20261015-v4j', stage:'V4J · STABLE PRODUCTION',
                             serverTime:'2026-10-14T06:00:00+08:00'
                           })};
                         }
@@ -89,7 +89,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
                 <body>
                   <main class="xw-main">
                     <header><div class="xw-topbar-actions"><span class="xw-status" id="xwBackendStatus"><i></i>正在检查服务</span></div></header>
-                    <section id="overview"><p class="xw-kicker">V4J · RELEASE CANDIDATE</p><div class="xw-version-card"><strong>20261015-v4j</strong><small id="xwServerTime">等待</small></div></section>
+                    <section id="overview"><p class="xw-kicker">V4J · STABLE PRODUCTION</p><div class="xw-version-card"><strong>20261015-v4j</strong><small id="xwServerTime">等待</small></div></section>
                     <input id="xwModuleSearch"/>
                     <span id="xwSearchCount"></span>
                     <article class="xw-module"><div class="xw-module-index">B02</div>订单</article>

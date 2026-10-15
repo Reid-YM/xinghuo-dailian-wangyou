@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>待跟进时效队列 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261014v3x"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-after-sales.css?v=20261015v4j"/>
+  <script defer src="/assets/admin-xingwei-after-sales-attention.js?v=20261016v4k-dev"></script>
+</head>
+<body>
+<main class="xwb-shell">
+  <header class="xwb-topbar">
+    <div><p class="xw-kicker">STARWEAVE · AFTER SALES ATTENTION</p><h1>待跟进时效队列</h1></div>
+    <div class="xwb-top-actions">
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei/after-sales/cases">返回售后处理</a>
+      <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回后台</a>
+    </div>
+  </header>
+
+  <section class="xwb-hero">
+    <div>
+      <p class="xw-kicker">V4J DATA · V4K DEVELOPMENT CANDIDATE</p>
+      <h2>按客服待响应时长查看售后记录</h2>
+      <p>本页只读取 V4J 已有的待跟进定义：尚未开始处理的 OPEN 记录，或存在客服尚未确认的新客户补充。有新补充时从最新补充时间计时，否则从原始售后提交时间计时。筛选不会修改订单、售后状态、退款、支付或企业微信数据。</p>
+    </div>
+  </section>
+
+  <form id="attentionFilters" class="xw-case-filters">
+    <label>待跟进时效
+      <select name="age" required>
+        <option value="ATTENTION">全部需跟进</option>
+        <option value="WITHIN_24H">24 小时内</option>
+        <option value="FROM_24_TO_72H">24–72 小时</option>
+        <option value="OVER_72H">72 小时以上</option>
+      </select>
+    </label>
+    <label>处理状态
+      <select name="status"><option value="">全部</option><option value="OPEN">待处理</option><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select>
+    </label>
+    <label>问题类型
+      <select name="category"><option value="">全部</option><option value="DELIVERY">交付或进度</option><option value="CANCELLATION">取消服务</option><option value="REFUND_REVIEW">退款核对</option><option value="OTHER">其他问题</option></select>
+    </label>
+    <label>客户补充
+      <select name="followup"><option value="">全部</option><option value="PENDING">待跟进</option></select>
+    </label>
+    <label>搜索<input name="q" maxlength="80" placeholder="业务编号、订单号或客户说明"/></label>
+    <button class="xw-button" type="submit">查询</button>
+  </form>
+
+  <p id="attentionMessage" role="status">正在读取待跟进队列……</p>
+  <section class="xw-data-panel xwb-panel" aria-label="待跟进时效队列">
+    <div class="xw-table-wrap xw-table-tall">
+      <table class="xw-table xwb-table">
+        <thead><tr><th>业务编号</th><th>问题类型</th><th>客户说明</th><th>状态</th><th>最近客户活动</th><th>操作</th></tr></thead>
+        <tbody id="attentionRows"></tbody>
+      </table>
+    </div>
+  </section>
+  <div class="xw-case-pager">
+    <button class="xw-button xw-button-ghost" id="attentionPrev" type="button">上一页</button>
+    <span id="attentionPage"></span>
+    <button class="xw-button xw-button-ghost" id="attentionNext" type="button">下一页</button>
+  </div>
+</main>
+</body>
+</html>

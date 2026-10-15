@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261014v3x"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-after-sales.css?v=20261016v4k"/>
-  <script defer src="/assets/admin-xingwei-after-sales-attention.js?v=20261016v4k"></script>
+  <script defer src="/assets/admin-xingwei-after-sales-attention.js?v=20261016v4l"></script>
 </head>
 <body>
 <main class="xwb-shell">
@@ -24,7 +24,7 @@
     <div>
       <p class="xw-kicker">V4K · STABLE PRODUCTION</p>
       <h2>按客服待响应时长查看售后记录</h2>
-      <p>V4K 已上线：本页只读取 V4J 已有的待跟进定义，即尚未开始处理的 OPEN 记录，或存在客服尚未确认的新客户补充。有新补充时从最新补充时间计时，否则从原始售后提交时间计时。页面支持时效、状态、问题类型、客户补充和关键词组合筛选，URL 可分享并支持分页；筛选不会修改订单、售后状态、退款、支付或企业微信数据。</p>
+      <p>V4K 已上线：本页只读取 V4J 已有的待跟进定义，即尚未开始处理的 OPEN 记录，或存在客服尚未确认的新客户补充。有新补充时从最新补充时间计时，否则从原始售后提交时间计时。V4L 在不改变默认顺序的前提下增加“最久未响应优先”排序；页面继续支持时效、状态、问题类型、客户补充和关键词组合筛选，URL 可分享并支持分页；筛选和排序都不会修改订单、售后状态、退款、支付或企业微信数据。</p>
     </div>
   </section>
 
@@ -45,6 +45,9 @@
     </label>
     <label>客户补充
       <select name="followup"><option value="">全部</option><option value="PENDING">待跟进</option></select>
+    </label>
+    <label>优先顺序
+      <select name="sort"><option value="NEWEST_FIRST">最新待跟进优先</option><option value="OLDEST_FIRST">最久未响应优先</option></select>
     </label>
     <label>搜索<input name="q" maxlength="80" placeholder="业务编号、订单号或客户说明"/></label>
     <button class="xw-button" type="submit">查询</button>

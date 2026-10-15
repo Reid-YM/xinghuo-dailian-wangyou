@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261015-v4h";
-    static final String CONSOLE_STAGE = "V4H · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261015-v4h";
+    static final String CONSOLE_VERSION = "20261015-v4i";
+    static final String CONSOLE_STAGE = "V4I · RELEASE CANDIDATE";
+    static final String BUSINESS_VERSION = "20261015-v4i";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-15", "V4I", "待发布",
+                    "售后问题类型分布与快捷筛选",
+                    "在 V4H 状态分布基础上增加交付或进度、取消服务、退款核对、其他问题四类按权限范围统计；点击问题类型可直接筛选售后队列并保留处理状态、待跟进与搜索条件。分类统计继续受 order:view 和 ALL / DEPARTMENT / SELF 数据范围约束；功能 PR #470 已通过 Java/Maven 与 Chromium/WebKit CI 并合入 main。统一版本等待本 PR 双 CI 与生产门禁，不新增数据库迁移，不改变订单、售后状态、退款、真实收款或企业微信写入。"),
             new ReleaseItem("2026-10-15", "V4H", "已上线",
                     "售后处理状态分布与快捷筛选",
                     "后台售后概览增加待处理、处理中、已解决三种状态的按权限范围计数；点击状态可直接筛选队列并生成可分享的网址。计数保留 order:view 和 ALL / DEPARTMENT / SELF 数据范围，未建立处理状态的记录计入待处理。功能 PR #465、#466 与统一版本 PR #468 均通过双 CI、主线双 CI 和 18080/8081/8080 生产门禁；仅提供读取与导航，不自动改变售后状态、订单、退款、真实收款或企业微信写入。"),

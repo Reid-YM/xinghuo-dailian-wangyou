@@ -32,7 +32,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
                           return {ok:true, json:async () => ({
                             ok:true,
                             version:first ? '20261016-v4l' : '20261014-v3l',
-                            stage:first ? 'V4L · RELEASE CANDIDATE' : 'V3L · STABLE PRODUCTION',
+                            stage:first ? 'V4L · STABLE PRODUCTION' : 'V3L · STABLE PRODUCTION',
                             serverTime:'2026-10-16T01:00:00+08:00'
                           })};
                         }
@@ -62,7 +62,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
                       window.fetch = async (url) => {
                         if (String(url) === '/api/admin/xingwei/access') throw new Error('network');
                         if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version:'20261016-v4l', stage:'V4L · RELEASE CANDIDATE', serverTime:'2026-10-16T01:00:00+08:00'})};
+                          return {ok:true, json:async () => ({ok:true, version:'20261016-v4l', stage:'V4L · STABLE PRODUCTION', serverTime:'2026-10-16T01:00:00+08:00'})};
                         }
                         return {ok:false, status:404, json:async () => ({})};
                       };
@@ -80,7 +80,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
                 <body>
                   <main class="xw-main">
                     <header><div class="xw-topbar-actions"><span class="xw-status" id="xwBackendStatus"><i></i>正在检查服务</span></div></header>
-                    <section id="overview"><p class="xw-kicker">V4L · RELEASE CANDIDATE</p><div class="xw-version-card"><strong>20261016-v4l</strong><small id="xwServerTime">等待</small></div></section>
+                    <section id="overview"><p class="xw-kicker">V4L · STABLE PRODUCTION</p><div class="xw-version-card"><strong>20261016-v4l</strong><small id="xwServerTime">等待</small></div></section>
                     <input id="xwModuleSearch"/>
                     <span id="xwSearchCount"></span>
                     <article class="xw-module"><div class="xw-module-index">B02</div>订单</article>

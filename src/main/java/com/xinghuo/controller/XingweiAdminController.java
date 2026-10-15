@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class XingweiAdminController {
     static final String CONSOLE_VERSION = "20261015-v4j";
-    static final String CONSOLE_STAGE = "V4J · RELEASE CANDIDATE";
+    static final String CONSOLE_STAGE = "V4J · STABLE PRODUCTION";
     static final String BUSINESS_VERSION = "20261015-v4j";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,9 +29,9 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-15", "V4J", "待发布",
+            new ReleaseItem("2026-10-15", "V4J", "已上线",
                     "售后待跟进时效分布",
-                    "在 V4I 售后概览基础上增加按当前账号数据范围统计的需跟进总数，以及 24 小时内、24–72 小时、72 小时以上三档互斥时效分布。需跟进仅包含尚未开始处理的 OPEN 记录，或存在客服尚未确认到最新客户补充的记录；有新补充时从最新补充时间计时，否则从原始售后提交时间计时。继续受 order:view 和 ALL / DEPARTMENT / SELF 数据范围约束，仅提供只读运营提示，不新增数据库迁移，不改变订单、售后处理、退款、真实收款或企业微信写入。功能 PR #476 已通过 Java/Maven、版本真值守卫及 Chromium/WebKit 双 CI并合入主线；本统一版本仍需生产门禁通过后才能标记已上线。"),
+                    "在 V4I 售后概览基础上增加按当前账号数据范围统计的需跟进总数，以及 24 小时内、24–72 小时、72 小时以上三档互斥时效分布。需跟进仅包含尚未开始处理的 OPEN 记录，或存在客服尚未确认到最新客户补充的记录；有新补充时从最新补充时间计时，否则从原始售后提交时间计时。继续受 order:view 和 ALL / DEPARTMENT / SELF 数据范围约束，仅提供只读运营提示，不新增数据库迁移，不改变订单、售后处理、退款、真实收款或企业微信写入。功能 PR #476、统一候选 PR #477 和精确 main 双 CI 均通过；候选主线 ebadafea77e22137de581307ec09f4aec06caf7d 已通过 Deploy Production #205、服务器 Maven 453 tests / 0 failures / 0 errors、18080 预发布、8081 金丝雀、8080 正式冒烟及发布后核验，Nginx 最终恢复 8080，金丝雀已停止。"),
             new ReleaseItem("2026-10-15", "V4I", "已上线",
                     "售后问题类型分布与快捷筛选",
                     "在 V4H 状态分布基础上增加交付或进度、取消服务、退款核对、其他问题四类按权限范围统计；点击问题类型可直接筛选售后队列并保留处理状态、待跟进与搜索条件。分类统计继续受 order:view 和 ALL / DEPARTMENT / SELF 数据范围约束；功能 PR #470 与统一版本 PR #474 均通过双 CI，主线 3e1870701a158fe0cd21703864de939b1dc221d0 已通过 18080、8081、8080 零停机生产门禁及发布后核验。无新增数据库迁移，不改变订单、售后状态、退款、真实收款或企业微信写入。"),

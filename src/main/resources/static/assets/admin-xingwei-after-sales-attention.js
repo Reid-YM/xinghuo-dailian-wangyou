@@ -2,6 +2,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const labels={OPEN:'待处理',IN_PROGRESS:'处理中',RESOLVED:'已解决'};
+  const ageLabels={WITHIN_24H:'24小时内',FROM_24_TO_72H:'24–72小时',OVER_72H:'72小时以上'};
   const allowed={
     age:['ATTENTION','WITHIN_24H','FROM_24_TO_72H','OVER_72H'],
     status:['','OPEN','IN_PROGRESS','RESOLVED'],
@@ -15,6 +16,14 @@
   function message(text){$('attentionMessage').textContent=text;}
   function can(permission){const access=state.access;return Boolean(access&&(access.allowAll||access.permissionCodes?.includes(permission)||(permission.endsWith(':view')&&access.permissionCodes?.includes(permission.replace(':view',':manage')))));}
   function date(value){if(value==null)return '—';const parsed=new Date(typeof value==='number'?value:value);return Number.isNaN(parsed.getTime())?'—':parsed.toLocaleString('zh-CN');}
+  function duration(value){
+    const ms=Math.max(0,Number(value)||0),minutes=Math.floor(ms/60000);
+    if(minutes<1)return '<1分钟';
+    if(minutes<60)return `${minutes}分钟`;
+    const hours=Math.floor(minutes/60),days=Math.floor(hours/24),remainingHours=hours%24;
+    if(days)return `${days}天${remainingHours?`${remainingHours}小时`:''}`;
+    return `${hours}小时`;
+  }
 
   async function api(path){
     const response=await fetch(path,{credentials:'same-origin',headers:{Accept:'application/json'}});
@@ -62,13 +71,14 @@
       const activity=item.latestCustomerFollowupAtMs
         ?`${item.pendingCustomerFollowup?'待跟进 · ':''}客户补充 · ${date(item.latestCustomerFollowupAtMs)}`
         :`售后提交 · ${date(record.submittedAtMs)}`;
-      for(const value of [item.businessNo,record.categoryLabel,record.content,labels[record.status]||record.status,activity])tr.append(node('td',value));
+      const waiting=`${duration(item.waitingMs)} · ${ageLabels[item.ageBucket]||item.ageBucket||'—'}`;
+      for(const value of [item.businessNo,record.categoryLabel,record.content,labels[record.status]||record.status,activity,waiting])tr.append(node('td',value));
       const cell=document.createElement('td');
       const link=node('a','回到售后处理','xw-button xw-button-ghost');
       link.href=`/admin/xingwei/after-sales/cases?q=${encodeURIComponent(item.businessNo)}`;
       cell.append(link);tr.append(cell);rows.append(tr);
     }
-    if(!rows.children.length){const tr=document.createElement('tr'),td=node('td','当前筛选没有需要跟进的售后记录');td.colSpan=6;tr.append(td);rows.append(tr);}
+    if(!rows.children.length){const tr=document.createElement('tr'),td=node('td','当前筛选没有需要跟进的售后记录');td.colSpan=7;tr.append(td);rows.append(tr);}
     $('attentionPrev').disabled=state.page===0;
     $('attentionNext').disabled=!state.hasNext;
     $('attentionPage').textContent=`第 ${state.page+1} 页 · 共 ${state.total} 条`;

@@ -26,7 +26,10 @@ class XingweiAfterSalesAttentionQueuePlaywrightTest {
                     <a data-case-attention-age-link="OVER_72H" href="/admin/xingwei/after-sales/attention?age=OVER_72H">72 小时以上</a>
                     """;
             page.route("**/*", route -> route.fulfill(
-                    new com.microsoft.playwright.Route.FulfillOptions().setBody(markup)));
+                    new com.microsoft.playwright.Route.FulfillOptions()
+                            .setStatus(200)
+                            .setContentType("text/html; charset=utf-8")
+                            .setBody(markup)));
             page.navigate("https://example.test/admin/xingwei/after-sales/cases?page=4");
             page.locator("select[name=status]").selectOption("OPEN");
             page.locator("select[name=category]").selectOption("REFUND_REVIEW");
@@ -64,7 +67,10 @@ class XingweiAfterSalesAttentionQueuePlaywrightTest {
                     <button id="attentionPrev"></button><span id="attentionPage"></span><button id="attentionNext"></button>
                     """;
             page.route("**/*", route -> route.fulfill(
-                    new com.microsoft.playwright.Route.FulfillOptions().setBody(markup)));
+                    new com.microsoft.playwright.Route.FulfillOptions()
+                            .setStatus(200)
+                            .setContentType("text/html; charset=utf-8")
+                            .setBody(markup)));
             page.navigate("https://example.test/admin/xingwei/after-sales/attention?age=FROM_24_TO_72H&status=OPEN&category=OTHER&followup=PENDING&q=XW-7&page=2");
             page.evaluate("""
                     () => { window.__queueUrls=[]; window.fetch=async url => {

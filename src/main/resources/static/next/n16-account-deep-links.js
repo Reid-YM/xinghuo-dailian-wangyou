@@ -27,6 +27,13 @@
     ['devices', { canonical: 'settings', hash: 'devices', focus: 'devices' }],
     ['activity', { canonical: 'settings', hash: 'activity', focus: 'activity' }]
   ]);
+  const settingsHashes = new Map([
+    ['profile', routes.get('profile')],
+    ['contact', routes.get('contact')],
+    ['security', routes.get('security')],
+    ['devices', routes.get('devices')],
+    ['activity', routes.get('activity')]
+  ]);
 
   function text(value) {
     return String(value ?? '').trim();
@@ -37,8 +44,13 @@
     return match ? text(match[1]) : '';
   }
 
-  function routeInfo(pathname = location.pathname) {
-    return routes.get(suffix(pathname)) || null;
+  function routeInfo(pathname = location.pathname, hash = location.hash) {
+    const key = suffix(pathname);
+    if (key === 'settings') {
+      const anchor = text(hash).replace(/^#/, '').toLowerCase();
+      if (settingsHashes.has(anchor)) return settingsHashes.get(anchor);
+    }
+    return routes.get(key) || null;
   }
 
   function buildCanonical(info, source = location.href) {
@@ -56,7 +68,7 @@
     let url;
     try { url = new URL(raw, location.origin); } catch (ignore) { return ''; }
     if (url.origin !== location.origin || url.searchParams.get('legacy') === '1') return '';
-    const info = routeInfo(url.pathname);
+    const info = routeInfo(url.pathname, url.hash);
     if (!info) return '';
     return buildCanonical(info, url.href);
   }
@@ -77,7 +89,7 @@
     let url;
     try { url = new URL(raw, location.origin); } catch (ignore) { return false; }
     if (url.origin !== location.origin || url.searchParams.get('legacy') === '1') return false;
-    const info = routeInfo(url.pathname);
+    const info = routeInfo(url.pathname, url.hash);
     if (!info) return false;
     const target = buildCanonical(info, url.href);
     if (!target || raw === target) return false;
@@ -176,6 +188,10 @@
   });
 
   window.addEventListener('popstate', () => {
+    focusedRoute = '';
+    applyRoute({ canonicalize: false });
+  });
+  window.addEventListener('hashchange', () => {
     focusedRoute = '';
     applyRoute({ canonicalize: false });
   });

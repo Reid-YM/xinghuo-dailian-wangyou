@@ -40,11 +40,11 @@
     const status = [...home.querySelectorAll('.section .sub')].find((item) =>
       item.textContent.includes('逐步接入') || item.textContent.includes('先统一视觉') || item.textContent.includes('新版后台')
     );
-    if (status) status.textContent = HOME_STATUS_COPY;
+    if (status) status.textContent = location.pathname.startsWith('/next') ? HOME_STATUS_COPY : '服务、询价、账号与业务进度已进入新版入口；原有业务数据与权限规则继续生效。';
 
     const badge = $('.badge');
     if (badge) {
-      badge.textContent = 'FRONTEND NEXT · N8 INTEGRATION';
+      badge.textContent = location.pathname.startsWith('/next') ? 'FRONTEND NEXT · N8 INTEGRATION' : '星火 · 新版服务平台';
       badge.title = '并行运行中：旧前端仍保留，可随时回退。';
     }
     document.documentElement.dataset.frontendNextStage = 'n8-integration';

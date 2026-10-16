@@ -218,7 +218,7 @@
     });
     form.append(wx);
     const links = node('div', 'n4-mini-links');
-    append(links, link('注册账号', '/account/register'), link('忘记密码', '/account/reset'), link('打开旧版账号中心', '/account'));
+    append(links, link('注册账号', '/account/register'), link('忘记密码', '/account/reset'), link('打开旧版账号中心', '/account?legacy=1'));
     form.append(links);
     append(card, copy, form);
     outer.append(card);
@@ -242,7 +242,7 @@
   function renderOrdersPanel() {
     const panel = node('section', 'n4-panel');
     const title = node('div', 'n4-panel-title');
-    append(title, node('h2', '', '我的订单'), link('打开旧版完整中心 →', '/account', 'btn'));
+    append(title, node('h2', '', '我的订单'), link('打开旧版完整中心 →', '/account?legacy=1', 'btn'));
     panel.append(title);
     const items = Array.isArray(state.orders?.items) ? state.orders.items : [];
     if (!items.length) {
@@ -323,7 +323,7 @@
     append(copy, node('h1', '', `欢迎回来，${text(profile.displayName) || '星火用户'}`), node('p', '', `${text(profile.contactMasked) || '登录凭据已保护'} · 注册于 ${fmtDate(profile.createdAt)}`));
     append(profileRow, avatar, copy); left.append(profileRow);
     const actions = node('div', 'n4-actions');
-    const legacy = link('旧版完整中心', '/account', 'btn');
+    const legacy = link('旧版完整中心', '/account?legacy=1', 'btn');
     const logout = button('退出登录', 'btn');
     logout.addEventListener('click', doLogout);
     append(actions, legacy, logout);
@@ -382,7 +382,7 @@
         page.replaceChildren();
         const wrap = node('div', 'shell n4-login-wrap');
         const panel = node('div', 'n4-panel');
-        append(panel, node('h2', '', '个人中心暂时无法读取'), node('p', 'n4-note', text(error.message) || '请稍后重试，旧版账号中心仍可使用。'), link('打开旧版账号中心 →', '/account', 'btn'));
+        append(panel, node('h2', '', '个人中心暂时无法读取'), node('p', 'n4-note', text(error.message) || '请稍后重试，旧版账号中心仍可使用。'), link('打开旧版账号中心 →', '/account?legacy=1', 'btn'));
         wrap.append(panel); page.append(wrap);
       }
     } finally {

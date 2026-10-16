@@ -407,7 +407,7 @@
     createSwitcher(host, form);
     createRegisterPanel(host, form);
     createResetPanel(host);
-    const requested = new URLSearchParams(location.search).get('auth');
+    const requested = new URLSearchParams(location.search).get('auth') || (location.pathname.endsWith('/register') ? 'register' : location.pathname.endsWith('/reset') ? 'reset' : 'login');
     setMode(['register', 'reset'].includes(requested) ? requested : 'login');
   }
 

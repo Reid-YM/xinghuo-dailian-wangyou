@@ -10,6 +10,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 @EnabledIfEnvironmentVariable(named="PLAYWRIGHT_UI_TESTS",matches="1")
 class XingweiOperationsPlaywrightTest {
+    private Browser chromium(Playwright p){var options=new BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return p.chromium().launch(options);}
     private Page setup(Browser browser,String query) throws Exception {
         Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(390,844));
         String html=Files.readString(Path.of("src/main/resources/templates/admin-xingwei-operations.html"))
@@ -40,11 +41,13 @@ class XingweiOperationsPlaywrightTest {
         page.waitForSelector("#operationsRows article");return page;
     }
     @Test void chromiumNativeMemberWritesHaveCsrfRevisionAndPreserveConflictingInput() throws Exception {
-        try(Playwright p=Playwright.create();Browser b=p.chromium().launch()){
+        try(Playwright p=Playwright.create();Browser b=chromium(p)){
             Page page=setup(b,"module=members&status=ACTIVE&page=1&q=test");
             assertEquals("ACTIVE",page.locator("#operationsFilters select").inputValue());
+            assertEquals("正常",page.locator("#operationsFilters option[value=ACTIVE]").textContent());
             assertTrue(page.locator("#operationsPage").textContent().contains("2"));
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("编辑").setExact(true)).click();
+            assertEquals("客户",page.locator("#operations-role option[value=BUYER]").textContent());
             page.locator("#operations-displayName").fill("保留当前输入");page.evaluate("()=>window.conflict=true");
             page.locator("#operationsSave").click();page.waitForFunction("()=>document.querySelector('#operationsFormMessage').textContent.includes('记录已变化')");
             assertEquals("保留当前输入",page.locator("#operations-displayName").inputValue());
@@ -56,18 +59,20 @@ class XingweiOperationsPlaywrightTest {
             assertEquals(true,page.evaluate("()=>window.calls.every(c=>c.url.startsWith('/api/admin/xingwei/operations'))"));
         }
     }
-    @Test void webkitMobileAllOperationsModulesWorkAndFailedReadsRecover() throws Exception {
-        try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){
+    @Test void chromiumMobileAllOperationsModulesWorkAndFailedReadsRecover()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){allModules(b);}}
+    @Test void webkitMobileAllOperationsModulesWorkAndFailedReadsRecover()throws Exception{try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){allModules(b);}}
+    private void allModules(Browser b)throws Exception{
+        {
             Page page=setup(b,"module=comments");
             assertTrue(page.locator("#operationsRows").textContent().contains("<script>不能执行</script>"));assertEquals(0,page.locator("#operationsRows script").count());
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("投稿审核").setExact(true)).click();
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("查看正文").setExact(true)).click();
             page.waitForFunction("()=>document.querySelector('#operationsFields').textContent.includes('不能执行')");assertEquals(0,page.locator("#operationsFields script").count());page.locator("#operationsClose").click();
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("首页展示位").setExact(true)).click();
-            page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("编辑展示位").setExact(true)).click();page.locator("#operations-mode").selectOption("MANUAL");page.locator("#operations-serviceId").selectOption("1");page.locator("#operations-reason").fill("选择已发布服务");page.locator("#operationsSave").click();page.waitForFunction("()=>!document.querySelector('#operationsDialog').open");
+            page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("编辑展示位").setExact(true)).click();page.locator("#operations-mode").selectOption("MANUAL");assertEquals("手动",page.locator("#operations-mode option[value=MANUAL]").textContent());page.locator("#operations-serviceId").selectOption("1");page.locator("#operations-reason").fill("选择已发布服务");page.locator("#operationsSave").click();page.waitForFunction("()=>!document.querySelector('#operationsDialog').open");
             assertEquals("\"slot-r1\"",page.evaluate("()=>window.calls.find(c=>c.method==='PATCH').headers['if-match']"));
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("测试反馈").setExact(true)).click();page.waitForSelector("#operationsRows article");page.locator("#operationsCreate").click();assertEquals("NORMAL",page.locator("#operations-priority").inputValue());page.locator("#operationsClose").click();
-            page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("客户线索 CRM").setExact(true)).click();page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("维护跟进").setExact(true)).click();assertEquals("60",page.locator("#operations-leadScore").inputValue());page.locator("#operationsClose").click();
+            page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("客户线索").setExact(true)).click();page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("维护跟进").setExact(true)).click();assertEquals("60",page.locator("#operations-leadScore").inputValue());page.locator("#operationsClose").click();
             page.evaluate("()=>window.failRead=true");page.locator("#operationsRefresh").click();page.waitForFunction("()=>document.querySelector('#operationsMessage').textContent.includes('读取失败')");assertEquals("false",page.locator("#operationsRows").getAttribute("aria-busy"));
             page.evaluate("()=>window.failRead=false");page.locator("#operationsRefresh").click();page.waitForFunction("()=>document.querySelector('#operationsRows').getAttribute('aria-busy')==='false'");assertTrue(page.locator("#operationsRows").textContent().contains("B-1"));
             assertEquals(true,page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth"));

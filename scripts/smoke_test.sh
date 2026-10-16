@@ -53,6 +53,20 @@ check_body_absent() {
 }
 check_code / 200
 check_code /services 200
+# 完整替换必须验证实际默认视图，避免 200 仍是旧页面；在 18080/8081/8080 均执行。
+check_header / X-Xinghuo-Frontend next
+check_header /services X-Xinghuo-Frontend next
+check_header /quote X-Xinghuo-Frontend next
+check_header /account/login X-Xinghuo-Frontend next
+check_header / Cache-Control no-store
+check_body_contains / 'src="/next/shell.js?v='
+check_body_absent '/services?legacy=1' '/next/shell.js'
+check_code /next/services 200
+check_code /admin 302
+check_code /admin/xingwei 302
+check_code /api/admin/xingwei/access 401
+check_code /api/admin/xingwei/catalog-details 401
+check_code /api/admin/xingwei/maintenance 401
 check_code /guides 200
 check_code /mastery 200
 # 搜索引擎入口必须在候选、金丝雀和正式端口都可用；避免发布后才由 Search Console 发现 robots/sitemap 失效。

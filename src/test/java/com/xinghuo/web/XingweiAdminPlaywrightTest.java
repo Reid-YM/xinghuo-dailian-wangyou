@@ -15,8 +15,8 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 class XingweiAdminPlaywrightTest {
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
     private static final Path TEMPLATE = Path.of("src/main/resources/templates/admin-xingwei.html");
-    private static final String VERSION = "20261016-v5a";
-    private static final String STAGE = "V5A · UNIFIED DELIVERY";
+    private static final String VERSION = "20261016-v6a";
+    private static final String STAGE = "V6A · UNIFIED DELIVERY";
 
     @Test
     void desktopAndPhoneLayoutsStayInsideViewportAndNavigationWorks() throws Exception {
@@ -49,7 +49,7 @@ class XingweiAdminPlaywrightTest {
             assertTrue(page.locator("#xwServerTime").textContent().contains(VERSION));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
             assertEquals("286px", page.evaluate("() => getComputedStyle(document.querySelector('.xw-shell')).gridTemplateColumns.split(' ')[0]"));
-            assertEquals(24, ((Number) page.evaluate("() => document.querySelectorAll('.xw-module').length")).intValue());
+            assertEquals(26, ((Number) page.evaluate("() => document.querySelectorAll('.xw-module').length")).intValue());
 
             page.locator("#xwModuleSearch").fill("微信");
             assertTrue(((Number) page.evaluate("() => [...document.querySelectorAll('.xw-module')].filter(x => !x.hidden).length")).intValue() >= 2);
@@ -149,10 +149,10 @@ class XingweiAdminPlaywrightTest {
 
             assertTrue(page.locator("#xwBackendStatus").textContent().contains("版本漂移"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwBackendStatus').classList.contains('error')"));
-            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261016-v5a"));
+            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261016-v6a"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("运行 20261014-v3k"));
             assertEquals("mismatch", page.evaluate("() => window.xwRuntimeHealth.state"));
-            assertEquals("20261016-v5a", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
+            assertEquals("20261016-v6a", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
             assertEquals("20261014-v3k", page.evaluate("() => window.xwRuntimeHealth.runtimeVersion"));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
         }

@@ -45,7 +45,7 @@
     const badge = $('.badge');
     if (badge) {
       badge.textContent = location.pathname.startsWith('/next') ? 'FRONTEND NEXT · N8 INTEGRATION' : '星火 · 新版服务平台';
-      badge.title = '并行运行中：旧前端仍保留，可随时回退。';
+      badge.title = location.pathname.startsWith('/next') ? '并行运行中：旧前端仍保留，可随时回退。' : '当前使用新版服务入口，业务数据以服务器记录为准。';
     }
     document.documentElement.dataset.frontendNextStage = 'n8-integration';
   }
@@ -70,7 +70,7 @@
       document.documentElement.dataset.networkState = 'online';
       return;
     }
-    banner.textContent = '当前网络已断开。请保留已填写内容，网络恢复后再重试提交；旧前端和已保存的服务器数据不会因此被修改。';
+    banner.textContent = '当前网络已断开。请保留已填写内容，网络恢复后再重试提交。';
     banner.hidden = false;
     document.documentElement.dataset.networkState = 'offline';
   }

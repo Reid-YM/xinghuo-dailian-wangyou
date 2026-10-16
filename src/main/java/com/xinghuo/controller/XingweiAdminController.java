@@ -21,16 +21,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class XingweiAdminController {
     @org.springframework.web.bind.annotation.ModelAttribute void privateResponse(jakarta.servlet.http.HttpServletResponse response){response.setHeader("Cache-Control","no-store");}
-    static final String CONSOLE_VERSION = "20261016-v5a";
-    static final String CONSOLE_STAGE = "V5A · UNIFIED DELIVERY";
-    static final String BUSINESS_VERSION = "20261016-v5a";
+    static final String CONSOLE_VERSION = "20261016-v6a";
+    static final String CONSOLE_STAGE = "V6A · UNIFIED DELIVERY";
+    static final String BUSINESS_VERSION = "20261016-v6a";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-16", "V5A", "本版本",
+            new ReleaseItem("2026-10-16", "V6A", "本版本",
+                    "新版默认入口与完整功能迁移",
+                    "首页、服务、询价与账号核心入口默认使用新版，/admin 默认进入星维工作台；普通员工不再通过旧后台或历史 API 绕过权限。会员、社区/投稿、反馈、首页展示位、CRM、员工登录账号、支付工作台、工具资料、行为统计、目录完整资料与业务公开案例/维护均有原生入口。修复账号写请求头不匹配、资源缓存版本、路径恢复、价格模式大小写、空表单保存、连续保存旧对象及简版/完整编辑覆盖；资料保存共用行锁和版本，冲突保留输入。V76 增加受控权限点，V77 增加后台会话版本，精确 migration 已审核。保留明确的恢复方式与既有认证和数据源。UNIFIED DELIVERY 仅标识当前运行包，生产部署结果以发布流水线核验为准；不提前声称 18080/8081/8080 门禁或真实外部验收完成。真实收款/退款、企业微信写入及真实员工/小程序验收继续独立处理。"),
+            new ReleaseItem("2026-10-16", "V5A", "此前版本",
                     "新版后台统一交付",
                     "本版本包含组织与权限、询价转单和订单编辑、派单与员工工作台、服务与游戏分类、售后处理与时效、渠道运营、攻略编辑与草稿预览、站点/SEO与前台控制、操作审计及账号安全入口。新增能力复用既有业务数据，写入按各模块权限、数据范围和并发版本约束执行。V75 仅新增内部渠道状态与任务表，精确 migration 已审核；原有迁移保持不变。旧后台和原认证继续保留，网站会员/社区等辅助模块沿用旧入口，字典/代码生成评估结论为暂不引入。UNIFIED DELIVERY 只标识当前运行包的功能范围，不代表生产门禁已经完成；实际部署结果以 Deploy Production 的精确 SHA、18080/8081/8080 和发布后核验为准。按整体验收后一次部署，不再为状态文案重复发布。真实支付/退款、企业微信写入和员工/小程序外部验收继续独立处理。"),
             new ReleaseItem("2026-10-16", "V4M", "已上线",

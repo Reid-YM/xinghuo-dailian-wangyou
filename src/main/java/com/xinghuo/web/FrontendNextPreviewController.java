@@ -98,7 +98,7 @@ public class FrontendNextPreviewController {
             String brand = site.brandName() == null ? "星火网游" : site.brandName();
             String title = path.startsWith("/account") ? "个人中心 · " + brand : "/services".equals(path) ? "服务大厅 · " + brand : "/quote".equals(path) ? "提交询价 · " + brand : site.seoTitle() == null ? brand : site.seoTitle();
             String description = site.seoDescription() == null ? site.heroSubtitle() : site.seoDescription();
-            html = html.replace("<title>星火 Frontend Next</title>", "<title>" + HtmlUtils.htmlEscape(title) + "</title>");
+            html = html.replace("<title>星火网游服务平台</title>", "<title>" + HtmlUtils.htmlEscape(title) + "</title>");
             String metadata = "<meta name=\"description\" content=\"" + HtmlUtils.htmlEscape(description == null ? "" : description) + "\"/><link rel=\"canonical\" href=\"https://wydlgf.cn" + HtmlUtils.htmlEscape(path) + "\"/>";
             if (path.startsWith("/account")) metadata += "<meta name=\"robots\" content=\"noindex,nofollow\"/>";
             html = html.replace("</head>", metadata + "</head>");

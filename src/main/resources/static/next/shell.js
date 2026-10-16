@@ -89,7 +89,7 @@
   }
   function updateCatalog(catalog) {
     const grid=document.getElementById('nextHomeGames');if(!grid||!Array.isArray(catalog?.games))return;
-    grid.replaceChildren(...catalog.games.map(game=>{const link=make('a',null,'home-service-card');link.href='/game/'+encodeURIComponent(String(game.code));link.append(make('h3',game.name||game.code));return link;}));
+    grid.replaceChildren(...catalog.games.map(game=>{const link=make('a',null,'home-service-card');link.href=game.seoSlug?'/game/'+encodeURIComponent(String(game.seoSlug)):route('services')+'?game='+encodeURIComponent(String(game.code));link.append(make('h3',game.name||game.code));return link;}));
     if(!catalog.games.length)grid.append(make('p','当前暂无公开游戏目录。'));
   }
   function dataUnavailable(target) {

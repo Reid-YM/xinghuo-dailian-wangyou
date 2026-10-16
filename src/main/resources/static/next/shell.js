@@ -46,6 +46,18 @@
   window.addEventListener('hashchange', () => {if(pages.has(location.hash.slice(1)))go(resolveLocation(), false);});
   let configuration = null;
   let currentServices = null;
+  const attribution=(()=>{
+    const params=new URLSearchParams(location.search),keys=['utm_source','utm_medium','utm_campaign'];let previous=null;
+    try{previous=JSON.parse(sessionStorage.getItem('xh_next_attribution_v1')||'null');}catch(_){}
+    if(!keys.some(key=>params.has(key))&&previous&&typeof previous==='object'){const clean={};for(const key of ['firstTouchSource','utmSource','utmMedium','utmCampaign'])clean[key]=typeof previous[key]==='string'?previous[key].slice(0,64):null;if(clean.firstTouchSource)return clean;}
+    let source='direct';try{const ref=new URL(document.referrer);if(ref.hostname!==location.hostname)source=ref.hostname.slice(0,64);}catch(_){}
+    const value={firstTouchSource:params.get('utm_source')?.slice(0,64)||source,utmSource:params.get('utm_source')?.slice(0,64)||null,utmMedium:params.get('utm_medium')?.slice(0,64)||null,utmCampaign:params.get('utm_campaign')?.slice(0,64)||null};
+    try{sessionStorage.setItem('xh_next_attribution_v1',JSON.stringify(value));}catch(_){}return value;
+  })();
+  function track(eventName,refValue=null){
+    if(!['quote_started','contact_click','quote_submit','hero_quote_click','hero_order_click','service_card_click','screenshot_upload'].includes(eventName))return;
+    fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',keepalive:true,body:JSON.stringify({eventName,path:route(resolveLocation()),refValue})}).catch(()=>{});
+  }
   const number = (value,min,max,fallback) => value != null && value !== '' && Number.isFinite(Number(value)) ? Math.max(min,Math.min(max,Number(value))) : fallback;
   const make = (tag,text,className) => {const node=document.createElement(tag);if(text!=null)node.textContent=String(text);if(className)node.className=className;return node;};
   function safeLink(value) {
@@ -93,7 +105,7 @@
     const channels=document.getElementById('nextContactChannels');
     if(channels){channels.replaceChildren(...(Array.isArray(site.contactChannels)?site.contactChannels:[]).map(item=>{
       const card=make('article',null,'card');card.append(make('h3',item.label||'客服'),make('p',item.wechatId||''),make('p',item.note||''));
-      const url=safeLink(item.jumpUrl);if(url){const link=make('a','联系此客服','btn');link.href=url;card.append(link);}return card;
+      const url=safeLink(item.jumpUrl);if(url){const link=make('a','联系此客服','btn');link.href=url;link.dataset.supportDirect='';card.append(link);}return card;
     }));}
     const faq=Array.isArray(site.trustFaq)?site.trustFaq:[],faqGrid=document.getElementById('nextFaqList');
     if(faqGrid){faqGrid.replaceChildren(...faq.map(item=>{const details=make('details');details.append(make('summary',item.question||'常见问题'),make('p',item.answer||''));return details;}));document.getElementById('nextFaq').hidden=!faq.length;}
@@ -159,7 +171,14 @@
     return null;
   }
   window.go = go; window.toast = toast;
-  window.XHFrontendShell = {go, route, resolveLocation, applyConfiguration, updateServices, updateCatalog, dataUnavailable, safeAccountReturn, get configuration(){return configuration;}};
+  document.querySelector('.page[data-page=quote]')?.addEventListener('focusin',()=>track('quote_started'),{once:true});
+  document.addEventListener('click',event=>{const link=event.target.closest('[data-support-link],[data-support-direct]');if(!link)return;const target=new URL(link.href,location.origin);if(target.origin===location.origin&&target.pathname==='/contact')return;track('contact_click');});
+  document.addEventListener('click',event=>{
+    if(event.target.closest('#homeHero [data-primary-cta]'))track('hero_quote_click');
+    if(event.target.closest('.record-card a[href="/records"]'))track('hero_order_click');
+    const service=event.target.closest('a.home-service-card[href^="/service/"]');if(service)track('service_card_click',service.getAttribute('href').slice('/service/'.length));
+  });
+  window.XHFrontendShell = {go, route, resolveLocation, applyConfiguration, updateServices, updateCatalog, dataUnavailable, safeAccountReturn, track, attribution, get configuration(){return configuration;}};
   window.XHFrontendShell.configurationReady=loadConfiguration();
   publicCases();
   go(resolveLocation(), false);

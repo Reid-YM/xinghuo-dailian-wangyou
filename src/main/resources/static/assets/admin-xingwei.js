@@ -16,6 +16,7 @@
   const MODULE_PERMISSIONS = {
     B01: 'quote:view', B02: 'order:view', B03: 'service:view', B04: 'content:view', B05: 'order:view',
     B06: 'customer:view', B07: 'content:view', B08: 'feedback:view', B09: 'site:view', B10: 'quote:view',
+    B11: 'content:view', B12: 'dashboard:view',
     O01: 'org:view', O02: 'employee:view', O03: 'rbac:view', O04: 'employee:view',
     C01: 'channel:view', C02: 'wechat:view', C03: 'payment:view', C04: 'site:view',
     S01: 'site:view', S02: 'audit:view', S03: 'deploy:view', S04: 'site:view'

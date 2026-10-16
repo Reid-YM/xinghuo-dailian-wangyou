@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/><meta content="noindex,nofollow" name="robots"/><meta content="width=device-width,initial-scale=1" name="viewport"/><meta content="#f5f7fb" name="theme-color"/>
 <meta name="_csrf" th:content="${csrf.token}"/><meta name="_csrf_header" th:content="${csrf.headerName}"/>
-<title>运营后台 - 星火网游代练平台</title><link href="/assets/app.css?v=20261013pay01" rel="stylesheet"/><script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer="" src="/assets/admin.js?v=20261014v3q"></script><script defer="" src="/assets/admin-tool-station.js?v=20260928v016"></script>
+<title>运营后台 - 星火网游代练平台</title><link href="/assets/app.css?v=20261013pay01" rel="stylesheet"/><script defer src="/assets/site-image-controls.js?v=20261008a1"></script><script defer="" src="/assets/admin.js?v=20261014v3q"></script><script defer="" src="/assets/admin-tool-station.js?v=20261016xwtool1"></script>
 <link rel="stylesheet" href="/assets/site-image-controls.css?v=20261008a1"/><script defer src="/assets/admin-image-editor.js?v=20261008a1"></script>
 </head>
 <body class="admin-solid-ui">
@@ -136,7 +136,7 @@
     </aside>
   </div>
 </section>
-<section class="hidden" data-panel="toolStation">
+<section class="hidden" data-panel="toolStation" th:fragment="toolStationEditor" th:class="${xingweiToolMode == true} ? '' : 'hidden'">
   <div class="admin-toolbar"><div><span class="eyebrow">MW4 Tool Station</span><h1>MW4 工具站</h1><p class="muted small">维护前台工具站的枪械资料、解锁条件、在线迷彩图片和三种模式预览图。保存后前台立即读取后台数据。</p></div><div class="row-actions"><a class="btn ghost" href="/mastery" target="_blank" rel="noopener">预览前台</a><button class="btn ghost" id="toolStationRefresh" type="button">刷新</button><button class="btn ghost" id="toolStationReset" type="button">恢复内置</button><button class="btn primary" id="toolStationSaveAll" type="button">保存全部</button></div></div>
   <div class="tool-admin-layout">
     <aside class="card tool-admin-sidebar"><div class="field"><label>搜索武器</label><input id="toolStationSearch" placeholder="输入武器名称"/></div><div id="toolStationWeaponList" class="tool-admin-weapon-list"></div></aside>

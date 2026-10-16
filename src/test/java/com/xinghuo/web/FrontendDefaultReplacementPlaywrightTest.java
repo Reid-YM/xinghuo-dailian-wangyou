@@ -12,6 +12,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 @EnabledIfEnvironmentVariable(named="PLAYWRIGHT_UI_TESTS",matches="1")
 class FrontendDefaultReplacementPlaywrightTest {
+    private Browser chromium(Playwright p){var options=new BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return p.chromium().launch(options);}
     private Page setup(Browser browser,int width,AtomicBoolean failServices)throws Exception {
         Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(width,900));
         String html=new FrontendNextPreviewController().frontendNext().getBody();
@@ -40,7 +41,7 @@ class FrontendDefaultReplacementPlaywrightTest {
         return page;
     }
     @Test void chromiumDirectPathsRefreshHistoryConfigurationAndServiceLinksWorkUnderCsp() throws Exception {
-        try(Playwright p=Playwright.create();Browser browser=p.chromium().launch()){
+        try(Playwright p=Playwright.create();Browser browser=chromium(p)){
             Page page=setup(browser,1440,new AtomicBoolean(false));
             page.navigate("https://example.test/services?game=G1");
             page.waitForFunction("()=>document.documentElement.dataset.siteConfiguration==='ready' && document.querySelectorAll('.serviceCard').length===2");
@@ -56,6 +57,19 @@ class FrontendDefaultReplacementPlaywrightTest {
             page.goBack();assertEquals("services",page.locator("html").getAttribute("data-frontend-page"));
             page.navigate("https://example.test/next/quote");page.waitForFunction("()=>document.documentElement.dataset.frontendPage==='quote'");
             assertTrue(page.locator("script[src^='/next/']").all().stream().allMatch(node->URI.create(node.getAttribute("src")).getRawQuery().matches("v=[0-9a-f]{64}")));
+        }
+    }
+    @Test void chromiumAttributionAndActualQuoteTrackingSurviveCanonicalNavigationAndReload()throws Exception{
+        try(Playwright p=Playwright.create();Browser browser=chromium(p)){
+            Page page=setup(browser,390,new AtomicBoolean(false));var events=new java.util.ArrayList<String>();var quoteBodies=new java.util.ArrayList<String>();
+            page.onRequest(request->{String path=URI.create(request.url()).getPath();if(path.equals("/api/track"))events.add(request.postData());if(path.equals("/api/quote"))quoteBodies.add(request.postData());});
+            page.route("**/api/track",r->r.fulfill(new Route.FulfillOptions().setStatus(204)));
+            page.route("**/api/quote",r->r.fulfill(new Route.FulfillOptions().setContentType("application/json").setBody("{\"businessNo\":\"B-TRACK-1\"}")));
+            page.navigate("https://example.test/?utm_source=taobao&utm_medium=shop&utm_campaign=autumn");page.waitForFunction("()=>document.documentElement.dataset.siteConfiguration==='ready'");
+            page.locator("#homeHero [data-primary-cta]").click();page.locator("#goal").fill("先记录需求");assertEquals("taobao",page.evaluate("()=>window.XHFrontendShell.attribution.utmSource"));page.reload();page.waitForFunction("()=>!document.querySelector('#qGame').disabled");
+            page.locator("#goal").fill("当前进度到目标");page.locator("#n3ContactMethod").selectOption("微信");page.locator("#n3CustomerContact").fill("private_wechat_123");page.locator("#n3PrivacyConsent").check();page.locator("#submit").click();page.waitForFunction("()=>document.body.textContent.includes('B-TRACK-1')");
+            var json=new com.fasterxml.jackson.databind.ObjectMapper();assertEquals(1,quoteBodies.size());var quote=json.readTree(quoteBodies.getFirst());assertEquals("taobao",quote.path("utmSource").asText());assertEquals("autumn",quote.path("utmCampaign").asText());assertEquals("taobao",quote.path("firstTouchSource").asText());
+            assertEquals(1,events.stream().filter(body->body.contains("quote_submit")).count());assertTrue(events.stream().anyMatch(body->body.contains("quote_started")));assertTrue(events.stream().anyMatch(body->body.contains("hero_quote_click")));assertTrue(events.stream().noneMatch(body->body.contains("private_wechat_123")||body.contains("当前进度")));
         }
     }
     @Test void webkitMobileUsesPathAndAuthModeAndShowsRecoverableErrorsWithoutDemoRecords() throws Exception {

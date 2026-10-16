@@ -149,10 +149,10 @@
       contactMethod:method||null,
       customerContact:contact||null,
       privacyConsent:!!$('#n3PrivacyConsent')?.checked,
-      firstTouchSource:'frontend-next',
-      utmSource:urlParam('utm_source'),
-      utmMedium:urlParam('utm_medium'),
-      utmCampaign:urlParam('utm_campaign'),
+      firstTouchSource:window.XHFrontendShell?.attribution?.firstTouchSource||'frontend-next',
+      utmSource:urlParam('utm_source')||window.XHFrontendShell?.attribution?.utmSource||null,
+      utmMedium:urlParam('utm_medium')||window.XHFrontendShell?.attribution?.utmMedium||null,
+      utmCampaign:urlParam('utm_campaign')||window.XHFrontendShell?.attribution?.utmCampaign||null,
       referrer:trim(document.referrer,300)||null
     };
   }
@@ -212,7 +212,7 @@
         const upload=new FormData();upload.append('file',image);
         const response=await fetch('/api/uploads/quote',{method:'POST',credentials:'same-origin',headers:{Accept:'application/json'},body:upload});
         const uploaded=await response.json().catch(()=>({}));
-        if(!response.ok||!uploaded.assetId)throw new Error(text(uploaded.message)||'截图上传失败，请重试。');screenshotAssetId=uploaded.assetId;
+        if(!response.ok||!uploaded.assetId)throw new Error(text(uploaded.message)||'截图上传失败，请重试。');screenshotAssetId=uploaded.assetId;window.XHFrontendShell?.track?.('screenshot_upload');
       }
       body.screenshotAssetId=screenshotAssetId;
       const response=await fetch('/api/quote',{
@@ -230,6 +230,7 @@
       if(!response.ok) throw Object.assign(new Error(serverMessage(result,response.status)),{status:response.status});
 
       const businessNo=trim(result?.businessNo,100);
+      window.XHFrontendShell?.track?.('quote_submit',businessNo||null);
       message(businessNo?`询价提交成功，业务编号：${businessNo}`:'询价提交成功，客服将尽快确认。','ok');
       button.textContent='✓ 提交成功';
       idempotencyKey='';screenshotAssetId=null;if(imageInput)imageInput.value='';

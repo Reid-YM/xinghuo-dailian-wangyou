@@ -268,6 +268,7 @@
   $('.serviceGrid')?.addEventListener('click',event=>{
     const card=event.target.closest('.serviceCard');
     if(!card) return;
+    if(event.target.closest('a,button'))window.XHFrontendShell?.track?.('service_card_click',card.dataset.serviceSlug||null);
     if(event.target.closest('[data-n2-quote]')){
       chooseService(card);
       if(typeof window.go==='function') window.go('quote');

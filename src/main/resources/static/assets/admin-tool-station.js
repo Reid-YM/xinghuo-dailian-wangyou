@@ -6,23 +6,38 @@
   const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
   const lines = value => String(value || '').split(/\n+/).map(x => x.trim()).filter(Boolean);
   const numberOrNull = value => value === '' || value == null ? null : Number(value);
+  const nativeMode=document.body.dataset.xingweiTools==='true';
+  let canManage=!nativeMode,toolRevision=null,mutationBusy=false,dirty=false;
   let config = null;
   let game = null;
   let weapon = null;
 
   async function api(url, opt = {}) {
+    const method=(opt.method||'GET').toUpperCase(),mutation=!['GET','HEAD'].includes(method);
+    if(nativeMode){url=url.replace(/^\/api\/admin\/tool-station/, '/api/admin/xingwei/tool-station');if(mutation){if(!canManage)throw new Error('当前只能查看工具站资料');if(mutationBusy)throw new Error('正在保存，请稍候');}}
     const isForm = opt.body instanceof FormData;
     const headers = { ...(opt.body && !isForm ? { 'Content-Type': 'application/json' } : {}), ...(opt.headers || {}) };
-    if (csrf && csrfHeader && !['GET', 'HEAD'].includes((opt.method || 'GET').toUpperCase())) headers[csrfHeader] = csrf;
-    const response = await fetch(url, { ...opt, headers });
-    let payload = null;
-    try { payload = await response.json(); } catch {}
-    if (response.status === 401 || response.status === 403) {
-      location.href = '/admin/login';
-      throw new Error('登录已失效，请重新登录');
+    if (csrf && csrfHeader && mutation) headers[csrfHeader] = csrf;
+    if(nativeMode&&mutation&&!url.endsWith('/image')){
+      if(!toolRevision)throw new Error('请先读取工具站当前版本');
+      const reason=prompt('请填写本次修改说明（最多500字）');if(!reason?.trim())throw new Error('已取消，尚未写入资料');if(reason.length>500)throw new Error('修改说明不能超过500字');
+      headers['If-Match']=toolRevision;url+='?reason='+encodeURIComponent(reason.trim());
     }
-    if (!response.ok) throw new Error(payload?.message || '请求失败');
-    return payload;
+    if(nativeMode&&mutation)mutationBusy=true;
+    try{
+      const response = await fetch(url, { ...opt, headers, credentials:'same-origin',cache:'no-store' });
+      let payload = null;try { payload = await response.json(); } catch {}
+      if(response.status===401||(!nativeMode&&response.status===403)){location.href='/admin/login';throw new Error('登录已失效，请重新登录');}
+      if(!response.ok)throw new Error(payload?.message||'请求失败');
+      const revision=response.headers?.get?.('ETag');if(nativeMode&&revision)toolRevision=revision;
+      return payload;
+    }finally{if(nativeMode&&mutation)mutationBusy=false;}
+  }
+
+  function applyPermissions(){
+    if(!nativeMode)return;
+    $$('#toolStationForm input,#toolStationForm select,#toolStationForm textarea,#toolStationForm button,#toolStationSaveAll,#toolStationReset').forEach(field=>field.disabled=!canManage);
+    const status=$('#toolStationAccessState');if(status)status.textContent=canManage?'可编辑全站工具站资料，写入时核对版本和修改说明。':'当前只读，可选择武器查看资料。';
   }
 
   function toast(message, type = 'success') {
@@ -68,6 +83,7 @@
     renderModeImages();
     renderWarzoneCamos();
     renderOnlineCamos();
+    applyPermissions();
   }
 
   function renderModeImages() {
@@ -148,9 +164,11 @@
 
   async function saveData() {
     applyWeaponForm();
+    const selectedCode=weapon?.code;
     config = await api('/api/admin/tool-station', { method: 'PUT', body: JSON.stringify(config) });
     game = config.games?.find(item => item.code === 'CODMW4') || config.games?.[0];
-    renderWeaponList();
+    weapon=(game?.weapons||[]).find(item=>item.code===selectedCode)||game?.weapons?.[0];
+    dirty=false;renderWeaponList();fillWeaponForm();
     toast('工具站数据已保存');
   }
 
@@ -182,12 +200,12 @@
       return;
     }
     const item = event.target.closest('[data-tool-weapon]');
-    if (item) return selectWeapon(item.dataset.toolWeapon);
-    if (event.target.closest('#toolStationRefresh')) return load().then(() => toast('数据已刷新')).catch(e => toast(e.message, 'error'));
+    if(item){if(nativeMode&&dirty&&!confirm('当前武器修改尚未保存，确认放弃并切换？'))return;dirty=false;return selectWeapon(item.dataset.toolWeapon);}
+    if(event.target.closest('#toolStationRefresh')){if(nativeMode&&dirty&&!confirm('有未保存修改，确认重新读取并放弃这些修改？'))return;dirty=false;return boot().then(() => toast('数据已刷新')).catch(e=>{if(nativeMode&&$('#toolStationAccessState'))$('#toolStationAccessState').textContent=e.message;toast(e.message,'error');});}
     if (event.target.closest('#toolStationSaveAll')) return saveData().catch(e => toast(e.message, 'error'));
     if (event.target.closest('#toolStationReset')) {
       if (!confirm('恢复内置工具站数据？当前后台修改会被覆盖。')) return;
-      try { config = await api('/api/admin/tool-station/reset', { method: 'POST' }); await load(); toast('已恢复内置工具站数据'); }
+      try { config = await api('/api/admin/tool-station/reset', { method: 'POST' }); dirty=false; await load(); toast('已恢复内置工具站数据'); }
       catch (e) { toast(e.message, 'error'); }
       return;
     }
@@ -211,6 +229,10 @@
   });
 
   $('#toolStationSearch')?.addEventListener('input', renderWeaponList);
+  async function boot(){if(nativeMode){const access=await api('/api/admin/xingwei/tool-station/access');canManage=access.canManage===true;applyPermissions();}return load();}
+  if(nativeMode){boot().catch(error=>{applyPermissions();const status=$('#toolStationAccessState');if(status)status.textContent=error.message;});}
+  $('#toolStationForm')?.addEventListener('input',()=>{dirty=true;});
+
   $('#toolStationForm')?.addEventListener('submit', event => {
     event.preventDefault();
     saveData().catch(e => toast(e.message, 'error'));
@@ -218,6 +240,7 @@
 })();
 
 (() => {
+  if(document.body.dataset.xingweiTools==='true')return;
   const loadScript = (selector, datasetName, src) => {
     if (document.querySelector(selector)) return;
     const script = document.createElement('script');

@@ -8,6 +8,7 @@
   const text = value => String(value ?? '').trim();
   const code = value => text(value).toUpperCase();
   const list = value => Array.isArray(value) ? value : [];
+  let routeRequest = 0;
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
@@ -55,9 +56,9 @@
       .n10-price{font-size:clamp(30px,4vw,48px);font-weight:900;color:#ffcb2d;margin:10px 0 4px}.n10-note{color:#89919b;font-size:11px;line-height:1.7;margin:0 0 16px}
       .n10-actions{display:grid;gap:9px}.n10-actions .btn{text-align:center;padding:13px 16px}.n10-actions .btn.gold{font-size:14px}
       .n10-safe{margin-top:16px;padding:13px;border:1px solid #ffffff12;border-radius:12px;color:#8f97a0;font-size:11px;line-height:1.7;background:#090d11}
-      .n10-loading{min-height:300px;display:grid;place-items:center;text-align:center;color:#9aa2ac}.n10-error h1{font-size:36px;margin:10px 0}.n10-error p{color:#9aa2ac;line-height:1.7}
+      .n10-loading{min-height:300px;display:grid;place-items:center;text-align:center;color:#9aa2ac}.n10-error h1{font-size:36px;margin:10px 0}.n10-error p{color:#9aa2ac;line-height:1.7}.n10-error-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
       @media(max-width:860px){.n10-detail{padding-top:92px}.n10-grid{grid-template-columns:1fr}.n10-cover{min-height:210px}.n10-cover img{min-height:210px}.n10-actions{grid-template-columns:1fr 1fr}}
-      @media(max-width:560px){.n10-facts{grid-template-columns:1fr}.n10-actions{grid-template-columns:1fr}.n10-card{padding:16px}.n10-title{font-size:38px}}
+      @media(max-width:560px){.n10-facts{grid-template-columns:1fr}.n10-actions{grid-template-columns:1fr}.n10-card{padding:16px}.n10-title{font-size:38px}.n10-error-actions{display:grid}}
     `;
     document.head.append(style);
   }
@@ -109,16 +110,20 @@
     section = node('section', 'page n10-detail');
     section.id = 'n10ServiceDetail';
     section.dataset.page = 'service-detail';
-    const shell = node('div', 'shell');
-    const loading = node('div', 'n10-card n10-loading', '正在读取服务详情…');
-    loading.id = 'n10DetailState';
-    loading.setAttribute('role', 'status');
-    loading.setAttribute('aria-live', 'polite');
-    shell.append(loading);
-    section.append(shell);
+    section.append(node('div', 'shell'));
     const footer = $('.footer');
     if (footer) footer.before(section); else document.body.append(section);
     return section;
+  }
+
+  function renderLoading(section, slug) {
+    const shell = $('.shell', section);
+    if (!shell) return;
+    const loading = node('div', 'n10-card n10-loading', `正在读取 ${slug || '服务'} 详情…`);
+    loading.id = 'n10DetailState';
+    loading.setAttribute('role', 'status');
+    loading.setAttribute('aria-live', 'polite');
+    shell.replaceChildren(loading);
   }
 
   function gameName(catalog, gameCode) {
@@ -231,9 +236,14 @@
     if (!shell) return;
     const card = node('div', 'n10-card n10-error');
     card.append(node('div', 'n10-kicker', 'Service Detail'), node('h1', '', '暂时无法显示此服务'), node('p', '', message));
+    const actions = node('div', 'n10-error-actions');
+    const retry = node('button', 'btn gold', '重新读取');
+    retry.type = 'button';
+    retry.dataset.n10Retry = '1';
     const back = node('a', 'btn', '返回新版服务大厅');
     back.href = '/next/services';
-    card.append(back);
+    actions.append(retry, back);
+    card.append(actions);
     shell.replaceChildren(card);
   }
 
@@ -243,7 +253,7 @@
     return response.json();
   }
 
-  async function loadDetail(slug, section) {
+  async function loadDetail(slug) {
     const state = window.XHFrontendNextN2?.state;
     let services = Array.isArray(state?.services) ? state.services : null;
     let catalog = state?.catalog || null;
@@ -258,33 +268,40 @@
     if (!Array.isArray(services)) throw new Error('服务目录读取失败，请返回服务大厅后重试。');
     const service = services.find(item => text(item?.slug) === slug);
     if (!service) throw new Error('没有找到对应的公开服务，可能已下架或链接已更新。');
-    renderDetail(section, service, catalog || {});
+    return { service, catalog: catalog || {} };
   }
 
   async function syncRoute() {
+    const request = ++routeRequest;
     const slug = detailRoute();
     if (!slug) return;
     installStyles();
     const section = ensureDetailSection();
     activateDetailPage(section);
+    renderLoading(section, slug);
     try {
-      await loadDetail(slug, section);
+      const detail = await loadDetail(slug);
+      if (request !== routeRequest || detailRoute() !== slug) return;
+      renderDetail(section, detail.service, detail.catalog);
     } catch (error) {
+      if (request !== routeRequest || detailRoute() !== slug) return;
       renderError(section, error?.message || '服务详情读取失败，请稍后重试。');
     }
   }
 
-  function bindTracking() {
+  function bindActions() {
     document.addEventListener('click', event => {
-      const quote = event.target.closest('[data-n10-quote]');
-      if (!quote) return;
-      window.XHFrontendShell?.track?.('service_card_click', quote.dataset.n10Quote || null);
+      const target = event.target instanceof Element ? event.target : null;
+      const quote = target?.closest('[data-n10-quote]');
+      if (quote) window.XHFrontendShell?.track?.('service_card_click', quote.dataset.n10Quote || null);
+      const retry = target?.closest('[data-n10-retry]');
+      if (retry) syncRoute();
     });
   }
 
   function boot() {
     watchServiceLinks();
-    bindTracking();
+    bindActions();
     syncRoute();
     window.addEventListener('popstate', syncRoute);
   }

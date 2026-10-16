@@ -35,8 +35,11 @@
   }
 
   function listContext(info) {
+    const filtered = window.XHFrontendNextN20?.visibleBusinessNos?.(info);
     const items = listItems(info);
-    const ids = items.map((item) => itemBusinessNo(info, item)).filter(Boolean);
+    const ids = Array.isArray(filtered)
+      ? filtered.map(normalizeBusinessNo).filter(Boolean)
+      : items.map((item) => itemBusinessNo(info, item)).filter(Boolean);
     const index = ids.indexOf(info.businessNo);
     return {
       ids,

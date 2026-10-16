@@ -94,7 +94,7 @@ class XingweiOrgRbacContractTest {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
         String accessController = read("java/com/xinghuo/controller/XingweiPermissionController.java");
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
-        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261016cn1"));
+        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261016sidebar1"));
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
         assertTrue(template.contains("V6A · UNIFIED DELIVERY"));
         assertTrue(template.contains("V2C · 数据范围"));

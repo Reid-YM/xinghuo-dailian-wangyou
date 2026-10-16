@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="theme-color" content="#101216"/>
   <title>版本与更新记录 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261016sidebar1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-releases.css?v=20261014v1"/>
 <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script></head>
 <body>
@@ -27,6 +27,8 @@
     <strong>后续固定规则 · CI + 运行时双校验</strong>
     <span>功能完成 ≠ 记录完成。提交前由 CI 检查版本记录；上线后由浏览器核对页面版本与实际后端版本。任一处不一致都应视为阶段未完全收口。</span>
   </section>
+
+  <section th:replace="~{fragments/admin-delivery-roadmap :: roadmap}"></section>
 
   <section class="xwr-list" aria-label="更新记录">
     <article class="xwr-entry" th:each="item : ${releaseHistory}">

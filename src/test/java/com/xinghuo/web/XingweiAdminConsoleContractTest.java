@@ -42,14 +42,14 @@ class XingweiAdminConsoleContractTest {
         String css = read("resources/static/assets/admin-xingwei.css");
         String js = read("resources/static/assets/admin-xingwei.js");
 
-        assertTrue(template.contains("/assets/admin-xingwei.css?v=20261013v1"));
-        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261016cn1"));
+        assertTrue(template.contains("/assets/admin-xingwei.css?v=20261016sidebar1"));
+        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261016sidebar1"));
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
         assertTrue(template.contains("组织与权限"));
         assertTrue(template.contains("微信支付"));
         assertTrue(template.contains("生产流水线已启用"));
         assertTrue(template.contains("V2C 数据范围"));
-        assertTrue(template.contains("全部数据 / 本中心 / 仅本人"));
+        assertTrue(read("resources/templates/fragments/admin-delivery-roadmap.html").contains("全部数据 / 本中心 / 仅本人"));
         assertTrue(css.contains("@media(max-width:860px)"));
         assertTrue(css.contains("@media(max-width:590px)"));
         assertTrue(js.contains("/api/admin/xingwei/health"));

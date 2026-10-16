@@ -12,11 +12,13 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 @EnabledIfEnvironmentVariable(named = "PLAYWRIGHT_UI_TESTS", matches = "1")
 class XingweiRuntimeResiliencePlaywrightTest {
+    private Browser chromium(Playwright p){var options=new com.microsoft.playwright.BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return p.chromium().launch(options);}
+
     private static final Path JS = Path.of("src/main/resources/static/assets/admin-xingwei.js");
 
     @Test
     void onlineLifecycleRecheckDetectsRuntimeDriftAfterInitialMatch() {
-        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+        try (Playwright playwright = Playwright.create(); Browser browser = chromium(playwright)) {
             Page page = browser.newPage();
             render(page);
             page.evaluate("""
@@ -54,7 +56,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
 
     @Test
     void permissionFailureRemainsFailClosed() {
-        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+        try (Playwright playwright = Playwright.create(); Browser browser = chromium(playwright)) {
             Page page = browser.newPage();
             render(page);
             page.evaluate("""

@@ -136,6 +136,7 @@
     if (sampledAt) sampledAt.textContent = '自动复核：不可用';
     root.dataset.stabilityReady = 'false';
     window.xwrReleaseStability = null;
+    lastSnapshot = null;
   }
 
   function renderHistory(items) {
@@ -214,6 +215,7 @@
 
   function renderFailure(error, status = 0) {
     window.xwrReleaseStabilityError = {status, name: error?.name || 'Error'};
+    root.dataset.stabilityReady = 'false';
     if (status === 403) {
       clearDisplay();
       setState('error', '无发布查看权限');
@@ -228,7 +230,6 @@
       clearTimer();
       return;
     }
-    root.dataset.stabilityReady = 'false';
     if (lastSnapshot) {
       setState('warning', '复核失败 · 保留上次结果');
       if (message) message.textContent = error?.name === 'AbortError' ? '本次发布稳定性请求超时，暂时保留上一次成功结果。' : '本次发布稳定性请求失败，暂时保留上一次成功结果。';

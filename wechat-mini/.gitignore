@@ -20,6 +20,7 @@ tools/guide-hits.json
 
 # 命令行预览产物（二维码 / 包信息）
 preview/
+preview-*.png
 
 # 源码包产物
 dist/

@@ -70,8 +70,7 @@
         <view class="camo-dot t{{item.tier}}"></view>
       </view>
       <view class="camo-text">
-        <text class="camo-name">T{{item.tier}} · {{item.name}}</text>
-        <text class="camo-name-en">{{item.nameEn}}</text>
+        <text class="camo-name">{{item.tier}} · {{item.name}}</text>
       </view>
       <text class="mono camo-count {{item.count === weaponCount ? 'ok' : ''}}">{{item.count}}/{{weaponCount}}</text>
     </view>
@@ -82,7 +81,7 @@
     </view>
     <view wx:if="{{guideOpen}}" class="guide-body">
       <view class="guide-row" wx:for="{{activeTiers}}" wx:key="tier">
-        <text class="guide-tier">T{{item.tier}}</text>
+        <text class="guide-tier">{{item.tier}}</text>
         <view class="guide-text">
           <text class="guide-line">{{item.nameZh}} · {{item.name}}</text>
           <text class="guide-line dim">{{item.requirement}}</text>
@@ -199,8 +198,7 @@
             ></image>
             <view class="tier-dot {{t.on ? 'on' : ''}}" wx:else></view>
             <view class="detail-text">
-              <text class="detail-camo">T{{t.tier}} · {{t.name}}</text>
-              <text class="detail-camo-en">{{t.nameEn}}</text>
+              <text class="detail-camo">{{t.tier}} · {{t.name}}</text>
             </view>
             <text class="detail-state">{{t.on ? '已获得' : '未获得'}}</text>
           </view>

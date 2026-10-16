@@ -5,3 +5,8 @@
 .xwb-category{display:grid;gap:6px;color:var(--xw-muted);font-size:10px}.xwb-category[hidden]{display:none}.xwb-category select{min-height:39px;border:1px solid var(--xw-line);background:#0d1014;color:#fff;border-radius:11px;padding:8px 12px;font:inherit;font-size:12px}.xwb-category select:focus{border-color:var(--xw-accent);outline:2px solid var(--xw-accent-soft)}
 @media(max-width:680px){.xwb-pager{justify-content:space-between;gap:6px;padding:12px 8px}.xwb-pager .xw-button{padding:8px 10px;font-size:11px}}
 .xwb-table td .xw-mini-button+.xw-mini-button{margin-left:6px}.xwb-detail-block{margin-top:14px;padding:13px 14px;border:1px solid var(--xw-line);border-radius:12px;background:#0d1014}.xwb-detail-block strong{display:block;color:var(--xw-accent);font-size:11px;margin-bottom:8px}.xwb-detail-block div{white-space:pre-wrap;overflow-wrap:anywhere;color:#e7ebef;font-size:12px;line-height:1.7}
+
+#xwbOrderActionForm .xw-form-wide,#xwbQuoteActionForm .xw-form-wide{margin:12px 0;display:grid;gap:7px}#xwbOrderImageForm{border-top:1px solid var(--xw-line);padding-top:18px;margin-top:18px}#xwbOrderImageForm input{max-width:100%}.xwb-table .xw-mini-button{margin:3px}#xwbQuoteActionState,#xwbOrderActionState{overflow-wrap:anywhere;line-height:1.7}
+
+/* Author button/display rules must respect permission-controlled hidden attributes. */
+.xwb-shell [hidden],.xw-dialog [hidden]{display:none!important}

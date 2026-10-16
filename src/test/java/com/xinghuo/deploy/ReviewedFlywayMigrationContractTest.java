@@ -14,6 +14,14 @@ import java.util.zip.CRC32;
 import org.junit.jupiter.api.Test;
 
 class ReviewedFlywayMigrationContractTest {
+    @Test
+    void reviewedV76OperationsPermissionsMatchExactMigrationBlob() throws Exception {
+        Path migration = Path.of("src/main/resources/db/migration/V76__xingwei_customer_feedback_permissions.sql");
+        String blob = gitBlobSha(migration);
+        assertEquals("90ecc8061fa553b570b4e025e39321fa422ce579", blob);
+        assertTrue(Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt")).contains("V76__xingwei_customer_feedback_permissions.sql " + blob));
+    }
+
 
     @Test
     void reviewedV75ChannelOperationsMatchesExactMigrationBlob() throws Exception {

@@ -611,6 +611,8 @@ public class XingweiBusinessScopeService {
                 && access.adminUserId().equals(destination.ownerAdminUserId());
     }
 
+    ScopeClause queryScope(Authentication actor) { return scopeClause(permissions.resolve(actor)); }
+
     private ScopeClause scopeClause(XingweiPermissionGuard.AccessSnapshot access) {
         if (access.allowAll() || "ALL".equals(access.dataScope())) {
             return new ScopeClause("1=1", List.of());
@@ -685,7 +687,7 @@ public class XingweiBusinessScopeService {
         return authentication == null ? "unknown" : authentication.getName();
     }
 
-    private record ScopeClause(String sql, List<Object> args) {}
+    record ScopeClause(String sql, List<Object> args) {}
 
     private record Destination(Long ownerAdminUserId, long departmentId, String departmentCode) {}
 

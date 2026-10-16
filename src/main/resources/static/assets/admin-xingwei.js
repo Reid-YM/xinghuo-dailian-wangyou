@@ -15,6 +15,7 @@
   const HEALTH_CHECK_INTERVAL_MS = 60000;
   const MODULE_PERMISSIONS = {
     B01: 'quote:view', B02: 'order:view', B03: 'service:view', B04: 'content:view', B05: 'order:view',
+    B06: 'customer:view', B07: 'content:view', B08: 'feedback:view', B09: 'site:view', B10: 'quote:view',
     O01: 'org:view', O02: 'employee:view', O03: 'rbac:view', O04: 'employee:view',
     C01: 'channel:view', C02: 'wechat:view', C03: 'payment:view', C04: 'site:view',
     S01: 'site:view', S02: 'audit:view', S03: 'deploy:view', S04: 'site:view'
@@ -99,7 +100,8 @@
       const text = normalize(`${module.dataset.search || ''} ${module.textContent || ''}`);
       const code = module.querySelector('.xw-module-index')?.textContent?.trim();
       const allowed = code === 'S01' ? can('site:view') || can('seo:view') : can(modulePermission(module));
-      const match = (!query || text.includes(query)) && allowed;
+      const globalAllowed = !module.hasAttribute('data-global-scope') || !access || access.allowAll || access.dataScope === 'ALL';
+      const match = (!query || text.includes(query)) && allowed && globalAllowed;
       module.hidden = !match;
       if (match) visible += 1;
     });

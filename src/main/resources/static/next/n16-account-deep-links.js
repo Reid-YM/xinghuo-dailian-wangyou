@@ -59,6 +59,7 @@
     url.pathname = `/next/account/${info.canonical}`;
     transientParams.forEach((key) => url.searchParams.delete(key));
     url.searchParams.delete('legacy');
+    url.searchParams.delete('next');
     url.hash = info.hash ? `#${info.hash}` : '';
     return url.pathname + url.search + url.hash;
   }
@@ -78,6 +79,18 @@
     const raw = current.searchParams.get('next');
     const target = supportedAccountTarget(raw);
     if (!target || target === raw) return;
+    current.searchParams.set('next', target);
+    history.replaceState(history.state, '', current.pathname + current.search + current.hash);
+  }
+
+  function ensureGuestReturnParam() {
+    if (!document.querySelector('#n4LoginForm')) return;
+    const info = routeInfo();
+    if (!info) return;
+    const current = new URL(location.href);
+    if (current.searchParams.has('next')) return;
+    const target = buildCanonical(info, current.href);
+    if (!target) return;
     current.searchParams.set('next', target);
     history.replaceState(history.state, '', current.pathname + current.search + current.hash);
   }
@@ -178,6 +191,7 @@
     url.pathname = target;
     transientParams.forEach((key) => url.searchParams.delete(key));
     url.searchParams.delete('legacy');
+    url.searchParams.delete('next');
     url.hash = '';
     const next = url.pathname + url.search;
     if (next !== location.pathname + location.search + location.hash) {
@@ -207,6 +221,8 @@
     records.forEach((record) => record.addedNodes.forEach((node) => {
       if (node instanceof Element) normalizeLinks(node);
     }));
+    normalizeReturnParam();
+    ensureGuestReturnParam();
     const info = routeInfo();
     syncN5(info);
     focusRoute(info);
@@ -216,6 +232,7 @@
   normalizeReturnParam();
   normalizeLinks();
   applyRoute();
+  ensureGuestReturnParam();
 
   window.XHFrontendNextN16 = {
     routeInfo,

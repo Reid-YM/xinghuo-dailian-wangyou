@@ -11,11 +11,13 @@
   <link rel="stylesheet" href="/assets/admin-xingwei-runtime-health.css?v=20261017v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-release-observability.css?v=20261017v2"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-operations-alerts.css?v=20261017v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-release-stability.css?v=20261017v1"/>
   <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script>
   <script defer src="/assets/admin-xingwei-runtime-health.js?v=20261017v1"></script>
   <script defer src="/assets/admin-xingwei-runtime-trend.js?v=20261017v2"></script>
   <script defer src="/assets/admin-xingwei-release-attestation.js?v=20261017v3"></script>
   <script defer src="/assets/admin-xingwei-operations-alerts.js?v=20261017v1"></script>
+  <script defer src="/assets/admin-xingwei-release-stability.js?v=20261017v1"></script>
 </head>
 <body>
 <main class="xwr-shell">
@@ -207,6 +209,72 @@
       <span>阈值只决定复核优先级，不自动触发发布、回滚或重启</span>
     </div>
     <p class="xwr-ops-message" id="xwrOperationsAlertMessage" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="xwr-stability" id="xwrReleaseStability" aria-labelledby="xwrReleaseStabilityTitle" data-stability-ready="false">
+    <div class="xwr-stability-head">
+      <div>
+        <p class="xw-kicker">发布后观察与历史基线</p>
+        <h2 id="xwrReleaseStabilityTitle">5 / 15 / 30 分钟稳定性观察</h2>
+        <p>当前发布观察只使用本 JVM 的分钟级请求、4xx、5xx 聚合；历史基线只读取生产发布网关归档的主机侧发布凭证。进程重启或聚合窗口过期时会明确标记覆盖不足，不补造历史结果。</p>
+      </div>
+      <div class="xwr-stability-actions">
+        <span class="xw-status" id="xwrReleaseStabilityState"><i></i><span>正在读取</span></span>
+        <button class="xw-button xw-button-ghost" id="xwrReleaseStabilityRefresh" type="button">立即复核</button>
+      </div>
+    </div>
+
+    <div class="xwr-stability-grid">
+      <article class="xwr-stability-card">
+        <span>发布后经过</span>
+        <strong id="xwrReleaseObservationAge">-</strong>
+        <small>以主机发布凭证时间为起点</small>
+      </article>
+      <article class="xwr-stability-card">
+        <span>进程覆盖</span>
+        <strong id="xwrReleaseObservationCoverage">-</strong>
+        <small>重启或保留期过期时不会补造观察数据</small>
+      </article>
+      <article class="xwr-stability-card">
+        <span>5 分钟窗口</span>
+        <strong id="xwrReleaseWindow5">-</strong>
+        <small>等待观察数据</small>
+      </article>
+      <article class="xwr-stability-card">
+        <span>15 分钟窗口</span>
+        <strong id="xwrReleaseWindow15">-</strong>
+        <small>等待观察数据</small>
+      </article>
+      <article class="xwr-stability-card">
+        <span>30 分钟窗口</span>
+        <strong id="xwrReleaseWindow30">-</strong>
+        <small>等待观察数据</small>
+      </article>
+      <article class="xwr-stability-card">
+        <span>历史基线状态</span>
+        <strong id="xwrReleaseBaselineState">-</strong>
+        <small>至少 2 次可比 schema v2 发布后建立</small>
+      </article>
+    </div>
+
+    <div class="xwr-stability-baseline">
+      <div class="xwr-stability-baseline-head">
+        <div>
+          <h3>主机发布延迟历史</h3>
+          <p><strong id="xwrReleaseBaselineMedian">-</strong> · 发布后最慢探针中位数</p>
+        </div>
+        <p id="xwrReleaseBaselineReleases">等待至少 2 次可比发布</p>
+      </div>
+      <div class="xwr-stability-history" id="xwrReleaseStabilityHistory">
+        <p class="xwr-stability-empty">正在读取生产主机历史发布凭证。</p>
+      </div>
+    </div>
+
+    <div class="xwr-stability-meta">
+      <span id="xwrReleaseStabilitySampledAt">自动复核：等待读取</span>
+      <span>只读 · deploy:view · no-store · 不执行自动回滚/重启</span>
+    </div>
+    <p class="xwr-stability-message" id="xwrReleaseStabilityMessage" role="status" aria-live="polite"></p>
   </section>
 
   <section th:replace="~{fragments/admin-delivery-roadmap :: roadmap}"></section>

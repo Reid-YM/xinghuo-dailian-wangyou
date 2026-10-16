@@ -13,6 +13,8 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 @EnabledIfEnvironmentVariable(named = "PLAYWRIGHT_UI_TESTS", matches = "1")
 class XingweiAdminPlaywrightTest {
+    private Browser chromium(Playwright p){var options=new com.microsoft.playwright.BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return p.chromium().launch(options);}
+
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
     private static final Path TEMPLATE = Path.of("src/main/resources/templates/admin-xingwei.html");
     private static final String VERSION = "20261016-v6a";
@@ -20,7 +22,7 @@ class XingweiAdminPlaywrightTest {
 
     @Test
     void desktopAndPhoneLayoutsStayInsideViewportAndNavigationWorks() throws Exception {
-        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+        try (Playwright playwright = Playwright.create(); Browser browser = chromium(playwright)) {
             Page page = browser.newPage();
             page.setViewportSize(1440, 900);
             loadMain(page);
@@ -71,7 +73,7 @@ class XingweiAdminPlaywrightTest {
 
     @Test
     void scopedRbacFiltersModulesAndSearchCannotRevealUnauthorizedEntries() throws Exception {
-        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+        try (Playwright playwright = Playwright.create(); Browser browser = chromium(playwright)) {
             Page page = browser.newPage();
             page.setViewportSize(1280, 850);
             loadMain(page);
@@ -119,7 +121,7 @@ class XingweiAdminPlaywrightTest {
 
     @Test
     void runtimeVersionDriftIsVisibleInsteadOfReportingHealthy() throws Exception {
-        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+        try (Playwright playwright = Playwright.create(); Browser browser = chromium(playwright)) {
             Page page = browser.newPage();
             page.setViewportSize(1280, 850);
             loadMain(page);
@@ -160,7 +162,7 @@ class XingweiAdminPlaywrightTest {
 
     @Test
     void organizationSnapshotRendersAndDialogsUseCanonicalOptions() throws Exception {
-        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+        try (Playwright playwright = Playwright.create(); Browser browser = chromium(playwright)) {
             Page page = browser.newPage();
             page.setViewportSize(1440, 900);
             loadMain(page);
@@ -201,9 +203,11 @@ class XingweiAdminPlaywrightTest {
                           {id:3, code:'rbac:view', name:'查看权限', module:'rbac', action:'view'}
                         ]
                       };
-                      window.fetch = async () => ({ok:true, json:async () => snapshot});
+                      window.fetch = async url => ({ok:true, json:async () => String(url).endsWith('/access') ? window.xwAccess : String(url).endsWith('/health') ? {version:'20261016-v6a',stage:'V6A · UNIFIED DELIVERY'} : snapshot});
                     }
                     """);
+            addMainScript(page);
+            page.locator(".xw-nav-item[href='#organization']").click();
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.js")));
             page.waitForFunction("() => document.querySelectorAll('#xwDepartmentRows tr').length === 2");
 

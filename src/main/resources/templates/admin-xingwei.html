@@ -8,9 +8,9 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017panels1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei.js?v=20261016cn1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei.js?v=20261017panels1"></script>
   <script defer src="/assets/admin-xingwei-org.js?v=20261013v2c"></script>
 </head>
 <body>
@@ -25,12 +25,20 @@
     </div>
 
     <nav class="xw-nav" aria-label="后台导航">
-      <a class="xw-nav-item active" href="#overview"><span>01</span>运营总览</a>
-      <a class="xw-nav-item" href="#business"><span>02</span>业务中台</a>
-      <a class="xw-nav-item" href="#organization"><span>03</span>组织与权限</a>
-      <a class="xw-nav-item" href="#channels"><span>04</span>渠道与微信</a>
-      <a class="xw-nav-item" href="#system"><span>05</span>系统工具</a>
+      <a class="xw-nav-item active" href="#overview" aria-controls="overview" aria-current="page"><span>01</span>运营总览</a>
+      <a class="xw-nav-item" href="#business" aria-controls="business"><span>02</span>业务中台</a>
+      <a class="xw-nav-item" href="#organization" aria-controls="organization org-console"><span>03</span>组织与权限</a>
+      <a class="xw-nav-item" href="#channels" aria-controls="channels"><span>04</span>渠道与微信</a>
+      <a class="xw-nav-item" href="#system" aria-controls="system"><span>05</span>系统工具</a>
     </nav>
+
+    <details class="xw-release-menu" id="xwReleaseMenu">
+      <summary>版本与交付</summary>
+      <p class="xw-kicker" th:text="${consoleStageLabel}" th:attr="data-runtime-stage=${consoleStage}" data-runtime-stage="V6A · UNIFIED DELIVERY">V6A · 统一交付</p>
+      <div class="xw-version-card"><span>当前版本</span><strong th:text="${consoleVersion}">20261016-v6a</strong><small id="xwServerTime">等待运行版本核验</small></div>
+      <p class="xw-release-note">生产部署结果以发布流水线核验为准。</p>
+      <a class="xw-button xw-button-ghost" id="xwReleaseHistoryLink" href="/admin/xingwei/releases">查看版本迁移与交付</a>
+    </details>
 
     <div class="xw-sidebar-foot">
       <div class="xw-user">
@@ -49,38 +57,41 @@
       <button class="xw-menu-button" id="xwMenuButton" type="button" aria-label="打开导航" aria-expanded="false">☰</button>
       <div>
         <p class="xw-kicker">星维 · 运营管理</p>
-        <h1>星维管理后台</h1>
+        <h1 id="xwWorkspaceTitle">运营总览</h1>
       </div>
       <div class="xw-topbar-actions">
         <span class="xw-status" id="xwBackendStatus"><i></i>正在检查服务</span>
-        <a class="xw-button xw-button-ghost" href="/admin/xingwei/releases">更新记录</a>
         <a class="xw-button xw-button-ghost" href="/" target="_blank" rel="noopener">查看前台</a>
         <a class="xw-button" href="/admin?legacy=1" th:if="${restoreAdmin == true}">管理员恢复入口</a>
       </div>
     </header>
 
-    <section class="xw-hero" id="overview">
-      <div>
-        <p class="xw-kicker" th:text="${consoleStageLabel}" th:attr="data-runtime-stage=${consoleStage}" data-runtime-stage="V6A · UNIFIED DELIVERY">V6A · 统一交付</p>
-        <h2>新版后台统一工作台</h2>
-        <p>在同一后台处理询价、订单、售后、完整服务与游戏目录、会员社区、反馈、渠道任务、工具资料、统计和站点配置。新版接口执行角色权限与数据范围，写入核对版本并记录审计。当前运行包为 V6A 统一交付版；生产部署结果以发布流水线核验为准。旧后台仅保留明确的恢复入口，真实收款、企业微信写入和真机验收仍单独处理。</p>
-      </div>
-      <div class="xw-version-card">
-        <span>当前版本</span>
-        <strong th:text="${consoleVersion}">20261016-v6a</strong>
-        <small id="xwServerTime">等待运行版本核验</small>
-      </div>
+    <section class="xw-hero" id="overview" data-workspace="overview">
+      <div><p class="xw-kicker">运营工作台</p><h2>新版后台统一工作台</h2><p>从左侧选择工作区，分别处理业务、组织、渠道与系统配置。也可使用快捷搜索跨工作区定位模块。</p></div>
     </section>
 
     <section class="xw-command-card" aria-label="后台快捷搜索">
       <label for="xwModuleSearch">快速定位模块</label>
       <div class="xw-search-row">
         <input id="xwModuleSearch" type="search" placeholder="搜索：订单、询价、员工、权限、微信、SEO、日志……" autocomplete="off"/>
+        <button id="xwSearchClear" type="button" class="xw-button xw-button-ghost" hidden>清除搜索</button>
         <span id="xwSearchCount">正在读取可用模块</span>
       </div>
     </section>
 
-    <section class="xw-section" id="business">
+    <p class="xw-workspace-empty" id="xwWorkspaceEmpty" role="status" aria-live="polite" hidden></p>
+    <section class="xw-workspace-home" data-workspace="overview" aria-label="选择工作区">
+      <h2>选择工作区</h2>
+      <div class="xw-workspace-links">
+        <a href="#business"><strong>业务中台</strong><span>询价、订单、内容与运营资料</span><small data-workspace-count="business">正在核对权限</small></a>
+        <a href="#organization"><strong>组织与权限</strong><span>中心、岗位、员工与角色</span><small data-workspace-count="organization">正在核对权限</small></a>
+        <a href="#channels"><strong>渠道与微信</strong><span>渠道运营、微信与前台展示</span><small data-workspace-count="channels">正在核对权限</small></a>
+        <a href="#system"><strong>系统工具</strong><span>站点配置、审计与发布记录</span><small data-workspace-count="system">正在核对权限</small></a>
+      </div>
+    </section>
+    <noscript><p>请启用浏览器脚本以加载权限与工作区。</p></noscript>
+
+    <section class="xw-section" id="business" data-workspace="business" hidden>
       <div class="xw-section-head">
         <div><p class="xw-kicker">业务中台</p><h2>业务中台</h2></div>
         <p>V2E 已把询价与订单接入新版数据范围工作台；V3A-V3I 已继续迁移服务目录、发布检查、游戏/分类受控管理和可见性启停保护。攻略内容也进入新版受控入口，旧后台继续保留回退。</p>
@@ -103,7 +114,7 @@
       </div>
     </section>
 
-    <section class="xw-section" id="organization">
+    <section class="xw-section" id="organization" data-workspace="organization" hidden>
       <div class="xw-section-head">
         <div><p class="xw-kicker">组织与权限</p><h2>组织与权限</h2></div>
         <p>V2C 已在新版组织接口启用后端数据范围守卫；权限及全部数据、本中心、仅本人范围都会在接口层执行。</p>
@@ -116,7 +127,7 @@
       </div>
     </section>
 
-    <section class="xw-section xw-org-console" id="org-console">
+    <section class="xw-section xw-org-console" id="org-console" data-workspace="organization" hidden>
       <div class="xw-section-head">
         <div><p class="xw-kicker">V2C · 数据范围</p><h2>组织与权限控制台</h2></div>
         <div class="xw-shadow-badge"><i></i><span>V2C 数据范围</span><small>恢复管理员全量 · 员工按角色与数据范围执行</small></div>
@@ -147,7 +158,7 @@
       </article>
     </section>
 
-    <section class="xw-section" id="channels">
+    <section class="xw-section" id="channels" data-workspace="channels" hidden>
       <div class="xw-section-head"><div><p class="xw-kicker">渠道与微信</p><h2>渠道与微信</h2></div><p>网站侧小程序登录接口已上线，星火迷彩追踪器源码已随 V3N 进入仓库，预览版真机主链路已验证；小程序正式版仍待独立发布；支付保持受控联调状态。</p></div>
       <div class="xw-grid">
         <a class="xw-module" data-search="淘宝 闲鱼 渠道 商品 运营 任务" href="/admin/xingwei/channels"><div class="xw-module-index">C01</div><h3>渠道运营</h3><p>查看官网、淘宝、闲鱼的内部服务状态，按权限安排与跟进运营任务。</p><span>打开渠道工作台 →</span></a>
@@ -156,7 +167,7 @@
         <a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/xingwei/frontend-controls"><div class="xw-module-index">C04</div><h3>前台控制</h3><p>按查看与管理权限维护导航、展示开关和主题参数。</p><span>打开模块 →</span></a>
       </div>
     </section>
-    <section class="xw-section" id="system">
+    <section class="xw-section" id="system" data-workspace="system" hidden>
       <div class="xw-section-head"><div><p class="xw-kicker">系统与治理</p><h2>系统工具</h2></div><p>保留审计、搜索展示、站点配置和发布回滚能力；版本真值现在同时受 CI 和浏览器运行时核验保护。</p></div>
       <div class="xw-grid">
         <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin/xingwei/site"><div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示、图片与游戏服务状态。</p><span>进入配置工作台 →</span></a>
@@ -165,8 +176,6 @@
         <article class="xw-module xw-module-planned" data-search="代码生成 scaffold generator 开发"><div class="xw-module-index">S04</div><h3>开发工具</h3><p>已完成适用性评估：参数复用现有配置，代码生成暂不进入生产链路。</p><span>评估完成 · 暂不引入</span></article>
       </div>
     </section>
-
-    <section class="xw-roadmap"><div class="xw-section-head"><div><p class="xw-kicker">迁移与交付</p><h2>迁移与交付状态</h2></div></div><ol><li><strong>V6A</strong><span>本版本：前台核心入口与 /admin 默认新版，完整资料、会员社区、反馈、CRM、员工账号、支付、工具与统计均有原生工作台；实际部署状态以发布门禁为准。</span></li><li><strong>V1 / V2A-V2C</strong><span>已上线：新版后台壳、七大中心、155 岗位、混合权限守卫与 全部数据 / 本中心 / 仅本人数据范围。</span></li><li><strong>V2D-V2G</strong><span>已上线：询价与订单数据范围、业务工作台、员工工作台、企业微信通讯录只读。</span></li><li><strong>V3A-V3G</strong><span>已上线：服务目录、受控编辑/新增、发布检查、游戏与分类受控管理，以及网站侧小程序登录接口；客户端扫码预览版主链路已验证。</span></li><li><strong>V3H</strong><span>开发与 CI 已完成：小程序微信支付；保持未合并、真实收款关闭，等待真机验收。</span></li><li><strong>V3I</strong><span>已上线：游戏与分类前台可见性确认、父级阻断提示与 impactToken 过期预览防护已进入生产。</span></li><li><strong>V3J</strong><span>已上线：统一生产状态真值，修正候选/规划误标，并增加状态一致性回归守卫。</span></li><li><strong>V3K</strong><span>已上线：版本、阶段、更新记录与模块交付状态进入 CI 自动巡检，遗漏同步会直接阻断合并。</span></li><li><strong>V3L</strong><span>已上线：后台页面与 /health 实际运行版本自动核对；版本/阶段漂移会直接显示错误状态。</span></li><li><strong>V3N</strong><span>已上线：Frontend Next A1–A4、V3M 运行时韧性与前后端总联调；星火迷彩追踪器 1.0.14 源码已纳入仓库，正式小程序发布与异常边界另行验收。</span></li><li><strong>V3O</strong><span>已上线：企业微信与微信支付集成配置检查；真实收款和写入能力继续独立验收。</span></li><li><strong>V3P</strong><span>已上线：网站微信支付单状态与最近记录只读概览；不启用真实收款。</span></li><li><strong>V3Q</strong><span>已上线：支付单读取与写入分权，普通客服默认只读。</span></li><li><strong>V3R</strong><span>已上线：异常订单独立队列、客户售后说明和服务大厅失败重试；沿用既有权限及数据范围。</span></li><li><strong>V3S</strong><span>已上线：客户订单售后说明回显、后台按权限范围集中查看售后问题记录。</span></li><li><strong>V3T</strong><span>已上线：售后问题记录按权限范围全量检索、计数和翻页；生产门禁已通过。</span></li><li><strong>V3U</strong><span>已上线：售后问题记录按客户提交的问题类型筛选，继续受订单查看权限和数据范围约束；生产门禁已通过。</span></li><li><strong>V3V</strong><span>已上线：售后问题记录可查看完整客户说明与内部备注，继续受订单查看权限和数据范围约束；生产门禁已通过。</span></li><li><strong>V3W</strong><span>已上线：服务大厅筛选链接可分享与恢复，客户售后说明拒绝系统保留标记；生产门禁已通过。</span></li><li><strong>V3X</strong><span>已上线：客户订单售后历史由后端结构化返回，个人中心逐条展示；生产门禁已通过。</span></li><li><strong>V3Y</strong><span>已上线：后台售后列表按现有权限和数据范围返回结构化历史，保留原字段与筛选分页。</span></li><li><strong>V3Z</strong><span>已上线：售后记录独立存储，备注已满仍可提交，客户和后台继续读取旧历史。</span></li><li><strong>V4A</strong><span>已上线：员工可按权限处理售后流水，处理说明受版本号保护并写入审计。</span></li><li><strong>V4B</strong><span>已上线：按权限范围、处理状态、问题类型和关键词查询售后处理队列。</span></li><li><strong>V4C</strong><span>已上线：售后处理事件历史、客户可见回复和受控处理工作台。</span></li><li><strong>V4D</strong><span>已上线：同状态连续回复及客户公开回复历史。</span></li><li><strong>V4E</strong><span>已上线：客户在原售后记录补充说明，后台按最近客户活动排序并显示补充历史。</span></li><li><strong>V4F</strong><span>已上线：待跟进客户补充筛选、处理确认与新补充保留。</span></li><li><strong>V4G</strong><span>已上线：客户待跟进提示、按权限范围汇总和可分享的后台筛选网址。</span></li><li><strong>V4H</strong><span>已上线：售后待处理、处理中、已解决状态分布与快捷筛选。</span></li><li><strong>V4I</strong><span>已上线：售后问题类型分布与快捷筛选，双 CI、18080/8081/8080 零停机门禁与发布后核验均已完成。</span></li><li><strong>V4J</strong><span>已上线：售后当前需跟进及 24 小时内、24–72 小时、72 小时以上时效分布；候选已通过双 CI、18080/8081/8080 零停机门禁和发布后核验。</span></li><li><strong>V4K</strong><span>已上线：售后待跟进时效快捷队列已通过双 CI、精确主线 CI、18080/8081/8080 零停机门禁与发布后核验。</span></li><li><strong>V4L</strong><span>已上线：售后待跟进队列支持最新待跟进优先 / 最久未响应优先；最终 Stable main 与 Deploy Production #212 已完成。</span></li><li><strong>V4M</strong><span>已上线：售后待跟进队列显示服务端等待时长与既有 24h/72h 时效标记；统一候选主线已通过双 CI、Deploy Production #213 与 18080/8081/8080 生产门禁。</span></li></ol></section>
 
     <footer class="xw-footer"><span>星维网络服务工作室 · 管理后台</span><span>固定组织架构 · 后端授权 · 数据范围 · 可审计 · 可回滚 · 旧后台保留</span></footer>
   </main>

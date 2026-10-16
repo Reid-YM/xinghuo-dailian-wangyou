@@ -16,12 +16,14 @@ N14 已补齐“Next 内部路由连续性”：Next 页面里的普通 `/servic
 
 N15 已补齐“认证回跳连续性”：密码登录、注册、微信开放平台扫码和小程序扫码统一使用安全 `next` 返回目标；已有旧版 `/services`、`/quote`、`/account`、`/service/{slug}`、`/record/{businessNo}` 深链在认证完成后归一到对应 `/next` 路径。微信 OAuth 取消、限流或失败时，只有从 Next 发起的流程返回 `/next/account`，旧版登录流程继续保持旧版。详见 [N15 认证回跳连续性](N15_AUTH_RETURN_CONTINUITY.md)。
 
-**N9–N15 当前均只在开发分支开发，不部署、不合并、不切正式流量。**
+N16 已补齐“个人中心子路由深链闭环”：`requests`、`orders`、`progress`、`settings` 及已有兼容别名都可通过显式 `/next/account/...` 预览；N5 订单/询价 tab 会同步 URL，浏览器前进后退会恢复对应上下文，设置锚点定位到 N6/N4 的真实资料、联系方式、安全、设备和安全活动模块。认证 `next` 参数中的账号子路由也会继续留在 Next。详见 [N16 个人中心子路由深链闭环](N16_ACCOUNT_DEEP_LINK_CONTINUITY.md)。
+
+**N9–N16 当前均只在开发分支开发，不部署、不合并、不切正式流量。**
 
 用户要求正式前端恢复旧版。当前代码默认关闭 Next 正式映射，发布后以实际正式页面核验为准；新版后台继续保留。详见 [前端回退记录](../development/2026-10-16-frontend-rollback.md)。重新启用正式 Next 必须单独获得明确授权。
 
 - 默认入口 /、/services、/quote、/account 及认证/设置子页恢复旧视图和原账号鉴权。
-- /next、/next/services、/next/service/{slug}、/next/quote、/next/record/{businessNo}、/next/account 保留为显式预览入口；旧正式入口继续存在。
+- /next、/next/services、/next/service/{slug}、/next/quote、/next/record/{businessNo}、/next/account 及受支持的 /next/account/... 子路由保留为显式预览入口；旧正式入口继续存在。
 - 页面级回退使用 ?legacy=1；整体回退配置 app.frontend-next.default-enabled=false。不能通过改静态首页文件假称已切换实际路由。
 - JS 由真实内容指纹确定缓存版本。账号/console 写请求遵循服务端 X-Requested-With: fetch，不放宽鉴权。
 - 数据失败时只保留已读真实数据或错误/重试状态，不再回退模拟商品、价格或订单。

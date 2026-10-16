@@ -13,7 +13,7 @@ class FrontendAccountParityPlaywrightTest {
     private static final Path NEXT=Path.of("src/main/resources/static/next");
     private Page page(Browser browser){
         Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(390,844));
-        page.route("**/*",r->r.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody("<html><head></head><body><section class='page active' data-page='account'><div class='n4-shell'></div><section class='n4-section'></section></section><div class='badge'></div></body></html>")));
+        page.route("**/*",r->{if(r.request().url().endsWith("/qr.png")){r.fulfill(new Route.FulfillOptions().setContentType("image/svg+xml").setBody("<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><rect width='10' height='10'/></svg>"));return;}r.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody("<html><head></head><body><section class='page active' data-page='account'><div class='n4-shell'></div><section class='n4-section'></section></section><div class='badge'></div></body></html>"));});
         page.navigate("https://example.test/next/account");return page;
     }
     @Test void chromiumAvatarUploadAndContactFailurePreserveInputAndUseServerReturnedAvatar()throws Exception{

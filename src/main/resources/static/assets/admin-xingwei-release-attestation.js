@@ -16,7 +16,10 @@
     current: document.getElementById('xwrReleaseCurrent'),
     previous: document.getElementById('xwrReleasePrevious'),
     ports: document.getElementById('xwrReleasePorts'),
-    checks: document.getElementById('xwrReleaseChecks')
+    checks: document.getElementById('xwrReleaseChecks'),
+    beforeHealth: document.getElementById('xwrReleaseHealthBefore'),
+    afterHealth: document.getElementById('xwrReleaseHealthAfter'),
+    healthDelta: document.getElementById('xwrReleaseHealthDelta')
   };
 
   let timer = 0;
@@ -41,6 +44,7 @@
     if (publishedAt) publishedAt.textContent = '主机凭证时间：不可用';
     window.xwrReleaseAttestation = null;
     root.dataset.releaseReady = 'false';
+    root.dataset.healthComparison = 'unavailable';
   }
 
   function formatTime(value) {
@@ -50,6 +54,39 @@
 
   function shortSha(value) {
     return typeof value === 'string' && value.length >= 12 ? `${value.slice(0, 12)}…` : '-';
+  }
+
+  function probeText(probe) {
+    if (!probe?.passed) return '-';
+    return `HOME ${Number(probe.homeMillis || 0)} ms · SERVICES ${Number(probe.servicesMillis || 0)} ms`;
+  }
+
+  function renderHealthComparison(item) {
+    const comparison = item?.healthComparison;
+    if (!comparison?.preDeploy8080 || !comparison?.postDeploy8080) {
+      if (values.beforeHealth) values.beforeHealth.textContent = '-';
+      if (values.afterHealth) values.afterHealth.textContent = '-';
+      if (values.healthDelta) values.healthDelta.textContent = '等待下一次受控发布建立基线';
+      root.dataset.healthComparison = 'pending';
+      return;
+    }
+
+    const before = comparison.preDeploy8080;
+    const after = comparison.postDeploy8080;
+    const beforeMax = Math.max(Number(before.homeMillis || 0), Number(before.servicesMillis || 0));
+    const afterMax = Math.max(Number(after.homeMillis || 0), Number(after.servicesMillis || 0));
+    const delta = afterMax - beforeMax;
+    const materiallySlower = beforeMax > 0 && afterMax >= beforeMax * 2 && delta >= 500;
+
+    if (values.beforeHealth) values.beforeHealth.textContent = probeText(before);
+    if (values.afterHealth) values.afterHealth.textContent = probeText(after);
+    if (values.healthDelta) {
+      if (materiallySlower) values.healthDelta.textContent = `最慢探针 +${delta} ms · 进入观察`;
+      else if (delta > 0) values.healthDelta.textContent = `最慢探针 +${delta} ms · 基本稳定`;
+      else if (delta < 0) values.healthDelta.textContent = `最慢探针 ${delta} ms · 未见变慢`;
+      else values.healthDelta.textContent = '最慢探针无变化';
+    }
+    root.dataset.healthComparison = materiallySlower ? 'slower' : 'stable';
   }
 
   function withTimeout(url) {
@@ -87,10 +124,12 @@
     if (values.checks) values.checks.textContent = item.checks?.predeploy18080 && item.checks?.canary8081 && item.checks?.production8080
       ? '18080 / 8081 / 8080 全部通过'
       : '发布凭证检查项不完整';
-    if (publishedAt) publishedAt.textContent = `主机凭证时间：${formatTime(item.publishedAt)}`;
+    renderHealthComparison(item);
+    if (publishedAt) publishedAt.textContent = `主机凭证时间：${formatTime(item.publishedAt)} · schema v${item.schemaVersion || 1}`;
     if (message) message.textContent = '';
     setState('ok', '最近成功发布已核验');
     root.dataset.releaseReady = 'true';
+    document.dispatchEvent(new CustomEvent('xwr:release-attestation', {detail: snapshot}));
   }
 
   function renderFailure(error, status = 0) {

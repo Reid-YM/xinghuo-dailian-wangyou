@@ -10,10 +10,12 @@
   <link rel="stylesheet" href="/assets/admin-xingwei-releases.css?v=20261014v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-runtime-health.css?v=20261017v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-release-observability.css?v=20261017v2"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-operations-alerts.css?v=20261017v1"/>
   <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script>
   <script defer src="/assets/admin-xingwei-runtime-health.js?v=20261017v1"></script>
   <script defer src="/assets/admin-xingwei-runtime-trend.js?v=20261017v2"></script>
-  <script defer src="/assets/admin-xingwei-release-attestation.js?v=20261017v2"></script>
+  <script defer src="/assets/admin-xingwei-release-attestation.js?v=20261017v3"></script>
+  <script defer src="/assets/admin-xingwei-operations-alerts.js?v=20261017v1"></script>
 </head>
 <body>
 <main class="xwr-shell">
@@ -98,7 +100,7 @@
     <p class="xwr-health-message" id="xwrRuntimeHealthMessage" role="status" aria-live="polite"></p>
   </section>
 
-  <section class="xwr-release-proof" id="xwrReleaseAttestation" aria-labelledby="xwrReleaseAttestationTitle" data-release-ready="false">
+  <section class="xwr-release-proof" id="xwrReleaseAttestation" aria-labelledby="xwrReleaseAttestationTitle" data-release-ready="false" data-health-comparison="unavailable">
     <div class="xwr-release-proof-head">
       <div>
         <p class="xw-kicker">生产主机发布真值</p>
@@ -141,11 +143,70 @@
       </article>
     </div>
 
+    <div class="xwr-release-health-compare" aria-label="发布前后 8080 健康对比">
+      <article class="xwr-release-card">
+        <span>发布前 8080</span>
+        <strong id="xwrReleaseHealthBefore">-</strong>
+        <small>切流前由生产主机直接探测 HOME / SERVICES</small>
+      </article>
+      <article class="xwr-release-card">
+        <span>发布后 8080</span>
+        <strong id="xwrReleaseHealthAfter">-</strong>
+        <small>正式冒烟、Nginx 回切与端口清理后再次探测</small>
+      </article>
+      <article class="xwr-release-card">
+        <span>变化判断</span>
+        <strong id="xwrReleaseHealthDelta">等待凭证</strong>
+        <small>只用于健康对比，不单独作为故障或回滚结论</small>
+      </article>
+    </div>
+
     <div class="xwr-release-meta">
       <span id="xwrReleasePublishedAt">主机凭证时间：等待读取</span>
       <span>只读 · deploy:view · no-store</span>
     </div>
     <p class="xwr-release-message" id="xwrReleaseAttestationMessage" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="xwr-ops" id="xwrOperationsAlerts" aria-labelledby="xwrOperationsAlertsTitle" data-alert-ready="false" data-severity="">
+    <div class="xwr-ops-head">
+      <div>
+        <p class="xw-kicker">稳定运营自动复核</p>
+        <h2 id="xwrOperationsAlertsTitle">异常阈值与复核闭环</h2>
+        <p>每 60 秒只读组合当前 JVM、数据库、近 5 分钟 5xx 与生产主机发布凭证。达到阈值时给出复核动作；条件恢复后告警会在下一次采样自动消失。本页不执行重启、回滚、部署或业务写入。</p>
+      </div>
+      <span class="xw-status" id="xwrOperationsAlertState"><i></i><span>正在评估</span></span>
+    </div>
+
+    <div class="xwr-ops-grid">
+      <article class="xwr-ops-card">
+        <span>综合级别</span>
+        <strong id="xwrOperationsSeverity">-</strong>
+        <small>正常 / 观察 / 警告 / 严重</small>
+      </article>
+      <article class="xwr-ops-card">
+        <span>近 5 分钟 5xx</span>
+        <strong id="xwrOperations5xx">-</strong>
+        <small>次数 / 请求数 / 错误率</small>
+      </article>
+      <article class="xwr-ops-card">
+        <span>JVM 堆占用</span>
+        <strong id="xwrOperationsHeap">-</strong>
+        <small>80% 观察 · 90% 警告 · 97% 严重</small>
+      </article>
+      <article class="xwr-ops-card">
+        <span>数据库检查</span>
+        <strong id="xwrOperationsDatabase">-</strong>
+        <small>250 ms 观察 · 1000 ms 警告 · 连通失败严重</small>
+      </article>
+    </div>
+
+    <div class="xwr-ops-list" id="xwrOperationsAlertList" aria-live="polite"></div>
+    <div class="xwr-ops-meta">
+      <span id="xwrOperationsAlertSampledAt">自动复核：等待读取</span>
+      <span>阈值只决定复核优先级，不自动触发发布、回滚或重启</span>
+    </div>
+    <p class="xwr-ops-message" id="xwrOperationsAlertMessage" role="status" aria-live="polite"></p>
   </section>
 
   <section th:replace="~{fragments/admin-delivery-roadmap :: roadmap}"></section>

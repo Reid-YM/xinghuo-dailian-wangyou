@@ -174,10 +174,6 @@
       }
     });
     window.XHFrontendNextN14?.normalize?.(root);
-    root.querySelectorAll('a[href^="/game/"]').forEach((link) => {
-      link.dataset.n14Legacy = '1';
-      link.dataset.n21Legacy = '1';
-    });
   }
 
   function focusAsset() {

@@ -17,6 +17,8 @@
     ['progress', { canonical: 'progress', tab: 'orders', focus: 'progress' }],
     ['tools', { canonical: 'progress', tab: 'orders', focus: 'progress' }],
     ['tool-progress', { canonical: 'progress', tab: 'orders', focus: 'progress' }],
+    ['favorites', { canonical: 'favorites', focus: 'favorites' }],
+    ['submissions', { canonical: 'submissions', focus: 'submissions' }],
     ['settings', { canonical: 'settings', focus: 'settings' }],
     ['profile', { canonical: 'settings', hash: 'profile', focus: 'profile' }],
     ['settings/profile', { canonical: 'settings', hash: 'profile', focus: 'profile' }],
@@ -126,6 +128,8 @@
     if (!info) return null;
     if (info.focus === 'business') return document.querySelector('#n5BusinessCenter');
     if (info.focus === 'progress') return document.querySelector('[data-personal-asset="progress"]');
+    if (info.focus === 'favorites') return document.querySelector('[data-personal-asset="favorites"]');
+    if (info.focus === 'submissions') return document.querySelector('[data-personal-asset="submissions"]');
     if (info.focus === 'settings') return document.querySelector('#n6AccountSecurity');
     if (info.focus === 'profile') return document.querySelector('#n6ProfileForm')?.closest('.n6-card');
     if (info.focus === 'contact') return document.querySelector('#n6ContactForm')?.closest('.n6-card');

@@ -10,7 +10,7 @@ class XingweiReleaseChangeRiskSpringContextTest {
     @Test
     void serviceCanBeCreatedByRealSpringConstructorInjection() {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-            context.registerBean(ObjectMapper.class, ObjectMapper::new);
+            context.getBeanFactory().registerSingleton("objectMapper", new ObjectMapper());
             context.register(XingweiReleaseChangeRiskService.class);
             context.refresh();
 

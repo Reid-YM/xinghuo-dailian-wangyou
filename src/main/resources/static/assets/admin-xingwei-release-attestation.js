@@ -32,6 +32,17 @@
     if (label) label.textContent = text;
   }
 
+  function clearCredential() {
+    Object.values(values).forEach(element => {
+      if (!element) return;
+      element.textContent = '-';
+      element.removeAttribute('title');
+    });
+    if (publishedAt) publishedAt.textContent = '主机凭证时间：不可用';
+    window.xwrReleaseAttestation = null;
+    root.dataset.releaseReady = 'false';
+  }
+
   function formatTime(value) {
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString('zh-CN');
@@ -53,14 +64,14 @@
   }
 
   function render(snapshot) {
-    window.xwrReleaseAttestation = snapshot;
     if (!snapshot?.available || !snapshot?.attestation) {
-      root.dataset.releaseReady = 'false';
+      clearCredential();
       setState('warning', snapshot?.status === 'INVALID' ? '发布凭证无效' : '发布凭证尚未生成');
       if (message) message.textContent = '当前没有可验证的主机侧成功发布凭证；这不等同于生产故障，请以 Deploy Production 和服务器现场为准。';
       return;
     }
 
+    window.xwrReleaseAttestation = snapshot;
     const item = snapshot.attestation;
     if (values.gitSha) {
       values.gitSha.textContent = shortSha(item.gitSha);
@@ -83,14 +94,22 @@
   }
 
   function renderFailure(error, status = 0) {
-    root.dataset.releaseReady = 'false';
+    if (status === 403 || status === 401) clearCredential();
+    else root.dataset.releaseReady = 'false';
+
     if (status === 403) {
       setState('error', '无发布查看权限');
       if (message) message.textContent = '当前账号没有 deploy:view 权限，生产发布凭证保持隐藏。';
       clearTimer();
       return;
     }
-    setState('warning', status === 401 ? '登录状态失效' : '发布凭证复核失败');
+    if (status === 401) {
+      setState('error', '登录状态失效');
+      if (message) message.textContent = '登录状态已失效，生产发布凭证保持隐藏。';
+      clearTimer();
+      return;
+    }
+    setState('warning', '发布凭证复核失败');
     if (message) message.textContent = error?.name === 'AbortError'
       ? '读取主机侧发布凭证超时，请结合 Deploy Production 记录核验。'
       : '暂时无法读取主机侧发布凭证，请结合 Deploy Production 记录核验。';

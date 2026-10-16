@@ -180,3 +180,6 @@
   .fc-theme-preview{flex-wrap:wrap}
   .fc-theme-preview button{margin-left:0}
 }
+
+/* Compact only the new permission-controlled entry; legacy layout is unchanged. */
+.frontend-control-admin[data-xingwei-mode="true"] .fc-hero{padding:20px 24px;min-height:0}.frontend-control-admin[data-xingwei-mode="true"] .fc-hero h1{font-size:26px}

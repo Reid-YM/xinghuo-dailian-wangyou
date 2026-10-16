@@ -52,6 +52,12 @@ public class GameStatusService {
             String ctaLabel,
             String operator,
             HttpServletRequest request) {
+        return update(gameCode, statusCode, publicLabel, publicDetail, ctaLabel, operator, request, "后台更新运营状态");
+    }
+
+    @Transactional
+    public GameStatus update(String gameCode, String statusCode, String publicLabel, String publicDetail,
+                             String ctaLabel, String operator, HttpServletRequest request, String reason) {
         String code = gameCode == null ? "" : gameCode.trim().toUpperCase(Locale.ROOT);
         if (code.isBlank()) {
             throw new BadRequestException("缺少游戏代码");
@@ -102,7 +108,7 @@ public class GameStatusService {
                 operator,
                 null,
                 status,
-                "后台更新运营状态",
+                reason == null || reason.isBlank() ? "后台更新运营状态" : reason.substring(0, Math.min(500, reason.length())),
                 request);
         return status;
     }

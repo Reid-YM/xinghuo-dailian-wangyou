@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>账号与登录安全 · 星维后台</title><meta name="robots" content="noindex,nofollow"/><link rel="stylesheet" href="/assets/app.css"/><link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/><link rel="stylesheet" href="/assets/admin-xingwei-integrations.css?v=20261013v1"/></head>
+<body><main class="xwi-shell">
+  <header class="xwi-top"><div><p class="xw-kicker">ACCOUNT & ACCESS</p><h1>账号与登录安全</h1><p>当前登录：<strong th:text="${username}">管理员</strong></p></div><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回新版后台</a></header>
+  <section class="xwi-card"><h2>当前授权</h2><div class="xwi-note"><strong>授权模式</strong><span th:text="${accessMode}">待核对</span></div><div class="xwi-note"><strong>数据范围</strong><span th:text="${dataScope}">待核对</span></div><p>新版业务接口会继续核对每项操作权限及数据范围。员工角色、岗位和所属中心在组织工作台维护。</p><div class="xwi-actions"><a class="xw-button" href="/admin/xingwei#org-console">员工档案与角色</a><a class="xw-button xw-button-ghost" href="/admin/xingwei/wecom">企业微信员工绑定状态</a></div></section>
+  <section class="xwi-card"><h2>员工后台账号</h2><p>后台账号与网站会员分开。员工复用现有后台登录或已配置的企业微信登录，岗位和星维角色不会创建第二套密码。</p><p>管理层保留原 ADMIN 恢复入口。后台账号的创建、密码恢复及原登录角色调整沿用受控维护流程；本页不提供密码、令牌或凭据读取，也不提供后台账号新增或密码重置。</p><div class="xwi-actions"><a class="xw-button xw-button-ghost" href="/admin">旧后台恢复入口</a><form method="post" action="/logout"><input type="hidden" th:name="${csrf.parameterName}" th:value="${csrf.token}"/><button type="submit" class="xw-button">退出当前登录</button></form></div></section>
+  <section class="xwi-card"><h2>网站会员管理</h2><p>旧后台“用户账号”管理网站会员的邮箱、昵称、状态、密码和登录日志，不管理员工后台登录账号。会员与社区等辅助管理继续由旧后台承载，保持原有权限规则。</p><div class="xwi-actions"><a class="xw-button xw-button-ghost" href="/admin">进入旧后台 → 系统工具 → 用户账号</a></div></section>
+</main></body></html>

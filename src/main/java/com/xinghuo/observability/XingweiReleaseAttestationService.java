@@ -19,6 +19,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class XingweiReleaseAttestationService {
+    private static final String TRUSTED_SOURCE = "production-host-gateway";
+    private static final int EXPECTED_MAIN_PORT = 8080;
+    private static final int EXPECTED_CANARY_PORT = 8081;
     private static final Pattern GIT_SHA = Pattern.compile("^[0-9a-f]{40}$");
     private static final Pattern SHA256 = Pattern.compile("^[0-9a-f]{64}$");
     private static final Pattern RELEASE = Pattern.compile("^xinghuo-v2-standard-[0-9]{14}\\.jar$");
@@ -54,6 +57,7 @@ public class XingweiReleaseAttestationService {
         if (root == null || root.path("schemaVersion").asInt(-1) != 1) {
             return null;
         }
+        String source = root.path("source").asText("");
         String gitSha = root.path("gitSha").asText("");
         String jarSha256 = root.path("jarSha256").asText("");
         String currentRelease = root.path("currentRelease").asText("");
@@ -68,14 +72,16 @@ public class XingweiReleaseAttestationService {
         boolean productionPassed = checks.path("production8080").asBoolean(false);
         Instant publishedAt = parseInstant(root.path("publishedAt").asText(""));
 
-        if (publishedAt == null
+        if (!TRUSTED_SOURCE.equals(source)
+                || publishedAt == null
                 || !GIT_SHA.matcher(gitSha).matches()
                 || !SHA256.matcher(jarSha256).matches()
                 || !RELEASE.matcher(currentRelease).matches()
                 || !RELEASE.matcher(previousRelease).matches()
-                || mainPort <= 0
-                || canaryPort <= 0
-                || nginxUpstreamPort != mainPort
+                || currentRelease.equals(previousRelease)
+                || mainPort != EXPECTED_MAIN_PORT
+                || canaryPort != EXPECTED_CANARY_PORT
+                || nginxUpstreamPort != EXPECTED_MAIN_PORT
                 || !canaryStopped
                 || !predeployPassed
                 || !canaryPassed

@@ -3,7 +3,7 @@
 
   const $=(selector,root=document)=>root.querySelector(selector);
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
-  const state={catalog:null,services:null,category:'all',query:''};
+  const state={catalog:null,services:null,category:'all',query:'',game:'',platform:'',sort:'default'};
   const text=value=>String(value??'').trim();
   const code=value=>text(value).toUpperCase();
   const list=value=>Array.isArray(value)?value:[];
@@ -42,6 +42,9 @@
   }
 
   function price(service){
+    const fixed=Number(service?.priceFixed);
+    if(service?.priceMode==='FIXED' && Number.isFinite(fixed) && fixed>=0) return `¥${fixed}`;
+    if(service?.priceMode==='QUOTE') return '询价';
     const min=Number(service?.priceMin),max=Number(service?.priceMax);
     const hasMin=Number.isFinite(min)&&min>0,hasMax=Number.isFinite(max)&&max>0;
     if(hasMin&&hasMax&&max>min) return `¥${min}–${max}`;
@@ -53,11 +56,14 @@
 
   function safeImage(value){
     const url=text(value);
-    return url.startsWith('/')||url.startsWith('https://')?url:'';
+    return (url.startsWith('/')&&!url.startsWith('//'))||url.startsWith('https://')?url:'';
   }
 
   function serviceCard(service){
     const article=make('article','serviceCard');
+    article.dataset.game=code(service?.gameCode);
+    article.dataset.name=text(service?.name);
+    article.dataset.price=String(service?.priceMode==='FIXED'?Number(service?.priceFixed):Number(service?.priceMin)||Infinity);
     article.dataset.cat=code(service?.category).toLowerCase()||'uncategorized';
     article.dataset.game=code(service?.gameCode);
     article.dataset.serviceId=text(service?.id);
@@ -80,9 +86,9 @@
     body.append(make('div','price',price(service)));
 
     const actions=make('div','serviceBtns');
-    const detail=make('button','btn','详情');
-    detail.type='button';
-    detail.dataset.n2Detail='1';
+    const detail=make('a','btn','详情');
+    detail.href='/service/'+encodeURIComponent(text(service?.slug));
+    if(!text(service?.slug))detail.hidden=true;
     const quote=make('button','btn gold','询价');
     quote.type='button';
     quote.dataset.n2Quote='1';
@@ -94,9 +100,10 @@
 
   function renderServices(){
     const grid=$('.serviceGrid');
-    if(!grid||!Array.isArray(state.services)||!state.services.length) return;
+    if(!grid||!Array.isArray(state.services)) return;
+    if(!state.services.length){grid.replaceChildren(make('p','','当前暂无可展示的服务。'));renderCategories();return;}
     const fragment=document.createDocumentFragment();
-    state.services.forEach(service=>fragment.append(serviceCard(service)));
+    state.services.forEach((service,index)=>{const card=serviceCard(service);card.dataset.rank=String(index);fragment.append(card);});
     grid.replaceChildren(fragment);
     renderCategories();
     applyFilter();
@@ -126,13 +133,40 @@
     side.replaceChildren(fragment);
   }
 
-  function applyFilter(){
+  function applyFilter(updateUrl=true){
     const query=state.query.toLowerCase();
-    $$('.serviceGrid .serviceCard').forEach(card=>{
+    let visible=0;
+    const cards=$$('.serviceGrid .serviceCard');
+    cards.forEach(card=>{
       const categoryOk=state.category==='all'||card.dataset.cat===state.category;
       const queryOk=!query||card.textContent.toLowerCase().includes(query);
-      card.style.display=categoryOk&&queryOk?'block':'none';
+      const gameOk=!state.game||card.dataset.game===state.game;
+      const platformOk=!state.platform||list(state.catalog?.gamePlatforms).some(item=>code(item.gameCode)===card.dataset.game&&code(item.platformCode)===state.platform&&item.active!==false);
+      const show=categoryOk&&queryOk&&gameOk&&platformOk;card.hidden=!show;if(show)visible++;
     });
+    cards.sort((a,b)=>state.sort==='name'?a.dataset.name.localeCompare(b.dataset.name,'zh-CN'):state.sort==='price'?(Number(a.dataset.price)-Number(b.dataset.price)):(Number(a.dataset.rank)-Number(b.dataset.rank))).forEach(card=>$('.serviceGrid')?.append(card));
+    let summary=$('#hallResults');if(!summary){summary=make('p','','');summary.id='hallResults';summary.setAttribute('role','status');$('.serviceGrid')?.before(summary);}
+    summary.replaceChildren(document.createTextNode(`符合条件的服务 ${visible} 项 `));
+    if(!visible&&cards.length){const reset=make('button','btn','清除筛选');reset.type='button';reset.onclick=()=>{state.category='all';state.query='';state.game='';state.platform='';state.sort='default';syncFilters();applyFilter();};summary.append(reset);}
+    if(updateUrl&&location.pathname.endsWith('/services')){
+      const url=new URL(location.href);[['q',state.query],['game',state.game],['platform',state.platform],['category',state.category==='all'?'':state.category],['sort',state.sort==='default'?'':state.sort]].forEach(([key,value])=>{if(value)url.searchParams.set(key,value);else url.searchParams.delete(key);});history.replaceState(history.state,'',url);
+    }
+  }
+  function syncFilters(){
+    if($('#search'))$('#search').value=state.query;
+    if($('#hallGame'))$('#hallGame').value=state.game;
+    if($('#hallPlatform'))$('#hallPlatform').value=state.platform;
+    if($('#hallSort'))$('#hallSort').value=state.sort;
+    $$('.side .cat').forEach(node=>node.classList.toggle('active',node.dataset.cat===state.category));
+  }
+  function restoreFilters(){
+    const params=new URLSearchParams(location.search);state.query=params.get('q')||'';state.game=code(params.get('game'));state.platform=code(params.get('platform'));state.category=(params.get('category')||'all').toLowerCase();state.sort=['name','price'].includes(params.get('sort'))?params.get('sort'):'default';syncFilters();applyFilter(false);
+  }
+  function installHallFilters(){
+    for(const [id,rows] of [['hallGame',list(state.catalog?.games)],['hallPlatform',list(state.catalog?.platforms)]]){
+      const select=$('#'+id);if(!select)continue;select.replaceChildren(new Option(id==='hallGame'?'全部游戏':'全部游戏平台',''),...rows.map(row=>new Option(text(row.name)||row.code,code(row.code))));
+    }
+    restoreFilters();
   }
 
   function setOptions(select,rows,valueOf,labelOf,emptyLabel){
@@ -234,10 +268,6 @@
   $('.serviceGrid')?.addEventListener('click',event=>{
     const card=event.target.closest('.serviceCard');
     if(!card) return;
-    if(event.target.closest('[data-n2-detail]')){
-      say('服务详情路由将在下一阶段接入');
-      return;
-    }
     if(event.target.closest('[data-n2-quote]')){
       chooseService(card);
       if(typeof window.go==='function') window.go('quote');
@@ -245,27 +275,35 @@
     }
   });
 
+  $('#hallGame')?.addEventListener('change',event=>{state.game=event.target.value;applyFilter();});
+  $('#hallPlatform')?.addEventListener('change',event=>{state.platform=event.target.value;applyFilter();});
+  $('#hallSort')?.addEventListener('change',event=>{state.sort=event.target.value;applyFilter();});
+  window.addEventListener('popstate',restoreFilters);
   $('#qGame')?.addEventListener('change',populateCategories);
   $('#qCat')?.addEventListener('change',populateServices);
   $('#qSvc')?.addEventListener('change',syncSummary);
 
   async function load(){
+    const hadServices=Array.isArray(state.services);
+    ['qGame','qCat','qSvc'].forEach(id=>{const node=$('#'+id);if(node)node.disabled=true;});
     const [catalog,services]=await Promise.allSettled([getJson('/api/catalog'),getJson('/api/services')]);
-    if(catalog.status==='fulfilled') state.catalog=catalog.value;
-    if(services.status==='fulfilled'&&Array.isArray(services.value)) state.services=services.value;
-    if(state.services?.length) renderServices();
-    if(state.catalog) populateQuote();
-    if(state.catalog&&Array.isArray(state.services)){
-      status(`N2 已连接公开接口：${list(state.catalog.games).length} 个游戏 · ${list(state.catalog.categories).length} 个分类 · ${state.services.length} 个服务（只读）`,'ok');
-    }else if(state.catalog||Array.isArray(state.services)){
-      status('N2 部分公开接口暂不可用，已加载可用数据，其余继续使用静态回退。','warn');
-    }else{
-      status('N2 公开接口读取失败，当前继续使用静态回退内容，不影响旧前端。','warn');
+    const catalogOk=catalog.status==='fulfilled' && Array.isArray(catalog.value?.games);
+    const servicesOk=services.status==='fulfilled' && Array.isArray(services.value);
+    if(catalogOk)state.catalog=catalog.value;
+    if(servicesOk){state.services=services.value;renderServices();}
+    else if(!hadServices)$('.serviceGrid')?.replaceChildren(make('p','','服务目录暂时无法读取，请重试。'));
+    if(state.catalog){populateQuote();installHallFilters();}
+    const ready=!!state.catalog && Array.isArray(state.services) && state.services.length>0;
+    ['qGame','qCat','qSvc'].forEach(id=>{const node=$('#'+id);if(node)node.disabled=!ready;});
+    if(catalogOk && servicesOk)status(`服务目录已更新：${state.catalog.games.length} 个游戏 · ${state.services.length} 个服务`,'ok');
+    else {
+      status(hadServices?'服务刷新失败，保留上次真实数据；可重试。':'服务目录读取不完整，请重试；未使用演示服务或价格。','warn');
+      const retry=make('button','btn','重新读取');retry.type='button';retry.onclick=()=>{retry.disabled=true;load().catch(()=>{retry.disabled=false;});};$('#n2DataStatus')?.append(retry);
     }
-    const badge=$('.badge');
-    if(badge) badge.textContent='FRONTEND NEXT · N2 READ-ONLY';
+    const selected=new URLSearchParams(location.search).get('service');
+    if(selected){const card=[...document.querySelectorAll('.serviceCard')].find(card=>card.dataset.serviceSlug===selected);if(card)chooseService(card);}
   }
 
   window.XHFrontendNextN2={reload:load,state};
-  load().catch(()=>status('N2 公开接口读取失败，当前继续使用静态回退内容。','warn'));
+  load().catch(()=>status('服务目录读取失败，请刷新重试。','warn'));
 })();

@@ -35,12 +35,12 @@ class FrontendNextN2ContractTest {
     }
 
     @Test
-    void n2KeepsStaticServiceFallbackAndDemoQuoteBehavior() throws Exception {
+    void n2NeverUsesDemoProductsAsProductionFallback() throws Exception {
         String html = Files.readString(NEXT.resolve("index.html"));
         String js = Files.readString(NEXT.resolve("n2.js"));
-        assertTrue(html.contains("serviceCard"));
-        assertTrue(html.contains("演示模式：不会向生产环境发送请求"));
-        assertTrue(js.contains("静态回退"));
-        assertTrue(js.contains("FRONTEND NEXT · N2 READ-ONLY"));
+        assertTrue(html.contains("serviceGrid"));
+        assertFalse(html.contains("演示模式：不会向生产环境发送请求"));
+        assertTrue(js.contains("未使用演示服务或价格"));
+        assertTrue(js.contains("重新读取"));
     }
 }

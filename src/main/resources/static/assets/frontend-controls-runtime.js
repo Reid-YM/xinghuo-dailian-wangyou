@@ -57,7 +57,7 @@
   }
 
   function applyHome(control = {}) {
-    if (location.pathname !== '/') return;
+    if (location.pathname !== '/' && !document.querySelector('[data-frontend=next] .page[data-page=home]')) return;
     visible('#homeHero', bool(control.homeHeroVisible));
     text('#homeHero .hero-kicker', control.homeHeroKicker);
     visible('#homeHero .hero-promise', bool(control.homeHeroPromisesVisible));
@@ -103,6 +103,7 @@
       const control = await response.json();
       const apply = () => { applyTheme(control || {}); applyHome(control || {}); };
       apply();
+      window.addEventListener('xh:pagechange', apply);
       [120, 600, 1500].forEach(delay => setTimeout(apply, delay));
     } catch (_) {
       // 配置层异常时保留模板默认值，不阻断任何业务页面。

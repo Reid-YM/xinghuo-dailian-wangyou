@@ -184,6 +184,11 @@
     if(submitting) return;
     const button=$('#submit');
     if(!button) return;
+    const shell=window.XHFrontendShell;
+    if(shell){await shell.configurationReady;if(!shell.configuration){message('站点配置尚未读取，请先重试读取配置。','error');return;}if(shell.configuration.quoteEnabled===false){message('当前暂停在线询价，请联系客服核对。','error');return;}}
+    const catalog=window.XHFrontendNextN2?.state;
+    if(catalog && (!catalog.catalog || !Array.isArray(catalog.services) || !catalog.services.length)){message('请先读取有效的游戏与服务目录。','error');return;}
+    if(submitting)return;
     const body=payload();
     const problem=validate(body);
     if(problem){

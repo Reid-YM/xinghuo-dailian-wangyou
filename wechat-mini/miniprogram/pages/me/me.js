@@ -19,6 +19,8 @@ Page({
     kfReady: kf.available(),
     kfButtonText: (business.KF && business.KF.buttonText) || '一对一咨询',
     version: business.VERSION,
+    icp: business.ICP,
+    hasIcp: !!business.ICP,
     sessionFrom: '',
 
     cloud: {

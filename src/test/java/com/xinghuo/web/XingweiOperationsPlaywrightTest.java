@@ -49,6 +49,7 @@ class XingweiOperationsPlaywrightTest {
             page.locator("#operationsSave").click();page.waitForFunction("()=>document.querySelector('#operationsFormMessage').textContent.includes('记录已变化')");
             assertEquals("保留当前输入",page.locator("#operations-displayName").inputValue());
             assertEquals(true,page.evaluate("()=>document.querySelector('#operationsDialog').open"));
+            assertEquals("保留当前输入",page.evaluate("()=>JSON.parse(window.calls.find(c=>c.method==='PATCH').body).displayName"));
             assertEquals("test-csrf",page.evaluate("()=>window.calls.find(c=>c.method==='PATCH').headers['x-csrf-token']"));
             assertEquals("\"r1\"",page.evaluate("()=>window.calls.find(c=>c.method==='PATCH').headers['if-match']"));
             page.evaluate("()=>window.conflict=false");page.locator("#operationsSave").click();page.waitForFunction("()=>!document.querySelector('#operationsDialog').open");

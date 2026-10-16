@@ -16,7 +16,7 @@
 </head>
 <body class="admin-solid-ui" th:attr="data-xingwei-mode=${xingweiMode == true}">
 <header class="guide-admin-top">
-  <div class="container guide-admin-topbar"><a class="btn ghost" href="/admin" th:href="${xingweiMode == true} ? '/admin/xingwei' : '/admin'">← 返回运营后台</a><div><span class="eyebrow">内容运营</span><strong>多游戏攻略中心</strong></div><div class="row-actions"><a class="btn ghost" href="/guides" target="_blank" rel="noopener">查看前台</a><button class="btn primary" id="newGuide" type="button">新建攻略</button></div></div>
+  <div class="container guide-admin-topbar"><a class="btn ghost" href="/admin" th:href="${xingweiMode == true} ? '/admin/xingwei' : '/admin?legacy=1'">← 返回运营后台</a><div><span class="eyebrow">内容运营</span><strong>多游戏攻略中心</strong></div><div class="row-actions"><a class="btn ghost" href="/guides" target="_blank" rel="noopener">查看前台</a><button class="btn primary" id="newGuide" type="button">新建攻略</button></div></div>
 </header>
 <main class="container guide-admin-shell">
   <section class="card guide-admin-toolbar">

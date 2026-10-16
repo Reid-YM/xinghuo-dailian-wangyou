@@ -22,7 +22,7 @@
       <span class="xw-status" id="xcatStatus"><i></i><span>正在读取</span></span>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/taxonomy">游戏/分类启停</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
-      <a class="xw-button xw-button-ghost" href="/admin">旧后台完整编辑</a>
+      <a class="xw-button xw-button-ghost" href="/admin?legacy=1" th:if="${restoreAdmin == true}">恢复入口（ADMIN）</a>
     </div>
   </header>
 

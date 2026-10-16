@@ -35,7 +35,8 @@ public class XingweiIntegrationsController {
         }
         if (permissions.has(authentication, "payment:view")) {
             model.addAttribute("payment", config.payment());
-            model.addAttribute("paymentOverview", paymentOverview.overview());
+            var scope=permissions.resolve(authentication);
+            if(scope.allowAll()||"ALL".equals(scope.dataScope()))model.addAttribute("paymentOverview", paymentOverview.overview());
         }
         return "admin-xingwei-integrations";
     }

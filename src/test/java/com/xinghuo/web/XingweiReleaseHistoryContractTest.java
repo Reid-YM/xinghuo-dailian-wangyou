@@ -109,7 +109,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(attention.contains("V4M · STABLE PRODUCTION"));
         assertTrue(attention.contains("admin-xingwei-after-sales-attention.js?v=20261016v4m"));
         assertTrue(attention.contains("等待时长"));
-        assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261016ops1"));
+        assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261016default1"));
         assertTrue(dashboard.contains("V3H 待真机验收"));
         assertTrue(dashboard.contains("V3I 已上线"));
         assertTrue(dashboard.contains("impactToken"));
@@ -130,7 +130,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(dashboard.contains("<strong>V3L</strong>"));
         assertTrue(dashboard.contains("已上线：Frontend Next A1–A4"));
         assertTrue(dashboard.contains("V4M 已上线 →"));
-        assertTrue(dashboard.contains("/admin/xingwei/integrations"));
+        assertTrue(dashboard.contains("/admin/xingwei/payments"));
         assertFalse(dashboard.contains("<article class=\"xw-module xw-module-planned\" data-search=\"微信支付"));
         assertFalse(dashboard.contains("<article class=\"xw-module xw-module-planned\" data-search=\"发布 部署"));
     }

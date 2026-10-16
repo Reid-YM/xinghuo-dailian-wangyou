@@ -78,7 +78,10 @@ public class GuidePageController {
     }
 
     @GetMapping("/admin/guides")
-    String admin(Model model, CsrfToken csrf, Authentication auth) {
+    String admin(Model model, CsrfToken csrf, Authentication auth,@RequestParam(defaultValue="0") String legacy,jakarta.servlet.http.HttpServletResponse response) {
+        response.setHeader("Cache-Control","no-store");
+        if(!"1".equals(legacy))return "redirect:/admin/xingwei/guides";
+        if(auth==null||auth.getAuthorities().stream().noneMatch(authority->"ROLE_ADMIN".equals(authority.getAuthority())))throw new org.springframework.security.access.AccessDeniedException("恢复入口仅限原 ADMIN 管理员");
         model.addAttribute("csrf", csrf);
         model.addAttribute("username", auth == null ? "admin" : auth.getName());
         return "admin-guides";

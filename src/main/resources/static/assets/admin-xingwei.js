@@ -165,7 +165,7 @@
         badge.classList.remove('error');
         badge.title = access.mode === 'SHADOW_RBAC'
           ? `角色：${(access.roleCodes || []).join('、') || '无'}；权限点：${(access.permissionCodes || []).length}；数据范围：${scopeLabel(access)}`
-          : '旧后台仍沿用原 ADMIN / OPERATOR 安全边界。';
+          : '旧后台恢复与历史接口仅限原 ADMIN，员工通过新版权限和数据范围工作台操作。';
       }
       filterModules();
       applyActionPermissions(document);

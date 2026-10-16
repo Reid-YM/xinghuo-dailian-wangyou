@@ -199,3 +199,5 @@
 .xw-guide-native .guide-section-editor { display:grid; gap:10px; }
 .xw-guide-native .guide-section-editor-head { margin-bottom:0; flex-wrap:wrap; }
 .xwg-top .xw-button:disabled { opacity:.5; cursor:not-allowed; }
+
+.xw-guide-native .guide-faq-editor{display:grid;gap:10px;border:1px solid #43516a;padding:14px;border-radius:8px;margin:12px 0}.xw-guide-native .guide-faq-editor button{justify-self:start}.xw-guide-native #guideRelatedIds{min-height:140px}

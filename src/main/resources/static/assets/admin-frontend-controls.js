@@ -4,6 +4,8 @@
   let writable = !xingweiMode;
   let loaded = !xingweiMode;
   const revisions = new Map();
+  const busyForms = new WeakSet();
+  const dirtyForms = new Set();
   const csrf = document.querySelector('meta[name="_csrf"]')?.content;
   const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -33,7 +35,7 @@
     icon.href = ADMIN_BRAND_FAVICON;
   }
 
-  ensureBrandLayoutFixes();
+  if (!xingweiMode) ensureBrandLayoutFixes();
   ensureAdminBrandFavicon();
 
   async function api(url, options = {}) {
@@ -71,6 +73,8 @@
   }
 
   function setBusy(form, busy) {
+    if (!form) return;
+    if (busy) busyForms.add(form); else busyForms.delete(form);
     form?.classList.toggle('fc-loading', busy);
     $$('button,input,select,textarea', form).forEach(node => { node.disabled = busy || (xingweiMode && (!writable || !loaded)); });
   }
@@ -110,6 +114,8 @@
 
   async function load() {
     const globalForm = $('#globalUiForm');
+    if (busyForms.has(globalForm) || busyForms.has($('#frontendControlsForm'))) return;
+    if ($('#frontendControlReload')) $('#frontendControlReload').disabled = true;
     const frontendForm = $('#frontendControlsForm');
     setBusy(globalForm, true);
     setBusy(frontendForm, true);
@@ -122,23 +128,26 @@
       fillForm(globalForm, globalSettings || {});
       fillForm(frontendForm, frontendSettings || {});
       loaded = true;
+      dirtyForms.clear();
       $('#globalUiState').textContent = writable ? '已读取后台当前配置' : '当前账号只读';
       $('#frontendControlState').textContent = writable ? '已读取后台当前配置' : '当前账号只读';
       syncThemePreview();
     } catch (error) {
       if (xingweiMode) writable = false;
-      $('#globalUiState').textContent = '读取失败';
-      $('#frontendControlState').textContent = '读取失败';
+      $('#globalUiState').textContent = '读取失败，可重新读取；当前输入已保留';
+      $('#frontendControlState').textContent = '读取失败，可重新读取；当前输入已保留';
       toast(error.message, 'error');
     } finally {
       setBusy(globalForm, false);
       setBusy(frontendForm, false);
+      if ($('#frontendControlReload')) $('#frontendControlReload').disabled = false;
     }
   }
 
   async function saveGlobal(event) {
     event.preventDefault();
     const form = event.currentTarget;
+    if (busyForms.has(form) || (xingweiMode && (!loaded || !writable))) return;
     setBusy(form, true);
     $('#globalUiState').textContent = '正在保存…';
     try {
@@ -148,6 +157,7 @@
       });
       fillForm(form, values || {});
       $('#globalUiState').textContent = '保存成功，前台刷新后生效';
+      dirtyForms.delete(form);
       toast('导航与备案已保存');
     } catch (error) {
       $('#globalUiState').textContent = '保存失败';
@@ -158,6 +168,7 @@
   async function saveFrontend(event) {
     event.preventDefault();
     const form = event.currentTarget;
+    if (busyForms.has(form) || (xingweiMode && (!loaded || !writable))) return;
     setBusy(form, true);
     $('#frontendControlState').textContent = '正在保存…';
     try {
@@ -168,6 +179,7 @@
       fillForm(form, values || {});
       syncThemePreview();
       $('#frontendControlState').textContent = '保存成功，前台刷新后生效';
+      dirtyForms.delete(form);
       toast('首页与主题配置已保存');
     } catch (error) {
       $('#frontendControlState').textContent = '保存失败';
@@ -175,6 +187,9 @@
     } finally { setBusy(form, false); }
   }
 
+  for (const form of [$('#globalUiForm'), $('#frontendControlsForm')]) form?.addEventListener('input', () => dirtyForms.add(form));
+  if (xingweiMode) window.addEventListener('beforeunload', event => {if(dirtyForms.size){event.preventDefault();event.returnValue='';}});
+  $('#frontendControlReload')?.addEventListener('click', () => {if (dirtyForms.size && !confirm('重新读取会放弃尚未保存的配置，是否继续？')) return;load();});
   $('#globalUiForm')?.addEventListener('submit', saveGlobal);
   $('#frontendControlsForm')?.addEventListener('submit', saveFrontend);
   $('#frontendControlsForm')?.addEventListener('input', event => {

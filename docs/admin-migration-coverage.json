@@ -1,0 +1,755 @@
+{
+  "legacyControllers": [
+    "AdminApiController",
+    "AccountAdminApiController",
+    "AdminGuideController",
+    "AdminLeadController",
+    "AdminTrackingController",
+    "FrontendControlApiController",
+    "GlobalUiSettingsController",
+    "WeChatPaymentController"
+  ],
+  "routes": [
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/dashboard",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/statistics"
+      ],
+      "workspace": "/admin/xingwei/statistics",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/site-config",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/site/{area}"
+      ],
+      "workspace": "/admin/xingwei/site",
+      "migration": "area=site；旧图片清空对应 visual 分区中清空对应图片字段。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PUT /api/admin/game-status/{gameCode}",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/site/{area}/{section}"
+      ],
+      "workspace": "/admin/xingwei/site",
+      "migration": "area=games，section 为游戏编号。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PATCH /api/admin/orders/{orderNo}/public-case",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/maintenance/orders/{key}/case"
+      ],
+      "workspace": "/admin/xingwei/maintenance",
+      "migration": "明确客户授权、脱敏摘要及当前版本。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PATCH /api/admin/site-config/section/{section}",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/site/{area}/{section}"
+      ],
+      "workspace": "/admin/xingwei/site",
+      "migration": "area=site；旧图片清空对应 visual 分区中清空对应图片字段。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PATCH /api/admin/site-config",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/site/{area}"
+      ],
+      "workspace": "/admin/xingwei/site",
+      "migration": "area=site；旧图片清空对应 visual 分区中清空对应图片字段。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/site-config/image/{slot}",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/site/images/{field}"
+      ],
+      "workspace": "/admin/xingwei/site",
+      "migration": "旧 slot 对应新版图片 field，上传后保存引用。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "DELETE /api/admin/site-config/image/{slot}",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/site/{area}"
+      ],
+      "workspace": "/admin/xingwei/site",
+      "migration": "area=site；旧图片清空对应 visual 分区中清空对应图片字段。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/services/cover-image",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/catalog-details/images/{kind}"
+      ],
+      "workspace": "/admin/xingwei/catalog",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/tool-station/image",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/tool-station/image"
+      ],
+      "workspace": "/admin/xingwei/tool-station",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/catalog",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/catalog-details"
+      ],
+      "workspace": "/admin/xingwei/catalog-details",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/catalog/games",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/catalog/taxonomy/games"
+      ],
+      "workspace": "/admin/xingwei/taxonomy",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/catalog/categories",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/catalog/taxonomy/categories"
+      ],
+      "workspace": "/admin/xingwei/taxonomy",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PUT /api/admin/catalog/games/{code}",
+      "nativeRoutes": [
+        "PUT /api/admin/xingwei/catalog/taxonomy/games/{code}/profile",
+        "PUT /api/admin/xingwei/catalog/taxonomy/games/{code}/active"
+      ],
+      "workspace": "/admin/xingwei/taxonomy",
+      "migration": "资料编辑与启停分离；启停前读取公开影响并明确确认。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PUT /api/admin/catalog/games/{code}/profile",
+      "nativeRoutes": [
+        "PUT /api/admin/xingwei/catalog-details/games/{code}"
+      ],
+      "workspace": "/admin/xingwei/catalog-details",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PATCH /api/admin/catalog/games/bulk",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/catalog-details/games/bulk"
+      ],
+      "workspace": "/admin/xingwei/catalog-details",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/catalog/games/image/{kind}",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/catalog-details/images/{kind}"
+      ],
+      "workspace": "/admin/xingwei/catalog-details",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "DELETE /api/admin/catalog/games/{code}",
+      "nativeRoutes": [
+        "DELETE /api/admin/xingwei/catalog-details/{kind}/{key}"
+      ],
+      "workspace": "/admin/xingwei/catalog-details",
+      "migration": "kind=games/categories，必须无依赖并确认编号与版本。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PUT /api/admin/catalog/categories/{id}",
+      "nativeRoutes": [
+        "PUT /api/admin/xingwei/catalog/taxonomy/categories/{id}/profile",
+        "PUT /api/admin/xingwei/catalog/taxonomy/categories/{id}/active"
+      ],
+      "workspace": "/admin/xingwei/taxonomy",
+      "migration": "资料编辑与启停分离；启停前读取公开影响并明确确认。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "DELETE /api/admin/catalog/categories/{id}",
+      "nativeRoutes": [
+        "DELETE /api/admin/xingwei/catalog-details/{kind}/{key}"
+      ],
+      "workspace": "/admin/xingwei/catalog-details",
+      "migration": "kind=games/categories，必须无依赖并确认编号与版本。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/services",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/catalog/snapshot"
+      ],
+      "workspace": "/admin/xingwei/catalog",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/services",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/catalog/services"
+      ],
+      "workspace": "/admin/xingwei/catalog",
+      "migration": "新建默认下线；发布检查和确认通过后上架，不能绕过检查。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PUT /api/admin/services/{id}",
+      "nativeRoutes": [
+        "PUT /api/admin/xingwei/catalog/services/{id}"
+      ],
+      "workspace": "/admin/xingwei/catalog",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "DELETE /api/admin/services/{id}",
+      "nativeRoutes": [
+        "DELETE /api/admin/xingwei/catalog/services/{id}"
+      ],
+      "workspace": "/admin/xingwei/catalog",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/tool-station",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/tool-station"
+      ],
+      "workspace": "/admin/xingwei/tool-station",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PUT /api/admin/tool-station",
+      "nativeRoutes": [
+        "PUT /api/admin/xingwei/tool-station"
+      ],
+      "workspace": "/admin/xingwei/tool-station",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/tool-station/reset",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/tool-station/reset"
+      ],
+      "workspace": "/admin/xingwei/tool-station",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/services/{id}/restore",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/catalog/services/{id}/restore"
+      ],
+      "workspace": "/admin/xingwei/catalog",
+      "migration": "新建默认下线；发布检查和确认通过后上架，不能绕过检查。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/quotes",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/business/quotes"
+      ],
+      "workspace": "/admin/xingwei/business?tab=quotes",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PATCH /api/admin/quotes/{id}/status",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/business/quotes/{no}/status"
+      ],
+      "workspace": "/admin/xingwei/business?tab=quotes",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "DELETE /api/admin/quotes/{id}",
+      "nativeRoutes": [
+        "DELETE /api/admin/xingwei/maintenance/{type}/{key}"
+      ],
+      "workspace": "/admin/xingwei/maintenance",
+      "migration": "type=quotes/orders；按业务编号定位，版本与依赖检查、管理员确认。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/quotes/{id}/convert",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/business/quotes/{no}/convert"
+      ],
+      "workspace": "/admin/xingwei/business?tab=quotes",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/quotes/{id}/image",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/business/quotes/{no}/image"
+      ],
+      "workspace": "/admin/xingwei/business?tab=quotes",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/orders",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/business/orders"
+      ],
+      "workspace": "/admin/xingwei/business?tab=orders",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/orders",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/business/orders"
+      ],
+      "workspace": "/admin/xingwei/business?tab=orders",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PATCH /api/admin/orders/{orderNo}",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/business/orders/{no}"
+      ],
+      "workspace": "/admin/xingwei/business?tab=orders",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/orders/{orderNo}/image",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/business/orders/{no}/image"
+      ],
+      "workspace": "/admin/xingwei/business?tab=orders",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "DELETE /api/admin/orders/{orderNo}",
+      "nativeRoutes": [
+        "DELETE /api/admin/xingwei/maintenance/{type}/{key}"
+      ],
+      "workspace": "/admin/xingwei/maintenance",
+      "migration": "type=quotes/orders；按业务编号定位，版本与依赖检查、管理员确认。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/slots",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/operations/display"
+      ],
+      "workspace": "/admin/xingwei/operations?module=display",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PATCH /api/admin/slots",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/operations/display"
+      ],
+      "workspace": "/admin/xingwei/operations?module=display",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/audits",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/audits"
+      ],
+      "workspace": "/admin/xingwei/audits",
+      "migration": "员工操作按数据范围查询，原始敏感内容不直接输出。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/test-feedback",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/operations/feedback"
+      ],
+      "workspace": "/admin/xingwei/operations?module=feedback",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/test-feedback",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/operations/feedback"
+      ],
+      "workspace": "/admin/xingwei/operations?module=feedback",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "PUT /api/admin/test-feedback/{id}",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/operations/feedback/{id}"
+      ],
+      "workspace": "/admin/xingwei/operations?module=feedback",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "POST /api/admin/test-feedback/{id}/attachment",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/operations/feedback/{id}/attachment"
+      ],
+      "workspace": "/admin/xingwei/operations?module=feedback",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminApiController",
+      "legacyRoute": "GET /api/admin/test-feedback/{id}/attachment",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/operations/feedback/{id}/attachment"
+      ],
+      "workspace": "/admin/xingwei/operations?module=feedback",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "GET /api/admin/account/users",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/operations/members"
+      ],
+      "workspace": "/admin/xingwei/operations?module=members",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "POST /api/admin/account/users",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/operations/members"
+      ],
+      "workspace": "/admin/xingwei/operations?module=members",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "POST /api/admin/account/users/{id}",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/operations/members/{id}"
+      ],
+      "workspace": "/admin/xingwei/operations?module=members",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "POST /api/admin/account/users/{id}/disable",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/operations/members/{id}"
+      ],
+      "workspace": "/admin/xingwei/operations?module=members",
+      "migration": "会员编辑状态设为 DISABLED；撤销旧会话。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "DELETE /api/admin/account/users/{id}",
+      "nativeRoutes": [
+        "DELETE /api/admin/xingwei/operations/members/{id}"
+      ],
+      "workspace": "/admin/xingwei/operations?module=members",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "POST /api/admin/account/users/{id}/email-verified",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/operations/members/{id}/verified"
+      ],
+      "workspace": "/admin/xingwei/operations?module=members",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "POST /api/admin/account/users/{id}/reset-password",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/operations/members/{id}/password"
+      ],
+      "workspace": "/admin/xingwei/operations?module=members",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "GET /api/admin/account/users/{id}/login-logs",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/operations/members/{id}/logs"
+      ],
+      "workspace": "/admin/xingwei/operations?module=members",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "GET /api/admin/account/operation-logs",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/audits/member-activity"
+      ],
+      "workspace": "/admin/xingwei/audits?source=members",
+      "migration": "会员公开编号、操作类型、脱敏网络及时间；全站审计权限及全部数据范围；不输出原始敏感日志。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "GET /api/admin/account/comments",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/operations/comments"
+      ],
+      "workspace": "/admin/xingwei/operations?module=comments",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "POST /api/admin/account/comments/{id}/review",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/operations/comments/{id}/review"
+      ],
+      "workspace": "/admin/xingwei/operations?module=comments",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "DELETE /api/admin/account/comments/{id}",
+      "nativeRoutes": [
+        "DELETE /api/admin/xingwei/operations/comments/{id}"
+      ],
+      "workspace": "/admin/xingwei/operations?module=comments",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "GET /api/admin/account/submissions",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/operations/submissions"
+      ],
+      "workspace": "/admin/xingwei/operations?module=submissions",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "GET /api/admin/account/submissions/{id}",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/operations/submissions/{id}"
+      ],
+      "workspace": "/admin/xingwei/operations?module=submissions",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "POST /api/admin/account/submissions/{id}/review",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/operations/submissions/{id}/review"
+      ],
+      "workspace": "/admin/xingwei/operations?module=submissions",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AccountAdminApiController",
+      "legacyRoute": "POST /api/admin/account/submissions/{id}/publish",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/operations/submissions/{id}/publish"
+      ],
+      "workspace": "/admin/xingwei/operations?module=submissions",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminGuideController",
+      "legacyRoute": "GET /api/admin/guides",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/guides"
+      ],
+      "workspace": "/admin/xingwei/guides",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminGuideController",
+      "legacyRoute": "GET /api/admin/guides/{id}",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/guides/{id}"
+      ],
+      "workspace": "/admin/xingwei/guides",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminGuideController",
+      "legacyRoute": "POST /api/admin/guides",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/guides"
+      ],
+      "workspace": "/admin/xingwei/guides",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminGuideController",
+      "legacyRoute": "PUT /api/admin/guides/{id}",
+      "nativeRoutes": [
+        "PUT /api/admin/xingwei/guides/{id}"
+      ],
+      "workspace": "/admin/xingwei/guides",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminGuideController",
+      "legacyRoute": "PATCH /api/admin/guides/{id}/status",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/guides/{id}/status"
+      ],
+      "workspace": "/admin/xingwei/guides",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminGuideController",
+      "legacyRoute": "DELETE /api/admin/guides/{id}",
+      "nativeRoutes": [
+        "DELETE /api/admin/xingwei/guides/{id}"
+      ],
+      "workspace": "/admin/xingwei/guides",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminGuideController",
+      "legacyRoute": "DELETE /api/admin/guides/batch",
+      "nativeRoutes": [
+        "DELETE /api/admin/xingwei/guides/batch"
+      ],
+      "workspace": "/admin/xingwei/guides",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminGuideController",
+      "legacyRoute": "POST /api/admin/guides/archive-all",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/guides/archive-all"
+      ],
+      "workspace": "/admin/xingwei/guides",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminGuideController",
+      "legacyRoute": "POST /api/admin/guides/import-games",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/guides/import-games"
+      ],
+      "workspace": "/admin/xingwei/guides",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "AdminLeadController",
+      "legacyRoute": "GET /api/admin/leads",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/operations/leads"
+      ],
+      "workspace": "/admin/xingwei/operations?module=crm",
+      "migration": "按业务编号定位；保留关键词、状态、意向、来源筛选与业务数据范围。"
+    },
+    {
+      "legacyController": "AdminLeadController",
+      "legacyRoute": "PATCH /api/admin/leads/{id}/crm",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/operations/leads/{no}"
+      ],
+      "workspace": "/admin/xingwei/operations?module=crm",
+      "migration": "按业务编号定位；保留关键词、状态、意向、来源筛选与业务数据范围。"
+    },
+    {
+      "legacyController": "AdminLeadController",
+      "legacyRoute": "POST /api/admin/leads/{id}/ai-suggestion",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/operations/leads/{no}/suggestion"
+      ],
+      "workspace": "/admin/xingwei/operations?module=crm",
+      "migration": "按业务编号定位；保留关键词、状态、意向、来源筛选与业务数据范围。"
+    },
+    {
+      "legacyController": "AdminTrackingController",
+      "legacyRoute": "GET /api/admin/tracking/summary",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/statistics"
+      ],
+      "workspace": "/admin/xingwei/statistics",
+      "migration": "沿用权限、版本校验和审计；在新版工作台完成操作。"
+    },
+    {
+      "legacyController": "FrontendControlApiController",
+      "legacyRoute": "GET /api/admin/frontend-controls",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/site/{area}"
+      ],
+      "workspace": "/admin/xingwei/frontend-controls",
+      "migration": "area 为 frontend 或 global-ui；同一配置源，独立新版外壳。"
+    },
+    {
+      "legacyController": "FrontendControlApiController",
+      "legacyRoute": "PATCH /api/admin/frontend-controls",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/site/{area}"
+      ],
+      "workspace": "/admin/xingwei/frontend-controls",
+      "migration": "area 为 frontend 或 global-ui；同一配置源，独立新版外壳。"
+    },
+    {
+      "legacyController": "GlobalUiSettingsController",
+      "legacyRoute": "GET /api/admin/global-ui-settings",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/site/{area}"
+      ],
+      "workspace": "/admin/xingwei/frontend-controls",
+      "migration": "area 为 frontend 或 global-ui；同一配置源，独立新版外壳。"
+    },
+    {
+      "legacyController": "GlobalUiSettingsController",
+      "legacyRoute": "PATCH /api/admin/global-ui-settings",
+      "nativeRoutes": [
+        "PATCH /api/admin/xingwei/site/{area}"
+      ],
+      "workspace": "/admin/xingwei/frontend-controls",
+      "migration": "area 为 frontend 或 global-ui；同一配置源，独立新版外壳。"
+    },
+    {
+      "legacyController": "WeChatPaymentController",
+      "legacyRoute": "POST /api/admin/orders/{orderNo}/wechat-payment",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/payments/orders/{no}"
+      ],
+      "workspace": "/admin/xingwei/payments",
+      "migration": "新版支付工作台按订单定位并按业务编号查询支付记录；真实收款仍受服务端开关、权限、金额确认及版本约束。"
+    },
+    {
+      "legacyController": "WeChatPaymentController",
+      "legacyRoute": "GET /api/admin/orders/{orderNo}/wechat-payment",
+      "nativeRoutes": [
+        "GET /api/admin/xingwei/payments/orders/{no}",
+        "GET /api/admin/xingwei/payments"
+      ],
+      "workspace": "/admin/xingwei/payments",
+      "migration": "新版支付工作台按订单定位并按业务编号查询支付记录；真实收款仍受服务端开关、权限、金额确认及版本约束。"
+    },
+    {
+      "legacyController": "WeChatPaymentController",
+      "legacyRoute": "POST /api/admin/wechat-payments/{paymentNo}/close",
+      "nativeRoutes": [
+        "POST /api/admin/xingwei/payments/{no}/close"
+      ],
+      "workspace": "/admin/xingwei/payments",
+      "migration": "新版支付工作台按订单定位并按业务编号查询支付记录；真实收款仍受服务端开关、权限、金额确认及版本约束。"
+    }
+  ]
+}

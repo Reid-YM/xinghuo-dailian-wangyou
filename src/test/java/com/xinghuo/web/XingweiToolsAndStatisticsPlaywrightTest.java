@@ -17,7 +17,7 @@ class XingweiToolsAndStatisticsPlaywrightTest {
     private String renderedTools(){var resolver=new ClassLoaderTemplateResolver();resolver.setPrefix("templates/");resolver.setSuffix(".html");var engine=new SpringTemplateEngine();engine.setTemplateResolver(resolver);var context=new Context();context.setVariables(Map.of("xingweiToolMode",true,"csrf",new DefaultCsrfToken("X-CSRF-TOKEN","_csrf","test-csrf")));return engine.process("admin-xingwei-tool-station",context);}
     private Browser chromium(Playwright playwright){var options=new BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return playwright.chromium().launch(options);}
     private Page setup(Browser browser,boolean manage)throws Exception{
-        String tools=renderedTools(),statistics=Files.readString(Path.of("src/main/resources/templates/admin-xingwei-statistics.html"));
+        String tools=renderedTools();assertFalse(tools.contains("/assets/app.css"));assertFalse(tools.contains("admin-brand-layout-fixes"));String statistics=Files.readString(Path.of("src/main/resources/templates/admin-xingwei-statistics.html"));
         Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(390,844));page.route("**/*",r->{String path=java.net.URI.create(r.request().url()).getPath();if(path.startsWith("/assets/"))r.fulfill(new Route.FulfillOptions().setPath(Path.of("src/main/resources/static"+path)));else r.fulfill(new Route.FulfillOptions().setContentType("text/html").setBody(path.endsWith("/statistics")?statistics:tools));});
         page.addInitScript("""
             window.calls=[];window.canManage=CAN_MANAGE;window.conflict=false;window.version=1;
@@ -38,6 +38,7 @@ class XingweiToolsAndStatisticsPlaywrightTest {
             assertEquals("第二次更新",page.evaluate("()=>window.toolData.games[0].weapons[0].name"));assertEquals("\"r2\"",page.evaluate("()=>window.calls.filter(c=>c.method==='PUT')[1].headers['If-Match']"));assertEquals("test-csrf",page.evaluate("()=>window.calls.find(c=>c.method==='PUT').headers['X-CSRF-TOKEN']"));
             page.evaluate("()=>window.conflict=true");page.locator("#toolStationForm input[name=name]").fill("保留当前草稿");page.locator("#toolStationSaveAll").click();page.waitForFunction("()=>document.querySelector('#toastArea').textContent.includes('资料已变化')");assertEquals("保留当前草稿",page.locator("#toolStationForm input[name=name]").inputValue());assertEquals("第二次更新",page.evaluate("()=>window.toolData.games[0].weapons[0].name"));
             assertEquals(true,page.evaluate("()=>window.calls.every(c=>c.url.startsWith('/api/admin/xingwei/'))"));assertEquals(0,page.locator("script[data-admin-global-ui],script[data-admin-resilience]").count());assertEquals(true,page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth"));
+            page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/native-tools-mobile.png")));page.setViewportSize(1440,900);assertEquals(true,page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth"));page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/native-tools-desktop.png")));
         }
     }
     @Test void webkitReadOnlyToolingAndNativeTrafficStatisticsRemainUsableOnPhone()throws Exception{

@@ -16,16 +16,17 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.thymeleaf.templateresolver.StringTemplateResolver;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 @EnabledIfEnvironmentVariable(named="PLAYWRIGHT_UI_TESTS",matches="1")
 class XingweiSiteControlPlaywrightTest {
+    private Browser chromium(Playwright p){var options=new BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return p.chromium().launch(options);}
     private static final Path ASSETS=Path.of("src/main/resources/static/assets");
     private String render(String name,boolean mode)throws Exception{
-        var engine=new SpringTemplateEngine();engine.setTemplateResolver(new StringTemplateResolver());
+        var resolver=new ClassLoaderTemplateResolver();resolver.setPrefix("templates/");resolver.setSuffix(".html");var engine=new SpringTemplateEngine();engine.setTemplateResolver(resolver);
         var context=new Context(Locale.SIMPLIFIED_CHINESE);context.setVariable("xingweiMode",mode);context.setVariable("username","test");
         var csrf=new DefaultCsrfToken("X-CSRF-TOKEN","_csrf","test-csrf");context.setVariable("csrf",csrf);context.setVariable("_csrf",csrf);
-        return engine.process(Files.readString(Path.of("src/main/resources/templates/"+name)),context).replaceAll("<script[^>]*></script>","");
+        return engine.process(name.replace(".html",""),context).replaceAll("<script[^>]*></script>","");
     }
     private void setupSite(Page page,String section)throws Exception{
         String html=render("admin-xingwei-site.html",true);
@@ -33,7 +34,7 @@ class XingweiSiteControlPlaywrightTest {
         page.navigate("https://example.test/admin/xingwei/site?section="+section);
         for(String css:List.of("admin-xingwei.css","admin-xingwei-channels.css","admin-xingwei-site.css"))page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve(css)));
         page.evaluate("""
-          () => {window.calls=[];window.conflict=false;window.siteValues={brandName:'星火',legalEntityName:'星维网络',quoteEnabled:true,orderQueryEnabled:true,heroImage:'',heroImageHeight:220,heroImageFit:'cover',heroImagePositionX:50,heroImagePositionY:50,heroBackgroundImage:'',heroBackgroundOpacity:40,heroBackgroundFit:'cover',heroBackgroundPositionX:50,heroBackgroundPositionY:50,heroBackgroundBlur:0,serviceCoverHeight:180,serviceCoverFit:'cover',serviceCoverPositionX:50,serviceCoverPositionY:50};
+          () => {window.calls=[];window.conflict=false;window.siteValues={brandName:'星火',legalEntityName:'星维网络',serviceStatus:'OPEN',statusShortText:'可接服务',primaryButtonLabel:'咨询服务',quoteEnabled:true,orderQueryEnabled:true,heroImage:'',heroImageHeight:220,heroImageFit:'cover',heroImagePositionX:50,heroImagePositionY:50,heroBackgroundImage:'',heroBackgroundOpacity:40,heroBackgroundFit:'cover',heroBackgroundPositionX:50,heroBackgroundPositionY:50,heroBackgroundBlur:0,serviceCoverHeight:180,serviceCoverFit:'cover',serviceCoverPositionX:50,serviceCoverPositionY:50};
             window.fetch=async(url,options={})=>{window.calls.push({url,method:options.method,body:options.body,headers:options.headers});
               if(url.endsWith('/access'))return new Response(JSON.stringify({canManageSite:true,canManageSeo:true,canViewSite:true}));
               if(url.includes('/images/'))return new Response(JSON.stringify({url:'/api/site-assets/test-image'}));
@@ -50,7 +51,7 @@ class XingweiSiteControlPlaywrightTest {
     }
     @Test
     void chromiumCarriesCsrfAndRevisionAndRetainsConflictingForm()throws Exception{
-        try(Playwright p=Playwright.create();Browser b=p.chromium().launch()){
+        try(Playwright p=Playwright.create();Browser b=chromium(p)){
             Page page=b.newPage();setupSite(page,"basic");
             page.locator("[data-field=brandName]").fill("新的品牌");page.locator("input[name=reason]").fill("更新品牌文案");page.locator("#siteSave").click();
             page.waitForFunction("() => document.querySelector('#siteMessage').textContent.includes('已保存')");
@@ -59,6 +60,13 @@ class XingweiSiteControlPlaywrightTest {
             page.evaluate("() => window.conflict=true");page.locator("[data-field=brandName]").fill("保留草稿");page.locator("input[name=reason]").fill("第二次调整");page.locator("#siteSave").click();
             page.waitForFunction("() => document.querySelector('#siteMessage').textContent.includes('配置已变化')");
             assertEquals("保留草稿",page.locator("[data-field=brandName]").inputValue());assertFalse(page.locator("#siteSave").isDisabled());
+        }
+    }
+    @Test void chromiumNativeSitePreservesAllBasicFieldsAndAllowsFallbackStatusEditing()throws Exception{
+        try(Playwright p=Playwright.create();Browser b=chromium(p)){
+            Page page=b.newPage();setupSite(page,"basic");assertEquals("OPEN",page.locator("[data-field=serviceStatus]").inputValue());
+            page.locator("[data-field=serviceStatus]").selectOption("RESERVATION");page.locator("[data-field=statusShortText]").fill("预约服务");page.locator("[data-field=primaryButtonLabel]").fill("联系预约");page.locator("input[name=reason]").fill("调整全站兜底入口");page.locator("#siteSave").click();page.waitForFunction("()=>document.querySelector('#siteMessage').textContent.includes('已保存')");
+            assertEquals(true,page.evaluate("()=>{const data=JSON.parse(window.calls.find(c=>c.method==='PATCH').body);return data.serviceStatus==='RESERVATION'&&data.statusShortText==='预约服务'&&data.primaryButtonLabel==='联系预约'&&data.brandName==='星火';}"));
         }
     }
     @Test
@@ -77,8 +85,8 @@ class XingweiSiteControlPlaywrightTest {
     void newFrontendControlsReadOnlyModeUsesOnlyNewPermissionControlledApis()throws Exception{
         var repo=mock(SiteSettingRepository.class);when(repo.findAll()).thenReturn(List.of());
         Map<String,String> global=new SiteSettingService(repo).globalUiSettings();Map<String,String> front=new FrontendControlService(repo).settings();
-        try(Playwright p=Playwright.create();Browser b=p.chromium().launch()){
-            Page page=b.newPage();String html=render("admin-frontend-controls.html",true);
+        try(Playwright p=Playwright.create();Browser b=chromium(p)){
+            Page page=b.newPage();String html=render("admin-xingwei-frontend-controls.html",true);
             assertTrue(html.contains("data-xingwei-mode=\"true\""));assertTrue(html.contains("href=\"/admin/xingwei/site\""));
             page.route("**/*",r->r.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(html)));
             page.navigate("https://example.test/admin/xingwei/frontend-controls");

@@ -60,7 +60,7 @@ async function api(url, options = {}) {
 function applyGuidePermissions() {
   if (!xingweiGuideMode) return;
   const disabled = !guideWritable || guideBusy;
-  for (const id of ['newGuide','importGuides','archiveAllGuides','addSection']) { const node = $('#' + id); if (node) node.disabled = disabled; }
+  for (const id of ['newGuide','importGuides','archiveAllGuides','addSection','addGuideFaq']) { const node = $('#' + id); if (node) node.disabled = disabled; }
   $$('#guideForm input,#guideForm select,#guideForm textarea,#guideForm button').forEach(node => {node.disabled = node.id === 'previewGuide' ? false : disabled;});
   $$('#guideRows .guide-admin-row-main').forEach(node => {node.disabled = guideBusy;});
   if ($('#batchDeleteGuides')) $('#batchDeleteGuides').disabled = disabled || selectedGuideIds.size === 0;
@@ -216,6 +216,7 @@ function openNew() {
   addSection({ sectionKey: 'steps', heading: '推荐推进顺序', bodyMarkdown: '1. 写明先从哪一步开始。\n2. 说明后续推进目标。\n3. 列出客户需要提前准备的信息。', sortOrder: 20 });
   addSection({ sectionKey: 'tip', heading: '交付与账号安全', bodyMarkdown: '网页不收账号密码、验证码或令牌；具体交付方式只通过客服确认。', sortOrder: 30 });
   renderProductPicker([]);
+  renderGuideExtras(null);
   showForm(true);
   renderGuideRows();
 }
@@ -259,6 +260,7 @@ function fillForm(detail) {
   form.seoDescription.value = guide.seoDescription || '';
   form.featured.checked = Boolean(guide.featured);
   form.reason.value = '攻略内容维护';
+  renderGuideExtras(detail);
   $('#editorTitle').textContent = `编辑：${guide.title}`;
   $('#sectionRows').innerHTML = '';
   (detail.sections || []).forEach(addSection);
@@ -338,15 +340,41 @@ function collectSections() {
   return $$('#sectionRows .guide-section-editor').map(sectionFromRow).filter((section) => section.heading);
 }
 
+function addGuideFaq(faq = {}) {
+  const host = $('#guideFaqRows');
+  if (!host) return;
+  const row = document.createElement('div');row.className = 'guide-faq-editor';
+  row.innerHTML = '<label class="field"><span>问题</span><input data-faq-question maxlength="255"/></label><label class="field"><span>回答</span><textarea data-faq-answer rows="3" maxlength="5000"></textarea></label><button class="btn" type="button">删除问题</button>';
+  $('[data-faq-question]',row).value = faq.question || '';
+  $('[data-faq-answer]',row).value = faq.answer || '';
+  $('button',row).addEventListener('click',()=>{if(guideBusy||!guideWritable)return;row.remove();guideDirty=true;});
+  host.append(row);applyGuidePermissions();
+}
+function renderGuideExtras(detail) {
+  if (!xingweiGuideMode) return;
+  const guide = detail?.guide || {}, form = $('#guideForm');
+  for (const name of ['slug','language','authorName','sourceName','sourceUrl','canonicalUrl']) {
+    form.elements.namedItem(name).value = guide[name] || ({language:'zh-CN',authorName:'星火攻略组'})[name] || '';
+  }
+  $('#guideFaqRows').replaceChildren();
+  (detail?.faqs || []).forEach(addGuideFaq);
+  const select = $('#guideRelatedIds'), selected = new Map((detail?.relatedGuides || []).map(row=>[row.id,row]));
+  const candidates = new Map(guideRows.filter(row=>row.id!==guide.id).map(row=>[row.id,row]));
+  selected.forEach((row,id)=>candidates.set(id,row));
+  select.replaceChildren(...[...candidates.values()].map(row=>new Option(row.title || '攻略 #'+row.id,String(row.id),false,selected.has(row.id))));
+}
+function collectGuideFaqs() {
+  return $$('#guideFaqRows .guide-faq-editor').map((row,index)=>({question:$('[data-faq-question]',row).value.trim(),answer:$('[data-faq-answer]',row).value.trim(),sortOrder:(index+1)*10})).filter(row=>row.question||row.answer);
+}
 function collectProducts() {
   const checked = new Set($$('#productRows input[type="checkbox"]:checked').map((input) => Number(input.value)));
   return services.filter((service) => checked.has(Number(service.id))).map((service, index) => ({
     serviceId: Number(service.id),
-    label: service.name,
-    description: service.shortDesc || null,
-    imageUrl: null,
-    featured: index < 2,
-    sortOrder: (index + 1) * 10
+    label: currentDetail?.products?.find(item=>Number(item.serviceId)===Number(service.id))?.label ?? service.name,
+    description: currentDetail?.products?.find(item=>Number(item.serviceId)===Number(service.id))?.description ?? service.shortDesc ?? null,
+    imageUrl: currentDetail?.products?.find(item=>Number(item.serviceId)===Number(service.id))?.imageUrl ?? null,
+    featured: currentDetail?.products?.find(item=>Number(item.serviceId)===Number(service.id))?.featured ?? index < 2,
+    sortOrder: currentDetail?.products?.find(item=>Number(item.serviceId)===Number(service.id))?.sortOrder ?? (index + 1) * 10
   }));
 }
 
@@ -354,31 +382,31 @@ function collectPayload() {
   const form = $('#guideForm');
   return {
     gameCode: form.gameCode.value,
-    slug: currentDetail?.guide?.slug || null,
+    slug: xingweiGuideMode ? form.elements.namedItem('slug').value.trim() || null : currentDetail?.guide?.slug || null,
     title: form.title.value.trim(),
     subtitle: form.subtitle.value.trim() || null,
     summary: form.summary.value.trim(),
     coverImage: form.coverImage.value.trim() || gameByCode(form.gameCode.value)?.coverImage || null,
     difficulty: form.difficulty.value,
     estimatedMinutes: Number(form.estimatedMinutes.value || 60),
-    language: 'zh-CN',
-    authorName: currentDetail?.guide?.authorName || '星火攻略组',
-    sourceName: currentDetail?.guide?.sourceName || gameByCode(form.gameCode.value)?.publisher || null,
-    sourceUrl: currentDetail?.guide?.sourceUrl || null,
+    language: xingweiGuideMode ? form.elements.namedItem('language').value.trim() || 'zh-CN' : 'zh-CN',
+    authorName: xingweiGuideMode ? form.elements.namedItem('authorName').value.trim() || null : currentDetail?.guide?.authorName || '星火攻略组',
+    sourceName: xingweiGuideMode ? form.elements.namedItem('sourceName').value.trim() || null : currentDetail?.guide?.sourceName || gameByCode(form.gameCode.value)?.publisher || null,
+    sourceUrl: xingweiGuideMode ? form.elements.namedItem('sourceUrl').value.trim() || null : currentDetail?.guide?.sourceUrl || null,
     status: form.status.value,
     featured: form.featured.checked,
     sortOrder: Number(form.sortOrder.value || 100),
     tags: form.tags.value.split(/[,，]/).map((tag) => tag.trim()).filter(Boolean),
     seoTitle: form.seoTitle.value.trim() || null,
     seoDescription: form.seoDescription.value.trim() || null,
-    canonicalUrl: currentDetail?.guide?.canonicalUrl || null,
+    canonicalUrl: xingweiGuideMode ? form.elements.namedItem('canonicalUrl').value.trim() || null : currentDetail?.guide?.canonicalUrl || null,
     sections: collectSections(),
     products: collectProducts(),
-    faqs: currentDetail?.faqs?.length ? currentDetail.faqs : [
+    faqs: xingweiGuideMode ? collectGuideFaqs() : currentDetail?.faqs?.length ? currentDetail.faqs : [
       { question: '现在可以直接下单吗？', answer: '提交需求后由客服确认区服、进度、目标与开工时间，确认前不会承诺立即履约。', sortOrder: 10 },
       { question: '需要提供账号密码吗？', answer: '不需要。网页不收集账号密码、验证码或令牌，具体交付方式只通过客服确认。', sortOrder: 20 }
     ],
-    relatedGuideIds: (currentDetail?.relatedGuides || []).map((item) => item.id),
+    relatedGuideIds: xingweiGuideMode ? [...$('#guideRelatedIds').selectedOptions].map(option=>Number(option.value)) : (currentDetail?.relatedGuides || []).map((item) => item.id),
     reason: form.reason.value.trim() || '攻略内容维护'
   };
 }
@@ -455,6 +483,7 @@ async function boot() {
     await loadAll();
     showForm(false);
     $('#newGuide').addEventListener('click', openNew);
+    $('#addGuideFaq')?.addEventListener('click',()=>{if(!guideBusy&&guideWritable){addGuideFaq();guideDirty=true;}});
     $('#reloadGuides').addEventListener('click', reloadGuides);
     const filters = $('#guideFilters');
     if (filters) {

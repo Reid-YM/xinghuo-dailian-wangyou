@@ -43,7 +43,7 @@ class XingweiOperationsPlaywrightTest {
     @Test void chromiumNativeMemberWritesHaveCsrfRevisionAndPreserveConflictingInput() throws Exception {
         try(Playwright p=Playwright.create();Browser b=chromium(p)){
             Page page=setup(b,"module=members&status=ACTIVE&page=1&q=test");
-            assertEquals("ACTIVE",page.locator("#operationsFilters select").inputValue());
+            assertEquals("ACTIVE",page.locator("#operationsFilters select[name=status]").inputValue());
             assertEquals("正常",page.locator("#operationsFilters option[value=ACTIVE]").textContent());
             assertTrue(page.locator("#operationsPage").textContent().contains("2"));
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("编辑").setExact(true)).click();
@@ -57,6 +57,18 @@ class XingweiOperationsPlaywrightTest {
             assertEquals("\"r1\"",page.evaluate("()=>window.calls.find(c=>c.method==='PATCH').headers['if-match']"));
             page.evaluate("()=>window.conflict=false");page.locator("#operationsSave").click();page.waitForFunction("()=>!document.querySelector('#operationsDialog').open");
             assertEquals(true,page.evaluate("()=>window.calls.every(c=>c.url.startsWith('/api/admin/xingwei/operations'))"));
+        }
+    }
+    @Test void chromiumCrmIntentSourceFiltersSurviveReloadAndDoNotLeakIntoMemberSearch()throws Exception{
+        try(Playwright p=Playwright.create();Browser b=chromium(p)){
+            Page page=setup(b,"module=crm&intent=HIGH&source=search");
+            assertEquals("HIGH",page.locator("[name=intent]").inputValue());assertEquals("search",page.locator("[name=source]").inputValue());
+            assertEquals(true,page.evaluate("()=>window.calls.some(c=>c.url.includes('/leads?')&&c.url.includes('intent=HIGH')&&c.url.includes('source=search'))"));
+            page.locator("[name=intent]").selectOption("MEDIUM");page.locator("[name=source]").fill("campaign");page.locator("#operationsFilters button[type=submit]").click();
+            page.waitForFunction("()=>location.search.includes('intent=MEDIUM')&&location.search.includes('source=campaign')");
+            page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("网站会员").setExact(true)).click();page.waitForFunction("()=>document.querySelector('#operationsTitle').textContent==='网站会员'");
+            assertTrue(page.locator("[name=intent]").isDisabled());assertTrue(page.locator("[name=source]").isDisabled());
+            assertEquals(true,page.evaluate("()=>{const url=window.calls.filter(c=>c.url.includes('/members?')).at(-1).url;return !url.includes('intent=')&&!url.includes('source=');}"));
         }
     }
     @Test void chromiumMobileAllOperationsModulesWorkAndFailedReadsRecover()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){allModules(b);}}

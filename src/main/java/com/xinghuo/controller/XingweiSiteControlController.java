@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class XingweiSiteControlController {
     private final XingweiSiteControlService controls;
     public XingweiSiteControlController(XingweiSiteControlService controls){this.controls=controls;}
+    @ModelAttribute void privateResponse(jakarta.servlet.http.HttpServletResponse response){response.setHeader("Cache-Control","no-store");}
     @GetMapping("/admin/xingwei/site")
     @PreAuthorize("@xingweiPermissionGuard.hasAny(authentication,'site:view','seo:view')")
     String site(){return "admin-xingwei-site";}
@@ -26,7 +27,7 @@ public class XingweiSiteControlController {
     @PreAuthorize("@xingweiPermissionGuard.has(authentication,'site:view')")
     String frontend(Model model,CsrfToken csrf,Authentication actor){
         model.addAttribute("csrf",csrf);model.addAttribute("username",actor.getName());model.addAttribute("xingweiMode",true);
-        return "admin-frontend-controls";
+        return "admin-xingwei-frontend-controls";
     }
     @GetMapping("/api/admin/xingwei/site/access")
     @PreAuthorize("@xingweiPermissionGuard.hasAny(authentication,'site:view','seo:view')")

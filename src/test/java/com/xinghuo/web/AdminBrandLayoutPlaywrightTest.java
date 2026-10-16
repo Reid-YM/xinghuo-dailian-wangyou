@@ -28,7 +28,7 @@ class AdminBrandLayoutPlaywrightTest {
 
         assertTrue(resilience.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
         assertTrue(frontendControls.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
-        assertTrue(login.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
+        assertTrue(login.contains("/assets/admin-xingwei-login.css?v=20261016audit2"));
         assertTrue(guides.contains("/assets/admin-brand-layout-fixes.css?v=20261008b002"));
         assertTrue(resilience.contains("/assets/brand-logo.svg?v=20261008logo02"));
         assertTrue(frontendControls.contains("/assets/brand-logo.svg?v=20261008logo02"));

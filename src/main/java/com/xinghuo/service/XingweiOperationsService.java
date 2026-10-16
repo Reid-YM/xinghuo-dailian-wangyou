@@ -88,7 +88,27 @@ public class XingweiOperationsService {
     @Transactional(readOnly=true) public List<Map<String,Object>> displayServices(Authentication actor){requireGlobal(actor,"site:view");return catalog.adminList().stream().map(item->Map.<String,Object>of("id",item.id(),"name",item.name(),"status",item.status(),"gameCode",item.gameCode())).toList();}
     @Transactional public State updateDisplay(ApiDtos.SlotUpdate body,String expected,Authentication actor,HttpServletRequest request){requireGlobal(actor,"site:manage");check("hot_slots","slot_no",body.slotNo(),expected);var result=slots.update(body,actor.getName(),request);entities.flush();return stateBy("hot_slots","slot_no",body.slotNo(),result);}
 
-    @Transactional(readOnly=true) public Page leads(String q,String status,int page,Authentication actor){if(!guard.has(actor,"quote:view"))throw new AccessDeniedException("没有线索查看权限");var scope=business.queryScope(actor);var filter=filter(q,status,List.of("q.business_no","q.game","q.demand","q.customer_contact"),"q.status");var args=new ArrayList<Object>(scope.args());args.addAll(filter.args());String where="("+scope.sql()+") AND ("+filter.sql()+")";String from=" FROM quotes q LEFT JOIN xw_business_ownership o ON o.business_no=q.business_no LEFT JOIN xw_departments d ON d.id=o.department_id WHERE "+where;int p=page(page);Long total=jdbc.queryForObject("SELECT COUNT(*)"+from,Long.class,args.toArray());args.add(25);args.add(p*25);var items=jdbc.queryForList("SELECT q.id"+from+" ORDER BY q.created_at DESC LIMIT ? OFFSET ?",args.toArray()).stream().map(row->leadById(row.get("id"))).toList();return new Page(items,p,25,total==null?0:total);}
+    @Transactional(readOnly=true) public Page leads(String q,String status,int page,Authentication actor){return leads(q,status,null,null,page,actor);}
+    @Transactional(readOnly=true) public Page leads(String q,String status,String intent,String source,int page,Authentication actor){
+        if(!guard.has(actor,"quote:view"))throw new AccessDeniedException("没有线索查看权限");
+        var scope=business.queryScope(actor);
+        var filter=filter(q,status,List.of("q.business_no","q.game","q.demand","q.customer_contact"),"q.status");
+        var args=new ArrayList<Object>(scope.args());args.addAll(filter.args());
+        String where="("+scope.sql()+") AND ("+filter.sql()+")";
+        if(intent!=null&&!intent.isBlank()){
+            where+=" AND q.lead_intent_level=?";
+            args.add(enumValue(intent,"UNKNOWN",Set.of("UNKNOWN","LOW","MEDIUM","HIGH")));
+        }
+        if(source!=null&&!source.isBlank()){
+            String value=source.trim();if(value.length()>80)throw new BadRequestException("来源不能超过80字");
+            where+=" AND (q.first_touch_source=? OR q.utm_source=?)";args.add(value);args.add(value);
+        }
+        String from=" FROM quotes q LEFT JOIN xw_business_ownership o ON o.business_no=q.business_no LEFT JOIN xw_departments d ON d.id=o.department_id WHERE "+where;
+        int p=page(page);Long total=jdbc.queryForObject("SELECT COUNT(*)"+from,Long.class,args.toArray());
+        args.add(25);args.add(p*25);
+        var items=jdbc.queryForList("SELECT q.id"+from+" ORDER BY q.created_at DESC,q.id DESC LIMIT ? OFFSET ?",args.toArray()).stream().map(row->leadById(row.get("id"))).toList();
+        return new Page(items,p,25,total==null?0:total);
+    }
     @Transactional(readOnly=true) public State lead(String businessNo,Authentication actor){if(!guard.has(actor,"quote:view")||!business.canAccessBusiness(actor,businessNo))throw new AccessDeniedException("线索不在可见范围内");return leadById(jdbc.queryForObject("SELECT id FROM quotes WHERE business_no=?",String.class,businessNo));}
     private State leadById(Object id){var row=jdbc.queryForMap("SELECT id,business_no,game,demand,current_progress,customer_contact,contact_method,status,lead_score,lead_intent_level,next_action,follow_up_note,ai_suggestion,last_contacted_at,first_touch_source,utm_source,created_at,updated_at FROM quotes WHERE id=?",id);var data=new LinkedHashMap<String,Object>();row.forEach((key,value)->data.put(camel(key),value));return stateBy("quotes","id",id,data);}
     @Transactional public State updateLead(String no,QuoteLeadDtos.QuoteCrmUpdateRequest body,String expected,boolean suggestion,Authentication actor,HttpServletRequest request){if(!guard.has(actor,"quote:manage")||!business.canAccessBusiness(actor,no))throw new AccessDeniedException("线索不在可管理范围内");String id=jdbc.queryForObject("SELECT id FROM quotes WHERE business_no=?",String.class,no);check("quotes","id",id,expected);if(suggestion)quotes.generateLeadSuggestion(UUID.fromString(id),actor.getName(),request);else quotes.updateCrm(UUID.fromString(id),body,actor.getName(),request);quoteRepo.flush();return leadById(id);}

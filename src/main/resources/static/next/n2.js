@@ -106,7 +106,7 @@
     state.services.forEach((service,index)=>{const card=serviceCard(service);card.dataset.rank=String(index);fragment.append(card);});
     grid.replaceChildren(fragment);
     renderCategories();
-    applyFilter();
+    applyFilter(false);
   }
 
   function renderCategories(){

@@ -43,12 +43,12 @@ class FrontendDefaultReplacementPlaywrightTest {
             assertTrue(page.locator(".serviceCard").nth(1).isHidden());
             assertEquals("https://support.example.test/help",page.locator("[data-support-link]").getAttribute("href"));
             page.reload();page.waitForFunction("()=>document.documentElement.dataset.frontendPage==='services'");
-            page.locator(".nav [data-go=quote]").click();page.locator("#goal").fill("保留的需求草稿");
-            page.locator(".nav [data-go=home]").click();assertEquals("https://example.test/",page.url());
+            page.locator(".nav .navlink[data-go=quote]").click();page.locator("#goal").fill("保留的需求草稿");
+            page.locator(".nav .navlink[data-go=home]").click();assertEquals("https://example.test/",page.url());
             page.goBack();assertEquals("quote",page.locator("html").getAttribute("data-frontend-page"));assertEquals("保留的需求草稿",page.locator("#goal").inputValue());
             page.goBack();assertEquals("services",page.locator("html").getAttribute("data-frontend-page"));
             page.navigate("https://example.test/next/quote");page.waitForFunction("()=>document.documentElement.dataset.frontendPage==='quote'");
-            assertTrue(page.locator("script[src^='/next/']").all().stream().allMatch(node->node.getAttribute("src").matches(".*\\?v=[0-9a-f]{64}")));
+            assertTrue(page.locator("script[src^='/next/']").all().stream().allMatch(node->URI.create(node.getAttribute("src")).getRawQuery().matches("v=[0-9a-f]{64}")));
         }
     }
     @Test void webkitMobileUsesPathAndAuthModeAndShowsRecoverableErrorsWithoutDemoRecords() throws Exception {

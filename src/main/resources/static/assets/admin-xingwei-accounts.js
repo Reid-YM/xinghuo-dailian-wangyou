@@ -20,7 +20,7 @@
     wrap.append(input);$('#adminAccountFields').append(wrap);return input;
   }
   function open(title,build,action){if(busy)return;$('#adminAccountFields').replaceChildren();$('#adminAccountFormMessage').textContent='';$('#adminAccountDialogTitle').textContent=title;save=action;build();$('#adminAccountDialog').showModal();}
-  function values(){const result=Object.fromEntries(new FormData($('#adminAccountForm')));$('#adminAccountFields input[type=checkbox]').forEach(input=>result[input.name]=input.checked);return result;}
+  function values(){const result=Object.fromEntries(new FormData($('#adminAccountForm')));$('#adminAccountFields').querySelectorAll('input[type=checkbox]').forEach(input=>result[input.name]=input.checked);return result;}
   function create(){open('创建后台登录账号',()=>{
     field('username','登录名');field('displayName','员工姓名');field('departmentCode','所属中心','','text',[{code:'',name:'暂不分配中心'},...(snapshot.departments||[])]);
     field('password','初始密码','','password');field('legacyRole','登录角色','OPERATOR','text',snapshot.restoreAdmin?[{code:'OPERATOR',name:'员工'},{code:'ADMIN',name:'恢复管理员'}]:[{code:'OPERATOR',name:'员工'}]);

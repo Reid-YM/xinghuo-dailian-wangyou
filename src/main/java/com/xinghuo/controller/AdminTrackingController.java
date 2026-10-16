@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>这里只读聚合，不做任何写入；独立成一个控制器，避免改动体量很大的
  * {@code AdminApiController}。访问受 Spring Security 的
- * {@code /api/admin/**} 规则保护（需 ADMIN / OPERATOR）。
+ * {@code /api/admin/**} 恢复规则保护（仅原 ADMIN）；新版入口另行核对全站数据范围。
  */
 @RestController
 @RequestMapping(value={"/api/admin/tracking"})

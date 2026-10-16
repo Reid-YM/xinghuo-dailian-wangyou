@@ -27,7 +27,7 @@ class FrontendNextN3QuoteContractTest {
         assertTrue(js.contains("method:'POST'"));
         assertTrue(js.contains("'Idempotency-Key':idempotencyKey"));
         assertTrue(js.contains("privacyConsent"));
-        assertTrue(js.contains("firstTouchSource:'frontend-next'"));
+        assertTrue(js.contains("window.XHFrontendShell?.attribution?.firstTouchSource"));
         assertTrue(js.contains("button.disabled=true"));
         assertTrue(js.contains("if(submitting) return"));
         assertTrue(js.contains("Keep the same idempotency key after failures"));

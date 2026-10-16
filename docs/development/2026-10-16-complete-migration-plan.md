@@ -11,20 +11,49 @@
 5. 新版服务读取失败沿用演示商品/价格，不能直接作为正式替换后的数据回退。
 6. Next 的站点配置、客服、服务详情仍有占位行为，需补齐真实配置闭环。
 
+复选框标记开发和自动化验证进度；生产发布以最后的发布核验项为准，不能据此宣称已上线。
+
 ## 必须完成
 
 - [x] 统一账号自定义头，保留服务端校验；浏览器请求经过真实 AccountAuthInterceptor。
 - [x] 修复路径/查询参数/hash 路由，直接访问、刷新、前进后退与安全登录回跳。
 - [x] 内容指纹资源版本、真实 HTTP 路由和 CSP 验证。
-- [ ] 正式入口映射、清晰旧版回退，保留原认证检查，不改业务 API 权限。
-- [ ] 前端真实配置、客服、服务详情、空/错/重试，去除正式页面演示业务数据。
-- [ ] 账号头像上传、联系方式、注册/找回、业务/进度/售后、收藏/投稿等逐项功能对齐。
-- [ ] 会员、社区/投稿、反馈、首页展示位、CRM 迁入新后台，权限和审计覆盖。
-- [ ] 员工后台账号生命周期界面（受控创建、停用、恢复/密码重置、防锁死）。
-- [ ] /admin 默认新版与正式前端入口真正替换；功能清单中不再依赖旧主入口。
+- [x] 正式入口映射、清晰旧版回退，保留原网站账号认证检查。
+- [x] 前端真实配置、客服、服务详情、空/错/重试，去除正式页面演示业务数据。
+- [x] 账号头像上传、联系方式、注册/找回、业务/进度/售后、收藏/投稿等逐项功能对齐。
+- [x] 会员、社区/投稿、反馈、首页展示位、CRM 迁入新后台，权限和审计覆盖。
+- [x] 员工后台账号生命周期界面（受控创建、停用、恢复/密码重置、防锁死）。
+- [ ] /admin 默认新版与正式前端入口真正替换；功能清单中不再依赖旧主入口（默认切换已通过，完整字段级功能仍在核对）。
+- [ ] MW4 工具资料编辑、行为统计和旧概览指标全部进入新版，补齐正式前台事件/来源。
+- [ ] 服务封面/有效期/热度、游戏完整资料/图片/平台、业务公开案例与管理删除项的接口级功能对齐。
 - [ ] 原有 UI 补丁退休、后台导航空白保护等历史修复未回归。
 - [ ] Java clean package、实际 Chromium/WebKit、手机/桌面、主线 CI、最后一次统一发布核验。
 
 真实支付、外部退款、企业微信目录写入及真实员工/小程序真机验收继续保持独立授权和验收边界。完整迁移不能用自动化结果替代这些外部验收，也不会为完成迁移擅自启用资金或目录写入。
 
-开发进度：PR #498（请求头/缓存）与 #499（入口/配置）已合并，Java 与 Chromium/WebKit 全通过；尚未部署本轮改动。PR #500（账号功能补齐）也已通过 Java、Chromium/WebKit 并合并；运营模块新增代码与测试继续推进。
+开发进度：PR #498–#504 均已合并，Java 与 Chromium/WebKit 已通过；本轮仍未部署。工具站与统计补录项正在开发/验证，之后统一版本核对、主线 CI 和一次集中发布。
+
+## 旧菜单核对表
+
+| 旧入口/能力 | 新版对应入口 |
+| --- | --- |
+| 运营概览及事件漏斗 | /admin/xingwei/statistics（全站）；业务工作台保留按范围的统计 |
+| 站点配置、图片、客服、FAQ、SEO | /admin/xingwei/site |
+| 导航/展示开关/主题 | /admin/xingwei/frontend-controls |
+| 首页推荐位 | /admin/xingwei/operations?module=display |
+| 服务项目 | /admin/xingwei/catalog |
+| 游戏/分类/平台 | /admin/xingwei/taxonomy |
+| 攻略编辑和预览 | /admin/xingwei/guides |
+| MW4 资料与图片 | /admin/xingwei/tool-station（本分支验证中） |
+| 询价、转单、归属 | /admin/xingwei/business?tab=quotes |
+| CRM 跟进 | /admin/xingwei/operations?module=crm |
+| 订单、进度、派单、附件 | /admin/xingwei/business?tab=orders |
+| 支付单查询、确认金额、关闭 | /admin/xingwei/payments（开关和外部验证边界保持） |
+| 售后 | /admin/xingwei/after-sales/cases |
+| 网站会员及登录日志 | /admin/xingwei/operations?module=members |
+| 评论/投稿审核 | /admin/xingwei/operations?module=comments 或 submissions |
+| 测试反馈 | /admin/xingwei/operations?module=feedback |
+| 审计记录 | /admin/xingwei/audits |
+| 后台员工登录生命周期 | /admin/xingwei/security |
+
+原 /admin?legacy=1 仅作 ADMIN 恢复，不承载普通员工的必经操作。来源中保留旧实现用于恢复，不把删除历史实现当成迁移完成条件。

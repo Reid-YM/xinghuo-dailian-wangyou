@@ -22,7 +22,7 @@ class XingweiReleaseObservabilityContractTest {
         assertTrue(template.contains("id=\"xwrReleaseAttestation\""));
         assertTrue(template.contains("不暴露服务器路径"));
         assertTrue(trend.contains("recentMinutes"));
-        assertTrue(trend.contains("data-server-errors"));
+        assertTrue(trend.contains("dataset.serverErrors"));
         assertTrue(release.contains("/api/admin/xingwei/release-attestation"));
         assertTrue(release.contains("deploy:view"));
         assertTrue(release.contains("cache: 'no-store'"));

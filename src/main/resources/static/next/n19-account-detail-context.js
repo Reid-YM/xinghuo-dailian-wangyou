@@ -60,6 +60,11 @@
     return source && loadedQuote(source) ? source : '';
   }
 
+  function contextSignature(info) {
+    const context = listContext(info);
+    return `${context.ids.join('|')}|${sourceQuoteNo(info)}`;
+  }
+
   function installStyles() {
     if (document.querySelector('#frontend-next-n19-style')) return;
     const style = document.createElement('style');
@@ -122,6 +127,7 @@
     wrap.id = 'n19DetailContext';
     wrap.className = 'n19-detail-context';
     wrap.dataset.n19Key = `${info.kind}:${info.businessNo}`;
+    wrap.dataset.n19Signature = `${context.ids.join('|')}|${sourceQuote}`;
 
     const meta = document.createElement('div');
     meta.className = 'n19-detail-meta';
@@ -165,19 +171,12 @@
 
     installStyles();
     const key = `${info.kind}:${info.businessNo}`;
-    if (existing?.dataset.n19Key === key) {
-      const expected = listContext(info);
-      const label = existing.querySelector('.n19-detail-meta span');
-      const nextText = expected.index >= 0
-        ? `当前已加载列表第 ${expected.index + 1} / ${expected.ids.length} 条 · ${info.businessNo}`
-        : `当前详情 · ${info.businessNo}`;
-      if (label && label.textContent !== nextText) {
-        existing.replaceWith(build(info));
-      }
-      return true;
-    }
-    existing?.remove();
-    head.after(build(info));
+    const signature = contextSignature(info);
+    if (existing?.dataset.n19Key === key && existing.dataset.n19Signature === signature) return true;
+
+    const next = build(info);
+    if (existing) existing.replaceWith(next);
+    else head.after(next);
     return true;
   }
 

@@ -9,8 +9,11 @@
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-releases.css?v=20261014v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-runtime-health.css?v=20261017v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-release-observability.css?v=20261017v2"/>
   <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script>
   <script defer src="/assets/admin-xingwei-runtime-health.js?v=20261017v1"></script>
+  <script defer src="/assets/admin-xingwei-runtime-trend.js?v=20261017v2"></script>
+  <script defer src="/assets/admin-xingwei-release-attestation.js?v=20261017v2"></script>
 </head>
 <body>
 <main class="xwr-shell">
@@ -81,8 +84,68 @@
       <span id="xwrRuntimeLastServerError">最近 5xx：等待采样</span>
       <span id="xwrRuntimeSampledAt">采样时间：等待读取</span>
     </div>
-    <p class="xwr-health-boundary">生产发布真值继续由 Deploy Production 核验：18080 预发布、8081 金丝雀、8080 正式入口、Nginx upstream、Git SHA / JAR SHA256 与上一版本回滚链。本页不执行部署、不执行回滚，也不写入业务数据。</p>
+
+    <div class="xwr-trend-wrap" aria-labelledby="xwrRuntimeTrendTitle">
+      <div class="xwr-trend-head">
+        <h3 id="xwrRuntimeTrendTitle">最近 15 分钟请求与错误趋势</h3>
+        <p>分钟级聚合，只统计请求数量、4xx 与 5xx；不记录 URL、账号、IP、请求体或业务编号。</p>
+      </div>
+      <div class="xwr-trend" id="xwrRuntimeTrend" role="img" aria-label="最近 15 分钟请求错误趋势">等待趋势采样</div>
+      <p class="xwr-trend-summary" id="xwrRuntimeTrendSummary">当前进程尚未形成趋势窗口。</p>
+    </div>
+
+    <p class="xwr-health-boundary">应用运行真值只来自当前 JVM。进程重启后累计值和 15 分钟趋势会重新开始；它们不能证明 Nginx upstream、systemd、正式 release 或上一版本回滚链。</p>
     <p class="xwr-health-message" id="xwrRuntimeHealthMessage" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="xwr-release-proof" id="xwrReleaseAttestation" aria-labelledby="xwrReleaseAttestationTitle" data-release-ready="false">
+    <div class="xwr-release-proof-head">
+      <div>
+        <p class="xw-kicker">生产主机发布真值</p>
+        <h2 id="xwrReleaseAttestationTitle">最近成功发布凭证</h2>
+        <p>此区域只读取生产发布网关在 18080、8081、8080、Nginx 回切和 current.jar 校验全部成功后原子写入的主机侧凭证。应用本身不能生成“发布成功”结论。</p>
+      </div>
+      <span class="xw-status" id="xwrReleaseAttestationState"><i></i><span>正在读取</span></span>
+    </div>
+
+    <div class="xwr-release-grid">
+      <article class="xwr-release-card">
+        <span>Git SHA</span>
+        <strong id="xwrReleaseGitSha">-</strong>
+        <small>来自已完成生产核验的发布目标</small>
+      </article>
+      <article class="xwr-release-card">
+        <span>JAR SHA256</span>
+        <strong id="xwrReleaseJarSha">-</strong>
+        <small>生产 current.jar 与候选包一致性校验</small>
+      </article>
+      <article class="xwr-release-card">
+        <span>当前 release</span>
+        <strong id="xwrReleaseCurrent">-</strong>
+        <small>仅展示 release 文件名，不暴露服务器路径</small>
+      </article>
+      <article class="xwr-release-card">
+        <span>上一 release</span>
+        <strong id="xwrReleasePrevious">-</strong>
+        <small>最近一次成功发布时保留的回滚链</small>
+      </article>
+      <article class="xwr-release-card">
+        <span>端口与流量</span>
+        <strong id="xwrReleasePorts">-</strong>
+        <small>Nginx 必须回到正式 8080，金丝雀 8081 必须停止</small>
+      </article>
+      <article class="xwr-release-card">
+        <span>三层冒烟</span>
+        <strong id="xwrReleaseChecks">-</strong>
+        <small>18080 预发布 / 8081 金丝雀 / 8080 正式</small>
+      </article>
+    </div>
+
+    <div class="xwr-release-meta">
+      <span id="xwrReleasePublishedAt">主机凭证时间：等待读取</span>
+      <span>只读 · deploy:view · no-store</span>
+    </div>
+    <p class="xwr-release-message" id="xwrReleaseAttestationMessage" role="status" aria-live="polite"></p>
   </section>
 
   <section th:replace="~{fragments/admin-delivery-roadmap :: roadmap}"></section>

@@ -45,6 +45,7 @@ public class FrontendNextPreviewController {
     private static final String N15_RUNTIME = "<script src=\"/next/n15-auth-return.js\" defer></script>";
     private static final String N16_RUNTIME = "<script src=\"/next/n16-account-deep-links.js\" defer></script>";
     private static final String N17_RUNTIME = "<script src=\"/next/n17-account-navigation.js\" defer></script>";
+    private static final String N18_RUNTIME = "<script src=\"/next/n18-account-detail-deep-links.js\" defer></script>";
     private SiteConfigService configuration;
     @Autowired void configuration(SiteConfigService configuration) { this.configuration = configuration; }
     private final Map<String,String> runtimeVersions = new ConcurrentHashMap<>();
@@ -61,9 +62,11 @@ public class FrontendNextPreviewController {
             "/next/record/{businessNo}",
             "/next/account",
             "/next/account/requests",
+            "/next/account/requests/{businessNo}",
             "/next/account/quotes",
             "/next/account/demands",
             "/next/account/orders",
+            "/next/account/orders/{businessNo}",
             "/next/account/order",
             "/next/account/order-list",
             "/next/account/progress",
@@ -141,6 +144,9 @@ public class FrontendNextPreviewController {
         if (!html.contains(N17_RUNTIME)) {
             html = html.replace("</body>", N17_RUNTIME + "</body>");
         }
+        if (!html.contains(N18_RUNTIME)) {
+            html = html.replace("</body>", N18_RUNTIME + "</body>");
+        }
         html = versionRuntimes(html);
         if (configuration != null) {
             var site = configuration.publicConfig();
@@ -168,7 +174,7 @@ public class FrontendNextPreviewController {
                 .body(html);
     }
     private String versionRuntimes(String html) throws IOException {
-        for (String name : new String[]{"next/shell.js","next/n2.js","next/n3.js","next/n4.js","next/n4-mini.js","next/n5.js","next/n5-actions.js","next/n6-account-security.js","next/n7-auth.js","next/n8-integration.js","next/n10-service-detail.js","next/n11-related-services.js","next/n12-quote-context.js","next/n13-record-detail.js","next/n14-route-continuity.js","next/n15-auth-return.js","next/n16-account-deep-links.js","next/n17-account-navigation.js","assets/global-ui-controls.js","assets/frontend-controls-runtime.js","assets/site-image-controls.js","assets/site-image-controls.css"}) {
+        for (String name : new String[]{"next/shell.js","next/n2.js","next/n3.js","next/n4.js","next/n4-mini.js","next/n5.js","next/n5-actions.js","next/n6-account-security.js","next/n7-auth.js","next/n8-integration.js","next/n10-service-detail.js","next/n11-related-services.js","next/n12-quote-context.js","next/n13-record-detail.js","next/n14-route-continuity.js","next/n15-auth-return.js","next/n16-account-deep-links.js","next/n17-account-navigation.js","next/n18-account-detail-deep-links.js","assets/global-ui-controls.js","assets/frontend-controls-runtime.js","assets/site-image-controls.js","assets/site-image-controls.css"}) {
             String version = runtimeVersions.get(name);
             if (version == null) {
                 try (var input = new ClassPathResource("static/" + name).getInputStream()) {

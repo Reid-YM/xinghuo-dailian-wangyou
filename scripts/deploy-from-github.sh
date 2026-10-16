@@ -13,6 +13,7 @@ EXPECTED_SHA=${1:-}
 REVIEWED_MIGRATIONS_FILE=${REVIEWED_MIGRATIONS_FILE:-$WORK/docs/REVIEWED_FLYWAY_MIGRATIONS.txt}
 RELEASE_ATTESTATION_FILE=${RELEASE_ATTESTATION_FILE:-$APP_DIR/release-attestation.json}
 RELEASE_ATTESTATION_HISTORY_DIR=${RELEASE_ATTESTATION_HISTORY_DIR:-$APP_DIR/release-attestations}
+RELEASE_CONFIRMATION_DIR=${RELEASE_CONFIRMATION_DIR:-$APP_DIR/release-confirmations}
 
 log()  { echo "[$(date '+%F %T')] $*"; }
 fail() { log "❌ $*"; exit 1; }
@@ -78,6 +79,19 @@ HEAD_SHA=$(git -C "$WORK" rev-parse HEAD)
   || fail "同步后的 HEAD 与目标 SHA 不一致"
 [ -z "$(git -C "$WORK" status --porcelain)" ] || fail "同步后工作区不干净"
 
+# Deploy Production 已在 GitHub Actions 侧强制要求目标来自 merged PR。
+# 主机只从该受控 merge commit 的标题提取 PR 编号用于“变更关联”；提取失败时写 null，
+# 绝不把 PR 编号当成生产发布成功证明。
+MERGE_SUBJECT=$(git -C "$WORK" log -1 --format=%s "$HEAD_SHA")
+DEPLOY_PR_NUMBER=$(printf '%s\n' "$MERGE_SUBJECT" | sed -n 's/^Merge pull request #\([1-9][0-9]*\).*/\1/p')
+PULL_REQUEST_JSON_VALUE=null
+if [[ "$DEPLOY_PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+  PULL_REQUEST_JSON_VALUE=$DEPLOY_PR_NUMBER
+  log "发布变更关联: PR #$DEPLOY_PR_NUMBER"
+else
+  log "⚠️ 当前 merge commit 未提取到 PR 编号；发布仍按 Git SHA 真值继续，变更关联显示为缺失"
+fi
+
 log "2/8 Flyway 自动发布安全阀"
 
 # 判定口径：拿「本次要发布的包」和「线上正在运行的包」比 migration 清单，
@@ -107,7 +121,6 @@ migration_has_exact_review() {
 }
 
 if [ -z "$LIVE_MIGRATIONS" ]; then
-  # 读不到线上包内的清单时退回旧口径：宁可拦下，也不能放过带迁移的版本
   MIGRATIONS=$(git -C "$WORK" diff --name-only \
     production-recovered-20261005..HEAD -- src/main/resources/db/migration)
   if [ -n "$MIGRATIONS" ]; then
@@ -148,6 +161,8 @@ log "3/8 生产前置检查"
 sudo systemctl is-active --quiet xinghuo-v2.service || fail "xinghuo-v2.service 不是 active"
 sudo systemctl is-active --quiet nginx || fail "nginx 不是 active"
 sudo nginx -t >/dev/null
+sudo install -d -o root -g xinghuo -m 0770 "$RELEASE_CONFIRMATION_DIR" \
+  || fail "无法准备人工发布确认目录"
 PREDEPLOY_HOME_MS=$(probe_http_millis "http://127.0.0.1:8080/") || fail "部署前 HOME 健康检查失败"
 PREDEPLOY_SERVICES_MS=$(probe_http_millis "http://127.0.0.1:8080/services") || fail "部署前 SERVICES 健康检查失败"
 log "部署前 8080 健康基线: HOME=${PREDEPLOY_HOME_MS}ms SERVICES=${PREDEPLOY_SERVICES_MS}ms"
@@ -217,7 +232,6 @@ EOF
 
 PREVIOUS_JAR=$(readlink -f "$APP_DIR/current.jar")
 log "7/8 执行 8081 -> 8080 零停机正式发布"
-# candidates 目录是 root:xinghuo 0750；正式发布脚本需要以 sudo 上下文读取同一个已冒烟候选 JAR。
 sudo env \
   CONFIRM_PROD_DEPLOY=YES \
   PREDEPLOY_SMOKE_SHA256="$CANDIDATE_SHA" \
@@ -248,6 +262,7 @@ cat > "$ATTESTATION_TMP" <<EOF
   "source": "production-host-gateway",
   "publishedAt": "$(date -u '+%Y-%m-%dT%H:%M:%SZ')",
   "gitSha": "$HEAD_SHA",
+  "pullRequestNumber": $PULL_REQUEST_JSON_VALUE,
   "jarSha256": "$CANDIDATE_SHA",
   "currentRelease": "$(basename "$CURRENT_JAR")",
   "previousRelease": "$(basename "$PREVIOUS_JAR")",
@@ -275,8 +290,6 @@ cat > "$ATTESTATION_TMP" <<EOF
 }
 EOF
 
-# 历史发布凭证是主机网关的附加只读审计材料。归档失败不反向伪造生产故障，
-# 但会在发布日志中明确告警，后台历史基线也会显示为缺失/构建中。
 if sudo install -d -o root -g xinghuo -m 0750 "$RELEASE_ATTESTATION_HISTORY_DIR"; then
   PREVIOUS_HISTORY_NAME="$(basename "$PREVIOUS_JAR" .jar).json"
   if sudo test -r "$RELEASE_ATTESTATION_FILE"; then
@@ -312,6 +325,7 @@ rm -f "$ATTESTATION_TMP"
 
 log "✅ GitHub 一键生产发布完成"
 log "   Git SHA: $HEAD_SHA"
+if [[ "$DEPLOY_PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then log "   PR: #$DEPLOY_PR_NUMBER"; fi
 log "   JAR SHA256: $CANDIDATE_SHA"
 log "   Current: $CURRENT_JAR"
 log "   Nginx: 8080"

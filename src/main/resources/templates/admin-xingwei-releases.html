@@ -5,6 +5,8 @@
   <meta name="robots" content="noindex,nofollow"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="theme-color" content="#101216"/>
+  <meta name="_csrf" th:content="${csrf.token}"/>
+  <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>版本与更新记录 · 星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-releases.css?v=20261014v1"/>
@@ -12,12 +14,14 @@
   <link rel="stylesheet" href="/assets/admin-xingwei-release-observability.css?v=20261017v2"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-operations-alerts.css?v=20261017v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-release-stability.css?v=20261017v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-release-confirmation.css?v=20261017v1"/>
   <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script>
   <script defer src="/assets/admin-xingwei-runtime-health.js?v=20261017v1"></script>
   <script defer src="/assets/admin-xingwei-runtime-trend.js?v=20261017v2"></script>
   <script defer src="/assets/admin-xingwei-release-attestation.js?v=20261017v3"></script>
   <script defer src="/assets/admin-xingwei-operations-alerts.js?v=20261017v1"></script>
   <script defer src="/assets/admin-xingwei-release-stability.js?v=20261017v1"></script>
+  <script defer src="/assets/admin-xingwei-release-confirmation.js?v=20261017v1"></script>
 </head>
 <body>
 <main class="xwr-shell">
@@ -275,6 +279,59 @@
       <span>只读 · deploy:view · no-store · 不执行自动回滚/重启</span>
     </div>
     <p class="xwr-stability-message" id="xwrReleaseStabilityMessage" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="xwr-confirm" id="xwrReleaseConfirmation" aria-labelledby="xwrReleaseConfirmationTitle" data-confirmation-ready="false" data-can-confirm="false">
+    <div class="xwr-confirm-head">
+      <div>
+        <p class="xw-kicker">人工确认与发布变更关联</p>
+        <h2 id="xwrReleaseConfirmationTitle">发布观察结果留痕</h2>
+        <p>人工确认独立于生产发布真值：确认不会修改主机发布凭证，也不会触发部署、重启或回滚。每次写入绑定当前 release 与 Git SHA；生产版本变化时旧页面提交会被拒绝。只有 30 分钟观察完整且自动级别正常时，才允许“确认稳定”。</p>
+      </div>
+      <span class="xw-status" id="xwrReleaseConfirmationState"><i></i><span>正在读取</span></span>
+    </div>
+
+    <div class="xwr-confirm-grid">
+      <article class="xwr-confirm-card">
+        <span>当前 release</span>
+        <strong id="xwrReleaseConfirmationRelease">-</strong>
+        <small>只绑定当前可信生产凭证</small>
+      </article>
+      <article class="xwr-confirm-card">
+        <span>关联变更</span>
+        <strong id="xwrReleaseConfirmationChange">-</strong>
+        <small>PR / Git SHA 只用于追溯变更来源</small>
+      </article>
+      <article class="xwr-confirm-card">
+        <span>稳定确认门槛</span>
+        <strong id="xwrReleaseConfirmationEligibility">-</strong>
+        <small>30 分钟完整覆盖 + 自动级别 OK</small>
+      </article>
+      <article class="xwr-confirm-card">
+        <span>最近人工结论</span>
+        <strong id="xwrReleaseConfirmationResult">-</strong>
+        <small id="xwrReleaseConfirmationLatest">-</small>
+      </article>
+    </div>
+
+    <div class="xwr-confirm-form">
+      <label for="xwrReleaseConfirmationNote">确认说明</label>
+      <textarea id="xwrReleaseConfirmationNote" maxlength="240" placeholder="确认稳定可选；标记继续观察时必须填写原因"></textarea>
+      <div class="xwr-confirm-actions">
+        <button class="xw-button" id="xwrReleaseConfirmStable" type="button" disabled>确认稳定</button>
+        <button class="xw-button xw-button-ghost" id="xwrReleaseConfirmAttention" type="button" disabled>需要继续观察</button>
+        <button class="xw-button xw-button-ghost" id="xwrReleaseConfirmationRefresh" type="button">刷新确认状态</button>
+      </div>
+    </div>
+
+    <div class="xwr-confirm-history" id="xwrReleaseConfirmationHistory" aria-live="polite">
+      <p class="xwr-confirm-empty">正在读取当前 release 的人工确认记录。</p>
+    </div>
+    <div class="xwr-confirm-meta">
+      <span>查看：deploy:view · 提交：仅管理员 · CSRF · no-store</span>
+      <span>不记录 IP、UA、请求体、订单号或业务编号</span>
+    </div>
+    <p class="xwr-confirm-message" id="xwrReleaseConfirmationMessage" role="status" aria-live="polite"></p>
   </section>
 
   <section th:replace="~{fragments/admin-delivery-roadmap :: roadmap}"></section>

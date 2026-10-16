@@ -8,6 +8,8 @@
   let cooldownTimer = null;
   let cooldownLeft = 0;
   let activeMode = 'login';
+  let resetToken=(location.pathname.endsWith('/reset') || new URLSearchParams(location.search).get('auth')==='reset')?String(new URLSearchParams(location.search).get('token')||''):'';
+  if(resetToken){const clean=new URL(location.href);clean.searchParams.delete('token');history.replaceState(history.state,'',clean.pathname+clean.search+clean.hash);}
 
   function text(value) {
     return String(value ?? '').trim();
@@ -95,7 +97,7 @@
     const style = document.createElement('style');
     style.id = 'frontend-next-n7-auth-style';
     style.textContent = `
-      .n7-auth-host{min-width:0;padding:38px}.n7-auth-host>.n4-login-form{padding:0!important}
+      .n7-auth-host [hidden]{display:none!important}.n7-auth-host{min-width:0;padding:38px}.n7-auth-host>.n4-login-form{padding:0!important}
       .n7-auth-switcher{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 12px;padding:5px;border:1px solid #ffffff12;border-radius:13px;background:#090d11}
       .n7-auth-tab{border:0;border-radius:9px;background:transparent;color:#89919a;padding:10px 8px;font-size:11px;cursor:pointer;transition:.2s}
       .n7-auth-tab:hover{color:#fff;background:#ffffff08}.n7-auth-tab.active{color:#111;background:linear-gradient(135deg,var(--gold),#ffb80e);font-weight:900}
@@ -177,7 +179,7 @@
     if (links) {
       links.replaceChildren();
       const legacy = document.createElement('a');
-      legacy.href = '/account/login';
+      legacy.href = '/account/login?legacy=1';
       legacy.textContent = '旧版登录入口';
       links.append(legacy);
     }
@@ -226,7 +228,7 @@
     append(actions, send, submit); panel.append(actions);
     const status = node('div', 'n4-message n7-message'); status.id = 'n7RegisterMessage'; panel.append(status);
     const fallback = node('div', 'n7-fallback');
-    const legacy = document.createElement('a'); legacy.href = '/account/register'; legacy.textContent = '打开旧版注册页';
+    const legacy = document.createElement('a'); legacy.href = '/account/register?legacy=1'; legacy.textContent = '打开旧版注册页';
     append(fallback, document.createTextNode('遇到兼容问题时仍可 '), legacy, document.createTextNode('。旧账号流程不会删除。'));
     panel.append(fallback);
 
@@ -250,23 +252,25 @@
     const requestActions = node('div', 'n7-actions');
     const send = button('发送重置验证码', 'btn gold'); send.id = 'n7ResetRequest'; requestActions.append(send); panel.append(requestActions);
 
-    const confirmWrap = node('div', 'n7-reset-confirm'); confirmWrap.id = 'n7ResetConfirmWrap'; confirmWrap.hidden = true;
+    const confirmWrap = node('div', 'n7-reset-confirm'); confirmWrap.id = 'n7ResetConfirmWrap'; confirmWrap.hidden = !resetToken;
     const confirmGrid = node('div', 'n7-grid');
     const code = input('n7ResetCode', 'text', '6 位验证码', 12, 'one-time-code'); code.inputMode = 'numeric';
     const password = input('n7ResetPassword', 'password', '设置新密码', 72, 'new-password');
     const confirm = input('n7ResetConfirm', 'password', '再次输入新密码', 72, 'new-password');
-    append(confirmGrid, field('邮箱验证码', code), field('新密码', password), field('确认新密码', confirm));
+    const codeField=field('邮箱验证码',code);codeField.hidden=!!resetToken;
+    append(confirmGrid,codeField,field('新密码',password),field('确认新密码',confirm));
+    if(resetToken){requestGrid.hidden=true;requestActions.hidden=true;}
     confirmWrap.append(confirmGrid);
     const confirmActions = node('div', 'n7-actions');
     const submit = button('确认重置 →', 'btn gold'); submit.id = 'n7ResetSubmit'; confirmActions.append(submit); confirmWrap.append(confirmActions); panel.append(confirmWrap);
     const status = node('div', 'n4-message n7-message'); status.id = 'n7ResetMessage'; panel.append(status);
     const fallback = node('div', 'n7-fallback');
-    const legacy = document.createElement('a'); legacy.href = '/account/reset'; legacy.textContent = '打开旧版找回页';
+    const legacy = document.createElement('a'); legacy.href = '/account/reset?legacy=1'; legacy.textContent = '打开旧版找回页';
     append(fallback, document.createTextNode('旧版找回流程继续保留，可随时 '), legacy, document.createTextNode('。'));
     panel.append(fallback);
 
     send.addEventListener('click', () => requestReset(email, send, confirmWrap, status));
-    submit.addEventListener('click', () => confirmReset({ email, code, password, confirm, submit, status }));
+    submit.addEventListener('click', () => confirmReset({ email, code, password, confirm, submit, status, token:resetToken }));
     host.append(panel);
     return panel;
   }
@@ -334,7 +338,7 @@
         body: { contactType: 'EMAIL', contactValue: email, displayName, password, code, agree: true }
       });
       message(fields.status, '注册成功，正在进入个人中心…', 'ok');
-      location.assign('/next/account');
+      location.assign(window.XHFrontendShell?.safeAccountReturn(new URLSearchParams(location.search).get('next')) || window.XHFrontendShell?.route('account') || '/next/account');
     } catch (error) {
       message(fields.status, text(error.message) || '注册失败，请检查邮箱、验证码和密码后重试。', 'error');
       fields.submit.disabled = false;
@@ -369,8 +373,8 @@
     const code = text(fields.code.value);
     const password = String(fields.password.value || '');
     const confirm = String(fields.confirm.value || '');
-    if (!validEmail(email)) return message(fields.status, '请输入有效的邮箱地址。', 'error');
-    if (!/^\d{6}$/.test(code)) return message(fields.status, '请输入 6 位邮箱验证码。', 'error');
+    if (!fields.token && !validEmail(email)) return message(fields.status, '请输入有效的邮箱地址。', 'error');
+    if (!fields.token && !/^\d{6}$/.test(code)) return message(fields.status, '请输入 6 位邮箱验证码。', 'error');
     const passwordError = passwordCheck(password);
     if (passwordError) return message(fields.status, passwordError, 'error');
     if (confirm !== password) return message(fields.status, '两次输入的新密码不一致。', 'error');
@@ -378,7 +382,8 @@
     fields.submit.disabled = true;
     fields.submit.textContent = '正在重置…';
     try {
-      const result = await request('/api/account/password/reset', { method: 'POST', body: { email, code, newPassword: password } });
+      const result = await request('/api/account/password/reset', { method: 'POST', body: fields.token ? { token:fields.token,newPassword:password } : { email,code,newPassword:password } });
+      resetToken='';
       setMode('login');
       const loginMessage = $('#n4LoginMessage');
       message(loginMessage, text(result?.message) || '密码已重置，请使用新密码登录。', 'ok');

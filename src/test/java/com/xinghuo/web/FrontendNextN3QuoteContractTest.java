@@ -34,9 +34,11 @@ class FrontendNextN3QuoteContractTest {
     }
 
     @Test
-    void n3DoesNotUploadSecretsOrBypassSafeDomRendering() throws Exception {
+    void n3ImageAttachmentUsesExistingEndpointAndSafeDomRendering() throws Exception {
         String js = Files.readString(NEXT.resolve("n3.js"));
-        assertFalse(js.contains("/api/uploads/quote"));
+        assertTrue(js.contains("/api/uploads/quote"));
+        assertTrue(js.contains("new FormData()"));
+        assertTrue(js.contains("不上传密码或验证码"));
         assertFalse(js.contains("innerHTML"));
         assertFalse(js.contains("localStorage"));
         assertTrue(js.contains("textContent"));

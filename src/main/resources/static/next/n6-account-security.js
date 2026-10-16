@@ -10,6 +10,9 @@
   let mountTimer = null;
   let toastTimer = null;
   let mountedFingerprint = '';
+  let emailToken='';
+  if(location.pathname.includes('/settings')){const params=new URLSearchParams(location.search);emailToken=params.get('verifyToken')||params.get('token')||'';if(emailToken){const clean=new URL(location.href);clean.searchParams.delete('verifyToken');clean.searchParams.delete('token');history.replaceState(history.state,'',clean.pathname+clean.search+clean.hash);}}
+  let initialFocus=false;
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
@@ -127,32 +130,56 @@
   }
 
   function profileCard(current) {
-    const card = sectionCard('账号资料', '修改 Frontend Next 中显示的昵称。头像继续沿用当前账号头像，不会因为改昵称被清空。');
+    const card = sectionCard('账号资料', '昵称与头像使用当前账号资料；上传头像后立即由服务器保存。');
     const form = document.createElement('form'); form.id = 'n6ProfileForm';
     const field = node('div', 'n6-field');
     const input = document.createElement('input'); input.id = 'n6DisplayName'; input.maxLength = 60; input.required = true; input.value = text(current.displayName); input.autocomplete = 'nickname';
-    append(field, node('label', '', '昵称'), input, node('small', '', '最多 60 个字符。'));
+    const nameLabel=node('label','','昵称');nameLabel.htmlFor=input.id;append(field,nameLabel,input,node('small','','最多 60 个字符。'));
+    const avatar = node('div','n6-field');const file=document.createElement('input');file.id='n6Avatar';file.type='file';file.accept='image/jpeg,image/png,image/webp,image/gif';
+    const avatarLabel=node('label','','头像文件');avatarLabel.htmlFor=file.id;append(avatar,avatarLabel,file,node('small','','选择图片；保存时上传，失败可重试。'));
     const actions = node('div', 'n6-actions');
     const submit = button('保存资料', 'n6-btn primary'); submit.type = 'submit'; actions.append(submit);
-    append(form, field, actions);
+    append(form, field, avatar, actions);
     const message = node('div', 'n6-message'); message.id = 'n6ProfileMessage'; message.setAttribute('aria-live', 'polite');
     append(card, form, message);
     form.addEventListener('submit', async (event) => {
-      event.preventDefault();
+      event.preventDefault();if(submit.disabled)return;
       const displayName = text(input.value);
       if (!displayName) { setMessage('n6ProfileMessage', '请填写昵称。', 'error'); input.focus(); return; }
-      submit.disabled = true; submit.textContent = '正在保存…';
+      const image=file.files?.[0];if(image && !image.type.startsWith('image/')){setMessage('n6ProfileMessage','请选择图片文件。','error');return;}
+      submit.disabled=true;file.disabled=true;input.disabled=true;submit.textContent='正在保存…';let uploaded=false;let saved=false;
       try {
-        await writeJson('/api/account/profile', { displayName, avatarUrl: current.avatarUrl || null });
+        if(image){const body=new FormData();body.append('file',image);const profile=await request('/api/account/profile/avatar',{method:'POST',headers:{'X-Requested-With':'fetch'},body});current.avatarUrl=profile.avatarUrl;mountedFingerprint=fingerprint(current);file.value='';uploaded=true;}
+        await writeJson('/api/account/profile', { displayName, avatarUrl: current.avatarUrl || null });saved=true;
         toast('账号资料已更新。');
         await reloadAccount();
       } catch (error) {
-        setMessage('n6ProfileMessage', text(error.message) || '资料保存失败。', 'error');
+        setMessage('n6ProfileMessage',(saved?'资料已保存，账号显示刷新失败：':uploaded?'头像已保存，昵称保存失败：':'')+(text(error.message)||'资料保存失败。'),'error');
       } finally {
-        if (submit.isConnected) { submit.disabled = false; submit.textContent = '保存资料'; }
+        if (submit.isConnected) { submit.disabled=false;file.disabled=false;input.disabled=false;submit.textContent='保存资料'; }
       }
     });
     return card;
+  }
+  function contactCard(current) {
+    const card=sectionCard('客服回访联系方式','仅供询价和回访；这里的联系方式不用于登录或身份验证。');
+    const rows=node('div');rows.id='n6Contacts';
+    const form=document.createElement('form');form.id='n6ContactForm';form.className='n6-field';
+    const type=document.createElement('select');type.id='n6ContactType';[['PHONE','手机号'],['WECHAT','微信号'],['QQ','QQ']].forEach(([value,label])=>type.append(new Option(label,value)));
+    const value=document.createElement('input');value.id='n6ContactValue';value.maxLength=120;value.required=true;value.autocomplete='off';value.placeholder='填写回访联系方式';
+    const typeLabel=node('label','','联系渠道');typeLabel.htmlFor=type.id;const valueLabel=node('label','','联系号');valueLabel.htmlFor=value.id;
+    const submit=button('添加回访方式','n6-btn');submit.type='submit';
+    const message=node('p','n6-message');message.id='n6ContactMessage';message.setAttribute('role','status');
+    let busy=false;
+    function render(list){rows.replaceChildren();if(!Array.isArray(list)||!list.length){rows.append(node('p','','暂无回访方式。'));return;}list.forEach((item,index)=>{const row=node('div','n6-row');row.append(node('span','',text(item.type)+' · '+text(item.masked)));const remove=button('移除','n6-btn');remove.addEventListener('click',()=>change(()=>writeNoBody('/api/account/quote-contacts/'+index,'DELETE'),false));row.append(remove);rows.append(row);});}
+    async function change(action,clear){
+      if(busy)return;busy=true;form.querySelectorAll('input,select,button').forEach(node=>node.disabled=true);rows.querySelectorAll('button').forEach(node=>node.disabled=true);
+      try{const saved=await action();current.quoteContacts=saved.quoteContacts;mountedFingerprint=fingerprint(profile());render(saved.quoteContacts);if(clear)value.value='';setMessage('n6ContactMessage','回访方式已更新。','ok');}
+      catch(error){setMessage('n6ContactMessage',text(error.message)||'回访方式更新失败。','error');}
+      finally{busy=false;form.querySelectorAll('input,select,button').forEach(node=>node.disabled=false);rows.querySelectorAll('button').forEach(node=>node.disabled=false);}
+    }
+    form.addEventListener('submit',event=>{event.preventDefault();if(!text(value.value))return;change(()=>writeJson('/api/account/quote-contacts',{type:type.value,value:text(value.value)}),true);});
+    append(form,typeLabel,type,valueLabel,value,submit);append(card,rows,form,message);render(current.quoteContacts);return card;
   }
 
   function emailCard(current) {
@@ -323,7 +350,7 @@
 
   function fingerprint(current) {
     return JSON.stringify({
-      displayName: current?.displayName || '', email: current?.email || '', emailVerified: !!current?.emailVerified,
+      displayName: current?.displayName || '', avatarUrl:current?.avatarUrl||'', quoteContacts:current?.quoteContacts||[], email: current?.email || '', emailVerified: !!current?.emailVerified,
       sessions: sessions().map((item) => [item.id, item.current, item.lastSeenAt])
     });
   }
@@ -349,7 +376,7 @@
     append(head, copy, node('span', 'n6-badge', 'ACCOUNT SECURITY LIVE'));
     shell.append(head);
     const grid = node('div', 'n6-grid');
-    append(grid, profileCard(current), emailCard(current), passwordCard(), deviceCard());
+    append(grid, profileCard(current), contactCard(current), emailCard(current), passwordCard(), deviceCard());
     shell.append(grid); section.append(shell);
 
     const n5 = $('#n5BusinessCenter');
@@ -359,6 +386,8 @@
       if (n4Section) n4Section.after(section); else page.append(section);
     }
     mountedFingerprint = nextFingerprint;
+    if(emailToken){const token=emailToken;emailToken='';setMessage('n6EmailRequestMessage','正在验证邮箱…');request('/api/account/email/verify?token='+encodeURIComponent(token)).then(()=>{setMessage('n6EmailRequestMessage','邮箱验证成功。','ok');return reloadAccount();}).catch(error=>setMessage('n6EmailRequestMessage',text(error.message)||'邮箱验证失败。','error'));}
+    if(!initialFocus && location.pathname.startsWith('/account/settings')){initialFocus=true;section.scrollIntoView({block:'start'});}
     const badge = $('.badge'); if (badge) badge.textContent = 'FRONTEND NEXT · N6 ACCOUNT SECURITY';
   }
 

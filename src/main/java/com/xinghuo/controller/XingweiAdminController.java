@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
+    @org.springframework.web.bind.annotation.ModelAttribute void privateResponse(jakarta.servlet.http.HttpServletResponse response){response.setHeader("Cache-Control","no-store");}
     static final String CONSOLE_VERSION = "20261016-v5a";
     static final String CONSOLE_STAGE = "V5A · UNIFIED DELIVERY";
     static final String BUSINESS_VERSION = "20261016-v5a";

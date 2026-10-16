@@ -175,7 +175,7 @@
     createPriority.value='0';
     fillCreateGames();
     syncPriceFields(createPriceMode,createPriceFixed,createPriceMin,createPriceMax);
-    if(createGame.disabled||createCategory.disabled){setMessage('当前没有可用于新增服务的启用游戏/分类，请先在旧后台维护 taxonomy。','error');return;}
+    if(createGame.disabled||createCategory.disabled){setMessage('当前没有可用于新增服务的启用游戏/分类，请先在游戏与分类工作台维护并启用对应项目。','error');return;}
     createDialog.showModal();
     createSlug.focus();
   }
@@ -266,6 +266,7 @@
   async function write(url, method, body=null) {
     const headers={'Accept':'application/json'};
     if(body!==null)headers['Content-Type']='application/json';
+    if(method==='PUT'&&/\/services\/\d+$/.test(url)&&currentEdit)headers['If-Match']='"v'+String(currentEdit.version??0)+'"';
     if(csrfToken&&csrfHeader)headers[csrfHeader]=csrfToken;
     const response=await fetch(url,{method,credentials:'same-origin',headers,body:body===null?undefined:JSON.stringify(body)});
     const result=await parseResponse(response);

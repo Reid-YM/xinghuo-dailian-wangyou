@@ -24,14 +24,14 @@
 - [x] 会员、社区/投稿、反馈、首页展示位、CRM 迁入新后台，权限和审计覆盖。
 - [x] 员工后台账号生命周期界面（受控创建、停用、恢复/密码重置、防锁死）。
 - [ ] /admin 默认新版与正式前端入口真正替换；功能清单中不再依赖旧主入口（默认切换已通过，完整字段级功能仍在核对）。
-- [ ] MW4 工具资料编辑、行为统计和旧概览指标全部进入新版，补齐正式前台事件/来源。
+- [x] MW4 工具资料编辑、行为统计和旧概览指标全部进入新版，补齐正式前台事件/来源。
 - [ ] 服务封面/有效期/热度、游戏完整资料/图片/平台、业务公开案例与管理删除项的接口级功能对齐。
 - [ ] 原有 UI 补丁退休、后台导航空白保护等历史修复未回归。
 - [ ] Java clean package、实际 Chromium/WebKit、手机/桌面、主线 CI、最后一次统一发布核验。
 
 真实支付、外部退款、企业微信目录写入及真实员工/小程序真机验收继续保持独立授权和验收边界。完整迁移不能用自动化结果替代这些外部验收，也不会为完成迁移擅自启用资金或目录写入。
 
-开发进度：PR #498–#504 均已合并，Java 与 Chromium/WebKit 已通过；本轮仍未部署。工具站与统计补录项正在开发/验证，之后统一版本核对、主线 CI 和一次集中发布。
+开发进度：PR #498–#505 均已合并，Java 与 Chromium/WebKit 已通过；本轮仍未部署。完整资料与业务维护补录项已实现，正在完成最终浏览器与 CI 验证，之后统一版本核对、主线 CI 和一次集中发布。
 
 ## 旧菜单核对表
 
@@ -41,13 +41,15 @@
 | 站点配置、图片、客服、FAQ、SEO | /admin/xingwei/site |
 | 导航/展示开关/主题 | /admin/xingwei/frontend-controls |
 | 首页推荐位 | /admin/xingwei/operations?module=display |
-| 服务项目 | /admin/xingwei/catalog |
-| 游戏/分类/平台 | /admin/xingwei/taxonomy |
+| 服务项目 | /admin/xingwei/catalog；完整字段/图片/有效期 /admin/xingwei/catalog-details |
+| 游戏/分类启停及新增 | /admin/xingwei/taxonomy |
+| 游戏完整资料/图片/平台/批量，无依赖游戏分类删除 | /admin/xingwei/catalog-details |
 | 攻略编辑和预览 | /admin/xingwei/guides |
-| MW4 资料与图片 | /admin/xingwei/tool-station（本分支验证中） |
+| MW4 资料与图片 | /admin/xingwei/tool-station |
 | 询价、转单、归属 | /admin/xingwei/business?tab=quotes |
 | CRM 跟进 | /admin/xingwei/operations?module=crm |
 | 订单、进度、派单、附件 | /admin/xingwei/business?tab=orders |
+| 订单公开案例与管理删除、询价管理删除 | /admin/xingwei/maintenance |
 | 支付单查询、确认金额、关闭 | /admin/xingwei/payments（开关和外部验证边界保持） |
 | 售后 | /admin/xingwei/after-sales/cases |
 | 网站会员及登录日志 | /admin/xingwei/operations?module=members |

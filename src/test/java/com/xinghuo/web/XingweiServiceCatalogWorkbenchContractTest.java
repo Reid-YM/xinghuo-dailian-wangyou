@@ -24,8 +24,9 @@ class XingweiServiceCatalogWorkbenchContractTest {
         assertTrue(controller.contains("@PostMapping(\"/services/{id}/restore\")"));
         assertTrue(controller.contains("@GetMapping(\"/services/{id}/publish-review\")"));
         assertTrue(controller.split("'service:manage'", -1).length >= 5);
-        assertTrue(controller.contains("services.create(request"));
-        assertTrue(controller.contains("services.update(id, request"));
+        assertTrue(controller.contains("services.create(draft"));
+        assertTrue(controller.contains("services.update(id,safe"));
+        assertTrue(controller.contains("revisions.change(Kind.SERVICE"));
         assertTrue(controller.contains("services.delete(id"));
         assertTrue(controller.contains("publishReview.requireReady(id)"));
         assertTrue(controller.contains("services.restore(id"));

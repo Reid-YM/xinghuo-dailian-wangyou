@@ -25,8 +25,10 @@ class XingweiRuntimeHealthDashboardContractTest {
         assertTrue(html.contains("id=\"xwrRuntimeLastServerError\""));
         assertTrue(html.contains("admin-xingwei-runtime-health.css?v=20261017v1"));
         assertTrue(html.contains("admin-xingwei-runtime-health.js?v=20261017v1"));
-        assertTrue(html.contains("18080 预发布、8081 金丝雀、8080 正式入口"));
-        assertTrue(html.contains("本页不执行部署、不执行回滚，也不写入业务数据"));
+        assertTrue(html.contains("应用运行真值只来自当前 JVM"));
+        assertTrue(html.contains("不能证明 Nginx upstream"));
+        assertTrue(html.contains("生产主机发布真值"));
+        assertTrue(html.contains("应用本身不能生成“发布成功”结论"));
     }
 
     @Test

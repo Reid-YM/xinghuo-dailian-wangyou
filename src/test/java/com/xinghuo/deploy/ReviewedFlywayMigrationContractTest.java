@@ -16,6 +16,15 @@ import org.junit.jupiter.api.Test;
 class ReviewedFlywayMigrationContractTest {
 
     @Test
+    void reviewedV75ChannelOperationsMatchesExactMigrationBlob() throws Exception {
+        Path migration = Path.of("src/main/resources/db/migration/V75__xingwei_channel_operations.sql");
+        String blob = gitBlobSha(migration);
+        assertEquals("ba2638d5b1b0354fd133c67a43cbbc38ee95745d", blob);
+        String manifest = Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt"));
+        assertTrue(manifest.contains("V75__xingwei_channel_operations.sql " + blob));
+    }
+
+    @Test
     void appliedHistoricalMigrationsRemainImmutable() throws Exception {
         assertHistoricalMigration(
                 "V59__responsive_visual_controls.sql",

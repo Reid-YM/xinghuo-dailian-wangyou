@@ -15,6 +15,14 @@ import org.junit.jupiter.api.Test;
 
 class ReviewedFlywayMigrationContractTest {
     @Test
+    void reviewedV77AdminSessionRevisionMatchesExactMigrationBlob() throws Exception {
+        Path migration = Path.of("src/main/resources/db/migration/V77__admin_session_revision.sql");
+        String blob = gitBlobSha(migration);
+        assertEquals("186aa5ca393b00b9392961f673373a56f5e66f99", blob);
+        assertTrue(Files.readString(Path.of("docs/REVIEWED_FLYWAY_MIGRATIONS.txt")).contains("V77__admin_session_revision.sql " + blob));
+    }
+
+    @Test
     void reviewedV76OperationsPermissionsMatchExactMigrationBlob() throws Exception {
         Path migration = Path.of("src/main/resources/db/migration/V76__xingwei_customer_feedback_permissions.sql");
         String blob = gitBlobSha(migration);

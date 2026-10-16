@@ -30,6 +30,11 @@ public class AdminUser {
     private Instant createdAt;
     @Column(name="updated_at", nullable=false)
     private Instant updatedAt;
+    @Column(name="auth_version",nullable=false)
+    private long authVersion;
+
+    public long getAuthVersion(){return authVersion;}
+    public void setAuthVersion(long value){authVersion=value;}
 
     @Generated
     public static AdminUserBuilder builder() {

@@ -3,6 +3,8 @@ package com.xinghuo.exception;
 import com.xinghuo.controller.AdminApiController;
 import com.xinghuo.controller.AdminLeadController;
 import com.xinghuo.controller.PublicApiController;
+import com.xinghuo.controller.XingweiOperationsController;
+import com.xinghuo.controller.XingweiAdminAccountController;
 import com.xinghuo.controller.SeoController;
 import com.xinghuo.account.service.AccountException;
 import com.xinghuo.exception.BadRequestException;
@@ -29,7 +31,7 @@ import org.springframework.web.context.request.async.AsyncRequestNotUsableExcept
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-@RestControllerAdvice(assignableTypes={PublicApiController.class, AdminApiController.class, AdminLeadController.class, PublicGuideController.class, AdminGuideController.class, SeoController.class})
+@RestControllerAdvice(assignableTypes={PublicApiController.class, AdminApiController.class, AdminLeadController.class, PublicGuideController.class, AdminGuideController.class, SeoController.class, XingweiOperationsController.class, XingweiAdminAccountController.class})
 public class ApiExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
 

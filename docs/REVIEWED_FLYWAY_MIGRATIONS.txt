@@ -19,3 +19,4 @@ V73__customer_order_after_sales_case_followups.sql b016c17b76e89a9361689c0081418
 V74__after_sales_followup_triage_cursor.sql 6b092df3b4656d3f171b558bc0cf6f445056911c 2026-10-15:additive-after-sales-followup-triage-cursor-reviewed
 V75__xingwei_channel_operations.sql ba2638d5b1b0354fd133c67a43cbbc38ee95745d 2026-10-16:additive-internal-channel-status-and-tasks-reviewed-no-existing-table-writes
 V76__xingwei_customer_feedback_permissions.sql 90ecc8061fa553b570b4e025e39321fa422ce579 2026-10-16:additive-customer-feedback-permissions-management-role-only-reviewed
+V77__admin_session_revision.sql 186aa5ca393b00b9392961f673373a56f5e66f99 2026-10-16:additive-default-zero-login-revision-no-credential-or-state-changes-reviewed

@@ -57,7 +57,7 @@ class FrontendNextN21AccountPersonalAssetsContractTest {
         String runtime = read("resources/static/next/n21-account-personal-assets.js");
 
         assertTrue(runtime.contains("safePage"));
-        assertTrue(runtime.contains("PAGE_MAX = 50"));
+        assertTrue(runtime.contains("PAGE_MAX = 1000"));
         assertTrue(runtime.contains("searchParams.get('page')"));
         assertTrue(runtime.contains("pager.next.click()"));
         assertTrue(runtime.contains("pager.previous.click()"));

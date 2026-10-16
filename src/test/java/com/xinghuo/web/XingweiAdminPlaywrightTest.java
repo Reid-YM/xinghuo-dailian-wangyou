@@ -49,7 +49,7 @@ class XingweiAdminPlaywrightTest {
             assertTrue(page.locator("#xwServerTime").textContent().contains(VERSION));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
             assertEquals("286px", page.evaluate("() => getComputedStyle(document.querySelector('.xw-shell')).gridTemplateColumns.split(' ')[0]"));
-            assertEquals(17, ((Number) page.evaluate("() => document.querySelectorAll('.xw-module').length")).intValue());
+            assertEquals(22, ((Number) page.evaluate("() => document.querySelectorAll('.xw-module').length")).intValue());
 
             page.locator("#xwModuleSearch").fill("微信");
             assertTrue(((Number) page.evaluate("() => [...document.querySelectorAll('.xw-module')].filter(x => !x.hidden).length")).intValue() >= 2);

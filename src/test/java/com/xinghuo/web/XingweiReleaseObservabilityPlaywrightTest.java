@@ -79,8 +79,8 @@ class XingweiReleaseObservabilityPlaywrightTest {
             assertTrue(page.locator("#xwrReleaseCurrent").textContent().contains("20261017050537"));
 
             page.evaluate("() => window.dispatchEvent(new Event('online'))");
-            page.waitForFunction("() => window.__releaseCalls === 2");
-            assertEquals("error", page.locator("#xwrReleaseAttestationState").getAttribute("data-release-state"));
+            page.waitForFunction("() => document.querySelector('#xwrReleaseAttestationState')?.dataset.releaseState === 'error'");
+            assertEquals(2, ((Number) page.evaluate("() => window.__releaseCalls")).intValue());
             assertTrue(page.locator("#xwrReleaseAttestationMessage").textContent().contains("deploy:view"));
             assertEquals("-", page.locator("#xwrReleaseGitSha").textContent());
             assertEquals("-", page.locator("#xwrReleaseCurrent").textContent());

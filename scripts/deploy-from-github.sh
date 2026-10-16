@@ -11,6 +11,7 @@ SMOKE_UNIT=${SMOKE_UNIT:-xinghuo-smoke-18080}
 SMOKE_PORT=${SMOKE_PORT:-18080}
 EXPECTED_SHA=${1:-}
 REVIEWED_MIGRATIONS_FILE=${REVIEWED_MIGRATIONS_FILE:-$WORK/docs/REVIEWED_FLYWAY_MIGRATIONS.txt}
+RELEASE_ATTESTATION_FILE=${RELEASE_ATTESTATION_FILE:-$APP_DIR/release-attestation.json}
 
 log()  { echo "[$(date '+%F %T')] $*"; }
 fail() { log "❌ $*"; exit 1; }
@@ -205,6 +206,7 @@ SMOKE_RESULT=PASS
 SMOKE_AT=$(date '+%Y-%m-%d %H:%M:%S %z')
 EOF
 
+PREVIOUS_JAR=$(readlink -f "$APP_DIR/current.jar")
 log "7/8 执行 8081 -> 8080 零停机正式发布"
 # candidates 目录是 root:xinghuo 0750；正式发布脚本需要以 sudo 上下文读取同一个已冒烟候选 JAR。
 sudo env \
@@ -226,6 +228,34 @@ if sudo ss -lntp | grep -q ':18080\b'; then fail "发布后 18080 仍在监听";
 CURRENT_JAR=$(readlink -f "$APP_DIR/current.jar")
 CURRENT_SHA=$(sudo sha256sum "$CURRENT_JAR" | awk '{print $1}')
 [ "$CURRENT_SHA" = "$CANDIDATE_SHA" ] || fail "发布后的 current.jar SHA256 与候选包不一致"
+
+# 只有 18080、8081、8080、Nginx 回切、端口清理和 current.jar 校验全部通过后，
+# 才原子写入主机侧发布凭证。应用只能读取该文件，不能自行生成成功结论。
+ATTESTATION_TMP=$(mktemp)
+cat > "$ATTESTATION_TMP" <<EOF
+{
+  "schemaVersion": 1,
+  "source": "production-host-gateway",
+  "publishedAt": "$(date -u '+%Y-%m-%dT%H:%M:%SZ')",
+  "gitSha": "$HEAD_SHA",
+  "jarSha256": "$CANDIDATE_SHA",
+  "currentRelease": "$(basename "$CURRENT_JAR")",
+  "previousRelease": "$(basename "$PREVIOUS_JAR")",
+  "mainPort": 8080,
+  "canaryPort": 8081,
+  "nginxUpstreamPort": 8080,
+  "canaryStopped": true,
+  "checks": {
+    "predeploy18080": true,
+    "canary8081": true,
+    "production8080": true
+  }
+}
+EOF
+sudo install -o root -g xinghuo -m 0640 "$ATTESTATION_TMP" "$RELEASE_ATTESTATION_FILE.next"
+sudo mv -Tf "$RELEASE_ATTESTATION_FILE.next" "$RELEASE_ATTESTATION_FILE"
+rm -f "$ATTESTATION_TMP"
+log "✅ 主机侧发布凭证已更新"
 
 log "✅ GitHub 一键生产发布完成"
 log "   Git SHA: $HEAD_SHA"

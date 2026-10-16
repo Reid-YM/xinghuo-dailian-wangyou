@@ -150,13 +150,17 @@
     return [...options.entries()];
   }
 
+  function statusSignature(info) {
+    return statusOptions(info).map(([value, label]) => `${value}:${label}`).join('|');
+  }
+
   function installStyles() {
     if (document.querySelector('#frontend-next-n20-style')) return;
     const style = document.createElement('style');
     style.id = 'frontend-next-n20-style';
     style.textContent = `
       .n20-list-view{display:grid;grid-template-columns:minmax(180px,1fr) minmax(140px,.45fr) minmax(140px,.45fr) auto;gap:8px;align-items:end;margin:0 0 12px;padding:11px;border:1px solid #ffffff10;border-radius:11px;background:#090d11}
-      .n20-field{display:grid;gap:5px;min-width:0}.n20-field label{font-size:8px;color:#727c86}.n20-field input,.n20-field select{width:100%;min-width:0;border:1px solid #ffffff18;background:#0b1015;color:#dce1e6;border-radius:8px;padding:8px 9px;font:inherit;font-size:9px}.n20-field input:focus,.n20-field select:focus{outline:none;border-color:#ffcb2d66;box-shadow:0 0 0 3px #ffcb2d0f}
+      .n20-field{display:grid;gap:5px;min-width:0}.n20-field>span{font-size:8px;color:#727c86}.n20-field input,.n20-field select{width:100%;min-width:0;border:1px solid #ffffff18;background:#0b1015;color:#dce1e6;border-radius:8px;padding:8px 9px;font:inherit;font-size:9px}.n20-field input:focus,.n20-field select:focus{outline:none;border-color:#ffcb2d66;box-shadow:0 0 0 3px #ffcb2d0f}
       .n20-reset{appearance:none;border:1px solid #ffffff18;background:#10161d;color:#d9dee3;border-radius:8px;padding:9px 11px;font:inherit;font-size:9px;cursor:pointer}.n20-reset:disabled{opacity:.4;cursor:not-allowed}.n20-count{grid-column:1/-1;color:#727c86;font-size:8px;line-height:1.45}.n20-empty{margin-top:10px;padding:18px 12px;border:1px dashed #ffffff18;border-radius:10px;text-align:center;color:#78818b;font-size:9px;line-height:1.55}
       @media(max-width:760px){.n20-list-view{grid-template-columns:1fr 1fr}.n20-search{grid-column:1/-1}.n20-reset{width:100%}}@media(max-width:520px){.n20-list-view{grid-template-columns:1fr}.n20-search,.n20-count{grid-column:1}}
     `;
@@ -178,6 +182,7 @@
     toolbar.id = 'n20ListView';
     toolbar.className = 'n20-list-view';
     toolbar.dataset.n20Section = info.section;
+    toolbar.dataset.n20StatusSignature = statusSignature(info);
 
     const search = document.createElement('input');
     search.id = 'n20Search';
@@ -289,7 +294,8 @@
     if (!body || !info) return false;
     let toolbar = document.querySelector('#n20ListView');
     const expected = viewState(info);
-    if (!toolbar || toolbar.dataset.n20Section !== info.section) {
+    const nextStatusSignature = statusSignature(info);
+    if (!toolbar || toolbar.dataset.n20Section !== info.section || toolbar.dataset.n20StatusSignature !== nextStatusSignature) {
       toolbar?.remove();
       toolbar = buildToolbar(info);
       body.before(toolbar);

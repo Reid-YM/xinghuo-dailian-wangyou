@@ -82,6 +82,10 @@ class XingweiReleaseObservabilityPlaywrightTest {
             page.waitForFunction("() => window.__releaseCalls === 2");
             assertEquals("error", page.locator("#xwrReleaseAttestationState").getAttribute("data-release-state"));
             assertTrue(page.locator("#xwrReleaseAttestationMessage").textContent().contains("deploy:view"));
+            assertEquals("-", page.locator("#xwrReleaseGitSha").textContent());
+            assertEquals("-", page.locator("#xwrReleaseCurrent").textContent());
+            assertEquals("false", page.locator("#xwrReleaseAttestation").getAttribute("data-release-ready"));
+            assertTrue(page.locator("#xwrReleasePublishedAt").textContent().contains("不可用"));
         }
     }
 

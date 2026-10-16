@@ -2,7 +2,7 @@
 
 日期：2026-10-16
 
-状态：已通过候选生产门禁，Stable Production 状态收口中。
+状态：Stable Production 已通过最终生产门禁。
 
 ## 目标
 
@@ -106,3 +106,13 @@ V4L 已上线待跟进队列优先级排序，可按最新待跟进或最久未�
 3. 精确 Stable main 双绿后，通过现有 `deploy/production` 受控链路执行最后一次状态-only 18080 → 8081 → 8080 生产发布。
 4. 最终发布成功后，补充 Stable PR、精确 main CI、最终 Deploy Production、最终 JAR SHA256、current release 与 rollback release 到本记录。
 5. 最终记录以独立 docs-only PR 合入，不再改变业务实现。
+
+## 最终 Stable 生产证据
+
+- Stable PR #490 已合并；精确 main `0d098f0e76ada4ddb3b334d5db1c95bbf0bf6eeb` 的 CI #1161 Java/Maven 与 Chromium/WebKit 均通过。
+- Deploy Production #214 成功，服务器 472 tests / 0 failures / 0 errors / 88 skipped。
+- 18080 预发布、8081 金丝雀、8080 正式冒烟及发布后核验全部通过；Nginx=8080，8081停止。
+- release：`/opt/xinghuo-v2/releases/xinghuo-v2-standard-20261016100747.jar`。
+- SHA256：`b46d1d4c8e7cb387a0333cd919ca4170d4a5d2bfec26c3a0b93b2786b16640bc`。
+- 上一版回滚包：`/opt/xinghuo-v2/releases/xinghuo-v2-standard-20261016070306.jar`。
+- 根据用户最新要求，后续后台各阶段只开发、验证并整合主线；整体完成验收后再统一部署。

@@ -1,0 +1,15 @@
+.xwc-shell{width:min(1600px,96%);margin:0 auto;padding:28px 0 48px;color:var(--xw-text,#e7eaf0)}
+.xwc-header,.xwc-heading,.xwc-actions,.xwc-pagination{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.xwc-header h1{margin:3px 0 8px}.xwc-header p,.xwc-note{color:var(--xw-muted,#9ba6ba);line-height:1.7}
+.xwc-note{border-left:3px solid #7396b8;padding:10px 16px;background:#132033;margin:22px 0}
+.xwc-states{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0 28px}
+.xwc-channel,.xwc-task{border:1px solid #334155;background:#141f2e;border-radius:8px;padding:18px;min-width:0;overflow-wrap:anywhere}
+.xwc-channel h2{font-size:18px;margin:0 0 8px}.xwc-channel p{white-space:pre-wrap;line-height:1.7}.xwc-state{font-weight:700;color:#b8d4e9}
+.xwc-filters{display:flex;gap:14px;align-items:end;flex-wrap:wrap;margin:16px 0}.xwc-search{flex:1;min-width:180px}
+.xwc-shell label{display:grid;gap:7px;font-size:14px}.xwc-shell input,.xwc-shell select,.xwc-shell textarea{width:100%;box-sizing:border-box;background:#0c1624;color:#e7eaf0;border:1px solid #536176;border-radius:5px;padding:10px;font:inherit;min-height:42px}
+.xwc-list{display:grid;gap:12px}.xwc-task h3{font-size:17px;margin:0;overflow-wrap:anywhere}.xwc-task p{line-height:1.7;white-space:pre-wrap}.xwc-task-meta{display:flex;gap:16px;flex-wrap:wrap;color:#aebbd0;font-size:14px;margin:12px 0}.xwc-pagination{justify-content:center;margin:24px 0}.xwc-actions{justify-content:flex-start;margin-top:18px}
+.xwc-shell button:disabled{opacity:.5;cursor:not-allowed}.xwc-shell [hidden]{display:none!important}
+.xwc-shell dialog{box-sizing:border-box;width:min(680px,94vw);max-height:90vh;overflow:auto;background:#141f2e;color:#e7eaf0;border:1px solid #63748e;border-radius:10px;padding:24px}.xwc-shell dialog::backdrop{background:#020817b8}.xwc-shell dialog form>label{margin:14px 0}.xwc-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.xwc-shell a:focus-visible,.xwc-shell button:focus-visible,.xwc-shell input:focus-visible,.xwc-shell select:focus-visible,.xwc-shell textarea:focus-visible{outline:3px solid #83c5ff;outline-offset:3px}
+@media(min-width:1800px){.xwc-shell{width:94%;max-width:1880px}.xwc-list{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.xwc-shell{width:92%;padding-top:18px}.xwc-header{align-items:flex-start;flex-direction:column}.xwc-states{grid-template-columns:1fr}.xwc-filters{display:grid;grid-template-columns:1fr 1fr}.xwc-search{grid-column:1/-1;min-width:0}.xwc-form-grid{grid-template-columns:1fr}.xwc-heading{align-items:flex-start}.xwc-task{padding:14px}.xwc-shell dialog{padding:18px}}

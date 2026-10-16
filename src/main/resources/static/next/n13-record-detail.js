@@ -2,6 +2,7 @@
   'use strict';
 
   const ROUTE_RE = /^\/next\/record\/([^/?#]+)\/?$/;
+  const BUSINESS_NO_RE = /^(XH[A-Z0-9]{10}|XH-[A-Z2-9]{24})$/;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const text = value => String(value ?? '').trim();
@@ -25,7 +26,16 @@
     let value = match[1];
     try { value = decodeURIComponent(value); } catch (_) {}
     value = text(value).toUpperCase();
-    return /^(XH[A-Z0-9]{10}|XH-[A-Z2-9]{24})$/.test(value) ? value : '';
+    return BUSINESS_NO_RE.test(value) ? value : '';
+  }
+
+  function accountReturnTarget(businessNo) {
+    const normalized = text(businessNo).toUpperCase();
+    if (!BUSINESS_NO_RE.test(normalized)) return '';
+    const from = text(new URLSearchParams(location.search).get('from')).toLowerCase();
+    const section = from === 'account-requests' ? 'requests' : from === 'account-orders' ? 'orders' : '';
+    if (!section) return '';
+    return `/next/account/${section}/${encodeURIComponent(normalized)}`;
   }
 
   function installStyles() {
@@ -90,11 +100,22 @@
     shell?.replaceChildren(card);
   }
 
+  function appendAccountReturn(actions, businessNo) {
+    const target = accountReturnTarget(businessNo);
+    if (!target) return;
+    const from = new URLSearchParams(location.search).get('from');
+    const label = from === 'account-requests' ? '返回询价详情' : '返回订单详情';
+    const back = make('a', 'btn gold', label);
+    back.href = target;
+    back.dataset.n19AccountReturn = '1';
+    actions.append(back);
+  }
+
   function renderRecord(section, record) {
     const shell = $('.shell', section);
     if (!shell) return;
     setMetadata(record);
-    const businessNo = text(record.businessNo);
+    const businessNo = text(record.businessNo).toUpperCase();
     const stage = text(record.stage).toUpperCase();
     const status = text(record.status).toUpperCase();
     const percent = Number(record.progressPercent);
@@ -139,6 +160,7 @@
     aside.append(make('div', 'n13-kicker', 'Record Actions'), make('h3', '', '下一步'));
     aside.append(make('p', 'n13-muted', stage === 'ORDER' ? '继续关注公开进度；需要补充需求或处理异常时请通过客服或个人中心操作。' : '客服确认需求和报价后，记录会继续更新；转为订单后仍沿用同一业务编号。'));
     const actions = make('div', 'n13-actions');
+    appendAccountReturn(actions, businessNo);
     const quote = make('a', 'btn gold', '继续提交询价'); quote.href = '/next/quote';
     const account = make('a', 'btn', '个人中心'); account.href = '/next/account';
     const legacy = make('a', 'btn', '查看旧版记录页'); legacy.href = `/record/${encodeURIComponent(businessNo)}`; legacy.dataset.n13Legacy = '1';
@@ -154,6 +176,7 @@
     const card = make('div', 'n13-card n13-error');
     card.append(make('div', 'n13-kicker', 'Business Record'), make('h1', '', '暂时无法显示此业务记录'), make('p', '', message));
     const actions = make('div', 'n13-actions');
+    appendAccountReturn(actions, routeNo());
     const retry = make('button', 'btn gold', '重新读取'); retry.type = 'button'; retry.dataset.n13Retry = '1';
     const quote = make('a', 'btn', '返回新版询价'); quote.href = '/next/quote';
     actions.append(retry, quote); card.append(actions); shell.replaceChildren(card);
@@ -198,6 +221,6 @@
     window.addEventListener('popstate', syncRoute);
   }
 
-  window.XHFrontendNextN13 = { routeNo, syncRoute };
+  window.XHFrontendNextN13 = { routeNo, syncRoute, accountReturnTarget };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 })();

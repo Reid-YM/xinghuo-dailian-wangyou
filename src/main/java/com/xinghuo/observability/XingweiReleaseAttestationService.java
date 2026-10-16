@@ -22,6 +22,7 @@ public class XingweiReleaseAttestationService {
     private static final String TRUSTED_SOURCE = "production-host-gateway";
     private static final int EXPECTED_MAIN_PORT = 8080;
     private static final int EXPECTED_CANARY_PORT = 8081;
+    private static final int MAX_PROBE_MILLIS = 60_000;
     private static final Pattern GIT_SHA = Pattern.compile("^[0-9a-f]{40}$");
     private static final Pattern SHA256 = Pattern.compile("^[0-9a-f]{64}$");
     private static final Pattern RELEASE = Pattern.compile("^xinghuo-v2-standard-[0-9]{14}\\.jar$");
@@ -54,9 +55,14 @@ public class XingweiReleaseAttestationService {
     }
 
     private Attestation parse(JsonNode root) {
-        if (root == null || root.path("schemaVersion").asInt(-1) != 1) {
+        if (root == null) {
             return null;
         }
+        int schemaVersion = root.path("schemaVersion").asInt(-1);
+        if (schemaVersion != 1 && schemaVersion != 2) {
+            return null;
+        }
+
         String source = root.path("source").asText("");
         String gitSha = root.path("gitSha").asText("");
         String jarSha256 = root.path("jarSha256").asText("");
@@ -71,6 +77,7 @@ public class XingweiReleaseAttestationService {
         boolean canaryPassed = checks.path("canary8081").asBoolean(false);
         boolean productionPassed = checks.path("production8080").asBoolean(false);
         Instant publishedAt = parseInstant(root.path("publishedAt").asText(""));
+        HealthComparison healthComparison = schemaVersion >= 2 ? parseHealthComparison(root.path("healthComparison")) : null;
 
         if (!TRUSTED_SOURCE.equals(source)
                 || publishedAt == null
@@ -85,11 +92,13 @@ public class XingweiReleaseAttestationService {
                 || !canaryStopped
                 || !predeployPassed
                 || !canaryPassed
-                || !productionPassed) {
+                || !productionPassed
+                || (schemaVersion >= 2 && healthComparison == null)) {
             return null;
         }
 
         return new Attestation(
+                schemaVersion,
                 publishedAt,
                 gitSha,
                 jarSha256,
@@ -99,7 +108,36 @@ public class XingweiReleaseAttestationService {
                 canaryPort,
                 nginxUpstreamPort,
                 canaryStopped,
-                new Checks(predeployPassed, canaryPassed, productionPassed));
+                new Checks(predeployPassed, canaryPassed, productionPassed),
+                healthComparison);
+    }
+
+    private HealthComparison parseHealthComparison(JsonNode node) {
+        if (node == null || !node.isObject()) {
+            return null;
+        }
+        HealthProbe before = parseHealthProbe(node.path("preDeploy8080"));
+        HealthProbe after = parseHealthProbe(node.path("postDeploy8080"));
+        if (before == null || after == null) {
+            return null;
+        }
+        return new HealthComparison(before, after);
+    }
+
+    private HealthProbe parseHealthProbe(JsonNode node) {
+        if (node == null || !node.isObject() || !node.path("passed").asBoolean(false)) {
+            return null;
+        }
+        int homeMillis = node.path("homeMillis").asInt(-1);
+        int servicesMillis = node.path("servicesMillis").asInt(-1);
+        if (!validProbeMillis(homeMillis) || !validProbeMillis(servicesMillis)) {
+            return null;
+        }
+        return new HealthProbe(true, homeMillis, servicesMillis);
+    }
+
+    private boolean validProbeMillis(int millis) {
+        return millis >= 0 && millis <= MAX_PROBE_MILLIS;
     }
 
     private Instant parseInstant(String raw) {
@@ -117,6 +155,7 @@ public class XingweiReleaseAttestationService {
     }
 
     public record Attestation(
+            int schemaVersion,
             Instant publishedAt,
             String gitSha,
             String jarSha256,
@@ -126,7 +165,12 @@ public class XingweiReleaseAttestationService {
             int canaryPort,
             int nginxUpstreamPort,
             boolean canaryStopped,
-            Checks checks) {}
+            Checks checks,
+            HealthComparison healthComparison) {}
 
     public record Checks(boolean predeploy18080, boolean canary8081, boolean production8080) {}
+
+    public record HealthComparison(HealthProbe preDeploy8080, HealthProbe postDeploy8080) {}
+
+    public record HealthProbe(boolean passed, int homeMillis, int servicesMillis) {}
 }

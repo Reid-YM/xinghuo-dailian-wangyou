@@ -12,6 +12,9 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 class XingweiOperationsPlaywrightTest {
     private Browser chromium(Playwright p){var options=new BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return p.chromium().launch(options);}
     private Page setup(Browser browser,String query) throws Exception {
+        return setup(browser,query,false);
+    }
+    private Page setup(Browser browser,String query,boolean readOnlyCrm)throws Exception{
         Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(390,844));
         String html=Files.readString(Path.of("src/main/resources/templates/admin-xingwei-operations.html"))
             .replace("th:content=\"${csrf.token}\"","content=\"test-csrf\"").replace("th:content=\"${csrf.headerName}\"","content=\"X-CSRF-TOKEN\"");
@@ -19,13 +22,16 @@ class XingweiOperationsPlaywrightTest {
             if(path.startsWith("/assets/"))route.fulfill(new Route.FulfillOptions().setPath(Path.of("src/main/resources/static"+path)));
             else route.fulfill(new Route.FulfillOptions().setContentType("text/html").setBody(html));});
         page.addInitScript("""
-            window.calls=[];window.canManage=true;window.failRead=false;window.conflict=false;
+            window.calls=[];window.canManage=!READ_ONLY_CRM;window.failRead=false;window.conflict=false;window.holdGet="";window.failGet="";window.pendingReads=[];window.heldReadReturns=0;window.holdWrite=false;
             window.fetch=async(url,options={})=>{
               const method=options.method||'GET', headers=Object.fromEntries(new Headers(options.headers||{}));
               window.calls.push({url,method,headers,body:options.body});
+              if(method==='GET'&&window.holdGet&&url.includes(window.holdGet)){await new Promise(resolve=>window.pendingReads.push({url,resolve}));window.heldReadReturns++;}
+              if(method!=='GET'&&window.holdWrite)await new Promise(resolve=>window.releaseWrite=resolve);
               if(method!=='GET')return new Response(JSON.stringify(window.conflict?{message:'记录已变化，请重新读取'}:{data:{},revision:'r2'}),{status:window.conflict?409:200});
-              if(url.endsWith('/access'))return new Response(JSON.stringify({restoreAdmin:true,modules:Object.fromEntries(['members','community','feedback','display','crm'].map(k=>[k,{view:true,manage:window.canManage}]))}));
-              if(window.failRead)return new Response(JSON.stringify({message:'读取失败，请重试'}),{status:503});
+              if(url.endsWith('/access'))return new Response(JSON.stringify({restoreAdmin:!READ_ONLY_CRM,modules:Object.fromEntries((READ_ONLY_CRM?['crm']:['members','community','feedback','display','crm']).map(k=>[k,{view:true,manage:window.canManage}]))}));
+              if(window.failRead||(window.failGet&&url.includes(window.failGet)))return new Response(JSON.stringify({message:'读取失败，请重试'}),{status:503});
+              if(url.endsWith('/logs'))return new Response(JSON.stringify([{action:'LOGIN',createdAt:'2026-10-16T00:00:00Z',ipMasked:'192.0.*.*'}]));
               if(url.endsWith('/display/services'))return new Response(JSON.stringify([{id:1,name:'公开服务',status:'PUBLISHED',gameCode:'MW4'}]));
               if(url.endsWith('/display'))return new Response(JSON.stringify([{data:{slotNo:1,mode:'AUTO',serviceId:null},revision:'slot-r1'}]));
               if(url.includes('/submissions/'))return new Response(JSON.stringify({data:{id:1,title:'测试稿件',bodyMarkdown:'<script>不能执行</script>'},revision:'r1'}));
@@ -36,7 +42,7 @@ class XingweiOperationsPlaywrightTest {
                 {id:'quote-id',businessNo:'B-1',game:'游戏',demand:'需要报价',leadScore:60,status:'NEW'};
               return new Response(JSON.stringify({items:[{data,revision:'r1'}],page:0,size:25,total:30}));
             };
-            """);
+            """.replace("READ_ONLY_CRM",Boolean.toString(readOnlyCrm)));
         page.navigate("http://xinghuo.test/admin/xingwei/operations?"+query);
         page.waitForSelector("#operationsRows article");return page;
     }
@@ -73,6 +79,40 @@ class XingweiOperationsPlaywrightTest {
     }
     @Test void chromiumMobileAllOperationsModulesWorkAndFailedReadsRecover()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){allModules(b);}}
     @Test void webkitMobileAllOperationsModulesWorkAndFailedReadsRecover()throws Exception{try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){allModules(b);}}
+    @Test void chromiumDraftsAndPendingSavesStaySafe()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){draftJourney(b);}}
+    @Test void webkitDraftsAndPendingSavesStaySafe()throws Exception{try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){draftJourney(b);}}
+    private void draftJourney(Browser b)throws Exception{
+        Page page=setup(b,"module=crm");page.evaluate("()=>window.confirm=()=>false");
+        page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("维护跟进")).click();page.locator("#operations-followUpNote").fill("尚未保存的跟进记录");page.locator("#operations-reason").fill("联系客户后更新");
+        page.locator("#operationsClose").click();assertTrue(page.locator("#operations-followUpNote").isVisible());page.keyboard().press("Escape");assertEquals("尚未保存的跟进记录",page.locator("#operations-followUpNote").inputValue());
+        assertEquals(true,page.evaluate("()=>{const e=new Event('beforeunload',{cancelable:true});window.dispatchEvent(e);return e.defaultPrevented;}"));
+        page.evaluate("()=>window.holdWrite=true");page.locator("#operationsSave").click();page.waitForFunction("()=>typeof window.releaseWrite==='function'");
+        page.evaluate("()=>{document.querySelector('#operationsForm').dispatchEvent(new Event('submit',{cancelable:true}));document.querySelector('#operationsRefresh').click();document.querySelector('#operationsFilters').dispatchEvent(new Event('submit',{cancelable:true}));}");
+        assertEquals(1,page.evaluate("()=>window.calls.filter(c=>c.method==='PATCH').length"));assertEquals(1,page.evaluate("()=>window.calls.filter(c=>c.url.includes('/leads?')).length"));
+        page.evaluate("()=>{window.failRead=true;window.holdWrite=false;window.releaseWrite();}");page.waitForFunction("()=>document.querySelector('#operationsMessage').textContent.includes('保存成功，但列表读取失败')");
+        assertEquals(false,page.evaluate("()=>document.querySelector('#operationsDialog').open"));assertEquals(0,page.locator("#operationsRows article").count());assertEquals(0,page.locator("#operationsFields input,#operationsFields textarea").count());
+        assertEquals(false,page.evaluate("()=>{const e=new Event('beforeunload',{cancelable:true});window.dispatchEvent(e);return e.defaultPrevented;}"));
+        page.evaluate("()=>window.failRead=false");page.locator("#operationsRefresh").click();page.waitForSelector("#operationsRows article");
+        page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("维护跟进")).click();page.locator("#operations-nextAction").fill("准备下一次联系");page.evaluate("()=>window.confirm=()=>true");page.locator("#operationsClose").click();page.waitForFunction("()=>!document.querySelector('#operationsDialog').open");
+    }
+    @Test void chromiumStaleResponsesCannotReopenOrOverwriteAnotherModule()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){staleJourney(b);}}
+    @Test void webkitStaleResponsesCannotReopenOrOverwriteAnotherModule()throws Exception{try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){staleJourney(b);}}
+    private void staleJourney(Browser b)throws Exception{
+        Page page=setup(b,"module=members");page.evaluate("()=>window.holdGet='/logs'");page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("登录日志")).click();page.waitForFunction("()=>window.pendingReads.length===1");
+        page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("客户线索").setExact(true)).click();page.waitForSelector("#operationsRows article");page.evaluate("()=>{window.holdGet='';window.pendingReads.shift().resolve();}");
+        page.waitForFunction("()=>window.heldReadReturns===1");assertEquals(false,page.evaluate("()=>document.querySelector('#operationsDialog').open"));
+        page.evaluate("()=>{window.holdGet='/members?';window.failGet='/members?';}");page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("网站会员").setExact(true)).click();page.waitForFunction("()=>window.pendingReads.length===1");assertEquals(0,page.locator("#operationsRows article").count());assertTrue(page.locator("#operationsNext").isDisabled());
+        page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("测试反馈").setExact(true)).click();page.waitForSelector("#operationsRows article");page.evaluate("()=>{window.holdGet='';window.pendingReads.shift().resolve();}");
+        page.waitForFunction("()=>window.heldReadReturns===2&&document.querySelector('#operationsRows').getAttribute('aria-busy')==='false'");assertTrue(page.locator("#operationsRows").textContent().contains("测试问题"));assertFalse(page.locator("#operationsMessage").textContent().contains("读取失败"));
+        page.evaluate("()=>window.failRead=true");page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("客户线索").setExact(true)).click();page.waitForFunction("()=>document.querySelector('#operationsMessage').textContent.includes('读取失败')");assertEquals(0,page.locator("#operationsRows article").count());assertTrue(page.url().contains("module=crm"));
+        page.evaluate("()=>window.failRead=false");page.locator("#operationsRefresh").click();page.waitForSelector("#operationsRows article");assertTrue(page.locator("#operationsRows").textContent().contains("B-1"));
+    }
+    @Test void chromiumReadOnlyEmployeeHasOnlyAuthorizedCrmActions()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){readOnlyJourney(b);}}
+    @Test void webkitReadOnlyEmployeeHasOnlyAuthorizedCrmActions()throws Exception{try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){readOnlyJourney(b);}}
+    private void readOnlyJourney(Browser b)throws Exception{
+        Page page=setup(b,"module=members",true);assertEquals(1,page.locator("#operationsModules button").count());assertEquals("客户线索",page.locator("#operationsModules button").textContent());assertTrue(page.locator("#operationsCreate").isHidden());
+        assertEquals(0,page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("维护跟进")).count());page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("详情").setExact(true)).click();assertTrue(page.locator("#operationsSave").isHidden());page.locator("#operationsClose").click();assertEquals(true,page.evaluate("()=>window.calls.every(c=>c.method==='GET')"));
+    }
     private void allModules(Browser b)throws Exception{
         {
             Page page=setup(b,"module=comments");

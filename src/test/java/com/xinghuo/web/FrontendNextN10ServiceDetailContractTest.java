@@ -67,4 +67,18 @@ class FrontendNextN10ServiceDetailContractTest {
         assertFalse(runtime.contains("innerHTML"));
         assertFalse(runtime.contains("localStorage"));
     }
+
+    @Test
+    void slowOrObsoleteDetailResponsesCannotOverwriteTheCurrentRoute() throws Exception {
+        String runtime = read("resources/static/next/n10-service-detail.js");
+
+        assertTrue(runtime.contains("let routeRequest = 0"));
+        assertTrue(runtime.contains("const request = ++routeRequest"));
+        assertTrue(runtime.contains("request !== routeRequest || detailRoute() !== slug"));
+        assertTrue(runtime.contains("renderLoading(section, slug)"));
+        assertTrue(runtime.contains("data-n10-retry") || runtime.contains("dataset.n10Retry"));
+        assertTrue(runtime.contains("if (retry) syncRoute()"));
+        assertTrue(runtime.contains("event.target instanceof Element"));
+        assertFalse(runtime.contains("setTimeout("));
+    }
 }

@@ -8,9 +8,9 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017panels1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017groups1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei.js?v=20261017panels1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei.js?v=20261017groups1"></script>
   <script defer src="/assets/admin-xingwei-org.js?v=20261013v2c"></script>
 </head>
 <body>
@@ -79,6 +79,8 @@
       </div>
     </section>
 
+    <nav class="xw-subnav" id="xwWorkspaceGroups" aria-label="工作区分类" hidden></nav>
+
     <p class="xw-workspace-empty" id="xwWorkspaceEmpty" role="status" aria-live="polite" hidden></p>
     <section class="xw-workspace-home" data-workspace="overview" aria-label="选择工作区">
       <h2>选择工作区</h2>
@@ -93,37 +95,47 @@
 
     <section class="xw-section" id="business" data-workspace="business" hidden>
       <div class="xw-section-head">
-        <div><p class="xw-kicker">业务中台</p><h2>业务中台</h2></div>
-        <p>V2E 已把询价与订单接入新版数据范围工作台；V3A-V3I 已继续迁移服务目录、发布检查、游戏/分类受控管理和可见性启停保护。攻略内容也进入新版受控入口，旧后台继续保留回退。</p>
+        <div><p class="xw-kicker">业务中台</p><h2 data-workspace-heading>业务中台</h2></div>
+        <p data-workspace-description>按分类处理询价、订单、目录、内容与运营资料。</p>
       </div>
-      <div class="xw-grid">
+      <div class="xw-grid" id="workspace-business-orders" data-workspace-group="orders">
         <a class="xw-module" data-search="询价 客户 需求 线索 报价" href="/admin/xingwei/business?tab=quotes"><div class="xw-module-index">B01</div><h3>询价与线索</h3><p>按全部数据、本中心或仅本人范围查看客户需求、询价记录与业务归属。</p><span>新版工作台 →</span></a>
         <a class="xw-module" data-search="订单 履约 进度 派单 代练" href="/admin/xingwei/business?tab=orders"><div class="xw-module-index">B02</div><h3>订单与履约</h3><p>按真实数据范围查看订单状态、进度与负责人，并执行范围内派单。</p><span>新版工作台 →</span></a>
         <a class="xw-module" data-search="售后 问题 客户说明 订单 时效 待跟进 排序 等待" href="/admin/xingwei/after-sales/cases"><div class="xw-module-index">B05</div><h3>售后处理</h3><p>V4M 已上线：只读待跟进队列支持优先级排序，并显示等待时长与时效标记，具体处理仍回到原处理页。</p><span>V4M 已上线 →</span></a>
+        <a class="xw-module" data-search="客户线索 CRM 运营"  href="/admin/xingwei/operations?module=crm"><div class="xw-module-index">B10</div><h3>客户线索 CRM</h3><p>按业务数据范围维护意向评分、跟进记录与下一步。</p><span>打开工作台 →</span></a>
+        <a class="xw-module" data-search="公开 案例 业务 维护 删除 询价 订单" href="/admin/xingwei/maintenance"><div class="xw-module-index">B14</div><h3>公开案例与业务维护</h3><p>按业务范围维护公开摘要及受控管理操作。</p><span>业务维护 →</span></a>
+      </div>
+      <div class="xw-grid" id="workspace-business-catalog" data-workspace-group="catalog">
         <a class="xw-module" data-search="服务 商品 价格 上下架 游戏 mw4 taxonomy 可见性" href="/admin/xingwei/catalog"><div class="xw-module-index">B03</div><h3>服务与商品</h3><p>服务项目、价格、发布检查、游戏与分类资料均已进入新版受控工作台；游戏与分类启停增加前台影响快照确认。</p><span>V3I 已上线 →</span></a>
+        <a class="xw-module" data-search="完整 资料 封面 游戏 平台 SEO 批量 有效期" href="/admin/xingwei/catalog-details"><div class="xw-module-index">B13</div><h3>目录完整资料</h3><p>维护服务封面与有效期、游戏平台与搜索资料。</p><span>完整资料 →</span></a>
+      </div>
+      <div class="xw-grid" id="workspace-business-content" data-workspace-group="content">
         <a class="xw-module" data-search="攻略 内容 编辑 guides" href="/admin/xingwei/guides"><div class="xw-module-index">B04</div><h3>攻略内容</h3><p>管理攻略组件与站内内容资产。</p><span>打开模块 →</span></a>
-        <a class="xw-module" data-search="网站会员 运营" data-global-scope href="/admin/xingwei/operations?module=members"><div class="xw-module-index">B06</div><h3>网站会员</h3><p>会员资料、邮箱核验、密码重置、登录日志与账号停用。</p><span>打开工作台 →</span></a>
         <a class="xw-module" data-search="社区与投稿 运营" data-global-scope href="/admin/xingwei/operations?module=comments"><div class="xw-module-index">B07</div><h3>社区与投稿</h3><p>审核评论、投稿，并关联已发布攻略。</p><span>打开工作台 →</span></a>
+        <a class="xw-module" data-search="MW4 工具站 武器 迷彩 图片 资料" data-global-scope href="/admin/xingwei/tool-station"><div class="xw-module-index">B11</div><h3>工具站资料</h3><p>维护武器、解锁条件、迷彩资料与模式图片。</p><span>内容工作台 →</span></a>
+      </div>
+      <div class="xw-grid" id="workspace-business-operations" data-workspace-group="operations">
+        <a class="xw-module" data-search="网站会员 运营" data-global-scope href="/admin/xingwei/operations?module=members"><div class="xw-module-index">B06</div><h3>网站会员</h3><p>会员资料、邮箱核验、密码重置、登录日志与账号停用。</p><span>打开工作台 →</span></a>
         <a class="xw-module" data-search="测试反馈 运营" data-global-scope href="/admin/xingwei/operations?module=feedback"><div class="xw-module-index">B08</div><h3>测试反馈</h3><p>提交、处理测试问题，维护处理状态与图片附件。</p><span>打开工作台 →</span></a>
         <a class="xw-module" data-search="首页展示位 运营" data-global-scope href="/admin/xingwei/operations?module=display"><div class="xw-module-index">B09</div><h3>首页展示位</h3><p>维护首页推荐服务的手动或自动展示。</p><span>打开工作台 →</span></a>
-        <a class="xw-module" data-search="客户线索 CRM 运营"  href="/admin/xingwei/operations?module=crm"><div class="xw-module-index">B10</div><h3>客户线索 CRM</h3><p>按业务数据范围维护意向评分、跟进记录与下一步。</p><span>打开工作台 →</span></a>
-        <a class="xw-module" data-search="MW4 工具站 武器 迷彩 图片 资料" data-global-scope href="/admin/xingwei/tool-station"><div class="xw-module-index">B11</div><h3>工具站资料</h3><p>维护武器、解锁条件、迷彩资料与模式图片。</p><span>内容工作台 →</span></a>
         <a class="xw-module" data-search="行为 埋点 统计 转化 事件" data-global-scope href="/admin/xingwei/statistics"><div class="xw-module-index">B12</div><h3>行为统计</h3><p>查看全站事件、询价步骤次数与每日趋势。</p><span>读取统计 →</span></a>
-        <a class="xw-module" data-search="完整 资料 封面 游戏 平台 SEO 批量 有效期" href="/admin/xingwei/catalog-details"><div class="xw-module-index">B13</div><h3>目录完整资料</h3><p>维护服务封面与有效期、游戏平台与搜索资料。</p><span>完整资料 →</span></a>
-        <a class="xw-module" data-search="公开 案例 业务 维护 删除 询价 订单" href="/admin/xingwei/maintenance"><div class="xw-module-index">B14</div><h3>公开案例与业务维护</h3><p>按业务范围维护公开摘要及受控管理操作。</p><span>业务维护 →</span></a>
       </div>
     </section>
 
     <section class="xw-section" id="organization" data-workspace="organization" hidden>
       <div class="xw-section-head">
-        <div><p class="xw-kicker">组织与权限</p><h2>组织与权限</h2></div>
-        <p>V2C 已在新版组织接口启用后端数据范围守卫；权限及全部数据、本中心、仅本人范围都会在接口层执行。</p>
+        <div><p class="xw-kicker">组织与权限</p><h2 data-workspace-heading>组织与权限</h2></div>
+        <p data-workspace-description>按分类查看中心岗位、员工账号和角色权限。</p>
       </div>
-      <div class="xw-grid">
+      <div class="xw-grid" id="workspace-organization-structure" data-workspace-group="structure">
         <a class="xw-module" data-search="部门 组织 架构 七大中心" href="#org-console"><div class="xw-module-index">O01</div><h3>七大中心</h3><p>固定组织架构、中心编号和岗位数量实时读取数据库。</p><span>查看中心 →</span></a>
+      </div>
+      <div class="xw-grid" id="workspace-organization-employees" data-workspace-group="employees">
         <a class="xw-module" data-search="岗位 职务 员工 企业微信 通讯录 155 淘宝 闲鱼 mw4" href="/admin/xingwei/wecom"><div class="xw-module-index">O02</div><h3>岗位与企业微信员工</h3><p>155 个正式岗位来自 V63；企业微信员工与部门实时只读。</p><span>查看员工 →</span></a>
-        <a class="xw-module" data-search="角色 权限 rbac 数据范围" href="#org-roles"><div class="xw-module-index">O03</div><h3>角色与权限</h3><p>七个中心角色、权限点与 data_scope 已成为新版接口的有效授权依据。</p><span>rbac:view →</span></a>
         <a class="xw-module" data-search="账号 用户 登录 日志 安全" href="/admin/xingwei/security"><div class="xw-module-index">O04</div><h3>账号与登录安全</h3><p>查看当前授权，区分员工后台账号与网站会员，并进入对应管理入口。</p><span>账号与安全 →</span></a>
+      </div>
+      <div class="xw-grid" id="workspace-organization-roles" data-workspace-group="roles">
+        <a class="xw-module" data-search="角色 权限 rbac 数据范围" href="#org-roles"><div class="xw-module-index">O03</div><h3>角色与权限</h3><p>七个中心角色、权限点与 data_scope 已成为新版接口的有效授权依据。</p><span>rbac:view →</span></a>
       </div>
     </section>
 
@@ -133,45 +145,55 @@
         <div class="xw-shadow-badge"><i></i><span>V2C 数据范围</span><small>恢复管理员全量 · 员工按角色与数据范围执行</small></div>
       </div>
       <div class="xw-org-message" id="xwOrgMessage" role="status">正在读取组织数据……</div>
-      <div class="xw-org-kpis" id="xwOrgKpis">
+      <div class="xw-org-kpis" id="xwOrgKpis" data-workspace-group="structure" data-group-permission="org:view employee:view">
         <div><span>中心</span><strong data-org-kpi="departments">-</strong></div><div><span>正式岗位</span><strong data-org-kpi="positions">-</strong></div><div><span>可见账号</span><strong data-org-kpi="employees">-</strong></div><div><span>已归档员工</span><strong data-org-kpi="assignedEmployees">-</strong></div><div><span>星维角色</span><strong data-org-kpi="roles">-</strong></div><div><span>权限点</span><strong data-org-kpi="permissions">-</strong></div>
       </div>
 
-      <article class="xw-data-panel">
+      <article class="xw-data-panel" id="org-departments" data-workspace-group="structure" data-group-entry data-group-permission="org:view employee:view">
         <div class="xw-data-head"><div><h3>固定七大中心</h3><p>中心编号、名称与层级来自唯一正式组织架构，不在本页提供删除/改名。</p></div></div>
         <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>编号</th><th>中心</th><th>正式岗位数</th><th>状态</th></tr></thead><tbody id="xwDepartmentRows"></tbody></table></div>
       </article>
 
-      <article class="xw-data-panel" id="org-positions">
+      <article class="xw-data-panel" id="org-positions" data-workspace-group="structure" data-group-entry data-group-permission="org:view employee:view">
         <div class="xw-data-head"><div><h3>155 岗位正式词库</h3><p>岗位编码与合同索引一致，用作员工档案和后续派单能力的标准值。</p></div><label class="xw-inline-filter">筛选中心<select id="xwPositionDepartment"><option value="">全部中心</option></select></label></div>
         <div class="xw-table-wrap xw-table-tall"><table class="xw-table"><thead><tr><th>岗位编码</th><th>岗位</th><th>类别</th><th>所属中心</th></tr></thead><tbody id="xwPositionRows"></tbody></table></div>
       </article>
 
-      <article class="xw-data-panel" id="org-employees">
+      <article class="xw-data-panel" id="org-employees" data-workspace-group="employees" data-group-entry data-group-permission="employee:view">
         <div class="xw-data-head"><div><h3>员工档案</h3><p>直接扩展现有 admin_users，不新建第二套登录账号。读取和修改都会执行当前账号的数据范围。</p></div></div>
         <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>账号</th><th>姓名/编号</th><th>中心</th><th>岗位</th><th>星维角色</th><th>登录角色</th><th>操作</th></tr></thead><tbody id="xwEmployeeRows"></tbody></table></div>
       </article>
 
-      <article class="xw-data-panel" id="org-roles">
+      <article class="xw-data-panel" id="org-roles" data-workspace-group="roles" data-group-entry data-group-permission="rbac:view">
         <div class="xw-data-head"><div><h3>角色与权限点</h3><p>角色权限与数据范围会直接约束已分配该角色账号对新版星维接口和模块的访问；管理层安全兜底角色保持只读。</p></div></div>
         <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>角色</th><th>数据范围</th><th>权限点</th><th>状态</th><th>操作</th></tr></thead><tbody id="xwRoleRows"></tbody></table></div>
       </article>
     </section>
 
     <section class="xw-section" id="channels" data-workspace="channels" hidden>
-      <div class="xw-section-head"><div><p class="xw-kicker">渠道与微信</p><h2>渠道与微信</h2></div><p>网站侧小程序登录接口已上线，星火迷彩追踪器源码已随 V3N 进入仓库，预览版真机主链路已验证；小程序正式版仍待独立发布；支付保持受控联调状态。</p></div>
-      <div class="xw-grid">
+      <div class="xw-section-head"><div><p class="xw-kicker">渠道与微信</p><h2 data-workspace-heading>渠道与微信</h2></div>
+        <p data-workspace-description>按分类查看渠道运营、微信支付与前台展示。</p></div>
+      <div class="xw-grid" id="workspace-channels-operations" data-workspace-group="operations">
         <a class="xw-module" data-search="淘宝 闲鱼 渠道 商品 运营 任务" href="/admin/xingwei/channels"><div class="xw-module-index">C01</div><h3>渠道运营</h3><p>查看官网、淘宝、闲鱼的内部服务状态，按权限安排与跟进运营任务。</p><span>打开渠道工作台 →</span></a>
+      </div>
+      <div class="xw-grid" id="workspace-channels-wechat" data-workspace-group="wechat">
         <article class="xw-module" data-search="微信 登录 小程序 扫码 公众号 服务号"><div class="xw-module-index">C02</div><h3>微信身份能力</h3><p>网站登录码与二次确认接口已上线；星火迷彩追踪器 1.0.14 预览版真机登录主链路已验证；小程序正式版发布、异常与跨设备边界仍待单独验收。</p><span>网站接口已上线 · 预览版主链路已验证</span></article>
         <a class="xw-module" data-search="微信支付 支付 配置 商户 订单" href="/admin/xingwei/payments"><div class="xw-module-index">C03</div><h3>微信支付</h3><p>查看扫码支付配置与网站支付单只读概览。V3H 小程序支付仍待真机验收。</p><span>V3H 待真机验收 →</span></a>
+      </div>
+      <div class="xw-grid" id="workspace-channels-display" data-workspace-group="display">
         <a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/xingwei/frontend-controls"><div class="xw-module-index">C04</div><h3>前台控制</h3><p>按查看与管理权限维护导航、展示开关和主题参数。</p><span>打开模块 →</span></a>
       </div>
     </section>
     <section class="xw-section" id="system" data-workspace="system" hidden>
-      <div class="xw-section-head"><div><p class="xw-kicker">系统与治理</p><h2>系统工具</h2></div><p>保留审计、搜索展示、站点配置和发布回滚能力；版本真值现在同时受 CI 和浏览器运行时核验保护。</p></div>
-      <div class="xw-grid">
+      <div class="xw-section-head"><div><p class="xw-kicker">系统与治理</p><h2 data-workspace-heading>系统工具</h2></div>
+        <p data-workspace-description>按分类维护站点配置、查询审计并查看发布记录。</p></div>
+      <div class="xw-grid" id="workspace-system-site" data-workspace-group="site">
         <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin/xingwei/site"><div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示、图片与游戏服务状态。</p><span>进入配置工作台 →</span></a>
+      </div>
+      <div class="xw-grid" id="workspace-system-audit" data-workspace-group="audit">
         <a class="xw-module" data-search="日志 审计 操作 安全" href="/admin/xingwei/audits"><div class="xw-module-index">S02</div><h3>操作审计</h3><p>按权限范围检索操作记录、业务对象和日期，查看受保护的变更摘要。</p><span>查看操作记录 →</span></a>
+      </div>
+      <div class="xw-grid" id="workspace-system-delivery" data-workspace-group="delivery">
         <article class="xw-module" data-search="发布 部署 回滚 ci github 服务器"><div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>GitHub PR → CI → 生产部署门禁与零停机发布已经启用；V3K 校验提交记录，V3L 再核对实际运行版本，后台不直接执行危险发布。</p><span>生产流水线已启用</span></article>
         <article class="xw-module xw-module-planned" data-search="代码生成 scaffold generator 开发"><div class="xw-module-index">S04</div><h3>开发工具</h3><p>已完成适用性评估：参数复用现有配置，代码生成暂不进入生产链路。</p><span>评估完成 · 暂不引入</span></article>
       </div>

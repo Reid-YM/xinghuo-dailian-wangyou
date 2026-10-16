@@ -13,12 +13,27 @@
   const navItems = Array.from(document.querySelectorAll('.xw-nav-item'));
   const workspaceNames = {overview:'运营总览',business:'业务中台',organization:'组织与权限',channels:'渠道与微信',system:'系统工具'};
   const panels = Array.from(document.querySelectorAll('[data-workspace]'));
-  const orgAnchors = new Set(['org-console','org-positions','org-employees','org-roles']);
-  function workspaceFor(hash) {
+  const workspaceGroups = {
+    business:[['orders','询价与订单','处理客户需求、订单、售后与跟进，沿用当前岗位权限和业务数据范围。'],['catalog','服务与目录','维护服务项目、封面、有效期、游戏平台与搜索资料，发布及启停继续执行确认流程。'],['content','内容与社区','维护攻略、评论投稿与工具站内容，按权限查看和审核。'],['operations','会员与运营','处理会员、测试反馈、首页推荐与行为统计；全站资料仍受对应权限和数据范围约束。']],
+    organization:[['structure','中心与岗位','查看正式中心架构与岗位词库，保持组织资料一致。'],['employees','员工与账号','查看员工档案、企业微信员工与账号安全，修改仍受岗位权限和数据范围约束。'],['roles','角色与权限','查看和维护角色权限，管理层安全兜底角色继续只读。']],
+    channels:[['operations','渠道运营','安排和跟进官网、淘宝、闲鱼的渠道运营任务。'],['wechat','微信与支付','查看微信身份能力与受控支付入口，真实收款和外部操作仍按各自验收范围执行。'],['display','前台展示','维护前台导航、展示开关和主题参数。']],
+    system:[['site','站点配置','维护品牌、文案、图片与搜索展示。'],['audit','操作审计','按权限和数据范围查询操作记录与变更摘要。'],['delivery','发布与工具','查看发布回滚流程及开发工具状态，本页不直接执行生产部署。']]
+  };
+  const groupedItems = Array.from(document.querySelectorAll('[data-workspace-group]'));
+  const allowedModules = new Set();
+  const orgAnchors = new Map([['org-console','structure'],['org-positions','structure'],['org-employees','employees'],['org-roles','roles']]);
+  function routeFor(hash) {
     const id = String(hash || '').replace(/^#/, '');
-    return Object.hasOwn(workspaceNames, id) ? id : orgAnchors.has(id) ? 'organization' : 'overview';
+    if (orgAnchors.has(id)) return {workspace:'organization',group:orgAnchors.get(id)};
+    const [workspace,group,...rest] = id.split('/');
+    if (!Object.hasOwn(workspaceNames, workspace)) return {workspace:'overview',group:''};
+    const validGroup = !rest.length && workspaceGroups[workspace]?.some(([key]) => key === group);
+    return {workspace,group:validGroup ? group : ''};
   }
-  let activeWorkspace = workspaceFor(location.hash);
+  const workspaceFor = hash => routeFor(hash).workspace;
+  const initialRoute = routeFor(location.hash);
+  let activeWorkspace = initialRoute.workspace;
+  let activeGroup = initialRoute.group;
   const REQUEST_TIMEOUT_MS = 8000;
   const HEALTH_CHECK_INTERVAL_MS = 60000;
   const MODULE_PERMISSIONS = {
@@ -45,7 +60,9 @@
   });
 
   function chooseWorkspace(hash) {
-    activeWorkspace = workspaceFor(hash);
+    const route = routeFor(hash);
+    activeWorkspace = route.workspace;
+    activeGroup = route.group;
     if (search) search.value = '';
     filterModules();
     if (window.matchMedia('(max-width: 860px)').matches) setMenu(false);
@@ -57,7 +74,9 @@
     if (!link || (!sidebar?.contains(link) && !document.querySelector('.xw-main')?.contains(link))) return;
     const hash = link.getAttribute('href');
     const id = hash.slice(1);
-    if (Object.hasOwn(workspaceNames, id)) {
+    const route = routeFor(hash);
+    const groupLink = id === `${route.workspace}/${route.group}` && route.group;
+    if (Object.hasOwn(workspaceNames, id) || groupLink) {
       event.preventDefault();
       if (location.hash !== hash) history.pushState(null, '', hash);
       chooseWorkspace(hash);
@@ -124,11 +143,13 @@
   function filterModules() {
     const query = normalize(search?.value);
     let visible = 0;
+    allowedModules.clear();
     modules.forEach((module) => {
       const text = normalize(`${module.dataset.search || ''} ${module.textContent || ''}`);
       const code = module.querySelector('.xw-module-index')?.textContent?.trim();
       const allowed = Boolean(access) && (code === 'S01' ? can('site:view') || can('seo:view') : code === 'B14' ? can('order:view') || can('quote:view') : can(modulePermission(module)));
       const globalAllowed = !module.hasAttribute('data-global-scope') || !access || access.allowAll || access.dataScope === 'ALL';
+      if (allowed && globalAllowed) allowedModules.add(module);
       const match = (!query || text.includes(query)) && allowed && globalAllowed;
       module.hidden = !match;
       if (match) visible += 1;
@@ -140,7 +161,56 @@
     }
   }
 
+  function groupReadable(item) {
+    const permissions = item.dataset.groupPermission;
+    return !permissions || Boolean(access) && permissions.split(' ').some(can);
+  }
+
+  function groupCount(workspace, group) {
+    return groupedItems.filter(item => item.dataset.workspaceGroup === group && item.closest('[data-workspace]')?.dataset.workspace === workspace)
+      .reduce((count, item) => count + [...item.querySelectorAll('.xw-module')].filter(module => allowedModules.has(module)).length + (item.hasAttribute('data-group-entry') && groupReadable(item) ? 1 : 0), 0);
+  }
+
+  function showGroups(query) {
+    const groups = workspaceGroups[activeWorkspace] || [];
+    if (!activeGroup && groups.length && access) activeGroup = (groups.find(([key]) => groupCount(activeWorkspace, key) > 0) || groups[0])[0];
+    const raw = location.hash.slice(1);
+    if (access && activeGroup && !orgAnchors.has(raw) && (raw === activeWorkspace || raw.startsWith(activeWorkspace + '/'))) {
+      const canonical = `#${activeWorkspace}/${activeGroup}`;
+      if (location.hash !== canonical) history.replaceState(null, '', canonical);
+    }
+    groupedItems.forEach(item => {
+      item.hidden = query
+        ? !item.querySelector('.xw-module:not([hidden])')
+        : item.dataset.workspaceGroup !== activeGroup || !groupReadable(item);
+    });
+    const nav = document.getElementById('xwWorkspaceGroups');
+    if (!nav) return;
+    nav.hidden = Boolean(query) || !groups.length || !access;
+    const links = groups.filter(([key]) => key === activeGroup || groupCount(activeWorkspace, key) > 0).map(([key, label]) => {
+      const link = document.createElement('a');
+      link.href = `#${activeWorkspace}/${key}`;
+      link.setAttribute('aria-controls', groupedItems.filter(item => item.dataset.workspaceGroup === key && item.closest('[data-workspace]')?.dataset.workspace === activeWorkspace).map(item => item.id).filter(Boolean).join(' '));
+      if (key === activeGroup) link.setAttribute('aria-current', 'page');
+      link.append(document.createTextNode(label));
+      const count = document.createElement('small');count.textContent = `${groupCount(activeWorkspace, key)} 项`;link.append(count);
+      return link;
+    });
+    const signature = `${activeWorkspace}:` + links.map(link => link.textContent).join('|');
+    // Preserve keyboard focus while typing in search or rechecking the same access snapshot.
+    const focusedHref = nav.contains(document.activeElement) ? document.activeElement.getAttribute('href') : null;
+    if (nav.dataset.signature !== signature) {
+      nav.replaceChildren(...links);nav.dataset.signature = signature;
+      if (focusedHref) [...nav.querySelectorAll('a')].find(link => link.getAttribute('href') === focusedHref)?.focus({preventScroll:true});
+    }
+    nav.querySelectorAll('a').forEach(link => {
+      if (link.getAttribute('href') === `#${activeWorkspace}/${activeGroup}`) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+  }
+
   function showWorkspace(query, matches) {
+    showGroups(query);
     panels.forEach((panel) => {
       panel.hidden = query
         ? !panel.querySelector('.xw-module:not([hidden])')
@@ -151,6 +221,12 @@
       item.classList.toggle('active', current);
       if (current) item.setAttribute('aria-current', 'page');
       else item.removeAttribute('aria-current');
+    });
+    document.querySelectorAll('[data-workspace-heading],[data-workspace-description]').forEach(node => {
+      const workspace = node.closest('[data-workspace]')?.dataset.workspace;
+      const group = workspaceGroups[workspace]?.find(([key]) => key === activeGroup);
+      if (node.hasAttribute('data-workspace-heading')) node.textContent = query ? workspaceNames[workspace] : group?.[1] || workspaceNames[workspace];
+      else node.textContent = query ? '按当前权限展示此工作区中的匹配模块。' : group?.[2] || '';
     });
     const title = query ? '模块搜索' : workspaceNames[activeWorkspace];
     const heading = document.getElementById('xwWorkspaceTitle');
@@ -166,9 +242,9 @@
     const empty = document.getElementById('xwWorkspaceEmpty');
     if (empty) {
       const section = document.getElementById(activeWorkspace);
-      const available = section?.querySelectorAll('.xw-module:not([hidden])').length || 0;
+      const available = activeGroup ? groupCount(activeWorkspace, activeGroup) : section?.querySelectorAll('.xw-module:not([hidden])').length || 0;
       empty.hidden = !access || (query ? matches > 0 : activeWorkspace === 'overview' || available > 0);
-      empty.textContent = query ? '没有匹配的可用模块，请更换关键词或清除搜索。' : '当前工作区没有可用模块，可选择其他工作区或联系管理员核对权限。';
+      empty.textContent = query ? '没有匹配的可用模块，请更换关键词或清除搜索。' : '当前分类没有可用模块或资料，可选择其他分类或联系管理员核对权限。';
     }
   }
 

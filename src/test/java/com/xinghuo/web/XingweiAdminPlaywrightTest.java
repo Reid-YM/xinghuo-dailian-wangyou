@@ -218,12 +218,14 @@ class XingweiAdminPlaywrightTest {
             assertTrue(page.locator("#xwEmployeeRows").textContent().contains("负责人"));
             assertTrue(page.locator("#xwRoleRows").textContent().contains("游戏业务中心"));
 
+            page.locator("#xwWorkspaceGroups a[href='#organization/employees']").click();
             page.locator("#xwEmployeeRows [data-employee-edit]").click();
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwEmployeeDialog').open"));
             assertTrue(((Number) page.evaluate("() => document.querySelectorAll('#xwEmployeeDepartment option').length")).intValue() >= 3);
             assertTrue(page.locator("#xwEmployeePosition").textContent().contains("工作室负责人"));
             page.locator("[data-dialog-close='xwEmployeeDialog']").first().click();
 
+            page.locator("#xwWorkspaceGroups a[href='#organization/roles']").click();
             page.locator("#xwRoleRows [data-role-edit]").first().click();
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwRoleDialog').open"));
             assertTrue(page.locator("#xwPermissionChecks").textContent().contains("查看组织"));

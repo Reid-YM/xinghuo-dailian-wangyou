@@ -3,6 +3,8 @@
 
   const ROUTE_RE = /^\/next\/record\/([^/?#]+)\/?$/;
   const BUSINESS_NO_RE = /^(XH[A-Z0-9]{10}|XH-[A-Z2-9]{24})$/;
+  const STATUS_RE = /^[A-Z][A-Z0-9_]{0,31}$/;
+  const SORTS = new Set(['updated-desc', 'updated-asc']);
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const text = value => String(value ?? '').trim();
@@ -29,13 +31,26 @@
     return BUSINESS_NO_RE.test(value) ? value : '';
   }
 
+  function appendAccountViewState(target, source = location.href) {
+    const url = target instanceof URL ? target : new URL(target, location.origin);
+    const params = new URL(source, location.origin).searchParams;
+    const q = text(params.get('q')).slice(0, 60);
+    const status = text(params.get('status')).toUpperCase();
+    const sort = text(params.get('sort')).toLowerCase();
+    if (q) url.searchParams.set('q', q);
+    if (STATUS_RE.test(status)) url.searchParams.set('status', status);
+    if (SORTS.has(sort)) url.searchParams.set('sort', sort);
+    return url;
+  }
+
   function accountReturnTarget(businessNo) {
     const normalized = text(businessNo).toUpperCase();
     if (!BUSINESS_NO_RE.test(normalized)) return '';
     const from = text(new URLSearchParams(location.search).get('from')).toLowerCase();
     const section = from === 'account-requests' ? 'requests' : from === 'account-orders' ? 'orders' : '';
     if (!section) return '';
-    return `/next/account/${section}/${encodeURIComponent(normalized)}`;
+    const target = appendAccountViewState(new URL(`/next/account/${section}/${encodeURIComponent(normalized)}`, location.origin));
+    return target.pathname + target.search;
   }
 
   function installStyles() {
@@ -221,6 +236,6 @@
     window.addEventListener('popstate', syncRoute);
   }
 
-  window.XHFrontendNextN13 = { routeNo, syncRoute, accountReturnTarget };
+  window.XHFrontendNextN13 = { routeNo, syncRoute, accountReturnTarget, appendAccountViewState };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true }); else boot();
 })();

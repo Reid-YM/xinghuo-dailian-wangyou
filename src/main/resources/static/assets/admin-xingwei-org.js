@@ -53,7 +53,7 @@
     const response = await fetch(url, {credentials: 'same-origin', ...options, method, headers});
     let data = null;
     try { data = await response.json(); } catch (_) { data = null; }
-    if (!response.ok) throw new Error(data?.error || data?.message || `HTTP ${response.status}`);
+    if (!response.ok) throw new Error(data?.error || data?.message || `请求失败（状态码 ${response.status}）`);
     return data;
   }
 

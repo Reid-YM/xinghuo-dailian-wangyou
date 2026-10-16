@@ -74,6 +74,9 @@ jobs:
         shell: bash
         run: bash scripts/validate-xingwei-release-state.sh
 
+      - name: Validate admin detail search index
+        run: python3 scripts/generate-admin-search-index.py --check
+
       - name: Build and test with Maven
         run: mvn -B -ntp clean package
 

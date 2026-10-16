@@ -46,7 +46,7 @@ class XingweiTaxonomyControlContractTest {
         assertTrue(taxonomyTemplate.contains("操作后前台服务"));
         assertTrue(taxonomyTemplate.contains("id=\"xtaxVisibilitySummary\""));
         assertTrue(taxonomyTemplate.contains("id=\"xtaxAcknowledge\""));
-        assertTrue(taxonomyTemplate.contains("影响快照 token"));
+        assertTrue(taxonomyTemplate.contains("影响快照凭证"));
         assertTrue(taxonomyTemplate.contains("href=\"/admin/xingwei/releases\""));
         assertTrue(catalogTemplate.contains("href=\"/admin/xingwei/taxonomy\""));
     }

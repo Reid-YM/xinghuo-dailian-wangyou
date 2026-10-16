@@ -30,7 +30,7 @@ class XingweiAdminConsoleContractTest {
         String template = read("resources/templates/admin-xingwei.html");
 
         assertTrue(controller.contains("return \"admin-xingwei\""));
-        assertTrue(template.contains("href=\"/admin\""), "legacy admin must remain available during migration");
+        assertTrue(template.contains("href=\"/admin?legacy=1\""), "legacy admin must remain available during migration");
         assertTrue(template.contains("action=\"/logout\""), "existing Spring Security logout must be reused");
         assertTrue(!template.contains("JWT"));
         assertTrue(!template.contains("localStorage"));
@@ -43,7 +43,7 @@ class XingweiAdminConsoleContractTest {
         String js = read("resources/static/assets/admin-xingwei.js");
 
         assertTrue(template.contains("/assets/admin-xingwei.css?v=20261013v1"));
-        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261016ops1"));
+        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261016default1"));
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
         assertTrue(template.contains("组织与权限"));
         assertTrue(template.contains("微信支付"));

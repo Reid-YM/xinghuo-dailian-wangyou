@@ -22,7 +22,7 @@
     <p>通讯录读取使用企业 ID 与只读应用密钥；员工、部门实时验连请进入通讯录页。岗位仍以 V63 数据库为真源。</p>
     <ul class="xwi-checks"><li th:each="check : ${weCom.checks}"><span><strong th:text="${check.label}">配置项</strong><small th:text="${check.key}">WECOM_*</small></span><b th:classappend="${check.ready} ? ' ready' : ' pending'" th:text="${check.ready} ? '已配置' : '待配置'">待配置</b></li></ul>
     <div class="xwi-note"><strong>员工写入</strong><span th:text="${weCom.writeCredentialPresent} ? '写入凭据已配置；写入能力仍在 PR #372，尚未并入主线或完成真实员工验收。' : '写入凭据待配置；写入能力仍在 PR #372，尚未并入主线。'">写入能力未上线</span></div>
-    <div class="xwi-actions"><a class="xw-button" href="/admin/xingwei/wecom">查看实时通讯录</a><a class="xw-button xw-button-ghost" href="/admin">设置企微客服展示</a></div>
+    <div class="xwi-actions"><a class="xw-button" href="/admin/xingwei/wecom">查看实时通讯录</a><a class="xw-button xw-button-ghost" href="/admin/xingwei/site">设置企微客服展示</a></div>
   </section>
 
   <section class="xwi-card" th:if="${payment != null}">
@@ -45,7 +45,7 @@
       </tbody></table></div>
       <p th:if="${paymentOverview.recent.isEmpty()}">暂无网站微信支付记录。</p>
     </div>
-    <div class="xwi-actions"><a class="xw-button" href="/admin">打开现有订单与收款操作</a><a class="xw-button xw-button-ghost" href="/admin/xingwei/business?tab=orders">查看新版订单工作台</a></div>
+    <div class="xwi-actions"><a class="xw-button" href="/admin/xingwei/payments">支付管理工作台</a><a class="xw-button xw-button-ghost" href="/admin/xingwei/business?tab=orders">查看新版订单工作台</a></div>
   </section>
 
   <footer class="xwi-footer">配置来源为服务器环境变量与受控文件；前端只接收检查结果。生产启用继续执行主线 PR、CI 与零停机发布门禁。</footer>

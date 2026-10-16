@@ -223,6 +223,7 @@ public class XingweiAdminController {
         model.addAttribute("csrf", csrf);
         model.addAttribute("username", authentication == null ? "admin" : authentication.getName());
         model.addAttribute("workspaceName", "星维网络服务工作室");
+        model.addAttribute("restoreAdmin",authentication!=null&&authentication.getAuthorities().stream().anyMatch(authority->"ROLE_ADMIN".equals(authority.getAuthority())));
     }
 
     public record ReleaseItem(String date, String version, String status, String title, String detail) {}

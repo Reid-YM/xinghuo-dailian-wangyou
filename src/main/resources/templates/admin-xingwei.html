@@ -10,7 +10,7 @@
   <title>星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <script defer src="/assets/admin-xingwei.js?v=20261016ops1"></script>
+  <script defer src="/assets/admin-xingwei.js?v=20261016default1"></script>
   <script defer src="/assets/admin-xingwei-org.js?v=20261013v2c"></script>
 </head>
 <body>
@@ -55,7 +55,7 @@
         <span class="xw-status" id="xwBackendStatus"><i></i>正在检查服务</span>
         <a class="xw-button xw-button-ghost" href="/admin/xingwei/releases">更新记录</a>
         <a class="xw-button xw-button-ghost" href="/" target="_blank" rel="noopener">查看前台</a>
-        <a class="xw-button" href="/admin">进入旧后台</a>
+        <a class="xw-button" href="/admin?legacy=1" th:if="${restoreAdmin == true}">恢复入口（ADMIN）</a>
       </div>
     </header>
 
@@ -63,7 +63,7 @@
       <div>
         <p class="xw-kicker" th:text="${consoleStage}">V5A · UNIFIED DELIVERY</p>
         <h2>新版后台统一工作台</h2>
-        <p>在同一后台处理询价、订单、派单、售后、服务目录、渠道任务、攻略和站点配置。新版接口执行角色权限与数据范围，写入核对版本并记录审计。当前运行包为 V5A 统一交付版；生产部署结果以发布流水线核验为准。旧后台保留恢复及辅助管理入口，真实收款、企业微信写入和真机验收仍单独处理。</p>
+        <p>在同一后台处理询价、订单、派单、售后、服务目录、渠道任务、攻略和站点配置。新版接口执行角色权限与数据范围，写入核对版本并记录审计。当前运行包为 V5A 统一交付版；生产部署结果以发布流水线核验为准。旧后台仅保留明确的恢复入口，真实收款、企业微信写入和真机验收仍单独处理。</p>
       </div>
       <div class="xw-version-card">
         <span>当前版本</span>
@@ -148,7 +148,7 @@
       <div class="xw-grid">
         <a class="xw-module" data-search="淘宝 闲鱼 渠道 商品 运营 任务" href="/admin/xingwei/channels"><div class="xw-module-index">C01</div><h3>渠道运营</h3><p>查看官网、淘宝、闲鱼的内部服务状态，按权限安排与跟进运营任务。</p><span>打开渠道工作台 →</span></a>
         <article class="xw-module" data-search="微信 登录 小程序 扫码 公众号 服务号"><div class="xw-module-index">C02</div><h3>微信身份能力</h3><p>网站登录码与二次确认接口已上线；星火迷彩追踪器 1.0.14 预览版真机登录主链路已验证；小程序正式版发布、异常与跨设备边界仍待单独验收。</p><span>网站接口已上线 · 预览版主链路已验证</span></article>
-        <a class="xw-module" data-search="微信支付 支付 配置 商户 订单" href="/admin/xingwei/integrations"><div class="xw-module-index">C03</div><h3>微信支付</h3><p>查看 Native 支付配置与网站支付单只读概览。V3H 小程序支付仍待真机验收。</p><span>V3H 待真机验收 →</span></a>
+        <a class="xw-module" data-search="微信支付 支付 配置 商户 订单" href="/admin/xingwei/payments"><div class="xw-module-index">C03</div><h3>微信支付</h3><p>查看 Native 支付配置与网站支付单只读概览。V3H 小程序支付仍待真机验收。</p><span>V3H 待真机验收 →</span></a>
         <a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/xingwei/frontend-controls"><div class="xw-module-index">C04</div><h3>前台控制</h3><p>按查看与管理权限维护导航、展示开关和主题参数。</p><span>打开模块 →</span></a>
       </div>
     </section>
@@ -183,7 +183,7 @@
   <form method="dialog" class="xw-dialog-card" id="xwRoleForm">
     <div class="xw-dialog-head"><div><p class="xw-kicker">EFFECTIVE PERMISSIONS</p><h3 id="xwRoleDialogTitle">配置星维权限</h3></div><button type="button" class="xw-dialog-close" data-dialog-close="xwRoleDialog">×</button></div>
     <input type="hidden" id="xwRoleCode"/>
-    <p class="xw-dialog-note">V2C 保存后会立即影响已分配该角色账号对新版星维接口和模块的访问；员工数据还会执行角色 data_scope。legacy ADMIN 永远保留全权限，旧 /admin 仍沿用 ADMIN / OPERATOR 安全边界。</p>
+    <p class="xw-dialog-note">V2C 保存后会立即影响已分配该角色账号对新版星维接口和模块的访问；员工数据还会执行角色 data_scope。原 ADMIN 保留恢复权限；员工只通过新版接口执行角色权限与数据范围，历史接口不再提供旁路。</p>
     <div class="xw-permission-grid" id="xwPermissionChecks"></div>
     <div class="xw-dialog-actions"><span id="xwRoleSaveState"></span><button type="button" class="xw-button xw-button-ghost" data-dialog-close="xwRoleDialog">取消</button><button type="submit" class="xw-button">保存星维权限</button></div>
   </form>

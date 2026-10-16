@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  * <p>安全策略：legacy ADMIN 始终全权；未配置星维角色的 legacy OPERATOR
  * 保留兼容只读能力与历史全量数据可见性；一旦明确分配星维角色，则同时按
  * xw_role_permissions 与角色 data_scope（ALL / DEPARTMENT / SELF）执行。
- * 该守卫只逐步接管新版星维接口，不改变旧 /admin 的 Spring Security 边界。
+ * 该守卫接管新版星维接口；完整替换后历史接口仅向恢复 ADMIN 开放，避免绕过数据范围。
  */
 @Component
 public class XingweiPermissionGuard {

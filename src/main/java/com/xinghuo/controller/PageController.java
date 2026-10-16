@@ -23,6 +23,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class PageController {
@@ -365,7 +366,10 @@ public class PageController {
     }
 
     @GetMapping(value={"/admin"})
-    String admin(Model m, CsrfToken csrf, Authentication auth) {
+    String admin(Model m, CsrfToken csrf, Authentication auth,@RequestParam(defaultValue="0") String legacy,jakarta.servlet.http.HttpServletResponse response) {
+        response.setHeader("Cache-Control","no-store");
+        if(!"1".equals(legacy))return "redirect:/admin/xingwei";
+        if(auth==null||auth.getAuthorities().stream().noneMatch(authority->"ROLE_ADMIN".equals(authority.getAuthority())))throw new org.springframework.security.access.AccessDeniedException("恢复入口仅限原 ADMIN 管理员");
         m.addAttribute("csrf", csrf);
         m.addAttribute("username", auth.getName());
         return "admin";

@@ -58,7 +58,7 @@ class XingweiServiceCatalogWorkbenchContractTest {
         assertTrue(pageController.contains("@GetMapping(\"/admin/xingwei/catalog\")"));
         assertTrue(pageController.contains("static final String CATALOG_VERSION = \"20261014-v3f\""));
         assertTrue(pageController.contains("model.addAttribute(\"catalogVersion\", CATALOG_VERSION)"));
-        assertTrue(template.contains("href=\"/admin\">旧后台完整编辑</a>"));
+        assertTrue(template.contains("href=\"/admin?legacy=1\""));
         assertTrue(template.contains("V3D · RELEASE PREFLIGHT"));
         assertTrue(template.contains("href=\"/admin/xingwei/taxonomy\""));
         assertTrue(template.contains("id=\"xcatCreateOpen\""));

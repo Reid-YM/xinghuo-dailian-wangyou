@@ -23,6 +23,7 @@ public class XingweiSecurityPageController {
         model.addAttribute("username", actor.getName());
         model.addAttribute("accessMode", access.mode());
         model.addAttribute("dataScope", access.dataScope());
+        model.addAttribute("restoreAdmin",access.allowAll());
         return "admin-xingwei-security";
     }
 }

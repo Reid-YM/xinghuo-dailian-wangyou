@@ -50,7 +50,8 @@ public class XingweiWeComSessionFilter extends OncePerRequestFilter {
             // A WeCom session is for the Xingwei workspace only. Password sessions retain
             // their existing access to the legacy admin console and APIs.
             boolean legacyAdminPage = (path.equals("/admin") || path.startsWith("/admin/"))
-                    && !(path.equals("/admin/xingwei") || path.startsWith("/admin/xingwei/"));
+                    && !(path.equals("/admin/xingwei") || path.startsWith("/admin/xingwei/"))
+                    && !((path.equals("/admin")||path.equals("/admin/guides"))&&!"1".equals(request.getParameter("legacy")));
             boolean legacyAdminApi = (path.equals("/api/admin") || path.startsWith("/api/admin/"))
                     && !(path.equals("/api/admin/xingwei") || path.startsWith("/api/admin/xingwei/"));
             if (legacyAdminPage || legacyAdminApi) {

@@ -47,7 +47,7 @@ class XingweiBusinessWorkbenchContractTest {
         String template = read("resources/templates/admin-xingwei-business.html");
         String css = read("resources/static/assets/admin-xingwei-business.css");
 
-        assertTrue(template.contains("href=\"/admin\">旧后台</a>"));
+        assertTrue(template.contains("href=\"/admin?legacy=1\""));
         assertTrue(template.contains("href=\"/admin/xingwei\">返回星维后台</a>"));
         assertTrue(template.contains("xw-table-wrap"));
         assertTrue(css.contains("@media(max-width:680px)"));

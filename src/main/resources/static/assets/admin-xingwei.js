@@ -57,7 +57,12 @@
     if (!link || (!sidebar?.contains(link) && !document.querySelector('.xw-main')?.contains(link))) return;
     const hash = link.getAttribute('href');
     const id = hash.slice(1);
-    if (Object.hasOwn(workspaceNames, id) || orgAnchors.has(id)) chooseWorkspace(hash);
+    if (Object.hasOwn(workspaceNames, id)) {
+      event.preventDefault();
+      if (location.hash !== hash) history.pushState(null, '', hash);
+      chooseWorkspace(hash);
+      window.scrollTo(0, 0);
+    } else if (orgAnchors.has(id)) chooseWorkspace(hash);
   });
   window.addEventListener('hashchange', () => chooseWorkspace(location.hash));
   document.getElementById('xwSearchClear')?.addEventListener('click', () => {

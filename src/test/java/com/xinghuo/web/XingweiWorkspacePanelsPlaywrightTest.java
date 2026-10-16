@@ -50,7 +50,7 @@ class XingweiWorkspacePanelsPlaywrightTest {
         page.locator("a.xw-module[href='#org-roles']").click();assertTrue(page.url().endsWith("#org-roles"));assertTrue(page.locator("#org-roles").isVisible());
         page.goBack();selected(page,"organization","组织与权限");page.goBack();selected(page,"system","系统工具");page.goForward();selected(page,"organization","组织与权限");page.reload();selected(page,"organization","组织与权限");
         page.setViewportSize(390,844);page.locator("#xwMenuButton").click();page.locator(".xw-nav-item[href='#channels']").click();selected(page,"channels","渠道与微信");assertEquals("false",page.locator("#xwMenuButton").getAttribute("aria-expanded"));
-        page.waitForFunction("()=>document.querySelector('#xwSidebar').getBoundingClientRect().right<=1");page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/admin-workspace-channels-mobile.png")));
+        page.waitForFunction("()=>document.querySelector('#xwSidebar').getBoundingClientRect().right<=1&&scrollY<=1");page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/admin-workspace-channels-mobile.png")));
         page.locator("#xwMenuButton").click();page.locator(".xw-nav-item[href='#overview']").click();selected(page,"overview","运营总览");page.setViewportSize(1920,1080);assertEquals(true,page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth+1"));page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/admin-workspace-overview-wide.png")));page.close();
     }
     @Test void chromiumScopedSearchAndUnavailableWorkspace(){try(Playwright p=Playwright.create();Browser b=chromium(p)){permissions(b);}}

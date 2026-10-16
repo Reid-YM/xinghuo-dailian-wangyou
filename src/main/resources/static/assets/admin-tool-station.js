@@ -163,13 +163,17 @@
   }
 
   async function saveData() {
+    if(nativeMode&&mutationBusy)throw new Error('正在保存，请稍候');
     applyWeaponForm();
     const selectedCode=weapon?.code;
-    config = await api('/api/admin/tool-station', { method: 'PUT', body: JSON.stringify(config) });
-    game = config.games?.find(item => item.code === 'CODMW4') || config.games?.[0];
-    weapon=(game?.weapons||[]).find(item=>item.code===selectedCode)||game?.weapons?.[0];
-    dirty=false;renderWeaponList();fillWeaponForm();
-    toast('工具站数据已保存');
+    const body=JSON.stringify(config),controls=$$('#toolStationForm input,#toolStationForm textarea,#toolStationForm select,#toolStationForm button,#toolStationSaveAll,#toolStationReset,#toolStationRefresh,[data-tool-weapon]');
+    const disabled=controls.map(control=>control.disabled);controls.forEach(control=>control.disabled=true);
+    try{
+      config=await api('/api/admin/tool-station',{method:'PUT',body});
+      game=config.games?.find(item=>item.code==='CODMW4')||config.games?.[0];
+      weapon=(game?.weapons||[]).find(item=>item.code===selectedCode)||game?.weapons?.[0];
+      dirty=false;renderWeaponList();fillWeaponForm();toast('工具站数据已保存');
+    }finally{controls.forEach((control,index)=>control.disabled=disabled[index]);applyPermissions();}
   }
 
   async function uploadImage(file) {

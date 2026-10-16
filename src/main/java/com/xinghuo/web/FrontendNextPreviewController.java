@@ -48,6 +48,7 @@ public class FrontendNextPreviewController {
     private static final String N18_RUNTIME = "<script src=\"/next/n18-account-detail-deep-links.js\" defer></script>";
     private static final String N19_RUNTIME = "<script src=\"/next/n19-account-detail-context.js\" defer></script>";
     private static final String N20_RUNTIME = "<script src=\"/next/n20-account-list-view-state.js\" defer></script>";
+    private static final String N21_RUNTIME = "<script src=\"/next/n21-account-personal-assets.js\" defer></script>";
     private SiteConfigService configuration;
     @Autowired void configuration(SiteConfigService configuration) { this.configuration = configuration; }
     private final Map<String,String> runtimeVersions = new ConcurrentHashMap<>();
@@ -74,6 +75,8 @@ public class FrontendNextPreviewController {
             "/next/account/progress",
             "/next/account/tools",
             "/next/account/tool-progress",
+            "/next/account/favorites",
+            "/next/account/submissions",
             "/next/account/settings",
             "/next/account/profile",
             "/next/account/settings/profile",
@@ -155,6 +158,9 @@ public class FrontendNextPreviewController {
         if (!html.contains(N20_RUNTIME)) {
             html = html.replace("</body>", N20_RUNTIME + "</body>");
         }
+        if (!html.contains(N21_RUNTIME)) {
+            html = html.replace("</body>", N21_RUNTIME + "</body>");
+        }
         html = versionRuntimes(html);
         if (configuration != null) {
             var site = configuration.publicConfig();
@@ -182,7 +188,7 @@ public class FrontendNextPreviewController {
                 .body(html);
     }
     private String versionRuntimes(String html) throws IOException {
-        for (String name : new String[]{"next/shell.js","next/n2.js","next/n3.js","next/n4.js","next/n4-mini.js","next/n5.js","next/n5-actions.js","next/n6-account-security.js","next/n7-auth.js","next/n8-integration.js","next/n10-service-detail.js","next/n11-related-services.js","next/n12-quote-context.js","next/n13-record-detail.js","next/n14-route-continuity.js","next/n15-auth-return.js","next/n16-account-deep-links.js","next/n17-account-navigation.js","next/n18-account-detail-deep-links.js","next/n19-account-detail-context.js","next/n20-account-list-view-state.js","assets/global-ui-controls.js","assets/frontend-controls-runtime.js","assets/site-image-controls.js","assets/site-image-controls.css"}) {
+        for (String name : new String[]{"next/shell.js","next/n2.js","next/n3.js","next/n4.js","next/n4-mini.js","next/n5.js","next/n5-actions.js","next/n6-account-security.js","next/n7-auth.js","next/n8-integration.js","next/n10-service-detail.js","next/n11-related-services.js","next/n12-quote-context.js","next/n13-record-detail.js","next/n14-route-continuity.js","next/n15-auth-return.js","next/n16-account-deep-links.js","next/n17-account-navigation.js","next/n18-account-detail-deep-links.js","next/n19-account-detail-context.js","next/n20-account-list-view-state.js","next/n21-account-personal-assets.js","assets/global-ui-controls.js","assets/frontend-controls-runtime.js","assets/site-image-controls.js","assets/site-image-controls.css"}) {
             String version = runtimeVersions.get(name);
             if (version == null) {
                 try (var input = new ClassPathResource("static/" + name).getInputStream()) {

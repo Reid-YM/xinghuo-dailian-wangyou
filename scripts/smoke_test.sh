@@ -5,8 +5,9 @@ BASE="http://127.0.0.1:$PORT"
 fail=0
 check_code() {
   local path=$1 expected=$2
+  shift 2
   local code
-  code=$(curl -sS -o /dev/null -w '%{http_code}' "$BASE$path" || true)
+  code=$(curl -sS -o /dev/null -w '%{http_code}' "$@" "$BASE$path" || true)
   if [ "$code" != "$expected" ]; then
     echo "FAIL $path expected=$expected actual=$code"
     fail=1
@@ -62,8 +63,8 @@ check_header / Cache-Control no-store
 check_body_contains / 'src="/next/shell.js?v='
 check_body_absent '/services?legacy=1' '/next/shell.js'
 check_code /next/services 200
-check_code /admin 302
-check_code /admin/xingwei 302
+check_code /admin 302 -H 'Accept: text/html'
+check_code /admin/xingwei 302 -H 'Accept: text/html'
 check_code /api/admin/xingwei/access 401
 check_code /api/admin/xingwei/catalog-details 401
 check_code /api/admin/xingwei/maintenance 401

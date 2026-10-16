@@ -70,4 +70,10 @@ class AdminDefaultReplacementSecurityTest {
         mvc.perform(get("/admin").session(session).with(user("operator").roles("OPERATOR"))).andExpect(redirectedUrl("/admin/xingwei"));
         mvc.perform(get("/admin").param("legacy","1").session(session).with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
     }
+    @Test void anonymousBrowserNavigationRedirectsWhileProgrammaticRequestsReturnUnauthorized()throws Exception{
+        for(String path:new String[]{"/admin","/admin/xingwei"}){
+            mvc.perform(get(path).accept(org.springframework.http.MediaType.TEXT_HTML)).andExpect(status().isFound()).andExpect(redirectedUrlPattern("**/admin/login"));
+            mvc.perform(get(path)).andExpect(status().isUnauthorized());
+        }
+    }
 }

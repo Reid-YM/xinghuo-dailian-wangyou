@@ -18,6 +18,7 @@
     if (['requests', 'quotes', 'demands'].includes(child) || child.startsWith('requests/')) return 'requests';
     if (['orders', 'order', 'order-list'].includes(child) || child.startsWith('orders/')) return 'orders';
     if (['progress', 'tools', 'tool-progress'].includes(child)) return 'progress';
+    if (['favorites', 'submissions'].includes(child)) return 'progress';
     if (child === 'settings' || child === 'profile' || child === 'contact' || child === 'security'
         || child === 'devices' || child === 'activity' || child.startsWith('settings/')) return 'settings';
     return 'overview';

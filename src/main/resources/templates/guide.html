@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="robots" content="noindex,nofollow,noarchive" th:if="${previewMode == true}"/>
   <meta name="theme-color" content="#07090c"/>
   <title th:text="${pageTitle}">攻略详情 | 星火网游代练平台</title>
   <meta name="description" th:content="${pageDescription}"/>
@@ -25,6 +26,7 @@
 <body data-page="guide">
 <header th:replace="~{fragments/site :: header}"></header>
 <main class="container guide-detail-shell">
+  <aside class="card" th:if="${previewMode == true}"><strong>受保护的内容预览</strong><p>此页只供有权限的员工核对排版与内容，不代表攻略已发布。当前状态：<span th:text="${guide.status}">DRAFT</span></p><a href="/admin/xingwei/guides">返回攻略编辑</a></aside>
   <nav class="guide-breadcrumb" aria-label="面包屑"><a href="/">首页</a><span>/</span><a href="/guides">攻略中心</a><span>/</span><span th:text="${guide.gameName}">游戏</span></nav>
   <article class="guide-article card">
     <div class="guide-article-cover">
@@ -77,7 +79,7 @@
     <div th:replace="~{fragments/page :: sectionHeader('Related','相关攻略',null,null,'section-title-rich')}"></div>
     <div class="guide-related-grid"><a class="card guide-related-card" th:each="item : ${relatedGuides}" th:href="@{'/guides/' + ${item.slug}}"><b th:text="${item.gameName}">游戏</b><span th:text="${item.title}">攻略</span></a></div>
   </section>
-  <section class="card gc-root" data-guide-community th:attr="data-guide-slug=${guide.slug}">
+  <section class="card gc-root" th:if="${previewMode != true}" data-guide-community th:attr="data-guide-slug=${guide.slug}">
     <div class="gc-head">
       <div><span class="eyebrow">Discussion</span><h2>玩家讨论</h2></div>
       <button class="btn ghost small-btn" type="button" data-favorite-toggle
@@ -99,9 +101,9 @@
   <section class="card guide-cta"><div><span class="eyebrow">需要确认报价</span><h2>提交当前进度与目标</h2><p>说明游戏区服、平台、当前进度、目标与可操作时间。客服确认后再安排，网页不收账号密码、验证码或令牌。</p></div><div class="actions"><a class="btn primary" href="/quote" data-primary-cta>提前询价</a><a class="btn ghost" href="/contact">联系客服</a></div></section>
 </main>
 <footer th:replace="~{fragments/site :: footer}"></footer>
-<script type="application/ld+json" th:utext="${articleJsonLd}"></script>
-<script type="application/ld+json" th:utext="${breadcrumbJsonLd}"></script>
-<script type="application/ld+json" th:utext="${faqJsonLd}"></script>
+<script type="application/ld+json" th:if="${previewMode != true}" th:utext="${articleJsonLd}"></script>
+<script type="application/ld+json" th:if="${previewMode != true}" th:utext="${breadcrumbJsonLd}"></script>
+<script type="application/ld+json" th:if="${previewMode != true}" th:utext="${faqJsonLd}"></script>
 </body>
 </html>
 

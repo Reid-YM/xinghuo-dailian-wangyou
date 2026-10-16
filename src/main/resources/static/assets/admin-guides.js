@@ -1,3 +1,8 @@
+const xingweiGuideMode = document.body.dataset.xingweiMode === 'true';
+let guideWritable = !xingweiGuideMode;
+let guideBusy = false;
+let guideDirty = false;
+const guideRevisions = new Map();
 const csrf = document.querySelector('meta[name="_csrf"]')?.content;
 const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -24,15 +29,48 @@ const COMPONENTS = {
 
 async function api(url, options = {}) {
   const headers = new Headers(options.headers || {});
+  const method = String(options.method || 'GET').toUpperCase();
   if (!(options.body instanceof FormData)) headers.set('Content-Type', 'application/json');
-  if (csrf && csrfHeader && !['GET', 'HEAD'].includes((options.method || 'GET').toUpperCase())) headers.set(csrfHeader, csrf);
-  const response = await fetch(url, { ...options, headers });
+  if (csrf && csrfHeader && !['GET', 'HEAD'].includes(method)) headers.set(csrfHeader, csrf);
+  if (xingweiGuideMode && !['GET','HEAD'].includes(method)) {
+    if (!guideWritable) throw new Error('当前账号只读；全站攻略写入需要内容管理权限与全部数据范围');
+    if (/^\/api\/admin\/guides\/\d+(?:\/status)?$/.test(url)) {
+      const revision = guideRevisions.get(url.replace(/\/status$/, ''));
+      if (!revision) throw new Error('请先重新读取这篇攻略再保存');
+      headers.set('If-Match', revision);
+    }
+  }
+  const endpoint = !xingweiGuideMode ? url : url === '/api/admin/catalog' ? '/api/admin/xingwei/guides/catalog' : url === '/api/admin/services' ? '/api/admin/xingwei/guides/services' : url.replace(/^\/api\/admin\/guides/, '/api/admin/xingwei/guides');
+  const response = await fetch(endpoint, { ...options, headers, cache: 'no-store' });
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(text || `请求失败（${response.status}）`);
+    let detail = text; try { const data = JSON.parse(text); detail = data.error || data.message || text; } catch (_) {}
+    throw new Error(detail || `请求失败（${response.status}）`);
   }
   if (response.status === 204) return null;
-  return response.json();
+  const payload = await response.json();
+  if (xingweiGuideMode) {
+    const revision = response.headers?.get?.('ETag');
+    if (revision) { guideRevisions.set(url, revision); if (payload?.guide?.id) guideRevisions.set('/api/admin/guides/' + payload.guide.id, revision); }
+  }
+  return payload;
+}
+
+function applyGuidePermissions() {
+  if (!xingweiGuideMode) return;
+  const disabled = !guideWritable || guideBusy;
+  for (const id of ['newGuide','importGuides','archiveAllGuides','addSection']) { const node = $('#' + id); if (node) node.disabled = disabled; }
+  $$('#guideForm input,#guideForm select,#guideForm textarea,#guideForm button').forEach(node => {node.disabled = node.id === 'previewGuide' ? false : disabled;});
+  $$('#guideRows .guide-admin-row-main').forEach(node => {node.disabled = guideBusy;});
+  if ($('#batchDeleteGuides')) $('#batchDeleteGuides').disabled = disabled || selectedGuideIds.size === 0;
+  if ($('#reloadGuides')) $('#reloadGuides').disabled = guideBusy;
+  const state = $('#xingweiGuideState'); if (state) state.textContent = guideBusy ? '正在保存，请稍候…' : guideWritable ? '可编辑全站攻略；保存会核对当前版本。' : '当前账号只读；编辑全站内容需要内容管理权限与全部数据范围。';
+}
+async function runGuideWrite(action) {
+  if (xingweiGuideMode && (guideBusy || !guideWritable)) return;
+  if (xingweiGuideMode) {guideBusy = true;applyGuidePermissions();}
+  try {await action();} catch(error) {alert(error.message);}
+  finally {if (xingweiGuideMode) {guideBusy = false;applyGuidePermissions();}}
 }
 
 async function loadAll() {
@@ -46,6 +84,7 @@ async function loadAll() {
   services = Array.isArray(serviceRows) ? serviceRows : [];
   renderGuideRows();
   renderGameOptions();
+  applyGuidePermissions();
 }
 
 function renderGuideRows() {
@@ -97,7 +136,7 @@ function syncSelection() {
   const count = $('#guideSelectedCount');
   if (count) count.textContent = selected.length;
   const button = $('#batchDeleteGuides');
-  if (button) button.disabled = selected.length === 0;
+  if (button) button.disabled = selected.length === 0 || (xingweiGuideMode && (!guideWritable || guideBusy));
 }
 
 function gameByCode(code) {
@@ -107,9 +146,12 @@ function gameByCode(code) {
 function showForm(show) {
   $('#guideForm').classList.toggle('hidden', !show);
   $('#guideEmpty').classList.toggle('hidden', show);
+  applyGuidePermissions();
 }
 
 function openNew() {
+  if (xingweiGuideMode && (guideBusy || !guideWritable || (guideDirty && !confirm('放弃未保存的攻略输入并新建？')))) return;
+  guideDirty = false;
   currentDetail = null;
   const form = $('#guideForm');
   form.reset();
@@ -130,6 +172,8 @@ function openNew() {
 }
 
 async function openGuide(id) {
+  if (xingweiGuideMode && (guideBusy || (guideDirty && !confirm('放弃未保存的攻略输入并切换？')))) return;
+  guideDirty = false;
   const detail = await api(`/api/admin/guides/${id}`);
   currentDetail = detail;
   fillForm(detail);
@@ -228,7 +272,7 @@ function renderProductPicker(selectedProducts) {
   $('#productRows').innerHTML = rows.map((service) => `
     <label class="guide-product-option">
       <input type="checkbox" value="${service.id}" ${selected.has(Number(service.id)) ? 'checked' : ''}/>
-      <span><b>${esc(service.name)}</b><small>${esc(service.shortDesc || '已关联服务')}</small></span>
+      <span><b>${esc(service.name)}</b><small>${esc(service.shortDesc || '已关联服务')}${xingweiGuideMode && service.active === false ? ' · 未启用' : ''}</small></span>
     </label>`).join('') || '<div class="empty">当前游戏暂无在售服务。</div>';
 }
 
@@ -288,12 +332,14 @@ async function saveGuide(event) {
   const payload = collectPayload();
   const saved = id ? await api(`/api/admin/guides/${id}`, { method: 'PUT', body: JSON.stringify(payload) }) : await api('/api/admin/guides', { method: 'POST', body: JSON.stringify(payload) });
   currentDetail = saved;
-  await loadAll();
+  guideDirty = false;
+  if (xingweiGuideMode) {fillForm(saved);try {await loadAll();} catch(error) {alert('攻略已保存，但列表刷新失败：' + error.message);return;}} else {await loadAll();}
   fillForm(saved);
   alert('攻略已保存');
 }
 
 function previewGuide() {
+  if (xingweiGuideMode && currentDetail?.guide?.id) {window.open('/admin/xingwei/guides/' + currentDetail.guide.id + '/preview', '_blank', 'noopener');return;}
   const slug = currentDetail?.guide?.slug;
   if (!slug) {
     alert('请先保存攻略，再打开前台预览。');
@@ -339,6 +385,7 @@ async function archiveAllGuides() {
 }
 
 async function importGames() {
+  if (xingweiGuideMode && !confirm('确认按当前游戏目录批量生成并发布攻略？')) return;
   const result = await api('/api/admin/guides/import-games', { method: 'POST', body: JSON.stringify({ publish: true, refresh: false, reason: '从游戏目录生成攻略' }) });
   alert(`已处理 ${result.totalCandidates} 款候选游戏：新增 ${result.created}，刷新 ${result.refreshed}，跳过 ${result.skipped}`);
   await loadAll();
@@ -346,25 +393,32 @@ async function importGames() {
 
 async function boot() {
   try {
+    if (xingweiGuideMode) { const access = await api('/api/admin/xingwei/guides/access'); guideWritable = access.canManage === true; }
     await loadAll();
     showForm(false);
     $('#newGuide').addEventListener('click', openNew);
-    $('#reloadGuides').addEventListener('click', loadAll);
+    $('#reloadGuides').addEventListener('click', () => { if (!xingweiGuideMode || !guideDirty || confirm('放弃草稿并刷新列表？')) {guideDirty = false;loadAll().catch(error => alert(error.message));} });
     $('#guideSelectAll').addEventListener('change', (event) => {
       if (event.target.checked) guideRows.forEach((row) => selectedGuideIds.add(row.id));
       else selectedGuideIds.clear();
       syncSelection();
     });
-    $('#batchDeleteGuides').addEventListener('click', () => batchDeleteGuides().catch((error) => alert(error.message)));
-    $('#archiveAllGuides').addEventListener('click', () => archiveAllGuides().catch((error) => alert(error.message)));
-    $('#importGuides').addEventListener('click', () => importGames().catch((error) => alert(error.message)));
-    $('#archiveGuide').addEventListener('click', () => archiveGuide().catch((error) => alert(error.message)));
+    $('#batchDeleteGuides').addEventListener('click', () => runGuideWrite(batchDeleteGuides));
+    $('#archiveAllGuides').addEventListener('click', () => runGuideWrite(archiveAllGuides));
+    $('#importGuides').addEventListener('click', () => runGuideWrite(importGames));
+    $('#archiveGuide').addEventListener('click', () => runGuideWrite(archiveGuide));
     $('#previewGuide').addEventListener('click', previewGuide);
     $('#addSection').addEventListener('click', () => addSection());
-    $('#guideForm').addEventListener('submit', (event) => saveGuide(event).catch((error) => alert(error.message)));
+    $('#guideForm').addEventListener('submit', (event) => {event.preventDefault();runGuideWrite(() => saveGuide(event));});
     $('#guideForm select[name="gameCode"]').addEventListener('change', () => renderProductPicker([]));
+    if (xingweiGuideMode) {
+      $('#guideForm').addEventListener('input', () => {guideDirty = true;});
+      $('#guideForm').addEventListener('click', event => {if (event.target.closest('[data-remove-section],[data-copy-section],[data-move-section],#addSection')) guideDirty = true;});
+    }
+    applyGuidePermissions();
   } catch (error) {
     alert(`加载攻略后台失败：${error.message}`);
   }
 }
+if (xingweiGuideMode) window.addEventListener('beforeunload', event => {if (guideDirty) {event.preventDefault();event.returnValue = '';}});
 boot();

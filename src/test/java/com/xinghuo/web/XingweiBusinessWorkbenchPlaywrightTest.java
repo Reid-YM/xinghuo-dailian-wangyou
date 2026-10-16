@@ -14,12 +14,14 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 @EnabledIfEnvironmentVariable(named = "PLAYWRIGHT_UI_TESTS", matches = "1")
 class XingweiBusinessWorkbenchPlaywrightTest {
+    private Browser chromium(Playwright p){var options=new com.microsoft.playwright.BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return p.chromium().launch(options);}
+
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
     private static final Path TEMPLATE = Path.of("src/main/resources/templates/admin-xingwei-business.html");
 
     @Test
     void allScopeRendersQuotesSearchesAndAssignsWithCsrf() throws Exception {
-        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+        try (Playwright playwright = Playwright.create(); Browser browser = chromium(playwright)) {
             Page page = browser.newPage();
             page.setViewportSize(1440, 900);
             page.setContent(Files.readString(TEMPLATE));
@@ -154,7 +156,7 @@ class XingweiBusinessWorkbenchPlaywrightTest {
 
     @Test
     void departmentReadOnlyOperatorCannotSeeQuoteTabOrAssignmentAction() throws Exception {
-        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+        try (Playwright playwright = Playwright.create(); Browser browser = chromium(playwright)) {
             Page page = browser.newPage();
             page.setViewportSize(1280, 820);
             page.setContent(Files.readString(TEMPLATE));

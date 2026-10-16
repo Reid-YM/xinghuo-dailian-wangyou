@@ -10,8 +10,8 @@
   <title>业务工作台 · 星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261016actions1"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei-business.js?v=20261016cn1"></script>
+  <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261016flow2"/>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei-business.js?v=20261016flow2"></script>
 </head>
 <body>
 <main class="xwb-shell">
@@ -125,7 +125,7 @@
     </label>
     <p class="xwb-help">候选项已经按你的有效数据范围在后端裁剪。本中心范围不能认领未归属业务或跨中心改派；仅本人范围只能保持本人负责。</p>
     <div class="xw-dialog-actions">
-      <span id="xwbAssignState"></span>
+      <span id="xwbAssignState" role="status" aria-live="polite"></span><button type="button" class="xw-button xw-button-ghost" id="xwbAssignRetry" hidden>重新读取候选</button>
       <button type="button" class="xw-button xw-button-ghost" id="xwbAssignCancel">取消</button>
       <button type="submit" class="xw-button">保存归属</button>
     </div>

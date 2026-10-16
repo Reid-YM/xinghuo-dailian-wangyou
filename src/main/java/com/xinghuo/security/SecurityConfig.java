@@ -75,7 +75,7 @@ public class SecurityConfig {
                 .userDetailsService((UserDetailsService) users)
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(PERMIT_ALL).permitAll()
-                        .requestMatchers("/admin", "/admin/guides", "/admin/xingwei", "/admin/xingwei/**", "/api/admin/xingwei", "/api/admin/xingwei/**")
+                        .requestMatchers("/admin", "/admin/guides", "/admin/frontend-controls", "/admin/xingwei", "/admin/xingwei/**", "/api/admin/xingwei", "/api/admin/xingwei/**")
                         .hasAnyRole("ADMIN", "OPERATOR")
                         // Legacy APIs cannot bypass Xingwei RBAC after the default migration.
                         // Original ADMIN retains the explicit recovery workspace.

@@ -38,6 +38,24 @@ class XingweiAuditQueryServiceTest {
         admin=actor("admin",1L,"ALL","03");dept=actor("dept",2L,"DEPARTMENT","03");self=actor("self",3L,"SELF","03");
         service=new XingweiAuditQueryService(jdbc,guard,mapper);
     }
+    @Test void memberActivityRequiresGlobalAuditScopeAndNeverSerializesRawPersonalData()throws Exception{
+        jdbc.execute("CREATE TABLE customer_accounts(id BIGINT PRIMARY KEY,public_user_id VARCHAR(80),email VARCHAR(160))");
+        jdbc.execute("CREATE TABLE user_audit_log(id BIGINT PRIMARY KEY,user_id BIGINT,action VARCHAR(40),detail VARCHAR(500),ip VARCHAR(45),user_agent VARCHAR(300),created_at TIMESTAMP)");
+        jdbc.update("INSERT INTO customer_accounts VALUES(1,'MEM%1','PRIVATE_EMAIL@example.invalid')");
+        for(int n=1;n<=51;n++)jdbc.update("INSERT INTO user_audit_log VALUES(?,1,'LOGIN_OK','DO-NOT-EXPOSE-DETAIL','192.168.10.23','PRIVATE-USER-AGENT',?)",n,Timestamp.from(Instant.parse("2026-10-15T16:00:00Z")));
+        assertThrows(AccessDeniedException.class,()->service.memberActivity(dept,"","",null,null,0));
+        assertThrows(AccessDeniedException.class,()->service.memberActivity(self,"","",null,null,0));
+        var page=service.memberActivity(admin,"%","LOGIN_OK",LocalDate.of(2026,10,16),LocalDate.of(2026,10,16),0);
+        assertEquals(51L,page.get("totalCount"));assertEquals(50,((List<?>)page.get("items")).size());
+        assertEquals(1,((List<?>)service.memberActivity(admin,"","",null,null,1).get("items")).size());
+        String serialized=mapper.writeValueAsString(page);
+        assertTrue(serialized.contains("192.168.*.*"));assertTrue(serialized.contains("MEM%1"));
+        for(String secret:List.of("PRIVATE_EMAIL","DO-NOT-EXPOSE","192.168.10.23","PRIVATE-USER-AGENT"))assertFalse(serialized.contains(secret));
+        assertEquals(0L,service.memberActivity(admin,"","",LocalDate.of(2026,10,15),LocalDate.of(2026,10,15),0).get("totalCount"));
+        assertThrows(IllegalArgumentException.class,()->service.memberActivity(admin,"","",null,null,-1));
+        when(guard.has(admin,"audit:view")).thenReturn(false);
+        assertThrows(AccessDeniedException.class,()->service.memberActivity(admin,"","",null,null,0));
+    }
     private Authentication actor(String name,Long id,String scope,String department){
         Authentication a=new UsernamePasswordAuthenticationToken(name,"",List.of());
         when(guard.resolve(a)).thenReturn(new AccessSnapshot("SHADOW_RBAC",false,List.of(),List.of(),scope,id,department));

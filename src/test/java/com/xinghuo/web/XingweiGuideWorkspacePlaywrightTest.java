@@ -26,11 +26,11 @@ class XingweiGuideWorkspacePlaywrightTest {
         page.addInitScript("""
           (readOnly=>{window.calls=[];window.alerts=[];window.conflict=false;window.readFailure=false;window.opened='';window.alert=m=>window.alerts.push(m);window.confirm=()=>true;window.open=url=>{window.opened=url;};
             const row={id:1,gameCode:'CODMW4',gameName:'MW4',slug:'draft-guide',title:'攻略草稿',summary:'草稿摘要',status:'DRAFT',difficulty:'BEGINNER',estimatedMinutes:60,sortOrder:100,tags:[],productCount:0};
-            const detail={guide:row,sections:[{id:1,sectionKey:'paragraph',heading:'正文',bodyMarkdown:'草稿内容',sortOrder:10}],products:[],faqs:[],relatedGuides:[]};
+            const detail={guide:row,sections:[{id:1,sectionKey:'paragraph',heading:'正文',bodyMarkdown:'草稿内容',sortOrder:10}],products:[{serviceId:9,label:'运营标题',description:'运营说明',imageUrl:'/assets/brand-logo.svg',featured:false,sortOrder:90}],faqs:[{question:'原问题',answer:'原回答',sortOrder:10}],relatedGuides:[]};
             window.fetch=async(url,options={})=>{const method=options.method||'GET';window.calls.push({url,method,headers:options.headers,body:options.body});
               if(url.endsWith('/access'))return new Response(JSON.stringify({canManage:!readOnly}));
               if(url.endsWith('/catalog'))return new Response(JSON.stringify({games:[{code:'CODMW4',name:'MW4'}]}));
-              if(url.endsWith('/services'))return new Response('[]');
+              if(url.endsWith('/services'))return new Response(JSON.stringify([{id:9,gameCode:'CODMW4',name:'目录名称',shortDesc:'目录说明'}]));
               if(method==='PUT'){
                 if(window.conflict)return new Response(JSON.stringify({error:'攻略已被更新，请重新读取后核对保存'}),{status:409});
                 window.savedBody=JSON.parse(options.body);row.title=window.savedBody.title;return new Response(JSON.stringify(detail),{headers:{ETag:'"guide-1-v4"'}});
@@ -94,6 +94,16 @@ class XingweiGuideWorkspacePlaywrightTest {
             page.evaluate("() => scrollTo(0,0)");
             page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/xingwei-guides-desktop.png")).setFullPage(true));
         }
+    }
+    @Test void chromiumFullGuideMetadataFaqAndRelatedReadingsRoundTrip()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){fullGuide(b);}}
+    @Test void webkitFullGuideMetadataFaqAndRelatedReadingsRoundTrip()throws Exception{try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){fullGuide(b);}}
+    private void fullGuide(Browser b)throws Exception{
+        Page page=b.newPage();setup(page,false);page.locator("[data-guide-id='1']").click();
+        page.locator("#guideForm input[name=authorName]").fill("内容编辑组");page.locator("#guideForm input[name=sourceName]").fill("游戏官方资料");page.locator("#guideForm input[name=sourceUrl]").fill("https://example.test/source");
+        page.locator("#guideForm input[name=coverImage]").fill("/assets/brand-logo.svg");page.locator("#guideForm input[name=sortOrder]").fill("42");
+        page.locator("#addGuideFaq").click();page.locator("[data-faq-question]").last().fill("新增问题");page.locator("[data-faq-answer]").last().fill("新增回答");page.locator("#guideRelatedIds").selectOption("2");
+        page.locator("#guideForm button[type=submit]").click();page.waitForFunction("()=>!!window.savedBody");
+        assertEquals(true,page.evaluate("()=>{const d=window.savedBody;return d.authorName==='内容编辑组'&&d.sourceName==='游戏官方资料'&&d.sourceUrl==='https://example.test/source'&&d.coverImage==='/assets/brand-logo.svg'&&d.sortOrder===42&&d.faqs.length===2&&d.faqs[1].answer==='新增回答'&&d.relatedGuideIds.join(',')==='2'&&d.products[0].label==='运营标题'&&d.products[0].description==='运营说明'&&d.products[0].featured===false&&d.products[0].sortOrder===90;}"));
     }
     @Test void chromiumReadOnlyEditorShowsProtectedDraftPreviewAndFitsMobile()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){readOnlyMobile(b);}}
     @Test void webkitReadOnlyEditorShowsProtectedDraftPreviewAndFitsMobile()throws Exception{try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){readOnlyMobile(b);}}

@@ -1,0 +1,192 @@
+/* 新版前台控制工作台：独立样式所有者，内容结构与恢复页共用。 */
+.frontend-control-admin{
+  --fc-bg:#0b0d10;
+  --fc-surface:#171d27;
+  --fc-surface-soft:#111722;
+  --fc-text:#e9edf5;
+  --fc-muted:#aebaca;
+  --fc-line:#3c495b;
+  --fc-accent:#f4bd34;
+  --fc-accent-soft:#31291a;
+  --fc-danger:#ffb5a9;
+  min-height:100vh;
+  margin:0;
+  padding-bottom:90px;
+  background:var(--fc-bg);
+  color:var(--fc-text);
+  color-scheme:dark;
+}
+.frontend-control-admin *{box-sizing:border-box}
+.frontend-control-admin a{color:inherit;text-decoration:none}
+.frontend-control-admin .eyebrow{color:#edcc79;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.frontend-control-admin .btn{
+  min-height:38px;
+  border:1px solid #53657e;
+  border-radius:10px;
+  background:#171d27;
+  color:#e3eaf4;
+  box-shadow:0 1px 2px rgba(16,24,40,.04);
+}
+.frontend-control-admin .btn:hover{background:#111722;border-color:#bfc7d2}
+.frontend-control-admin .btn.primary{border-color:#c79521;background:var(--fc-accent);color:#17130a;font-weight:900}
+.frontend-control-admin .btn.primary:hover{background:#ffd767}
+.frontend-control-admin .btn.ghost{background:#171d27}
+
+.fc-topbar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  border-bottom:1px solid var(--fc-line);
+  background:#151c26;
+  box-shadow:0 6px 18px rgba(15,23,42,.05);
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
+}
+.fc-topbar-inner,.fc-shell{width:min(1180px,calc(100% - 32px));margin:auto}
+.fc-topbar-inner{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.fc-brand,.fc-top-actions{display:flex;align-items:center;gap:10px}
+.fc-brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--fc-accent);color:#17130a;font-weight:950}
+.fc-brand small,.fc-brand strong{display:block}
+.fc-brand small{font-size:11px;color:var(--fc-muted)}
+.fc-brand strong{color:var(--fc-text)}
+.fc-top-actions>span{color:#bbc8da;font-size:13px;font-weight:800}
+
+.fc-hero{padding:38px 0 24px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end}
+.fc-hero h1{margin:5px 0 12px;color:var(--fc-text);font-size:clamp(30px,5vw,50px);letter-spacing:-.05em}
+.fc-hero p,.fc-card-head p,.fc-status-card small{color:var(--fc-muted)}
+.fc-status-card{padding:16px 18px;border:1px solid #e5d28d;border-radius:16px;background:linear-gradient(145deg,#31291a,#171d27);box-shadow:0 8px 20px rgba(15,23,42,.04)}
+.fc-status-card b,.fc-status-card small{display:block}
+.fc-status-card b{color:#edcc79}
+
+.fc-section-nav{
+  position:sticky;
+  top:80px;
+  z-index:10;
+  display:flex;
+  gap:6px;
+  overflow:auto;
+  margin-bottom:18px;
+  padding:8px;
+  border:1px solid var(--fc-line);
+  border-radius:14px;
+  background:#151c26;
+  box-shadow:0 8px 18px rgba(15,23,42,.04);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+}
+.fc-section-nav a{padding:8px 11px;white-space:nowrap;border-radius:9px;color:#bbc8da;font-size:13px;font-weight:800}
+.fc-section-nav a:hover{background:#111722;color:#e9edf5}
+
+.fc-card{
+  margin-bottom:20px;
+  padding:24px;
+  border:1px solid var(--fc-line);
+  border-radius:20px;
+  background:var(--fc-surface);
+  box-shadow:0 10px 28px rgba(15,23,42,.055);
+  scroll-margin-top:140px;
+}
+.fc-card-head{display:flex;justify-content:space-between;gap:16px;padding-bottom:16px;border-bottom:1px solid #3c495b}
+.fc-card-head h2{margin:4px 0 5px;color:var(--fc-text)}
+.fc-card-head p{margin:0}
+.fc-badge{height:max-content;padding:6px 10px;border:1px solid #ead17b;border-radius:999px;background:var(--fc-accent-soft);color:#edcc79;font-size:11px;font-weight:900}
+.fc-card h3{margin:22px 0 10px;color:#e3eaf4}
+.fc-grid{display:grid;gap:12px 16px}
+.fc-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.fc-grid .wide{grid-column:1/-1}
+
+.fc-card .field,.frontend-control-admin .toggle-row{
+  padding:13px;
+  border:1px solid var(--fc-line);
+  border-radius:14px;
+  background:var(--fc-surface-soft);
+}
+.fc-card .field label{display:block;margin-bottom:7px;font-size:12px;font-weight:800;color:#bbc8da}
+.fc-card input{
+  width:100%;
+  min-height:42px;
+  border:1px solid #53657e;
+  border-radius:10px;
+  padding:9px 11px;
+  background:#171d27;
+  color:var(--fc-text);
+  box-shadow:0 1px 2px rgba(16,24,40,.03);
+}
+.fc-card input:focus{outline:0;border-color:#c9a12c;box-shadow:0 0 0 3px rgba(214,169,31,.12)}
+.frontend-control-admin .toggle-row{min-height:72px;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;cursor:pointer}
+.frontend-control-admin .toggle-row input{width:20px;min-height:20px;margin:0;accent-color:var(--fc-accent)}
+.frontend-control-admin .toggle-row b,.frontend-control-admin .toggle-row small{display:block}
+.frontend-control-admin .toggle-row b{color:#e3eaf4}
+.frontend-control-admin .toggle-row small{margin-top:3px;color:var(--fc-muted)}
+
+.fc-savebar,.fc-sticky-save{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.fc-savebar{margin-top:18px;padding-top:18px;border-top:1px solid #3c495b}
+.fc-savebar span,.fc-sticky-save span{color:var(--fc-muted);font-size:12px}
+.fc-sticky-save{
+  position:sticky;
+  bottom:12px;
+  z-index:15;
+  margin:18px 0;
+  padding:14px 16px;
+  border:1px solid #e5c95e;
+  border-radius:16px;
+  background:#171d27;
+  box-shadow:0 14px 34px rgba(15,23,42,.10);
+}
+.fc-sticky-save b,.fc-sticky-save span{display:block}
+.fc-sticky-save b{color:var(--fc-text)}
+
+.color-field>div{display:grid;grid-template-columns:56px 1fr;gap:10px;align-items:center}
+.color-field input[type=color]{width:56px;padding:3px;background:#171d27}
+.color-field output{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#bbc8da}
+.fc-theme-preview{
+  --preview-accent:#f4bd34;
+  --preview-bg:#0b0d10;
+  --preview-surface:#171b21;
+  --preview-text:#f5f6f7;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:18px 0;
+  padding:20px;
+  border:1px solid #53657e;
+  border-radius:16px;
+  background:var(--preview-surface);
+  color:var(--preview-text);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+}
+.fc-theme-preview button{margin-left:auto;border:0;border-radius:10px;padding:10px 15px;background:var(--preview-accent);color:#17130a;font-weight:900}
+.fc-existing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.fc-existing-grid article{padding:15px;border:1px solid var(--fc-line);border-radius:14px;background:var(--fc-surface-soft)}
+.fc-existing-grid b,.fc-existing-grid span{display:block}
+.fc-existing-grid b{color:#e3eaf4}
+.fc-existing-grid span{margin-top:5px;color:var(--fc-muted);font-size:12px}
+.fc-loading{opacity:.65;pointer-events:none}
+
+.frontend-control-admin .toast-area{position:fixed;right:18px;bottom:18px;z-index:60;display:grid;gap:8px}
+.frontend-control-admin .toast{max-width:min(420px,calc(100vw - 36px));padding:12px 14px;border:1px solid #d8e5dc;border-radius:12px;background:#172e24;color:#a8e0bb;box-shadow:0 12px 30px rgba(15,23,42,.12)}
+.frontend-control-admin .toast.error{border-color:#f1c8c8;background:#321f24;color:var(--fc-danger)}
+
+@media(max-width:780px){
+  .fc-topbar-inner,.fc-shell{width:min(100% - 20px,1180px)}
+  .fc-top-actions>span{display:none}
+  .fc-top-actions .btn{padding:8px;font-size:12px}
+  .fc-hero{grid-template-columns:1fr}
+  .fc-topbar{position:static}
+  .fc-topbar-inner{flex-direction:column;align-items:stretch;padding:14px 0}
+  .fc-brand-mark{flex-shrink:0}
+  .fc-top-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fc-top-actions .btn{white-space:nowrap;min-height:42px}
+  .fc-section-nav{top:0}
+  .fc-card{padding:16px}
+  .fc-card-head,.fc-savebar,.fc-sticky-save{display:grid}
+  .fc-grid.two,.fc-existing-grid{grid-template-columns:1fr}
+  .fc-grid .wide{grid-column:auto}
+  .fc-theme-preview{flex-wrap:wrap}
+  .fc-theme-preview button{margin-left:0}
+}
+
+/* Compact only the new permission-controlled entry; legacy layout is unchanged. */
+.frontend-control-admin[data-xingwei-mode="true"] .fc-hero{padding:20px 24px;min-height:0}.frontend-control-admin[data-xingwei-mode="true"] .fc-hero h1{font-size:26px}
+
+.frontend-control-admin .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;font:inherit;cursor:pointer}.frontend-control-admin .btn:disabled{opacity:.5;cursor:not-allowed}.frontend-control-admin .fc-topbar{backdrop-filter:none}.frontend-control-admin .fc-shell{width:min(1520px,calc(100% - 32px))}.frontend-control-admin :focus-visible{outline:2px solid #f4bd34;outline-offset:3px}

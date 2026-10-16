@@ -54,13 +54,14 @@
 
 ## 4. 后台
 
-当前权威结构：
-- `admin.js`：业务主交互；
-- `admin-control-center-v2.js/css`：运营工作台结构与导航增强；
-- `admin-light-theme.css`：历史组件兼容桥；
-- `admin-brand-layout-fixes.css`：仍在使用的品牌布局兼容层。
+默认后台现由 `admin-xingwei*.html`、`admin-xingwei.css` 和各工作台同名 JS/CSS 拥有；`admin-login.html` 使用新版登录样式。默认入口不加载旧 `app.css`、亮色主题或品牌修补层。
 
-后续顺序：先修正统一 panel router，再逐步拆 `admin.js`，最后合并兼容 CSS。不得在根因未解决前新增 `admin-*-fixes-vN.*`。
+- `admin-xingwei-frontend-controls.html/css`：独立前台展示控制外壳；`fragments/frontend-control-workspace.html` 与恢复页共享表单，`admin-frontend-controls.js` 唯一处理配置读写及版本保护，只有恢复页加载旧品牌兼容层。
+- `fragments/tool-station-editor.html`：工具资料共享编辑结构；新版以 `admin-xingwei-tools.css` 拥有样式，不再从旧 `admin.html` 或 `app.css` 获取组件。
+- `admin-xingwei-audits.js`：员工审计与会员操作日志两种数据源；服务端分别执行数据范围与脱敏规则。
+- `admin.js`、`admin-control-center-v2.js/css`、`admin-light-theme.css`、`admin-brand-layout-fixes.css` 仅服务明确的旧版恢复入口，不是新版布局或新功能的依赖。
+
+新增旧管理接口必须更新 `docs/admin-migration-coverage.json` 并提供新版工作台闭环；覆盖契约同时扫描类前缀与方法级完整路径，不能只比较菜单名。
 
 ## 5. 已退休资产
 

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 @EnabledIfEnvironmentVariable(named="PLAYWRIGHT_UI_TESTS",matches="1")
 class XingweiAuditPlaywrightTest {
+    private Browser chromium(Playwright p){var options=new BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return p.chromium().launch(options);}
     private void setup(Page page)throws Exception{
         String html=Files.readString(Path.of("src/main/resources/templates/admin-xingwei-audits.html")).replaceAll("<script[^>]*></script>","");
         page.route("**/*",route->route.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(html)));
@@ -19,6 +20,7 @@ class XingweiAuditPlaywrightTest {
             window.fetch=async url=>{
               window.auditUrls.push(url);
               if(url==='/api/admin/xingwei/audits/1')return new Response(JSON.stringify(window.failDetail?{error:'摘要读取失败'}:{entry:{id:1,action:'UPDATE',operatorName:'运营',requestId:'REQ-1'},changes:[{field:'status',before:'OPEN',after:'RESOLVED'},{field:'password',before:'内容已隐藏',after:'内容已隐藏'}]}),{status:window.failDetail?503:200});
+              if(url.includes('/member-activity'))return new Response(JSON.stringify({items:[{id:7,member:'MEM-7',action:'LOGIN_OK',ipMasked:'192.168.*.*',createdAt:'2026-10-16T01:00:00Z'}],actions:['LOGIN_OK'],totalCount:1,pageSize:50}));
               return new Response(JSON.stringify(window.failList?{error:'暂时无法读取'}:{items:[{id:1,action:'UPDATE',operatorName:'运营<script>bad</script>',targetType:'ORDER',targetId:'O1',reason:'跟进处理',createdAt:'2026-10-16T01:00:00Z'}],actions:['UPDATE'],totalCount:101,pageSize:50}),{status:window.failList?503:200});
             };
           }
@@ -28,7 +30,7 @@ class XingweiAuditPlaywrightTest {
     }
     @Test
     void chromiumFiltersAndOpensRestrictedChangeSummary()throws Exception{
-        try(Playwright p=Playwright.create();Browser b=p.chromium().launch()){
+        try(Playwright p=Playwright.create();Browser b=chromium(p)){
             Page page=b.newPage();setup(page);
             assertEquals("UPDATE",page.locator("select[name=action]").inputValue());
             assertEquals(0,page.locator("#auditRows script").count());
@@ -41,6 +43,13 @@ class XingweiAuditPlaywrightTest {
             assertTrue(page.url().contains("action=UPDATE"));assertFalse(page.url().contains("page=1"));
         }
     }
+    @Test void chromiumMemberActivitySourceUsesNativeReadOnlyRouteAndRestoresUrl()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){
+        Page page=b.newPage();setup(page);page.locator("#auditSource").selectOption("members");page.waitForFunction("()=>document.querySelector('#auditRows').textContent.includes('MEM-7')");
+        assertTrue(page.url().contains("source=members"));assertFalse(page.url().contains("page="));
+        assertTrue(page.locator("#auditRows").textContent().contains("192.168.*.*"));assertEquals(0,page.locator("#auditRows button").count());
+        assertEquals(true,page.evaluate("()=>window.auditUrls.some(url=>url.includes('/api/admin/xingwei/audits/member-activity'))"));
+        page.locator("#auditSource").selectOption("staff");page.waitForFunction("()=>document.querySelector('#auditRows').textContent.includes('O1')");assertEquals(1,page.locator("#auditRows button").count());
+    }}
     @Test
     void webkitMobileRetriesDetailsAndRecoversListPagination()throws Exception{
         try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){

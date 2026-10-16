@@ -16,6 +16,7 @@
   }
   function restore(){
     const p=new URLSearchParams(location.search);
+    if(filters.elements.namedItem('source')) filters.elements.namedItem('source').value=p.get('source')==='members'?'members':'staff';
     for(const name of ['q','from','to'])filters.elements.namedItem(name).value=p.get(name)||'';
     const action=p.get('action')||'';const select=filters.elements.namedItem('action');
     if(action&&![...select.options].some(o=>o.value===action)){const o=el('option',action);o.value=action;select.append(o);}
@@ -25,15 +26,17 @@
   function query(){const p=new URLSearchParams(new FormData(filters));for(const [k,v]of[...p])if(!v)p.delete(k);if(page)p.set('page',String(page));return p;}
   function navigate(){const p=query().toString();history.pushState(null,'',location.pathname+(p?'?'+p:''));load();}
   async function load(){
-    const current=++sequence;$('auditMessage').textContent='正在读取审计记录…';$('auditRetry').hidden=true;$('auditRows').setAttribute('aria-busy','true');$('auditPrev').disabled=true;$('auditNext').disabled=true;
+    const current=++sequence;$('auditRows').replaceChildren();$('auditMessage').textContent='正在读取审计记录…';$('auditRetry').hidden=true;$('auditRows').setAttribute('aria-busy','true');$('auditPrev').disabled=true;$('auditNext').disabled=true;
     try{
-      const data=await get('/api/admin/xingwei/audits?'+query());if(current!==sequence)return;
+      const memberSource=filters.elements.namedItem('source')?.value==='members';
+      const data=await get('/api/admin/xingwei/audits'+(memberSource?'/member-activity':'')+'?'+query());if(current!==sequence)return;
       const select=filters.elements.namedItem('action'),selected=select.value;
       select.replaceChildren(el('option','全部类型'));select.firstChild.value='';
       for(const action of [...new Set([...data.actions,...(selected?[selected]:[])])]){const option=el('option',action);option.value=action;select.append(option);}select.value=selected;
       $('auditRows').replaceChildren();
       for(const entry of data.items){
         const row=el('article',undefined,'xwc-task');row.append(el('h3',entry.action));
+        if(memberSource){row.append(el('p','会员：'+entry.member),el('p','网络：'+entry.ipMasked),el('p',new Date(entry.createdAt).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'})));$('auditRows').append(row);continue;}
         const meta=el('div',undefined,'xwc-task-meta');meta.append(el('span','操作人：'+entry.operatorName),el('span',new Date(entry.createdAt).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'})));
         row.append(meta,el('p','对象：'+entry.targetType+' / '+entry.targetId),el('p',entry.reason||'未填写操作原因'));
         const button=el('button','查看变更摘要','xw-button xw-button-ghost');button.type='button';button.addEventListener('click',()=>openDetail(entry.id));row.append(button);$('auditRows').append(row);
@@ -59,6 +62,7 @@
   function close(){detailSequence++;$('auditDialog').close();}
   $('auditClose').addEventListener('click',close);$('auditDialog').addEventListener('cancel',e=>{e.preventDefault();close();});
   $('auditDetailRetry').addEventListener('click',()=>openDetail(selectedId));
+  filters.elements.namedItem('source')?.addEventListener('change',()=>{filters.elements.namedItem('action').value='';page=0;navigate();});
   filters.addEventListener('submit',e=>{e.preventDefault();page=0;navigate();});
   $('auditRefresh').addEventListener('click',load);$('auditRetry').addEventListener('click',load);
   $('auditPrev').addEventListener('click',()=>{if(page>0){page--;navigate();}});$('auditNext').addEventListener('click',()=>{page++;navigate();});

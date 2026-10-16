@@ -84,6 +84,16 @@ class XingweiOperationsServiceTest {
         when(guard.has(eq(a),anyString())).thenAnswer(call->!call.getArgument(1,String.class).endsWith(":manage")||write);return a;
     }
     UserAdminItem memberDto(String role,String status){return new UserAdminItem(1L,"XH-1","test@example.invalid",false,"测试用户",role,status,Instant.now(),Instant.now(),null);}
+    @Test void crmIntentAndBothSourceColumnsStayInsideAllDepartmentAndSelfScope(){
+        jdbc.update("UPDATE quotes SET lead_intent_level='HIGH',first_touch_source='search',utm_source='campaign'");
+        assertEquals(3L,work.leads(null,null,"HIGH","search",0,admin).total());
+        assertEquals(2L,work.leads(null,null,"HIGH","campaign",0,department).total());
+        assertEquals(1L,work.leads(null,null,"HIGH","search",0,self).total());
+        assertEquals(0L,work.leads(null,null,"LOW","search",0,admin).total());
+        assertEquals(0L,work.leads(null,null,"HIGH","%",0,admin).total());
+        assertThrows(com.xinghuo.exception.BadRequestException.class,()->work.leads(null,null,"INVALID",null,0,admin));
+        assertThrows(com.xinghuo.exception.BadRequestException.class,()->work.leads(null,null,null,"x".repeat(81),0,admin));
+    }
     @Test void globalModulesRejectNarrowScopeAndReadOnlyWritesBeforeDelegation(){
         assertThrows(AccessDeniedException.class,()->work.members("","",0,department));
         assertThrows(AccessDeniedException.class,()->work.comments("PENDING",0,self));

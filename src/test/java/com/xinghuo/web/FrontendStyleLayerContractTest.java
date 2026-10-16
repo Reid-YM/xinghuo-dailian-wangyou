@@ -53,12 +53,13 @@ class FrontendStyleLayerContractTest {
     }
 
     @Test
-    void guideAndLoginAdminUseUnifiedWhiteTheme() throws Exception {
+    void recoveryGuideAndNativeLoginUseTheirOwnTheme() throws Exception {
         String guides = Files.readString(MAIN.resolve("resources/templates/admin-guides.html"));
         String login = Files.readString(MAIN.resolve("resources/templates/admin-login.html"));
         assertTrue(guides.contains("/assets/admin-guides-workspace.css"));
         assertTrue(guides.contains("/assets/admin-light-theme.css?v=20261007l001"));
-        assertTrue(login.contains("/assets/admin-light-theme.css?v=20261007l001"));
+        assertTrue(login.contains("/assets/admin-xingwei-login.css?v=20261016audit2"));
+        assertFalse(login.contains("admin-light-theme"));
         assertFalse(guides.contains("/assets/admin-guides.css"));
         assertFalse(guides.contains("/assets/admin-guides-refine.css"));
     }

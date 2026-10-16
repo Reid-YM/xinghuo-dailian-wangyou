@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xinghuo.security.XingweiPermissionGuard;
 import com.xinghuo.security.XingweiPermissionGuard.AccessSnapshot;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -52,6 +53,33 @@ public class XingweiAuditQueryService {
         List<AuditItem> items=jdbc.query("SELECT a.* FROM audit_logs a WHERE "+where+" ORDER BY a.created_at DESC,a.id DESC LIMIT ? OFFSET ?",this::row,listArgs.toArray());
         List<String> actions=jdbc.query("SELECT DISTINCT a.action FROM audit_logs a WHERE "+scope.sql()+" ORDER BY a.action LIMIT 200",(rs,n)->rs.getString(1),scope.args().toArray());
         return Map.of("items",items,"totalCount",total,"page",page,"pageSize",PAGE_SIZE,"actions",actions,"dataScope",access.dataScope());
+    }
+    /** Member activity has no employee ownership; never widen a department/self audit scope. */
+    public Map<String,Object> memberActivity(Authentication actor,String q,String action,LocalDate from,LocalDate to,int page){
+        AccessSnapshot access=require(actor);
+        if(!access.allowAll()&&!"ALL".equals(access.dataScope()))throw new AccessDeniedException("会员操作日志需要全部数据范围");
+        if(page<0||page>10000)throw new IllegalArgumentException("页码超出范围");
+        q=clean(q,80);action=clean(action,64);
+        if(from!=null&&to!=null&&from.isAfter(to))throw new IllegalArgumentException("开始日期不能晚于结束日期");
+        String where="1=1";List<Object> args=new ArrayList<>();
+        if(!q.isEmpty()){
+            where+=" AND (c.public_user_id LIKE ? ESCAPE '!' OR a.action LIKE ? ESCAPE '!')";
+            String term="%"+q.replace("!","!!").replace("%","!%").replace("_","!_")+"%";args.add(term);args.add(term);
+        }
+        if(!action.isEmpty()){where+=" AND a.action=?";args.add(action);}
+        if(from!=null){where+=" AND a.created_at>=?";args.add(Timestamp.from(from.atStartOfDay(ZoneId.of("Asia/Shanghai")).toInstant()));}
+        if(to!=null){where+=" AND a.created_at<?";args.add(Timestamp.from(to.plusDays(1).atStartOfDay(ZoneId.of("Asia/Shanghai")).toInstant()));}
+        String tables=" FROM user_audit_log a LEFT JOIN customer_accounts c ON c.id=a.user_id WHERE "+where;
+        long total=jdbc.queryForObject("SELECT COUNT(*)"+tables,Long.class,args.toArray());
+        var listArgs=new ArrayList<>(args);listArgs.add(PAGE_SIZE);listArgs.add(page*PAGE_SIZE);
+        var items=jdbc.query("SELECT a.id,a.user_id,a.action,a.ip,a.created_at,c.public_user_id"+tables+" ORDER BY a.created_at DESC,a.id DESC LIMIT ? OFFSET ?",(rs,n)->{
+            var row=new java.util.LinkedHashMap<String,Object>();row.put("id",rs.getLong("id"));
+            row.put("member",rs.getString("public_user_id")==null?(rs.getObject("user_id")==null?"未登录访客":"已移除会员 #"+rs.getLong("user_id")):rs.getString("public_user_id"));
+            row.put("action",rs.getString("action"));row.put("ipMasked",com.xinghuo.account.service.Masking.ip(rs.getString("ip")));
+            row.put("createdAt",rs.getTimestamp("created_at").toInstant().toString());return row;
+        },listArgs.toArray());
+        var actions=jdbc.queryForList("SELECT DISTINCT action FROM user_audit_log ORDER BY action LIMIT 200",String.class);
+        return Map.of("items",items,"actions",actions,"totalCount",total,"page",page,"pageSize",PAGE_SIZE);
     }
     public Map<String,Object> detail(long id,Authentication actor) {
         Clause scope=scope(actor,require(actor));

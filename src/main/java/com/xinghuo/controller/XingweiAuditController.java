@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class XingweiAuditController {
     private final XingweiAuditQueryService audits;
     public XingweiAuditController(XingweiAuditQueryService audits) {this.audits=audits;}
+    @ModelAttribute void privateResponse(jakarta.servlet.http.HttpServletResponse response){response.setHeader("Cache-Control","no-store");}
     @GetMapping("/admin/xingwei/audits")
     String page(){return "admin-xingwei-audits";}
     @GetMapping("/api/admin/xingwei/audits")
@@ -24,6 +25,12 @@ public class XingweiAuditController {
                             @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate from,
                             @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate to,
                             @RequestParam(defaultValue="0") int page) {return audits.list(actor,q,action,from,to,page);}
+    @GetMapping("/api/admin/xingwei/audits/member-activity")
+    @ResponseBody
+    Map<String,Object> members(Authentication actor,@RequestParam(defaultValue="") String q,@RequestParam(defaultValue="") String action,
+            @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(defaultValue="0") int page){return audits.memberActivity(actor,q,action,from,to,page);}
     @GetMapping("/api/admin/xingwei/audits/{id}")
     @ResponseBody
     Map<String,Object> detail(@PathVariable long id,Authentication actor){return audits.detail(id,actor);}

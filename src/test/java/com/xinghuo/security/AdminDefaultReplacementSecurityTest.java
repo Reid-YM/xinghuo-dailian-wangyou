@@ -35,6 +35,8 @@ class AdminDefaultReplacementSecurityTest {
         @Bean PageController pages(){return new PageController(mock(ServiceCatalogService.class),mock(TaxonomyService.class),new ObjectMapper(),mock(SiteConfigService.class));}
         @Bean GuidePageController guides(){return new GuidePageController(mock(GuideContentService.class),new ObjectMapper());}
         @Bean com.xinghuo.controller.XingweiGuidePageController nativeGuides(){return new com.xinghuo.controller.XingweiGuidePageController(mock(com.xinghuo.guide.XingweiGuideWorkspaceService.class));}
+        @Bean com.xinghuo.controller.FrontendControlPageController frontendControls(){return new com.xinghuo.controller.FrontendControlPageController();}
+        @Bean com.xinghuo.controller.XingweiSiteControlController nativeControls(){return new com.xinghuo.controller.XingweiSiteControlController(mock(XingweiSiteControlService.class));}
         @Bean Probe probe(){return new Probe();}
         @Bean InternalResourceViewResolver views(){var resolver=new InternalResourceViewResolver();resolver.setPrefix("/templates/");resolver.setSuffix(".html");return resolver;}
     }
@@ -59,6 +61,14 @@ class AdminDefaultReplacementSecurityTest {
         when(guard.has(any(),eq("content:view"))).thenReturn(true);
         mvc.perform(get("/admin/xingwei/guides").with(user("operator").roles("OPERATOR"))).andExpect(status().isOk()).andExpect(view().name("admin-xingwei-guides")).andExpect(model().attribute("xingweiMode",true)).andExpect(header().string("Cache-Control","no-store"));
         mvc.perform(get("/admin/guides").param("legacy","1").with(user("admin").roles("ADMIN"))).andExpect(view().name("admin-guides"));
+    }
+    @Test void frontendControlDefaultsToNewShellAndRecoveryIsAdminOnly()throws Exception{
+        mvc.perform(get("/admin/frontend-controls").with(user("operator").roles("OPERATOR"))).andExpect(redirectedUrl("/admin/xingwei/frontend-controls")).andExpect(header().string("Cache-Control","no-store"));
+        mvc.perform(get("/admin/frontend-controls").param("legacy","1").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
+        mvc.perform(get("/admin/frontend-controls").param("legacy","1").with(user("admin").roles("ADMIN"))).andExpect(view().name("admin-frontend-controls"));
+        mvc.perform(get("/admin/xingwei/frontend-controls").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
+        when(guard.has(any(),eq("site:view"))).thenReturn(true);
+        mvc.perform(get("/admin/xingwei/frontend-controls").with(user("operator").roles("OPERATOR"))).andExpect(view().name("admin-xingwei-frontend-controls")).andExpect(header().string("Cache-Control","no-store"));
     }
     @Test void oldApisCannotBypassNativePermissionsAndNativeWritesStillRequireCsrf() throws Exception {
         mvc.perform(get("/api/admin/quotes").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());

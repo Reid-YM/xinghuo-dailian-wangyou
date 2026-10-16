@@ -45,29 +45,91 @@
   window.addEventListener('popstate', () => go(resolveLocation(), false));
   window.addEventListener('hashchange', () => {if(pages.has(location.hash.slice(1)))go(resolveLocation(), false);});
   let configuration = null;
+  let currentServices = null;
+  const number = (value,min,max,fallback) => value != null && value !== '' && Number.isFinite(Number(value)) ? Math.max(min,Math.min(max,Number(value))) : fallback;
+  const make = (tag,text,className) => {const node=document.createElement(tag);if(text!=null)node.textContent=String(text);if(className)node.className=className;return node;};
   function safeLink(value) {
     const text = String(value || '').trim();
     if (text.startsWith('/') && !text.startsWith('//')) return text;
     try { const url = new URL(text); if (url.protocol === 'https:' && !url.username && !url.password) return url.href; } catch (_) {}
     return '';
   }
+  function serviceCards(target,items,empty) {
+    const grid=document.getElementById(target);if(!grid)return;
+    grid.replaceChildren(...items.map(item=>{
+      const card=make('a',null,'home-service-card');card.href='/service/'+encodeURIComponent(String(item.slug||''));
+      const image=safeLink(item.coverImage);if(image){const cover=make('div',null,'service-cover'),img=make('img');img.src=image;img.alt=String(item.name||'服务封面');img.loading='lazy';cover.append(img);card.append(cover);}
+      card.append(make('h3',item.name||'服务项目'),make('p',item.shortDesc||''));
+      const fixed=item.priceFixed,min=item.priceMin,max=item.priceMax,mode=String(item.priceMode||'').toUpperCase();
+      const amount=value=>value!=null&&value!==''&&Number.isFinite(Number(value))&&Number(value)>=0;
+      let price='联系客服询价';
+      if(mode==='FIXED'&&amount(fixed))price='¥'+Number(fixed);
+      else if(mode==='RANGE'&&amount(min)&&amount(max))price='¥'+Number(min)+'–'+Number(max);
+      else if(mode==='RANGE'&&amount(min))price='¥'+Number(min)+' 起';
+      card.append(make('p',price,'price'));return card;
+    }));
+    if(!items.length)grid.append(make('p',empty));
+  }
+  function updateServices(services) {
+    if(Array.isArray(services))currentServices=services;
+    if(!Array.isArray(currentServices))return;
+    serviceCards('nextHomeServices',currentServices.slice(0,number(configuration?.homeServiceLimit,2,8,4)),'当前暂无可展示的服务。');
+  }
+  function updateCatalog(catalog) {
+    const grid=document.getElementById('nextHomeGames');if(!grid||!Array.isArray(catalog?.games))return;
+    grid.replaceChildren(...catalog.games.map(game=>{const link=make('a',null,'home-service-card');link.href='/game/'+encodeURIComponent(String(game.code));link.append(make('h3',game.name||game.code));return link;}));
+    if(!catalog.games.length)grid.append(make('p','当前暂无公开游戏目录。'));
+  }
+  function dataUnavailable(target) {
+    const grid=document.getElementById(target);if(!grid)return;
+    const retry=make('button','重新读取','btn');retry.type='button';retry.onclick=async()=>{retry.disabled=true;try{await window.XHFrontendNextN2?.reload();}finally{retry.disabled=false;}};
+    grid.replaceChildren(make('p','目录暂时无法读取，请重试。'),retry);
+  }
+  function configuredContent(site) {
+    serviceCards('nextHotServices',Array.isArray(site.hotServices)?site.hotServices:[],'暂无热门推荐，可浏览全部服务或联系客服。');
+    updateServices();
+    const cases=Array.isArray(site.trustCases)?site.trustCases:[],caseGrid=document.getElementById('nextTrustCaseGrid');
+    if(caseGrid){caseGrid.replaceChildren(...cases.map(item=>{const card=make('article',null,'card');card.append(make('small',item.tag||'服务说明'),make('h3',item.title||''),make('p',item.metric||''),make('p',item.detail||''));return card;}));const section=document.getElementById('nextTrustCases');section.dataset.empty=String(!cases.length);section.hidden=!cases.length;}
+    const channels=document.getElementById('nextContactChannels');
+    if(channels){channels.replaceChildren(...(Array.isArray(site.contactChannels)?site.contactChannels:[]).map(item=>{
+      const card=make('article',null,'card');card.append(make('h3',item.label||'客服'),make('p',item.wechatId||''),make('p',item.note||''));
+      const url=safeLink(item.jumpUrl);if(url){const link=make('a','联系此客服','btn');link.href=url;card.append(link);}return card;
+    }));}
+    const faq=Array.isArray(site.trustFaq)?site.trustFaq:[],faqGrid=document.getElementById('nextFaqList');
+    if(faqGrid){faqGrid.replaceChildren(...faq.map(item=>{const details=make('details');details.append(make('summary',item.question||'常见问题'),make('p',item.answer||''));return details;}));document.getElementById('nextFaq').hidden=!faq.length;}
+    const status=document.getElementById('nextServiceStatus');
+    if(status)status.textContent=site.statusShortText||({open:'当前正常接单',reservation:'预约中 · 可提前询价',preheat:'预热中 · 可提前询价',maintenance:'维护中 · 暂时无法开工',suspended:'当前暂停接单',closed:'当前暂停接单',busy:'当前繁忙，建议先询价'}[site.serviceStatus]||'服务状态待客服确认');
+    const starting=document.getElementById('nextStartingPrice');
+    if(starting){const amount=Number(site.startingPrice);starting.hidden=site.showStartingPrice!==true||site.startingPrice==null||!Number.isFinite(amount)||amount<0;starting.textContent='参考起价 ¥'+amount+'，最终金额由客服确认';}
+  }
+  async function publicCases() {
+    const section=document.getElementById('nextPublicCases'),grid=document.getElementById('nextPublicCaseGrid');if(!section||!grid)return;
+    try{const response=await fetch('/api/public/cases',{cache:'no-store',credentials:'same-origin'});if(!response.ok)return;const items=await response.json();if(!Array.isArray(items)||!items.length)return;
+      grid.replaceChildren(...items.slice(0,6).map(item=>{const card=make('article',null,'card');card.append(make('small','已完成'),make('h3',item.maskedNo||'已脱敏记录'),make('p',item.summary||'已完成交付'));if(item.finishedAt)card.append(make('small','完成日期 '+String(item.finishedAt).slice(0,10)));return card;}));section.hidden=false;
+    }catch(_){/* Only explicitly public records are shown; failure keeps this optional section hidden. */}
+  }
   function applyConfiguration(site) {
     configuration = site;
-    for (const field of ['brandName','heroTitle','heroSubtitle','footerText']) {
+    for (const field of ['brandName','heroTitle','heroSubtitle','footerText','quickContactTitle']) {
       document.querySelectorAll('[data-config="'+field+'"]').forEach(node => {node.textContent=String(site[field] || '');});
     }
     const brand = site.brandName || '星火网游';
     Object.assign(titles,{home:site.seoTitle || brand,services:'服务大厅 · '+brand,quote:'提交询价 · '+brand,account:'个人中心 · '+brand});
     document.title=titles[resolveLocation()];
     document.querySelectorAll('[data-support-link]').forEach(node => {node.href=safeLink(site.wecomKefuUrl) || '/contact';});
-    const heroImage=document.querySelector('[data-config="heroImage"]');
-    if(heroImage){const url=safeLink(site.heroImage);heroImage.hidden=!url;if(url){heroImage.src=url;heroImage.style.objectFit=['cover','contain'].includes(site.heroImageFit)?site.heroImageFit:'contain';heroImage.style.height=Math.max(80,Math.min(420,Number(site.heroImageHeight)||220))+'px';heroImage.style.width='100%';heroImage.style.objectPosition=(Number(site.heroImagePositionX)||50)+'% '+(Number(site.heroImagePositionY)||50)+'%';}}
+    const heroImage=document.querySelector('[data-config="heroImage"]'),visual=document.getElementById('nextHeroVisual');
+    if(heroImage&&visual){const url=safeLink(site.heroImage);visual.hidden=!url;if(url){heroImage.src=url;window.SiteImageControls?.main(visual,heroImage,site);}else heroImage.removeAttribute('src');}
+    window.SiteImageControls?.background(document.getElementById('homeHero'),document.getElementById('heroBackground'),site,safeLink(site.heroBackgroundImage));
+    document.documentElement.style.setProperty('--service-cover-height',number(site.serviceCoverHeight,70,240,115)+'px');
+    document.documentElement.style.setProperty('--service-cover-fit',['cover','contain','fill'].includes(site.serviceCoverFit)?site.serviceCoverFit:'cover');
+    document.documentElement.style.setProperty('--service-cover-position',number(site.serviceCoverPositionX,0,100,50)+'% '+number(site.serviceCoverPositionY,0,100,50)+'%');
+    configuredContent(site);
     const promises=document.querySelector('#homeHero .hero-promise');
     if(promises && Array.isArray(site.trustTags)) promises.replaceChildren(...site.trustTags.map(value=>{const item=document.createElement('div');item.textContent=String(value);return item;}));
     let announcement=document.getElementById('nextAnnouncement');
     if(!announcement){announcement=document.createElement('p');announcement.id='nextAnnouncement';announcement.className='next-config-state';announcement.setAttribute('role','status');document.querySelector('.nav')?.after(announcement);}
     announcement.textContent=site.announcementEnabled?String(site.announcementText||''):'';announcement.hidden=!site.announcementEnabled;
-    document.querySelectorAll('[data-go="quote"]').forEach(node=>{if(site.primaryButtonLabel)node.textContent=site.primaryButtonLabel;});
+    document.querySelectorAll('[data-primary-cta],.nav .actions [data-go="quote"]').forEach(node=>{if(site.primaryButtonLabel)node.textContent=site.primaryButtonLabel;});
     const submit=document.getElementById('submit');if(submit)submit.disabled=site.quoteEnabled===false;
     document.documentElement.dataset.siteConfiguration='ready';
     window.dispatchEvent(new CustomEvent('xh:site-config',{detail:site}));
@@ -82,6 +144,7 @@
       applyConfiguration(data);return data;
     } catch (_) {
       document.documentElement.dataset.siteConfiguration='error';
+      if(!configuration){document.getElementById('nextHotServices')?.replaceChildren(make('p','推荐服务暂时无法读取，请重试站点配置。'));}
       message=document.createElement('div');message.id='nextConfigState';message.className='next-config-state';message.setAttribute('role','status');
       message.append(document.createTextNode('站点配置暂时无法读取，请重试。'));
       const retry=document.createElement('button');retry.type='button';retry.className='btn';retry.textContent='重新读取';retry.onclick=()=>{window.XHFrontendShell.configurationReady=loadConfiguration();};message.append(retry);document.querySelector('.nav')?.after(message);
@@ -96,7 +159,8 @@
     return null;
   }
   window.go = go; window.toast = toast;
-  window.XHFrontendShell = {go, route, resolveLocation, applyConfiguration, safeAccountReturn, get configuration(){return configuration;}};
+  window.XHFrontendShell = {go, route, resolveLocation, applyConfiguration, updateServices, updateCatalog, dataUnavailable, safeAccountReturn, get configuration(){return configuration;}};
   window.XHFrontendShell.configurationReady=loadConfiguration();
+  publicCases();
   go(resolveLocation(), false);
 })();

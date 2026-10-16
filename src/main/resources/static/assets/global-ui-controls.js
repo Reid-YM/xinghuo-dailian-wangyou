@@ -122,6 +122,11 @@
 
   protectUserCenterFromAdminLinks();
   document.addEventListener('xh:mobile-nav-rendered', reapplySharedNavigation);
+  window.addEventListener('xh:site-config', event => {
+    currentSite=event.detail||{};
+    reapplySharedNavigation();
+    applyPageControls(currentSettings||{},currentSite);
+  });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load, { once: true });
   else load();
 })();

@@ -13,7 +13,7 @@
   }
 
   async function getJson(path){
-    const response=await fetch(path,{method:'GET',headers:{Accept:'application/json'},credentials:'same-origin'});
+    const response=await fetch(path,{method:'GET',headers:{Accept:'application/json'},credentials:'same-origin',cache:'no-store'});
     if(!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
   }
@@ -43,8 +43,8 @@
 
   function price(service){
     const fixed=Number(service?.priceFixed);
-    if(service?.priceMode==='FIXED' && Number.isFinite(fixed) && fixed>=0) return `¥${fixed}`;
-    if(service?.priceMode==='QUOTE') return '询价';
+    if(code(service?.priceMode)==='FIXED' && service?.priceFixed!=null && Number.isFinite(fixed) && fixed>=0) return `¥${fixed}`;
+    if(code(service?.priceMode)==='QUOTE') return '询价';
     const min=Number(service?.priceMin),max=Number(service?.priceMax);
     const hasMin=Number.isFinite(min)&&min>0,hasMax=Number.isFinite(max)&&max>0;
     if(hasMin&&hasMax&&max>min) return `¥${min}–${max}`;
@@ -63,13 +63,13 @@
     const article=make('article','serviceCard');
     article.dataset.game=code(service?.gameCode);
     article.dataset.name=text(service?.name);
-    article.dataset.price=String(service?.priceMode==='FIXED'?Number(service?.priceFixed):Number(service?.priceMin)||Infinity);
+    article.dataset.price=String(code(service?.priceMode)==='FIXED'?(service?.priceFixed==null?Infinity:Number(service.priceFixed)):(service?.priceMin==null?Infinity:Number(service.priceMin)));
     article.dataset.cat=code(service?.category).toLowerCase()||'uncategorized';
     article.dataset.game=code(service?.gameCode);
     article.dataset.serviceId=text(service?.id);
     article.dataset.serviceSlug=text(service?.slug);
 
-    const thumb=make('div','thumb');
+    const thumb=make('div','thumb service-cover');
     const cover=safeImage(service?.coverImage);
     if(cover){
       const image=document.createElement('img');
@@ -289,9 +289,10 @@
     const [catalog,services]=await Promise.allSettled([getJson('/api/catalog'),getJson('/api/services')]);
     const catalogOk=catalog.status==='fulfilled' && Array.isArray(catalog.value?.games);
     const servicesOk=services.status==='fulfilled' && Array.isArray(services.value);
-    if(catalogOk)state.catalog=catalog.value;
-    if(servicesOk){state.services=services.value;renderServices();}
-    else if(!hadServices)$('.serviceGrid')?.replaceChildren(make('p','','服务目录暂时无法读取，请重试。'));
+    if(catalogOk){state.catalog=catalog.value;window.XHFrontendShell?.updateCatalog?.(state.catalog);}
+    if(servicesOk){state.services=services.value;renderServices();window.XHFrontendShell?.updateServices?.(state.services);}
+    else if(!hadServices){$('.serviceGrid')?.replaceChildren(make('p','','服务目录暂时无法读取，请重试。'));window.XHFrontendShell?.dataUnavailable?.('nextHomeServices');}
+    if(!state.catalog)window.XHFrontendShell?.dataUnavailable?.('nextHomeGames');
     if(state.catalog){populateQuote();installHallFilters();}
     const ready=!!state.catalog && Array.isArray(state.services) && state.services.length>0;
     ['qGame','qCat','qSvc'].forEach(id=>{const node=$('#'+id);if(node)node.disabled=!ready;});

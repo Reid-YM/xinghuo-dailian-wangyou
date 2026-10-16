@@ -44,7 +44,7 @@ public class XingweiReleaseAttestationService {
         }
         try {
             JsonNode root = objectMapper.readTree(attestationPath.toFile());
-            Attestation attestation = parse(root);
+            Attestation attestation = parseTrusted(root);
             if (attestation == null) {
                 return Snapshot.unavailable(sampledAt, "INVALID");
             }
@@ -54,7 +54,7 @@ public class XingweiReleaseAttestationService {
         }
     }
 
-    private Attestation parse(JsonNode root) {
+    Attestation parseTrusted(JsonNode root) {
         if (root == null) {
             return null;
         }

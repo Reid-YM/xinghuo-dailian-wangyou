@@ -3,7 +3,7 @@
 
   if (!/^\/next\/account(?:\/|$)/.test(location.pathname)) return;
 
-  const PAGE_MAX = 1000;
+  const PAGE_MAX = 50;
   const ASSETS = new Map([
     ['progress', { label: '工具存档', paged: false }],
     ['favorites', { label: '我的收藏', paged: true }],

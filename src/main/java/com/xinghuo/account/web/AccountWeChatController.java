@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -57,14 +58,14 @@ public class AccountWeChatController {
                       HttpServletRequest request,
                       HttpServletResponse response) throws IOException {
         if (!weChatLogin.configured()) {
-            redirectLogin(response, "unavailable");
+            redirectLogin(response, "unavailable", next);
             return;
         }
         try {
             rateLimiter.check("wechat:start:ip:" + RequestUtils.clientIp(request),
                     20, Duration.ofMinutes(15));
         } catch (AccountException e) {
-            redirectLogin(response, "rate");
+            redirectLogin(response, "rate", next);
             return;
         }
 
@@ -83,11 +84,11 @@ public class AccountWeChatController {
         Flow flow = readFlow(request);
         clearFlowCookie(response);
         if (flow == null || state == null || !same(flow.state(), state)) {
-            redirectLogin(response, "state");
+            redirectLogin(response, "state", flow == null ? null : flow.returnTo());
             return;
         }
         if (code == null || code.isBlank()) {
-            redirectLogin(response, "cancelled");
+            redirectLogin(response, "cancelled", flow.returnTo());
             return;
         }
 
@@ -98,13 +99,13 @@ public class AccountWeChatController {
             response.sendRedirect(flow.returnTo());
         } catch (AccountException e) {
             if ("ACCOUNT_DISABLED".equals(e.getCode())) {
-                redirectLogin(response, "disabled");
+                redirectLogin(response, "disabled", flow.returnTo());
             } else if ("RATE_LIMITED".equals(e.getCode())) {
-                redirectLogin(response, "rate");
+                redirectLogin(response, "rate", flow.returnTo());
             } else if ("WECHAT_NOT_CONFIGURED".equals(e.getCode())) {
-                redirectLogin(response, "unavailable");
+                redirectLogin(response, "unavailable", flow.returnTo());
             } else {
-                redirectLogin(response, "failed");
+                redirectLogin(response, "failed", flow.returnTo());
             }
         }
     }
@@ -200,7 +201,13 @@ public class AccountWeChatController {
                 actual.getBytes(StandardCharsets.US_ASCII));
     }
 
-    private static void redirectLogin(HttpServletResponse response, String status) throws IOException {
+    private static void redirectLogin(HttpServletResponse response, String status, String requestedReturn) throws IOException {
+        String returnTo = safeReturnTo(requestedReturn);
+        if ("/next".equals(returnTo) || returnTo.startsWith("/next/")) {
+            response.sendRedirect("/next/account?wechat=" + status + "&next="
+                    + URLEncoder.encode(returnTo, StandardCharsets.UTF_8));
+            return;
+        }
         response.sendRedirect("/account/login?wechat=" + status);
     }
 

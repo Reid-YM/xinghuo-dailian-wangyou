@@ -96,7 +96,7 @@ class XingweiOrgRbacContractTest {
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
         assertTrue(template.contains("/assets/admin-xingwei.js?v=20261016xwsite1"));
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
-        assertTrue(template.contains("V4M · STABLE PRODUCTION"));
+        assertTrue(template.contains("V5A · UNIFIED DELIVERY"));
         assertTrue(template.contains("V2C · DATA SCOPE"));
         assertTrue(template.contains("ADMIN 全量 · OPERATOR 兼容 · RBAC 执行 ALL / DEPARTMENT / SELF"));
         assertTrue(orgJs.contains("/api/admin/xingwei/org/snapshot"));
@@ -116,7 +116,7 @@ class XingweiOrgRbacContractTest {
         assertTrue(mainJs.contains("xw:runtime-health"));
         assertTrue(accessController.contains("@GetMapping(\"/access\")"));
         assertTrue(controller.contains("20261013-v2c"));
-        assertTrue(controller.contains("20261016-v4m"));
+        assertTrue(controller.contains("20261016-v5a"));
     }
 
     private static int occurrences(String source, String needle) {

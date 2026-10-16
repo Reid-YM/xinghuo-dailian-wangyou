@@ -20,15 +20,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class XingweiAdminController {
-    static final String CONSOLE_VERSION = "20261016-v4m";
-    static final String CONSOLE_STAGE = "V4M · STABLE PRODUCTION";
-    static final String BUSINESS_VERSION = "20261016-v4m";
+    static final String CONSOLE_VERSION = "20261016-v5a";
+    static final String CONSOLE_STAGE = "V5A · UNIFIED DELIVERY";
+    static final String BUSINESS_VERSION = "20261016-v5a";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
     static final String CATALOG_VERSION = "20261014-v3f";
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
+            new ReleaseItem("2026-10-16", "V5A", "本版本",
+                    "新版后台统一交付",
+                    "本版本包含组织与权限、询价转单和订单编辑、派单与员工工作台、服务与游戏分类、售后处理与时效、渠道运营、攻略编辑与草稿预览、站点/SEO与前台控制、操作审计及账号安全入口。新增能力复用既有业务数据，写入按各模块权限、数据范围和并发版本约束执行。V75 仅新增内部渠道状态与任务表，精确 migration 已审核；原有迁移保持不变。旧后台和原认证继续保留，网站会员/社区等辅助模块沿用旧入口，字典/代码生成评估结论为暂不引入。UNIFIED DELIVERY 只标识当前运行包的功能范围，不代表生产门禁已经完成；实际部署结果以 Deploy Production 的精确 SHA、18080/8081/8080 和发布后核验为准。按整体验收后一次部署，不再为状态文案重复发布。真实支付/退款、企业微信写入和员工/小程序外部验收继续独立处理。"),
             new ReleaseItem("2026-10-16", "V4M", "已上线",
                     "售后待跟进等待时长与时效标记",
                     "在 V4L 已上线的待跟进优先级排序基础上，为独立只读 attention queue 的每条记录增加 attentionAtMs、waitingMs 和 ageBucket，并在页面直接展示例如“1天6小时 · 24–72小时”。attentionAtMs 继续使用统一待响应语义：有尚未确认的新客户补充时按最新补充时间，否则 OPEN 记录按原始售后提交时间；ageBucket 与既有 24 小时内、24–72 小时、72 小时以上分档完全一致，不把该分档定义为 SLA。继续沿用 order:view、ALL / DEPARTMENT / SELF / DENIED、筛选、分页和 V4L 排序。功能 PR #488、统一候选 PR #489 与精确主线 CI 均已通过；候选主线 dd283cccb5e7c3e64d3469e3b045447a101f216d 已通过 Deploy Production #213、服务器 Maven 472 tests / 0 failures / 0 errors / 88 skipped、18080 预发布、8081 金丝雀、8080 正式冒烟与发布后核验。Nginx 最终恢复 8080，金丝雀已停止；候选生产 JAR SHA256 为 10f62885752346a929efe7ec8c248ad03fcafb31a77335ddda2575d0ae6411ef，release 为 /opt/xinghuo-v2/releases/xinghuo-v2-standard-20261016070306.jar。无数据库迁移或业务写入，不改变订单、售后状态、退款、真实收款、微信支付或企业微信写入。"),

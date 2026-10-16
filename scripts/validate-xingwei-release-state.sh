@@ -67,6 +67,18 @@ if [[ "$console_stage" == *"RELEASE CANDIDATE"* ]]; then
     || fail "release candidate stage ${stage_tag} must have a 待发布 release item"
 fi
 
+# Unified delivery identifies package contents without claiming deployment success.
+# This mode avoids a second state-only deployment after the production gates.
+case "$console_stage" in
+  *"STABLE PRODUCTION"*|*"RELEASE CANDIDATE"*) ;;
+  *"UNIFIED DELIVERY")
+    grep -Eq "new ReleaseItem\(\"[0-9]{4}-[0-9]{2}-[0-9]{2}\", \"${stage_tag}\", \"本版本\"," "$controller" \
+      || fail "unified delivery stage ${stage_tag} must have a 本版本 release item"
+    require_literal "$dashboard" '生产部署结果以发布流水线核验为准'
+    ;;
+  *) fail "unsupported delivery stage: $console_stage" ;;
+esac
+
 # Known delivery truth that must not regress while real-device validation is pending.
 require_literal "$controller" '"V3H", "待真机验收"'
 require_literal "$dashboard" 'V3H 待真机验收'

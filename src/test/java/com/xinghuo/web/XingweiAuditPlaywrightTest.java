@@ -25,6 +25,7 @@ class XingweiAuditPlaywrightTest {
             };
           }
           """);
+        page.addScriptTag(new Page.AddScriptTagOptions().setPath(Path.of("src/main/resources/static/assets/admin-xingwei-labels.js")));
         page.addScriptTag(new Page.AddScriptTagOptions().setPath(Path.of("src/main/resources/static/assets/admin-xingwei-audits.js")));
         page.waitForFunction("() => document.querySelector('#auditCount').textContent.includes('101')");
     }
@@ -33,9 +34,11 @@ class XingweiAuditPlaywrightTest {
         try(Playwright p=Playwright.create();Browser b=chromium(p)){
             Page page=b.newPage();setup(page);
             assertEquals("UPDATE",page.locator("select[name=action]").inputValue());
+            assertEquals("更新资料",page.locator("select[name=action] option:checked").textContent());
+            assertTrue(page.locator("#auditRows").textContent().contains("对象：订单"));
             assertEquals(0,page.locator("#auditRows script").count());
             page.getByText("查看变更摘要",new Page.GetByTextOptions().setExact(true)).click();
-            page.waitForFunction("() => document.querySelector('#auditDetail').textContent.includes('RESOLVED')");
+            page.waitForFunction("() => document.querySelector('#auditDetail').textContent.includes('已解决')");
             assertTrue(page.locator("#auditDetail").textContent().contains("内容已隐藏"));
             page.locator("#auditClose").click();
             page.locator("#auditFilters input[name=q]").fill("O1");page.locator("#auditFilters button[type=submit]").click();
@@ -45,6 +48,7 @@ class XingweiAuditPlaywrightTest {
     }
     @Test void chromiumMemberActivitySourceUsesNativeReadOnlyRouteAndRestoresUrl()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){
         Page page=b.newPage();setup(page);page.locator("#auditSource").selectOption("members");page.waitForFunction("()=>document.querySelector('#auditRows').textContent.includes('MEM-7')");
+        assertTrue(page.locator("#auditRows").textContent().contains("登录成功"));assertEquals("LOGIN_OK",page.locator("select[name=action] option").last().getAttribute("value"));
         assertTrue(page.url().contains("source=members"));assertFalse(page.url().contains("page="));
         assertTrue(page.locator("#auditRows").textContent().contains("192.168.*.*"));assertEquals(0,page.locator("#auditRows button").count());
         assertEquals(true,page.evaluate("()=>window.auditUrls.some(url=>url.includes('/api/admin/xingwei/audits/member-activity'))"));
@@ -58,7 +62,7 @@ class XingweiAuditPlaywrightTest {
             page.evaluate("() => window.failDetail=true");page.getByText("查看变更摘要",new Page.GetByTextOptions().setExact(true)).click();
             page.waitForFunction("() => !document.querySelector('#auditDetailRetry').hidden");
             page.evaluate("() => window.failDetail=false");page.locator("#auditDetailRetry").click();
-            page.waitForFunction("() => document.querySelector('#auditDetail').textContent.includes('RESOLVED')");page.locator("#auditClose").click();
+            page.waitForFunction("() => document.querySelector('#auditDetail').textContent.includes('已解决')");page.locator("#auditClose").click();
             page.locator("#auditNext").click();page.waitForURL("**page=2");
             page.goBack();page.waitForFunction("() => document.querySelector('#auditPage').textContent.includes('2')");
             page.evaluate("() => window.failList=true");page.locator("#auditRefresh").click();page.waitForFunction("() => !document.querySelector('#auditRetry').hidden");

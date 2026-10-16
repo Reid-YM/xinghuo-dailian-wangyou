@@ -131,7 +131,7 @@
       });
       let body = null;
       try { body = await response.json(); } catch (_) { body = null; }
-      if (!response.ok) throw new Error(body?.error || body?.message || `HTTP ${response.status}`);
+      if (!response.ok) throw new Error(body?.error || body?.message || `请求失败（状态码 ${response.status}）`);
       snapshot = body;
       render();
       status.classList.remove('error');

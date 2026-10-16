@@ -271,7 +271,7 @@
     if(csrfToken&&csrfHeader)headers[csrfHeader]=csrfToken;
     const response=await fetch(url,{method,credentials:'same-origin',headers,body:body===null?undefined:JSON.stringify(body)});
     const result=await parseResponse(response);
-    if(!response.ok)throw new Error(result?.message||result?.error||`HTTP ${response.status}`);
+    if(!response.ok)throw new Error(result?.message||result?.error||`请求失败（状态码 ${response.status}）`);
     return result;
   }
 
@@ -310,13 +310,13 @@
     reviewSummary.classList.remove('ready','blocked');
     reviewSummary.textContent='正在执行发布前检查……';
     reviewChecks.replaceChildren();
-    append(reviewChecks,'p','正在核对 taxonomy、基础内容、价格和到期时间。','xcat-check-loading');
+    append(reviewChecks,'p','正在核对游戏与分类、基础内容、价格和到期时间。','xcat-check-loading');
     reviewPublish.hidden=true;
     reviewDialog.showModal();
     try{
       const response=await fetch(`/api/admin/xingwei/catalog/services/${item.id}/publish-review`,{credentials:'same-origin',headers:{'Accept':'application/json'}});
       const body=await parseResponse(response);
-      if(!response.ok)throw new Error(body?.message||body?.error||`HTTP ${response.status}`);
+      if(!response.ok)throw new Error(body?.message||body?.error||`请求失败（状态码 ${response.status}）`);
       if(currentReviewItem?.id!==item.id)return;
       renderReview(body);
     }catch(error){
@@ -331,7 +331,7 @@
   async function publishReviewed() {
     if(!canManage||!currentReviewItem||!currentReview?.ready)return;
     const item=currentReviewItem;
-    const confirmed=window.confirm(`最终确认上架「${item.name}」？发布后该服务会按现有 taxonomy 和状态进入公开服务目录。`);
+    const confirmed=window.confirm(`最终确认上架「${item.name}」？发布后该服务会按现有游戏分类与状态进入公开服务目录。`);
     if(!confirmed)return;
     reviewPublish.disabled=true;
     try{
@@ -349,7 +349,7 @@
   async function loadAccess() {
     try{
       const response=await fetch('/api/admin/xingwei/access',{credentials:'same-origin',headers:{'Accept':'application/json'}});
-      if(!response.ok)throw new Error(`HTTP ${response.status}`);
+      if(!response.ok)throw new Error(`请求失败（状态码 ${response.status}）`);
       access=await response.json();
       canManage=Boolean(access?.allowAll||(access?.permissionCodes||[]).includes('service:manage'));
       createOpen.hidden=!canManage;
@@ -365,7 +365,7 @@
     try {
       const response=await fetch('/api/admin/xingwei/catalog/snapshot',{credentials:'same-origin',headers:{'Accept':'application/json'}});
       const body=await parseResponse(response);
-      if(!response.ok) throw new Error(body?.error||body?.message||`HTTP ${response.status}`);
+      if(!response.ok) throw new Error(body?.error||body?.message||`请求失败（状态码 ${response.status}）`);
       snapshot=body; render(); status.classList.remove('error'); setStatus(status,'生产目录已读取',true);
       if(showLoading)setMessage(`已读取 ${snapshot.counts?.services??0} 个服务、${snapshot.counts?.games??0} 个游戏、${snapshot.counts?.categories??0} 个分类。${canManage?'离线服务需先通过发布检查再上架。':'当前账号为只读模式。'}`,'ok');
     } catch(error) {
@@ -378,8 +378,8 @@
     if(!canManage||!snapshot)return;
     const payload=createPayload();
     if(!payload.gameCode||!payload.category){setMessage('必须选择现有游戏与分类。','error');return;}
-    if(!/^[a-z0-9-]{2,100}$/.test(payload.slug)){setMessage('slug 只能使用 2-100 位小写字母、数字和连字符。','error');createSlug.focus();return;}
-    if((snapshot.services||[]).some((item)=>normalize(item.slug)===payload.slug)){setMessage('该 slug 已存在，请更换服务标识。','error');createSlug.focus();return;}
+    if(!/^[a-z0-9-]{2,100}$/.test(payload.slug)){setMessage('服务访问标识只能使用 2-100 位小写字母、数字和连字符。','error');createSlug.focus();return;}
+    if((snapshot.services||[]).some((item)=>normalize(item.slug)===payload.slug)){setMessage('该服务访问标识已存在，请更换服务标识。','error');createSlug.focus();return;}
     const validTaxonomy=(snapshot.categories||[]).some((category)=>category.active&&category.gameCode===payload.gameCode&&category.code===payload.category);
     if(!validTaxonomy){setMessage('所选游戏/分类已失效，请刷新目录后重试。','error');return;}
     if(!payload.name||!payload.shortDesc||!payload.durationText){setMessage('服务名称、简短说明和预计时长不能为空。','error');return;}
@@ -388,7 +388,7 @@
     createSave.disabled=true;
     try{
       const created=await write('/api/admin/xingwei/catalog/services','POST',payload);
-      closeCreate(); await loadSnapshot(false); setMessage(`已创建离线服务「${created?.name||payload.name}」。下一步请执行“发布检查”，通过后再确认上架；SERVICE_CREATE 已记录审计。`,'ok');
+      closeCreate(); await loadSnapshot(false); setMessage(`已创建离线服务「${created?.name||payload.name}」。下一步请执行“发布检查”，通过后再确认上架；服务创建已记录审计。`,'ok');
     }catch(error){setMessage(`创建失败：${error.message}`,'error');}
     finally{createSave.disabled=false;}
   }

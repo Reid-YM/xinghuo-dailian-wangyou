@@ -8,10 +8,10 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>业务工作台 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261016flow2"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei-business.js?v=20261016flow2"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-business.js?v=20261017search1"></script>
 </head>
 <body>
 <main class="xwb-shell">
@@ -77,7 +77,7 @@
   <section class="xw-data-panel xwb-panel" id="xwbQuotesPanel" hidden>
     <div class="xw-data-head">
       <div><h3>询价与线索</h3><p>按当前账号数据范围从数据库先过滤，再按创建时间倒序返回。</p></div>
-      <span class="xw-pill" id="xwbQuotePermission">quote:view</span>
+      <span class="xw-pill" id="xwbQuotePermission">询价查看</span>
     </div>
     <div class="xw-table-wrap xw-table-tall">
       <table class="xw-table xwb-table">
@@ -89,8 +89,8 @@
 
   <section class="xw-data-panel xwb-panel" id="xwbOrdersPanel" hidden>
     <div class="xw-data-head">
-      <div><h3 id="xwbOrderHeading">订单与履约</h3><p id="xwbOrderDescription">询价转订单后沿用同一个 business_no，因此负责人和中心归属自动继承。异常订单由后端按状态和数据范围独立筛选。</p></div>
-      <span class="xw-pill" id="xwbOrderPermission">order:view</span>
+      <div><h3 id="xwbOrderHeading">订单与履约</h3><p id="xwbOrderDescription">询价转订单后沿用同一个业务编号，因此负责人和中心归属自动继承。异常订单由后端按状态和数据范围独立筛选。</p></div>
+      <span class="xw-pill" id="xwbOrderPermission">订单查看</span>
     </div>
     <div class="xw-table-wrap xw-table-tall">
       <table class="xw-table xwb-table">

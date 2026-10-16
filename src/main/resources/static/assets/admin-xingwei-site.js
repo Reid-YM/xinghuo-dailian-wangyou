@@ -34,16 +34,16 @@
     catch(error){if(error.name==='AbortError')throw new Error('请求超时；如果正在保存，请先重新读取核对结果。');throw error;}finally{clearTimeout(timer);}
   }
   function currentValues(){return section()==='games'?(cache?.find(row=>row.gameCode===game)||{}):(cache||{});}
-  function field(def,value){
+  function field(def,value,nested=false){
     if(def.type==='repeat'){
-      const box=el('fieldset');box.dataset.repeat=def.key;box.append(el('legend',def.label));
+      const box=el('fieldset');box.dataset.repeat=def.key;box.id='site-field-'+def.key;box.append(el('legend',def.label));
       const rows=el('section');box.append(rows);const add=el('button','新增一项');add.type='button';add.className='xw-button xw-button-ghost';
-      function append(data={}){const row=el('div');row.dataset.repeatRow='true';for(const child of def.fields)row.append(field(child,data[child.key]));const remove=el('button','移除此项');remove.type='button';remove.addEventListener('click',()=>{row.remove();add.disabled=!canWrite()||rows.children.length>=def.max;dirty=true;});row.append(remove);rows.append(row);add.disabled=!canWrite()||rows.children.length>=def.max;}
+      function append(data={}){const row=el('div');row.dataset.repeatRow='true';for(const child of def.fields)row.append(field(child,data[child.key],true));const remove=el('button','移除此项');remove.type='button';remove.addEventListener('click',()=>{row.remove();add.disabled=!canWrite()||rows.children.length>=def.max;dirty=true;});row.append(remove);rows.append(row);add.disabled=!canWrite()||rows.children.length>=def.max;}
       for(const row of Array.isArray(value)?value:[])append(row);add.disabled=!canWrite()||rows.children.length>=def.max;
       add.addEventListener('click',()=>{if(rows.children.length<def.max){append();dirty=true;}});box.append(add);return box;
     }
     const label=el('label',def.label),input=el(def.type==='textarea'||def.type==='tags'?'textarea':def.type==='select'?'select':'input');
-    input.dataset.field=def.key;
+    input.dataset.field=def.key;if(!nested)input.id='site-field-'+def.key;
     if(def.type==='select')for(const [code,name]of def.options){const o=el('option',name);o.value=code;input.append(o);}
     else if(def.type!=='textarea'&&def.type!=='tags')input.type=def.type;
     if(def.type==='checkbox')input.checked=value===true||value==='true';else input.value=def.type==='tags'?(Array.isArray(value)?value.join('\n'):''):value??'';
@@ -76,6 +76,12 @@
     const values=currentValues();for(const def of schemas[section()])target.append(field(def,values[def.key]));
     for(const control of form.querySelectorAll('input,select,textarea,button'))control.disabled=!canWrite()||(section()==='games'&&!game);
     $('siteSave').disabled=!canWrite()||!revision||(section()==='games'&&!game);dirty=false;
+    // The form only exists after access and configuration have loaded.
+    const anchor=location.hash.slice(1);
+    if(anchor.startsWith('site-field-')){
+      const found=document.getElementById(anchor);
+      if(found){found.classList.add('xw-located-field');found.scrollIntoView({block:'center'});if(!found.disabled){if(found.tagName==='FIELDSET')found.tabIndex=-1;found.focus({preventScroll:true});}}
+    }
   }
   async function load(){
     const id=++serial;busy=true;selector.disabled=true;$('siteReload').disabled=true;$('siteSave').disabled=true;$('siteMessage').textContent='正在读取配置…';

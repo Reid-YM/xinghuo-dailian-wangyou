@@ -86,7 +86,7 @@
   async function loadAccess(){
     try{
       const response=await fetch('/api/admin/xingwei/access',{credentials:'same-origin',headers:{Accept:'application/json'}});
-      if(!response.ok)throw new Error(`HTTP ${response.status}`);
+      if(!response.ok)throw new Error(`请求失败（状态码 ${response.status}）`);
       const body=await response.json();
       canManage=Boolean(body?.allowAll||(body?.permissionCodes||[]).includes('service:manage'));
       document.getElementById('xtaxAddGame').hidden=!canManage;document.getElementById('xtaxAddCategory').hidden=!canManage;
@@ -98,8 +98,8 @@
     if(showLoading)setMessage('正在读取游戏与分类……');refresh.disabled=true;
     try{
       const response=await fetch('/api/admin/xingwei/catalog/snapshot',{credentials:'same-origin',headers:{Accept:'application/json'}});
-      const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||`HTTP ${response.status}`);
-      snapshot=body;render();setStatus(status,'taxonomy 已读取',true,false);
+      const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||`请求失败（状态码 ${response.status}）`);
+      snapshot=body;render();setStatus(status,'游戏与分类已读取',true,false);
       if(showLoading)setMessage(`已读取 ${(snapshot.games||[]).length} 个游戏、${(snapshot.categories||[]).length} 个分类。${canManage?'启停必须核对前台可见性、填写原因并确认影响快照。':'当前账号只能查看影响。'}`,'ok');
     }catch(error){setStatus(status,'读取失败',false,true);setMessage(`读取失败或当前账号没有 service:view：${error.message}`,'error');}
     finally{refresh.disabled=false;}
@@ -158,7 +158,7 @@
       : `/api/admin/xingwei/catalog/taxonomy/categories/${encodeURIComponent(key)}/impact`;
     try{
       const response=await fetch(url,{credentials:'same-origin',headers:{Accept:'application/json'}});
-      const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||`HTTP ${response.status}`);
+      const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||`请求失败（状态码 ${response.status}）`);
       if(!currentTarget||String(currentTarget.key)!==String(key)||currentTarget.kind!==kind)return;
       renderImpact(body);
     }catch(error){impactBox.textContent='影响预览读取失败';visibilitySummary.textContent='无法确认前台可见性，请勿执行启停。';effect.textContent=error.message;toggle.hidden=true;reasonWrap.hidden=true;ackWrap.hidden=true;}
@@ -177,9 +177,9 @@
     toggle.disabled=true;
     try{
       const response=await fetch(url,{method:'PUT',credentials:'same-origin',headers,body:JSON.stringify({active:next,reason:why,impactToken:currentImpact.impactToken})});
-      const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||`HTTP ${response.status}`);
+      const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||`请求失败（状态码 ${response.status}）`);
       dialog.close();currentImpact=null;currentTarget=null;await loadSnapshot(false);
-      setMessage(`已${next?'启用':'停用'}「${label}」，本次影响快照已校验，可见性缓存已立即刷新，操作已进入 taxonomy 审计。`,'ok');
+      setMessage(`已${next?'启用':'停用'}「${label}」，本次影响快照已校验，可见性缓存已立即刷新，操作已进入游戏与分类审计。`,'ok');
     }catch(error){
       const stale=String(error.message||'').includes('影响数据已变化');
       if(stale&&currentTarget){const target={...currentTarget};await openImpact(target.kind,target.key);setMessage('影响数据已变化，已为你重新加载最新前台影响；请重新核对后确认。','error');}
@@ -234,7 +234,7 @@
     const save=field('xtaxEditSave');save.disabled=true;
     try{
       const response=await fetch(url,{method:key==null?'POST':'PUT',credentials:'same-origin',headers,body:JSON.stringify(payload)});
-      const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||'HTTP '+response.status);
+      const body=await parseResponse(response);if(!response.ok)throw new Error(body?.message||body?.error||'请求失败，状态码 '+response.status);
       editDialog.close();editTarget=null;await loadSnapshot(false);setMessage('资料保存成功。新增项目默认停用，启用需单独审核影响。','ok');
     }catch(error){setMessage('保存失败：'+error.message,'error');}finally{save.disabled=false;}
   }

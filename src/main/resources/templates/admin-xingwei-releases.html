@@ -6,9 +6,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="theme-color" content="#101216"/>
   <title>版本与更新记录 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017panels1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-releases.css?v=20261014v1"/>
-<script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script></head>
+  <link rel="stylesheet" href="/assets/admin-xingwei-runtime-health.css?v=20261017v1"/>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script>
+  <script defer src="/assets/admin-xingwei-runtime-health.js?v=20261017v1"></script>
+</head>
 <body>
 <main class="xwr-shell">
   <header class="xwr-topbar">
@@ -26,6 +29,60 @@
   <section class="xwr-rule">
     <strong>后续固定规则 · CI + 运行时双校验</strong>
     <span>功能完成 ≠ 记录完成。提交前由 CI 检查版本记录；上线后由浏览器核对页面版本与实际后端版本。任一处不一致都应视为阶段未完全收口。</span>
+  </section>
+
+  <section class="xwr-health" id="xwrRuntimeHealth" aria-labelledby="xwrRuntimeHealthTitle" data-health-ready="false">
+    <div class="xwr-health-head">
+      <div>
+        <p class="xw-kicker">应用运行真值</p>
+        <h2 id="xwrRuntimeHealthTitle">运行健康</h2>
+        <p>读取当前 JVM、数据库和进程内请求错误基线。此处只展示应用进程能够自行证明的状态，不代替 Nginx、systemd、Git SHA、JAR SHA256 或回滚链核验。</p>
+      </div>
+      <div class="xwr-health-actions">
+        <span class="xw-status" id="xwrRuntimeHealthState"><i></i><span>正在读取</span></span>
+        <button class="xw-button xw-button-ghost" id="xwrRuntimeHealthRefresh" type="button">立即复核</button>
+      </div>
+    </div>
+
+    <div class="xwr-health-grid">
+      <article class="xwr-health-card" data-tone="">
+        <span>数据库</span>
+        <strong id="xwrRuntimeDatabase">读取中</strong>
+        <small>等待 SELECT 1 连通检查</small>
+      </article>
+      <article class="xwr-health-card" data-tone="">
+        <span>JVM 运行时长</span>
+        <strong id="xwrRuntimeUptime">-</strong>
+        <small>等待进程启动时间</small>
+      </article>
+      <article class="xwr-health-card" data-tone="">
+        <span>JVM 堆内存</span>
+        <strong id="xwrRuntimeHeap">-</strong>
+        <small>等待堆与线程采样</small>
+      </article>
+      <article class="xwr-health-card" data-tone="">
+        <span>累计请求</span>
+        <strong id="xwrRuntimeRequests">-</strong>
+        <small>当前 JVM 启动后累计</small>
+      </article>
+      <article class="xwr-health-card" data-tone="">
+        <span>4xx</span>
+        <strong id="xwrRuntime4xx">-</strong>
+        <small>客户端错误累计</small>
+      </article>
+      <article class="xwr-health-card" data-tone="">
+        <span>5xx</span>
+        <strong id="xwrRuntime5xx">-</strong>
+        <small>服务端错误累计</small>
+      </article>
+    </div>
+
+    <div class="xwr-health-meta">
+      <span id="xwrRuntimeLastServerError">最近 5xx：等待采样</span>
+      <span id="xwrRuntimeSampledAt">采样时间：等待读取</span>
+    </div>
+    <p class="xwr-health-boundary">生产发布真值继续由 Deploy Production 核验：18080 预发布、8081 金丝雀、8080 正式入口、Nginx upstream、Git SHA / JAR SHA256 与上一版本回滚链。本页不执行部署、不执行回滚，也不写入业务数据。</p>
+    <p class="xwr-health-message" id="xwrRuntimeHealthMessage" role="status" aria-live="polite"></p>
   </section>
 
   <section th:replace="~{fragments/admin-delivery-roadmap :: roadmap}"></section>

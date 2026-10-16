@@ -5,10 +5,10 @@
   <meta name="robots" content="noindex,nofollow"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>待跟进时效队列 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261014v3x"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-after-sales.css?v=20261016v4k"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei-after-sales-attention.js?v=20261016v4m"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-after-sales-attention.js?v=20261016v4m"></script>
 </head>
 <body>
 <main class="xwb-shell">
@@ -30,7 +30,7 @@
 
   <form id="attentionFilters" class="xw-case-filters">
     <label>待跟进时效
-      <select name="age" required>
+      <select id="xw-field-age" name="age" required>
         <option value="ATTENTION">全部需跟进</option>
         <option value="WITHIN_24H">24 小时内</option>
         <option value="FROM_24_TO_72H">24–72 小时</option>
@@ -38,18 +38,18 @@
       </select>
     </label>
     <label>处理状态
-      <select name="status"><option value="">全部</option><option value="OPEN">待处理</option><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select>
+      <select id="xw-field-status" name="status"><option value="">全部</option><option value="OPEN">待处理</option><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select>
     </label>
     <label>问题类型
-      <select name="category"><option value="">全部</option><option value="DELIVERY">交付或进度</option><option value="CANCELLATION">取消服务</option><option value="REFUND_REVIEW">退款核对</option><option value="OTHER">其他问题</option></select>
+      <select id="xw-field-category" name="category"><option value="">全部</option><option value="DELIVERY">交付或进度</option><option value="CANCELLATION">取消服务</option><option value="REFUND_REVIEW">退款核对</option><option value="OTHER">其他问题</option></select>
     </label>
     <label>客户补充
-      <select name="followup"><option value="">全部</option><option value="PENDING">待跟进</option></select>
+      <select id="xw-field-followup" name="followup"><option value="">全部</option><option value="PENDING">待跟进</option></select>
     </label>
     <label>优先顺序
-      <select name="sort"><option value="NEWEST_FIRST">最新待跟进优先</option><option value="OLDEST_FIRST">最久未响应优先</option></select>
+      <select id="xw-field-sort" name="sort"><option value="NEWEST_FIRST">最新待跟进优先</option><option value="OLDEST_FIRST">最久未响应优先</option></select>
     </label>
-    <label>搜索<input name="q" maxlength="80" placeholder="业务编号、订单号或客户说明"/></label>
+    <label>搜索<input id="xw-field-q" name="q" maxlength="80" placeholder="业务编号、订单号或客户说明"/></label>
     <button class="xw-button" type="submit">查询</button>
   </form>
 

@@ -28,7 +28,7 @@ class FrontendDefaultReplacementPlaywrightTest {
             String body=null;int status=200;
             if(path.equals("/api/site-config"))body="{\"brandName\":\"真实配置品牌\",\"heroTitle\":\"后台维护的首页标题\",\"heroSubtitle\":\"真实服务说明\",\"quoteEnabled\":true,\"trustTags\":[\"进度可查\"],\"footerText\":\"配置页脚\",\"wecomKefuUrl\":\"https://support.example.test/help\"}";
             else if(path.equals("/api/public/cases"))body="[]";
-            else if(path.equals("/api/catalog"))body="{\"games\":[{\"code\":\"G1\",\"name\":\"游戏一\"},{\"code\":\"G2\",\"name\":\"游戏二\"}],\"categories\":[{\"code\":\"TASK\",\"gameCode\":\"G1\",\"name\":\"任务\"}],\"platforms\":[{\"code\":\"PC\",\"name\":\"PC\"}],\"gamePlatforms\":[{\"gameCode\":\"G1\",\"platformCode\":\"PC\",\"active\":true}]}";
+            else if(path.equals("/api/catalog"))body="{\"games\":[{\"code\":\"G1\",\"name\":\"游戏一\",\"seoSlug\":\"actual-game\"},{\"code\":\"G2\",\"name\":\"游戏二\"}],\"categories\":[{\"code\":\"TASK\",\"gameCode\":\"G1\",\"name\":\"任务\"}],\"platforms\":[{\"code\":\"PC\",\"name\":\"PC\"}],\"gamePlatforms\":[{\"gameCode\":\"G1\",\"platformCode\":\"PC\",\"active\":true}]}";
             else if(path.equals("/api/services")){status=failServices.get()?503:200;body=failServices.get()?"{}":realPublicServices;}
             else if(path.equals("/api/account/me")){status=401;body="{\"message\":\"请先登录\"}";}
             else if(path.endsWith("/availability"))body="{\"enabled\":false}";
@@ -52,7 +52,7 @@ class FrontendDefaultReplacementPlaywrightTest {
             assertEquals("https://support.example.test/help",page.locator("[data-support-link]").getAttribute("href"));
             page.reload();page.waitForFunction("()=>document.documentElement.dataset.frontendPage==='services'");
             page.locator(".nav .navlink[data-go=quote]").click();page.locator("#goal").fill("保留的需求草稿");
-            page.locator(".nav .navlink[data-go=home]").click();assertEquals("https://example.test/",page.url());
+            page.locator(".nav .navlink[data-go=home]").click();assertEquals("https://example.test/",page.url());page.waitForFunction("()=>document.querySelectorAll('#nextHomeGames a').length===2");assertEquals("/game/actual-game",page.locator("#nextHomeGames a").first().getAttribute("href"));assertEquals("/services?game=G2",page.locator("#nextHomeGames a").nth(1).getAttribute("href"));assertEquals("星火 · 新版服务平台",page.locator(".badge").textContent());assertFalse(page.locator(".badge").getAttribute("title").contains("并行"));
             page.goBack();assertEquals("quote",page.locator("html").getAttribute("data-frontend-page"));assertEquals("保留的需求草稿",page.locator("#goal").inputValue());
             page.goBack();assertEquals("services",page.locator("html").getAttribute("data-frontend-page"));
             page.navigate("https://example.test/next/quote");page.waitForFunction("()=>document.documentElement.dataset.frontendPage==='quote'");

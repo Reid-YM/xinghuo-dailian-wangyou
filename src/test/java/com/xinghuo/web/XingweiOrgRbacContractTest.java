@@ -94,9 +94,9 @@ class XingweiOrgRbacContractTest {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
         String accessController = read("java/com/xinghuo/controller/XingweiPermissionController.java");
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
-        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261016tools1"));
+        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261016v6a1"));
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
-        assertTrue(template.contains("V5A · UNIFIED DELIVERY"));
+        assertTrue(template.contains("V6A · UNIFIED DELIVERY"));
         assertTrue(template.contains("V2C · DATA SCOPE"));
         assertTrue(template.contains("ADMIN 全量 · OPERATOR 兼容 · RBAC 执行 ALL / DEPARTMENT / SELF"));
         assertTrue(orgJs.contains("/api/admin/xingwei/org/snapshot"));
@@ -116,7 +116,7 @@ class XingweiOrgRbacContractTest {
         assertTrue(mainJs.contains("xw:runtime-health"));
         assertTrue(accessController.contains("@GetMapping(\"/access\")"));
         assertTrue(controller.contains("20261013-v2c"));
-        assertTrue(controller.contains("20261016-v5a"));
+        assertTrue(controller.contains("20261016-v6a"));
     }
 
     private static int occurrences(String source, String needle) {

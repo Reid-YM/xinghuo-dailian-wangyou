@@ -16,7 +16,7 @@
   const MODULE_PERMISSIONS = {
     B01: 'quote:view', B02: 'order:view', B03: 'service:view', B04: 'content:view', B05: 'order:view',
     B06: 'customer:view', B07: 'content:view', B08: 'feedback:view', B09: 'site:view', B10: 'quote:view',
-    B11: 'content:view', B12: 'dashboard:view',
+    B11: 'content:view', B12: 'dashboard:view', B13: 'service:view', B14: 'order:view',
     O01: 'org:view', O02: 'employee:view', O03: 'rbac:view', O04: 'employee:view',
     C01: 'channel:view', C02: 'wechat:view', C03: 'payment:view', C04: 'site:view',
     S01: 'site:view', S02: 'audit:view', S03: 'deploy:view', S04: 'site:view'
@@ -100,7 +100,7 @@
     modules.forEach((module) => {
       const text = normalize(`${module.dataset.search || ''} ${module.textContent || ''}`);
       const code = module.querySelector('.xw-module-index')?.textContent?.trim();
-      const allowed = code === 'S01' ? can('site:view') || can('seo:view') : can(modulePermission(module));
+      const allowed = code === 'S01' ? can('site:view') || can('seo:view') : code === 'B14' ? can('order:view') || can('quote:view') : can(modulePermission(module));
       const globalAllowed = !module.hasAttribute('data-global-scope') || !access || access.allowAll || access.dataScope === 'ALL';
       const match = (!query || text.includes(query)) && allowed && globalAllowed;
       module.hidden = !match;

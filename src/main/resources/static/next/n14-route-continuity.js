@@ -32,7 +32,12 @@
   function catalogGameForSlug(slug) {
     const games = window.XHFrontendNextN2?.state?.catalog?.games;
     if (!Array.isArray(games)) return null;
-    const normalized = decodeURIComponent(text(slug));
+    let normalized = text(slug);
+    try {
+      normalized = decodeURIComponent(normalized);
+    } catch (ignore) {
+      return null;
+    }
     return games.find((game) => text(game?.seoSlug) === normalized && text(game?.code));
   }
 

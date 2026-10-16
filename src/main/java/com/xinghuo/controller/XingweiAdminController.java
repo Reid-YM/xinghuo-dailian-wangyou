@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class XingweiAdminController {
     static final String CONSOLE_VERSION = "20261016-v4m";
-    static final String CONSOLE_STAGE = "V4M · RELEASE CANDIDATE";
+    static final String CONSOLE_STAGE = "V4M · STABLE PRODUCTION";
     static final String BUSINESS_VERSION = "20261016-v4m";
     static final String WORK_VERSION = "20261013-v2f";
     static final String WECOM_VERSION = "20261013-v2g";
@@ -29,9 +29,9 @@ public class XingweiAdminController {
     static final String TAXONOMY_VERSION = "20261014-v3i";
 
     private static final List<ReleaseItem> RELEASE_HISTORY = List.of(
-            new ReleaseItem("2026-10-16", "V4M", "待发布",
+            new ReleaseItem("2026-10-16", "V4M", "已上线",
                     "售后待跟进等待时长与时效标记",
-                    "在 V4L 已上线的待跟进优先级排序基础上，为独立只读 attention queue 的每条记录增加 attentionAtMs、waitingMs 和 ageBucket，并在页面直接展示例如“1天6小时 · 24–72小时”。attentionAtMs 继续使用统一待响应语义：有尚未确认的新客户补充时按最新补充时间，否则 OPEN 记录按原始售后提交时间；ageBucket 与既有 24 小时内、24–72 小时、72 小时以上分档完全一致，不把该分档定义为 SLA。继续沿用 order:view、ALL / DEPARTMENT / SELF / DENIED、筛选、分页和 V4L 排序，不新增数据库迁移或业务写入。功能 PR #488 已通过 Java/Maven、版本真值守卫与 Chromium/WebKit 双 CI并合入 main；精确功能主线 6736ee80d6d2a927f2f63e37cd869d82b6acb76f 的 main CI #1157 也已双绿。本统一候选只有通过后续双 CI 与生产门禁后才能标记已上线，不改变订单、售后状态、退款、真实收款、微信支付或企业微信写入。"),
+                    "在 V4L 已上线的待跟进优先级排序基础上，为独立只读 attention queue 的每条记录增加 attentionAtMs、waitingMs 和 ageBucket，并在页面直接展示例如“1天6小时 · 24–72小时”。attentionAtMs 继续使用统一待响应语义：有尚未确认的新客户补充时按最新补充时间，否则 OPEN 记录按原始售后提交时间；ageBucket 与既有 24 小时内、24–72 小时、72 小时以上分档完全一致，不把该分档定义为 SLA。继续沿用 order:view、ALL / DEPARTMENT / SELF / DENIED、筛选、分页和 V4L 排序。功能 PR #488、统一候选 PR #489 与精确主线 CI 均已通过；候选主线 dd283cccb5e7c3e64d3469e3b045447a101f216d 已通过 Deploy Production #213、服务器 Maven 472 tests / 0 failures / 0 errors / 88 skipped、18080 预发布、8081 金丝雀、8080 正式冒烟与发布后核验。Nginx 最终恢复 8080，金丝雀已停止；候选生产 JAR SHA256 为 10f62885752346a929efe7ec8c248ad03fcafb31a77335ddda2575d0ae6411ef，release 为 /opt/xinghuo-v2/releases/xinghuo-v2-standard-20261016070306.jar。无数据库迁移或业务写入，不改变订单、售后状态、退款、真实收款、微信支付或企业微信写入。"),
             new ReleaseItem("2026-10-16", "V4L", "已上线",
                     "售后待跟进优先级排序",
                     "在 V4K 已上线的独立只读待跟进时效队列基础上，增加最新待跟进优先与最久未响应优先两种排序。默认 NEWEST_FIRST 保持 V4K 既有顺序，OLDEST_FIRST 按统一 attention_at_ms 将等待最久的记录排在前面；sort 与原 status / category / followup / q / page 一起进入 URL，刷新、前进后退与分页均可恢复。继续沿用 order:view 与 ALL / DEPARTMENT / SELF / DENIED 数据范围，不新增数据库迁移或业务写入。功能 PR #484、统一候选 PR #485、Stable PR #486 与精确主线 CI 均已通过；最终 Stable 主线 1c20db9df1da7d7d88ac7d2be51e2c0611e62dbb 已通过 Deploy Production #212、服务器 Maven 472 tests / 0 failures / 0 errors / 88 skipped、18080 预发布、8081 金丝雀、8080 正式冒烟与发布后核验。Nginx 最终恢复 8080，金丝雀已停止；最终生产 JAR SHA256 为 9e2ee6d4ac53ef54fb1e008f5add885b4bf352e4a48d992d51da9c61e1a8f09c，release 为 /opt/xinghuo-v2/releases/xinghuo-v2-standard-20261016051125.jar。不改变订单、售后状态、退款、真实收款、微信支付或企业微信写入。"),

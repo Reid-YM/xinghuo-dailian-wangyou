@@ -15,8 +15,8 @@
   function routeKey(pathname = location.pathname) {
     const match = /^\/next\/account(?:\/([^?#]+))?\/?$/.exec(pathname);
     const child = String(match?.[1] || '').replace(/\/$/, '');
-    if (['requests', 'quotes', 'demands'].includes(child)) return 'requests';
-    if (['orders', 'order', 'order-list'].includes(child)) return 'orders';
+    if (['requests', 'quotes', 'demands'].includes(child) || child.startsWith('requests/')) return 'requests';
+    if (['orders', 'order', 'order-list'].includes(child) || child.startsWith('orders/')) return 'orders';
     if (['progress', 'tools', 'tool-progress'].includes(child)) return 'progress';
     if (child === 'settings' || child === 'profile' || child === 'contact' || child === 'security'
         || child === 'devices' || child === 'activity' || child.startsWith('settings/')) return 'settings';

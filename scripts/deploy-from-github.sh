@@ -16,6 +16,13 @@ RELEASE_ATTESTATION_FILE=${RELEASE_ATTESTATION_FILE:-$APP_DIR/release-attestatio
 log()  { echo "[$(date '+%F %T')] $*"; }
 fail() { log "❌ $*"; exit 1; }
 
+probe_http_millis() {
+  local url=$1
+  local seconds
+  seconds=$(curl -fsS -o /dev/null --max-time 8 -w '%{time_total}' "$url") || return 1
+  awk -v seconds="$seconds" 'BEGIN { printf "%d", (seconds * 1000) + 0.5 }'
+}
+
 cleanup_smoke() {
   sudo systemctl stop "$SMOKE_UNIT" 2>/dev/null || true
   sudo systemctl reset-failed "$SMOKE_UNIT" 2>/dev/null || true
@@ -140,8 +147,9 @@ log "3/8 生产前置检查"
 sudo systemctl is-active --quiet xinghuo-v2.service || fail "xinghuo-v2.service 不是 active"
 sudo systemctl is-active --quiet nginx || fail "nginx 不是 active"
 sudo nginx -t >/dev/null
-curl -fsS --max-time 8 "http://127.0.0.1:8080/" >/dev/null || fail "部署前 HOME 健康检查失败"
-curl -fsS --max-time 8 "http://127.0.0.1:8080/services" >/dev/null || fail "部署前 SERVICES 健康检查失败"
+PREDEPLOY_HOME_MS=$(probe_http_millis "http://127.0.0.1:8080/") || fail "部署前 HOME 健康检查失败"
+PREDEPLOY_SERVICES_MS=$(probe_http_millis "http://127.0.0.1:8080/services") || fail "部署前 SERVICES 健康检查失败"
+log "部署前 8080 健康基线: HOME=${PREDEPLOY_HOME_MS}ms SERVICES=${PREDEPLOY_SERVICES_MS}ms"
 if sudo ss -lntp | grep -q ':8081\b'; then fail "8081 已被占用"; fi
 prepare_smoke_port || fail "$SMOKE_PORT 仍被未知或非本次可安全清理的进程占用"
 sudo grep -q '127\.0\.0\.1:8080;' /etc/nginx/conf.d/xinghuo-upstream.conf \
@@ -218,8 +226,9 @@ sudo env \
 log "8/8 发布后核验"
 sudo systemctl is-active --quiet xinghuo-v2.service || fail "发布后正式服务不是 active"
 sudo systemctl is-active --quiet nginx || fail "发布后 nginx 不是 active"
-curl -fsS --max-time 8 "http://127.0.0.1:8080/" >/dev/null || fail "发布后 HOME 健康检查失败"
-curl -fsS --max-time 8 "http://127.0.0.1:8080/services" >/dev/null || fail "发布后 SERVICES 健康检查失败"
+POSTDEPLOY_HOME_MS=$(probe_http_millis "http://127.0.0.1:8080/") || fail "发布后 HOME 健康检查失败"
+POSTDEPLOY_SERVICES_MS=$(probe_http_millis "http://127.0.0.1:8080/services") || fail "发布后 SERVICES 健康检查失败"
+log "发布后 8080 健康探针: HOME=${POSTDEPLOY_HOME_MS}ms SERVICES=${POSTDEPLOY_SERVICES_MS}ms"
 sudo grep -q '127\.0\.0\.1:8080;' /etc/nginx/conf.d/xinghuo-upstream.conf \
   || fail "发布后 nginx 未切回 8080"
 if sudo ss -lntp | grep -q ':8081\b'; then fail "发布后 8081 仍在监听"; fi
@@ -234,7 +243,7 @@ CURRENT_SHA=$(sudo sha256sum "$CURRENT_JAR" | awk '{print $1}')
 ATTESTATION_TMP=$(mktemp)
 cat > "$ATTESTATION_TMP" <<EOF
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "source": "production-host-gateway",
   "publishedAt": "$(date -u '+%Y-%m-%dT%H:%M:%SZ')",
   "gitSha": "$HEAD_SHA",
@@ -249,13 +258,25 @@ cat > "$ATTESTATION_TMP" <<EOF
     "predeploy18080": true,
     "canary8081": true,
     "production8080": true
+  },
+  "healthComparison": {
+    "preDeploy8080": {
+      "passed": true,
+      "homeMillis": $PREDEPLOY_HOME_MS,
+      "servicesMillis": $PREDEPLOY_SERVICES_MS
+    },
+    "postDeploy8080": {
+      "passed": true,
+      "homeMillis": $POSTDEPLOY_HOME_MS,
+      "servicesMillis": $POSTDEPLOY_SERVICES_MS
+    }
   }
 }
 EOF
 sudo install -o root -g xinghuo -m 0640 "$ATTESTATION_TMP" "$RELEASE_ATTESTATION_FILE.next"
 sudo mv -Tf "$RELEASE_ATTESTATION_FILE.next" "$RELEASE_ATTESTATION_FILE"
 rm -f "$ATTESTATION_TMP"
-log "✅ 主机侧发布凭证已更新"
+log "✅ 主机侧发布凭证已更新（含发布前后 8080 健康对比）"
 
 log "✅ GitHub 一键生产发布完成"
 log "   Git SHA: $HEAD_SHA"

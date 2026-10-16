@@ -15,6 +15,9 @@ public class SiteSettingService {
     private static final Map<String, String> GLOBAL_UI_DEFAULTS = Map.ofEntries(
             Map.entry("navServicesLabel", "服务"),
             Map.entry("navServicesVisible", "true"),
+            // N9 rollout gate: default keeps all public traffic on the legacy hall.
+            // Administrators can only switch between two known in-site targets.
+            Map.entry("servicesEntryMode", "legacy"),
             Map.entry("navGuidesLabel", "攻略"),
             Map.entry("navGuidesVisible", "true"),
             Map.entry("navMasteryLabel", "MW4 工具站"),
@@ -51,12 +54,16 @@ public class SiteSettingService {
             "footerRulesVisible", "footerPrivacyVisible", "footerContactVisible",
             "homeQuickContactVisible", "icpVisible", "publicSecurityVisible");
 
+    private static final Set<String> ROLLOUT_MODE_KEYS = Set.of("servicesEntryMode");
+    private static final Set<String> ALLOWED_SERVICE_ENTRY_MODES = Set.of("legacy", "next");
+
     private static final Set<String> GLOBAL_UI_KEYS = GLOBAL_UI_DEFAULTS.keySet();
 
     private static final Set<String> PUBLIC_KEYS = Set.of(
             "legalEntityName", "brandName", "wechat", "serviceHours", "icpNumber",
             "publicSecurityNumber", "siteTitleSuffix", "defaultOgImage", "faviconPath",
-            "navServicesLabel", "navServicesVisible", "navGuidesLabel", "navGuidesVisible",
+            "navServicesLabel", "navServicesVisible", "servicesEntryMode",
+            "navGuidesLabel", "navGuidesVisible",
             "navMasteryLabel", "navMasteryVisible", "navRecordsLabel", "navRecordsVisible",
             "navContactLabel", "navContactVisible", "navAccountLabel", "navAccountVisible",
             "headerQuoteVisible", "footerServicesLabel", "footerServicesVisible",
@@ -85,6 +92,7 @@ public class SiteSettingService {
             }
         }
         normalizeLegacyAccountLabels(out);
+        normalizeRolloutModes(out);
         return out;
     }
 
@@ -102,6 +110,7 @@ public class SiteSettingService {
             }
         }
         normalizeLegacyAccountLabels(out);
+        normalizeRolloutModes(out);
         return out;
     }
 
@@ -116,6 +125,17 @@ public class SiteSettingService {
         }
         if ("用户控制台".equals(settings.get("footerConsoleLabel"))) {
             settings.put("footerConsoleLabel", "个人中心");
+        }
+    }
+
+    /**
+     * Production safety belt for rollout flags persisted by older/manual tooling.
+     * An unknown value must never redirect traffic to an arbitrary path; fall back to legacy.
+     */
+    private static void normalizeRolloutModes(Map<String, String> settings) {
+        String value = settings.get("servicesEntryMode");
+        if (!ALLOWED_SERVICE_ENTRY_MODES.contains(value)) {
+            settings.put("servicesEntryMode", "legacy");
         }
     }
 
@@ -135,6 +155,11 @@ public class SiteSettingService {
                     throw new BadRequestException("显示开关必须为 true 或 false：" + key);
                 }
                 normalized = String.valueOf(Boolean.parseBoolean(raw));
+            } else if (ROLLOUT_MODE_KEYS.contains(key)) {
+                normalized = raw.isBlank() ? GLOBAL_UI_DEFAULTS.get(key) : raw.toLowerCase();
+                if (!ALLOWED_SERVICE_ENTRY_MODES.contains(normalized)) {
+                    throw new BadRequestException("服务入口目标仅支持 legacy 或 next");
+                }
             } else {
                 if (raw.length() > 120) {
                     throw new BadRequestException("全局前端配置内容过长：" + key);

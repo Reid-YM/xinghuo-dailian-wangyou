@@ -160,11 +160,13 @@
     renderHistory(snapshot.history);
 
     const canConfirm = Boolean(view?.canConfirm);
-    if (note) note.disabled = !canConfirm;
-    if (stableButton) stableButton.disabled = !canConfirm || !snapshot.stableEligible;
-    if (attentionButton) attentionButton.disabled = !canConfirm;
+    const canWrite = canConfirm && snapshot.available && snapshot.status !== 'STORAGE_MISSING';
+    if (note) note.disabled = !canWrite;
+    if (stableButton) stableButton.disabled = !canWrite || !snapshot.stableEligible;
+    if (attentionButton) attentionButton.disabled = !canWrite;
 
     if (!snapshot.available) setState('error', '人工确认记录不可用');
+    else if (snapshot.status === 'STORAGE_MISSING') setState('error', '人工确认存储不可用');
     else if (snapshot.status === 'NEEDS_ATTENTION') setState('warning', '已标记继续观察');
     else if (snapshot.status === 'STABLE') setState('ok', '已人工确认稳定');
     else if (!snapshot.stableEligible) setState('warning', '等待观察完成');
@@ -291,9 +293,11 @@
       }
     } finally {
       const current = lastView?.confirmation;
-      const canConfirm = Boolean(lastView?.canConfirm);
-      if (stableButton) stableButton.disabled = !canConfirm || !current?.stableEligible;
-      if (attentionButton) attentionButton.disabled = !canConfirm;
+      const canWrite = Boolean(lastView?.canConfirm)
+        && Boolean(current?.available)
+        && current?.status !== 'STORAGE_MISSING';
+      if (stableButton) stableButton.disabled = !canWrite || !current?.stableEligible;
+      if (attentionButton) attentionButton.disabled = !canWrite;
     }
   }
 

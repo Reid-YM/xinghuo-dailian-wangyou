@@ -15,13 +15,20 @@ class FrontendDefaultReplacementPlaywrightTest {
     private Page setup(Browser browser,int width,AtomicBoolean failServices)throws Exception {
         Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(width,900));
         String html=new FrontendNextPreviewController().frontendNext().getBody();
+        var publicMapping=new com.xinghuo.service.ServiceCatalogService(null,null,null);
+        var first=com.xinghuo.model.ServiceItem.builder().id(1L).slug("actual-service").gameCode("G1").category("TASK").name("真实任务服务").priceMode(com.xinghuo.model.ServiceItem.PriceMode.FIXED).priceFixed(new java.math.BigDecimal("88")).status(com.xinghuo.model.ServiceItem.Status.AVAILABLE).build();
+        var second=com.xinghuo.model.ServiceItem.builder().id(2L).slug("second-service").gameCode("G2").category("TASK").name("另一服务").priceMode(com.xinghuo.model.ServiceItem.PriceMode.QUOTE).status(com.xinghuo.model.ServiceItem.Status.AVAILABLE).build();
+        String realPublicServices=new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(java.util.List.of(publicMapping.pub(first),publicMapping.pub(second)));
         page.route("**/*",r->{
             String path=URI.create(r.request().url()).getPath();
+            if(path.endsWith(".css")){r.fulfill(new Route.FulfillOptions().setContentType("text/css").setPath(Path.of("src/main/resources/static"+path)));return;}
+            if(path.endsWith(".png")){r.fulfill(new Route.FulfillOptions().setContentType("image/svg+xml").setBody("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\"><rect width=\"20\" height=\"20\" fill=\"gold\"/></svg>"));return;}
             if(path.endsWith(".js")){try{r.fulfill(new Route.FulfillOptions().setContentType("application/javascript").setBody(Files.readString(Path.of("src/main/resources/static"+path))));}catch(Exception e){throw new RuntimeException(e);}return;}
             String body=null;int status=200;
             if(path.equals("/api/site-config"))body="{\"brandName\":\"真实配置品牌\",\"heroTitle\":\"后台维护的首页标题\",\"heroSubtitle\":\"真实服务说明\",\"quoteEnabled\":true,\"trustTags\":[\"进度可查\"],\"footerText\":\"配置页脚\",\"wecomKefuUrl\":\"https://support.example.test/help\"}";
+            else if(path.equals("/api/public/cases"))body="[]";
             else if(path.equals("/api/catalog"))body="{\"games\":[{\"code\":\"G1\",\"name\":\"游戏一\"},{\"code\":\"G2\",\"name\":\"游戏二\"}],\"categories\":[{\"code\":\"TASK\",\"gameCode\":\"G1\",\"name\":\"任务\"}],\"platforms\":[{\"code\":\"PC\",\"name\":\"PC\"}],\"gamePlatforms\":[{\"gameCode\":\"G1\",\"platformCode\":\"PC\",\"active\":true}]}";
-            else if(path.equals("/api/services")){status=failServices.get()?503:200;body=failServices.get()?"{}":"[{\"id\":1,\"slug\":\"actual-service\",\"gameCode\":\"G1\",\"category\":\"TASK\",\"name\":\"真实任务服务\",\"priceMode\":\"FIXED\",\"priceFixed\":88},{\"id\":2,\"slug\":\"second-service\",\"gameCode\":\"G2\",\"name\":\"另一服务\",\"priceMode\":\"QUOTE\"}]";}
+            else if(path.equals("/api/services")){status=failServices.get()?503:200;body=failServices.get()?"{}":realPublicServices;}
             else if(path.equals("/api/account/me")){status=401;body="{\"message\":\"请先登录\"}";}
             else if(path.endsWith("/availability"))body="{\"enabled\":false}";
             else if(path.equals("/api/public/site-settings"))body="{\"navServicesLabel\":\"真实服务\",\"navMasteryVisible\":false}";
@@ -65,4 +72,38 @@ class FrontendDefaultReplacementPlaywrightTest {
             assertEquals(0,page.getByText("星火玩家007").count());
         }
     }
+    @Test void webkitFreshConfigurationControlsRecommendationsImagesAndFaqWithoutPlaceholderCards() throws Exception {
+        try(Playwright p=Playwright.create();Browser browser=p.webkit().launch()){
+            Page page=setup(browser,390,new AtomicBoolean(false));
+            String configuration="""
+                {"brandName":"配置品牌","heroTitle":"真实首页","quoteEnabled":true,"serviceStatus":"reservation","statusShortText":"本周预约中",
+                "heroImage":"/hero.png","heroImageHeight":180,"heroImageFit":"contain","heroImagePositionX":0,"heroImagePositionY":0,
+                "heroBackgroundImage":"/background.png","heroBackgroundPositionX":0,"heroBackgroundPositionY":100,"heroBackgroundOpacity":0,"heroBackgroundBlur":3,
+                "serviceCoverHeight":180,"serviceCoverFit":"contain","serviceCoverPositionX":0,"serviceCoverPositionY":100,
+                "showStartingPrice":true,"startingPrice":0,"startingPriceMode":"manual","homeServiceLimit":2,
+                "hotServices":[{"slug":"actual-service","name":"后台推荐服务","priceMode":"fixed","priceFixed":88,"coverImage":"/cover.png"}],
+                "trustCases":[{"tag":"说明","title":"真实服务说明","metric":"阶段确认","detail":"<script>不会执行</script>"}],
+                "trustFaq":[{"question":"如何确认金额？","answer":"客服核对后确认"}]}
+                """;
+            page.route("**/api/site-config",r->r.fulfill(new Route.FulfillOptions().setContentType("application/json").setBody(configuration)));
+            page.navigate("https://example.test/");page.waitForFunction("()=>document.documentElement.dataset.siteConfiguration==='ready'");
+            assertEquals("后台推荐服务",page.locator("#nextHotServices h3").textContent());
+            assertEquals("/service/actual-service",page.locator("#nextHotServices a").getAttribute("href"));
+            assertEquals("¥88",page.locator("#nextHotServices .price").textContent());
+            assertEquals("0% 0%",page.locator("[data-config=heroImage]").evaluate("e=>getComputedStyle(e).objectPosition"));
+            assertEquals("0% 100%",page.locator("#heroBackground").evaluate("e=>getComputedStyle(e).backgroundPosition"));
+            assertEquals("0",page.locator("#heroBackground").evaluate("e=>getComputedStyle(e).opacity"));
+            assertEquals("180px",page.locator("#nextHotServices .service-cover").evaluate("e=>getComputedStyle(e).height"));
+            assertEquals("contain",page.locator("#nextHotServices img").evaluate("e=>getComputedStyle(e).objectFit"));
+            assertTrue(page.locator("#nextStartingPrice").textContent().contains("¥0"));assertTrue(page.locator("#nextServiceStatus").textContent().contains("预约中"));
+            page.waitForFunction("()=>document.querySelectorAll('#nextHomeServices a').length===2");
+            assertEquals(0,page.locator("#nextTrustCaseGrid script").count());assertTrue(page.locator("#nextTrustCaseGrid").textContent().contains("<script>不会执行</script>"));
+            page.locator("#nextFaq summary").click();assertTrue(page.getByText("客服核对后确认",new Page.GetByTextOptions().setExact(true)).isVisible());
+            page.unroute("**/api/site-config");
+            page.route("**/api/site-config",r->r.fulfill(new Route.FulfillOptions().setContentType("application/json").setBody(configuration.replace("后台推荐服务","更新后的推荐服务"))));
+            page.reload();page.waitForFunction("()=>document.querySelector('#nextHotServices h3')?.textContent==='更新后的推荐服务'");
+            assertEquals(true,page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth"));
+        }
+    }
+
 }

@@ -86,9 +86,9 @@
     text('#gameEntrySection .game-entry-head .text-link', control.homeGameLinkLabel);
     href('#gameEntrySection .game-entry-head .text-link', control.homeGameLinkHref);
 
-    const why = document.querySelector('main.container section[aria-label="为什么选择星火"]');
+    const why = document.querySelector('main.container section[aria-label="为什么选择星火"], [data-frontend=next] section[aria-label="为什么选择星火"]');
     if (why) {
-      why.hidden = !bool(control.homeWhyVisible);
+      why.hidden = !bool(control.homeWhyVisible) || why.dataset.empty === 'true';
       text('.section-title .eyebrow', control.homeWhyEyebrow, why);
       text('.section-title h2', control.homeWhyTitle, why);
       text('.section-title .text-link', control.homeWhyLinkLabel, why);
@@ -104,6 +104,7 @@
       const apply = () => { applyTheme(control || {}); applyHome(control || {}); };
       apply();
       window.addEventListener('xh:pagechange', apply);
+      window.addEventListener('xh:site-config', apply);
       [120, 600, 1500].forEach(delay => setTimeout(apply, delay));
     } catch (_) {
       // 配置层异常时保留模板默认值，不阻断任何业务页面。

@@ -92,3 +92,8 @@
 6. 能否通过契约测试或浏览器回归证明旧补丁可以删除？
 
 如果无法明确归属，不应创建新的 `fix/refine/patch` 文件。
+## 新版攻略与中文显示
+
+- `admin-xingwei-guides.html/css`：新版攻略页面外壳与响应式布局，不加载旧后台亮色/品牌修补样式。
+- `fragments/guide-workspace.html`：新旧攻略编辑区共享结构；`admin-guides.js` 继续唯一负责保存、预览、筛选及版本保护。
+- `admin-xingwei-labels.js`：新版后台枚举的显式中文显示字典，不改写 API 值，不扫描/替换 DOM，不负责用户输入或权限判定。

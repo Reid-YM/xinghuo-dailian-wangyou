@@ -11,26 +11,26 @@
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-catalog.css?v=20261013v3d"/>
-  <script defer src="/assets/admin-xingwei-catalog.js?v=20261016full1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261016cn1"></script><script defer src="/assets/admin-xingwei-catalog.js?v=20261016cn1"></script>
 </head>
 <body>
 <main class="xcat-shell">
   <header class="xcat-topbar">
-    <div><p class="xw-kicker">STARWEAVE · SERVICE CATALOG</p><h1>服务与游戏资料</h1></div>
+    <div><p class="xw-kicker">星维 · 服务目录</p><h1>服务与游戏资料</h1></div>
     <div class="xcat-actions">
       <span class="xw-status" id="xcatManageMode"><i></i><span>权限检查中</span></span>
       <span class="xw-status" id="xcatStatus"><i></i><span>正在读取</span></span>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/taxonomy">游戏/分类启停</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/catalog-details">完整资料、图片与批量维护</a><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
-      <a class="xw-button xw-button-ghost" href="/admin?legacy=1" th:if="${restoreAdmin == true}">恢复入口（ADMIN）</a>
+      <a class="xw-button xw-button-ghost" href="/admin?legacy=1" th:if="${restoreAdmin == true}">管理员恢复入口</a>
     </div>
   </header>
 
   <section class="xcat-hero">
     <div>
-      <p class="xw-kicker">V3D · RELEASE PREFLIGHT</p>
+      <p class="xw-kicker">V3D · 发布检查</p>
       <h2>新建服务保持离线；正式上架前必须先完成发布检查。</h2>
-      <p>查看要求 <strong>service:view</strong>；新增、编辑、下线和上架要求 <strong>service:manage</strong>。V3D 会检查 taxonomy、slug、名称、说明、预计时长、价格和到期时间；任何阻断项失败都不能从新版工作台上架。封面缺失仅提示警告，不额外新增审批表，也不产生第二份服务状态。游戏/分类 active 启停已拆到 V3E 独立工作台，必须先查看影响。</p>
+      <p>查看要求 <strong>service:view</strong>；新增、编辑、下线和上架要求 <strong>service:manage</strong>。V3D 会检查游戏与分类、网址标识、名称、说明、预计时长、价格和到期时间；任何阻断项失败都不能从新版工作台上架。封面缺失仅提示警告，不额外新增审批表，也不产生第二份服务状态。游戏/分类启用与停用已拆到 V3E 独立工作台，必须先查看影响。</p>
     </div>
     <div class="xcat-version"><span>当前版本</span><strong th:text="${catalogVersion}">20261013-v3e</strong><small th:text="${username}">admin</small></div>
   </section>
@@ -48,13 +48,13 @@
   <section class="xcat-toolbar">
     <label>搜索服务<input id="xcatSearch" type="search" placeholder="服务名 / slug / 游戏 / 分类 / 状态" autocomplete="off"/></label>
     <label>游戏<select id="xcatGameFilter"><option value="">全部游戏</option></select></label>
-    <label>状态<select id="xcatStateFilter"><option value="">全部状态</option><option value="active">仅启用</option><option value="inactive">仅停用</option><option value="offline">仅 OFFLINE</option></select></label>
+    <label>状态<select id="xcatStateFilter"><option value="">全部状态</option><option value="active">仅启用</option><option value="inactive">仅停用</option><option value="offline">仅已下线</option></select></label>
     <button class="xw-button" id="xcatRefresh" type="button">刷新</button>
   </section>
 
   <section class="xw-data-panel">
     <div class="xw-data-head">
-      <div><h3>服务项目</h3><p>新服务默认 OFFLINE + 停用；离线服务必须先执行发布检查，通过后才出现最终上架确认。</p></div>
+      <div><h3>服务项目</h3><p>新服务默认 已下线并停用；离线服务必须先执行发布检查，通过后才出现最终上架确认。</p></div>
       <div class="xcat-head-actions"><span class="xw-pill">service:view / service:manage</span><button class="xw-button" id="xcatCreateOpen" type="button" hidden>新增服务</button></div>
     </div>
     <div class="xw-table-wrap"><table class="xw-table xcat-service-table"><thead><tr><th>服务</th><th>游戏 / 分类</th><th>价格</th><th>时长</th><th>状态</th><th>排序</th><th>操作</th></tr></thead><tbody id="xcatServiceRows"></tbody></table></div>
@@ -75,7 +75,7 @@
 <dialog id="xcatCreateDialog" class="xcat-dialog" aria-labelledby="xcatCreateTitle">
   <form id="xcatCreateForm" class="xcat-dialog-card">
     <div class="xcat-dialog-head">
-      <div><p class="xw-kicker">SERVICE · CREATE</p><h2 id="xcatCreateTitle">新增服务项目</h2><p>新服务固定以 OFFLINE + 停用状态创建，随后进入“发布检查 → 确认上架”。</p></div>
+      <div><p class="xw-kicker">服务 · 新增</p><h2 id="xcatCreateTitle">新增服务项目</h2><p>新服务固定以 已下线并停用状态创建，随后进入“发布检查 → 确认上架”。</p></div>
       <button type="button" class="xw-button xw-button-ghost" id="xcatCreateClose">关闭</button>
     </div>
     <div class="xcat-form-grid">
@@ -93,7 +93,7 @@
       <label>人工优先级<input id="xcatCreatePriority" type="number" step="1" value="0" required/></label>
       <label class="xcat-span-2">新增原因<textarea id="xcatCreateReason" maxlength="500" rows="2" required placeholder="说明为什么新增该服务，进入 SERVICE_CREATE 审计"></textarea></label>
     </div>
-    <div class="xcat-dialog-note">安全默认：status=OFFLINE、active=false、coverImage=null、hotScore=0、expiresAt=null。游戏和分类只能从现有 taxonomy 选择；不在本页创建或修改 taxonomy。</div>
+    <div class="xcat-dialog-note">新服务默认下线并停用，封面和到期时间留空，热度为零。游戏和分类只能从已有目录选择；新增和修改请进入游戏与分类工作台。</div>
     <div class="xcat-dialog-actions">
       <button type="button" class="xw-button xw-button-ghost" id="xcatCreateCancel">取消</button>
       <button type="submit" class="xw-button" id="xcatCreateSave">创建离线服务</button>
@@ -104,7 +104,7 @@
 <dialog id="xcatEditDialog" class="xcat-dialog" aria-labelledby="xcatEditTitle">
   <form id="xcatEditForm" class="xcat-dialog-card">
     <div class="xcat-dialog-head">
-      <div><p class="xw-kicker">SERVICE · MANAGE</p><h2 id="xcatEditTitle">编辑服务项目</h2><p id="xcatEditMeta">—</p></div>
+      <div><p class="xw-kicker">服务 · 编辑</p><h2 id="xcatEditTitle">编辑服务项目</h2><p id="xcatEditMeta">—</p></div>
       <button type="button" class="xw-button xw-button-ghost" id="xcatEditClose">关闭</button>
     </div>
     <div class="xcat-form-grid">
@@ -130,7 +130,7 @@
 <dialog id="xcatReviewDialog" class="xcat-dialog" aria-labelledby="xcatReviewTitle">
   <section class="xcat-dialog-card">
     <div class="xcat-dialog-head">
-      <div><p class="xw-kicker">SERVICE · RELEASE PREFLIGHT</p><h2 id="xcatReviewTitle">发布前检查</h2><p id="xcatReviewMeta">—</p></div>
+      <div><p class="xw-kicker">服务 · 发布检查</p><h2 id="xcatReviewTitle">发布前检查</h2><p id="xcatReviewMeta">—</p></div>
       <button type="button" class="xw-button xw-button-ghost" id="xcatReviewClose">关闭</button>
     </div>
     <div class="xcat-review-summary" id="xcatReviewSummary">正在检查……</div>

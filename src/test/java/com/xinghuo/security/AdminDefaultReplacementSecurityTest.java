@@ -34,6 +34,7 @@ class AdminDefaultReplacementSecurityTest {
         @Bean XingweiPermissionGuard xingweiPermissionGuard(){return mock(XingweiPermissionGuard.class);}
         @Bean PageController pages(){return new PageController(mock(ServiceCatalogService.class),mock(TaxonomyService.class),new ObjectMapper(),mock(SiteConfigService.class));}
         @Bean GuidePageController guides(){return new GuidePageController(mock(GuideContentService.class),new ObjectMapper());}
+        @Bean com.xinghuo.controller.XingweiGuidePageController nativeGuides(){return new com.xinghuo.controller.XingweiGuidePageController(mock(com.xinghuo.guide.XingweiGuideWorkspaceService.class));}
         @Bean Probe probe(){return new Probe();}
         @Bean InternalResourceViewResolver views(){var resolver=new InternalResourceViewResolver();resolver.setPrefix("/templates/");resolver.setSuffix(".html");return resolver;}
     }
@@ -52,6 +53,12 @@ class AdminDefaultReplacementSecurityTest {
         mvc.perform(get("/admin").param("legacy","1").with(user("admin").roles("ADMIN"))).andExpect(status().isOk()).andExpect(view().name("admin"));
         mvc.perform(get("/admin/guides").with(user("operator").roles("OPERATOR"))).andExpect(redirectedUrl("/admin/xingwei/guides"));
         mvc.perform(get("/admin/guides").param("legacy","1").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
+    }
+    @Test void nativeGuidesRenderIndependentWorkspaceAndRetainContentPermission()throws Exception {
+        mvc.perform(get("/admin/xingwei/guides").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
+        when(guard.has(any(),eq("content:view"))).thenReturn(true);
+        mvc.perform(get("/admin/xingwei/guides").with(user("operator").roles("OPERATOR"))).andExpect(status().isOk()).andExpect(view().name("admin-xingwei-guides")).andExpect(model().attribute("xingweiMode",true)).andExpect(header().string("Cache-Control","no-store"));
+        mvc.perform(get("/admin/guides").param("legacy","1").with(user("admin").roles("ADMIN"))).andExpect(view().name("admin-guides"));
     }
     @Test void oldApisCannotBypassNativePermissionsAndNativeWritesStillRequireCsrf() throws Exception {
         mvc.perform(get("/api/admin/quotes").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());

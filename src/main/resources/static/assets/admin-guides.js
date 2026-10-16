@@ -13,6 +13,7 @@ let games = [];
 let services = [];
 let currentDetail = null;
 let selectedGuideIds = new Set();
+let guideFilters = { query: '', game: '', status: '' };
 const COMPONENTS = {
   title: { label: '标题', heading: '标题', body: '用于章节标题或短引导。' },
   paragraph: { label: '段落', heading: '正文段落', body: '填写正文内容，可使用简单列表和加粗。' },
@@ -63,8 +64,10 @@ function applyGuidePermissions() {
   $$('#guideForm input,#guideForm select,#guideForm textarea,#guideForm button').forEach(node => {node.disabled = node.id === 'previewGuide' ? false : disabled;});
   $$('#guideRows .guide-admin-row-main').forEach(node => {node.disabled = guideBusy;});
   if ($('#batchDeleteGuides')) $('#batchDeleteGuides').disabled = disabled || selectedGuideIds.size === 0;
+  $$('#guideFilters input,#guideFilters select,#guideFilters button').forEach(node => {node.disabled = guideBusy;});
+  $$('#guideRows input[data-guide-check],#guideSelectAll').forEach(node => {node.disabled = guideBusy;});
   if ($('#reloadGuides')) $('#reloadGuides').disabled = guideBusy;
-  const state = $('#xingweiGuideState'); if (state) state.textContent = guideBusy ? '正在保存，请稍候…' : guideWritable ? '可编辑全站攻略；保存会核对当前版本。' : '当前账号只读；编辑全站内容需要内容管理权限与全部数据范围。';
+  const state = $('#xingweiGuideState'); if (state) state.textContent = guideBusy ? '正在处理，请稍候…' : guideWritable ? '可编辑全站攻略；保存会核对当前版本。' : '当前账号只读；编辑全站内容需要内容管理权限与全部数据范围。';
 }
 async function runGuideWrite(action) {
   if (xingweiGuideMode && (guideBusy || !guideWritable)) return;
@@ -83,27 +86,73 @@ async function loadAll() {
   games = Array.isArray(catalog?.games) ? catalog.games : [];
   services = Array.isArray(serviceRows) ? serviceRows : [];
   renderGuideRows();
-  renderGameOptions();
+  renderGameOptions(currentDetail?.guide?.gameCode);
+  const filter=$('#guideGameFilter');if(filter){const selected=filter.value;filter.replaceChildren(new Option('全部游戏',''),...games.map(game=>new Option(game.name,game.code)));filter.value=selected;}
   applyGuidePermissions();
 }
 
+function visibleGuides() {
+  const { query, game, status } = guideFilters;
+  return guideRows.filter(row =>
+    (!query || [row.title, row.summary, row.gameName].join(' ').toLocaleLowerCase('zh-CN').includes(query)) &&
+    (!game || row.gameCode === game) && (!status || row.status === status));
+}
+function applyGuideFilters() {
+  if (guideBusy) return;
+  guideFilters = {
+    query: $('#guideQuery').value.trim().toLocaleLowerCase('zh-CN'),
+    game: $('#guideGameFilter').value,
+    status: $('#guideStatusFilter').value
+  };
+  selectedGuideIds.clear();
+  renderGuideRows();
+  const url = new URL(location.href);
+  for (const [key, id] of [['q','guideQuery'], ['game','guideGameFilter'], ['status','guideStatusFilter']]) {
+    const value = $('#' + id).value.trim();
+    if (value) url.searchParams.set(key, value);
+    else url.searchParams.delete(key);
+  }
+  history.replaceState(null, '', url);
+}
+async function reloadGuides() {
+  if (guideBusy || (xingweiGuideMode && guideDirty && !confirm('放弃草稿并重新读取？'))) return;
+  guideBusy = true;
+  applyGuidePermissions();
+  try {
+    await loadAll();
+    if (currentDetail?.guide?.id) {
+      const detail = await api('/api/admin/guides/' + currentDetail.guide.id);
+      currentDetail = detail;
+      fillForm(detail);
+    } else {
+      showForm(false);
+    }
+    guideDirty = false;
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    guideBusy = false;
+    applyGuidePermissions();
+  }
+}
 function renderGuideRows() {
   $('#guideCount').textContent = guideRows.length;
+  const rows=visibleGuides();if($('#guideFilterCount'))$('#guideFilterCount').textContent=`共 ${guideRows.length} 篇，当前筛选 ${rows.length} 篇`;
   const host = $('#guideRows');
-  if (!guideRows.length) {
-    host.innerHTML = '<div class="empty">还没有攻略。可先点“从游戏目录批量生成”。</div>';
+  if (!rows.length) {
+    host.innerHTML = guideRows.length?'<div class="empty">没有符合筛选条件的攻略，请调整条件。</div>':'<div class="empty">还没有攻略。可先新建一篇草稿。</div>';
     selectedGuideIds.clear();
     syncSelection();
     return;
   }
-  host.innerHTML = guideRows.map((item) => `
+  host.innerHTML = rows.map((item) => `
     <div class="guide-admin-row ${currentDetail?.guide?.id === item.id ? 'active' : ''}">
       <label class="guide-admin-row-check" title="选择这篇攻略">
         <input type="checkbox" data-guide-check="${item.id}" ${selectedGuideIds.has(item.id) ? 'checked' : ''}/>
       </label>
       <button class="guide-admin-row-main" type="button" data-guide-id="${item.id}">
         <b>${esc(item.title)}</b>
-        <small>${esc(item.gameName)} · ${esc(item.status)} · ${item.productCount} 个商品</small>
+        <small>${esc(item.gameName)} · ${esc(({DRAFT:'草稿',PUBLISHED:'已发布',ARCHIVED:'已归档'})[item.status]||item.status)} · ${item.productCount} 个关联服务</small>
       </button>
     </div>`).join('');
   $$('[data-guide-check]', host).forEach((input) => input.addEventListener('change', () => {
@@ -122,8 +171,8 @@ function renderGameOptions(selected) {
 }
 
 function syncSelection() {
-  const total = guideRows.length;
-  const selected = [...selectedGuideIds].filter((id) => guideRows.some((row) => row.id === id));
+  const visible=visibleGuides(),total = visible.length;
+  const selected = [...selectedGuideIds].filter((id) => visible.some((row) => row.id === id));
   selectedGuideIds = new Set(selected);
   $$('#guideRows input[data-guide-check]').forEach((input) => {
     input.checked = selectedGuideIds.has(Number(input.dataset.guideCheck));
@@ -173,12 +222,21 @@ function openNew() {
 
 async function openGuide(id) {
   if (xingweiGuideMode && (guideBusy || (guideDirty && !confirm('放弃未保存的攻略输入并切换？')))) return;
-  guideDirty = false;
-  const detail = await api(`/api/admin/guides/${id}`);
-  currentDetail = detail;
-  fillForm(detail);
-  showForm(true);
-  renderGuideRows();
+  guideBusy = true;
+  applyGuidePermissions();
+  try {
+    const detail = await api(`/api/admin/guides/${id}`);
+    currentDetail = detail;
+    fillForm(detail);
+    guideDirty = false;
+    showForm(true);
+    renderGuideRows();
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    guideBusy = false;
+    applyGuidePermissions();
+  }
 }
 
 function fillForm(detail) {
@@ -397,9 +455,24 @@ async function boot() {
     await loadAll();
     showForm(false);
     $('#newGuide').addEventListener('click', openNew);
-    $('#reloadGuides').addEventListener('click', () => { if (!xingweiGuideMode || !guideDirty || confirm('放弃草稿并刷新列表？')) {guideDirty = false;loadAll().catch(error => alert(error.message));} });
+    $('#reloadGuides').addEventListener('click', reloadGuides);
+    const filters = $('#guideFilters');
+    if (filters) {
+      const params = new URLSearchParams(location.search);
+      $('#guideQuery').value = params.get('q') || '';
+      $('#guideGameFilter').value = params.get('game') || '';
+      $('#guideStatusFilter').value = params.get('status') || '';
+      filters.addEventListener('submit', event => { event.preventDefault(); applyGuideFilters(); });
+      filters.addEventListener('reset', event => {
+        event.preventDefault();
+        if (guideBusy) return;
+        for (const id of ['guideQuery','guideGameFilter','guideStatusFilter']) $('#' + id).value = '';
+        applyGuideFilters();
+      });
+      applyGuideFilters();
+    }
     $('#guideSelectAll').addEventListener('change', (event) => {
-      if (event.target.checked) guideRows.forEach((row) => selectedGuideIds.add(row.id));
+      if (event.target.checked) visibleGuides().forEach((row) => selectedGuideIds.add(row.id));
       else selectedGuideIds.clear();
       syncSelection();
     });

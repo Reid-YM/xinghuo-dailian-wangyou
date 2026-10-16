@@ -26,7 +26,7 @@
 <body data-page="guide">
 <header th:replace="~{fragments/site :: header}"></header>
 <main class="container guide-detail-shell">
-  <aside class="card" th:if="${previewMode == true}"><strong>受保护的内容预览</strong><p>此页只供有权限的员工核对排版与内容，不代表攻略已发布。当前状态：<span th:text="${guide.status}">DRAFT</span></p><a href="/admin/xingwei/guides">返回攻略编辑</a></aside>
+  <aside class="card" th:if="${previewMode == true}"><strong>受保护的内容预览</strong><p>此页只供有权限的员工核对排版与内容，不代表攻略已发布。当前状态：<span th:text="${guide.status == 'DRAFT' ? '草稿' : (guide.status == 'PUBLISHED' ? '已发布' : (guide.status == 'ARCHIVED' ? '已归档' : guide.status))}">草稿</span></p><a href="/admin/xingwei/guides">返回攻略编辑</a></aside>
   <nav class="guide-breadcrumb" aria-label="面包屑"><a href="/">首页</a><span>/</span><a href="/guides">攻略中心</a><span>/</span><span th:text="${guide.gameName}">游戏</span></nav>
   <article class="guide-article card">
     <div class="guide-article-cover">

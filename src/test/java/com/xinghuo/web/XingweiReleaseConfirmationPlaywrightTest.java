@@ -22,17 +22,29 @@ class XingweiReleaseConfirmationPlaywrightTest {
     }
 
     @Test
-    void linksChangeSubmitsWithCsrfAndClearsAfterDeployViewDenial() {
+    void linksChangeSubmitsWithCsrfRendersQueueAndClearsAfterDeployViewDenial() {
         try (Playwright playwright = Playwright.create(); Browser browser = chromium(playwright)) {
             Page page = browser.newPage();
             render(page);
             page.evaluate("""
                     () => {
-                      let calls = 0;
+                      let confirmationCalls = 0;
                       window.fetch = async (url, opts = {}) => {
-                        calls += 1;
-                        window.__confirmCalls = calls;
-                        if (calls === 1) {
+                        if (String(url).includes('/release-review-queue')) {
+                          return {ok:true,status:200,json:async () => ({
+                            available:true,status:'AVAILABLE',sampledAt:'2026-10-17T07:31:00Z',
+                            summary:{trackedReleaseCount:2,stableCount:1,needsAttentionCount:0,unconfirmedCount:1,invalidCount:0,queueCount:1,currentNeedsAction:true},
+                            queue:[],
+                            releases:[
+                              {current:true,publishedAt:'2026-10-17T07:00:00Z',release:'xinghuo-v2-standard-20261017070000.jar',gitSha:'a'.repeat(40),pullRequestNumber:525,confirmationStatus:'PENDING',stableEligible:true,actionState:'READY',confirmedBy:null,confirmedAt:null,note:null,risk:{available:true,complete:true,level:'MEDIUM',changedFileCount:10,categories:['OBSERVABILITY','ADMIN_UI'],rulesVersion:'v1-20261017',source:'GITHUB_PR_FILES'}},
+                              {current:false,publishedAt:'2026-10-17T06:30:00Z',release:'xinghuo-v2-standard-20261017063000.jar',gitSha:'b'.repeat(40),pullRequestNumber:524,confirmationStatus:'STABLE',stableEligible:false,actionState:'COMPLETE',confirmedBy:'admin',confirmedAt:'2026-10-17T06:59:00Z',note:'稳定',risk:{available:false,complete:false,level:'UNKNOWN',changedFileCount:0,categories:[],rulesVersion:'v1-20261017',source:'PR_UNAVAILABLE'}}
+                            ],
+                            riskRules:{version:'v1-20261017',high:['DATABASE','PAYMENT','SECURITY','DEPLOYMENT'],medium:['WECOM','ACCOUNT','OBSERVABILITY','ADMIN_UI','BACKEND','LEGACY_FRONTEND','TOOLING','OTHER'],lowOrUnknown:'其余仅 TESTS / DOCS / FRONTEND_NEXT 时为 LOW；数据缺失或列表不完整时为 UNKNOWN'}
+                          })};
+                        }
+                        confirmationCalls += 1;
+                        window.__confirmCalls = confirmationCalls;
+                        if (confirmationCalls === 1) {
                           return {ok:true,status:200,json:async () => ({
                             confirmation:{
                               available:true,status:'PENDING',sampledAt:'2026-10-17T07:31:00Z',
@@ -42,7 +54,7 @@ class XingweiReleaseConfirmationPlaywrightTest {
                             canConfirm:true
                           })};
                         }
-                        if (calls === 2) {
+                        if (confirmationCalls === 2) {
                           window.__confirmHeader = opts.headers?.['X-CSRF-TOKEN'];
                           window.__confirmBody = JSON.parse(opts.body || '{}');
                           return {ok:true,status:200,json:async () => ({
@@ -62,11 +74,17 @@ class XingweiReleaseConfirmationPlaywrightTest {
                     """);
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(JS));
             page.waitForFunction("() => window.xwrReleaseConfirmation?.confirmation?.stableEligible === true");
+            page.waitForFunction("() => document.querySelector('#xwrReleaseReviewQueue')?.dataset.queueReady === 'true'");
 
             assertTrue(page.locator("#xwrReleaseConfirmationChange a").first().textContent().contains("PR #525"));
             assertTrue(page.locator("#xwrReleaseConfirmationChange a").first().getAttribute("href").endsWith("/pull/525"));
             assertTrue(page.locator("#xwrReleaseConfirmationChange a").nth(1).getAttribute("href").endsWith("/commit/" + "a".repeat(40)));
             assertTrue(page.locator("#xwrReleaseConfirmStable").isEnabled());
+            assertEquals("2", page.locator("#xwrReleaseQueueTracked").textContent());
+            assertEquals("1", page.locator("#xwrReleaseQueueStable").textContent());
+            assertTrue(page.locator("#xwrReleaseReviewQueueList").textContent().contains("MEDIUM"));
+            assertTrue(page.locator("#xwrReleaseReviewQueueList").textContent().contains("OBSERVABILITY"));
+            assertTrue(page.locator("#xwrReleaseReviewRiskRules").textContent().contains("v1-20261017"));
 
             page.locator("#xwrReleaseConfirmationNote").fill("观察正常");
             page.locator("#xwrReleaseConfirmStable").click();
@@ -105,6 +123,7 @@ class XingweiReleaseConfirmationPlaywrightTest {
                   <button id="xwrReleaseConfirmAttention" disabled>需要继续观察</button>
                   <button id="xwrReleaseConfirmationRefresh">刷新确认状态</button>
                   <div id="xwrReleaseConfirmationHistory"></div>
+                  <div class="xwr-confirm-meta"></div>
                   <p id="xwrReleaseConfirmationMessage"></p>
                 </section>
                 """);

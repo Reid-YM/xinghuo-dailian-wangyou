@@ -1,0 +1,201 @@
+.xw-guide-native {
+  margin:0;
+  background:#101216;
+  color:#e8edf5;
+  font:14px/1.6 system-ui,"PingFang SC",sans-serif}
+.xw-guide-native * {
+  box-sizing:border-box}
+.xw-guide-native .hidden,.xw-guide-native [hidden] {
+  display:none!important}
+.xwg-top,.xw-guide-native .guide-admin-shell {
+  width:min(1640px,calc(100% - 48px));
+  margin:auto}
+.xwg-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  padding:28px 0 16px}
+.xwg-top h1 {
+  font-size:28px;
+  margin:4px 0}
+.xwg-top p {
+  margin:4px 0;
+  color:#adb9cb}
+.xwg-top nav,.xw-guide-native .row-actions {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap}
+.xw-guide-native .guide-admin-shell {
+  padding-bottom:40px}
+.xw-guide-native .card {
+  padding:20px;
+  background:#191e27;
+  border:1px solid #354052;
+  border-radius:12px;
+  min-width:0}
+.xw-guide-native .guide-admin-toolbar {
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:center}
+.xw-guide-native h1,.xw-guide-native h2 {
+  margin:0 0 8px}
+.xw-guide-native .muted,.xw-guide-native small,.xw-guide-native .empty {
+  color:#abb8cb}
+.xw-guide-native .guide-admin-layout {
+  display:grid;
+  grid-template-columns:minmax(280px,340px) minmax(0,1fr);
+  gap:18px;
+  align-items:start}
+.xw-guide-native .guide-admin-list {
+  position:sticky;
+  top:16px}
+.xw-guide-native .guide-admin-rows {
+  max-height:65vh;
+  overflow:auto;
+  display:grid;
+  gap:8px}
+.xw-guide-native .guide-admin-row {
+  display:flex;
+  gap:8px;
+  padding:10px;
+  border:1px solid #3c485b;
+  border-radius:6px;
+  overflow-wrap:anywhere}
+.xw-guide-native .guide-admin-row.active {
+  border-color:#f0bc46;
+  background:#322b1a}
+.xw-guide-native .guide-admin-row-main {
+  flex:1;
+  text-align:left;
+  background:none;
+  border:0;
+  color:inherit;
+  min-width:0;
+  cursor:pointer}
+.xw-guide-native .guide-admin-row-main b,.xw-guide-native .guide-admin-row-main small {
+  display:block}
+.xw-guide-native .guide-admin-list-head,.xw-guide-native .guide-editor-head,.xw-guide-native .guide-editor-block-head,.xw-guide-native .guide-section-editor-head {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:12px}
+.xw-guide-native .guide-list-tools,.xw-guide-native .guide-select-all {
+  display:flex;
+  align-items:center;
+  gap:6px}
+.xw-guide-native input,.xw-guide-native select,.xw-guide-native textarea {
+  width:100%;
+  max-width:100%;
+  background:#111722;
+  color:#e8edf5;
+  border:1px solid #54647b;
+  border-radius:6px;
+  padding:10px;
+  font:inherit;
+  min-height:40px}
+.xw-guide-native input[type=checkbox] {
+  width:18px;
+  min-height:18px;
+  flex:0 0 18px}
+.xw-guide-native .field,.xw-guide-native .guide-filters label {
+  display:grid;
+  gap:6px;
+  min-width:0}
+.xw-guide-native .guide-filters {
+  display:grid;
+  gap:8px;
+  margin:16px 0}
+.xw-guide-native .guide-editor-grid {
+  display:grid;
+  gap:14px}
+.xw-guide-native .guide-editor-grid-2 {
+  grid-template-columns:repeat(2,minmax(0,1fr))}
+.xw-guide-native .guide-span-2 {
+  grid-column:1/-1}
+.xw-guide-native .guide-editor-block {
+  margin-top:20px;
+  border-top:1px solid #354052;
+  padding-top:18px}
+.xw-guide-native .guide-editor-block-head small {
+  display:block}
+.xw-guide-native .btn {
+  min-height:40px;
+  padding:9px 14px;
+  border:1px solid #59677d;
+  border-radius:6px;
+  background:#252e3d;
+  color:#e8edf5;
+  font:inherit;
+  cursor:pointer}
+.xw-guide-native .btn.primary {
+  background:#efbd4d;
+  color:#18140b;
+  border-color:#efbd4d;
+  font-weight:700}
+.xw-guide-native .btn.danger {
+  color:#ffb7ab;
+  border-color:#ba786c}
+.xw-guide-native .btn:disabled {
+  opacity:.5;
+  cursor:not-allowed}
+.xw-guide-native .guide-section-editor {
+  padding:14px;
+  border:1px solid #43516a;
+  border-radius:8px;
+  margin:12px 0}
+.xw-guide-native .toggle-row {
+  display:flex;
+  gap:8px;
+  align-items:start}
+.xw-guide-native .toggle-row span {
+  display:grid}
+.xw-guide-native .guide-product-picker {
+  display:grid;
+  gap:10px}
+.xw-guide-native .guide-product-option {
+  display:flex;
+  gap:10px;
+  align-items:start}
+.xw-guide-native #xingweiGuideState {
+  padding:12px 0;
+  color:#f2ce7c}
+.xw-guide-native .guide-reason {
+  margin-top:8px}
+@media(max-width:900px) {
+  .xw-guide-native .guide-admin-layout {
+  grid-template-columns:1fr}
+.xw-guide-native .guide-admin-list {
+  position:static}
+.xw-guide-native .guide-admin-rows {
+  max-height:340px}
+.xwg-top,.xw-guide-native .guide-admin-toolbar {
+  align-items:start;
+  flex-direction:column}
+}
+@media(max-width:600px) {
+  .xwg-top,.xw-guide-native .guide-admin-shell {
+  width:calc(100% - 24px)}
+.xw-guide-native .guide-editor-grid-2 {
+  grid-template-columns:1fr}
+.xw-guide-native .card {
+  padding:14px}
+.xw-guide-native .guide-editor-head,.xw-guide-native .guide-editor-block-head {
+  align-items:start;
+  flex-direction:column}
+.xw-guide-native .guide-admin-row-main small {
+  overflow-wrap:anywhere}
+}
+
+
+.xw-guide-native .guide-section-editor .field {
+  margin-top:10px}
+.xw-guide-native .guide-admin-toolbar {
+  margin-bottom:16px}
+
+.xw-guide-native .guide-section-editor { display:grid; gap:10px; }
+.xw-guide-native .guide-section-editor-head { margin-bottom:0; flex-wrap:wrap; }
+.xwg-top .xw-button:disabled { opacity:.5; cursor:not-allowed; }

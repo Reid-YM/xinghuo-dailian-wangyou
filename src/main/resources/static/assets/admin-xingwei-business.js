@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+ const display=value=>window.XWLabels?.value(value)??value;
 
   const accessBadge = document.getElementById('xwbAccessBadge');
   const scopeText = document.getElementById('xwbScopeText');
@@ -177,7 +178,7 @@
   }
 
   function openAfterSalesDetail(item) {
-    afterSalesDetailMeta.textContent = `业务编号 ${item.businessNo || '—'} · 订单号 ${item.orderNo || '—'} · ${item.status || '状态未知'} · 更新于 ${formatTime(item.updatedAt)}`;
+    afterSalesDetailMeta.textContent = `业务编号 ${item.businessNo || '—'} · 订单号 ${item.orderNo || '—'} · ${display(item.status) || '状态未知'} · 更新于 ${formatTime(item.updatedAt)}`;
     afterSalesDetailNote.textContent = item.customerNote || '暂无客户说明';
     afterSalesDetailInternal.textContent = item.internalNote || '暂无内部备注';
     afterSalesDetailDialog.showModal();
@@ -186,13 +187,13 @@
   function quoteSearchText(item) {
     return normalize([
       item.businessNo, item.game, item.demand, item.currentProgress, item.platform,
-      item.contactMethod, item.customerContact, item.status, ownershipLabel(item.ownership)
+      item.contactMethod, item.customerContact, item.status, display(item.status), ownershipLabel(item.ownership)
     ].join(' '));
   }
 
   function orderSearchText(item) {
     return normalize([
-      item.businessNo, item.orderNo, item.status, item.progressText,
+      item.businessNo, item.orderNo, item.status, display(item.status), item.progressText,
       item.customerNote, item.internalNote, ownershipLabel(item.ownership)
     ].join(' '));
   }
@@ -228,7 +229,7 @@
       appendText(contactCell, 'small', [item.platform, item.contactMethod].filter(Boolean).join(' · ') || '—', 'xwb-secondary');
       tr.appendChild(contactCell);
 
-      tr.appendChild(textCell(item.status, 'xwb-primary'));
+      tr.appendChild(textCell(display(item.status), 'xwb-primary'));
       tr.appendChild(ownershipCell(item.ownership));
       tr.appendChild(textCell(formatTime(item.createdAt)));
       tr.appendChild(actionCell('quotes', item));
@@ -257,7 +258,7 @@
       appendText(idCell, 'small', item.orderNo && item.orderNo !== item.businessNo ? `订单号 ${item.orderNo}` : '统一业务编号', 'xwb-secondary');
       tr.appendChild(idCell);
 
-      tr.appendChild(textCell(item.status, 'xwb-primary'));
+      tr.appendChild(textCell(display(item.status), 'xwb-primary'));
 
       const progressCell = document.createElement('td');
       progressCell.className = 'xwb-progress';

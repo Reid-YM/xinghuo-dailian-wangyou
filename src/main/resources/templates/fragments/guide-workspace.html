@@ -1,0 +1,38 @@
+<main class="container guide-admin-shell" th:fragment="workspace" xmlns:th="http://www.thymeleaf.org">
+  <section class="card guide-admin-toolbar">
+    <div><h2>攻略内容管理</h2><p class="muted">维护攻略正文、常见问题、关联游戏与推荐服务。推荐内容会自动同步服务目录中的图片和价格。</p></div>
+    <div class="row-actions"><button class="btn" id="importGuides" type="button">从游戏目录批量生成</button><button class="btn danger" id="batchDeleteGuides" type="button" disabled>批量删除</button><button class="btn danger" id="archiveAllGuides" type="button">全部归档</button><button class="btn ghost" id="reloadGuides" type="button">刷新列表</button></div>
+  </section>
+  <p id="xingweiGuideState" role="status" aria-live="polite" th:if="${xingweiMode == true}">正在读取攻略权限…</p>
+  <div class="guide-admin-layout">
+    <section class="card guide-admin-list">
+      <div class="guide-admin-list-head"><div><span class="eyebrow">内容列表</span><h2>已有攻略</h2></div><div class="guide-list-tools"><label class="guide-select-all" title="全选当前列表"><input type="checkbox" id="guideSelectAll"/><span>全选</span></label><span class="badge" id="guideSelectedCount">0</span><span class="badge" id="guideCount">0</span></div></div>
+      <form id="guideFilters" class="guide-filters" th:if="${xingweiMode == true}"><label>查找攻略<input id="guideQuery" type="search" maxlength="160" placeholder="标题、摘要或游戏"/></label><label>游戏<select id="guideGameFilter"><option value="">全部游戏</option></select></label><label>发布状态<select id="guideStatusFilter"><option value="">全部状态</option><option value="DRAFT">草稿</option><option value="PUBLISHED">已发布</option><option value="ARCHIVED">已归档</option></select></label><button type="submit" class="btn">筛选</button><button type="reset" class="btn ghost">清除筛选</button></form><p id="guideFilterCount" role="status" th:if="${xingweiMode == true}"></p><div id="guideRows" class="guide-admin-rows"></div>
+    </section>
+    <section class="card guide-admin-editor" id="guideEditor">
+      <div class="guide-admin-empty" id="guideEmpty">从左侧选择攻略，或新建一篇攻略。</div>
+      <form id="guideForm" class="hidden" novalidate>
+        <input name="id" type="hidden"/>
+        <div class="guide-editor-head"><div><span class="eyebrow">内容编辑</span><h2 id="editorTitle">编辑攻略</h2></div><div class="row-actions"><button class="btn ghost" id="previewGuide" type="button">预览</button><button class="btn primary" type="submit">保存</button><button class="btn ghost" id="archiveGuide" type="button">归档</button></div></div>
+        <div class="guide-editor-grid guide-editor-grid-2">
+          <label class="field"><span>游戏</span><select name="gameCode" required></select></label>
+          <label class="field"><span>状态</span><select name="status"><option value="DRAFT">草稿</option><option value="PUBLISHED">已发布</option><option value="ARCHIVED">已归档</option></select></label>
+          <label class="field guide-span-2"><span>标题</span><input name="title" maxlength="180" required/></label>
+          <label class="field guide-span-2"><span>副标题</span><input name="subtitle" maxlength="255"/></label>
+          <label class="field guide-span-2"><span>摘要</span><textarea name="summary" rows="3" required></textarea></label>
+          <input name="coverImage" type="hidden"/>
+          <label class="field"><span>难度</span><select name="difficulty"><option value="BEGINNER">入门</option><option value="INTERMEDIATE">进阶</option><option value="ADVANCED">高级</option><option value="EXPERT">专家</option></select></label>
+          <label class="field"><span>阅读分钟</span><input name="estimatedMinutes" type="number" min="1" max="10080" value="60"/></label>
+          <label class="field"><span>标签（逗号分隔）</span><input name="tags"/></label>
+          <input name="sortOrder" type="hidden" value="100"/>
+          <label class="field guide-span-2"><span>搜索标题</span><input name="seoTitle" maxlength="160"/></label>
+          <label class="field guide-span-2"><span>搜索说明</span><textarea name="seoDescription" rows="2" maxlength="300"></textarea></label>
+          <label class="toggle-row"><input name="featured" type="checkbox"/><span><b>重点推荐</b><small>在攻略中心优先展示。</small></span></label>
+        </div>
+        <div class="guide-editor-block"><div class="guide-editor-block-head"><div><b>攻略组件</b><small>组件类型会同步给前台渲染；正文不执行外部脚本或原始 HTML。</small></div><div class="row-actions"><select id="sectionType" aria-label="组件类型"><option value="title">标题</option><option value="paragraph" selected>段落</option><option value="image">图片</option><option value="gallery">图集</option><option value="video">视频</option><option value="steps">步骤</option><option value="tip">提示</option><option value="table">表格</option><option value="attachment">附件</option><option value="map">地图</option><option value="related">关联内容</option></select><button class="btn small-btn" id="addSection" type="button">增加组件</button></div></div><div id="sectionRows"></div></div>
+        <div class="guide-editor-block"><div class="guide-editor-block-head"><div><b>关联服务</b><small>只能选择当前游戏下的服务，保存后前台服务卡使用服务目录的真实图片和价格。</small></div></div><div id="productRows" class="guide-product-picker"></div></div>
+        <div class="guide-editor-block"><div class="guide-editor-block-head"><div><b>修改说明</b><small>用于记录本次内容调整。</small></div></div><input class="guide-reason" name="reason" maxlength="200" value="攻略内容维护"/></div>
+      </form>
+    </section>
+  </div>
+</main>

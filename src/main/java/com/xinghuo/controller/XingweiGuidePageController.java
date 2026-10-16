@@ -11,11 +11,12 @@ import com.xinghuo.guide.XingweiGuideWorkspaceService;
 
 @Controller
 public class XingweiGuidePageController {
+    @org.springframework.web.bind.annotation.ModelAttribute void privateResponse(jakarta.servlet.http.HttpServletResponse response){response.setHeader("Cache-Control","no-store");}
     private final XingweiGuideWorkspaceService workspace;
     public XingweiGuidePageController(XingweiGuideWorkspaceService workspace){this.workspace=workspace;}
     @GetMapping("/admin/xingwei/guides")
     @PreAuthorize("@xingweiPermissionGuard.has(authentication,'content:view')")
-    String page(Model model,CsrfToken csrf,Authentication actor){model.addAttribute("csrf",csrf);model.addAttribute("username",actor.getName());model.addAttribute("xingweiMode",true);return "admin-guides";}
+    String page(Model model,CsrfToken csrf,Authentication actor){model.addAttribute("csrf",csrf);model.addAttribute("username",actor.getName());model.addAttribute("xingweiMode",true);return "admin-xingwei-guides";}
     @GetMapping("/admin/xingwei/guides/{id}/preview")
     @PreAuthorize("@xingweiPermissionGuard.has(authentication,'content:view')")
     String preview(@PathVariable long id,Model model,Authentication actor){

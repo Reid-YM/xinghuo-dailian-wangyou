@@ -38,7 +38,7 @@ body.admin-solid-ui .container{max-width:none}
   background:var(--guide-surface)!important;box-shadow:0 10px 30px rgba(15,23,42,.06)!important;
 }
 .guide-admin-toolbar>div:first-child{min-width:0}
-.guide-admin-toolbar h1{margin:0;color:var(--guide-text);font-size:28px;letter-spacing:-.03em}
+.guide-admin-toolbar h1,.guide-admin-toolbar h2{margin:0;color:var(--guide-text);font-size:28px;letter-spacing:-.03em}
 .guide-admin-toolbar .muted{max-width:780px;margin:6px 0 0;color:var(--guide-muted)!important;line-height:1.65}
 .guide-admin-toolbar .row-actions{justify-content:flex-end}
 .guide-admin-toolbar .btn{min-height:40px;border-color:#d7dde7;background:#fff;color:#344054}

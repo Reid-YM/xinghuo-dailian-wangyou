@@ -11,13 +11,13 @@
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261016actions1"/>
-  <script defer src="/assets/admin-xingwei-business.js?v=20261016actions1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261016cn1"></script><script defer src="/assets/admin-xingwei-business.js?v=20261016cn1"></script>
 </head>
 <body>
 <main class="xwb-shell">
   <header class="xwb-topbar">
     <div>
-      <p class="xw-kicker">STARWEAVE · BUSINESS WORKBENCH</p>
+      <p class="xw-kicker">星维 · 业务工作台</p>
       <h1>询价 / 订单业务工作台</h1>
     </div>
     <div class="xwb-top-actions">
@@ -27,15 +27,15 @@
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/after-sales/cases">售后处理</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/work">我的工作</a><a class="xw-button xw-button-ghost" href="/admin/xingwei/maintenance">公开案例与业务维护</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
-      <a class="xw-button" href="/admin?legacy=1" th:if="${restoreAdmin == true}">恢复入口（ADMIN）</a>
+      <a class="xw-button" href="/admin?legacy=1" th:if="${restoreAdmin == true}">管理员恢复入口</a>
     </div>
   </header>
 
   <section class="xwb-hero">
     <div>
-      <p class="xw-kicker">V3Z · BUSINESS WORKBENCH</p>
+      <p class="xw-kicker">V3Z · 业务工作台</p>
       <h2>看得到什么、能派给谁，都由后端真实数据范围决定。</h2>
-      <p>业务工作台只调用新版受控接口。ALL 可处理全部及未归属业务；DEPARTMENT 只处理本中心已归属业务；SELF 只处理本人负责业务。售后问题记录沿用订单查看权限和数据范围。旧后台继续保留，作为兼容与恢复入口。</p>
+      <p>业务工作台只调用新版受控接口。全部数据范围可处理全部及未归属业务；本中心范围只处理本中心已归属业务；仅本人范围只处理本人负责业务。售后问题记录沿用订单查看权限和数据范围。旧后台继续保留，作为兼容与恢复入口。</p>
     </div>
     <div class="xwb-scope-card">
       <span>当前工作台版本</span>
@@ -107,23 +107,23 @@
 
   <section class="xwb-empty" id="xwbNoAccess" hidden>
     <strong>当前账号没有询价或订单查看权限</strong>
-    <p>页面不会尝试绕过后端权限。可返回星维后台检查角色配置，legacy ADMIN 仍保留安全兜底。</p>
+    <p>页面不会尝试绕过后端权限。可返回星维后台检查角色配置，恢复管理员 仍保留安全兜底。</p>
   </section>
 
-  <footer class="xw-footer"><span th:text="${workspaceName}">星维网络服务工作室</span><span>业务归属 · ALL / DEPARTMENT / SELF · 后端授权 · 审计留痕</span></footer>
+  <footer class="xw-footer"><span th:text="${workspaceName}">星维网络服务工作室</span><span>业务归属 · 全部数据 / 本中心 / 仅本人 · 后端授权 · 审计留痕</span></footer>
 </main>
 
 <dialog class="xw-dialog" id="xwbAssignDialog">
   <form method="dialog" class="xw-dialog-card" id="xwbAssignForm">
     <div class="xw-dialog-head">
-      <div><p class="xw-kicker">BUSINESS OWNERSHIP</p><h3 id="xwbAssignTitle">调整业务归属</h3></div>
+      <div><p class="xw-kicker">业务归属</p><h3 id="xwbAssignTitle">调整业务归属</h3></div>
       <button type="button" class="xw-dialog-close" id="xwbAssignClose" aria-label="关闭">×</button>
     </div>
     <p class="xw-dialog-note" id="xwbAssignCurrent">当前归属：-</p>
     <label class="xw-form-wide">目标负责人 / 中心队列
       <select id="xwbAssignTarget" required></select>
     </label>
-    <p class="xwb-help">候选项已经按你的有效数据范围在后端裁剪。DEPARTMENT 不能认领未归属业务或跨中心改派；SELF 只能保持本人负责。</p>
+    <p class="xwb-help">候选项已经按你的有效数据范围在后端裁剪。本中心范围不能认领未归属业务或跨中心改派；仅本人范围只能保持本人负责。</p>
     <div class="xw-dialog-actions">
       <span id="xwbAssignState"></span>
       <button type="button" class="xw-button xw-button-ghost" id="xwbAssignCancel">取消</button>
@@ -134,7 +134,7 @@
 <dialog class="xw-dialog" id="xwbAfterSalesDetailDialog" aria-labelledby="xwbAfterSalesDetailTitle">
   <div class="xw-dialog-card">
     <div class="xw-dialog-head">
-      <div><p class="xw-kicker">AFTER-SALES RECORD</p><h3 id="xwbAfterSalesDetailTitle">售后问题详情</h3></div>
+      <div><p class="xw-kicker">售后记录</p><h3 id="xwbAfterSalesDetailTitle">售后问题详情</h3></div>
       <button type="button" class="xw-dialog-close" id="xwbAfterSalesDetailClose" aria-label="关闭售后问题详情">×</button>
     </div>
     <p class="xw-dialog-note" id="xwbAfterSalesDetailMeta"></p>

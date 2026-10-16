@@ -1,0 +1,6 @@
+(() => {
+  'use strict';
+  // Display labels only. API codes, form values, audit values and revisions stay unchanged.
+  const labels={UNKNOWN:'未确定',MEDIUM:'中',EXCEPTION:'异常',PENDING_PAYMENT:'待付款',SUCCESS:'成功',NOTPAY:'未支付',USERPAYING:'支付中',PAYERROR:'支付失败',REFUND:'退款中',REVOKED:'已撤销',ACTIVE:'正常',READY:'准备中',PLANNED:'计划中',PAUSED:'已暂停',DISABLED:'已停用',LOCKED:'已锁定',DELETED:'已删除',ENABLED:'已启用',NEW:'待处理',PENDING:'待审核',ACCEPTED:'已受理',TESTING:'测试中',DONE:'已完成',DRAFT:'草稿',PUBLISHED:'已发布',ARCHIVED:'已归档',SUBMITTED:'已提交',IN_REVIEW:'审核中',APPROVED:'已确认',REJECTED:'已驳回',WITHDRAWN:'已撤回',CONTACTED:'已联系',QUOTED:'已报价',CONVERTED:'已转单',CLOSED:'已关闭',CANCELLED:'已取消',CREATED:'待确认',CAPTURED:'已到账',FAILED:'失败',EXPIRED:'已过期',REFUNDED:'已退款',WAITING_CONFIRMATION:'待确认',WAITING_PAYMENT:'待付款',PAID:'已付款',IN_SERVICE:'服务中',IN_PROGRESS:'进行中',PROCESSING:'处理中',COMPLETED:'已完成',DELIVERED:'已交付',AVAILABLE:'可接单',BUSY:'繁忙',OFFLINE:'已下线',FIXED:'固定价',RANGE:'区间价',QUOTE:'询价',BUYER:'客户',SELLER:'商家',BOOSTER:'服务员工',ADMIN:'恢复管理员',OPERATOR:'运营员工',LOW:'低',NORMAL:'普通',HIGH:'高',URGENT:'紧急',AUTO:'自动',MANUAL:'手动',ALL:'全部数据',DEPARTMENT:'本中心',SELF:'仅本人',CNY:'人民币'};
+  window.XWLabels=Object.freeze({value:value=>Object.hasOwn(labels,value)?labels[value]:value,stage:value=>String(value??'').replace('UNIFIED DELIVERY','统一交付').replace('STABLE PRODUCTION','已发布').replace('RELEASE CANDIDATE','待发布')});
+})();

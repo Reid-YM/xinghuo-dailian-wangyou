@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+ const display=value=>window.XWLabels?.value(value)??value;
 
   const status = document.getElementById('xcatStatus');
   const manageMode = document.getElementById('xcatManageMode');
@@ -100,7 +101,7 @@
       const gameCell=document.createElement('td'); append(gameCell,'span',item.gameCode,'xcat-primary'); append(gameCell,'small',item.category,'xcat-secondary'); tr.appendChild(gameCell);
       const priceCell=document.createElement('td'); append(priceCell,'span',priceLabel(item),'xcat-primary'); append(priceCell,'small',item.priceMode,'xcat-secondary'); tr.appendChild(priceCell);
       tr.appendChild(cell(item.durationText));
-      const statusCell=document.createElement('td'); const badge=append(statusCell,'span',`${item.status} · ${item.active?'启用':'停用'}`,`xcat-status ${item.active?'on':'off'}`); badge.title=item.shortDesc||''; tr.appendChild(statusCell);
+      const statusCell=document.createElement('td'); const badge=append(statusCell,'span',`${display(item.status)} · ${item.active?'启用':'停用'}`,`xcat-status ${item.active?'on':'off'}`); badge.title=item.shortDesc||''; tr.appendChild(statusCell);
       const orderCell=document.createElement('td'); append(orderCell,'span',`展示 ${item.sortOrder}`,'xcat-primary'); append(orderCell,'small',`优先级 ${item.manualPriority} · v${item.version}`,'xcat-secondary'); tr.appendChild(orderCell);
       const actionCell=document.createElement('td'); actionCell.className='xcat-row-actions';
       if(canManage){
@@ -185,7 +186,7 @@
   function openEdit(item) {
     if(!canManage) return;
     currentEdit=item;
-    editMeta.textContent=`${item.slug} · ${item.gameCode}/${item.category} · 当前 ${item.status}`;
+    editMeta.textContent=`${item.slug} · ${item.gameCode}/${item.category} · 当前 ${display(item.status)}`;
     editName.value=item.name||'';
     editShortDesc.value=item.shortDesc||'';
     editPriceMode.value=String(item.priceMode||'QUOTE').toUpperCase();

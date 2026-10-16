@@ -157,6 +157,7 @@ public class XingweiAdminController {
         common(model, csrf, authentication);
         model.addAttribute("consoleVersion", CONSOLE_VERSION);
         model.addAttribute("consoleStage", CONSOLE_STAGE);
+        model.addAttribute("consoleStageLabel", CONSOLE_STAGE.replace("UNIFIED DELIVERY","统一交付").replace("STABLE PRODUCTION","已发布").replace("RELEASE CANDIDATE","待发布"));
         model.addAttribute("releaseHistory", RELEASE_HISTORY);
         return "admin-xingwei";
     }

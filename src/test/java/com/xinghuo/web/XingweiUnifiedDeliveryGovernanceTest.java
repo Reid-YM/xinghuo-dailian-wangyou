@@ -15,6 +15,11 @@ class XingweiUnifiedDeliveryGovernanceTest {
             Path target = root.resolve(file); Files.createDirectories(target.getParent()); Files.copy(Path.of(file), target);
         }
         assertEquals(0, validate());
+        Path initialDashboard = root.resolve("src/main/resources/templates/admin-xingwei.html");
+        String initialPage = Files.readString(initialDashboard);
+        Files.writeString(initialDashboard,initialPage.replace("data-runtime-stage=${consoleStage}","data-runtime-stage=UNKNOWN"));
+        assertNotEquals(0,validate(),"Chinese presentation must retain the actual machine stage for runtime checks");
+        Files.writeString(initialDashboard,initialPage);
         Path controller = root.resolve("src/main/java/com/xinghuo/controller/XingweiAdminController.java");
         String original = Files.readString(controller);
         Files.writeString(controller, original.replace("\"V6A\", \"本版本\"", "\"V6A\", \"已上线\""));

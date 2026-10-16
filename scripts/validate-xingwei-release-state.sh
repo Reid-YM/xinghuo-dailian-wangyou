@@ -44,7 +44,9 @@ stage_tag=${console_stage%% *}
 [ "$version_tag" = "$stage_tag" ] || fail "version/stage mismatch: $console_version vs $console_stage"
 
 # Rendered fallbacks must match the controller's version truth.
-require_literal "$dashboard" "th:text=\"\${consoleStage}\">${console_stage}</p>"
+require_literal "$dashboard" "data-runtime-stage=\"${console_stage}\""
+require_literal "$dashboard" 'th:text="${consoleStageLabel}"'
+require_literal "$dashboard" 'th:attr="data-runtime-stage=${consoleStage}"'
 require_literal "$dashboard" "th:text=\"\${consoleVersion}\">${console_version}</strong>"
 require_literal "$releases" "th:text=\"\${consoleVersion}\">${console_version}</span>"
 

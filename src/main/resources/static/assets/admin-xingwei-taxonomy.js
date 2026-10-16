@@ -205,12 +205,14 @@
   const editForm=document.getElementById('xtaxEditForm');
   let editTarget=null;
   function field(id){return document.getElementById(id);}
-  function openEditor(kind,key=null){
+  async function openEditor(kind,key=null){
     if(!canManage||!snapshot)return;
     const category=kind.includes('category');
-    const row=key==null?null:(category?(snapshot.categories||[]).find(x=>String(x.id)===String(key)):(snapshot.games||[]).find(x=>x.code===key));
+    let row=key==null?null:(category?(snapshot.categories||[]).find(x=>String(x.id)===String(key)):(snapshot.games||[]).find(x=>x.code===key));
     if(key!=null&&!row)return;
-    editTarget={category,key};editForm.reset();
+    let revision=null;
+    if(key!=null){try{const response=await fetch('/api/admin/xingwei/catalog/taxonomy/'+(category?'categories/':'games/')+encodeURIComponent(key)+'/editor',{credentials:'same-origin',cache:'no-store'});const state=await parseResponse(response);if(!response.ok)throw new Error(state?.message||state?.error||'读取当前资料失败');row=state.data;revision=state.revision;}catch(error){setMessage(error.message,'error');return;}}
+    editTarget={category,key,revision};editForm.reset();
     field('xtaxEditTitle').textContent=(row?'编辑':'新增')+(category?'分类':'游戏');
     field('xtaxEditHint').textContent=row?'仅修改资料，不改变编码、归属及启停状态。':'新增后默认停用，需另行通过影响预览启用。';
     field('xtaxEditGameWrap').hidden=!category||Boolean(row);
@@ -223,12 +225,12 @@
     event.preventDefault();if(!canManage||!editTarget)return;
     const name=field('xtaxEditName').value.trim(),reasonText=field('xtaxEditReason').value.trim();
     if(!name||!reasonText){setMessage('名称和操作原因不能为空。','error');return;}
-    const {category,key}=editTarget;
+    const {category,key,revision}=editTarget;
     const payload={name,iconKey:field('xtaxEditIcon').value.trim()||null,description:field('xtaxEditDescription').value.trim(),sortOrder:field('xtaxEditSort').value===''?null:Number(field('xtaxEditSort').value),reason:reasonText};
     if(category&&key==null){if(!field('xtaxEditGame').value){setMessage('请先选择所属游戏。','error');return;}payload.gameCode=field('xtaxEditGame').value;}
     const base='/api/admin/xingwei/catalog/taxonomy/';
     const url=key==null?base+(category?'categories':'games'):base+(category?'categories/'+encodeURIComponent(key):'games/'+encodeURIComponent(key))+'/profile';
-    const headers={Accept:'application/json','Content-Type':'application/json'};if(csrfToken&&csrfHeader)headers[csrfHeader]=csrfToken;
+    const headers={Accept:'application/json','Content-Type':'application/json'};if(csrfToken&&csrfHeader)headers[csrfHeader]=csrfToken;if(key!=null)headers['If-Match']='"'+revision+'"';
     const save=field('xtaxEditSave');save.disabled=true;
     try{
       const response=await fetch(url,{method:key==null?'POST':'PUT',credentials:'same-origin',headers,body:JSON.stringify(payload)});

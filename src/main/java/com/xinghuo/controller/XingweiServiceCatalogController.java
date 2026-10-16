@@ -5,6 +5,9 @@ import com.xinghuo.service.ServiceCatalogService;
 import com.xinghuo.service.TaxonomyService;
 import com.xinghuo.service.XingweiServicePublishReviewService;
 import com.xinghuo.service.XingweiTaxonomyControlService;
+import com.xinghuo.service.XingweiCatalogRevisionService;
+import com.xinghuo.service.XingweiCatalogRevisionService.Kind;
+import com.xinghuo.service.XingweiCatalogDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -24,26 +27,31 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 /** V3I：服务目录真源 + 发布检查 + taxonomy 可见性预览、快照确认与受控启停。 */
 @RestController
 @RequestMapping("/api/admin/xingwei/catalog")
 public class XingweiServiceCatalogController {
+    @org.springframework.web.bind.annotation.ModelAttribute void privateResponse(jakarta.servlet.http.HttpServletResponse response){response.setHeader("Cache-Control","no-store");}
     private final ServiceCatalogService services;
     private final TaxonomyService taxonomy;
     private final XingweiServicePublishReviewService publishReview;
     private final XingweiTaxonomyControlService taxonomyControl;
+    private final XingweiCatalogRevisionService revisions;
+    private final XingweiCatalogDetailsService details;
 
     public XingweiServiceCatalogController(
             ServiceCatalogService services,
             TaxonomyService taxonomy,
             XingweiServicePublishReviewService publishReview,
-            XingweiTaxonomyControlService taxonomyControl) {
+            XingweiTaxonomyControlService taxonomyControl,XingweiCatalogRevisionService revisions,XingweiCatalogDetailsService details) {
         this.services = services;
         this.taxonomy = taxonomy;
         this.publishReview = publishReview;
         this.taxonomyControl = taxonomyControl;
+        this.revisions=revisions;this.details=details;
     }
 
     @GetMapping("/snapshot")
@@ -102,13 +110,13 @@ public class XingweiServiceCatalogController {
             @Valid @RequestBody TaxonomyToggleRequest request,
             Authentication authentication,
             HttpServletRequest httpRequest) {
-        return taxonomyControl.setGameActive(
+        return revisions.serialized(Kind.GAME, taxonomy.normalizeGame(code), () -> taxonomyControl.setGameActive(
                 code,
                 request.active(),
                 request.reason(),
                 request.impactToken(),
                 authentication.getName(),
-                httpRequest);
+                httpRequest));
     }
 
     @PutMapping("/taxonomy/categories/{id}/active")
@@ -118,13 +126,13 @@ public class XingweiServiceCatalogController {
             @Valid @RequestBody TaxonomyToggleRequest request,
             Authentication authentication,
             HttpServletRequest httpRequest) {
-        return taxonomyControl.setCategoryActive(
+        return revisions.serialized(XingweiCatalogRevisionService.Kind.CATEGORY, id, () -> taxonomyControl.setCategoryActive(
                 id,
                 request.active(),
                 request.reason(),
                 request.impactToken(),
                 authentication.getName(),
-                httpRequest);
+                httpRequest));
     }
 
     // V3F: controlled creation. New taxonomy is always offline until separately enabled.
@@ -149,24 +157,28 @@ public class XingweiServiceCatalogController {
     }
 
     // V3F: profile-only edits preserve active state, game/category codes and parent links.
+    @GetMapping("/taxonomy/games/{code}/editor") @PreAuthorize("@xingweiPermissionGuard.has(authentication,'service:view')")
+    public Object gameEditor(@PathVariable String code){return details.game(code);}
+    @GetMapping("/taxonomy/categories/{id}/editor") @PreAuthorize("@xingweiPermissionGuard.has(authentication,'service:view')")
+    public Object categoryEditor(@PathVariable long id){return details.category(id);}
     @PutMapping("/taxonomy/games/{code}/profile")
     @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
     public ApiDtos.GameOptionResponse updateGameProfile(
             @PathVariable String code, @Valid @RequestBody ApiDtos.CatalogUpdateRequest request,
-            Authentication authentication, HttpServletRequest httpRequest) {
-        return taxonomy.updateGame(code, new ApiDtos.CatalogUpdateRequest(
+            @RequestHeader(value="If-Match",required=false) String expected,Authentication authentication, HttpServletRequest httpRequest) {
+        return revisions.change(Kind.GAME,taxonomy.normalizeGame(code),expected,()->taxonomy.updateGame(code, new ApiDtos.CatalogUpdateRequest(
                 request.name(), request.iconKey(), request.description(), request.sortOrder(),
-                null, request.reason()), authentication.getName(), httpRequest);
+                null, request.reason()), authentication.getName(), httpRequest));
     }
 
     @PutMapping("/taxonomy/categories/{id}/profile")
     @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'service:manage')")
     public ApiDtos.CategoryOptionResponse updateCategoryProfile(
             @PathVariable Long id, @Valid @RequestBody ApiDtos.CategoryUpdateRequest request,
-            Authentication authentication, HttpServletRequest httpRequest) {
-        return taxonomy.updateCategory(id, new ApiDtos.CategoryUpdateRequest(
+            @RequestHeader(value="If-Match",required=false) String expected,Authentication authentication, HttpServletRequest httpRequest) {
+        return revisions.change(Kind.CATEGORY,id,expected,()->taxonomy.updateCategory(id, new ApiDtos.CategoryUpdateRequest(
                 request.name(), request.iconKey(), request.description(), request.sortOrder(),
-                null, request.reason()), authentication.getName(), httpRequest);
+                null, request.reason()), authentication.getName(), httpRequest));
     }
 
     @PostMapping("/services")
@@ -175,7 +187,8 @@ public class XingweiServiceCatalogController {
             @Valid @RequestBody ApiDtos.ServiceUpsert request,
             Authentication authentication,
             HttpServletRequest httpRequest) {
-        return services.create(request, authentication.getName(), httpRequest);
+        var draft=new ApiDtos.ServiceUpsert(request.gameCode(),request.slug(),request.name(),request.category(),request.shortDesc(),request.priceMode(),request.priceFixed(),request.priceMin(),request.priceMax(),request.durationText(),"OFFLINE",request.coverImage(),request.hotScore(),request.manualPriority(),request.expiresAt(),false,request.sortOrder(),request.reason());
+        return services.create(draft, authentication.getName(), httpRequest);
     }
 
     @PutMapping("/services/{id}")
@@ -183,9 +196,15 @@ public class XingweiServiceCatalogController {
     public ApiDtos.AdminServiceResponse updateService(
             @PathVariable Long id,
             @Valid @RequestBody ApiDtos.ServiceUpsert request,
-            Authentication authentication,
+            @RequestHeader(value="If-Match",required=false) String expected,Authentication authentication,
             HttpServletRequest httpRequest) {
-        return services.update(id, request, authentication.getName(), httpRequest);
+        return revisions.change(Kind.SERVICE,id,expected,()->{
+            var current=services.adminList().stream().filter(item->item.id().equals(id)).findFirst().orElseThrow(com.xinghuo.exception.NotFoundException::new);
+            // The basic editor owns pricing/copy/order only. Keep full-profile fields and
+            // visibility from the locked current record, rather than trusting stale copies.
+            var safe=new ApiDtos.ServiceUpsert(current.gameCode(),current.slug(),request.name(),current.category(),request.shortDesc(),request.priceMode(),request.priceFixed(),request.priceMin(),request.priceMax(),request.durationText(),current.status(),current.coverImage(),current.hotScore(),request.manualPriority(),current.expiresAt(),current.active(),request.sortOrder(),request.reason());
+            return services.update(id,safe,authentication.getName(),httpRequest);
+        });
     }
 
     @DeleteMapping("/services/{id}")

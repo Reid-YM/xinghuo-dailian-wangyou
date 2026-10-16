@@ -7,6 +7,10 @@ import com.xinghuo.controller.XingweiOperationsController;
 import com.xinghuo.controller.XingweiAdminAccountController;
 import com.xinghuo.controller.XingweiPaymentWorkspaceController;
 import com.xinghuo.controller.XingweiAuxiliaryWorkspaceController;
+import com.xinghuo.controller.XingweiCatalogDetailsController;
+import com.xinghuo.controller.XingweiServiceCatalogController;
+import com.xinghuo.controller.XingweiBusinessMaintenanceController;
+import org.springframework.dao.OptimisticLockingFailureException;
 import com.xinghuo.controller.SeoController;
 import com.xinghuo.account.service.AccountException;
 import com.xinghuo.exception.BadRequestException;
@@ -33,7 +37,7 @@ import org.springframework.web.context.request.async.AsyncRequestNotUsableExcept
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-@RestControllerAdvice(assignableTypes={PublicApiController.class, AdminApiController.class, AdminLeadController.class, PublicGuideController.class, AdminGuideController.class, SeoController.class, XingweiOperationsController.class, XingweiAdminAccountController.class, XingweiPaymentWorkspaceController.class, XingweiAuxiliaryWorkspaceController.class})
+@RestControllerAdvice(assignableTypes={PublicApiController.class, AdminApiController.class, AdminLeadController.class, PublicGuideController.class, AdminGuideController.class, SeoController.class, XingweiOperationsController.class, XingweiAdminAccountController.class, XingweiPaymentWorkspaceController.class, XingweiAuxiliaryWorkspaceController.class, XingweiCatalogDetailsController.class, XingweiServiceCatalogController.class, XingweiBusinessMaintenanceController.class})
 public class ApiExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
@@ -74,7 +78,7 @@ public class ApiExceptionHandler {
         return this.body(e.getStatus(), e.getCode(), e.getMessage());
     }
 
-    @ExceptionHandler(value={OptimisticLockException.class, ObjectOptimisticLockingFailureException.class})
+    @ExceptionHandler(value={OptimisticLockException.class, OptimisticLockingFailureException.class})
     ResponseEntity<?> optimistic() {
         return this.body(HttpStatus.CONFLICT, "STALE_DATA", "\u6570\u636e\u5df2\u88ab\u5176\u4ed6\u7528\u6237\u4fee\u6539\uff0c\u8bf7\u5237\u65b0\u540e\u91cd\u8bd5");
     }

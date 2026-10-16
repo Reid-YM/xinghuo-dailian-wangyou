@@ -98,7 +98,7 @@ public class XingweiServicePublishReviewService {
                 "服务封面",
                 WARNING,
                 coverPresent,
-                coverPresent ? "已配置封面" : "未配置封面；允许上架，但建议在旧后台补齐展示素材"));
+                coverPresent ? "已配置封面" : "未配置封面；允许上架，可在目录完整资料页补齐展示素材"));
 
         boolean pendingPublish = !item.isActive() || item.getStatus() == ServiceItem.Status.OFFLINE;
         checks.add(check(

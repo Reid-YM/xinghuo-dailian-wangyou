@@ -76,6 +76,7 @@
   function render(snapshot) {
     lastSnapshot = snapshot;
     window.xwrRuntimeHealth = snapshot;
+    window.xwrRuntimeHealthError = null;
 
     const databaseUp = Boolean(snapshot?.database?.up);
     const totalRequests = Number(snapshot?.requests?.totalRequests || 0);

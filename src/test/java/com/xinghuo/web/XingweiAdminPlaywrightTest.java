@@ -203,9 +203,11 @@ class XingweiAdminPlaywrightTest {
                           {id:3, code:'rbac:view', name:'查看权限', module:'rbac', action:'view'}
                         ]
                       };
-                      window.fetch = async () => ({ok:true, json:async () => snapshot});
+                      window.fetch = async url => ({ok:true, json:async () => String(url).endsWith('/access') ? window.xwAccess : String(url).endsWith('/health') ? {version:'20261016-v6a',stage:'V6A · UNIFIED DELIVERY'} : snapshot});
                     }
                     """);
+            addMainScript(page);
+            page.locator(".xw-nav-item[href='#organization']").click();
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-xingwei-org.js")));
             page.waitForFunction("() => document.querySelectorAll('#xwDepartmentRows tr').length === 2");
 

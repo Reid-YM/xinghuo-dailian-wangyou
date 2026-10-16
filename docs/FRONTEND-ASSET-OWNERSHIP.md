@@ -98,3 +98,5 @@
 - `admin-xingwei-guides.html/css`：新版攻略页面外壳与响应式布局，不加载旧后台亮色/品牌修补样式。
 - `fragments/guide-workspace.html`：新旧攻略编辑区共享结构；`admin-guides.js` 继续唯一负责保存、预览、筛选及版本保护。
 - `admin-xingwei-labels.js`：新版后台枚举的显式中文显示字典，不改写 API 值，不扫描/替换 DOM，不负责用户输入或权限判定。
+
+- `scripts/generate-admin-search-index.py` 从新版模板与站点字段定义生成 `admin-xingwei-search-index.js`，只索引功能元数据，不包含业务记录；`--check` 检查生成物是否过期。主工作台 `admin-xingwei.js` 唯一负责权限过滤、关键词匹配和结果展示；静态表单沿用 URL 锚点，异步站点表单在自身 render 完成后定位，不使用轮询或 DOM 扫描补丁。

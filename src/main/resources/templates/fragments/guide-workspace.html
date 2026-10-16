@@ -15,31 +15,31 @@
         <input name="id" type="hidden"/>
         <div class="guide-editor-head"><div><span class="eyebrow">内容编辑</span><h2 id="editorTitle">编辑攻略</h2></div><div class="row-actions"><button class="btn ghost" id="previewGuide" type="button">预览</button><button class="btn primary" type="submit">保存</button><button class="btn ghost" id="archiveGuide" type="button">归档</button></div></div>
         <div class="guide-editor-grid guide-editor-grid-2">
-          <label class="field"><span>游戏</span><select name="gameCode" required></select></label>
-          <label class="field"><span>状态</span><select name="status"><option value="DRAFT">草稿</option><option value="PUBLISHED">已发布</option><option value="ARCHIVED">已归档</option></select></label>
-          <label class="field guide-span-2"><span>标题</span><input name="title" maxlength="180" required/></label>
-          <label class="field guide-span-2"><span>副标题</span><input name="subtitle" maxlength="255"/></label>
-          <label class="field guide-span-2"><span>摘要</span><textarea name="summary" rows="3" required></textarea></label>
-          <label class="field guide-span-2" th:if="${xingweiMode == true}"><span>封面图片地址</span><input name="coverImage" maxlength="500"/></label><input name="coverImage" type="hidden" th:unless="${xingweiMode == true}"/>
-          <label class="field" th:if="${xingweiMode == true}"><span>攻略网址标识</span><input name="slug" maxlength="180" placeholder="留空自动生成，修改会改变公开网址"/></label>
-          <label class="field" th:if="${xingweiMode == true}"><span>内容语言</span><input name="language" maxlength="16" value="zh-CN"/></label>
-          <label class="field" th:if="${xingweiMode == true}"><span>作者</span><input name="authorName" maxlength="120"/></label>
-          <label class="field" th:if="${xingweiMode == true}"><span>资料来源</span><input name="sourceName" maxlength="120"/></label>
-          <label class="field guide-span-2" th:if="${xingweiMode == true}"><span>来源网址</span><input name="sourceUrl" maxlength="500"/></label>
-          <label class="field guide-span-2" th:if="${xingweiMode == true}"><span>搜索规范网址</span><input name="canonicalUrl" maxlength="500"/></label>
-          <label class="field"><span>难度</span><select name="difficulty"><option value="BEGINNER">入门</option><option value="INTERMEDIATE">进阶</option><option value="ADVANCED">高级</option><option value="EXPERT">专家</option></select></label>
-          <label class="field"><span>阅读分钟</span><input name="estimatedMinutes" type="number" min="1" max="10080" value="60"/></label>
-          <label class="field"><span>标签（逗号分隔）</span><input name="tags"/></label>
-          <label class="field" th:if="${xingweiMode == true}"><span>展示排序</span><input name="sortOrder" type="number" value="100"/></label><input name="sortOrder" type="hidden" value="100" th:unless="${xingweiMode == true}"/>
-          <label class="field guide-span-2"><span>搜索标题</span><input name="seoTitle" maxlength="160"/></label>
-          <label class="field guide-span-2"><span>搜索说明</span><textarea name="seoDescription" rows="2" maxlength="300"></textarea></label>
-          <label class="toggle-row"><input name="featured" type="checkbox"/><span><b>重点推荐</b><small>在攻略中心优先展示。</small></span></label>
+          <label class="field"><span>游戏</span><select id="xw-field-gameCode" name="gameCode" required></select></label>
+          <label class="field"><span>状态</span><select id="xw-field-status" name="status"><option value="DRAFT">草稿</option><option value="PUBLISHED">已发布</option><option value="ARCHIVED">已归档</option></select></label>
+          <label class="field guide-span-2"><span>标题</span><input id="xw-field-title" name="title" maxlength="180" required/></label>
+          <label class="field guide-span-2"><span>副标题</span><input id="xw-field-subtitle" name="subtitle" maxlength="255"/></label>
+          <label class="field guide-span-2"><span>摘要</span><textarea id="xw-field-summary" name="summary" rows="3" required></textarea></label>
+          <label class="field guide-span-2" th:if="${xingweiMode == true}"><span>封面图片地址</span><input id="xw-field-coverImage" name="coverImage" maxlength="500"/></label><input name="coverImage" type="hidden" th:unless="${xingweiMode == true}"/>
+          <label class="field" th:if="${xingweiMode == true}"><span>攻略网址标识</span><input id="xw-field-slug" name="slug" maxlength="180" placeholder="留空自动生成，修改会改变公开网址"/></label>
+          <label class="field" th:if="${xingweiMode == true}"><span>内容语言</span><input id="xw-field-language" name="language" maxlength="16" value="zh-CN"/></label>
+          <label class="field" th:if="${xingweiMode == true}"><span>作者</span><input id="xw-field-authorName" name="authorName" maxlength="120"/></label>
+          <label class="field" th:if="${xingweiMode == true}"><span>资料来源</span><input id="xw-field-sourceName" name="sourceName" maxlength="120"/></label>
+          <label class="field guide-span-2" th:if="${xingweiMode == true}"><span>来源网址</span><input id="xw-field-sourceUrl" name="sourceUrl" maxlength="500"/></label>
+          <label class="field guide-span-2" th:if="${xingweiMode == true}"><span>搜索规范网址</span><input id="xw-field-canonicalUrl" name="canonicalUrl" maxlength="500"/></label>
+          <label class="field"><span>难度</span><select id="xw-field-difficulty" name="difficulty"><option value="BEGINNER">入门</option><option value="INTERMEDIATE">进阶</option><option value="ADVANCED">高级</option><option value="EXPERT">专家</option></select></label>
+          <label class="field"><span>阅读分钟</span><input id="xw-field-estimatedMinutes" name="estimatedMinutes" type="number" min="1" max="10080" value="60"/></label>
+          <label class="field"><span>标签（逗号分隔）</span><input id="xw-field-tags" name="tags"/></label>
+          <label class="field" th:if="${xingweiMode == true}"><span>展示排序</span><input id="xw-field-sortOrder" name="sortOrder" type="number" value="100"/></label><input name="sortOrder" type="hidden" value="100" th:unless="${xingweiMode == true}"/>
+          <label class="field guide-span-2"><span>搜索标题</span><input id="xw-field-seoTitle" name="seoTitle" maxlength="160"/></label>
+          <label class="field guide-span-2"><span>搜索说明</span><textarea id="xw-field-seoDescription" name="seoDescription" rows="2" maxlength="300"></textarea></label>
+          <label class="toggle-row"><input id="xw-field-featured" name="featured" type="checkbox"/><span><b>重点推荐</b><small>在攻略中心优先展示。</small></span></label>
         </div>
         <div class="guide-editor-block"><div class="guide-editor-block-head"><div><b>攻略组件</b><small>组件类型会同步给前台渲染；正文不执行外部脚本或原始 HTML。</small></div><div class="row-actions"><select id="sectionType" aria-label="组件类型"><option value="title">标题</option><option value="paragraph" selected>段落</option><option value="image">图片</option><option value="gallery">图集</option><option value="video">视频</option><option value="steps">步骤</option><option value="tip">提示</option><option value="table">表格</option><option value="attachment">附件</option><option value="map">地图</option><option value="related">关联内容</option></select><button class="btn small-btn" id="addSection" type="button">增加组件</button></div></div><div id="sectionRows"></div></div>
         <div class="guide-editor-block"><div class="guide-editor-block-head"><div><b>关联服务</b><small>只能选择当前游戏下的服务，保存后前台服务卡使用服务目录的真实图片和价格。</small></div></div><div id="productRows" class="guide-product-picker"></div></div>
         <div class="guide-editor-block" th:if="${xingweiMode == true}"><div class="guide-editor-block-head"><b>常见问题</b><button class="btn" id="addGuideFaq" type="button">增加问题</button></div><div id="guideFaqRows"></div></div>
         <div class="guide-editor-block" th:if="${xingweiMode == true}"><label class="field"><span>关联攻略（可多选）</span><select id="guideRelatedIds" multiple size="5" aria-label="关联攻略"></select></label><p class="muted">选择公开页的关联阅读内容，不会改变关联攻略本身。</p></div>
-        <div class="guide-editor-block"><div class="guide-editor-block-head"><div><b>修改说明</b><small>用于记录本次内容调整。</small></div></div><input class="guide-reason" name="reason" maxlength="200" value="攻略内容维护"/></div>
+        <div class="guide-editor-block"><div class="guide-editor-block-head"><div><b>修改说明</b><small>用于记录本次内容调整。</small></div></div><input id="xw-field-reason" class="guide-reason" name="reason" maxlength="200" value="攻略内容维护"/></div>
       </form>
     </section>
   </div>

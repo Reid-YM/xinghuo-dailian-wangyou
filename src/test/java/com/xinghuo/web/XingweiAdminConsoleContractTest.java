@@ -42,9 +42,9 @@ class XingweiAdminConsoleContractTest {
         String css = read("resources/static/assets/admin-xingwei.css");
         String js = read("resources/static/assets/admin-xingwei.js");
 
-        assertTrue(template.contains("/assets/admin-xingwei.css?v=20261017groups1"));
-        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261017groups1"));
-        assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261013v2c"));
+        assertTrue(template.contains("/assets/admin-xingwei.css?v=20261017search1"));
+        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261017search1"));
+        assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261017search1"));
         assertTrue(template.contains("组织与权限"));
         assertTrue(template.contains("微信支付"));
         assertTrue(template.contains("生产流水线已启用"));

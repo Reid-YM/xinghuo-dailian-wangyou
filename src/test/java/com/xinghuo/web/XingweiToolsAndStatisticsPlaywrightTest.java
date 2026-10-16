@@ -24,7 +24,7 @@ class XingweiToolsAndStatisticsPlaywrightTest {
             window.toolData={games:[{code:'CODMW4',weapons:[{code:'W1',name:'实际武器',weaponType:'AR',maxLevel:30,levelingEnabled:true,gunsmith:true,warzoneCamos:[],onlineCamos:{},apexAttachments:[]}],camoTracks:{modes:{}}}]};
             window.fetch=async(url,options={})=>{const method=options.method||'GET';window.calls.push({url,method,headers:options.headers,body:options.body});
               if(url.endsWith('/access'))return new Response(JSON.stringify({canManage:window.canManage}));
-              if(url.includes('/statistics')){const days=Number(new URL(url,location.origin).searchParams.get('days'));return new Response(JSON.stringify({days,total:12,recent:5,lastEventAt:'2026-10-16 10:00',funnel:[{label:'进入询价',count:3}],trend:[{date:'10-16',count:5}],events:[{event:'<script>不能执行</script>',total:12,recent:5,lastAt:'2026-10-16'}]}));}
+              if(url.includes('/statistics')){const days=Number(new URL(url,location.origin).searchParams.get('days'));return new Response(JSON.stringify({days,total:12,recent:5,lastEventAt:'2026-10-16 10:00',funnel:[{label:'进入询价',count:3}],trend:[{date:'10-16',count:5}],events:[{event:'quote_submit',total:2,recent:1,lastAt:'2026-10-16'},{event:'<script>不能执行</script>',total:12,recent:5,lastAt:'2026-10-16'}]}));}
               if(method==='PUT'){if(window.conflict)return new Response(JSON.stringify({message:'资料已变化，当前输入尚未保存'}),{status:409});window.toolData=JSON.parse(options.body);window.version++;}
               return new Response(JSON.stringify(window.toolData),{headers:{ETag:'"r'+window.version+'"'}});};
             """.replace("CAN_MANAGE",String.valueOf(manage)));
@@ -47,4 +47,14 @@ class XingweiToolsAndStatisticsPlaywrightTest {
             page.navigate("http://xinghuo.test/admin/xingwei/statistics");page.waitForFunction("()=>document.querySelector('#statisticsMessage').textContent.includes('7 天')");assertEquals(0,page.locator("#statisticsEvents script").count());assertTrue(page.locator("#statisticsEvents").textContent().contains("<script>不能执行</script>"));page.locator("#statisticsFilters select").selectOption("30");page.locator("#statisticsFilters button").click();page.waitForFunction("()=>document.querySelector('#statisticsMessage').textContent.includes('30 天')");assertEquals(true,page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth"));
         }
     }
+    @Test void chromiumStatisticsUsesChineseEventLabels()throws Exception{
+        try(Playwright p=Playwright.create();Browser b=chromium(p)){
+            Page page=setup(b,false);page.navigate("http://xinghuo.test/admin/xingwei/statistics");
+            page.waitForFunction("()=>document.querySelector('#statisticsMessage').textContent.includes('7 天')");
+            assertTrue(page.locator("#statisticsEvents").textContent().contains("提交询价"));
+            assertFalse(page.locator("#statisticsEvents").textContent().contains("quote_submit"));
+            assertEquals(0,page.locator("#statisticsEvents script").count());
+        }
+    }
+
 }

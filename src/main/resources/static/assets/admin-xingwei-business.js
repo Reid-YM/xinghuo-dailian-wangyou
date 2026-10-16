@@ -76,8 +76,8 @@
   function modeLabel(snapshot) {
     switch (snapshot?.mode) {
       case 'LEGACY_ADMIN_OVERRIDE': return '管理员兜底 · 全部数据';
-      case 'LEGACY_OPERATOR_COMPAT': return 'OPERATOR 兼容 · 全部数据';
-      case 'SHADOW_RBAC': return `RBAC · ${scopeLabel(snapshot)}`;
+      case 'LEGACY_OPERATOR_COMPAT': return '旧版运营员工兼容 · 全部数据';
+      case 'SHADOW_RBAC': return `角色权限 · ${scopeLabel(snapshot)}`;
       default: return '权限不可用';
     }
   }
@@ -105,7 +105,7 @@
       } catch (_) {
         detail = '';
       }
-      throw new Error(detail || `HTTP ${response.status}`);
+      throw new Error(detail || `请求失败（状态码 ${response.status}）`);
     }
     return response.json();
   }
@@ -326,7 +326,7 @@
     if (orderHeading) orderHeading.textContent = activeTab === 'exceptions' ? '异常订单' : activeTab === 'after-sales' ? '售后问题记录' : '订单与履约';
     if (orderDescription) orderDescription.textContent = activeTab === 'after-sales'
       ? '这里集中展示客户曾提交售后说明的订单，按当前账号的数据范围筛选。记录不代表退款申请或处理状态。'
-      : '询价转订单后沿用同一个 business_no，因此负责人和中心归属自动继承。异常订单由后端按状态和数据范围独立筛选。';
+      : '询价转订单后沿用同一个业务编号，因此负责人和中心归属自动继承。异常订单由后端按状态和数据范围独立筛选。';
     tabs.forEach((button) => button.setAttribute('aria-selected', String(button.dataset.tab === activeTab)));
   }
 

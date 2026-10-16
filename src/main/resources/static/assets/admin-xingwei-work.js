@@ -55,7 +55,7 @@
       } catch (_) {
         detail = '';
       }
-      throw new Error(detail || `HTTP ${response.status}`);
+      throw new Error(detail || `请求失败（状态码 ${response.status}）`);
     }
     return response.json();
   }

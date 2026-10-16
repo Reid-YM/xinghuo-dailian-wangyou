@@ -8,10 +8,11 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017groups1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei.js?v=20261017groups1"></script>
-  <script defer src="/assets/admin-xingwei-org.js?v=20261013v2c"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-search-index.js?v=20261017search1"></script>
+  <script defer src="/assets/admin-xingwei.js?v=20261017search1"></script>
+  <script defer src="/assets/admin-xingwei-org.js?v=20261017search1"></script>
 </head>
 <body>
 <div class="xw-shell">
@@ -71,12 +72,15 @@
     </section>
 
     <section class="xw-command-card" aria-label="后台快捷搜索">
-      <label for="xwModuleSearch">快速定位模块</label>
+      <label for="xwModuleSearch">快速定位功能与字段</label>
       <div class="xw-search-row">
-        <input id="xwModuleSearch" type="search" placeholder="搜索：订单、询价、员工、权限、微信、SEO、日志……" autocomplete="off"/>
+        <input id="xwModuleSearch" type="search" placeholder="搜索：客户可见进度、首页主图、客服二维码、权限、日志……" autocomplete="off" aria-describedby="xwSearchHelp"/>
         <button id="xwSearchClear" type="button" class="xw-button xw-button-ghost" hidden>清除搜索</button>
         <span id="xwSearchCount">正在读取可用模块</span>
       </div>
+      <p id="xwSearchHelp">支持功能名、字段名和组合关键词；结果按当前账号权限显示。记录中的具体业务数据请进入对应列表查询。</p>
+      <ol id="xwSearchResults" class="xw-search-results" aria-label="功能与字段搜索结果" hidden></ol>
+      <p id="xwSearchDetailStatus" role="status" aria-live="polite" hidden></p>
     </section>
 
     <nav class="xw-subnav" id="xwWorkspaceGroups" aria-label="工作区分类" hidden></nav>
@@ -102,7 +106,7 @@
         <a class="xw-module" data-search="询价 客户 需求 线索 报价" href="/admin/xingwei/business?tab=quotes"><div class="xw-module-index">B01</div><h3>询价与线索</h3><p>按全部数据、本中心或仅本人范围查看客户需求、询价记录与业务归属。</p><span>新版工作台 →</span></a>
         <a class="xw-module" data-search="订单 履约 进度 派单 代练" href="/admin/xingwei/business?tab=orders"><div class="xw-module-index">B02</div><h3>订单与履约</h3><p>按真实数据范围查看订单状态、进度与负责人，并执行范围内派单。</p><span>新版工作台 →</span></a>
         <a class="xw-module" data-search="售后 问题 客户说明 订单 时效 待跟进 排序 等待" href="/admin/xingwei/after-sales/cases"><div class="xw-module-index">B05</div><h3>售后处理</h3><p>V4M 已上线：只读待跟进队列支持优先级排序，并显示等待时长与时效标记，具体处理仍回到原处理页。</p><span>V4M 已上线 →</span></a>
-        <a class="xw-module" data-search="客户线索 CRM 运营"  href="/admin/xingwei/operations?module=crm"><div class="xw-module-index">B10</div><h3>客户线索 CRM</h3><p>按业务数据范围维护意向评分、跟进记录与下一步。</p><span>打开工作台 →</span></a>
+        <a class="xw-module" data-search="CRM 客户 线索 跟进 运营"  href="/admin/xingwei/operations?module=crm"><div class="xw-module-index">B10</div><h3>客户线索与跟进</h3><p>按业务数据范围维护意向评分、跟进记录与下一步。</p><span>打开工作台 →</span></a>
         <a class="xw-module" data-search="公开 案例 业务 维护 删除 询价 订单" href="/admin/xingwei/maintenance"><div class="xw-module-index">B14</div><h3>公开案例与业务维护</h3><p>按业务范围维护公开摘要及受控管理操作。</p><span>业务维护 →</span></a>
       </div>
       <div class="xw-grid" id="workspace-business-catalog" data-workspace-group="catalog">
@@ -135,7 +139,7 @@
         <a class="xw-module" data-search="账号 用户 登录 日志 安全" href="/admin/xingwei/security"><div class="xw-module-index">O04</div><h3>账号与登录安全</h3><p>查看当前授权，区分员工后台账号与网站会员，并进入对应管理入口。</p><span>账号与安全 →</span></a>
       </div>
       <div class="xw-grid" id="workspace-organization-roles" data-workspace-group="roles">
-        <a class="xw-module" data-search="角色 权限 rbac 数据范围" href="#org-roles"><div class="xw-module-index">O03</div><h3>角色与权限</h3><p>七个中心角色、权限点与 data_scope 已成为新版接口的有效授权依据。</p><span>rbac:view →</span></a>
+        <a class="xw-module" data-search="角色 权限 rbac 数据范围" href="#org-roles"><div class="xw-module-index">O03</div><h3>角色与权限</h3><p>七个中心角色、权限点与数据范围已成为新版接口的有效授权依据。</p><span title="rbac:view">查看角色权限 →</span></a>
       </div>
     </section>
 
@@ -160,7 +164,7 @@
       </article>
 
       <article class="xw-data-panel" id="org-employees" data-workspace-group="employees" data-group-entry data-group-permission="employee:view">
-        <div class="xw-data-head"><div><h3>员工档案</h3><p>直接扩展现有 admin_users，不新建第二套登录账号。读取和修改都会执行当前账号的数据范围。</p></div></div>
+        <div class="xw-data-head"><div><h3>员工档案</h3><p>直接扩展现有管理账号，不新建第二套登录账号。读取和修改都会执行当前账号的数据范围。</p></div></div>
         <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>账号</th><th>姓名/编号</th><th>中心</th><th>岗位</th><th>星维角色</th><th>登录角色</th><th>操作</th></tr></thead><tbody id="xwEmployeeRows"></tbody></table></div>
       </article>
 
@@ -188,13 +192,13 @@
       <div class="xw-section-head"><div><p class="xw-kicker">系统与治理</p><h2 data-workspace-heading>系统工具</h2></div>
         <p data-workspace-description>按分类维护站点配置、查询审计并查看发布记录。</p></div>
       <div class="xw-grid" id="workspace-system-site" data-workspace-group="site">
-        <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin/xingwei/site"><div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示、图片与游戏服务状态。</p><span>进入配置工作台 →</span></a>
+        <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin/xingwei/site"><div class="xw-module-index">S01</div><h3>站点与搜索展示</h3><p>品牌变量、页面内容、搜索展示、图片与游戏服务状态。</p><span>进入配置工作台 →</span></a>
       </div>
       <div class="xw-grid" id="workspace-system-audit" data-workspace-group="audit">
         <a class="xw-module" data-search="日志 审计 操作 安全" href="/admin/xingwei/audits"><div class="xw-module-index">S02</div><h3>操作审计</h3><p>按权限范围检索操作记录、业务对象和日期，查看受保护的变更摘要。</p><span>查看操作记录 →</span></a>
       </div>
       <div class="xw-grid" id="workspace-system-delivery" data-workspace-group="delivery">
-        <article class="xw-module" data-search="发布 部署 回滚 ci github 服务器"><div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>GitHub PR → CI → 生产部署门禁与零停机发布已经启用；V3K 校验提交记录，V3L 再核对实际运行版本，后台不直接执行危险发布。</p><span>生产流水线已启用</span></article>
+        <article class="xw-module" data-search="发布 部署 回滚 ci github 服务器"><div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>代码审查 → 自动验证 → 生产部署门禁与零停机发布已经启用；V3K 校验提交记录，V3L 再核对实际运行版本，后台不直接执行危险发布。</p><span>生产流水线已启用</span></article>
         <article class="xw-module xw-module-planned" data-search="代码生成 scaffold generator 开发"><div class="xw-module-index">S04</div><h3>开发工具</h3><p>已完成适用性评估：参数复用现有配置，代码生成暂不进入生产链路。</p><span>评估完成 · 暂不引入</span></article>
       </div>
     </section>

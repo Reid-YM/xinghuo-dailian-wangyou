@@ -44,7 +44,7 @@ class XingweiWorkWorkbenchContractTest {
         assertTrue(adminController.contains("@GetMapping(\"/admin/xingwei/work\")"));
         assertTrue(adminController.contains("return \"admin-xingwei-work\""));
         assertTrue(template.contains("meta name=\"_csrf\""));
-        assertTrue(template.contains("admin-xingwei-work.js?v=20261013v2f"));
+        assertTrue(template.contains("admin-xingwei-work.js?v=20261017search1"));
         assertTrue(template.contains("WAITING_CONFIRMATION"));
         assertTrue(template.contains("IN_PROGRESS"));
         assertTrue(template.contains("COMPLETED"));

@@ -96,7 +96,7 @@ class XingweiAdminPlaywrightTest {
                     }
                     """, new Object[] {VERSION, STAGE});
             addMainScript(page);
-            page.waitForFunction("() => document.querySelector('#xwAccessMode')?.textContent.includes('RBAC 已生效')");
+            page.waitForFunction("() => document.querySelector('#xwAccessMode')?.textContent.includes('角色权限已生效')");
             page.waitForFunction("() => document.documentElement.dataset.xwRuntimeState === 'match'");
 
             assertTrue((Boolean) page.evaluate("() => !document.querySelector('.xw-module-index:nth-child(1)') || true"));
@@ -112,8 +112,8 @@ class XingweiAdminPlaywrightTest {
 
             page.locator("#xwModuleSearch").fill("支付");
             assertEquals(0, ((Number) page.evaluate("() => [...document.querySelectorAll('.xw-module')].filter(x => !x.hidden).length")).intValue());
-            assertTrue(page.locator("#xwSearchCount").textContent().contains("匹配 0 个模块"));
-            assertTrue(page.locator("#xwAccessMode").textContent().contains("RBAC 已生效"));
+            assertTrue(page.locator("#xwSearchCount").textContent().contains("0 项细节 / 0 个模块"));
+            assertTrue(page.locator("#xwAccessMode").textContent().contains("角色权限已生效"));
             assertTrue(page.locator("#xwAccessMode").textContent().contains("本中心"));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
         }

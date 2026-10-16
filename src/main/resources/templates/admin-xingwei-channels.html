@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="_csrf" th:content="${_csrf.token}"/><meta name="_csrf_header" th:content="${_csrf.headerName}"/>
   <title>渠道运营 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-channels.css?v=20261016v4n"/>
 </head>
 <body><main class="xwc-shell">
@@ -17,9 +17,9 @@
   <section class="xwc-tasks">
     <div class="xwc-heading"><h2>运营任务</h2><button id="channelNew" type="button" class="xw-button" hidden>新增任务</button></div>
     <form id="channelFilters" class="xwc-filters">
-      <label>渠道<select name="channel"><option value="">全部渠道</option><option value="WEBSITE">官网</option><option value="TAOBAO">淘宝</option><option value="XIANYU">闲鱼</option></select></label>
-      <label>状态<select name="status"><option value="">全部状态</option><option value="TODO">待处理</option><option value="IN_PROGRESS">进行中</option><option value="DONE">已完成</option><option value="CANCELLED">已取消</option></select></label>
-      <label class="xwc-search">搜索任务<input name="q" maxlength="80" placeholder="标题或任务说明"/></label>
+      <label>渠道<select id="xw-field-channel" name="channel"><option value="">全部渠道</option><option value="WEBSITE">官网</option><option value="TAOBAO">淘宝</option><option value="XIANYU">闲鱼</option></select></label>
+      <label>状态<select id="xw-field-status" name="status"><option value="">全部状态</option><option value="TODO">待处理</option><option value="IN_PROGRESS">进行中</option><option value="DONE">已完成</option><option value="CANCELLED">已取消</option></select></label>
+      <label class="xwc-search">搜索任务<input id="xw-field-q" name="q" maxlength="80" placeholder="标题或任务说明"/></label>
       <button type="submit" class="xw-button">查询</button><button id="channelRefresh" type="button" class="xw-button xw-button-ghost">刷新</button>
     </form>
     <p id="channelCount"></p><div id="channelTasks" class="xwc-list" aria-busy="true"></div>
@@ -44,4 +44,4 @@
     <p id="channelStateFeedback" role="status" aria-live="polite"></p>
     <div class="xwc-actions"><button type="submit" class="xw-button">保存状态</button><button type="button" data-close="state" class="xw-button xw-button-ghost">取消编辑</button></div>
   </form></dialog>
-</main><script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script src="/assets/admin-xingwei-channels.js?v=20261016v4n" defer></script></body></html>
+</main><script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script src="/assets/admin-xingwei-channels.js?v=20261016v4n" defer></script></body></html>

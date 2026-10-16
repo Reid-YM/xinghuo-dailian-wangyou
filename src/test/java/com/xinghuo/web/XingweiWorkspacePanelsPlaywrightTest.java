@@ -59,7 +59,7 @@ class XingweiWorkspacePanelsPlaywrightTest {
     private void permissions(Browser browser){
         Page page=setup(browser,true,"#channels");selected(page,"channels","渠道与微信");assertEquals(0,page.locator("#channels .xw-module:visible").count());assertTrue(page.locator("#xwWorkspaceEmpty").textContent().contains("没有可用模块"));
         page.locator("#xwModuleSearch").fill("支付");assertEquals(0,page.locator(".xw-module:visible").count());assertTrue(page.locator("#xwWorkspaceEmpty").isVisible());assertTrue(page.locator("#xwWorkspaceEmpty").textContent().contains("没有匹配"));
-        page.locator("#xwModuleSearch").fill("订单");assertTrue(page.locator("#business").isVisible());assertTrue(page.locator("#channels").isHidden());assertEquals(0,page.locator(".xw-module[data-global-scope]:visible").count());assertTrue(page.locator("a[href='/admin/xingwei/business?tab=orders']").isVisible());
+        page.locator("#xwModuleSearch").fill("订单");assertTrue(page.locator("#business").isVisible());assertTrue(page.locator("#channels").isHidden());assertEquals(0,page.locator(".xw-module[data-global-scope]:visible").count());assertTrue(page.locator("a.xw-module[href='/admin/xingwei/business?tab=orders']").isVisible());
         page.locator("#xwSearchClear").click();selected(page,"channels","渠道与微信");page.navigate("http://xinghuo.test/admin/xingwei#org-roles");selected(page,"organization","组织与权限");assertEquals(0,page.locator("[data-role-edit]:visible,[data-employee-edit]:visible").count());
         page.navigate("http://xinghuo.test/admin/xingwei#unknown-section");selected(page,"overview","运营总览");assertTrue(page.locator("#org-console").isHidden());page.close();
     }
@@ -74,12 +74,12 @@ class XingweiWorkspacePanelsPlaywrightTest {
     }
     private void subgroups(Browser browser){
         Page page=setup(browser,false,"#business");assertTrue(page.url().endsWith("#business/orders"));assertEquals(5,page.locator("#business .xw-module:visible").count());
-        group(page,"business","catalog");assertEquals("服务与目录",page.locator("#business [data-workspace-heading]").textContent());assertEquals(2,page.locator("#business .xw-module:visible").count());assertTrue(page.locator("a[href='/admin/xingwei/catalog-details']").isVisible());
+        group(page,"business","catalog");assertEquals("服务与目录",page.locator("#business [data-workspace-heading]").textContent());assertEquals(2,page.locator("#business .xw-module:visible").count());assertTrue(page.locator("a.xw-module[href='/admin/xingwei/catalog-details']").isVisible());
         page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/admin-subgroups-catalog-desktop.png")));
         group(page,"business","content");assertEquals(3,page.locator("#business .xw-module:visible").count());group(page,"business","operations");assertEquals(4,page.locator("#business .xw-module:visible").count());
         page.goBack();assertTrue(page.url().endsWith("#business/content"));page.goForward();assertTrue(page.url().endsWith("#business/operations"));
-        page.locator("#xwModuleSearch").fill("目录");assertTrue(page.locator("#xwWorkspaceGroups").isHidden());assertEquals("业务中台",page.locator("#business [data-workspace-heading]").textContent());assertTrue(page.locator("a[href='/admin/xingwei/catalog-details']").isVisible());page.locator("#xwSearchClear").click();assertTrue(page.url().endsWith("#business/operations"));assertEquals(4,page.locator("#business .xw-module:visible").count());
-        page.navigate("http://xinghuo.test/admin/xingwei#business/catalog");page.reload();assertTrue(page.locator("a[href='/admin/xingwei/catalog-details']").isVisible());
+        page.locator("#xwModuleSearch").fill("目录");assertTrue(page.locator("#xwWorkspaceGroups").isHidden());assertEquals("业务中台",page.locator("#business [data-workspace-heading]").textContent());assertTrue(page.locator("a.xw-module[href='/admin/xingwei/catalog-details']").isVisible());page.locator("#xwSearchClear").click();assertTrue(page.url().endsWith("#business/operations"));assertEquals(4,page.locator("#business .xw-module:visible").count());
+        page.navigate("http://xinghuo.test/admin/xingwei#business/catalog");page.reload();assertTrue(page.locator("a.xw-module[href='/admin/xingwei/catalog-details']").isVisible());
         page.navigate("http://xinghuo.test/admin/xingwei#organization/employees");assertTrue(page.locator("#org-employees").isVisible());assertTrue(page.locator("#org-roles").isHidden());assertTrue(page.locator("#org-positions").isHidden());
         group(page,"organization","structure");assertTrue(page.locator("#org-departments").isVisible());assertTrue(page.locator("#org-positions").isVisible());assertTrue(page.locator("#org-employees").isHidden());
         group(page,"organization","roles");assertTrue(page.locator("#org-roles").isVisible());assertTrue(page.locator("#org-employees").isHidden());assertTrue(page.locator("#org-positions").isHidden());
@@ -91,4 +91,44 @@ class XingweiWorkspacePanelsPlaywrightTest {
         author.navigate("http://xinghuo.test/admin/xingwei#business/missing");author.waitForFunction("()=>location.hash==='#business/content'");assertEquals(1,author.locator("#business .xw-module:visible").count());author.close();
         Page employee=setup(browser,"employee","#organization");assertTrue(employee.url().endsWith("#organization/structure"));assertEquals(0,employee.locator("a.xw-module[href='#org-console']:visible").count());assertTrue(employee.locator("#org-positions").isVisible());assertEquals(0,employee.locator("#xwWorkspaceGroups a[href='#organization/roles']").count());group(employee,"organization","employees");assertTrue(employee.locator("#org-employees").isVisible());assertEquals(0,employee.locator("[data-employee-edit]:visible").count());employee.close();
     }
+    @Test void chromiumDetailSearchReachesRealFieldAndRespectsPermissions(){try(Playwright p=Playwright.create();Browser b=chromium(p)){detailSearch(b);}}
+    @Test void webkitDetailSearchReachesRealFieldAndRespectsPermissions(){try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){detailSearch(b);}}
+    private void detailSearch(Browser browser){
+        Page page=setup(browser,false,"#business/catalog");
+        page.locator("#xwModuleSearch").fill("首页 主图");
+        Locator result=page.locator("#xwSearchResults a[href='/admin/xingwei/site?section=visual#site-field-heroImage']");
+        assertTrue(result.isVisible());assertTrue(page.locator("a.xw-module[href='/admin/xingwei/site']").isVisible());
+        page.setViewportSize(390,844);page.waitForFunction("()=>document.querySelector('#xwSidebar').getBoundingClientRect().right<=1");assertEquals(true,page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth+1"));
+        page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/admin-detail-search-mobile.png")));
+        var resolver=new ClassLoaderTemplateResolver();resolver.setPrefix("templates/");resolver.setSuffix(".html");var engine=new SpringTemplateEngine();engine.setTemplateResolver(resolver);
+        var context=new Context();var csrf=new DefaultCsrfToken("X-CSRF-TOKEN","_csrf","test");context.setVariable("csrf",csrf);context.setVariable("_csrf",csrf);
+        String html=engine.process("admin-xingwei-site",context);
+        page.route("**/admin/xingwei/site?**",r->r.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(html)));
+        page.addInitScript("""
+            const originalFetch=window.fetch;
+            window.fetch=async (url,options)=>{
+              if(url.startsWith('/api/admin/xingwei/site/')){
+                await new Promise(resolve=>setTimeout(resolve,80));
+                return new Response(JSON.stringify(url.endsWith('/access')?{canViewSite:true,canManageSite:true,canManageSeo:true}:{}),{headers:{ETag:'"test"'}});
+              }
+              return originalFetch(url,options);
+            };
+            """);
+        result.focus();result.press("Enter");
+        page.waitForFunction("()=>document.activeElement?.id==='site-field-heroImage'");
+        assertEquals("visual",page.locator("#siteSection").inputValue());
+        assertEquals("site-field-heroImage",page.evaluate("()=>document.querySelector('.xw-located-field').id"));
+        assertEquals(true,page.evaluate("()=>{const r=document.querySelector('.xw-located-field').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;}"));
+        assertEquals(0,page.locator("dialog[open]").count());
+        page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/admin-detail-target-mobile.png")));page.close();
+        Page scoped=setup(browser,true,"#business");scoped.locator("#xwModuleSearch").fill("订单 进度");
+        assertTrue(scoped.locator("#xwSearchResults").textContent().contains("客户可见进度"));assertTrue(scoped.locator("#xwSearchResults").textContent().contains("选择记录"));
+        assertEquals(0,scoped.locator("#xwSearchResults a[href*='/site']").count());
+        scoped.locator("#xwModuleSearch").fill("首页主图");assertEquals(0,scoped.locator("#xwSearchResults a").count());assertTrue(scoped.locator("#xwWorkspaceEmpty").isVisible());
+        scoped.locator("#xwModuleSearch").fill("不可能存在的设置");assertEquals(0,scoped.locator("#xwSearchResults a").count());
+        scoped.locator("#xwSearchClear").click();assertTrue(scoped.locator("#xwSearchResults").isHidden());assertEquals("#business/orders",scoped.evaluate("()=>location.hash"));scoped.close();
+        Page employee=setup(browser,"employee","#organization");employee.locator("#xwModuleSearch").fill("员工编号");
+        Locator record=employee.locator("#xwSearchResults a[href='#org-employees']").first();assertTrue(record.isVisible());record.click();assertTrue(employee.locator("#org-employees").isVisible());assertEquals("",employee.locator("#xwModuleSearch").inputValue());employee.close();
+    }
+
 }

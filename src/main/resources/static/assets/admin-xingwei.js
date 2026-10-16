@@ -140,24 +140,52 @@
     }
   }
 
+  function searchDetails(query) {
+    const target = document.getElementById('xwSearchResults');
+    if (!target) return [];
+    target.hidden = !query;
+    target.replaceChildren();
+    const tokens = query.split(/\s+/).filter(Boolean);
+    const readable = new Map([...allowedModules].map(module => [module.querySelector('.xw-module-index')?.textContent.trim(), module]));
+    const seen = new Set();
+    const rows = query ? (window.XWSearchIndex || []).filter(row => readable.has(row.module) && (!row.permission || can(row.permission)) && tokens.every(token => normalize(`${row.label} ${row.keywords} ${readable.get(row.module).querySelector('h3')?.textContent}`).includes(token))).filter(row => {const key = `${row.label}::${row.href}`;if(seen.has(key))return false;seen.add(key);return true;}) : [];
+    rows.sort((a,b) => Number(b.label === query) - Number(a.label === query) || Number(b.label.includes(query)) - Number(a.label.includes(query)));
+    for (const row of rows) {
+      const item = document.createElement('li'), link = document.createElement('a'), label = document.createElement('strong'), detail = document.createElement('span');
+      link.href = row.href;
+      label.textContent = row.label;
+      const module = readable.get(row.module), workspace = module.closest('[data-workspace]')?.dataset.workspace;
+      detail.textContent = `${workspaceNames[workspace]} · ${module.querySelector('h3')?.textContent} · ${row.note}`;
+      link.append(label, detail); item.append(link); target.append(item);
+    }
+    const status = document.getElementById('xwSearchDetailStatus');
+    if (status) {status.hidden = !query; status.textContent = query ? (window.XWSearchIndex ? `找到 ${rows.length} 个功能或字段；可用键盘逐项进入。` : '细节索引加载失败，当前仅可筛选模块；请刷新重试。') : '';}
+    return rows;
+  }
+
   function filterModules() {
     const query = normalize(search?.value);
     let visible = 0;
     allowedModules.clear();
+    modules.forEach(module => {
+      const code = module.querySelector('.xw-module-index')?.textContent?.trim();
+      const allowed = Boolean(access) && (code === 'S01' ? can('site:view') || can('seo:view') : code === 'B14' ? can('order:view') || can('quote:view') : can(modulePermission(module)));
+      if (allowed && (!module.hasAttribute('data-global-scope') || access.allowAll || access.dataScope === 'ALL')) allowedModules.add(module);
+    });
+    const details = searchDetails(query);
+    const matchedCodes = new Set(details.map(row => row.module));
     modules.forEach((module) => {
       const text = normalize(`${module.dataset.search || ''} ${module.textContent || ''}`);
       const code = module.querySelector('.xw-module-index')?.textContent?.trim();
-      const allowed = Boolean(access) && (code === 'S01' ? can('site:view') || can('seo:view') : code === 'B14' ? can('order:view') || can('quote:view') : can(modulePermission(module)));
-      const globalAllowed = !module.hasAttribute('data-global-scope') || !access || access.allowAll || access.dataScope === 'ALL';
-      if (allowed && globalAllowed) allowedModules.add(module);
-      const match = (!query || text.includes(query)) && allowed && globalAllowed;
+      const allowed = allowedModules.has(module);
+      const match = (!query || query.split(/\s+/).every(token => text.includes(token)) || matchedCodes.has(code)) && allowed;
       module.hidden = !match;
       if (match) visible += 1;
     });
     showWorkspace(query, visible);
     if (searchCount) {
-      const suffix = access?.mode === 'SHADOW_RBAC' ? ` · RBAC · ${scopeLabel(access)}` : '';
-      searchCount.textContent = !access ? '正在读取可用模块' : query ? `匹配 ${visible} 个模块${suffix}` : `可用 ${visible} / ${modules.length} 个模块${suffix}`;
+      const suffix = access?.mode === 'SHADOW_RBAC' ? ` · 角色权限 · ${scopeLabel(access)}` : '';
+      searchCount.textContent = !access ? '正在读取可用模块' : query ? `匹配 ${details.length} 项细节 / ${visible} 个模块${suffix}` : `可用 ${visible} / ${modules.length} 个模块${suffix}`;
     }
   }
 
@@ -244,7 +272,7 @@
       const section = document.getElementById(activeWorkspace);
       const available = activeGroup ? groupCount(activeWorkspace, activeGroup) : section?.querySelectorAll('.xw-module:not([hidden])').length || 0;
       empty.hidden = !access || (query ? matches > 0 : activeWorkspace === 'overview' || available > 0);
-      empty.textContent = query ? '没有匹配的可用模块，请更换关键词或清除搜索。' : '当前分类没有可用模块或资料，可选择其他分类或联系管理员核对权限。';
+      empty.textContent = query ? '没有匹配的可用功能或字段，请更换关键词或清除搜索。' : '当前分类没有可用模块或资料，可选择其他分类或联系管理员核对权限。';
     }
   }
 
@@ -277,8 +305,8 @@
   function modeLabel(snapshot) {
     switch (snapshot?.mode) {
       case 'LEGACY_ADMIN_OVERRIDE': return '管理员兜底 · 全权限 · 全部数据';
-      case 'LEGACY_OPERATOR_COMPAT': return 'OPERATOR 兼容 · 只读 · 全部数据';
-      case 'SHADOW_RBAC': return `RBAC 已生效 · ${scopeLabel(snapshot)}`;
+      case 'LEGACY_OPERATOR_COMPAT': return '旧版运营员工兼容 · 只读 · 全部数据';
+      case 'SHADOW_RBAC': return `角色权限已生效 · ${scopeLabel(snapshot)}`;
       default: return '新版权限不可用';
     }
   }
@@ -291,7 +319,7 @@
         cache: 'no-store',
         headers: {'Accept': 'application/json', 'Cache-Control': 'no-cache'}
       });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) throw new Error(`请求失败（状态码 ${response.status}）`);
       access = await response.json();
       window.xwAccess = access;
       window.xwHasPermission = can;
@@ -408,7 +436,7 @@
         headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' },
         cache: 'no-store'
       });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) throw new Error(`请求失败（状态码 ${response.status}）`);
       const data = await response.json();
       const runtimeVersion = String(data.version || '').trim();
       const runtimeStage = String(data.stage || '').trim();

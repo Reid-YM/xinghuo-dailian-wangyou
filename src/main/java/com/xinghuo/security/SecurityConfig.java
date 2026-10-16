@@ -71,6 +71,7 @@ public class SecurityConfig {
             XingweiWeComBindingService bindings, XingweiWeComProperties weComProperties) throws Exception {
         return http
                 .addFilterBefore(new XingweiWeComSessionFilter(bindings, weComProperties), AuthorizationFilter.class)
+                .addFilterBefore(new AdminSessionStatusFilter(users), AuthorizationFilter.class)
                 .userDetailsService((UserDetailsService) users)
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(PERMIT_ALL).permitAll()

@@ -42,7 +42,7 @@
     const method = String(options.method || 'GET').toUpperCase();
     const headers = Object.assign({
       Accept: 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
+      'X-Requested-With': 'fetch'
     }, options.headers || {});
     const init = {
       method,

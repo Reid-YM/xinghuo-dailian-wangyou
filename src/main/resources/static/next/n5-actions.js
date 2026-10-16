@@ -73,7 +73,7 @@
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
+        'X-Requested-With': 'fetch'
       },
       body: JSON.stringify(body)
     });

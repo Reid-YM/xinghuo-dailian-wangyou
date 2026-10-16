@@ -39,7 +39,7 @@ class FrontendNextN5ActionsPlaywrightTest {
             page.waitForFunction("() => window.__writes.length===1 && window.__reloads===1");
 
             assertEquals("/api/console/quotes/XH-Q-A1/supplement", page.evaluate("() => window.__writes[0].url"));
-            assertEquals("XMLHttpRequest", page.evaluate("() => window.__writes[0].headers['X-Requested-With']"));
+            assertEquals("fetch", page.evaluate("() => window.__writes[0].headers['X-Requested-With']"));
             assertEquals("请优先处理武器等级", page.evaluate("() => JSON.parse(window.__writes[0].body).content"));
             assertTrue(page.locator("#n5ActionsToast").textContent().contains("补充说明已提交"));
         }
@@ -88,7 +88,7 @@ class FrontendNextN5ActionsPlaywrightTest {
             assertEquals("请核对本订单退款情况", page.evaluate("() => JSON.parse(window.__writes[1].body).content"));
             assertEquals("/api/console/orders/XH-O-A1/after-sales/records/7/followups", page.evaluate("() => window.__writes[2].url"));
             assertEquals("补充：订单截图已准备", page.evaluate("() => JSON.parse(window.__writes[2].body).content"));
-            assertEquals("XMLHttpRequest", page.evaluate("() => window.__writes[2].headers['X-Requested-With']"));
+            assertEquals("fetch", page.evaluate("() => window.__writes[2].headers['X-Requested-With']"));
         }
     }
 

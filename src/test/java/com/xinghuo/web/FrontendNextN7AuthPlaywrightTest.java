@@ -60,7 +60,7 @@ class FrontendNextN7AuthPlaywrightTest {
             assertEquals("/api/account/register", page.evaluate("() => window.__writes[1].url"));
             assertEquals("EMAIL", page.evaluate("() => JSON.parse(window.__writes[1].body).contactType"));
             assertEquals("new-user@example.com", page.evaluate("() => JSON.parse(window.__writes[1].body).contactValue"));
-            assertEquals("XMLHttpRequest", page.evaluate("() => window.__writes[1].headers['X-Requested-With']"));
+            assertEquals("fetch", page.evaluate("() => window.__writes[1].headers['X-Requested-With']"));
             page.waitForSelector("#n7RegisterMessage:has-text('该邮箱已注册')");
         }
     }
@@ -96,7 +96,7 @@ class FrontendNextN7AuthPlaywrightTest {
             page.waitForFunction("() => window.__writes.length===2");
             assertEquals("/api/account/password/reset", page.evaluate("() => window.__writes[1].url"));
             assertEquals("owner@example.com", page.evaluate("() => JSON.parse(window.__writes[1].body).email"));
-            assertEquals("XMLHttpRequest", page.evaluate("() => window.__writes[1].headers['X-Requested-With']"));
+            assertEquals("fetch", page.evaluate("() => window.__writes[1].headers['X-Requested-With']"));
             page.waitForSelector("#n4LoginForm:not([hidden])");
             assertEquals("owner@example.com", page.locator("#n4ContactValue").inputValue());
             assertTrue(page.locator("#n4LoginMessage").textContent().contains("密码已重置"));

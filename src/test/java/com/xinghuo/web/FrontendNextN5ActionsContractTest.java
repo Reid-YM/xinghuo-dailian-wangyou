@@ -33,7 +33,7 @@ class FrontendNextN5ActionsContractTest {
         assertTrue(js.contains("'CANCELLATION'"));
         assertTrue(js.contains("'REFUND_REVIEW'"));
         assertTrue(js.contains("'OTHER'"));
-        assertTrue(js.contains("'X-Requested-With': 'XMLHttpRequest'"));
+        assertTrue(js.contains("'X-Requested-With': 'fetch'"));
         assertTrue(js.contains("credentials: 'same-origin'"));
     }
 

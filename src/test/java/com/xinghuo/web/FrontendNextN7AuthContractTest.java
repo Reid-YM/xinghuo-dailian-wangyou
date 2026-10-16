@@ -26,7 +26,7 @@ class FrontendNextN7AuthContractTest {
         assertTrue(runtime.contains("/api/account/password/reset/request"));
         assertTrue(runtime.contains("/api/account/password/reset"));
         assertTrue(runtime.contains("contactType: 'EMAIL'"));
-        assertTrue(runtime.contains("'X-Requested-With': 'XMLHttpRequest'"));
+        assertTrue(runtime.contains("'X-Requested-With': 'fetch'"));
         assertTrue(runtime.contains("window.XHFrontendNextN4Mini?.stop?.()"));
         assertTrue(runtime.contains("旧版注册页"));
         assertTrue(runtime.contains("旧版找回页"));

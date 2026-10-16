@@ -46,7 +46,7 @@
 
 ## 安全
 
-- 所有写请求继续携带 `X-Requested-With: XMLHttpRequest`。
+- 所有写请求继续携带 `X-Requested-With: fetch`。
 - 请求使用当前账号的同源会话，不在浏览器存储账号或业务数据。
 - 不使用 `innerHTML`、`localStorage`、`sessionStorage`。
 - 页面明确提示不要填写密码、短信验证码或登录凭据。

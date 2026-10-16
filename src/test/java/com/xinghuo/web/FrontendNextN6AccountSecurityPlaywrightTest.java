@@ -75,7 +75,7 @@ class FrontendNextN6AccountSecurityPlaywrightTest {
             page.waitForFunction("() => window.__writes.length===5 && window.__reloads===4");
             assertEquals("/api/account/sessions/revoke-all", page.evaluate("() => window.__writes[4].url"));
             assertEquals("POST", page.evaluate("() => window.__writes[4].method"));
-            assertEquals("XMLHttpRequest", page.evaluate("() => window.__writes[4].headers['X-Requested-With']"));
+            assertEquals("fetch", page.evaluate("() => window.__writes[4].headers['X-Requested-With']"));
         }
     }
 
@@ -118,7 +118,7 @@ class FrontendNextN6AccountSecurityPlaywrightTest {
             assertEquals("/api/account/password/change", page.evaluate("() => window.__writes[0].url"));
             assertEquals(oldValue, page.evaluate("() => JSON.parse(window.__writes[0].body).oldPassword"));
             assertEquals(strongValue, page.evaluate("() => JSON.parse(window.__writes[0].body).newPassword"));
-            assertEquals("XMLHttpRequest", page.evaluate("() => window.__writes[0].headers['X-Requested-With']"));
+            assertEquals("fetch", page.evaluate("() => window.__writes[0].headers['X-Requested-With']"));
             assertTrue(page.locator("#n6Toast").textContent().contains("密码已修改"));
         }
     }

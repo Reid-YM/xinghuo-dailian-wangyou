@@ -361,7 +361,7 @@
     try {
       const claimed = await request('/api/account/orders/claim', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
         body: JSON.stringify({ businessNo })
       });
       input.value = '';

@@ -70,7 +70,7 @@ class FrontendNextN5BusinessPlaywrightTest {
             page.locator("#n5ClaimNo").fill("XH-O-LEGACY-1");
             page.locator("#n5ClaimButton").click();
             page.waitForFunction("() => window.__claimBody && window.__claimBody.businessNo==='XH-O-LEGACY-1'");
-            assertEquals("XMLHttpRequest", page.evaluate("() => window.__claimHeader"));
+            assertEquals("fetch", page.evaluate("() => window.__claimHeader"));
             page.waitForFunction("""
                     () => {
                       const message=document.querySelector('#n5Message')?.textContent||'';

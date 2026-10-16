@@ -30,7 +30,7 @@ class FrontendNextN4AccountContractTest {
         assertTrue(js.contains("request('/api/account/login'"));
         assertTrue(js.contains("request('/api/account/logout'"));
         assertTrue(js.contains("credentials: 'same-origin'"));
-        assertTrue(js.contains("'X-Requested-With': 'XMLHttpRequest'"));
+        assertTrue(js.contains("'X-Requested-With': 'fetch'"));
     }
 
     @Test

@@ -6,6 +6,7 @@
   const trim=(value,max)=>text(value).slice(0,max);
   let submitting=false;
   let idempotencyKey='';
+  let screenshotAssetId=null;
 
   function make(tag,className,value){
     const element=document.createElement(tag);
@@ -70,12 +71,13 @@
       chooseGrid.append(field('游戏平台',platform),field('期望时间',expectedTime));
     }
 
+    const screenshot=document.createElement('input');screenshot.type='file';screenshot.id='n3Screenshot';screenshot.accept='image/jpeg,image/png,image/webp,image/gif';screenshot.addEventListener('change',()=>{screenshotAssetId=null;});
+    sections[1]?.append(field('进度截图（可选，不上传密码或验证码）',screenshot));
     const contactGrid=sections[2]?.querySelector('.formGrid');
     if(contactGrid){
       const existingInputs=[...contactGrid.querySelectorAll('input')];
       if(existingInputs[0]){
-        existingInputs[0].id='n3CustomerName';
-        existingInputs[0].maxLength=80;
+        existingInputs[0].closest('.field')?.remove();
       }
       if(existingInputs[1]){
         existingInputs[1].id='n3CustomerContact';
@@ -141,7 +143,7 @@
       game:trim(game?.value||selectedText('#qGame'),100),
       demand:trim(selectedService,200),
       currentProgress:currentProgress||null,
-      screenshotAssetId:null,
+      screenshotAssetId,
       platform:trim($('#n3Platform')?.value,50)||null,
       expectedTime:trim($('#n3ExpectedTime')?.value,100)||null,
       contactMethod:method||null,
@@ -203,7 +205,16 @@
     button.textContent='正在提交…';
     message('正在安全提交询价，请勿重复点击。');
 
+    const imageInput=$('#n3Screenshot');const image=imageInput?.files?.[0];if(imageInput)imageInput.disabled=true;
     try{
+      if(image && !screenshotAssetId){
+        if(!image.type.startsWith('image/'))throw new Error('请选择图片文件。');
+        const upload=new FormData();upload.append('file',image);
+        const response=await fetch('/api/uploads/quote',{method:'POST',credentials:'same-origin',headers:{Accept:'application/json'},body:upload});
+        const uploaded=await response.json().catch(()=>({}));
+        if(!response.ok||!uploaded.assetId)throw new Error(text(uploaded.message)||'截图上传失败，请重试。');screenshotAssetId=uploaded.assetId;
+      }
+      body.screenshotAssetId=screenshotAssetId;
       const response=await fetch('/api/quote',{
         method:'POST',
         credentials:'same-origin',
@@ -221,7 +232,7 @@
       const businessNo=trim(result?.businessNo,100);
       message(businessNo?`询价提交成功，业务编号：${businessNo}`:'询价提交成功，客服将尽快确认。','ok');
       button.textContent='✓ 提交成功';
-      idempotencyKey='';
+      idempotencyKey='';screenshotAssetId=null;if(imageInput)imageInput.value='';
       if(businessNo){
         const record=document.createElement('a');
         record.href=`/record/${encodeURIComponent(businessNo)}`;
@@ -240,6 +251,7 @@
       button.textContent='重试提交 →';
       // Keep the same idempotency key after failures so a retry cannot create a duplicate.
     }finally{
+      if(imageInput)imageInput.disabled=false;
       submitting=false;
       if(button.disabled&&button.textContent==='正在提交…'){
         button.disabled=false;

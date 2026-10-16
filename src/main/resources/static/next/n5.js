@@ -11,7 +11,7 @@
     quotes: null,
     orders: null,
     candidates: [],
-    active: 'orders',
+    active: /\/account\/(requests|quotes|demands)$/.test(location.pathname)?'quotes':'orders',
     detail: null,
     loading: false,
     generation: 0
@@ -19,6 +19,9 @@
 
   let observer = null;
   let mountTimer = null;
+  let paymentTimer=null;
+  let paymentGeneration=0;
+  let initialFocus=false;
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
@@ -97,7 +100,7 @@
       .n5-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px}.n5-summary-card{border:1px solid var(--line);border-radius:14px;background:#0c1015;padding:15px}.n5-summary-card small{display:block;color:#777f89;margin-bottom:6px}.n5-summary-card strong{font-size:26px}.n5-summary-card span{display:block;margin-top:5px;color:#66707a;font-size:9px;line-height:1.45}
       .n5-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px;align-items:start}.n5-panel{border:1px solid var(--line);background:#0c1015;border-radius:16px;padding:18px;min-width:0}.n5-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.n5-tab{appearance:none;border:1px solid var(--line);background:#0a0e13;color:#858d97;border-radius:9px;padding:9px 12px;font:inherit;font-size:10px;cursor:pointer}.n5-tab[aria-selected="true"]{border-color:#ffcb2d77;color:#ffd863;background:#17140b}.n5-tab:focus-visible{outline:2px solid #ffcb2d88;outline-offset:2px}.n5-table-wrap{overflow:auto}.n5-table{width:100%;border-collapse:collapse;min-width:780px}.n5-table th,.n5-table td{padding:11px 8px;border-bottom:1px solid #ffffff10;text-align:left;font-size:10px;vertical-align:middle}.n5-table th{color:#737c86;font-weight:600}.n5-record{display:inline-flex;align-items:center;gap:6px}.n5-record:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}.n5-run{color:var(--gold)}.n5-ok{color:#65dfa0}.n5-warn{color:#ff9e83}.n5-muted{color:#7e8790}.n5-mini-btn{appearance:none;border:1px solid #ffffff1a;background:#11171d;color:#d7dce1;border-radius:8px;padding:7px 9px;font:inherit;font-size:9px;cursor:pointer}.n5-mini-btn:hover{border-color:#ffcb2d66;color:#fff}.n5-mini-btn:disabled{opacity:.45;cursor:not-allowed}.n5-empty{padding:28px 16px;border:1px dashed #ffffff18;border-radius:12px;color:#78818b;text-align:center;font-size:10px;line-height:1.7}.n5-message{min-height:18px;margin-top:9px;color:#8d96a0;font-size:10px;line-height:1.55}.n5-message.ok{color:#76e3a3}.n5-message.error{color:#ff9b87}
       .n5-claim{display:grid;gap:12px}.n5-claim h3{margin:0}.n5-claim-list{display:grid;gap:8px}.n5-candidate{border:1px solid #ffffff12;border-radius:11px;padding:11px;background:#0a0e12}.n5-candidate b{display:block;font-size:10px;margin-bottom:5px}.n5-candidate span{display:block;color:#747d87;font-size:9px;line-height:1.45}.n5-claim-field{display:grid;gap:6px}.n5-claim-field label{font-size:10px;color:#9ca4ad}.n5-claim-field input{width:100%;border:1px solid var(--line);background:#090d11;color:#fff;border-radius:10px;padding:11px}.n5-claim-field input:focus{outline:none;border-color:#ffcb2d88;box-shadow:0 0 0 3px #ffcb2d12}.n5-claim-tip{font-size:9px;line-height:1.6;color:#727b85;margin:0}.n5-claim-tip strong{color:#d9dee4}.n5-claim .btn{width:100%}
-      .n5-detail{margin-top:14px;border-top:1px solid #ffffff12;padding-top:16px}.n5-detail[hidden]{display:none}.n5-detail-head{display:flex;justify-content:space-between;gap:14px;align-items:start;margin-bottom:14px}.n5-detail-head h3{margin:0}.n5-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.n5-detail-card{border:1px solid #ffffff10;border-radius:10px;padding:11px;background:#090d11}.n5-detail-card small{display:block;color:#717a84;margin-bottom:5px;font-size:9px}.n5-detail-card b{font-size:10px;word-break:break-word}.n5-subhead{margin:16px 0 8px;font-size:11px}.n5-timeline{display:grid;gap:8px}.n5-timeline-item{position:relative;border-left:1px solid #3b434c;padding:0 0 11px 14px}.n5-timeline-item:before{content:"";position:absolute;left:-4px;top:3px;width:7px;height:7px;border-radius:50%;background:var(--gold)}.n5-timeline-item b{display:block;font-size:10px}.n5-timeline-item span{display:block;color:#77808a;font-size:9px;line-height:1.5;margin-top:4px}.n5-after{display:grid;gap:8px}.n5-after-item{border:1px solid #ffffff10;border-radius:10px;padding:11px}.n5-after-item b{font-size:10px}.n5-after-item p{margin:6px 0 0;color:#858e98;font-size:9px;line-height:1.55;white-space:pre-wrap}.n5-after-item small{display:block;color:#68717b;margin-top:6px}.n5-source{margin-top:14px;padding:11px;border:1px solid #ffcb2d24;border-radius:10px;background:#17140b}.n5-source b{display:block;font-size:10px;margin-bottom:5px}.n5-source span{color:#9a916d;font-size:9px;line-height:1.5}
+      .n5-detail{margin-top:14px;border-top:1px solid #ffffff12;padding-top:16px}.n5-detail[hidden]{display:none}.n5-detail-head{display:flex;justify-content:space-between;gap:14px;align-items:start;margin-bottom:14px}.n5-detail-head h3{margin:0}.n5-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.n5-detail-card{border:1px solid #ffffff10;border-radius:10px;padding:11px;background:#090d11}.n5-detail-card small{display:block;color:#717a84;margin-bottom:5px;font-size:9px}.n5-detail-card b{font-size:10px;word-break:break-word}.n5-subhead{margin:16px 0 8px;font-size:11px}.n5-timeline{display:grid;gap:8px}.n5-timeline-item{position:relative;border-left:1px solid #3b434c;padding:0 0 11px 14px}.n5-timeline-item:before{content:"";position:absolute;left:-4px;top:3px;width:7px;height:7px;border-radius:50%;background:var(--gold)}.n5-timeline-item b{display:block;font-size:10px}.n5-timeline-item span{display:block;color:#77808a;font-size:9px;line-height:1.5;margin-top:4px}.n5-after{display:grid;gap:8px}.n5-after-item{border:1px solid #ffffff10;border-radius:10px;padding:11px}.n5-after-item b{font-size:10px}.n5-after-item p{margin:6px 0 0;color:#858e98;font-size:9px;line-height:1.55;white-space:pre-wrap}.n5-after-item small{display:block;color:#68717b;margin-top:6px}.n5-source{overflow-wrap:anywhere;min-width:0;margin-top:14px;padding:11px;border:1px solid #ffcb2d24;border-radius:10px;background:#17140b}.n5-source b{display:block;font-size:10px;margin-bottom:5px}.n5-source span{color:#9a916d;font-size:9px;line-height:1.5}
       @media(max-width:960px){.n5-layout{grid-template-columns:1fr}.n5-summary{grid-template-columns:1fr 1fr}.n5-claim-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
       @media(max-width:560px){.n5-summary{grid-template-columns:1fr 1fr}.n5-detail-grid{grid-template-columns:1fr}.n5-claim-list{grid-template-columns:1fr}.n5-panel{padding:14px}}
     `;
@@ -213,12 +216,13 @@
   }
 
   function renderQuoteDetail(detail) {
+    stopPayment();
     const host = $('#n5Detail');
     if (!host) return;
     host.hidden = false; host.replaceChildren();
     const head = node('div', 'n5-detail-head');
     append(head, append(node('div'), node('div', 'kicker', '询价详情'), node('h3', '', text(detail.businessNo) || '询价详情')));
-    const close = button('关闭', 'n5-mini-btn'); close.addEventListener('click', () => { host.hidden = true; host.replaceChildren(); state.detail = null; }); head.append(close); host.append(head);
+    const close = button('关闭', 'n5-mini-btn'); close.addEventListener('click', () => { stopPayment();host.hidden = true; host.replaceChildren(); state.detail = null; }); head.append(close); host.append(head);
     const grid = node('div', 'n5-detail-grid');
     append(grid,
       detailField('游戏', detail.game), detailField('需求', detail.demand), detailField('平台', detail.platform),
@@ -234,13 +238,14 @@
   }
 
   function renderOrderDetail(detail) {
+    stopPayment();
     const host = $('#n5Detail');
     if (!host) return;
     host.hidden = false; host.replaceChildren();
     const order = detail?.order || {};
     const head = node('div', 'n5-detail-head');
     append(head, append(node('div'), node('div', 'kicker', '订单详情'), node('h3', '', text(order.businessNo) || text(order.orderNo) || '订单详情')));
-    const close = button('关闭', 'n5-mini-btn'); close.addEventListener('click', () => { host.hidden = true; host.replaceChildren(); state.detail = null; }); head.append(close); host.append(head);
+    const close = button('关闭', 'n5-mini-btn'); close.addEventListener('click', () => { stopPayment();host.hidden = true; host.replaceChildren(); state.detail = null; }); head.append(close); host.append(head);
 
     const grid = node('div', 'n5-detail-grid');
     append(grid,
@@ -277,8 +282,10 @@
         append(row,
           node('b', statusTone(item.status), `${text(item.category) || '售后问题'} · ${text(item.status) || 'OPEN'}${item.pendingCustomerFollowup ? ' · 待客服跟进补充' : ''}`),
           node('p', '', text(item.content) || '—'),
-          node('small', '', `提交于 ${fmtDate(item.submittedAt)}${text(item.customerReply) ? ` · 客服：${text(item.customerReply)}` : ''}`)
+          node('small', '', `提交于 ${fmtDate(item.submittedAt)}${!item.replies?.length && text(item.customerReply) ? ` · 客服：${text(item.customerReply)}` : ''}`)
         );
+        const conversation=[...(Array.isArray(item.replies)?item.replies:[]).map(line=>({label:'客服回复',at:line.repliedAt,content:line.content})),...(Array.isArray(item.followups)?item.followups:[]).map(line=>({label:'我的补充',at:line.createdAt,content:line.content}))].sort((a,b)=>new Date(a.at||0)-new Date(b.at||0));
+        conversation.forEach(line=>row.append(node('p','',line.label+' · '+fmtDate(line.at)+'：'+text(line.content))));
         after.append(row);
       });
     } else {
@@ -288,8 +295,67 @@
       });
     }
     host.append(after);
+    paymentPanel(host,order.businessNo||order.orderNo);
   }
 
+  function stopPayment(){paymentGeneration++;if(paymentTimer)clearTimeout(paymentTimer);paymentTimer=null;}
+  function paymentPanel(parent,businessNo){
+    if(!businessNo)return;
+    const generation=paymentGeneration;
+    const host=node('section','n5-panel');host.id='n5Payment';parent.append(host);
+    const active=()=>host.isConnected && !parent.hidden && paymentGeneration===generation;
+    async function read(path){
+      try{const value=await request(path);if(active())paint(value);}
+      catch(error){if(!active())return;host.replaceChildren(node('h4','','线上支付记录'),node('p','',error.status===404?'当前没有可用线上支付入口，可联系客服核对。':text(error.message)||'支付状态读取失败。'));const retry=button('重试读取','btn');retry.onclick=()=>read('/api/account/payments/order/'+safeKey(businessNo));host.append(retry);}
+    }
+    function paint(value){
+      if(!active())return;if(paymentTimer)clearTimeout(paymentTimer);paymentTimer=null;
+      host.replaceChildren(node('h4','','线上支付记录'));
+      if(!value){host.append(node('p','','暂无客服确认的线上支付单。'));return;}
+      host.append(node('p','',text(value.subject)+' · ¥'+text(value.amount)));
+      if(value.status==='CAPTURED'){host.append(node('strong','','服务端已确认支付成功'));return;}
+      if(value.status==='CANCELLED'){host.append(node('p','','支付单已关闭，请联系客服确认新的报价。'));return;}
+      const approved=value.status==='APPROVED';const alive=approved&&new Date(value.expiresAt||0).getTime()>Date.now();
+      if(alive){const image=document.createElement('img');image.src='/api/account/payments/'+safeKey(value.paymentNo)+'/qr.png';image.alt='微信支付二维码';image.width=240;image.height=240;image.style.maxWidth='100%';image.onerror=()=>{if(!image.isConnected||!active())return;image.hidden=true;host.append(node('p','','二维码读取失败，可刷新支付状态后重试。'));};host.append(image,node('p','','请使用微信扫码。付款结果以服务端最终状态为准。'));}
+      else if(approved)host.append(node('p','','二维码已过期，请联系客服重新确认。'));
+      else if(value.status==='CREATED'){
+        const start=button('生成支付二维码','btn gold');start.onclick=async()=>{if(start.disabled)return;start.disabled=true;try{const latest=await request('/api/account/payments/'+safeKey(value.paymentNo)+'/native',{method:'POST',headers:{'X-Requested-With':'fetch'}});if(active())paint(latest);}catch(error){if(active()){host.append(node('p','',text(error.message)||'暂时无法生成二维码，请联系客服。'));start.disabled=false;}}};host.append(start);
+      }else host.append(node('p','','支付状态：'+text(value.status)));
+      const refresh=button('刷新支付状态','btn');refresh.onclick=()=>read('/api/account/payments/'+safeKey(value.paymentNo));host.append(refresh);
+      if(alive)paymentTimer=setTimeout(()=>{if(active()&&!document.hidden&&page.classList.contains('active'))read('/api/account/payments/'+safeKey(value.paymentNo));},10000);
+    }
+    host.append(node('p','','正在读取支付记录…'));read('/api/account/payments/order/'+safeKey(businessNo));
+  }
+  function personalAssets(){
+    const wrapper=node('section','n5-panel');wrapper.id='n5PersonalAssets';wrapper.append(node('h3','','工具存档、收藏与投稿'));
+    const writer=node('a','btn','撰写与管理投稿');writer.href='/account/submit';wrapper.append(writer);
+    for(const [kind,label,path] of [['progress','云端工具存档','/api/account/progress'],['favorites','我的收藏','/api/account/favorites'],['submissions','我的投稿','/api/account/submissions']]){
+      const section=node('section');section.dataset.personalAsset=kind;section.append(node('h4','',label));const content=node('div');section.append(content);wrapper.append(section);let pageNumber=0;let generation=0;
+      async function load(){
+        const current=++generation;content.replaceChildren(node('p','','正在读取…'));
+        try{const result=await request(path+(kind==='progress'?'':'?page='+pageNumber+'&size=20'));if(!content.isConnected||current!==generation)return;const list=Array.isArray(result)?result:[];content.replaceChildren();if(!list.length)content.append(node('p','','暂无记录。'));
+          list.forEach(item=>{
+            const row=node('div','n5-source');
+            if(kind==='progress'){row.append(node('b','','工具存档 · '+text(item.toolKey)),node('span','','最近同步：'+fmtDate(item.updatedAt)));const open=node('a','btn','打开工具站');open.href='/mastery';row.append(open);}
+            if(kind==='favorites'){
+              const target={GUIDE:'/guides/',GAME:'/game/',SERVICE:'/service/'}[item.targetType];const link=node(target?'a':'span','',text(item.targetType)+' · '+text(item.targetId));if(target)link.href=target+safeKey(item.targetId);row.append(link);
+              const remove=button('取消收藏','btn');remove.onclick=async()=>{if(remove.disabled)return;remove.disabled=true;try{const result=await request('/api/account/favorites/toggle',{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'fetch'},body:JSON.stringify({targetType:item.targetType,targetId:item.targetId})});if(result?.favorited){row.append(node('p','','收藏状态发生变化，请重新核对。'));remove.disabled=false;}else load();}catch(error){row.append(node('p','',text(error.message)||'更新失败。'));remove.disabled=false;}};row.append(remove);
+            }
+            if(kind==='submissions'){
+              row.append(node('b','',text(item.title)),node('span','',text(item.statusText)||text(item.status)),node('p','',text(item.reviewNote)));
+              if(item.publishedSlug){const link=node('a','btn','查看已发布内容');link.href='/guides/'+safeKey(item.publishedSlug);row.append(link);}
+              if(['SUBMITTED','IN_REVIEW'].includes(item.status)){const withdraw=button('撤回投稿','btn');withdraw.onclick=async()=>{if(withdraw.disabled||!confirm('确认撤回这篇投稿？'))return;withdraw.disabled=true;try{await request(path+'/'+safeKey(item.id)+'/withdraw',{method:'POST',headers:{'X-Requested-With':'fetch'}});load();}catch(error){row.append(node('p','',text(error.message)||'撤回失败。'));withdraw.disabled=false;}};row.append(withdraw);}
+            }
+            content.append(row);
+          });
+          if(kind!=='progress'){const nav=node('div','n5-tabs');const previous=button('上一页','btn');previous.disabled=pageNumber===0;previous.onclick=()=>{pageNumber--;load();};const next=button('下一页','btn');next.disabled=list.length<20;next.onclick=()=>{pageNumber++;load();};nav.append(previous,node('span','','第 '+(pageNumber+1)+' 页'),next);content.append(nav);}
+        }catch(error){if(!content.isConnected||current!==generation)return;content.replaceChildren(node('p','',text(error.message)||'读取失败。'));const retry=button('重新读取','btn');retry.onclick=load;content.append(retry);}
+      }
+      // A microtask runs after buildShell has connected the section.
+      queueMicrotask(load);
+    }
+    return wrapper;
+  }
   async function loadQuoteDetail(businessNo) {
     if (!text(businessNo)) return;
     setMessage('正在读取询价详情…');
@@ -395,7 +461,7 @@
     const tabs = node('div', 'n5-tabs'); tabs.setAttribute('role', 'tablist');
     [['orders', '我的订单'], ['quotes', '询价记录']].forEach(([key, label]) => {
       const tab = button(label, 'n5-tab'); tab.dataset.n5Tab = key; tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(state.active === key));
-      tab.addEventListener('click', () => { state.active = key; state.detail = null; const detail = $('#n5Detail'); if (detail) { detail.hidden = true; detail.replaceChildren(); } renderRecords(); }); tabs.append(tab);
+      tab.addEventListener('click', () => { stopPayment();state.active = key; state.detail = null; const detail = $('#n5Detail'); if (detail) { detail.hidden = true; detail.replaceChildren(); } renderRecords(); }); tabs.append(tab);
     });
     records.append(tabs);
     const body = node('div'); body.id = 'n5RecordsBody'; records.append(body);
@@ -411,11 +477,12 @@
     const claimButton = button('确认认领到当前账号', 'btn gold'); claimButton.id = 'n5ClaimButton'; claimButton.addEventListener('click', claimOrder); claim.append(claimButton);
     const warning = node('p', 'n5-claim-tip'); append(warning, node('strong', '', '不会自动认领：'), document.createTextNode('候选列表只用于提示可能存在历史订单，完整编号不从页面泄露。')); claim.append(warning);
 
-    append(layout, records, claim); shell.append(layout); section.append(shell); return section;
+    append(layout, records, claim); shell.append(layout,personalAssets()); section.append(shell); return section;
   }
 
   function render() {
     if (!authenticated()) return;
+    stopPayment();
     const existing = $('#n5BusinessCenter');
     if (existing) existing.remove();
     const section = buildShell();
@@ -426,6 +493,7 @@
     renderCandidates();
     const badge = $('.badge'); if (badge) badge.textContent = 'FRONTEND NEXT · N5 BUSINESS LIVE';
     setMessage('真实业务数据已读取。');
+    if(!initialFocus && /^\/account\/(orders|requests|progress)$/.test(location.pathname)){initialFocus=true;const focus=location.pathname.endsWith('/progress')?section.querySelector('[data-personal-asset=progress]'):section;focus?.scrollIntoView({block:'start'});}
   }
 
   async function load() {
@@ -471,7 +539,9 @@
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && page.classList.contains('active') && authenticated()) load();
   });
+  window.addEventListener('xh:pagechange',event=>{if(event.detail?.page!=='account')stopPayment();else if(state.detail?.order){const host=$('#n5Detail');if(host&&!host.hidden){stopPayment();$('#n5Payment')?.remove();paymentPanel(host,state.detail.order.businessNo||state.detail.order.orderNo);}}});
   window.addEventListener('pagehide', () => {
+    stopPayment();
     if (observer) observer.disconnect();
     if (mountTimer) clearTimeout(mountTimer);
   });

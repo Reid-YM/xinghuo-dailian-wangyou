@@ -2,6 +2,7 @@ package com.xinghuo.web;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Browser;
@@ -91,6 +92,27 @@ class FrontendNextN3QuotePlaywrightTest {
             assertEquals(2, keys.size());
             assertFalse(keys.getFirst().isBlank());
             assertEquals(keys.getFirst(), keys.get(1));
+        }
+    }
+
+    @Test
+    void screenshotFailureRetriesAndQuoteRetryReusesUploadedAssetAndIdempotencyKey() throws Exception {
+        try (Playwright p=Playwright.create(); Browser browser=p.chromium().launch()) {
+            Page page=browser.newPage();
+            var uploads=new java.util.concurrent.atomic.AtomicInteger();var quotes=new java.util.concurrent.atomic.AtomicInteger();
+            var keys=new java.util.ArrayList<String>();var bodies=new java.util.ArrayList<String>();
+            page.route("**/*",r->{
+                if(r.request().url().endsWith("/api/uploads/quote")) {int count=uploads.incrementAndGet();r.fulfill(new Route.FulfillOptions().setStatus(count==1?503:200).setContentType("application/json").setBody(count==1?"{\"message\":\"截图上传暂时失败\"}":"{\"assetId\":\"10000000-0000-0000-0000-000000000001\"}"));return;}
+                if(r.request().url().endsWith("/api/quote")){int count=quotes.incrementAndGet();keys.add(r.request().headers().get("idempotency-key"));bodies.add(r.request().postData());r.fulfill(new Route.FulfillOptions().setStatus(count==1?503:200).setContentType("application/json").setBody(count==1?"{\"message\":\"提交暂时失败\"}":"{\"businessNo\":\"Q-SCREENSHOT-1\"}"));return;}
+                r.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(html()));
+            });
+            page.navigate("https://example.test/next/quote");page.addScriptTag(new Page.AddScriptTagOptions().setPath(NEXT.resolve("n3.js")));fillRequired(page);
+            page.locator("#n3Screenshot").setInputFiles(new com.microsoft.playwright.options.FilePayload("progress.png","image/png",java.util.Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jFxoAAAAASUVORK5CYII=")));
+            page.locator("#submit").click();page.waitForFunction("()=>document.querySelector('#n3QuoteMessage').textContent.includes('截图上传暂时失败')");
+            assertEquals(0,quotes.get());page.locator("#submit").click();page.waitForFunction("()=>document.querySelector('#n3QuoteMessage').textContent.includes('提交暂时失败')");
+            page.locator("#submit").click();page.waitForFunction("()=>document.querySelector('#n3QuoteMessage').textContent.includes('Q-SCREENSHOT-1')");
+            assertEquals(2,uploads.get());assertEquals(2,quotes.get());assertEquals(keys.get(0),keys.get(1));assertNotNull(keys.get(0));
+            assertTrue(bodies.stream().allMatch(body->body.contains("10000000-0000-0000-0000-000000000001")));
         }
     }
 

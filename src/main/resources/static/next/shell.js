@@ -88,8 +88,15 @@
       return null;
     }
   }
+  function safeAccountReturn(requested) {
+    if(requested){
+      try{if(!String(requested).startsWith('/') || String(requested).startsWith('//'))return route('account');const target=new URL(requested,location.origin);if(target.origin===location.origin&&!/^\/(admin|api|logout)(\/|$)/i.test(target.pathname)&&!/^\/account\/(login|register|reset)$/.test(target.pathname))return target.pathname+target.search+target.hash;}catch(_){}
+      return route('account');
+    }
+    return null;
+  }
   window.go = go; window.toast = toast;
-  window.XHFrontendShell = {go, route, resolveLocation, applyConfiguration, get configuration(){return configuration;}};
+  window.XHFrontendShell = {go, route, resolveLocation, applyConfiguration, safeAccountReturn, get configuration(){return configuration;}};
   window.XHFrontendShell.configurationReady=loadConfiguration();
   go(resolveLocation(), false);
 })();

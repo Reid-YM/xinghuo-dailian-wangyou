@@ -149,6 +149,8 @@
       });
       loginMessage('登录成功，正在载入个人中心。', 'ok');
       await hydrateAuthenticated();
+      const shell=window.XHFrontendShell;
+      if(shell){const target=shell.safeAccountReturn(new URLSearchParams(location.search).get('next')) || (/^\/account\/login$/.test(location.pathname)?shell.route('account'):null);if(target && target!==location.pathname+location.search+location.hash)location.assign(target);}
     } catch (error) {
       loginMessage(text(error.message) || '登录失败，请检查账号信息。', 'error');
     } finally {

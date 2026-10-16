@@ -2,10 +2,10 @@
 
 N1–N8 已完成视觉、真实服务/询价、账号和业务、安全与统一认证及并行联调。早期 README 中的“N2 当前阶段”已经过时；各阶段详细记录继续保留作历史证据。
 
-当前继续完整迁移替换。正式首页、服务、询价及账号核心视图已进入默认映射实现，只有本轮开发/CI/最终发布完成后才能宣称线上已替换。详见 docs/development/2026-10-16-complete-migration-plan.md 与 2026-10-16-default-frontend-replacement.md。
+用户要求正式前端恢复旧版。当前代码默认关闭 Next 正式映射，发布后以实际正式页面核验为准；新版后台继续保留。详见 [前端回退记录](../development/2026-10-16-frontend-rollback.md)。重新启用正式 Next 必须单独获得明确授权。
 
-- 入口路径 /、/services、/quote、/account 及认证/设置子页使用新文档；原账号鉴权在视图转发之前执行。
-- /next、/next/services、/next/quote、/next/account 继续作为别名。路径和旧 hash 均正确恢复页面。
+- 默认入口 /、/services、/quote、/account 及认证/设置子页恢复旧视图和原账号鉴权。
+- /next、/next/services、/next/quote、/next/account 保留为显式预览入口。路径和旧 hash 均正确恢复页面。
 - 页面级回退使用 ?legacy=1；整体回退配置 app.frontend-next.default-enabled=false。不能通过改静态首页文件假称已切换实际路由。
 - JS 由真实内容指纹确定缓存版本。账号/console 写请求遵循服务端 X-Requested-With: fetch，不放宽鉴权。
 - 数据失败时只保留已读真实数据或错误/重试状态，不再回退模拟商品、价格或订单。

@@ -8,7 +8,7 @@
   const backendStatus = document.getElementById('xwBackendStatus');
   const serverTime = document.getElementById('xwServerTime');
   const declaredVersion = document.querySelector('.xw-version-card strong')?.textContent?.trim() || '';
-  const declaredStage = (document.querySelector('#overview .xw-kicker')?.dataset.runtimeStage || document.querySelector('#overview .xw-kicker')?.textContent)?.trim() || '';
+  const declaredStage = (document.querySelector('[data-runtime-stage]')?.dataset.runtimeStage || document.querySelector('#overview .xw-kicker')?.textContent)?.trim() || '';
   const modules = Array.from(document.querySelectorAll('.xw-module'));
   const navItems = Array.from(document.querySelectorAll('.xw-nav-item'));
   const REQUEST_TIMEOUT_MS = 8000;
@@ -294,7 +294,7 @@
       publishRuntimeHealth(snapshot);
 
       if (state === 'match') {
-        setBackendStatus('match', `服务正常 · ${runtimeVersion} 已核对`, `页面与后端运行版本一致：${runtimeVersion} / ${window.XWLabels?.stage(runtimeStage) ?? runtimeStage}`);
+        setBackendStatus('match', '服务正常 · 已核对', `页面与后端运行版本一致：${runtimeVersion} / ${window.XWLabels?.stage(runtimeStage) ?? runtimeStage}`);
       } else {
         setBackendStatus('mismatch', '版本漂移 · 请刷新并检查发布', `页面：${declaredVersion || '未知'} / ${window.XWLabels?.stage(declaredStage) || declaredStage || '未知'}；运行：${runtimeVersion || '未知'} / ${window.XWLabels?.stage(runtimeStage) || runtimeStage || '未知'}`);
       }

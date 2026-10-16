@@ -44,8 +44,8 @@
   let access = null;
   let activeTab = null;
   let currentSnapshot = null;
-  let candidates = null;
   let assignment = null;
+  let assignmentBusy = false, assignmentReady = false, assignmentDirty = false, assignmentRequest = 0;
   let afterSalesPage = 0;
   let searchTimer = null;
   let requestVersion = 0;
@@ -93,6 +93,7 @@
     const {headers: optionHeaders = {}, ...rest} = options;
     const response = await fetch(url, {
       credentials: 'same-origin',
+      cache: 'no-store',
       ...rest,
       headers: {'Accept': 'application/json', ...optionHeaders}
     });
@@ -329,13 +330,21 @@
     tabs.forEach((button) => button.setAttribute('aria-selected', String(button.dataset.tab === activeTab)));
   }
 
-  async function loadTab(tab, force = false) {
+  async function loadTab(tab, {afterWrite = false} = {}) {
+    if (!afterWrite && (actionBusy || assignmentBusy)) return false;
     if (tab === 'quotes' && !can('quote:view')) return;
     if (tab !== 'quotes' && !can('order:view')) return;
     if (tab !== 'after-sales') clearTimeout(searchTimer);
     if (tab === 'after-sales' && activeTab !== 'after-sales') afterSalesPage = 0;
     activeTab = tab;
     updatePanels();
+    currentSnapshot = null;
+    quoteRows.replaceChildren(); orderRows.replaceChildren();
+    quoteRows.setAttribute('aria-busy','true'); orderRows.setAttribute('aria-busy','true');
+    for (const node of [kpiVisible,kpiFiltered,kpiUnassigned]) if(node) node.textContent='—';
+    if(afterSalesPrev) afterSalesPrev.disabled=true;
+    if(afterSalesNext) afterSalesNext.disabled=true;
+    if(afterSalesPageText) afterSalesPageText.textContent='';
     const thisRequest = ++requestVersion;
     const label = tab === 'quotes' ? '询价' : tab === 'exceptions' ? '异常订单' : tab === 'after-sales' ? '售后问题' : '订单';
     setMessage(`正在读取${label}数据……`);
@@ -359,7 +368,6 @@
       setMessage(tab === 'after-sales'
         ? `已按 ${scopeLabel(snapshot)} 检索到 ${snapshot.totalCount ?? 0} 条售后问题记录。`
         : `已按 ${scopeLabel(snapshot)} 加载 ${snapshot.visibleCount ?? 0} 条${label}记录。`, 'ok');
-      if (force) candidates = null;
       return true;
     } catch (error) {
       if (thisRequest !== requestVersion) return;
@@ -369,13 +377,9 @@
       if (kpiFiltered) kpiFiltered.textContent = '—';
       if (kpiUnassigned) kpiUnassigned.textContent = '—';
       return false;
+    } finally {
+      if(thisRequest===requestVersion){quoteRows.setAttribute('aria-busy','false');orderRows.setAttribute('aria-busy','false');}
     }
-  }
-
-  async function loadCandidates() {
-    if (candidates) return candidates;
-    candidates = await fetchJson('/api/admin/xingwei/business/ownership-candidates');
-    return candidates;
   }
 
   function candidateLabel(candidate) {
@@ -385,8 +389,21 @@
     return `${dept} · ${name}${position}`;
   }
 
+  function assignmentControls(){
+    assignForm.querySelectorAll('button,input,select,textarea').forEach(node=>{node.disabled=assignmentBusy||(!assignmentReady&&(node===assignTarget||node.type==='submit'));});
+  }
+  function clearAssignment(){assignmentRequest++;assignment=null;assignmentReady=false;assignmentDirty=false;assignTarget.replaceChildren();assignState.textContent='';}
+  function closeAssignment(){
+    if(assignmentBusy)return false;
+    if(assignmentDirty&&!confirm('归属选择尚未保存，确认放弃？'))return false;
+    clearAssignment();dialog.close();return true;
+  }
   async function openAssignment(type, item) {
-    assignment = {type, item};
+    if(actionBusy||assignmentBusy)return;
+    if(dialog.open&&!closeAssignment())return;
+    const pending={type,item},id=++assignmentRequest;
+    assignment=pending;assignmentReady=false;assignmentDirty=false;
+    document.getElementById('xwbAssignRetry').hidden=true;
     assignTitle.textContent = `${type === 'quotes' ? '询价' : '订单'}归属 · ${item.businessNo}`;
     assignCurrent.textContent = `当前归属：${ownershipLabel(item.ownership)}`;
     assignState.textContent = '正在读取可分配对象……';
@@ -395,9 +412,10 @@
     loading.value = '';
     loading.textContent = '正在加载……';
     assignTarget.appendChild(loading);
-    dialog.showModal();
+    assignmentControls();dialog.showModal();
     try {
-      const rows = await loadCandidates();
+      const rows = await fetchJson('/api/admin/xingwei/business/ownership-candidates');
+      if(id!==assignmentRequest||assignment!==pending||!dialog.open)return;
       assignTarget.replaceChildren();
       const placeholder = document.createElement('option');
       placeholder.value = '';
@@ -429,15 +447,19 @@
         option.textContent = candidateLabel(candidate);
         assignTarget.appendChild(option);
       });
-      assignState.textContent = '';
+      assignmentReady=assignTarget.options.length>1;
+      assignState.textContent=assignmentReady?'':'当前范围没有可分配对象，可重新读取候选。';
+      document.getElementById('xwbAssignRetry').hidden=assignmentReady;
     } catch (error) {
+      if(id!==assignmentRequest||assignment!==pending||!dialog.open)return;
       assignState.textContent = `读取候选失败：${error.message}`;
-    }
+      document.getElementById('xwbAssignRetry').hidden=false;
+    } finally {if(id===assignmentRequest)assignmentControls();}
   }
 
   async function saveAssignment(event) {
     event.preventDefault();
-    if (!assignment) return;
+    if (!assignment || assignmentBusy || actionBusy || !assignmentReady) return;
     const value = assignTarget.value;
     if (!value) {
       assignState.textContent = '请选择负责人或中心队列';
@@ -447,19 +469,20 @@
     if (value.startsWith('owner:')) body.ownerAdminUserId = Number(value.slice('owner:'.length));
     if (value.startsWith('dept:')) body.departmentCode = value.slice('dept:'.length);
     const endpoint = `/api/admin/xingwei/business/${assignment.type}/${encodeURIComponent(assignment.item.businessNo)}/ownership`;
+    assignmentBusy=true;assignmentControls();
+    const tab=activeTab;
     assignState.textContent = '正在保存……';
     try {
       const headers = {'Content-Type': 'application/json'};
       if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
-      await fetchJson(endpoint, {method: 'PUT', headers, body: JSON.stringify(body)});
-      dialog.close();
-      candidates = null;
-      assignment = null;
-      await loadTab(activeTab, true);
-      setMessage('业务归属已保存，并写入操作审计。', 'ok');
+      await actionRequest(endpoint, {method:'PUT',headers,body:JSON.stringify(body)},'业务归属请求超时，写入结果尚未确认。请关闭窗口并刷新业务列表核对，勿重复提交。');
+      clearAssignment();dialog.close();
+      const loaded=await loadTab(tab,{afterWrite:true});
+      setMessage(loaded?'业务归属已保存，并写入操作审计。':'业务归属已保存，但列表刷新失败，请手动刷新核对。',loaded?'ok':'error');
     } catch (error) {
-      assignState.textContent = `保存失败：${error.message}`;
-    }
+      if(error.uncertain){assignmentReady=false;document.getElementById('xwbAssignRetry').hidden=true;}
+      assignState.textContent = error.uncertain?error.message:`保存失败：${error.message}`;
+    } finally {assignmentBusy=false;assignmentControls();}
   }
 
   function selectInitialTab() {
@@ -511,36 +534,37 @@
   const orderActionDialog = document.getElementById('xwbOrderActionDialog');
   const orderActionForm = document.getElementById('xwbOrderActionForm');
   const orderImageForm = document.getElementById('xwbOrderImageForm');
-  let actionBusy = false, quoteDirty = false, orderDirty = false;
+  let actionBusy = false, quoteDirty = false, orderDirty = false, imageDirty = false;
   function fillAction(form, values) { for (const [name,value] of Object.entries(values)) { const input = form.elements.namedItem(name); if (input) input.value = value ?? ''; } }
   function openQuoteAction(item) {
-    if (!quoteActionDialog || actionBusy) return;
+    if (!quoteActionDialog || actionBusy || assignmentBusy) return;
     quoteActionForm.reset(); fillAction(quoteActionForm, {businessNo:item.businessNo,expectedStatus:item.status,status:item.status});
     document.getElementById('xwbQuoteActionTitle').textContent = '处理询价 · ' + item.businessNo;
     document.getElementById('xwbConvertQuote').hidden = !item.canConvert;
     document.getElementById('xwbQuoteActionState').textContent = ''; quoteDirty = false; quoteActionDialog.showModal();
   }
   function openOrderAction(item = null) {
-    if (!orderActionDialog || actionBusy) return;
+    if (!orderActionDialog || actionBusy || assignmentBusy) return;
     orderActionForm.reset(); fillAction(orderActionForm,{businessNo:item?.businessNo,version:item?.version,status:item?.status || 'WAITING_CONFIRMATION',progressPercent:item?.progressPercent,progressText:item?.progressText,customerNote:item?.customerNote,internalNote:item?.internalNote});
     document.getElementById('xwbOrderActionTitle').textContent = item ? '编辑订单 · ' + item.businessNo : '新建订单';
     document.getElementById('xwbOrderActionState').textContent = '';
-    orderImageForm.hidden = !item; orderImageForm.reset(); orderDirty = false; orderActionDialog.showModal();
+    orderImageForm.hidden = !item; orderImageForm.reset(); orderDirty = false; imageDirty=false; orderActionDialog.showModal();
   }
   function closeAction(kind) {
-    if (actionBusy) return;
-    if ((kind === 'quote' ? quoteDirty : orderDirty) && !confirm('尚有未保存的输入，确认放弃？')) return;
-    (kind === 'quote' ? quoteActionDialog : orderActionDialog).close();
+    if (actionBusy || assignmentBusy) return;
+    if ((kind === 'quote' ? quoteDirty : orderDirty||imageDirty) && !confirm('尚有未保存的输入，确认放弃？')) return;
+    if(kind==='quote'){quoteDirty=false;quoteActionForm.reset();quoteActionDialog.close();}
+    else{orderDirty=false;imageDirty=false;orderActionForm.reset();orderImageForm.reset();orderActionDialog.close();}
   }
   function actionControls(form, busy) { form?.querySelectorAll('button,input,select,textarea').forEach(control => {control.disabled = busy;}); }
-  async function actionRequest(url, options) {
+  async function actionRequest(url, options, timeoutMessage='请求超时，写入结果尚未确认。请先刷新核对，勿重复新建订单。') {
     const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 20000);
     try { return await fetchJson(url,{...options,signal:controller.signal}); }
-    catch(error) { if (error.name === 'AbortError') throw new Error('请求超时，写入结果尚未确认。请先刷新核对，勿重复新建订单。'); throw error; }
+    catch(error) { if (['AbortError','TypeError','NetworkError','SyntaxError'].includes(error.name)) {const uncertain=new Error(error.name==='AbortError'?timeoutMessage:timeoutMessage.replace('请求超时',error.name==='SyntaxError'?'响应无法解析':'请求中断'));uncertain.uncertain=true;throw uncertain;} throw error; }
     finally { clearTimeout(timer); }
   }
   async function refreshAfterAction(text, tab) {
-    const loaded = await loadTab(tab);
+    const loaded = await loadTab(tab,{afterWrite:true});
     if (activeTab === tab) setMessage(loaded ? text : text + '；列表刷新失败，请手动刷新核对。', loaded ? 'ok' : 'error');
   }
   async function saveQuoteAction(convert) {
@@ -556,8 +580,12 @@
     finally { actionBusy = false; actionControls(quoteActionForm,false); }
   }
   quoteActionForm?.addEventListener('submit',event => {event.preventDefault(); saveQuoteAction(false);});
-  quoteActionForm?.addEventListener('input',() => {quoteDirty = true;});
-  orderActionForm?.addEventListener('input',() => {orderDirty = true;});
+  for(const event of ['input','change']){
+    quoteActionForm?.addEventListener(event,()=>{quoteDirty=true;});
+    orderActionForm?.addEventListener(event,()=>{orderDirty=true;});
+  }
+  orderImageForm?.addEventListener('change',()=>{imageDirty=!!orderImageForm.querySelector('input[type=file]').files.length;});
+  window.addEventListener('beforeunload',event=>{if(actionBusy||assignmentBusy||(quoteDirty&&quoteActionDialog?.open)||((orderDirty||imageDirty)&&orderActionDialog?.open)||(assignmentDirty&&dialog?.open)){event.preventDefault();event.returnValue='';}});
   document.getElementById('xwbConvertQuote')?.addEventListener('click',() => saveQuoteAction(true));
   document.getElementById('xwbCreateOrder')?.addEventListener('click',() => openOrderAction());
   document.querySelectorAll('[data-action-close]').forEach(button => button.addEventListener('click',() => closeAction(button.dataset.actionClose)));
@@ -565,6 +593,7 @@
   orderActionDialog?.addEventListener('cancel',event => {event.preventDefault();closeAction('order');});
   orderActionForm?.addEventListener('submit',async event => {
     event.preventDefault(); if (actionBusy || !orderActionForm.reportValidity()) return;
+    if(imageDirty&&!confirm('已选择的截图尚未上传，保存订单会清除该选择。确认先保存订单？'))return;
     const values = Object.fromEntries(new FormData(orderActionForm)), no = values.businessNo;
     delete values.businessNo; values.progressPercent = values.progressPercent === '' ? null : Number(values.progressPercent);
     if (no) values.version = Number(values.version); else delete values.version;
@@ -572,7 +601,7 @@
     const state = document.getElementById('xwbOrderActionState'); state.textContent = '正在保存…';
     try {
       await actionRequest('/api/admin/xingwei/business/orders' + (no ? '/' + encodeURIComponent(no) : ''),{method:no ? 'PATCH' : 'POST',headers:{'Content-Type':'application/json',[csrfHeader]:csrfToken},body:JSON.stringify(values)});
-      orderDirty = false; orderActionDialog.close(); await refreshAfterAction(no ? '订单进度已保存。' : '订单已创建，请在订单列表分配业务归属。','orders');
+      orderDirty = false; imageDirty=false;orderImageForm.reset();orderActionDialog.close(); await refreshAfterAction(no ? '订单进度已保存。' : '订单已创建，请在订单列表分配业务归属。','orders');
     } catch(error) {state.textContent = error.message;}
     finally {actionBusy = false;actionControls(orderActionForm,false);actionControls(orderImageForm,false);}
   });
@@ -583,7 +612,7 @@
     const no = orderActionForm.elements.namedItem('businessNo').value, body = new FormData(orderImageForm);
     body.set('version',orderActionForm.elements.namedItem('version').value);
     actionBusy = true;actionControls(orderActionForm,true);actionControls(orderImageForm,true);state.textContent = '正在更新截图…';
-    try {const result = await actionRequest(`/api/admin/xingwei/business/orders/${encodeURIComponent(no)}/image`,{method:'POST',headers:{[csrfHeader]:csrfToken},body});orderActionForm.elements.namedItem('version').value = result.version;orderImageForm.reset();state.textContent = '进度截图已更新。';}
+    try {const result = await actionRequest(`/api/admin/xingwei/business/orders/${encodeURIComponent(no)}/image`,{method:'POST',headers:{[csrfHeader]:csrfToken},body});orderActionForm.elements.namedItem('version').value = result.version;orderImageForm.reset();imageDirty=false;state.textContent = '进度截图已更新。';}
     catch(error) {state.textContent = error.message;}
     finally {actionBusy = false;actionControls(orderActionForm,false);actionControls(orderImageForm,false);}
   });
@@ -618,12 +647,15 @@
       loadTab('after-sales');
     }
   });
-  refreshButton?.addEventListener('click', () => activeTab && loadTab(activeTab, true));
+  refreshButton?.addEventListener('click', () => activeTab && loadTab(activeTab));
   assignForm?.addEventListener('submit', saveAssignment);
-  document.getElementById('xwbAssignClose')?.addEventListener('click', () => dialog.close());
-  document.getElementById('xwbAssignCancel')?.addEventListener('click', () => dialog.close());
+  document.getElementById('xwbAssignClose')?.addEventListener('click', closeAssignment);
+  document.getElementById('xwbAssignCancel')?.addEventListener('click', closeAssignment);
   document.getElementById('xwbAfterSalesDetailClose')?.addEventListener('click', () => afterSalesDetailDialog.close());
-  dialog?.addEventListener('close', () => { assignment = null; assignState.textContent = ''; });
+  dialog?.addEventListener('cancel',event=>{event.preventDefault();closeAssignment();});
+  dialog?.addEventListener('close',()=>{if(!dialog.open&&!assignmentBusy)clearAssignment();});
+  assignTarget?.addEventListener('change',()=>{assignmentDirty=!!assignTarget.value;});
+  document.getElementById('xwbAssignRetry')?.addEventListener('click',()=>{if(assignment&&!assignmentBusy)openAssignment(assignment.type,assignment.item);});
 
   init();
 })();

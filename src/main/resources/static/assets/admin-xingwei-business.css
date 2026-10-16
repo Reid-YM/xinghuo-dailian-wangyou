@@ -10,3 +10,7 @@
 
 /* Author button/display rules must respect permission-controlled hidden attributes. */
 .xwb-shell [hidden],.xw-dialog [hidden]{display:none!important}
+
+#xwbAssignDialog .xw-dialog-actions{flex-wrap:wrap}#xwbAssignDialog #xwbAssignState{flex:1 1 100%;max-width:100%;overflow-wrap:anywhere;line-height:1.7}
+
+#xwbAssignDialog :is(button,select):disabled{opacity:.55;cursor:not-allowed}

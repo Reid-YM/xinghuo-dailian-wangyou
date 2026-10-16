@@ -9,6 +9,8 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 @EnabledIfEnvironmentVariable(named="PLAYWRIGHT_UI_TESTS",matches="1")
 class XingweiBusinessActionsPlaywrightTest {
+    private Browser chromium(Playwright p){var options=new com.microsoft.playwright.BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return p.chromium().launch(options);}
+
     private void setup(Page page,boolean readOnly)throws Exception{
         String html=Files.readString(Path.of("src/main/resources/templates/admin-xingwei-business.html")).replaceAll("<script[^>]*></script>","");
         page.route("**/*",r->r.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(html)));
@@ -34,7 +36,7 @@ class XingweiBusinessActionsPlaywrightTest {
     }
     @Test
     void chromiumConvertsWithInheritedBusinessNumberAndPreservesConflictingOrderDraft()throws Exception{
-        try(Playwright p=Playwright.create();Browser b=p.chromium().launch()){
+        try(Playwright p=Playwright.create();Browser b=chromium(p)){
             Page page=b.newPage();page.onDialog(Dialog::accept);setup(page,false);
             page.locator("#xwbQuoteRows").getByText("处理询价",new Locator.GetByTextOptions().setExact(true)).click();
             page.locator("#xwbQuoteActionForm textarea[name=reason]").fill("需求已确认");page.locator("#xwbConvertQuote").click();

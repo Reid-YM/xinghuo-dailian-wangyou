@@ -144,7 +144,7 @@
     try {
       state.profile = await request('/api/account/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
         body: JSON.stringify({ contactType, contactValue, password, remember })
       });
       loginMessage('登录成功，正在载入个人中心。', 'ok');
@@ -345,7 +345,7 @@
 
   async function doLogout() {
     try {
-      await request('/api/account/logout', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      await request('/api/account/logout', { method: 'POST', headers: { 'X-Requested-With': 'fetch' } });
     } catch (ignore) {
       // Even when the network response is lost, re-check /me before showing authenticated content again.
     }

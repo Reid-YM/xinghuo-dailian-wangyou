@@ -29,7 +29,7 @@ class FrontendNextN6AccountSecurityContractTest {
         assertTrue(js.contains("/api/account/password/change"));
         assertTrue(js.contains("/api/account/sessions/"));
         assertTrue(js.contains("/api/account/sessions/revoke-all"));
-        assertTrue(js.contains("'X-Requested-With': 'XMLHttpRequest'"));
+        assertTrue(js.contains("'X-Requested-With': 'fetch'"));
         assertTrue(js.contains("credentials: 'same-origin'"));
         assertTrue(js.contains("window.confirm"));
     }

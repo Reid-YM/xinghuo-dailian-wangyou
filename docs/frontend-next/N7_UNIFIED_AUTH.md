@@ -25,7 +25,7 @@
 
 - 不新增数据库迁移。
 - 不建立第二套账号模型或第二套会话。
-- 所有写请求继续携带 `X-Requested-With: XMLHttpRequest`。
+- 所有写请求继续携带 `X-Requested-With: fetch`。
 - 注册成功仍由现有 AccountService 建立正式网站会话。
 - 找回密码继续使用“无论邮箱是否存在均返回相同提示”的防账号枚举策略。
 - 不使用 `innerHTML`、`localStorage`、`sessionStorage` 保存认证数据。

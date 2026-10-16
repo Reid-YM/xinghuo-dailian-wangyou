@@ -100,13 +100,13 @@
   function writeJson(url, body, method = 'POST') {
     return request(url, {
       method,
-      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
       body: JSON.stringify(body)
     });
   }
 
   function writeNoBody(url, method = 'POST') {
-    return request(url, { method, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    return request(url, { method, headers: { 'X-Requested-With': 'fetch' } });
   }
 
   function setMessage(id, message, kind = '') {

@@ -53,7 +53,7 @@
 
 ## 安全约束
 
-- 所有写请求和 DELETE 请求继续携带 `X-Requested-With: XMLHttpRequest`。
+- 所有写请求和 DELETE 请求继续携带 `X-Requested-With: fetch`。
 - 请求使用当前账号的同源 Cookie 会话。
 - 不使用 `innerHTML`、`localStorage`、`sessionStorage` 保存账号或业务数据。
 - 单设备下线仍由服务端重新校验该 session 是否属于当前账号。

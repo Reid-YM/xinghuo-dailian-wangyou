@@ -31,7 +31,7 @@ class FrontendNextN5BusinessContractTest {
         assertTrue(js.contains("/api/account/orders/candidates"));
         assertTrue(js.contains("/api/account/orders/claim"));
         assertTrue(js.contains("method: 'POST'"));
-        assertTrue(js.contains("'X-Requested-With': 'XMLHttpRequest'"));
+        assertTrue(js.contains("'X-Requested-With': 'fetch'"));
         assertTrue(js.contains("window.confirm"));
         assertTrue(js.contains("contactVerified"));
     }

@@ -2,6 +2,11 @@ package com.xinghuo.web;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
@@ -27,6 +32,7 @@ public class FrontendNextPreviewController {
     private static final String N6_RUNTIME = "<script src=\"/next/n6-account-security.js\" defer></script>";
     private static final String N7_RUNTIME = "<script src=\"/next/n7-auth.js\" defer></script>";
     private static final String N8_RUNTIME = "<script src=\"/next/n8-integration.js\" defer></script>";
+    private final Map<String,String> runtimeVersions = new ConcurrentHashMap<>();
     private final ClassPathResource index = new ClassPathResource("static/next/index.html");
 
     @GetMapping({
@@ -70,9 +76,24 @@ public class FrontendNextPreviewController {
         if (!html.contains(N8_RUNTIME)) {
             html = html.replace("</body>", N8_RUNTIME + "</body>");
         }
+        html = versionRuntimes(html);
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
                 .cacheControl(CacheControl.noStore())
                 .body(html);
+    }
+    private String versionRuntimes(String html) throws IOException {
+        for (String name : new String[]{"n2.js","n3.js","n4.js","n4-mini.js","n5.js","n5-actions.js","n6-account-security.js","n7-auth.js","n8-integration.js"}) {
+            String version = runtimeVersions.get(name);
+            if (version == null) {
+                try (var input = new ClassPathResource("static/next/" + name).getInputStream()) {
+                    version = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(input.readAllBytes()));
+                } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
+                runtimeVersions.put(name, version);
+            }
+            String path = "/next/" + name;
+            html = html.replace("src=\"" + path + "\"", "src=\"" + path + "?v=" + version + "\"");
+        }
+        return html;
     }
 }

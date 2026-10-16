@@ -41,7 +41,7 @@ class XingweiRuntimeRequestMetricsTest {
     }
 
     @Test
-    void keepsOnlyMinuteAggregatesInsideRollingWindow() {
+    void keepsDisplayTrendAtFifteenMinutesButRetainsSixtyForReleaseObservation() {
         XingweiRuntimeRequestMetrics metrics = new XingweiRuntimeRequestMetrics();
         long minute = 1_800_000_000_000L;
 
@@ -53,6 +53,8 @@ class XingweiRuntimeRequestMetricsTest {
         XingweiRuntimeRequestMetrics.MinuteBucket previous = buckets.get(buckets.size() - 2);
         XingweiRuntimeRequestMetrics.MinuteBucket current = buckets.get(buckets.size() - 1);
 
+        assertEquals(XingweiRuntimeRequestMetrics.TREND_MINUTES, buckets.size());
+        assertEquals(XingweiRuntimeRequestMetrics.RETENTION_MINUTES, metrics.retainedMinutes(minute + 60_000L).size());
         assertEquals(2, previous.totalRequests());
         assertEquals(1, previous.clientErrors());
         assertEquals(0, previous.serverErrors());

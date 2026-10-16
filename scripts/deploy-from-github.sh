@@ -12,6 +12,7 @@ SMOKE_PORT=${SMOKE_PORT:-18080}
 EXPECTED_SHA=${1:-}
 REVIEWED_MIGRATIONS_FILE=${REVIEWED_MIGRATIONS_FILE:-$WORK/docs/REVIEWED_FLYWAY_MIGRATIONS.txt}
 RELEASE_ATTESTATION_FILE=${RELEASE_ATTESTATION_FILE:-$APP_DIR/release-attestation.json}
+RELEASE_ATTESTATION_HISTORY_DIR=${RELEASE_ATTESTATION_HISTORY_DIR:-$APP_DIR/release-attestations}
 
 log()  { echo "[$(date '+%F %T')] $*"; }
 fail() { log "❌ $*"; exit 1; }
@@ -273,10 +274,41 @@ cat > "$ATTESTATION_TMP" <<EOF
   }
 }
 EOF
+
+# 历史发布凭证是主机网关的附加只读审计材料。归档失败不反向伪造生产故障，
+# 但会在发布日志中明确告警，后台历史基线也会显示为缺失/构建中。
+if sudo install -d -o root -g xinghuo -m 0750 "$RELEASE_ATTESTATION_HISTORY_DIR"; then
+  PREVIOUS_HISTORY_NAME="$(basename "$PREVIOUS_JAR" .jar).json"
+  if sudo test -r "$RELEASE_ATTESTATION_FILE"; then
+    if sudo install -o root -g xinghuo -m 0640 \
+      "$RELEASE_ATTESTATION_FILE" "$RELEASE_ATTESTATION_HISTORY_DIR/$PREVIOUS_HISTORY_NAME"; then
+      log "✅ 已归档上一版主机发布凭证: $PREVIOUS_HISTORY_NAME"
+    else
+      log "⚠️ 上一版主机发布凭证归档失败；不影响已完成的生产切流"
+    fi
+  fi
+else
+  log "⚠️ 无法准备主机发布历史目录；历史稳定性基线本次不会增长"
+fi
+
 sudo install -o root -g xinghuo -m 0640 "$ATTESTATION_TMP" "$RELEASE_ATTESTATION_FILE.next"
 sudo mv -Tf "$RELEASE_ATTESTATION_FILE.next" "$RELEASE_ATTESTATION_FILE"
-rm -f "$ATTESTATION_TMP"
 log "✅ 主机侧发布凭证已更新（含发布前后 8080 健康对比）"
+
+CURRENT_HISTORY_NAME="$(basename "$CURRENT_JAR" .jar).json"
+if sudo test -d "$RELEASE_ATTESTATION_HISTORY_DIR"; then
+  if sudo install -o root -g xinghuo -m 0640 \
+    "$ATTESTATION_TMP" "$RELEASE_ATTESTATION_HISTORY_DIR/$CURRENT_HISTORY_NAME.next" \
+    && sudo mv -Tf \
+      "$RELEASE_ATTESTATION_HISTORY_DIR/$CURRENT_HISTORY_NAME.next" \
+      "$RELEASE_ATTESTATION_HISTORY_DIR/$CURRENT_HISTORY_NAME"; then
+    log "✅ 当前主机发布凭证已加入历史基线: $CURRENT_HISTORY_NAME"
+  else
+    sudo rm -f "$RELEASE_ATTESTATION_HISTORY_DIR/$CURRENT_HISTORY_NAME.next" 2>/dev/null || true
+    log "⚠️ 当前主机发布凭证归档失败；最新发布凭证本身仍然有效"
+  fi
+fi
+rm -f "$ATTESTATION_TMP"
 
 log "✅ GitHub 一键生产发布完成"
 log "   Git SHA: $HEAD_SHA"

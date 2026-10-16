@@ -236,7 +236,7 @@
       idempotencyKey='';screenshotAssetId=null;if(imageInput)imageInput.value='';
       if(businessNo){
         const record=document.createElement('a');
-        record.href=`/record/${encodeURIComponent(businessNo)}`;
+        record.href=`/next/record/${encodeURIComponent(businessNo)}`;
         record.textContent='查看业务记录 →';
         record.style.cssText='display:inline-block;margin-top:8px;color:var(--gold);font-size:11px';
         $('#n3QuoteMessage')?.append(document.createElement('br'),record);

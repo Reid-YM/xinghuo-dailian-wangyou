@@ -11,6 +11,14 @@
   const declaredStage = (document.querySelector('[data-runtime-stage]')?.dataset.runtimeStage || document.querySelector('#overview .xw-kicker')?.textContent)?.trim() || '';
   const modules = Array.from(document.querySelectorAll('.xw-module'));
   const navItems = Array.from(document.querySelectorAll('.xw-nav-item'));
+  const workspaceNames = {overview:'运营总览',business:'业务中台',organization:'组织与权限',channels:'渠道与微信',system:'系统工具'};
+  const panels = Array.from(document.querySelectorAll('[data-workspace]'));
+  const orgAnchors = new Set(['org-console','org-positions','org-employees','org-roles']);
+  function workspaceFor(hash) {
+    const id = String(hash || '').replace(/^#/, '');
+    return Object.hasOwn(workspaceNames, id) ? id : orgAnchors.has(id) ? 'organization' : 'overview';
+  }
+  let activeWorkspace = workspaceFor(location.hash);
   const REQUEST_TIMEOUT_MS = 8000;
   const HEALTH_CHECK_INTERVAL_MS = 60000;
   const MODULE_PERMISSIONS = {
@@ -36,12 +44,26 @@
     setMenu(!sidebar?.classList.contains('open'));
   });
 
-  navItems.forEach((item) => {
-    item.addEventListener('click', () => {
-      navItems.forEach((entry) => entry.classList.remove('active'));
-      item.classList.add('active');
-      if (window.matchMedia('(max-width: 860px)').matches) setMenu(false);
-    });
+  function chooseWorkspace(hash) {
+    activeWorkspace = workspaceFor(hash);
+    if (search) search.value = '';
+    filterModules();
+    if (window.matchMedia('(max-width: 860px)').matches) setMenu(false);
+  }
+
+  document.addEventListener('click', (event) => {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest?.('a[href^="#"]');
+    if (!link || (!sidebar?.contains(link) && !document.querySelector('.xw-main')?.contains(link))) return;
+    const hash = link.getAttribute('href');
+    const id = hash.slice(1);
+    if (Object.hasOwn(workspaceNames, id) || orgAnchors.has(id)) chooseWorkspace(hash);
+  });
+  window.addEventListener('hashchange', () => chooseWorkspace(location.hash));
+  document.getElementById('xwSearchClear')?.addEventListener('click', () => {
+    if (search) search.value = '';
+    filterModules();
+    search?.focus();
   });
 
   document.addEventListener('keydown', (event) => {
@@ -100,15 +122,48 @@
     modules.forEach((module) => {
       const text = normalize(`${module.dataset.search || ''} ${module.textContent || ''}`);
       const code = module.querySelector('.xw-module-index')?.textContent?.trim();
-      const allowed = code === 'S01' ? can('site:view') || can('seo:view') : code === 'B14' ? can('order:view') || can('quote:view') : can(modulePermission(module));
+      const allowed = Boolean(access) && (code === 'S01' ? can('site:view') || can('seo:view') : code === 'B14' ? can('order:view') || can('quote:view') : can(modulePermission(module)));
       const globalAllowed = !module.hasAttribute('data-global-scope') || !access || access.allowAll || access.dataScope === 'ALL';
       const match = (!query || text.includes(query)) && allowed && globalAllowed;
       module.hidden = !match;
       if (match) visible += 1;
     });
+    showWorkspace(query, visible);
     if (searchCount) {
       const suffix = access?.mode === 'SHADOW_RBAC' ? ` · RBAC · ${scopeLabel(access)}` : '';
-      searchCount.textContent = query ? `匹配 ${visible} 个模块${suffix}` : `可用 ${visible} / ${modules.length} 个模块${suffix}`;
+      searchCount.textContent = !access ? '正在读取可用模块' : query ? `匹配 ${visible} 个模块${suffix}` : `可用 ${visible} / ${modules.length} 个模块${suffix}`;
+    }
+  }
+
+  function showWorkspace(query, matches) {
+    panels.forEach((panel) => {
+      panel.hidden = query
+        ? !panel.querySelector('.xw-module:not([hidden])')
+        : panel.dataset.workspace !== activeWorkspace;
+    });
+    navItems.forEach((item) => {
+      const current = !query && workspaceFor(item.getAttribute('href')) === activeWorkspace;
+      item.classList.toggle('active', current);
+      if (current) item.setAttribute('aria-current', 'page');
+      else item.removeAttribute('aria-current');
+    });
+    const title = query ? '模块搜索' : workspaceNames[activeWorkspace];
+    const heading = document.getElementById('xwWorkspaceTitle');
+    if (heading) heading.textContent = title;
+    document.title = `${title} · 星维管理后台`;
+    const clear = document.getElementById('xwSearchClear');
+    if (clear) clear.hidden = !query;
+    document.querySelectorAll('[data-workspace-count]').forEach((count) => {
+      const section = document.getElementById(count.dataset.workspaceCount);
+      const available = section?.querySelectorAll('.xw-module:not([hidden])').length || 0;
+      count.textContent = !access ? '正在核对权限' : `可用 ${available} 个模块 →`;
+    });
+    const empty = document.getElementById('xwWorkspaceEmpty');
+    if (empty) {
+      const section = document.getElementById(activeWorkspace);
+      const available = section?.querySelectorAll('.xw-module:not([hidden])').length || 0;
+      empty.hidden = !access || (query ? matches > 0 : activeWorkspace === 'overview' || available > 0);
+      empty.textContent = query ? '没有匹配的可用模块，请更换关键词或清除搜索。' : '当前工作区没有可用模块，可选择其他工作区或联系管理员核对权限。';
     }
   }
 

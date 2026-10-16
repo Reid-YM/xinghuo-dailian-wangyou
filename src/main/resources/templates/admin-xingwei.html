@@ -8,9 +8,9 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261016sidebar1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017panels1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei.js?v=20261016sidebar1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261016audit2"></script><script defer src="/assets/admin-xingwei.js?v=20261017panels1"></script>
   <script defer src="/assets/admin-xingwei-org.js?v=20261013v2c"></script>
 </head>
 <body>
@@ -25,11 +25,11 @@
     </div>
 
     <nav class="xw-nav" aria-label="后台导航">
-      <a class="xw-nav-item active" href="#overview"><span>01</span>运营总览</a>
-      <a class="xw-nav-item" href="#business"><span>02</span>业务中台</a>
-      <a class="xw-nav-item" href="#organization"><span>03</span>组织与权限</a>
-      <a class="xw-nav-item" href="#channels"><span>04</span>渠道与微信</a>
-      <a class="xw-nav-item" href="#system"><span>05</span>系统工具</a>
+      <a class="xw-nav-item active" href="#overview" aria-controls="overview" aria-current="page"><span>01</span>运营总览</a>
+      <a class="xw-nav-item" href="#business" aria-controls="business"><span>02</span>业务中台</a>
+      <a class="xw-nav-item" href="#organization" aria-controls="organization org-console"><span>03</span>组织与权限</a>
+      <a class="xw-nav-item" href="#channels" aria-controls="channels"><span>04</span>渠道与微信</a>
+      <a class="xw-nav-item" href="#system" aria-controls="system"><span>05</span>系统工具</a>
     </nav>
 
     <details class="xw-release-menu" id="xwReleaseMenu">
@@ -57,7 +57,7 @@
       <button class="xw-menu-button" id="xwMenuButton" type="button" aria-label="打开导航" aria-expanded="false">☰</button>
       <div>
         <p class="xw-kicker">星维 · 运营管理</p>
-        <h1>星维管理后台</h1>
+        <h1 id="xwWorkspaceTitle">运营总览</h1>
       </div>
       <div class="xw-topbar-actions">
         <span class="xw-status" id="xwBackendStatus"><i></i>正在检查服务</span>
@@ -66,19 +66,32 @@
       </div>
     </header>
 
-    <section class="xw-hero" id="overview">
-      <div><p class="xw-kicker">运营工作台</p><h2>新版后台统一工作台</h2><p>处理询价、订单、售后与日常运营，按岗位权限和数据范围查看业务。使用快捷搜索定位所需模块。</p></div>
+    <section class="xw-hero" id="overview" data-workspace="overview">
+      <div><p class="xw-kicker">运营工作台</p><h2>新版后台统一工作台</h2><p>从左侧选择工作区，分别处理业务、组织、渠道与系统配置。也可使用快捷搜索跨工作区定位模块。</p></div>
     </section>
 
     <section class="xw-command-card" aria-label="后台快捷搜索">
       <label for="xwModuleSearch">快速定位模块</label>
       <div class="xw-search-row">
         <input id="xwModuleSearch" type="search" placeholder="搜索：订单、询价、员工、权限、微信、SEO、日志……" autocomplete="off"/>
+        <button id="xwSearchClear" type="button" class="xw-button xw-button-ghost" hidden>清除搜索</button>
         <span id="xwSearchCount">正在读取可用模块</span>
       </div>
     </section>
 
-    <section class="xw-section" id="business">
+    <p class="xw-workspace-empty" id="xwWorkspaceEmpty" role="status" aria-live="polite" hidden></p>
+    <section class="xw-workspace-home" data-workspace="overview" aria-label="选择工作区">
+      <h2>选择工作区</h2>
+      <div class="xw-workspace-links">
+        <a href="#business"><strong>业务中台</strong><span>询价、订单、内容与运营资料</span><small data-workspace-count="business">正在核对权限</small></a>
+        <a href="#organization"><strong>组织与权限</strong><span>中心、岗位、员工与角色</span><small data-workspace-count="organization">正在核对权限</small></a>
+        <a href="#channels"><strong>渠道与微信</strong><span>渠道运营、微信与前台展示</span><small data-workspace-count="channels">正在核对权限</small></a>
+        <a href="#system"><strong>系统工具</strong><span>站点配置、审计与发布记录</span><small data-workspace-count="system">正在核对权限</small></a>
+      </div>
+    </section>
+    <noscript><p>请启用浏览器脚本以加载权限与工作区。</p></noscript>
+
+    <section class="xw-section" id="business" data-workspace="business" hidden>
       <div class="xw-section-head">
         <div><p class="xw-kicker">业务中台</p><h2>业务中台</h2></div>
         <p>V2E 已把询价与订单接入新版数据范围工作台；V3A-V3I 已继续迁移服务目录、发布检查、游戏/分类受控管理和可见性启停保护。攻略内容也进入新版受控入口，旧后台继续保留回退。</p>
@@ -101,7 +114,7 @@
       </div>
     </section>
 
-    <section class="xw-section" id="organization">
+    <section class="xw-section" id="organization" data-workspace="organization" hidden>
       <div class="xw-section-head">
         <div><p class="xw-kicker">组织与权限</p><h2>组织与权限</h2></div>
         <p>V2C 已在新版组织接口启用后端数据范围守卫；权限及全部数据、本中心、仅本人范围都会在接口层执行。</p>
@@ -114,7 +127,7 @@
       </div>
     </section>
 
-    <section class="xw-section xw-org-console" id="org-console">
+    <section class="xw-section xw-org-console" id="org-console" data-workspace="organization" hidden>
       <div class="xw-section-head">
         <div><p class="xw-kicker">V2C · 数据范围</p><h2>组织与权限控制台</h2></div>
         <div class="xw-shadow-badge"><i></i><span>V2C 数据范围</span><small>恢复管理员全量 · 员工按角色与数据范围执行</small></div>
@@ -145,7 +158,7 @@
       </article>
     </section>
 
-    <section class="xw-section" id="channels">
+    <section class="xw-section" id="channels" data-workspace="channels" hidden>
       <div class="xw-section-head"><div><p class="xw-kicker">渠道与微信</p><h2>渠道与微信</h2></div><p>网站侧小程序登录接口已上线，星火迷彩追踪器源码已随 V3N 进入仓库，预览版真机主链路已验证；小程序正式版仍待独立发布；支付保持受控联调状态。</p></div>
       <div class="xw-grid">
         <a class="xw-module" data-search="淘宝 闲鱼 渠道 商品 运营 任务" href="/admin/xingwei/channels"><div class="xw-module-index">C01</div><h3>渠道运营</h3><p>查看官网、淘宝、闲鱼的内部服务状态，按权限安排与跟进运营任务。</p><span>打开渠道工作台 →</span></a>
@@ -154,7 +167,7 @@
         <a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/xingwei/frontend-controls"><div class="xw-module-index">C04</div><h3>前台控制</h3><p>按查看与管理权限维护导航、展示开关和主题参数。</p><span>打开模块 →</span></a>
       </div>
     </section>
-    <section class="xw-section" id="system">
+    <section class="xw-section" id="system" data-workspace="system" hidden>
       <div class="xw-section-head"><div><p class="xw-kicker">系统与治理</p><h2>系统工具</h2></div><p>保留审计、搜索展示、站点配置和发布回滚能力；版本真值现在同时受 CI 和浏览器运行时核验保护。</p></div>
       <div class="xw-grid">
         <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin/xingwei/site"><div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示、图片与游戏服务状态。</p><span>进入配置工作台 →</span></a>

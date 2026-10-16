@@ -25,6 +25,26 @@ class XingweiChannelOperationsSecurityTest {
     @AfterEach
     void clear() { SecurityContextHolder.clearContext(); }
     @Test
+    void auditPageAndReadApiRequireAuditPermission() {
+        var guard = mock(XingweiPermissionGuard.class);
+        var audits = mock(com.xinghuo.service.XingweiAuditQueryService.class);
+        var actor = new UsernamePasswordAuthenticationToken("operator","",List.of());
+        try (var context = new AnnotationConfigApplicationContext()) {
+            context.register(Security.class);
+            context.registerBean("xingweiPermissionGuard",XingweiPermissionGuard.class,() -> guard);
+            context.registerBean(com.xinghuo.service.XingweiAuditQueryService.class,() -> audits);
+            context.registerBean(XingweiAuditController.class);
+            context.refresh();
+            SecurityContextHolder.getContext().setAuthentication(actor);
+            var controller = context.getBean(XingweiAuditController.class);
+            assertThrows(AccessDeniedException.class,controller::page);
+            assertThrows(AccessDeniedException.class,() -> controller.detail(1,actor));
+            verifyNoInteractions(audits);
+            when(guard.has(actor,"audit:view")).thenReturn(true);
+            assertEquals("admin-xingwei-audits",controller.page());
+        }
+    }
+    @Test
     void methodSecuritySeparatesChannelViewingFromWrites() {
         var guard = mock(XingweiPermissionGuard.class);
         var service = mock(XingweiChannelOperationsService.class);

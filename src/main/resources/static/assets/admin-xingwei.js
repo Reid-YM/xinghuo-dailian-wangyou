@@ -97,7 +97,9 @@
     let visible = 0;
     modules.forEach((module) => {
       const text = normalize(`${module.dataset.search || ''} ${module.textContent || ''}`);
-      const match = (!query || text.includes(query)) && can(modulePermission(module));
+      const code = module.querySelector('.xw-module-index')?.textContent?.trim();
+      const allowed = code === 'S01' ? can('site:view') || can('seo:view') : can(modulePermission(module));
+      const match = (!query || text.includes(query)) && allowed;
       module.hidden = !match;
       if (match) visible += 1;
     });

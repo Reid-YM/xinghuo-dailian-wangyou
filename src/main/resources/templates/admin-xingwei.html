@@ -10,7 +10,7 @@
   <title>星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
-  <script defer src="/assets/admin-xingwei.js?v=20261014v3x"></script>
+  <script defer src="/assets/admin-xingwei.js?v=20261016xwsite1"></script>
   <script defer src="/assets/admin-xingwei-org.js?v=20261013v2c"></script>
 </head>
 <body>
@@ -144,13 +144,13 @@
         <a class="xw-module" data-search="淘宝 闲鱼 渠道 商品 运营 任务" href="/admin/xingwei/channels"><div class="xw-module-index">C01</div><h3>渠道运营</h3><p>查看官网、淘宝、闲鱼的内部服务状态，按权限安排与跟进运营任务。</p><span>打开渠道工作台 →</span></a>
         <article class="xw-module" data-search="微信 登录 小程序 扫码 公众号 服务号"><div class="xw-module-index">C02</div><h3>微信身份能力</h3><p>网站登录码与二次确认接口已上线；星火迷彩追踪器 1.0.14 预览版真机登录主链路已验证；小程序正式版发布、异常与跨设备边界仍待单独验收。</p><span>网站接口已上线 · 预览版主链路已验证</span></article>
         <a class="xw-module" data-search="微信支付 支付 配置 商户 订单" href="/admin/xingwei/integrations"><div class="xw-module-index">C03</div><h3>微信支付</h3><p>查看 Native 支付配置与网站支付单只读概览。V3H 小程序支付仍待真机验收。</p><span>V3H 待真机验收 →</span></a>
-        <a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/frontend-controls"><div class="xw-module-index">C04</div><h3>前台控制</h3><p>继续复用现有前台展示与功能开关控制。</p><span>打开模块 →</span></a>
+        <a class="xw-module" data-search="前台 控制 页面 展示 ui" href="/admin/xingwei/frontend-controls"><div class="xw-module-index">C04</div><h3>前台控制</h3><p>按查看与管理权限维护导航、展示开关和主题参数。</p><span>打开模块 →</span></a>
       </div>
     </section>
     <section class="xw-section" id="system">
       <div class="xw-section-head"><div><p class="xw-kicker">SYSTEM & GOVERNANCE</p><h2>系统工具</h2></div><p>保留审计、SEO、站点配置和发布回滚能力；版本真值现在同时受 CI 和浏览器运行时核验保护。</p></div>
       <div class="xw-grid">
-        <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin"><div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示与图片视觉。</p><span>现有后台承载 →</span></a>
+        <a class="xw-module" data-search="seo 搜索 站点 配置 品牌 图片" href="/admin/xingwei/site"><div class="xw-module-index">S01</div><h3>站点与 SEO</h3><p>品牌变量、页面内容、搜索展示、图片与游戏服务状态。</p><span>进入配置工作台 →</span></a>
         <a class="xw-module" data-search="日志 审计 操作 安全" href="/admin/xingwei/audits"><div class="xw-module-index">S02</div><h3>操作审计</h3><p>按权限范围检索操作记录、业务对象和日期，查看受保护的变更摘要。</p><span>查看操作记录 →</span></a>
         <article class="xw-module" data-search="发布 部署 回滚 ci github 服务器"><div class="xw-module-index">S03</div><h3>发布与回滚</h3><p>GitHub PR → CI → 生产部署门禁与零停机发布已经启用；V3K 校验提交记录，V3L 再核对实际运行版本，后台不直接执行危险发布。</p><span>生产流水线已启用</span></article>
         <article class="xw-module xw-module-planned" data-search="代码生成 scaffold generator 开发"><div class="xw-module-index">S04</div><h3>开发工具</h3><p>后续评估移植 scaffold-master 的代码生成与字典能力。</p><span>评估中</span></article>

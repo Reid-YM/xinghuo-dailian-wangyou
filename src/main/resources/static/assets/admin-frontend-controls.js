@@ -1,5 +1,9 @@
 (() => {
   'use strict';
+  const xingweiMode = document.body.dataset.xingweiMode === 'true';
+  let writable = !xingweiMode;
+  let loaded = !xingweiMode;
+  const revisions = new Map();
   const csrf = document.querySelector('meta[name="_csrf"]')?.content;
   const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -36,14 +40,23 @@
     const method = String(options.method || 'GET').toUpperCase();
     const headers = { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) };
     if (csrf && csrfHeader && !['GET', 'HEAD'].includes(method)) headers[csrfHeader] = csrf;
-    const response = await fetch(url, { ...options, headers, cache: 'no-store' });
+    if (xingweiMode && !['GET', 'HEAD'].includes(method)) {
+      if (!writable || !revisions.has(url)) throw new Error('请先读取配置并确认保存权限');
+      headers['If-Match'] = revisions.get(url);
+    }
+    const endpoint = !xingweiMode ? url : url === '/api/admin/global-ui-settings' ? '/api/admin/xingwei/site/global-ui' : url === '/api/admin/frontend-controls' ? '/api/admin/xingwei/site/frontend' : url;
+    const response = await fetch(endpoint, { ...options, headers, cache: 'no-store' });
+    if (xingweiMode && response.ok) {
+      const revision = response.headers?.get?.('ETag');
+      if (revision) revisions.set(url, revision);
+    }
     let payload = null;
     try { payload = await response.json(); } catch (_) {}
     if (response.status === 401 || response.status === 403) {
-      location.assign('/admin/login');
+      if (!xingweiMode) location.assign('/admin/login');
       throw new Error('登录已失效，请重新登录');
     }
-    if (!response.ok) throw new Error(payload?.message || '请求失败，请稍后重试');
+    if (!response.ok) throw new Error(payload?.error || payload?.message || '请求失败，请稍后重试');
     return payload;
   }
 
@@ -59,7 +72,7 @@
 
   function setBusy(form, busy) {
     form?.classList.toggle('fc-loading', busy);
-    $$('button,input,select,textarea', form).forEach(node => { node.disabled = busy; });
+    $$('button,input,select,textarea', form).forEach(node => { node.disabled = busy || (xingweiMode && (!writable || !loaded)); });
   }
 
   function fillForm(form, values = {}) {
@@ -101,16 +114,19 @@
     setBusy(globalForm, true);
     setBusy(frontendForm, true);
     try {
+      if (xingweiMode) { const access = await api('/api/admin/xingwei/site/access'); writable = access.canManageSite === true; }
       const [globalSettings, frontendSettings] = await Promise.all([
         api('/api/admin/global-ui-settings'),
         api('/api/admin/frontend-controls')
       ]);
       fillForm(globalForm, globalSettings || {});
       fillForm(frontendForm, frontendSettings || {});
-      $('#globalUiState').textContent = '已读取后台当前配置';
-      $('#frontendControlState').textContent = '已读取后台当前配置';
+      loaded = true;
+      $('#globalUiState').textContent = writable ? '已读取后台当前配置' : '当前账号只读';
+      $('#frontendControlState').textContent = writable ? '已读取后台当前配置' : '当前账号只读';
       syncThemePreview();
     } catch (error) {
+      if (xingweiMode) writable = false;
       $('#globalUiState').textContent = '读取失败';
       $('#frontendControlState').textContent = '读取失败';
       toast(error.message, 'error');

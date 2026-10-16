@@ -8,11 +8,11 @@
   <meta name="_csrf_header" th:content="${csrf.headerName}">
   <title>前端控制中心 - 星火网游</title>
   <link rel="stylesheet" href="/assets/app.css?v=20261005v031">
-  <link rel="stylesheet" href="/assets/admin-frontend-controls.css?v=20261007fc02">
-  <script defer src="/assets/admin-frontend-controls.js?v=20261007fc02"></script>
+  <link rel="stylesheet" href="/assets/admin-frontend-controls.css?v=20261016xw01">
+  <script defer src="/assets/admin-frontend-controls.js?v=20261016xw01"></script>
 </head>
-<body class="frontend-control-admin">
-<header class="fc-topbar"><div class="fc-topbar-inner"><div class="fc-brand"><span class="fc-brand-mark">X</span><div><small>星火后台</small><strong>前端控制中心</strong></div></div><div class="fc-top-actions"><span th:text="${username}">admin</span><a class="btn ghost" href="/admin">返回运营后台</a><a class="btn primary" href="/" target="_blank" rel="noopener">预览前台</a></div></div></header>
+<body class="frontend-control-admin" th:attr="data-xingwei-mode=${xingweiMode == true}">
+<header class="fc-topbar"><div class="fc-topbar-inner"><div class="fc-brand"><span class="fc-brand-mark">X</span><div><small>星火后台</small><strong>前端控制中心</strong></div></div><div class="fc-top-actions"><span th:text="${username}">admin</span><a class="btn ghost" href="/admin" th:href="${xingweiMode == true} ? '/admin/xingwei' : '/admin'">返回运营后台</a><a class="btn primary" href="/" target="_blank" rel="noopener">预览前台</a></div></div></header>
 <main class="fc-shell">
   <section class="fc-hero"><div><span class="eyebrow">Frontend Control Center</span><h1>管理员直接控制前端展示</h1><p>导航、首页模块、按钮、跳转、显隐和主题参数从后台配置读取；价格、主图、背景图、客服资料继续使用现有站点配置。</p></div><div class="fc-status-card"><b>后端配置驱动</b><small>保存后前台刷新读取最新值</small></div></section>
   <nav class="fc-section-nav"><a href="#global">导航与备案</a><a href="#home">首页模块</a><a href="#theme">主题样式</a><a href="#existing">已有配置</a></nav>
@@ -70,7 +70,7 @@
     <div class="fc-sticky-save"><div><b>首页与主题配置</b><span id="frontendControlState">正在读取配置…</span></div><button class="btn primary" type="submit">保存首页与主题</button></div>
   </form>
 
-  <section class="fc-card" id="existing"><div class="fc-card-head"><div><span class="eyebrow">已有能力</span><h2>继续由原后台维护</h2><p>避免出现两份配置互相覆盖。</p></div><a class="btn ghost" href="/admin">打开运营后台</a></div><div class="fc-existing-grid"><article><b>首页内容</b><span>Hero 标题、副标题、价格、信任标签</span></article><article><b>首页视觉</b><span>主图、背景图、焦点、裁切、模糊</span></article><article><b>联系方式</b><span>微信、二维码、企微、淘宝、闲鱼</span></article><article><b>信任 FAQ</b><span>案例、问题与说明</span></article><article><b>服务项目</b><span>价格、封面、排序、上下架</span></article><article><b>SEO / 状态</b><span>搜索展示和游戏运营状态</span></article></div></section>
+  <section class="fc-card" id="existing"><div class="fc-card-head"><div><span class="eyebrow">已有能力</span><h2 th:text="${xingweiMode == true} ? '站点内容与媒体配置' : '继续由原后台维护'">继续由原后台维护</h2><p>避免出现两份配置互相覆盖。</p></div><a class="btn ghost" href="/admin" th:href="${xingweiMode == true} ? '/admin/xingwei/site' : '/admin'" th:text="${xingweiMode == true} ? '打开站点配置' : '打开运营后台'">打开运营后台</a></div><div class="fc-existing-grid"><article><b>首页内容</b><span>Hero 标题、副标题、价格、信任标签</span></article><article><b>首页视觉</b><span>主图、背景图、焦点、裁切、模糊</span></article><article><b>联系方式</b><span>微信、二维码、企微、淘宝、闲鱼</span></article><article><b>信任 FAQ</b><span>案例、问题与说明</span></article><article><b>服务项目</b><span>价格、封面、排序、上下架</span></article><article><b>SEO / 状态</b><span>搜索展示和游戏运营状态</span></article></div></section>
 </main>
 <div class="toast-area" id="toastArea" aria-live="polite"></div>
 </body>

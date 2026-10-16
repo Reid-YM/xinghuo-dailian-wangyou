@@ -69,7 +69,7 @@
   }
 
   function rewriteServiceLink(link) {
-    if (!(link instanceof HTMLAnchorElement)) return;
+    if (!(link instanceof HTMLAnchorElement) || link.dataset.n10Legacy === '1') return;
     const raw = link.getAttribute('href') || '';
     if (!raw.startsWith('/service/') || raw.startsWith('/next/service/')) return;
     link.setAttribute('href', '/next' + raw);
@@ -218,6 +218,7 @@
     safe.append(node('strong', '', '预览链路说明'), document.createTextNode('：这是 Frontend Next N10 预览详情页。旧版 '));
     const legacy = node('a', '', `/service/${slug}`);
     legacy.href = `/service/${encodeURIComponent(slug)}`;
+    legacy.dataset.n10Legacy = '1';
     safe.append(legacy, document.createTextNode(' 仍保持原样，不会被重定向或删除。'));
     aside.append(safe);
 

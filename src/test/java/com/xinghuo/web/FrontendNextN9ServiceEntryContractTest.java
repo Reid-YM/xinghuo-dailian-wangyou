@@ -58,7 +58,7 @@ class FrontendNextN9ServiceEntryContractTest {
         String rolloutController = read("java/com/xinghuo/web/FrontendNextRolloutAdminController.java");
         String runtime = read("resources/static/assets/admin-frontend-next-rollout.js");
 
-        assertTrue(pageController.contains("@GetMapping(\"/services\")"));
+        assertTrue(pageController.contains("@GetMapping(value={\"/services\"})"));
         assertFalse(pageController.contains("redirect:/next/services"));
         assertFalse(rolloutController.contains("@PostMapping"));
         assertFalse(runtime.contains("/api/quote"));

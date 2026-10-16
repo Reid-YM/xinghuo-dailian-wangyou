@@ -23,6 +23,7 @@
   const dirty=()=>!!save&&$('#catalogDetailsDialog').open&&fingerprint()!==baseline;
   function controls(){
     $('#catalogDetailsFields').disabled=busy||!save;
+    $('#catalogDetailsFields').querySelectorAll('button,input[type=file]').forEach(input=>input.disabled=busy||uncertain);
     $('#catalogDetailsSave').disabled=busy||uncertain||!saveAllowed();
     $('#catalogDetailsClose').disabled=busy;
     $('#catalogDetailsFilters').querySelectorAll('input,select,button').forEach(input=>input.disabled=busy||(loading&&input.id!=='catalogDetailsReload'));

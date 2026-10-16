@@ -14,7 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class FrontendMigrationConfig implements WebMvcConfigurer {
     private final boolean enabled;
-    public FrontendMigrationConfig(@Value("${app.frontend-next.default-enabled:true}") boolean enabled) {this.enabled=enabled;}
+    public FrontendMigrationConfig(@Value("${app.frontend-next.default-enabled:false}") boolean enabled) {this.enabled=enabled;}
     @Override public void addInterceptors(InterceptorRegistry registry) {registry.addInterceptor(new Replacement(enabled));}
     public static class Replacement implements HandlerInterceptor {
         private static final Map<String,String> ROUTES=Map.ofEntries(

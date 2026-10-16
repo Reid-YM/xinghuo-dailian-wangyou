@@ -54,13 +54,20 @@ check_body_absent() {
 }
 check_code / 200
 check_code /services 200
-# 完整替换必须验证实际默认视图，避免 200 仍是旧页面；在 18080/8081/8080 均执行。
-check_header / X-Xinghuo-Frontend next
-check_header /services X-Xinghuo-Frontend next
-check_header /quote X-Xinghuo-Frontend next
-check_header /account/login X-Xinghuo-Frontend next
-check_header / Cache-Control no-store
-check_body_contains / 'src="/next/shell.js?v='
+# 正式前端回退到旧版；候选、金丝雀、正式端口都必须确认实际视图，防止误切新版。
+check_header / X-Xinghuo-Frontend ''
+check_header /services X-Xinghuo-Frontend ''
+check_header /quote X-Xinghuo-Frontend ''
+check_header /account/login X-Xinghuo-Frontend ''
+check_body_contains / 'data-page="home"'
+check_body_contains /services 'data-page="services"'
+check_body_contains /quote 'data-page="quote"'
+check_body_contains /account/login 'data-page="account-login"'
+check_body_contains /account/register 'data-page="account-register"'
+check_body_contains /account/reset 'data-page="account-reset"'
+for path in / /services /quote /account/login /account/register /account/reset; do
+  check_body_absent "$path" '/next/shell.js'
+done
 check_body_absent '/services?legacy=1' '/next/shell.js'
 check_code /next/services 200
 check_code /admin 302 -H 'Accept: text/html'

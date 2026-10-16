@@ -68,9 +68,10 @@ public class XingweiBusinessScopeService {
                 LIMIT %d
                 """.formatted(scope.sql(), PAGE_LIMIT);
 
+        BusinessPermissions operations = businessPermissions(authentication);
         List<Map<String, Object>> items = jdbc.query(
                 sql,
-                (rs, rowNum) -> quoteRow(rs, authentication),
+                (rs, rowNum) -> quoteRow(rs, access, operations),
                 scope.args().toArray());
         return snapshot(access, items);
     }
@@ -170,8 +171,9 @@ public class XingweiBusinessScopeService {
                 """.formatted(restriction);
         args.add(AFTER_SALES_PAGE_SIZE);
         args.add(page * AFTER_SALES_PAGE_SIZE);
+        BusinessPermissions operations = businessPermissions(authentication);
         List<Map<String, Object>> items = jdbc.query(
-                sql, (rs, rowNum) -> orderRow(rs, authentication), args.toArray());
+                sql, (rs, rowNum) -> orderRow(rs, access, operations), args.toArray());
         List<String> orderNos = items.stream().map(row -> (String) row.get("orderNo")).toList();
         Map<String, List<AfterSalesNoteParser.AfterSalesRecord>> stored =
                 AfterSalesLedger.recordsForOrders(jdbc, orderNos);
@@ -221,9 +223,10 @@ public class XingweiBusinessScopeService {
                 LIMIT %d
                 """.formatted(restriction, PAGE_LIMIT);
 
+        BusinessPermissions operations = businessPermissions(authentication);
         List<Map<String, Object>> items = jdbc.query(
                 sql,
-                (rs, rowNum) -> orderRow(rs, authentication),
+                (rs, rowNum) -> orderRow(rs, access, operations),
                 scope.args().toArray());
         return snapshot(access, items);
     }
@@ -412,7 +415,13 @@ public class XingweiBusinessScopeService {
         return result;
     }
 
-    private Map<String, Object> quoteRow(ResultSet rs, Authentication authentication) throws SQLException {
+    private record BusinessPermissions(boolean quoteManage, boolean orderManage, boolean orderAssign) {}
+    private BusinessPermissions businessPermissions(Authentication authentication) {
+        return new BusinessPermissions(permissions.has(authentication, "quote:manage"),
+                permissions.has(authentication, "order:manage"), permissions.has(authentication, "order:assign"));
+    }
+
+    private Map<String, Object> quoteRow(ResultSet rs, XingweiPermissionGuard.AccessSnapshot access, BusinessPermissions operations) throws SQLException {
         Map<String, Object> row = new LinkedHashMap<>();
         String businessNo = rs.getString("business_no");
         String progress = rs.getString("current_progress");
@@ -436,12 +445,18 @@ public class XingweiBusinessScopeService {
         row.put("createdAt", timestamp(rs, "created_at"));
         row.put("hasScreenshot", rs.getBoolean("has_screenshot"));
         row.put("ownership", ownershipMap(ownership));
-        row.put("canAssign", permissions.has(authentication, "quote:manage")
-                && canAccessForMutation(permissions.resolve(authentication), ownership));
+        row.put("canManage", operations.quoteManage()
+                && !"CONVERTED".equals(rs.getString("status"))
+                && canAccessForMutation(access, ownership));
+        row.put("canConvert", operations.quoteManage() && operations.orderManage()
+                && rs.getString("status") != null && !List.of("CONVERTED", "CLOSED", "CANCELLED").contains(rs.getString("status"))
+                && canAccessForMutation(access, ownership));
+        row.put("canAssign", operations.quoteManage()
+                && canAccessForMutation(access, ownership));
         return row;
     }
 
-    private Map<String, Object> orderRow(ResultSet rs, Authentication authentication) throws SQLException {
+    private Map<String, Object> orderRow(ResultSet rs, XingweiPermissionGuard.AccessSnapshot access, BusinessPermissions operations) throws SQLException {
         Map<String, Object> row = new LinkedHashMap<>();
         String businessNo = rs.getString("business_no");
         Ownership ownership = ownershipFromJoinedRow(rs, businessNo);
@@ -456,8 +471,10 @@ public class XingweiBusinessScopeService {
         row.put("updatedAt", timestamp(rs, "updated_at"));
         row.put("version", rs.getLong("version"));
         row.put("ownership", ownershipMap(ownership));
-        row.put("canAssign", permissions.has(authentication, "order:assign")
-                && canAccessForMutation(permissions.resolve(authentication), ownership));
+        row.put("canManage", operations.orderManage()
+                && canAccessForMutation(access, ownership));
+        row.put("canAssign", operations.orderAssign()
+                && canAccessForMutation(access, ownership));
         return row;
     }
 

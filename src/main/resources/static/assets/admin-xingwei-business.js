@@ -155,8 +155,16 @@
       detailButton.addEventListener('click', () => openAfterSalesDetail(item));
       td.appendChild(detailButton);
     }
+    if ((type === 'quotes' && item.hasScreenshot) || (type === 'orders' && item.hasProgressImage)) {
+      const image = document.createElement('a'); image.textContent = '查看截图'; image.className = 'xw-mini-button';
+      image.href = `/api/admin/xingwei/business/${type}/${encodeURIComponent(item.businessNo)}/image`; image.target = '_blank'; image.rel = 'noopener'; td.appendChild(image);
+    }
+    if (item.canManage && activeTab !== 'after-sales') {
+      const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'xw-mini-button';
+      edit.textContent = type === 'quotes' ? '处理询价' : '编辑订单'; edit.addEventListener('click', () => type === 'quotes' ? openQuoteAction(item) : openOrderAction(item)); td.appendChild(edit);
+    }
     if (!item.canAssign) {
-      if (activeTab !== 'after-sales') appendText(td, 'span', '只读', 'xw-muted-label');
+      if (activeTab !== 'after-sales' && !td.children.length) appendText(td, 'span', '只读', 'xw-muted-label');
       return td;
     }
     const button = document.createElement('button');
@@ -351,6 +359,7 @@
         ? `已按 ${scopeLabel(snapshot)} 检索到 ${snapshot.totalCount ?? 0} 条售后问题记录。`
         : `已按 ${scopeLabel(snapshot)} 加载 ${snapshot.visibleCount ?? 0} 条${label}记录。`, 'ok');
       if (force) candidates = null;
+      return true;
     } catch (error) {
       if (thisRequest !== requestVersion) return;
       currentSnapshot = null;
@@ -358,6 +367,7 @@
       if (kpiVisible) kpiVisible.textContent = '—';
       if (kpiFiltered) kpiFiltered.textContent = '—';
       if (kpiUnassigned) kpiUnassigned.textContent = '—';
+      return false;
     }
   }
 
@@ -482,6 +492,8 @@
         return;
       }
       noAccess.hidden = true;
+      const createOrder = document.getElementById('xwbCreateOrder');
+      if (createOrder) createOrder.hidden = !can('order:manage') || !(access.allowAll || access.dataScope === 'ALL');
       await loadTab(activeTab);
     } catch (error) {
       access = {mode: 'DENIED', dataScope: 'NONE', allowAll: false, permissionCodes: []};
@@ -492,6 +504,88 @@
       setMessage(`权限读取失败：${error.message}`, 'error');
     }
   }
+
+  const quoteActionDialog = document.getElementById('xwbQuoteActionDialog');
+  const quoteActionForm = document.getElementById('xwbQuoteActionForm');
+  const orderActionDialog = document.getElementById('xwbOrderActionDialog');
+  const orderActionForm = document.getElementById('xwbOrderActionForm');
+  const orderImageForm = document.getElementById('xwbOrderImageForm');
+  let actionBusy = false, quoteDirty = false, orderDirty = false;
+  function fillAction(form, values) { for (const [name,value] of Object.entries(values)) { const input = form.elements.namedItem(name); if (input) input.value = value ?? ''; } }
+  function openQuoteAction(item) {
+    if (!quoteActionDialog || actionBusy) return;
+    quoteActionForm.reset(); fillAction(quoteActionForm, {businessNo:item.businessNo,expectedStatus:item.status,status:item.status});
+    document.getElementById('xwbQuoteActionTitle').textContent = '处理询价 · ' + item.businessNo;
+    document.getElementById('xwbConvertQuote').hidden = !item.canConvert;
+    document.getElementById('xwbQuoteActionState').textContent = ''; quoteDirty = false; quoteActionDialog.showModal();
+  }
+  function openOrderAction(item = null) {
+    if (!orderActionDialog || actionBusy) return;
+    orderActionForm.reset(); fillAction(orderActionForm,{businessNo:item?.businessNo,version:item?.version,status:item?.status || 'WAITING_CONFIRMATION',progressPercent:item?.progressPercent,progressText:item?.progressText,customerNote:item?.customerNote,internalNote:item?.internalNote});
+    document.getElementById('xwbOrderActionTitle').textContent = item ? '编辑订单 · ' + item.businessNo : '新建订单';
+    document.getElementById('xwbOrderActionState').textContent = '';
+    orderImageForm.hidden = !item; orderImageForm.reset(); orderDirty = false; orderActionDialog.showModal();
+  }
+  function closeAction(kind) {
+    if (actionBusy) return;
+    if ((kind === 'quote' ? quoteDirty : orderDirty) && !confirm('尚有未保存的输入，确认放弃？')) return;
+    (kind === 'quote' ? quoteActionDialog : orderActionDialog).close();
+  }
+  function actionControls(form, busy) { form?.querySelectorAll('button,input,select,textarea').forEach(control => {control.disabled = busy;}); }
+  async function actionRequest(url, options) {
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 20000);
+    try { return await fetchJson(url,{...options,signal:controller.signal}); }
+    catch(error) { if (error.name === 'AbortError') throw new Error('请求超时，写入结果尚未确认。请先刷新核对，勿重复新建订单。'); throw error; }
+    finally { clearTimeout(timer); }
+  }
+  async function refreshAfterAction(text, tab) {
+    const loaded = await loadTab(tab);
+    if (activeTab === tab) setMessage(loaded ? text : text + '；列表刷新失败，请手动刷新核对。', loaded ? 'ok' : 'error');
+  }
+  async function saveQuoteAction(convert) {
+    if (actionBusy || !quoteActionForm.reportValidity()) return;
+    const values = Object.fromEntries(new FormData(quoteActionForm)), no = values.businessNo; delete values.businessNo;
+    if (convert && !confirm('确认已沟通需求并转为订单？本操作不会发起收款。')) return;
+    actionBusy = true; actionControls(quoteActionForm,true);
+    const state = document.getElementById('xwbQuoteActionState'); state.textContent = '正在保存…';
+    try {
+      const result = await actionRequest(`/api/admin/xingwei/business/quotes/${encodeURIComponent(no)}/${convert ? 'convert' : 'status'}`,{method:convert ? 'POST' : 'PATCH',headers:{'Content-Type':'application/json',[csrfHeader]:csrfToken},body:JSON.stringify(values)});
+      quoteDirty = false; quoteActionDialog.close(); await refreshAfterAction(convert ? '已转为订单 · ' + (result.businessNo || result.orderNo || no) : '询价状态已保存。', convert ? 'orders' : 'quotes');
+    } catch(error) { state.textContent = error.message; }
+    finally { actionBusy = false; actionControls(quoteActionForm,false); }
+  }
+  quoteActionForm?.addEventListener('submit',event => {event.preventDefault(); saveQuoteAction(false);});
+  quoteActionForm?.addEventListener('input',() => {quoteDirty = true;});
+  orderActionForm?.addEventListener('input',() => {orderDirty = true;});
+  document.getElementById('xwbConvertQuote')?.addEventListener('click',() => saveQuoteAction(true));
+  document.getElementById('xwbCreateOrder')?.addEventListener('click',() => openOrderAction());
+  document.querySelectorAll('[data-action-close]').forEach(button => button.addEventListener('click',() => closeAction(button.dataset.actionClose)));
+  quoteActionDialog?.addEventListener('cancel',event => {event.preventDefault();closeAction('quote');});
+  orderActionDialog?.addEventListener('cancel',event => {event.preventDefault();closeAction('order');});
+  orderActionForm?.addEventListener('submit',async event => {
+    event.preventDefault(); if (actionBusy || !orderActionForm.reportValidity()) return;
+    const values = Object.fromEntries(new FormData(orderActionForm)), no = values.businessNo;
+    delete values.businessNo; values.progressPercent = values.progressPercent === '' ? null : Number(values.progressPercent);
+    if (no) values.version = Number(values.version); else delete values.version;
+    actionBusy = true; actionControls(orderActionForm,true); actionControls(orderImageForm,true);
+    const state = document.getElementById('xwbOrderActionState'); state.textContent = '正在保存…';
+    try {
+      await actionRequest('/api/admin/xingwei/business/orders' + (no ? '/' + encodeURIComponent(no) : ''),{method:no ? 'PATCH' : 'POST',headers:{'Content-Type':'application/json',[csrfHeader]:csrfToken},body:JSON.stringify(values)});
+      orderDirty = false; orderActionDialog.close(); await refreshAfterAction(no ? '订单进度已保存。' : '订单已创建，请在订单列表分配业务归属。','orders');
+    } catch(error) {state.textContent = error.message;}
+    finally {actionBusy = false;actionControls(orderActionForm,false);actionControls(orderImageForm,false);}
+  });
+  orderImageForm?.addEventListener('submit',async event => {
+    event.preventDefault(); if (actionBusy) return;
+    const state = document.getElementById('xwbOrderActionState');
+    if (orderDirty) {state.textContent = '请先保存订单修改，再更新截图。';return;}
+    const no = orderActionForm.elements.namedItem('businessNo').value, body = new FormData(orderImageForm);
+    body.set('version',orderActionForm.elements.namedItem('version').value);
+    actionBusy = true;actionControls(orderActionForm,true);actionControls(orderImageForm,true);state.textContent = '正在更新截图…';
+    try {const result = await actionRequest(`/api/admin/xingwei/business/orders/${encodeURIComponent(no)}/image`,{method:'POST',headers:{[csrfHeader]:csrfToken},body});orderActionForm.elements.namedItem('version').value = result.version;orderImageForm.reset();state.textContent = '进度截图已更新。';}
+    catch(error) {state.textContent = error.message;}
+    finally {actionBusy = false;actionControls(orderActionForm,false);actionControls(orderImageForm,false);}
+  });
 
   tabs.forEach((button) => button.addEventListener('click', () => loadTab(button.dataset.tab)));
   search?.addEventListener('input', () => {

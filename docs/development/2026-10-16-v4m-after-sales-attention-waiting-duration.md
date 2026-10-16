@@ -66,7 +66,8 @@ V4L 已上线待跟进队列优先级排序，可按最新待跟进或最久未�
 
 ## Stable 状态收口
 
-- Stable 分支：`release/v4m-stable-production`，精确基于已通过候选生产门禁的 RC main SHA。
+- Stable 原分支：`release/v4m-stable-production`，精确基于已通过候选生产门禁的 RC main SHA。
+- 续接分支：`docs/v4m-stable-status`，保留原分支已有提交并补齐后台首页的阶段、模块入口和迁移进度文案。
 - `CONSOLE_VERSION` 与 `BUSINESS_VERSION` 继续保持 `20261016-v4m`。
 - `CONSOLE_STAGE` 切换为 `V4M · STABLE PRODUCTION`。
 - V4M Release History 切换为 `已上线`。

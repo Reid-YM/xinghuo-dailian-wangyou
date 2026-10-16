@@ -61,7 +61,7 @@ for module in parse(T/'admin-xingwei.html').all():
             if n.tag=='button' and n.text() and n.text() not in ['×','关闭','取消']:
                 ancestors=list(n.ancestors());concealed=any(a.tag=='dialog' or 'hidden' in a.attrs for a in ancestors) or 'hidden' in n.attrs
                 if not concealed:
-                    add(code,n.text(),href+('#'+n.attrs['id'] if n.attrs.get('id') else ''),'定位到操作按钮；点击搜索结果不会执行操作')
+                    add(code,n.text(),href+('#'+n.attrs['id'] if n.attrs.get('id') else ''),'定位到操作按钮；点击搜索结果不会执行操作' if n.attrs.get('id') else '打开工作台后使用此操作；搜索不会代为执行')
             if n.tag not in ['input','select','textarea']:continue
             if n.attrs.get('type') in ['hidden','submit','button']:continue
             label=next((a for a in n.ancestors() if a.tag=='label'),None)
@@ -86,7 +86,7 @@ for module in parse(T/'admin-xingwei.html').all():
             # Never claim a closed record editor or hidden panel is a directly reachable field.
             direct=bool(anchor and not dialog and not concealed)
             dest=href+'#'+anchor if direct else href
-            add(code,labeltext,dest,'定位到筛选或设置字段' if direct else '进入工作台后选择记录或新建，再操作此字段',n.attrs.get('name','')+' '+n.attrs.get('placeholder',''))
+            add(code,labeltext,dest,'定位到筛选或设置字段' if direct else '进入工作台后选择记录或新建，再操作此字段',n.attrs.get('name','')+' '+n.attrs.get('placeholder','')+(' '+n.text()+' '+ ' '.join(child.attrs.get('value','') for child in n.children) if n.tag=='select' else ''))
     # Explicit labels from a module's own record editor; shared multi-mode editors
     # are deliberately excluded to avoid attaching a field to the wrong record type.
     js=A/('admin-xingwei-'+name+'.js')

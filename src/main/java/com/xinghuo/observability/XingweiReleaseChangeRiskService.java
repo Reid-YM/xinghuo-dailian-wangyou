@@ -12,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,6 +32,7 @@ public class XingweiReleaseChangeRiskService {
     private final HttpClient httpClient;
     private final ConcurrentHashMap<Integer, RiskSummary> cache = new ConcurrentHashMap<>();
 
+    @Autowired
     public XingweiReleaseChangeRiskService(ObjectMapper objectMapper) {
         this(objectMapper, HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(1200))

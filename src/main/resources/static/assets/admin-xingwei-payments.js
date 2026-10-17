@@ -50,6 +50,7 @@
   const revision = value => ({'If-Match': `"${value}"`});
 
   function renderPrepareAvailability() {
+    $('#paymentPrepare').hidden = false;
     const status = $('#paymentPreparePermission');
     if (!state.enabled) {
       status.textContent = '真实收款开关当前关闭：可以读取订单和历史记录，但不能建立或关闭待支付单。';

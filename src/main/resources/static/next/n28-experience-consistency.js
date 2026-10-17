@@ -80,7 +80,9 @@
   }
 
   function normalizeButtons(root = document) {
-    root.querySelectorAll?.('button:not([type])').forEach((button) => button.type = 'button');
+    root.querySelectorAll?.('button:not([type])').forEach((button) => {
+      if (!button.closest('form')) button.type = 'button';
+    });
     root.querySelectorAll?.('button[disabled]').forEach((button) => button.setAttribute('aria-disabled', 'true'));
     root.querySelectorAll?.('button:not([disabled])[aria-disabled="true"]').forEach((button) => button.removeAttribute('aria-disabled'));
   }

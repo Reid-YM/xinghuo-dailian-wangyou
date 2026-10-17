@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 class OrderServiceExtendedCharacterizationTest {
 
@@ -51,6 +53,29 @@ class OrderServiceExtendedCharacterizationTest {
         verify(repo, never()).save(any(CustomerOrder.class));
         verify(audit, never()).log(
                 any(), any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void freshQuoteOrderIsFlushedBeforeGuestJdbcCanLinkIt() {
+        CustomerOrderRepository repo = mock(CustomerOrderRepository.class);
+        AuditService audit = mock(AuditService.class);
+        OrderService service = new OrderService(repo, mock(UploadService.class), audit);
+        UUID quoteId = UUID.randomUUID();
+        Quote quote = Quote.builder()
+                .id(quoteId)
+                .businessNo("XHNEW2345678")
+                .game("CODMW4")
+                .demand("测试需求")
+                .build();
+        when(repo.findBySourceQuoteId(quoteId)).thenReturn(Optional.empty());
+
+        service.createFromQuote(quote, "guest:1", mock(HttpServletRequest.class), "游客接受报价");
+
+        // Subsequent JDBC ownership writes in GuestQuoteFlowService must find the saved order.
+        InOrder writes = inOrder(repo, audit);
+        writes.verify(repo).save(any(CustomerOrder.class));
+        writes.verify(repo).flush();
+        writes.verify(audit).log(any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test

@@ -4,6 +4,15 @@
   if (!/^\/next(?:\/|$)/.test(location.pathname)) return;
 
   const text = (value) => String(value ?? '').trim();
+  const STAGE_RUNTIME_VERSION = (() => {
+    try {
+      const source = document.currentScript?.src || '';
+      const version = new URL(source, location.origin).searchParams.get('v') || '';
+      return /^[0-9a-f]{64}$/.test(version) ? version : '';
+    } catch (ignore) {
+      return '';
+    }
+  })();
 
   function explicitLegacy(link, url) {
     if (!link || !url) return false;
@@ -95,6 +104,10 @@
     root.querySelectorAll?.('a[href]').forEach(normalizeLink);
   }
 
+  function stageSource(path) {
+    return STAGE_RUNTIME_VERSION ? `${path}?v=${STAGE_RUNTIME_VERSION}` : path;
+  }
+
   function ensureRuntime(id, source, matcher) {
     if (!matcher.test(location.pathname) || document.getElementById(id)) return;
     const script = document.createElement('script');
@@ -105,11 +118,11 @@
   }
 
   function ensureStageRuntimes() {
-    ensureRuntime('frontend-next-n23-runtime', '/next/n23-guides-center.js?v=20261017-n23', /^\/next\/guides\/?$/);
-    ensureRuntime('frontend-next-n24-runtime', '/next/n24-mastery.js?v=20261017-n24', /^\/next\/mastery\/?$/);
-    ensureRuntime('frontend-next-n25-runtime', '/next/n25-submission-workbench.js?v=20261017-n25', /^\/next\/account\/submit\/?$/);
-    ensureRuntime('frontend-next-n26-runtime', '/next/n26-records-center.js?v=20261017-n26', /^\/next\/records\/?$/);
-    ensureRuntime('frontend-next-n26-history-bridge', '/next/n26-record-history-bridge.js?v=20261017-n26', /^\/next\/(?:quote\/?$|record\/)/);
+    ensureRuntime('frontend-next-n23-runtime', stageSource('/next/n23-guides-center.js'), /^\/next\/guides\/?$/);
+    ensureRuntime('frontend-next-n24-runtime', stageSource('/next/n24-mastery.js'), /^\/next\/mastery\/?$/);
+    ensureRuntime('frontend-next-n25-runtime', stageSource('/next/n25-submission-workbench.js'), /^\/next\/account\/submit\/?$/);
+    ensureRuntime('frontend-next-n26-runtime', stageSource('/next/n26-records-center.js'), /^\/next\/records\/?$/);
+    ensureRuntime('frontend-next-n26-history-bridge', stageSource('/next/n26-record-history-bridge.js'), /^\/next\/(?:quote\/?$|record\/)/);
   }
 
   document.addEventListener('click', (event) => {

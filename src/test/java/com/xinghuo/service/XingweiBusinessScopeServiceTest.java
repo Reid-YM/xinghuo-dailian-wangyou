@@ -39,7 +39,6 @@ class XingweiBusinessScopeServiceTest {
         jdbc.execute("CREATE TABLE xw_role_permissions (role_id BIGINT, permission_id BIGINT)");
         jdbc.execute("CREATE TABLE xw_business_ownership (business_no VARCHAR(20) PRIMARY KEY, owner_admin_user_id BIGINT, department_id BIGINT NOT NULL, created_by VARCHAR(64), updated_by VARCHAR(64), created_at TIMESTAMP, updated_at TIMESTAMP)");
         jdbc.execute("CREATE TABLE quotes (business_no VARCHAR(20) PRIMARY KEY, game VARCHAR(100), demand VARCHAR(200), current_progress VARCHAR(500), customer_supplement CLOB, screenshot_asset_id VARCHAR(64), platform VARCHAR(50), expected_time VARCHAR(100), contact_method VARCHAR(40), customer_contact VARCHAR(120), customer_ip_hash VARCHAR(128), status VARCHAR(24), created_at TIMESTAMP)");
-        jdbc.execute("ALTER TABLE quotes ADD COLUMN customer_account_id BIGINT NULL");
         jdbc.execute("CREATE TABLE customer_orders (order_no VARCHAR(40) PRIMARY KEY, business_no VARCHAR(20), status VARCHAR(32), progress_percent INT, progress_text VARCHAR(240), progress_image_asset_id VARCHAR(64), customer_note VARCHAR(500), internal_note VARCHAR(1200), updated_at TIMESTAMP, version BIGINT)");
 
         jdbc.update("INSERT INTO admin_users VALUES (1,'admin',TRUE),(2,'dept',TRUE),(3,'self',TRUE),(4,'agent03',TRUE),(5,'agent04',TRUE)");
@@ -54,6 +53,7 @@ class XingweiBusinessScopeServiceTest {
         jdbc.update("INSERT INTO quotes VALUES ('XHDEPT04','MW4','需求B',NULL,NULL,NULL,'PC',NULL,'WECHAT','b',NULL,'NEW',CURRENT_TIMESTAMP)");
         jdbc.update("INSERT INTO quotes VALUES ('XHSELF03','MW4','需求C',NULL,NULL,NULL,'PC',NULL,'WECHAT','c',NULL,'NEW',CURRENT_TIMESTAMP)");
         jdbc.update("INSERT INTO quotes VALUES ('XHUNASSIGNED','MW4','需求D',NULL,NULL,NULL,'PC',NULL,'WECHAT','d',NULL,'NEW',CURRENT_TIMESTAMP)");
+        jdbc.execute("ALTER TABLE quotes ADD COLUMN customer_account_id BIGINT NULL");
         jdbc.update("INSERT INTO customer_orders VALUES ('XHDEPT03','XHDEPT03','IN_PROGRESS',20,'处理中',NULL,NULL,NULL,CURRENT_TIMESTAMP,0)");
         jdbc.update("INSERT INTO customer_orders VALUES ('XHDEPT04','XHDEPT04','IN_PROGRESS',30,'处理中',NULL,NULL,NULL,CURRENT_TIMESTAMP,0)");
         jdbc.update("INSERT INTO customer_orders VALUES ('XHSELF03','XHSELF03','IN_PROGRESS',40,'处理中',NULL,NULL,NULL,CURRENT_TIMESTAMP,0)");

@@ -7,7 +7,7 @@
 
   function explicitLegacy(link, url) {
     if (!link || !url) return false;
-    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1') return true;
+    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1') return true;
     if (link.dataset.n22Legacy === '1' && url.pathname !== '/guides') return true;
     return url.searchParams.get('legacy') === '1';
   }
@@ -64,6 +64,7 @@
     if (url.pathname === '/quote') return nextUrl(url, '/next/quote');
     if (url.pathname === '/account') return nextUrl(url, '/next/account');
     if (url.pathname === '/guides') return nextUrl(url, '/next/guides');
+    if (url.pathname === '/mastery') return nextUrl(url, '/next/mastery');
 
     const service = /^\/service\/([^/?#]+)\/?$/.exec(url.pathname);
     if (service) return nextUrl(url, `/next/service/${service[1]}`);
@@ -91,13 +92,18 @@
     root.querySelectorAll?.('a[href]').forEach(normalizeLink);
   }
 
-  function ensureN23Runtime() {
-    if (!/^\/next\/guides\/?$/.test(location.pathname) || document.getElementById('frontend-next-n23-runtime')) return;
+  function ensureRuntime(id, source, matcher) {
+    if (!matcher.test(location.pathname) || document.getElementById(id)) return;
     const script = document.createElement('script');
-    script.id = 'frontend-next-n23-runtime';
-    script.src = '/next/n23-guides-center.js?v=20261017-n23';
+    script.id = id;
+    script.src = source;
     script.defer = true;
     document.head.append(script);
+  }
+
+  function ensureStageRuntimes() {
+    ensureRuntime('frontend-next-n23-runtime', '/next/n23-guides-center.js?v=20261017-n23', /^\/next\/guides\/?$/);
+    ensureRuntime('frontend-next-n24-runtime', '/next/n24-mastery.js?v=20261017-n24', /^\/next\/mastery\/?$/);
   }
 
   document.addEventListener('click', (event) => {
@@ -123,10 +129,10 @@
 
   window.addEventListener('xh:pagechange', () => {
     normalizeTree();
-    ensureN23Runtime();
+    ensureStageRuntimes();
   });
   normalizeTree();
-  ensureN23Runtime();
+  ensureStageRuntimes();
 
   window.XHFrontendNextN14 = {
     normalize: normalizeTree,

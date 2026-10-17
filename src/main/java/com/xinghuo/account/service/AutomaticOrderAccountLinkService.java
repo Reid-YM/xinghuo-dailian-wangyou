@@ -1,41 +1,24 @@
 package com.xinghuo.account.service;
 
 import com.xinghuo.account.model.Account;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Automatically repairs missing order-to-account ownership using trusted identity signals.
+ * Repairs missing order-to-account ownership from authoritative quote lineage only.
  *
- * <p>The service never overwrites an existing owner. It first trusts an account id already
- * recorded on the quote that shares the unified business number. If that lineage is absent,
- * it may resolve the quote's primary contact against a single ACTIVE account whose primary
- * login contact is verified. Auxiliary quote contacts are deliberately not used as identity.
+ * <p>Customer-entered quote contacts are intentionally not identity evidence. A verified
+ * account that happens to own the same phone/QQ/WeChat value does not prove that an anonymous
+ * quote was submitted by that account. Automatic linking therefore trusts only a customer
+ * account already recorded on the source quote. For legacy orders without source_quote_id we
+ * may fall back to the unique unified business number.
  */
 @Service
 public class AutomaticOrderAccountLinkService {
 
     private static final int CANDIDATE_SCAN_LIMIT = 500;
-
-    private static final Map<String, Account.ContactType> METHOD_ALIASES = Map.ofEntries(
-            Map.entry("wechat", Account.ContactType.WECHAT),
-            Map.entry("微信", Account.ContactType.WECHAT),
-            Map.entry("wx", Account.ContactType.WECHAT),
-            Map.entry("qq", Account.ContactType.QQ),
-            Map.entry("phone", Account.ContactType.PHONE),
-            Map.entry("mobile", Account.ContactType.PHONE),
-            Map.entry("手机", Account.ContactType.PHONE),
-            Map.entry("手机号", Account.ContactType.PHONE),
-            Map.entry("电话", Account.ContactType.PHONE),
-            Map.entry("email", Account.ContactType.EMAIL),
-            Map.entry("mail", Account.ContactType.EMAIL),
-            Map.entry("邮箱", Account.ContactType.EMAIL));
 
     private final JdbcTemplate jdbc;
 
@@ -43,12 +26,7 @@ public class AutomaticOrderAccountLinkService {
         this.jdbc = jdbc;
     }
 
-    /**
-     * Reconcile one order for an administrator workflow.
-     *
-     * <p>This method is intentionally idempotent. Callers must perform their own authorization
-     * and business-scope checks before invoking it.
-     */
+    /** Reconcile one order for an administrator workflow. */
     @Transactional
     public LinkOutcome reconcile(String identifier) {
         String key = identifier == null ? "" : identifier.trim();
@@ -56,24 +34,7 @@ public class AutomaticOrderAccountLinkService {
             return LinkOutcome.none();
         }
 
-        List<Candidate> rows = jdbc.query("""
-                SELECT o.order_no, o.business_no, o.customer_account_id,
-                       q.customer_account_id AS quote_account_id,
-                       q.customer_contact, q.contact_method
-                  FROM customer_orders o
-                  LEFT JOIN quotes q ON q.business_no = o.business_no
-                 WHERE o.order_no = ? OR o.business_no = ?
-                 LIMIT 2
-                """,
-                (rs, i) -> new Candidate(
-                        rs.getString("order_no"),
-                        rs.getString("business_no"),
-                        (Long) rs.getObject("customer_account_id"),
-                        (Long) rs.getObject("quote_account_id"),
-                        rs.getString("customer_contact"),
-                        rs.getString("contact_method")),
-                key, key);
-
+        List<Candidate> rows = candidates("WHERE o.order_no = ? OR o.business_no = ? LIMIT 2", key, key);
         if (rows.size() != 1) {
             return LinkOutcome.none();
         }
@@ -81,28 +42,21 @@ public class AutomaticOrderAccountLinkService {
         if (row.orderOwnerId() != null) {
             return LinkOutcome.alreadyLinked(row.orderOwnerId());
         }
-
-        Long ownerId = row.quoteOwnerId();
-        String source = "QUOTE_ACCOUNT";
-        if (ownerId == null) {
-            ownerId = verifiedAccountFor(row.contactMethod(), row.contactValue()).orElse(null);
-            source = "VERIFIED_PRIMARY_CONTACT";
-        }
-        if (ownerId == null) {
+        if (row.quoteOwnerId() == null || row.lineageSource() == null) {
             return LinkOutcome.none();
         }
 
-        boolean linked = link(row.orderNo(), row.businessNo(), ownerId);
+        boolean linked = link(row, row.quoteOwnerId());
         return linked
-                ? new LinkOutcome(true, ownerId, source)
+                ? new LinkOutcome(true, row.quoteOwnerId(), row.lineageSource())
                 : LinkOutcome.none();
     }
 
     /**
-     * Reconcile all recent unowned orders that can be proven to belong to the current account.
+     * Reconcile recent unowned orders that can be proven to belong to the current account.
      *
-     * <p>Quote lineage is authoritative even if the account later changes its login contact.
-     * Contact matching is only attempted when the account's primary login contact is verified.
+     * <p>No contact-value matching is performed here. GET / account order views may call this
+     * legacy repair path safely because every write is backed by an existing quote account id.
      */
     @Transactional
     public int reconcile(Account account) {
@@ -110,106 +64,78 @@ public class AutomaticOrderAccountLinkService {
             return 0;
         }
 
-        List<Candidate> rows = jdbc.query("""
-                SELECT o.order_no, o.business_no, o.customer_account_id,
-                       q.customer_account_id AS quote_account_id,
-                       q.customer_contact, q.contact_method
-                  FROM customer_orders o
-                  LEFT JOIN quotes q ON q.business_no = o.business_no
-                 WHERE o.customer_account_id IS NULL
-                 ORDER BY o.created_at DESC
-                 LIMIT ?
-                """,
-                (rs, i) -> new Candidate(
-                        rs.getString("order_no"),
-                        rs.getString("business_no"),
-                        (Long) rs.getObject("customer_account_id"),
-                        (Long) rs.getObject("quote_account_id"),
-                        rs.getString("customer_contact"),
-                        rs.getString("contact_method")),
+        List<Candidate> rows = candidates(
+                "WHERE o.customer_account_id IS NULL ORDER BY o.created_at DESC LIMIT ?",
                 CANDIDATE_SCAN_LIMIT);
 
         int linked = 0;
         for (Candidate row : rows) {
-            boolean lineageMatch = account.getId().equals(row.quoteOwnerId());
-            boolean contactMatch = account.isContactVerified()
-                    && contactMatches(account, row.contactMethod(), row.contactValue());
-            if ((lineageMatch || contactMatch)
-                    && link(row.orderNo(), row.businessNo(), account.getId())) {
+            if (account.getId().equals(row.quoteOwnerId()) && row.lineageSource() != null
+                    && link(row, account.getId())) {
                 linked++;
             }
         }
         return linked;
     }
 
-    private boolean link(String orderNo, String businessNo, Long ownerId) {
+    private List<Candidate> candidates(String suffix, Object... args) {
+        String sql = """
+                SELECT o.order_no, o.business_no, o.source_quote_id, o.customer_account_id,
+                       COALESCE(q_source.customer_account_id, q_legacy.customer_account_id) AS quote_account_id,
+                       CASE
+                         WHEN q_source.id IS NOT NULL THEN 'SOURCE_QUOTE_ACCOUNT'
+                         WHEN o.source_quote_id IS NULL AND q_legacy.id IS NOT NULL THEN 'LEGACY_BUSINESS_QUOTE_ACCOUNT'
+                         ELSE NULL
+                       END AS lineage_source
+                  FROM customer_orders o
+                  LEFT JOIN quotes q_source ON q_source.id = o.source_quote_id
+                  LEFT JOIN quotes q_legacy
+                         ON o.source_quote_id IS NULL AND q_legacy.business_no = o.business_no
+                """ + suffix;
+        return jdbc.query(sql,
+                (rs, i) -> new Candidate(
+                        rs.getString("order_no"),
+                        rs.getString("business_no"),
+                        rs.getString("source_quote_id"),
+                        (Long) rs.getObject("customer_account_id"),
+                        (Long) rs.getObject("quote_account_id"),
+                        rs.getString("lineage_source")),
+                args);
+    }
+
+    private boolean link(Candidate row, Long ownerId) {
         int updated = jdbc.update("""
                 UPDATE customer_orders
                    SET customer_account_id = ?, version = version + 1, updated_at = CURRENT_TIMESTAMP
                  WHERE order_no = ? AND customer_account_id IS NULL
-                """, ownerId, orderNo);
+                """, ownerId, row.orderNo());
         if (updated == 0) {
             return false;
         }
-        if (businessNo != null && !businessNo.isBlank()) {
+
+        if (row.sourceQuoteId() != null && !row.sourceQuoteId().isBlank()) {
+            jdbc.update("""
+                    UPDATE quotes
+                       SET customer_account_id = ?
+                     WHERE id = ? AND customer_account_id IS NULL
+                    """, ownerId, row.sourceQuoteId());
+        } else if (row.businessNo() != null && !row.businessNo().isBlank()) {
             jdbc.update("""
                     UPDATE quotes
                        SET customer_account_id = ?
                      WHERE business_no = ? AND customer_account_id IS NULL
-                    """, ownerId, businessNo);
+                    """, ownerId, row.businessNo());
         }
         return true;
-    }
-
-    private Optional<Long> verifiedAccountFor(String rawMethod, String rawValue) {
-        Optional<Account.ContactType> type = contactType(rawMethod);
-        if (type.isEmpty() || rawValue == null || rawValue.isBlank()) {
-            return Optional.empty();
-        }
-        String normalized = ContactNormalizer.normalize(type.get(), rawValue);
-        if (normalized.isBlank()) {
-            return Optional.empty();
-        }
-
-        List<Long> ids = jdbc.query("""
-                SELECT id
-                  FROM customer_accounts
-                 WHERE contact_type = ?
-                   AND contact_norm = ?
-                   AND contact_verified = TRUE
-                   AND status = 'ACTIVE'
-                   AND deleted_at IS NULL
-                 LIMIT 2
-                """, (rs, i) -> rs.getLong(1), type.get().name(), normalized);
-        return ids.size() == 1 ? Optional.of(ids.getFirst()) : Optional.empty();
-    }
-
-    private boolean contactMatches(Account account, String rawMethod, String rawValue) {
-        if (rawValue == null || rawValue.isBlank() || account.getContactType() == null) {
-            return false;
-        }
-        Optional<Account.ContactType> type = contactType(rawMethod);
-        if (type.isEmpty() || type.get() != account.getContactType()) {
-            return false;
-        }
-        String normalized = ContactNormalizer.normalize(type.get(), rawValue);
-        return !normalized.isBlank() && normalized.equals(account.getContactNorm());
-    }
-
-    private Optional<Account.ContactType> contactType(String rawMethod) {
-        if (rawMethod == null || rawMethod.isBlank()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(METHOD_ALIASES.get(rawMethod.trim().toLowerCase(Locale.ROOT)));
     }
 
     private record Candidate(
             String orderNo,
             String businessNo,
+            String sourceQuoteId,
             Long orderOwnerId,
             Long quoteOwnerId,
-            String contactValue,
-            String contactMethod) {
+            String lineageSource) {
     }
 
     public record LinkOutcome(boolean linked, Long accountId, String source) {

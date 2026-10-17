@@ -7,12 +7,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(assignableTypes = WeChatPaymentController.class)
 public class WeChatPaymentErrors {
     private static final Logger LOG = LoggerFactory.getLogger(WeChatPaymentErrors.class);
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    ResponseEntity<Map<String, String>> missingHeader(MissingRequestHeaderException error) {
+        LOG.warn("WeChat Pay callback missing required header {}", error.getHeaderName());
+        return response(HttpStatus.BAD_REQUEST, "INVALID_CALLBACK", "缺少微信支付回调签名请求头");
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     ResponseEntity<Map<String, String>> bad(IllegalArgumentException error) {

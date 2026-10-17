@@ -10,6 +10,10 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 @EnabledIfEnvironmentVariable(named="PLAYWRIGHT_UI_TESTS",matches="1")
 class XingweiPaymentWorkspacePlaywrightTest {
     Page setup(Browser browser) throws Exception {
+        return setup(browser, "");
+    }
+
+    Page setup(Browser browser, String query) throws Exception {
         Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(390,844));
         String html=Files.readString(Path.of("src/main/resources/templates/admin-xingwei-payments.html")).replace("th:content=\"${csrf.token}\"","content=\"test-csrf\"").replace("th:content=\"${csrf.headerName}\"","content=\"X-CSRF-TOKEN\"");
         page.route("**/*",r->{String path=java.net.URI.create(r.request().url()).getPath();if(path.startsWith("/assets/"))r.fulfill(new Route.FulfillOptions().setPath(Path.of("src/main/resources/static"+path)));else r.fulfill(new Route.FulfillOptions().setContentType("text/html").setBody(html));});
@@ -22,8 +26,9 @@ class XingweiPaymentWorkspacePlaywrightTest {
               if(window.failRead)return new Response(JSON.stringify({message:'读取失败'}),{status:503});
               if(url.includes('/orders/'))return new Response(JSON.stringify({orderNo:'O-1',businessNo:'B-1',status:'NEW',customerBound:true,paymentEligible:true,revision:'order-r1'}));
               return new Response(JSON.stringify({enabled:window.paymentEnabled,canManage:window.canManage,total:1,page:0,size:25,items:[{paymentNo:'PAY-1',businessNo:'B-1',subject:'客服已确认服务',amount:'88.00',currency:'CNY',status:window.status,revision:'payment-r1'}]}));};
-            """);page.onDialog(dialog->dialog.accept());page.navigate("http://xinghuo.test/admin/xingwei/payments");page.waitForSelector(".xwp-record");return page;
+            """);page.onDialog(dialog->dialog.accept());page.navigate("http://xinghuo.test/admin/xingwei/payments"+query);page.waitForSelector(".xwp-record");return page;
     }
+
     @Test void chromiumPrepareUsesExplicitAmountAndRevisionRetainsConflictsAndNeverChargesAutomatically() throws Exception {
         try(Playwright p=Playwright.create();Browser b=p.chromium().launch()){
             Page page=setup(b);page.locator("#paymentOrderIdentifier").fill("B-1");page.locator("#paymentOrderLookup button").click();page.waitForFunction("()=>!document.querySelector('#paymentPrepareForm').hidden");
@@ -34,11 +39,24 @@ class XingweiPaymentWorkspacePlaywrightTest {
             assertEquals(true,page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth"));
         }
     }
+
+    @Test void chromiumOrderDeepLinkLoadsQuoteFormWhenManagePermissionExists() throws Exception {
+        try(Playwright p=Playwright.create();Browser b=p.chromium().launch()){
+            Page page=setup(b,"?order=O-1");
+            page.waitForFunction("()=>document.querySelector('#paymentOrderDetails').textContent.includes('B-1')");
+            assertEquals("O-1",page.locator("#paymentOrderIdentifier").inputValue());
+            assertFalse(page.locator("#paymentPrepare").isHidden());
+            assertFalse(page.locator("#paymentPrepareForm").isHidden());
+            assertTrue(page.locator("#paymentPreparePermission").textContent().contains("具备支付管理权限"));
+        }
+    }
+
     @Test void webkitCloseUsesServerCapturedResultAndDisabledOrReadOnlyStateCannotWrite() throws Exception {
         try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){
             Page page=setup(b);page.locator(".xwp-record button").click();page.waitForFunction("()=>document.querySelector('#paymentMessage').textContent.includes('已到账')");assertTrue(page.locator("#paymentMessage").textContent().contains("没有关闭"));assertEquals("\"payment-r1\"",page.evaluate("()=>window.calls.find(c=>c.url.endsWith('/close')).headers['if-match']"));
-            page.evaluate("()=>{window.paymentEnabled=false;window.status='CREATED';}");page.locator("#paymentRefresh").click();page.waitForFunction("()=>document.querySelector('#paymentMessage').textContent.includes('开关关闭')");assertTrue(page.locator("#paymentPrepare").isHidden());assertEquals(0,page.locator(".xwp-record button").count());
-            page.evaluate("()=>{window.paymentEnabled=true;window.canManage=false;}");page.locator("#paymentRefresh").click();page.waitForFunction("()=>document.querySelector('#paymentRows').getAttribute('aria-busy')==='false'");assertTrue(page.locator("#paymentPrepare").isHidden());assertEquals(0,page.locator(".xwp-record button").count());
+            page.evaluate("()=>{window.paymentEnabled=false;window.status='CREATED';}");page.locator("#paymentRefresh").click();page.waitForFunction("()=>document.querySelector('#paymentPreparePermission').textContent.includes('开关当前关闭')");assertFalse(page.locator("#paymentPrepare").isHidden());assertTrue(page.locator("#paymentPrepareForm").isHidden());assertEquals(0,page.locator(".xwp-record button").count());
+            page.evaluate("()=>{window.paymentEnabled=true;window.canManage=false;}");page.locator("#paymentRefresh").click();page.waitForFunction("()=>document.querySelector('#paymentPreparePermission').textContent.includes('只有支付查看权限')");assertFalse(page.locator("#paymentPrepare").isHidden());assertTrue(page.locator("#paymentPrepareForm").isHidden());assertEquals(0,page.locator(".xwp-record button").count());
+            page.locator("#paymentOrderIdentifier").fill("B-1");page.locator("#paymentOrderLookup button").click();page.waitForFunction("()=>document.querySelector('#paymentPrepareMessage').textContent.includes('缺少 payment:manage')");assertTrue(page.locator("#paymentPrepareForm").isHidden());
             page.evaluate("()=>window.failRead=true");page.locator("#paymentRefresh").click();page.waitForFunction("()=>document.querySelector('#paymentMessage').textContent.includes('读取失败')");assertEquals("false",page.locator("#paymentRows").getAttribute("aria-busy"));assertEquals(true,page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth"));
         }
     }

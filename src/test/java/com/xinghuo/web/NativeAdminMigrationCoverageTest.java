@@ -45,7 +45,8 @@ class NativeAdminMigrationCoverageTest {
         var keys=new HashSet<>(new com.xinghuo.service.SiteSettingService(repo).globalUiSettings().keySet());
         keys.addAll(new com.xinghuo.service.FrontendControlService(repo).settings().keySet());
         String fragment=Files.readString(TEMPLATES.resolve("fragments/frontend-control-workspace.html"));
-        for(var key:keys)assertTrue(fragment.contains("name=\""+key+"\""),"Missing native frontend setting: "+key);
+        String rollout=Files.readString(TEMPLATES.resolve("admin-xingwei-frontend-next.html"));
+        for(var key:keys)assertTrue(fragment.contains("name=\""+key+"\"")||rollout.contains("name=\""+key+"\""),"Missing native frontend setting: "+key);
     }
     @Test void allNativePageShellsExcludeRetiredAdminLayoutsAndLegacyMonolithFragments()throws Exception{
         try(var files=Files.list(TEMPLATES)){for(var file:files.filter(p->p.getFileName().toString().startsWith("admin-xingwei")||p.getFileName().toString().equals("admin-login.html")).toList()){

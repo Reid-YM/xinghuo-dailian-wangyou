@@ -51,7 +51,7 @@ class FrontendNextN3QuotePlaywrightTest {
             assertEquals(1, calls.get());
             assertEquals(1, keys.size());
             assertFalse(keys.getFirst().isBlank());
-            assertEquals("/record/XH-Q-N3-001", page.locator("#n3QuoteMessage a").getAttribute("href"));
+            assertEquals("/next/record/XH-Q-N3-001", page.locator("#n3QuoteMessage a").getAttribute("href"));
             assertEquals("true", page.locator("#submit").getAttribute("data-n3-real-submit"));
         }
     }

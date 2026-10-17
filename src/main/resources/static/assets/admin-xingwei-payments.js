@@ -93,11 +93,15 @@
                 method: 'POST',
                 headers: revision(item.revision)
               });
-              message(result.status === 'CAPTURED'
+              const closeMessage = result.status === 'CAPTURED'
                 ? '服务端确认已到账，本次没有关闭。'
-                : '服务端已关闭待支付单。');
-              try { await load(); }
-              catch (error) { message(`操作已返回，请刷新核对最新状态。${error.message}`); }
+                : '服务端已关闭待支付单。';
+              try {
+                await load();
+                message(closeMessage);
+              } catch (error) {
+                message(`${closeMessage} 列表刷新失败：${error.message}`);
+              }
             } catch (error) {
               message(error.message);
             } finally {

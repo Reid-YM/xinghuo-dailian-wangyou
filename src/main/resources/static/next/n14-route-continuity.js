@@ -7,7 +7,7 @@
 
   function explicitLegacy(link, url) {
     if (!link || !url) return false;
-    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n22Legacy === '1') return true;
+    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n22Legacy === '1' || link.dataset.n23Legacy === '1') return true;
     return url.searchParams.get('legacy') === '1';
   }
 
@@ -62,6 +62,7 @@
     if (url.pathname === '/services') return nextUrl(url, '/next/services');
     if (url.pathname === '/quote') return nextUrl(url, '/next/quote');
     if (url.pathname === '/account') return nextUrl(url, '/next/account');
+    if (url.pathname === '/guides' || url.pathname === '/guides/') return nextUrl(url, '/next/guides');
 
     const service = /^\/service\/([^/?#]+)\/?$/.exec(url.pathname);
     if (service) return nextUrl(url, `/next/service/${service[1]}`);

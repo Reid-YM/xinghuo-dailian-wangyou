@@ -214,6 +214,7 @@
     for (const item of items) {
       const tr = document.createElement('tr');
       tr.dataset.search = quoteSearchText(item);
+      tr.dataset.guestOfferAllowed = item.canOffer === true ? 'true' : 'false';
 
       const idCell = document.createElement('td');
       appendText(idCell, 'span', item.businessNo, 'xwb-primary');

@@ -1,5 +1,6 @@
 -- Guest quote -> staff offer -> guest acceptance/payment foundation.
--- A guest session is a browser-scoped capability. Only its SHA-256 hash is persisted.
+-- Browser sessions and business ownership are deliberately separate so a short-lived one-time
+-- link can authorize another browser without creating a second customer/payment identity.
 
 CREATE TABLE guest_session (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -17,7 +18,6 @@ CREATE TABLE guest_session (
 
 CREATE TABLE guest_business_access (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  guest_session_id BIGINT NOT NULL,
   quote_id CHAR(36) NOT NULL,
   business_no VARCHAR(40) NOT NULL,
   status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',
@@ -26,12 +26,35 @@ CREATE TABLE guest_business_access (
   updated_at DATETIME(6) NOT NULL,
   UNIQUE KEY uk_guest_business_no (business_no),
   UNIQUE KEY uk_guest_quote_id (quote_id),
-  INDEX idx_guest_access_session (guest_session_id, status, created_at),
-  CONSTRAINT fk_guest_access_session FOREIGN KEY (guest_session_id)
-    REFERENCES guest_session(id) ON DELETE CASCADE,
   CONSTRAINT fk_guest_access_quote FOREIGN KEY (quote_id)
     REFERENCES quotes(id) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='游客会话与具体询价业务的可信授权关系';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='游客业务主体；订单与支付引用稳定 id';
+
+CREATE TABLE guest_business_session_access (
+  guest_session_id BIGINT NOT NULL,
+  guest_access_id BIGINT NOT NULL,
+  created_at DATETIME(6) NOT NULL,
+  PRIMARY KEY (guest_session_id, guest_access_id),
+  INDEX idx_guest_business_sessions (guest_access_id, created_at),
+  CONSTRAINT fk_guest_business_session FOREIGN KEY (guest_session_id)
+    REFERENCES guest_session(id) ON DELETE CASCADE,
+  CONSTRAINT fk_guest_business_access FOREIGN KEY (guest_access_id)
+    REFERENCES guest_business_access(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='允许同一游客业务安全授权给多个浏览器会话';
+
+CREATE TABLE guest_access_link (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  guest_access_id BIGINT NOT NULL,
+  token_hash CHAR(64) NOT NULL,
+  expires_at DATETIME(6) NOT NULL,
+  used_at DATETIME(6) NULL,
+  created_by VARCHAR(100) NOT NULL,
+  created_at DATETIME(6) NOT NULL,
+  UNIQUE KEY uk_guest_access_link_token (token_hash),
+  INDEX idx_guest_access_link_expiry (guest_access_id, used_at, expires_at),
+  CONSTRAINT fk_guest_access_link_business FOREIGN KEY (guest_access_id)
+    REFERENCES guest_business_access(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='客服生成的一次性游客业务访问链接；数据库只存 token 哈希';
 
 CREATE TABLE quote_offer (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,

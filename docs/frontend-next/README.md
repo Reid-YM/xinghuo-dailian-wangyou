@@ -38,9 +38,11 @@ N25 已完成“MW4 Mastery 工具 Next 预览”：新增 `/next/mastery`，不
 
 N26 已完成“公开辅助页面 Next 连续性”：新增 `/next/records`、`/next/contact`、`/next/trust`。业务记录入口复用旧版同一个 `xh_client_records_v1` 浏览器历史 key，并继续读取 `GET /api/records/{businessNo}` 后进入 N13 详情；联系页与信任/FAQ 直接读取现有站点公开配置，不建立第二份客服、备案、案例或 FAQ 数据。旧 `/records`、`/contact`、`/trust` 均继续作为 canonical / 明确回退入口。详见 [N26 公开辅助页面 Next 连续性](N26_PUBLIC_SUPPORT_CONTINUITY.md)。
 
+N27 已完成“跨页认证返回连续性”：新增 `n27-cross-page-return.js`，把已经迁移到 Next 的攻略、Mastery、业务记录、联系、信任、投稿及账号子路由的 Legacy `next=` 目标先归一到对应 `/next/**`，再交给 N15 原有 `safeAccountReturn` 做最终安全判断。密码登录、注册、微信开放平台、小程序扫码和动态生成的认证链接因此都会按当前最终替换覆盖面返回 Next；显式 `legacy=1` 继续保留。详见 [N27 跨页认证返回连续性](N27_CROSS_PAGE_RETURN_CONTINUITY.md)。
+
 ## 当前部署状态
 
-N9–N22 已通过 PR #530 合并到 `main`，并按标准生产发布链路部署到生产应用；正式默认前端仍保持 Legacy，`/next/**` 作为显式并行预览入口。N23–N26 当前在 `frontend-next-final-replacement-n23-20261017` 开发分支与 Draft PR #531 中继续验证，尚未合并或部署。
+N9–N22 已通过 PR #530 合并到 `main`，并按标准生产发布链路部署到生产应用；正式默认前端仍保持 Legacy，`/next/**` 作为显式并行预览入口。N23–N27 当前在 `frontend-next-final-replacement-n23-20261017` 开发分支与 Draft PR #531 中继续验证，尚未合并或部署。
 
 用户要求正式前端保持旧版。当前代码默认关闭 Next 正式映射；重新启用正式 Next 必须单独获得明确授权。详见 [前端回退记录](../development/2026-10-16-frontend-rollback.md)。
 
@@ -57,8 +59,8 @@ N9–N22 已通过 PR #530 合并到 `main`，并按标准生产发布链路部�
 - N24：账号投稿撰写 / 管理 Next 化（开发完成，待 CI/后续统一交付）。
 - N25：MW4 Mastery 工具 Next 化（开发完成，待 CI/后续统一交付）。
 - N26：业务记录入口、联系页、信任/FAQ Next 化（开发完成，待 CI/后续统一交付）。
-- N27：剩余账号辅助入口与跨页连续性收口（下一步）。
-- N28：全站视觉、加载、空状态、错误状态、移动端一致性收口。
+- N27：账号认证返回与跨页连续性收口（开发完成，待 CI/后续统一交付）。
+- N28：全站视觉、加载、空状态、错误状态、移动端一致性收口（下一步）。
 - N29：生产 `/next/**` 全链路真实验收与缺陷清零。
 - N30：正式切换前治理、灰度计划、回滚演练与切换清单；是否切正式流量仍需单独授权。
 

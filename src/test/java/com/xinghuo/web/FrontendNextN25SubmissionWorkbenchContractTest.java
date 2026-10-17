@@ -63,7 +63,7 @@ class FrontendNextN25SubmissionWorkbenchContractTest {
 
         assertTrue(routes.contains("url.pathname === '/account/submit'"));
         assertTrue(routes.contains("nextUrl(url, '/next/account/submit')"));
-        assertTrue(routes.contains("/next/n25-submission-workbench.js?v=20261017-n25"));
+        assertTrue(routes.contains("stageSource('/next/n25-submission-workbench.js')"));
         assertTrue(routes.contains("url.pathname === '/mastery' || url.pathname === '/account/submit'"));
         assertTrue(routes.contains("link.dataset.n25Legacy === '1'"));
     }

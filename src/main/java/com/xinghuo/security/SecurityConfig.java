@@ -37,14 +37,15 @@ public class SecurityConfig {
      * 才能由拦截器把未登录访问统一 302 到账号登录页；这里的 permitAll
      * 并不代表业务页面免登录。
      *
-     * <p>{@code /api/guest/**} 同理：它不使用 Spring 登录态，而是由服务端生成的
-     * 256-bit 随机 capability Cookie 授权。Cookie 为 host-only / HttpOnly /
-     * SameSite=Lax，数据库仅保存 SHA-256 哈希；业务接口仍会逐条校验 guest session
-     * 与 business access，因此 permitAll 只表示“不要求后台账号登录”。
+     * <p>{@code /api/guest/**} 与 {@code /guest/access/**} 同理：它们不使用 Spring
+     * 登录态，而是由服务端生成的高熵 capability 授权。浏览器业务 Cookie 为
+     * host-only / HttpOnly / SameSite=Lax，数据库仅保存 SHA-256 哈希；业务接口仍会
+     * 逐条校验 guest session 与 business access，因此 permitAll 只表示“不要求后台账号登录”。
      */
     private static final String[] PERMIT_ALL = {
             "/", "/services", "/service/**", "/game/**", "/guides", "/guides/**", "/mastery", "/quote",
             "/records", "/record/**", "/order", "/order/**", "/contact", "/language",
+            "/guest/access/**",
             "/account", "/account/login", "/account/register", "/account/reset",
             "/account/settings", "/account/submit",
             "/account/requests", "/account/orders", "/account/progress",

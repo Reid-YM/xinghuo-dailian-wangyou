@@ -1,5 +1,6 @@
 package com.xinghuo.controller;
 
+import com.xinghuo.service.GuestQuoteFlowService;
 import com.xinghuo.service.XingweiBusinessScopeService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,9 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/xingwei/business")
 public class XingweiBusinessScopeController {
     private final XingweiBusinessScopeService business;
+    private final GuestQuoteFlowService guestQuotes;
 
-    public XingweiBusinessScopeController(XingweiBusinessScopeService business) {
+    public XingweiBusinessScopeController(
+            XingweiBusinessScopeService business,
+            GuestQuoteFlowService guestQuotes) {
         this.business = business;
+        this.guestQuotes = guestQuotes;
     }
 
     @GetMapping("/quotes")
@@ -54,6 +60,35 @@ public class XingweiBusinessScopeController {
             @RequestParam(required = false) String category,
             Authentication authentication) {
         return business.afterSalesOrderSnapshot(authentication, q, page, category);
+    }
+
+    /** Publish a formal offer to an anonymous quote; the customer can accept without registering. */
+    @PostMapping("/quotes/{businessNo}/offers")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'quote:manage')")
+    public Map<String, Object> publishGuestOffer(
+            @PathVariable String businessNo,
+            @RequestBody GuestQuoteFlowService.OfferRequest body,
+            Authentication authentication,
+            HttpServletRequest request) {
+        requireBusinessAccess(authentication, businessNo);
+        return guestQuotes.publishOffer(
+                businessNo,
+                body,
+                authentication == null ? "system" : authentication.getName(),
+                request);
+    }
+
+    /** Generate a single-use short-lived link that grants the same guest business to another browser. */
+    @PostMapping("/quotes/{businessNo}/guest-link")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'quote:manage')")
+    public Map<String, Object> guestLink(
+            @PathVariable String businessNo,
+            Authentication authentication) {
+        requireBusinessAccess(authentication, businessNo);
+        GuestQuoteFlowService.AccessLink link = guestQuotes.issueAccessLink(
+                businessNo,
+                authentication == null ? "system" : authentication.getName());
+        return Map.of("path", link.path(), "expiresAt", link.expiresAt());
     }
 
     @GetMapping("/ownership-candidates")
@@ -90,6 +125,12 @@ public class XingweiBusinessScopeController {
                 body.departmentCode(),
                 authentication,
                 request);
+    }
+
+    private void requireBusinessAccess(Authentication authentication, String businessNo) {
+        if (!business.canAccessBusiness(authentication, businessNo)) {
+            throw new AccessDeniedException("当前询价超出你的数据范围");
+        }
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

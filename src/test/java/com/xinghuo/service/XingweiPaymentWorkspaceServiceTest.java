@@ -48,11 +48,11 @@ class XingweiPaymentWorkspaceServiceTest {
         jdbc.execute("CREATE TABLE admin_users(id BIGINT PRIMARY KEY,username VARCHAR(80))");
         jdbc.execute("CREATE TABLE xw_admin_profiles(admin_user_id BIGINT PRIMARY KEY,display_name VARCHAR(80))");
         jdbc.execute("CREATE TABLE xw_business_ownership(business_no VARCHAR(64) PRIMARY KEY,department_id BIGINT,owner_admin_user_id BIGINT)");
-        jdbc.execute("CREATE TABLE customer_orders(order_no VARCHAR(64) PRIMARY KEY,business_no VARCHAR(64),status VARCHAR(24),customer_account_id BIGINT,updated_at TIMESTAMP(6))");
+        jdbc.execute("CREATE TABLE customer_orders(order_no VARCHAR(64) PRIMARY KEY,business_no VARCHAR(64),status VARCHAR(24),customer_account_id BIGINT,guest_access_id BIGINT,updated_at TIMESTAMP(6))");
         jdbc.execute("CREATE TABLE payment_order(id BIGINT PRIMARY KEY,payment_no VARCHAR(64),business_no VARCHAR(64),subject VARCHAR(127),amount DECIMAL(10,2),currency VARCHAR(8),status VARCHAR(24),provider VARCHAR(24),created_at TIMESTAMP,paid_at TIMESTAMP,updated_at TIMESTAMP(6),native_code_url VARCHAR(500))");
         for (int i = 1; i <= 3; i++) {
             jdbc.update("INSERT INTO xw_business_ownership VALUES(?,?,?)", "B-" + i, i == 3 ? 4 : 3, i);
-            jdbc.update("INSERT INTO customer_orders VALUES(?,?,'NEW',100,CURRENT_TIMESTAMP)", "O-" + i, "B-" + i);
+            jdbc.update("INSERT INTO customer_orders(order_no,business_no,status,customer_account_id,guest_access_id,updated_at) VALUES(?,?,'NEW',100,NULL,CURRENT_TIMESTAMP)", "O-" + i, "B-" + i);
             jdbc.update("INSERT INTO payment_order VALUES(?,?,?,'真实服务',88,'CNY','CREATED','WECHAT',CURRENT_TIMESTAMP,NULL,CURRENT_TIMESTAMP,'DO-NOT-EXPOSE-QR')", i, "PAY-" + i, "B-" + i);
         }
         guard = mock(XingweiPermissionGuard.class);
@@ -103,16 +103,31 @@ class XingweiPaymentWorkspaceServiceTest {
         jdbc.update("UPDATE customer_orders SET customer_account_id=NULL WHERE order_no='O-1'");
         doAnswer(invocation -> {
             jdbc.update("UPDATE customer_orders SET customer_account_id=100,updated_at=CURRENT_TIMESTAMP WHERE order_no='O-1'");
-            return new AutomaticOrderAccountLinkService.LinkOutcome(true, 100L, "VERIFIED_PRIMARY_CONTACT");
+            return new AutomaticOrderAccountLinkService.LinkOutcome(true, 100L, "SOURCE_QUOTE_ACCOUNT");
         }).when(accountLinks).reconcile("B-1");
 
         Map<String, Object> row = work.order("B-1", self);
 
         assertEquals(true, row.get("customerBound"));
+        assertEquals(false, row.get("guestBound"));
+        assertEquals("ACCOUNT", row.get("customerType"));
         assertEquals(true, row.get("paymentEligible"));
         assertEquals(true, row.get("customerAutoLinked"));
         verify(accountLinks).reconcile("B-1");
         verify(audits).log(eq("XW_ORDER_ACCOUNT_AUTO_LINK"), eq("ORDER"), eq("B-1"), eq("self"), any(), any(), any(), isNull());
+    }
+
+    @Test
+    void guestOwnedOrderIsPaymentEligibleWithoutAccountGuessing() {
+        jdbc.update("UPDATE customer_orders SET customer_account_id=NULL,guest_access_id=555 WHERE order_no='O-1'");
+
+        Map<String, Object> row = work.order("B-1", self);
+
+        assertEquals(false, row.get("customerBound"));
+        assertEquals(true, row.get("guestBound"));
+        assertEquals("GUEST", row.get("customerType"));
+        assertEquals(true, row.get("paymentEligible"));
+        verifyNoInteractions(accountLinks);
     }
 
     @Test

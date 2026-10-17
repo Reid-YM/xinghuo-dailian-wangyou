@@ -62,7 +62,7 @@
       $('#paymentPrepareForm').hidden = true;
       return;
     }
-    status.textContent = '当前账号具备支付管理权限，可以读取订单、确认最终报价并建立待支付单。';
+    status.textContent = '当前账号具备支付管理权限，可以读取注册用户订单或游客订单并建立待支付单。';
   }
 
   async function load() {
@@ -123,7 +123,7 @@
 
       if (!state.enabled) message('真实收款开关关闭，当前仅可查看已有记录和订单资格。');
       else if (!state.canManage) message('当前账号为支付只读权限；报价与收款入口已显示，但写入操作保持锁定。');
-      else message('支付管理已就绪：可读取订单并确认最终报价。');
+      else message('支付管理已就绪：注册账号订单和游客订单都可以按客户归属建立支付单。');
     } finally {
       if (id === sequence) $('#paymentRows').setAttribute('aria-busy', 'false');
     }
@@ -139,33 +139,37 @@
     $('#paymentOrderIdentifier').disabled = true;
     $('#paymentPrepareForm').hidden = true;
     $('#paymentOrderDetails').replaceChildren();
-    $('#paymentPrepareMessage').textContent = '正在读取订单并自动核对客户账号…';
+    $('#paymentPrepareMessage').textContent = '正在读取订单并核对客户归属…';
 
     try {
       const found = await api(`/orders/${encodeURIComponent(value)}`);
       order = found;
-      const customerState = found.customerBound
-        ? (found.customerAutoLinked ? '已自动匹配并关联客户账号' : '订单已关联客户账号')
-        : '未找到可安全自动确认的客户账号';
+      const customerState = found.customerType === 'GUEST' || found.guestBound
+        ? '游客业务凭证已确认，无需注册即可收款'
+        : found.customerBound
+          ? (found.customerAutoLinked ? '已按来源询价恢复客户账号归属' : '订单已关联注册客户账号')
+          : '订单尚未建立可支付客户归属';
       $('#paymentOrderDetails').append(
         node('p', `${found.orderNo} · ${found.businessNo} · ${display(found.status)}`),
         node('p', customerState)
       );
 
-      const eligible = found.customerBound && found.paymentEligible !== false;
+      const eligible = found.paymentEligible !== false && (found.customerBound || found.guestBound);
       const canPrepare = Boolean(eligible && state.enabled && state.canManage);
       $('#paymentPrepareForm').hidden = !canPrepare;
 
       if (!eligible) {
-        $('#paymentPrepareMessage').textContent = '系统已自动核对询价归属和已验证主联系方式；仍未匹配时，请让客户登录后提交询价或先完成主联系方式验证。';
+        $('#paymentPrepareMessage').textContent = '注册用户订单需要可靠账号归属；游客订单需要先由客服发布正式报价，并由游客在其专属业务页确认。系统不会再根据手填联系方式猜测账号。';
       } else if (!state.enabled) {
         $('#paymentPrepareMessage').textContent = '订单具备支付资格，但真实收款开关当前关闭。';
       } else if (!state.canManage) {
         $('#paymentPrepareMessage').textContent = '订单具备支付资格，但当前账号缺少 payment:manage 权限，不能录入最终报价。';
+      } else if (found.guestBound) {
+        $('#paymentPrepareMessage').textContent = '游客业务凭证有效，订单具备支付资格；可直接核对金额并建立微信待支付单。';
       } else {
         $('#paymentPrepareMessage').textContent = found.customerAutoLinked
-          ? '客户账号已自动关联，订单具备支付资格，请核对最终金额和服务名称。'
-          : '订单具备支付资格，请核对最终金额和服务名称。';
+          ? '已按来源询价恢复客户账号归属，订单具备支付资格，请核对最终金额和服务名称。'
+          : '注册客户订单具备支付资格，请核对最终金额和服务名称。';
       }
     } catch (error) {
       $('#paymentPrepareMessage').textContent = error.message;

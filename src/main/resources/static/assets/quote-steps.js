@@ -163,8 +163,28 @@
       .catch(function () { /* 未登录或网络失败时保持原有必填流程 */ });
   }
 
+  function bindBusinessDetailShortcut() {
+    var root = document.getElementById('quotePageMsg') || document.body;
+    function enhance() {
+      var card = root.querySelector('.quote-success-card');
+      if (!card || card.dataset.businessDetailBound === '1') return;
+      var number = card.querySelector('.success-no')?.textContent?.trim();
+      var actions = card.querySelector('.success-primary-actions');
+      if (!number || !actions) return;
+      var link = document.createElement('a');
+      link.className = 'btn ghost';
+      link.href = '/record/' + encodeURIComponent(number);
+      link.textContent = '查看报价 / 业务详情';
+      actions.appendChild(link);
+      card.dataset.businessDetailBound = '1';
+    }
+    new MutationObserver(enhance).observe(root, { childList: true, subtree: true });
+    enhance();
+  }
+
   function boot() {
     document.querySelectorAll('form[data-two-step]').forEach(init);
+    bindBusinessDetailShortcut();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

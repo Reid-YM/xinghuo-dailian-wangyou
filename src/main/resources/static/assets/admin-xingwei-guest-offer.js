@@ -99,7 +99,8 @@
   function enhance() {
     rows.querySelectorAll('tr[data-search]').forEach(row => {
       if (row.dataset.guestOfferEnhanced === '1') return;
-      if (row.dataset.guestOfferAllowed !== 'true') return;
+      const allowed = row.dataset.guestOfferAllowed === 'true';
+      const blockedReason = row.dataset.guestOfferReason || '报价权限未同步，请刷新业务工作台';
       const businessNo = row.querySelector('td:first-child .xwb-primary')?.textContent?.trim();
       const actionCell = row.lastElementChild;
       if (!businessNo || !actionCell) return;
@@ -108,18 +109,28 @@
       link.type = 'button';
       link.className = 'xw-mini-button';
       link.textContent = '复制游客链接';
-      link.title = '生成一次性安全链接，客户在另一浏览器打开后仍无需注册';
-      link.addEventListener('click', () => copyGuestLink(businessNo, link));
+      link.title = allowed
+        ? '生成一次性安全链接，客户在另一浏览器打开后仍无需注册'
+        : blockedReason;
+      link.disabled = !allowed;
+      if (allowed) link.addEventListener('click', () => copyGuestLink(businessNo, link));
 
       const offer = document.createElement('button');
       offer.type = 'button';
       offer.className = 'xw-mini-button';
       offer.textContent = '发布报价';
-      offer.title = '向游客发布正式报价';
-      offer.addEventListener('click', () => publish(businessNo, offer));
+      offer.title = allowed ? '向游客发布正式报价' : blockedReason;
+      offer.disabled = !allowed;
+      if (allowed) offer.addEventListener('click', () => publish(businessNo, offer));
 
       actionCell.prepend(link);
       actionCell.prepend(offer);
+      if (!allowed) {
+        const reason = document.createElement('small');
+        reason.className = 'xwb-secondary';
+        reason.textContent = blockedReason;
+        actionCell.append(reason);
+      }
       row.dataset.guestOfferEnhanced = '1';
     });
   }

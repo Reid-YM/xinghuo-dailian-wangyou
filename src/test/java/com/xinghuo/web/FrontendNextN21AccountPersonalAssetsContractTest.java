@@ -74,7 +74,7 @@ class FrontendNextN21AccountPersonalAssetsContractTest {
 
         assertTrue(runtime.contains("raw === '/mastery'"));
         assertTrue(runtime.contains("raw === '/account/submit'"));
-        assertTrue(runtime.contains("/^\\/guides\\//.test(raw)"));
+        assertFalse(runtime.contains("/^\\/guides\\//.test(raw)"));
         assertTrue(runtime.contains("link.dataset.n14Legacy = '1'"));
         assertTrue(runtime.contains("window.XHFrontendNextN14?.normalize?.(root)"));
         assertFalse(runtime.contains("a[href^=\"/game/\"]"));

@@ -139,14 +139,17 @@
     $('#paymentOrderIdentifier').disabled = true;
     $('#paymentPrepareForm').hidden = true;
     $('#paymentOrderDetails').replaceChildren();
-    $('#paymentPrepareMessage').textContent = '正在读取订单…';
+    $('#paymentPrepareMessage').textContent = '正在读取订单并自动核对客户账号…';
 
     try {
       const found = await api(`/orders/${encodeURIComponent(value)}`);
       order = found;
+      const customerState = found.customerBound
+        ? (found.customerAutoLinked ? '已自动匹配并关联客户账号' : '订单已关联客户账号')
+        : '未找到可安全自动确认的客户账号';
       $('#paymentOrderDetails').append(
         node('p', `${found.orderNo} · ${found.businessNo} · ${display(found.status)}`),
-        node('p', found.customerBound ? '订单已关联客户账号' : '尚未关联客户账号，请先在业务工作台完成关联。')
+        node('p', customerState)
       );
 
       const eligible = found.customerBound && found.paymentEligible !== false;
@@ -154,13 +157,15 @@
       $('#paymentPrepareForm').hidden = !canPrepare;
 
       if (!eligible) {
-        $('#paymentPrepareMessage').textContent = '请先在业务工作台补齐统一业务编号和客户账号归属。';
+        $('#paymentPrepareMessage').textContent = '系统已自动核对询价归属和已验证主联系方式；仍未匹配时，请让客户登录后提交询价或先完成主联系方式验证。';
       } else if (!state.enabled) {
         $('#paymentPrepareMessage').textContent = '订单具备支付资格，但真实收款开关当前关闭。';
       } else if (!state.canManage) {
         $('#paymentPrepareMessage').textContent = '订单具备支付资格，但当前账号缺少 payment:manage 权限，不能录入最终报价。';
       } else {
-        $('#paymentPrepareMessage').textContent = '订单具备支付资格，请核对最终金额和服务名称。';
+        $('#paymentPrepareMessage').textContent = found.customerAutoLinked
+          ? '客户账号已自动关联，订单具备支付资格，请核对最终金额和服务名称。'
+          : '订单具备支付资格，请核对最终金额和服务名称。';
       }
     } catch (error) {
       $('#paymentPrepareMessage').textContent = error.message;

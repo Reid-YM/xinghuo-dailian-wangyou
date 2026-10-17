@@ -1,5 +1,6 @@
 package com.xinghuo.controller;
 
+import com.xinghuo.service.GuestQuoteAccessBootstrapService;
 import com.xinghuo.service.GuestQuoteFlowService;
 import com.xinghuo.service.XingweiBusinessScopeService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,12 +27,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class XingweiBusinessScopeController {
     private final XingweiBusinessScopeService business;
     private final GuestQuoteFlowService guestQuotes;
+    private final GuestQuoteAccessBootstrapService guestAccessBootstrap;
 
     public XingweiBusinessScopeController(
             XingweiBusinessScopeService business,
-            GuestQuoteFlowService guestQuotes) {
+            GuestQuoteFlowService guestQuotes,
+            GuestQuoteAccessBootstrapService guestAccessBootstrap) {
         this.business = business;
         this.guestQuotes = guestQuotes;
+        this.guestAccessBootstrap = guestAccessBootstrap;
     }
 
     @GetMapping("/quotes")
@@ -71,6 +75,7 @@ public class XingweiBusinessScopeController {
             Authentication authentication,
             HttpServletRequest request) {
         requireBusinessAccess(authentication, businessNo);
+        guestAccessBootstrap.ensureAnonymousGuestAccess(businessNo);
         return guestQuotes.publishOffer(
                 businessNo,
                 body,
@@ -85,6 +90,7 @@ public class XingweiBusinessScopeController {
             @PathVariable String businessNo,
             Authentication authentication) {
         requireBusinessAccess(authentication, businessNo);
+        guestAccessBootstrap.ensureAnonymousGuestAccess(businessNo);
         GuestQuoteFlowService.AccessLink link = guestQuotes.issueAccessLink(
                 businessNo,
                 authentication == null ? "system" : authentication.getName());

@@ -103,7 +103,8 @@
   }
 
   function clear() {
-    const panel = ensurePanel();
+    const panel = document.getElementById('xwrReleaseReviewPriority');
+    if (!panel) return;
     panel.dataset.priorityReady = 'false';
     setText('xwrReleaseReviewPriorityState', '等待复核队列');
     setText('xwrReleasePriorityCurrent', '-');
@@ -161,7 +162,6 @@
     render(view);
   }
 
-  ensurePanel();
   tick();
   window.setInterval(tick, POLL_MS);
 })();

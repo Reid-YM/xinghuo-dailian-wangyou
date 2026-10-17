@@ -12,7 +12,7 @@ N12 已补齐“询价上下文连续性”：`/next/quote?service={slug}` 会�
 
 N13 已补齐“业务记录预览链路”：N3 询价提交成功后进入 `/next/record/{businessNo}`，只读现有公开记录与进度截图，保留旧 `/record/{businessNo}` 对照入口，并对记录预览设置 `noindex,nofollow`。详见 [N13 业务记录预览链路](N13_RECORD_DETAIL_PREVIEW.md)。
 
-N14 已补齐“Next 内部路由连续性”：Next 页面里的普通 `/services`、`/quote`、`/account`、`/service/{slug}`、`/record/{businessNo}` 链接统一留在 `/next` 路径族；首页游戏卡片使用已加载真实 catalog 的 `seoSlug -> code` 映射进入 `/next/services?game={code}`。带 `legacy=1` 和已有显式 legacy 标记的旧版入口继续保留。N22 起攻略详情 `/guides/{slug}` 纳入归一链路，N23 起攻略中心 `/guides` 归一到 `/next/guides`，N24 起投稿入口 `/account/submit` 归一到 `/next/account/submit`，N25 起 `/mastery` 归一到 `/next/mastery`。详见 [N14 Next 内部路由连续性](N14_ROUTE_CONTINUITY.md)。
+N14 已补齐“Next 内部路由连续性”：Next 页面里的普通 `/services`、`/quote`、`/account`、`/service/{slug}`、`/record/{businessNo}` 链接统一留在 `/next` 路径族；首页游戏卡片使用已加载真实 catalog 的 `seoSlug -> code` 映射进入 `/next/services?game={code}`。带 `legacy=1` 和已有显式 legacy 标记的旧版入口继续保留。N22 起攻略详情 `/guides/{slug}` 纳入归一链路，N23 起攻略中心 `/guides` 归一到 `/next/guides`，N24 起投稿入口 `/account/submit` 归一到 `/next/account/submit`，N25 起 `/mastery` 归一到 `/next/mastery`，N26 起 `/records`、`/contact`、`/trust` 也保持在对应 Next 路径。详见 [N14 Next 内部路由连续性](N14_ROUTE_CONTINUITY.md)。
 
 N15 已补齐“认证回跳连续性”：密码登录、注册、微信开放平台扫码和小程序扫码统一使用安全 `next` 返回目标；已有旧版 `/services`、`/quote`、`/account`、`/service/{slug}`、`/record/{businessNo}` 深链在认证完成后归一到对应 `/next` 路径。微信 OAuth 取消、限流或失败时，只有从 Next 发起的流程返回 `/next/account`，旧版登录流程继续保持旧版。详见 [N15 认证回跳连续性](N15_AUTH_RETURN_CONTINUITY.md)。
 
@@ -36,14 +36,16 @@ N24 已完成“账号投稿控制台 Next 化”：新增 `/next/account/submit
 
 N25 已完成“MW4 Mastery 工具 Next 预览”：新增 `/next/mastery`，不复制 MW4 工具业务状态机，而是在 Next 外壳中复用现有权威 `/assets/mw4-camo-tracker.js` 与 CSS。这样 `/api/tool-station`、本机进度/收藏、询价 snapshot、账号云同步 `/api/account/progress/mw4_camo_tracker`、`X-Requested-With: fetch` 与乐观锁冲突处理全部沿用同一实现；旧 `/mastery` 继续作为 canonical 和明确回退入口。详见 [N25 MW4 Mastery 工具 Next 预览](N25_MASTERY_TOOL_PREVIEW.md)。
 
+N26 已完成“公开辅助页面 Next 连续性”：新增 `/next/records`、`/next/contact`、`/next/trust`。业务记录入口复用旧版同一个 `xh_client_records_v1` 浏览器历史 key，并继续读取 `GET /api/records/{businessNo}` 后进入 N13 详情；联系页与信任/FAQ 直接读取现有站点公开配置，不建立第二份客服、备案、案例或 FAQ 数据。旧 `/records`、`/contact`、`/trust` 均继续作为 canonical / 明确回退入口。详见 [N26 公开辅助页面 Next 连续性](N26_PUBLIC_SUPPORT_CONTINUITY.md)。
+
 ## 当前部署状态
 
-N9–N22 已通过 PR #530 合并到 `main`，并按标准生产发布链路部署到生产应用；正式默认前端仍保持 Legacy，`/next/**` 作为显式并行预览入口。N23–N25 当前在 `frontend-next-final-replacement-n23-20261017` 开发分支与 Draft PR #531 中继续验证，尚未合并或部署。
+N9–N22 已通过 PR #530 合并到 `main`，并按标准生产发布链路部署到生产应用；正式默认前端仍保持 Legacy，`/next/**` 作为显式并行预览入口。N23–N26 当前在 `frontend-next-final-replacement-n23-20261017` 开发分支与 Draft PR #531 中继续验证，尚未合并或部署。
 
 用户要求正式前端保持旧版。当前代码默认关闭 Next 正式映射；重新启用正式 Next 必须单独获得明确授权。详见 [前端回退记录](../development/2026-10-16-frontend-rollback.md)。
 
-- 默认入口 `/`、`/services`、`/quote`、`/account`、`/mastery` 及认证/设置子页继续使用旧视图和原账号鉴权。
-- `/next`、`/next/services`、`/next/service/{slug}`、`/next/guides`、`/next/guides/{slug}`、`/next/mastery`、`/next/quote`、`/next/record/{businessNo}`、`/next/account`、`/next/account/submit` 及受支持的 `/next/account/...` 子路由作为显式预览入口；旧正式入口继续存在。
+- 默认入口 `/`、`/services`、`/quote`、`/account`、`/mastery`、`/records`、`/contact`、`/trust` 及认证/设置子页继续使用旧视图和原账号鉴权。
+- `/next`、`/next/services`、`/next/service/{slug}`、`/next/guides`、`/next/guides/{slug}`、`/next/mastery`、`/next/records`、`/next/contact`、`/next/trust`、`/next/quote`、`/next/record/{businessNo}`、`/next/account`、`/next/account/submit` 及受支持的 `/next/account/...` 子路由作为显式预览入口；旧正式入口继续存在。
 - 页面级回退使用 `?legacy=1`；整体回退配置 `app.frontend-next.default-enabled=false`。不能通过改静态首页文件假称已切换实际路由。
 - JS 由真实内容指纹确定缓存版本。账号/console 写请求遵循服务端 `X-Requested-With: fetch`，不放宽鉴权。
 - 数据失败时只保留已读真实数据或错误/重试状态，不回退模拟商品、价格或订单。
@@ -54,8 +56,8 @@ N9–N22 已通过 PR #530 合并到 `main`，并按标准生产发布链路部�
 - N23：攻略中心 Next 化（开发完成，待 CI/后续统一交付）。
 - N24：账号投稿撰写 / 管理 Next 化（开发完成，待 CI/后续统一交付）。
 - N25：MW4 Mastery 工具 Next 化（开发完成，待 CI/后续统一交付）。
-- N26：其它辅助公开页与剩余公开 Legacy 入口收口（下一步）。
-- N27：剩余账号辅助入口与跨页连续性收口。
+- N26：业务记录入口、联系页、信任/FAQ Next 化（开发完成，待 CI/后续统一交付）。
+- N27：剩余账号辅助入口与跨页连续性收口（下一步）。
 - N28：全站视觉、加载、空状态、错误状态、移动端一致性收口。
 - N29：生产 `/next/**` 全链路真实验收与缺陷清零。
 - N30：正式切换前治理、灰度计划、回滚演练与切换清单；是否切正式流量仍需单独授权。

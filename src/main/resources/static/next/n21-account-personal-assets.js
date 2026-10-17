@@ -150,7 +150,7 @@
     });
     const note = document.createElement('span');
     note.className = 'n21-asset-note';
-    note.textContent = '收藏与投稿分页复用现有账号接口；工具站、攻略详情和投稿编辑器暂无 Next 对应页时继续使用旧版入口。';
+    note.textContent = '收藏与投稿分页复用现有账号接口；工具站和投稿编辑器暂无 Next 对应页时继续使用旧版入口，攻略详情由 N22 留在 Next 预览链路。';
     nav.append(note);
     return nav;
   }
@@ -168,7 +168,7 @@
     if (!root) return;
     root.querySelectorAll('a[href]').forEach((link) => {
       const raw = link.getAttribute('href') || '';
-      if (raw === '/mastery' || raw === '/account/submit' || /^\/guides\//.test(raw)) {
+      if (raw === '/mastery' || raw === '/account/submit') {
         link.dataset.n14Legacy = '1';
         link.dataset.n21Legacy = '1';
       }

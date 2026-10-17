@@ -13,6 +13,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 @EnabledIfEnvironmentVariable(named = "PLAYWRIGHT_UI_TESTS", matches = "1")
 class XingweiReleaseConfirmationPlaywrightTest {
     private static final Path JS = Path.of("src/main/resources/static/assets/admin-xingwei-release-confirmation.js");
+    private static final Path PRIORITY_JS = Path.of("src/main/resources/static/assets/admin-xingwei-release-review-priority.js");
 
     private Browser chromium(Playwright playwright) {
         var options = new com.microsoft.playwright.BrowserType.LaunchOptions();
@@ -22,7 +23,7 @@ class XingweiReleaseConfirmationPlaywrightTest {
     }
 
     @Test
-    void linksChangeSubmitsWithCsrfRendersQueueAndClearsAfterDeployViewDenial() {
+    void linksChangeSubmitsWithCsrfRendersQueuePriorityAndClearsAfterDeployViewDenial() {
         try (Playwright playwright = Playwright.create(); Browser browser = chromium(playwright)) {
             Page page = browser.newPage();
             render(page);
@@ -33,13 +34,14 @@ class XingweiReleaseConfirmationPlaywrightTest {
                         if (String(url).includes('/release-review-queue')) {
                           return {ok:true,status:200,json:async () => ({
                             available:true,status:'AVAILABLE',sampledAt:'2026-10-17T07:31:00Z',
-                            summary:{trackedReleaseCount:2,stableCount:1,needsAttentionCount:0,unconfirmedCount:1,invalidCount:0,queueCount:1,currentNeedsAction:true},
+                            summary:{trackedReleaseCount:2,stableCount:1,needsAttentionCount:0,unconfirmedCount:1,invalidCount:0,queueCount:1,currentNeedsAction:true,actionableNowCount:1,archivedGapCount:0},
                             queue:[],
                             releases:[
-                              {current:true,publishedAt:'2026-10-17T07:00:00Z',release:'xinghuo-v2-standard-20261017070000.jar',gitSha:'a'.repeat(40),pullRequestNumber:525,confirmationStatus:'PENDING',stableEligible:true,actionState:'READY',confirmedBy:null,confirmedAt:null,note:null,risk:{available:true,complete:true,level:'MEDIUM',changedFileCount:10,categories:['OBSERVABILITY','ADMIN_UI'],rulesVersion:'v1-20261017',source:'GITHUB_PR_FILES'}},
-                              {current:false,publishedAt:'2026-10-17T06:30:00Z',release:'xinghuo-v2-standard-20261017063000.jar',gitSha:'b'.repeat(40),pullRequestNumber:524,confirmationStatus:'STABLE',stableEligible:false,actionState:'COMPLETE',confirmedBy:'admin',confirmedAt:'2026-10-17T06:59:00Z',note:'稳定',risk:{available:false,complete:false,level:'UNKNOWN',changedFileCount:0,categories:[],rulesVersion:'v1-20261017',source:'PR_UNAVAILABLE'}}
+                              {current:true,publishedAt:'2026-10-17T07:00:00Z',release:'xinghuo-v2-standard-20261017070000.jar',gitSha:'a'.repeat(40),pullRequestNumber:525,confirmationStatus:'PENDING',stableEligible:true,actionState:'READY',reviewPriority:'REVIEW_NOW',priorityReason:'已具备稳定确认条件且包含高风险变更类别，优先人工核对',confirmedBy:null,confirmedAt:null,note:null,risk:{available:true,complete:true,level:'HIGH',changedFileCount:10,categories:['DEPLOYMENT','OBSERVABILITY','ADMIN_UI'],rulesVersion:'v2-20261017',source:'GITHUB_PR_FILES'}},
+                              {current:false,publishedAt:'2026-10-17T06:30:00Z',release:'xinghuo-v2-standard-20261017063000.jar',gitSha:'b'.repeat(40),pullRequestNumber:524,confirmationStatus:'STABLE',stableEligible:false,actionState:'COMPLETE',reviewPriority:'ARCHIVED_COMPLETE',priorityReason:'历史版本已有稳定确认，仅保留审计记录',confirmedBy:'admin',confirmedAt:'2026-10-17T06:59:00Z',note:'稳定',risk:{available:false,complete:false,level:'UNKNOWN',changedFileCount:0,categories:[],rulesVersion:'v2-20261017',source:'PR_UNAVAILABLE'}}
                             ],
-                            riskRules:{version:'v1-20261017',high:['DATABASE','PAYMENT','SECURITY','DEPLOYMENT'],medium:['WECOM','ACCOUNT','OBSERVABILITY','ADMIN_UI','BACKEND','LEGACY_FRONTEND','TOOLING','OTHER'],lowOrUnknown:'其余仅 TESTS / DOCS / FRONTEND_NEXT 时为 LOW；数据缺失或列表不完整时为 UNKNOWN'}
+                            riskRules:{version:'v2-20261017',high:['DATABASE','PAYMENT','SECURITY','DEPLOYMENT'],medium:['WECOM','ACCOUNT','OBSERVABILITY','ADMIN_UI','BACKEND','LEGACY_FRONTEND','TOOLING','OTHER'],lowOrUnknown:'其余仅 TESTS / DOCS / FRONTEND_NEXT 时为 LOW；数据缺失、超出预算或列表不完整时为 UNKNOWN',perPrLookupBudgetMillis:1200,successCacheTtlMillis:21600000,unknownCacheTtlMillis:90000},
+                            riskRuntime:{elapsedMillis:36,lookupCount:2,unknownCount:1,lookupLimit:4,perLookupBudgetMillis:1200,externalBudgetMillis:2400}
                           })};
                         }
                         confirmationCalls += 1;
@@ -73,8 +75,10 @@ class XingweiReleaseConfirmationPlaywrightTest {
                     }
                     """);
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(JS));
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(PRIORITY_JS));
             page.waitForFunction("() => window.xwrReleaseConfirmation?.confirmation?.stableEligible === true");
             page.waitForFunction("() => document.querySelector('#xwrReleaseReviewQueue')?.dataset.queueReady === 'true'");
+            page.waitForFunction("() => document.querySelector('#xwrReleaseReviewPriority')?.dataset.priorityReady === 'true'");
 
             assertTrue(page.locator("#xwrReleaseConfirmationChange a").first().textContent().contains("PR #525"));
             assertTrue(page.locator("#xwrReleaseConfirmationChange a").first().getAttribute("href").endsWith("/pull/525"));
@@ -82,9 +86,17 @@ class XingweiReleaseConfirmationPlaywrightTest {
             assertTrue(page.locator("#xwrReleaseConfirmStable").isEnabled());
             assertEquals("2", page.locator("#xwrReleaseQueueTracked").textContent());
             assertEquals("1", page.locator("#xwrReleaseQueueStable").textContent());
-            assertTrue(page.locator("#xwrReleaseReviewQueueList").textContent().contains("MEDIUM"));
-            assertTrue(page.locator("#xwrReleaseReviewQueueList").textContent().contains("OBSERVABILITY"));
-            assertTrue(page.locator("#xwrReleaseReviewRiskRules").textContent().contains("v1-20261017"));
+            assertTrue(page.locator("#xwrReleaseReviewQueueList").textContent().contains("HIGH"));
+            assertTrue(page.locator("#xwrReleaseReviewQueueList").textContent().contains("DEPLOYMENT"));
+            assertTrue(page.locator("#xwrReleaseReviewRiskRules").textContent().contains("v2-20261017"));
+            assertEquals("优先人工复核", page.locator("#xwrReleasePriorityCurrent").textContent());
+            assertEquals("36 ms", page.locator("#xwrReleasePriorityElapsed").textContent());
+            assertEquals("2400 ms", page.locator("#xwrReleasePriorityBudget").textContent());
+            assertEquals("1", page.locator("#xwrReleasePriorityUnknown").textContent());
+            assertTrue(page.locator("#xwrReleasePriorityReason").textContent().contains("高风险变更类别"));
+            assertTrue(page.locator("#xwrReleasePriorityCache").textContent().contains("成功结果缓存 6 小时"));
+            assertTrue(page.locator("#xwrReleasePriorityCache").textContent().contains("UNKNOWN 短缓存 90 秒"));
+            assertTrue(page.locator("#xwrReleasePriorityCache").textContent().contains("不代表整个接口 SLA"));
 
             page.locator("#xwrReleaseConfirmationNote").fill("观察正常");
             page.locator("#xwrReleaseConfirmStable").click();

@@ -53,7 +53,7 @@ class FrontendNextN26RecordsCenterContractTest {
         assertTrue(bridge.contains("remember(decodeURIComponent(match[1]), 'QUOTE')"));
         assertTrue(bridge.contains("link.href = '/next/records'"));
         assertTrue(bridge.contains("link.dataset.n26RecordsCenter = '1'"));
-        assertTrue(routes.contains("/next/n26-record-history-bridge.js?v=20261017-n26"));
+        assertTrue(routes.contains("stageSource('/next/n26-record-history-bridge.js')"));
         assertTrue(routes.contains("/^\\/next\\/(?:quote\\/?$|record\\/)/"));
     }
 
@@ -69,7 +69,16 @@ class FrontendNextN26RecordsCenterContractTest {
         assertTrue(runtime.contains("robots.content = 'noindex,nofollow'"));
         assertTrue(routes.contains("url.pathname === '/records'"));
         assertTrue(routes.contains("nextUrl(url, '/next/records')"));
-        assertTrue(routes.contains("/next/n26-records-center.js?v=20261017-n26"));
+        assertTrue(routes.contains("stageSource('/next/n26-records-center.js')"));
         assertTrue(routes.contains("link.dataset.n26Legacy === '1'"));
+    }
+
+    @Test
+    void stagedRuntimesReuseTheVersionedN14ManifestFingerprint() throws Exception {
+        String routes = read("resources/static/next/n14-route-continuity.js");
+        assertTrue(routes.contains("document.currentScript?.src"));
+        assertTrue(routes.contains("searchParams.get('v')"));
+        assertTrue(routes.contains("/^[0-9a-f]{64}$/"));
+        assertTrue(routes.contains("`${path}?v=${STAGE_RUNTIME_VERSION}`"));
     }
 }

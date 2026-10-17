@@ -91,13 +91,21 @@ class XingweiReleaseReviewQueueServiceTest {
         assertEquals(2, snapshot.releases().size());
         assertEquals(1, snapshot.summary().stableCount());
         assertEquals(1, snapshot.summary().unconfirmedCount());
+        assertEquals(1, snapshot.summary().actionableNowCount());
         assertTrue(snapshot.summary().currentNeedsAction());
         assertEquals("READY", snapshot.releases().get(0).actionState());
+        assertEquals("REVIEW_READY", snapshot.releases().get(0).reviewPriority());
+        assertTrue(snapshot.releases().get(0).priorityReason().contains("自动观察完整正常"));
         assertTrue(snapshot.releases().get(0).current());
         assertEquals("MEDIUM", snapshot.releases().get(0).risk().level());
         assertEquals("COMPLETE", snapshot.releases().get(1).actionState());
+        assertEquals("ARCHIVED_COMPLETE", snapshot.releases().get(1).reviewPriority());
         assertFalse(snapshot.releases().get(1).current());
         assertEquals("STABLE", snapshot.releases().get(1).confirmationStatus());
+        assertEquals(2, snapshot.riskRuntime().lookupCount());
+        assertEquals(0, snapshot.riskRuntime().unknownCount());
+        assertEquals(2400L, snapshot.riskRuntime().externalBudgetMillis());
+        assertEquals(1200L, snapshot.riskRuntime().perLookupBudgetMillis());
     }
 
     @Test
@@ -141,7 +149,46 @@ class XingweiReleaseReviewQueueServiceTest {
                 .findFirst().orElseThrow();
         assertEquals("UNCONFIRMED", old.confirmationStatus());
         assertEquals("ARCHIVED_UNCONFIRMED", old.actionState());
+        assertEquals("ARCHIVED_GAP", old.reviewPriority());
+        assertTrue(old.priorityReason().contains("不可补写"));
+        assertEquals(1, snapshot.summary().archivedGapCount());
         assertFalse(old.current());
+    }
+
+    @Test
+    void elevatesReadyCurrentReleaseWhenRiskIsUnknown() throws Exception {
+        Path attestationFile = tempDir.resolve("current3.json");
+        Path historyDir = tempDir.resolve("history3");
+        Path confirmationDir = tempDir.resolve("confirmations3");
+        Files.createDirectories(historyDir);
+        Files.createDirectories(confirmationDir);
+        String currentRelease = "xinghuo-v2-standard-20261017100000.jar";
+        String currentSha = "f".repeat(40);
+        Files.writeString(attestationFile,
+                attestationJson(currentRelease, "xinghuo-v2-standard-20261017090000.jar", currentSha, 528, "2026-10-17T10:00:00Z"));
+
+        ObjectMapper mapper = new ObjectMapper();
+        XingweiReleaseConfirmationService confirmationService = mock(XingweiReleaseConfirmationService.class);
+        when(confirmationService.snapshot()).thenReturn(new XingweiReleaseConfirmationService.Snapshot(
+                true, "PENDING", Instant.now(),
+                new XingweiReleaseConfirmationService.ReleaseReference(currentRelease, currentSha, 528, Instant.parse("2026-10-17T10:00:00Z")),
+                true, "ELIGIBLE", null, List.of()));
+        XingweiReleaseChangeRiskService riskService = mock(XingweiReleaseChangeRiskService.class);
+        when(riskService.rules()).thenReturn(new XingweiReleaseChangeRiskService.Rules("v2", List.of(), List.of(), "rule"));
+        when(riskService.riskFor(528)).thenReturn(
+                new XingweiReleaseChangeRiskService.RiskSummary(false, false, "UNKNOWN", 0, List.of(), "v2", "LOOKUP_BUDGET_EXHAUSTED"));
+
+        XingweiReleaseReviewQueueService service = new XingweiReleaseReviewQueueService(
+                mapper,
+                new XingweiReleaseAttestationService(mapper, attestationFile.toString()),
+                confirmationService,
+                riskService,
+                attestationFile.toString(), historyDir.toString(), confirmationDir.toString());
+
+        XingweiReleaseReviewQueueService.ReleaseReview current = service.snapshot().releases().get(0);
+        assertEquals("READY", current.actionState());
+        assertEquals("REVIEW_NOW", current.reviewPriority());
+        assertTrue(current.priorityReason().contains("风险信息不完整"));
     }
 
     private String attestationJson(String current, String previous, String gitSha, int pr, String publishedAt) {

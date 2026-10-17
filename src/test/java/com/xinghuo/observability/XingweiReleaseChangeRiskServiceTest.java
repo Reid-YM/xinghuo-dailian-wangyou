@@ -55,4 +55,15 @@ class XingweiReleaseChangeRiskServiceTest {
         assertEquals(List.of("DOCS", "TESTS", "FRONTEND_NEXT"), summary.categories());
         assertEquals(XingweiReleaseChangeRiskService.RULES_VERSION, summary.rulesVersion());
     }
+
+    @Test
+    void publishesBoundedLookupAndCacheRules() {
+        XingweiReleaseChangeRiskService.Rules rules = service().rules();
+
+        assertEquals("v2-20261017", rules.version());
+        assertEquals(1200L, rules.perPrLookupBudgetMillis());
+        assertEquals(90_000L, rules.unknownCacheTtlMillis());
+        assertTrue(rules.successCacheTtlMillis() > rules.unknownCacheTtlMillis());
+        assertTrue(rules.lowOrUnknown().contains("超出预算"));
+    }
 }

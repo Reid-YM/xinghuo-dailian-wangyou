@@ -58,7 +58,7 @@ class FrontendNextN21AccountPersonalAssetsContractTest {
 
         assertTrue(runtime.contains("safePage"));
         assertTrue(runtime.contains("PAGE_MAX = 1000"));
-        assertTrue(runtime.contains("searchParams.get('page')"));
+        assertTrue(runtime.contains("new URLSearchParams(location.search).get('page')"));
         assertTrue(runtime.contains("pager.next.click()"));
         assertTrue(runtime.contains("pager.previous.click()"));
         assertTrue(runtime.contains("writePage(key, pager.page, 'replace')"));

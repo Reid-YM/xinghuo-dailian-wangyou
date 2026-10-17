@@ -23,7 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * responses receive an HttpOnly guest session and a guest_business_access row.
  */
 @ControllerAdvice
-public class GuestQuoteResponseAdvice implements ResponseBodyAdvice<ApiDtos.QuoteResponse> {
+public class GuestQuoteResponseAdvice implements ResponseBodyAdvice<Object> {
     private static final Duration COOKIE_TTL = Duration.ofDays(90);
 
     private final GuestQuoteFlowService guests;
@@ -37,18 +37,21 @@ public class GuestQuoteResponseAdvice implements ResponseBodyAdvice<ApiDtos.Quot
     @Override
     public boolean supports(MethodParameter returnType,
                             Class<? extends HttpMessageConverter<?>> converterType) {
-        return ApiDtos.QuoteResponse.class.isAssignableFrom(returnType.getParameterType());
+        return returnType.getContainingClass() == PublicApiController.class
+                && returnType.getMethod() != null
+                && "quote".equals(returnType.getMethod().getName());
     }
 
     @Override
-    public ApiDtos.QuoteResponse beforeBodyWrite(
-            ApiDtos.QuoteResponse body,
+    public Object beforeBodyWrite(
+            Object body,
             MethodParameter returnType,
             MediaType selectedContentType,
             Class<? extends HttpMessageConverter<?>> selectedConverterType,
             ServerHttpRequest request,
             ServerHttpResponse response) {
-        if (body == null || !(request instanceof ServletServerHttpRequest servletRequest)) {
+        if (!(body instanceof ApiDtos.QuoteResponse quote)
+                || !(request instanceof ServletServerHttpRequest servletRequest)) {
             return body;
         }
         HttpServletRequest req = servletRequest.getServletRequest();
@@ -60,7 +63,7 @@ public class GuestQuoteResponseAdvice implements ResponseBodyAdvice<ApiDtos.Quot
         }
 
         GuestQuoteFlowService.SessionHandle session = guests.ensureSession(cookie(req));
-        guests.attachQuote(session.id(), body.id(), body.businessNo());
+        guests.attachQuote(session.id(), quote.id(), quote.businessNo());
         boolean secure = req.isSecure()
                 || String.valueOf(req.getHeader("X-Forwarded-Proto")).toLowerCase().startsWith("https");
         ResponseCookie cookie = ResponseCookie.from(GuestQuoteFlowService.COOKIE_NAME, session.token())

@@ -1,5 +1,6 @@
 package com.xinghuo.controller;
 
+import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.service.GuestQuoteFlowService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,8 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
-/** One-time staff link -> HttpOnly browser capability -> stable guest business. */
+/** One-time staff link -> explicit confirmation -> HttpOnly browser capability. */
 @Controller
 public class GuestAccessController {
     private static final Duration COOKIE_TTL = Duration.ofDays(90);
@@ -25,7 +27,20 @@ public class GuestAccessController {
         this.guests = guests;
     }
 
+    /**
+     * GET deliberately does not consume the capability. Messaging apps and security scanners often
+     * prefetch shared links to build a preview; consuming here would make the customer's real click
+     * fail. The human must submit the confirmation form before the one-time token is exchanged.
+     */
     @GetMapping("/guest/access/{token}")
+    public String confirm(@PathVariable String token) {
+        if (token == null || token.length() < 32 || token.length() > 128) {
+            throw new NotFoundException();
+        }
+        return "guest-access";
+    }
+
+    @PostMapping("/guest/access/{token}")
     public ResponseEntity<Void> exchange(
             @PathVariable String token,
             HttpServletRequest request) {

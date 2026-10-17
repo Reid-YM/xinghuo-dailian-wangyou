@@ -65,13 +65,13 @@ public class GuestQuoteFlowService {
             String hash = HashUtil.sha256(rawToken);
             List<Long> ids = jdbc.query("""
                     SELECT id FROM guest_session
-                     WHERE token_hash=? AND status='ACTIVE' AND expires_at>UTC_TIMESTAMP(6)
+                     WHERE token_hash=? AND status='ACTIVE' AND expires_at>CURRENT_TIMESTAMP
                      LIMIT 1
                     """, (rs, i) -> rs.getLong(1), hash);
             if (!ids.isEmpty()) {
                 Instant expiry = Instant.now().plus(SESSION_TTL);
                 jdbc.update("""
-                        UPDATE guest_session SET last_seen_at=UTC_TIMESTAMP(6),expires_at=?,updated_at=UTC_TIMESTAMP(6)
+                        UPDATE guest_session SET last_seen_at=CURRENT_TIMESTAMP,expires_at=?,updated_at=CURRENT_TIMESTAMP
                          WHERE id=? AND status='ACTIVE'
                         """, Timestamp.from(expiry), ids.getFirst());
                 return new SessionHandle(ids.getFirst(), rawToken, false, expiry);
@@ -84,7 +84,7 @@ public class GuestQuoteFlowService {
             try {
                 jdbc.update("""
                         INSERT INTO guest_session(token_hash,status,expires_at,last_seen_at,created_at,updated_at)
-                        VALUES (?,'ACTIVE',?,UTC_TIMESTAMP(6),UTC_TIMESTAMP(6),UTC_TIMESTAMP(6))
+                        VALUES (?,'ACTIVE',?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
                         """, HashUtil.sha256(token), Timestamp.from(expiry));
                 Long id = jdbc.queryForObject("SELECT id FROM guest_session WHERE token_hash=?", Long.class,
                         HashUtil.sha256(token));
@@ -116,7 +116,7 @@ public class GuestQuoteFlowService {
         jdbc.update("""
                 INSERT IGNORE INTO guest_business_access(
                   guest_session_id,quote_id,business_no,status,created_at,updated_at)
-                VALUES (?,?,?,'ACTIVE',UTC_TIMESTAMP(6),UTC_TIMESTAMP(6))
+                VALUES (?,?,?,'ACTIVE',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
                 """, sessionId, quoteId.toString(), businessNo.trim());
     }
 
@@ -156,7 +156,7 @@ public class GuestQuoteFlowService {
         }
 
         jdbc.update("""
-                UPDATE quote_offer SET status='CANCELLED',cancelled_at=UTC_TIMESTAMP(6),updated_at=UTC_TIMESTAMP(6)
+                UPDATE quote_offer SET status='CANCELLED',cancelled_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP
                  WHERE quote_id=? AND status='QUOTED'
                 """, quote.quoteId());
         Integer previous = jdbc.queryForObject(
@@ -170,12 +170,12 @@ public class GuestQuoteFlowService {
                 INSERT INTO quote_offer(
                   quote_id,business_no,version,subject,amount,currency,estimated_duration,
                   customer_message,status,quoted_by,quoted_at,expires_at,created_at,updated_at)
-                VALUES (?,?,?,?,?,'CNY',?,?,'QUOTED',?,UTC_TIMESTAMP(6),?,UTC_TIMESTAMP(6),UTC_TIMESTAMP(6))
+                VALUES (?,?,?,?,?,'CNY',?,?,'QUOTED',?,CURRENT_TIMESTAMP,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
                 """, quote.quoteId(), no, version, body.subject().trim(), body.amount(),
                 trim(body.estimatedDuration()), trim(body.customerMessage()),
                 operator == null || operator.isBlank() ? "system" : operator,
                 Timestamp.from(expiresAt));
-        jdbc.update("UPDATE quotes SET status='QUOTED',updated_at=UTC_TIMESTAMP(6) WHERE id=?",
+        jdbc.update("UPDATE quotes SET status='QUOTED',updated_at=CURRENT_TIMESTAMP WHERE id=?",
                 quote.quoteId());
 
         Map<String, Object> after = offerMap(latestOffer(no));
@@ -222,7 +222,7 @@ public class GuestQuoteFlowService {
         }
         if (offer.expiresAt() != null && !offer.expiresAt().isAfter(Instant.now())) {
             jdbc.update("""
-                    UPDATE quote_offer SET status='EXPIRED',updated_at=UTC_TIMESTAMP(6)
+                    UPDATE quote_offer SET status='EXPIRED',updated_at=CURRENT_TIMESTAMP
                      WHERE id=? AND status='QUOTED'
                     """, offer.id());
             throw new ConflictException("当前报价已过期，请联系客服重新报价");
@@ -241,7 +241,7 @@ public class GuestQuoteFlowService {
         int owned = jdbc.update("""
                 UPDATE customer_orders
                    SET guest_access_id=?, progress_text='报价已确认，等待支付并安排服务',
-                       updated_at=UTC_TIMESTAMP(6)
+                       updated_at=CURRENT_TIMESTAMP
                  WHERE business_no=? AND customer_account_id IS NULL
                    AND (guest_access_id IS NULL OR guest_access_id=?)
                 """, access.accessId(), no, access.accessId());
@@ -251,7 +251,7 @@ public class GuestQuoteFlowService {
 
         jdbc.update("""
                 UPDATE quote_offer
-                   SET status='ACCEPTED',accepted_at=UTC_TIMESTAMP(6),updated_at=UTC_TIMESTAMP(6)
+                   SET status='ACCEPTED',accepted_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP
                  WHERE id=? AND status='QUOTED'
                 """, offer.id());
         quote.setStatus(Quote.Status.CONVERTED);
@@ -371,7 +371,7 @@ public class GuestQuoteFlowService {
                 SELECT a.id,a.quote_id,a.business_no
                   FROM guest_business_access a
                   JOIN guest_session s ON s.id=a.guest_session_id
-                 WHERE s.token_hash=? AND s.status='ACTIVE' AND s.expires_at>UTC_TIMESTAMP(6)
+                 WHERE s.token_hash=? AND s.status='ACTIVE' AND s.expires_at>CURRENT_TIMESTAMP
                    AND a.business_no=? AND a.status='ACTIVE'
                  LIMIT 1
                 """ + (lock ? " FOR UPDATE" : "");
@@ -382,10 +382,9 @@ public class GuestQuoteFlowService {
             throw new NotFoundException();
         }
         jdbc.update("""
-                UPDATE guest_session s
-                JOIN guest_business_access a ON a.guest_session_id=s.id
-                   SET s.last_seen_at=UTC_TIMESTAMP(6),s.updated_at=UTC_TIMESTAMP(6)
-                 WHERE a.id=?
+                UPDATE guest_session
+                   SET last_seen_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP
+                 WHERE id=(SELECT guest_session_id FROM guest_business_access WHERE id=?)
                 """, rows.getFirst().accessId());
         return rows.getFirst();
     }

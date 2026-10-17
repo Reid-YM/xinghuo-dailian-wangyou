@@ -7,7 +7,8 @@
 
   function explicitLegacy(link, url) {
     if (!link || !url) return false;
-    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n22Legacy === '1') return true;
+    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1') return true;
+    if (link.dataset.n22Legacy === '1' && url.pathname !== '/guides') return true;
     return url.searchParams.get('legacy') === '1';
   }
 
@@ -62,6 +63,7 @@
     if (url.pathname === '/services') return nextUrl(url, '/next/services');
     if (url.pathname === '/quote') return nextUrl(url, '/next/quote');
     if (url.pathname === '/account') return nextUrl(url, '/next/account');
+    if (url.pathname === '/guides') return nextUrl(url, '/next/guides');
 
     const service = /^\/service\/([^/?#]+)\/?$/.exec(url.pathname);
     if (service) return nextUrl(url, `/next/service/${service[1]}`);
@@ -89,6 +91,15 @@
     root.querySelectorAll?.('a[href]').forEach(normalizeLink);
   }
 
+  function ensureN23Runtime() {
+    if (!/^\/next\/guides\/?$/.test(location.pathname) || document.getElementById('frontend-next-n23-runtime')) return;
+    const script = document.createElement('script');
+    script.id = 'frontend-next-n23-runtime';
+    script.src = '/next/n23-guides-center.js?v=20261017-n23';
+    script.defer = true;
+    document.head.append(script);
+  }
+
   document.addEventListener('click', (event) => {
     const link = event.target.closest?.('a[href]');
     if (link) normalizeLink(link);
@@ -110,8 +121,12 @@
     attributeFilter: ['href']
   });
 
-  window.addEventListener('xh:pagechange', () => normalizeTree());
+  window.addEventListener('xh:pagechange', () => {
+    normalizeTree();
+    ensureN23Runtime();
+  });
   normalizeTree();
+  ensureN23Runtime();
 
   window.XHFrontendNextN14 = {
     normalize: normalizeTree,

@@ -4,11 +4,20 @@
   if (!/^\/next(?:\/|$)/.test(location.pathname)) return;
 
   const text = (value) => String(value ?? '').trim();
+  const STAGE_RUNTIME_VERSION = (() => {
+    try {
+      const source = document.currentScript?.src || '';
+      const version = new URL(source, location.origin).searchParams.get('v') || '';
+      return /^[0-9a-f]{64}$/.test(version) ? version : '';
+    } catch (ignore) {
+      return '';
+    }
+  })();
 
   function explicitLegacy(link, url) {
     if (!link || !url) return false;
     if ((url.pathname === '/mastery' || url.pathname === '/account/submit') && link.dataset.n21Legacy === '1') return false;
-    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1' || link.dataset.n25Legacy === '1') return true;
+    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1' || link.dataset.n25Legacy === '1' || link.dataset.n26Legacy === '1') return true;
     if (link.dataset.n22Legacy === '1' && url.pathname !== '/guides') return true;
     return url.searchParams.get('legacy') === '1';
   }
@@ -63,6 +72,7 @@
 
     if (url.pathname === '/services') return nextUrl(url, '/next/services');
     if (url.pathname === '/quote') return nextUrl(url, '/next/quote');
+    if (url.pathname === '/records') return nextUrl(url, '/next/records');
     if (url.pathname === '/account') return nextUrl(url, '/next/account');
     if (url.pathname === '/account/submit') return nextUrl(url, '/next/account/submit');
     if (url.pathname === '/guides') return nextUrl(url, '/next/guides');
@@ -94,6 +104,10 @@
     root.querySelectorAll?.('a[href]').forEach(normalizeLink);
   }
 
+  function stageSource(path) {
+    return STAGE_RUNTIME_VERSION ? `${path}?v=${STAGE_RUNTIME_VERSION}` : path;
+  }
+
   function ensureRuntime(id, source, matcher) {
     if (!matcher.test(location.pathname) || document.getElementById(id)) return;
     const script = document.createElement('script');
@@ -104,9 +118,11 @@
   }
 
   function ensureStageRuntimes() {
-    ensureRuntime('frontend-next-n23-runtime', '/next/n23-guides-center.js?v=20261017-n23', /^\/next\/guides\/?$/);
-    ensureRuntime('frontend-next-n24-runtime', '/next/n24-mastery.js?v=20261017-n24', /^\/next\/mastery\/?$/);
-    ensureRuntime('frontend-next-n25-runtime', '/next/n25-submission-workbench.js?v=20261017-n25', /^\/next\/account\/submit\/?$/);
+    ensureRuntime('frontend-next-n23-runtime', stageSource('/next/n23-guides-center.js'), /^\/next\/guides\/?$/);
+    ensureRuntime('frontend-next-n24-runtime', stageSource('/next/n24-mastery.js'), /^\/next\/mastery\/?$/);
+    ensureRuntime('frontend-next-n25-runtime', stageSource('/next/n25-submission-workbench.js'), /^\/next\/account\/submit\/?$/);
+    ensureRuntime('frontend-next-n26-runtime', stageSource('/next/n26-records-center.js'), /^\/next\/records\/?$/);
+    ensureRuntime('frontend-next-n26-history-bridge', stageSource('/next/n26-record-history-bridge.js'), /^\/next\/(?:quote\/?$|record\/)/);
   }
 
   document.addEventListener('click', (event) => {

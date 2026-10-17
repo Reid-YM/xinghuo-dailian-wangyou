@@ -99,6 +99,7 @@
   function enhance() {
     rows.querySelectorAll('tr[data-search]').forEach(row => {
       if (row.dataset.guestOfferEnhanced === '1') return;
+      if (row.dataset.guestOfferAllowed !== 'true') return;
       const businessNo = row.querySelector('td:first-child .xwb-primary')?.textContent?.trim();
       const actionCell = row.lastElementChild;
       if (!businessNo || !actionCell) return;

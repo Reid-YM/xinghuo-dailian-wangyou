@@ -53,18 +53,18 @@ public class XingweiReleaseChangeRiskService {
 
     public RiskSummary riskFor(Integer pullRequestNumber) {
         if (pullRequestNumber == null || pullRequestNumber <= 0) {
-            return RiskSummary.unknown("PR_UNAVAILABLE");
+            return RiskSummary.unknown("PR_UNAVAILABLE").withCacheState("NOT_APPLICABLE");
         }
         long now = System.nanoTime();
         CacheEntry cached = cache.get(pullRequestNumber);
         if (cached != null && cached.expiresAtNanos() > now) {
-            return cached.summary();
+            return cached.summary().withCacheState("HIT");
         }
         if (cached != null) {
             cache.remove(pullRequestNumber, cached);
         }
 
-        RiskSummary resolved = resolve(pullRequestNumber);
+        RiskSummary resolved = resolve(pullRequestNumber).withCacheState("MISS");
         long ttlMillis = resolved.available() && resolved.complete()
                 ? SUCCESS_CACHE_TTL_MILLIS
                 : UNKNOWN_CACHE_TTL_MILLIS;
@@ -130,7 +130,8 @@ public class XingweiReleaseChangeRiskService {
                     classified.changedFileCount(),
                     classified.categories(),
                     RULES_VERSION,
-                    "PR_FILE_LIST_TRUNCATED");
+                    "PR_FILE_LIST_TRUNCATED",
+                    "DIRECT");
         }
         return classified;
     }
@@ -164,7 +165,8 @@ public class XingweiReleaseChangeRiskService {
                 unique.size(),
                 List.copyOf(categories),
                 RULES_VERSION,
-                "GITHUB_PR_FILES");
+                "GITHUB_PR_FILES",
+                "DIRECT");
     }
 
     private String category(String path) {
@@ -227,9 +229,26 @@ public class XingweiReleaseChangeRiskService {
             int changedFileCount,
             List<String> categories,
             String rulesVersion,
-            String source) {
+            String source,
+            String cacheState) {
+        public RiskSummary(
+                boolean available,
+                boolean complete,
+                String level,
+                int changedFileCount,
+                List<String> categories,
+                String rulesVersion,
+                String source) {
+            this(available, complete, level, changedFileCount, categories, rulesVersion, source, "DIRECT");
+        }
+
         static RiskSummary unknown(String source) {
-            return new RiskSummary(false, false, "UNKNOWN", 0, List.of(), RULES_VERSION, source);
+            return new RiskSummary(false, false, "UNKNOWN", 0, List.of(), RULES_VERSION, source, "DIRECT");
+        }
+
+        RiskSummary withCacheState(String cacheState) {
+            return new RiskSummary(
+                    available, complete, level, changedFileCount, categories, rulesVersion, source, cacheState);
         }
     }
 

@@ -2,6 +2,8 @@
 
 N25 将旧 `/account/submit` 的真实能力迁入 Frontend Next，新增显式 `/next/account/submit`。当前用户侧后端只支持新建投稿、读取自己的投稿/详情和受控撤回，不提供“修改已提交稿件”接口，因此 N25 严格按真实能力实现，不伪造在线编辑已提交内容。
 
+> 当前阶段为开发与组合 CI 验证态；在合并并执行生产预览发布前，正式 `/account/submit` 与当前线上 `/next` 均保持原状态。
+
 ## 目标
 
 - 新增 `/next/account/submit` 显式预览入口。

@@ -48,6 +48,8 @@ class XingweiReleaseReviewQueueContractTest {
         assertTrue(risk.contains("GITHUB_UNAVAILABLE"));
         assertTrue(risk.contains("PR_FILE_LIST_TRUNCATED"));
         assertTrue(risk.contains("\"UNKNOWN\""));
+        assertTrue(risk.contains("cacheState"));
+        assertTrue(risk.contains("withCacheState(\"HIT\")"));
         assertTrue(risk.contains("DATABASE"));
         assertTrue(risk.contains("PAYMENT"));
         assertTrue(risk.contains("SECURITY"));
@@ -58,6 +60,8 @@ class XingweiReleaseReviewQueueContractTest {
         assertTrue(priorityUi.contains("复核优先级与风险查询预算"));
         assertTrue(priorityUi.contains("不代表整个接口 SLA"));
         assertTrue(priorityUi.contains("UNKNOWN 短缓存"));
+        assertTrue(priorityUi.contains("cacheState === 'HIT'"));
+        assertTrue(priorityUi.contains("缓存命中"));
         assertFalse(priorityUi.contains("fetch("));
         assertTrue(roadmap.contains("admin-xingwei-release-review-priority.js?v=20261017v1"));
     }

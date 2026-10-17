@@ -54,7 +54,7 @@ class FrontendNextN27SupportTrustContractTest {
     }
 
     @Test
-    void contactAndTrustStayInsideNextWhileLegalPagesRemainCanonicalLegacySources() throws Exception {
+    void contactAndTrustStayInsideNextWithExplicitLegacyEscapes() throws Exception {
         String runtime = read("resources/static/next/n27-support-trust.js");
         String routes = read("resources/static/next/n14-route-continuity.js");
 
@@ -70,7 +70,5 @@ class FrontendNextN27SupportTrustContractTest {
         assertTrue(routes.contains("nextUrl(url, '/next/trust')"));
         assertTrue(routes.contains("stageSource('/next/n27-support-trust.js')"));
         assertTrue(routes.contains("link.dataset.n27Legacy === '1'"));
-        assertFalse(routes.contains("url.pathname === '/rules'"));
-        assertFalse(routes.contains("url.pathname === '/privacy'"));
     }
 }

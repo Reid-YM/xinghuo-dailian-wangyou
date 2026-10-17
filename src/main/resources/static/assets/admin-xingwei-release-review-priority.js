@@ -16,7 +16,7 @@
     const n = Number(value || 0);
     if (!Number.isFinite(n) || n <= 0) return '-';
     if (n >= 3_600_000) return `${Math.round(n / 3_600_000)} 小时`;
-    if (n >= 60_000) return `${Math.round(n / 60_000)} 分钟`;
+    if (n >= 120_000) return `${Math.round(n / 60_000)} 分钟`;
     return `${Math.round(n / 1000)} 秒`;
   }
 

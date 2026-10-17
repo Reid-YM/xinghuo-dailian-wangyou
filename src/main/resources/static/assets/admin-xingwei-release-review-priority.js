@@ -59,7 +59,7 @@
     grid.className = 'xwr-confirm-grid';
     for (const [id, label, hint] of [
       ['Current','当前优先级','由观察状态 + 透明风险共同解释'],
-      ['Elapsed','本次风险查询','仅统计服务端风险解析耗时'],
+      ['Elapsed','本次风险查询','包含缓存读取与必要的外部查询'],
       ['Budget','外部请求预算','按实际查阅的 PR 数量计算'],
       ['Unknown','风险未知','未知不会被降级成低风险']
     ]) {
@@ -121,6 +121,7 @@
     const runtime = view?.riskRuntime || {};
     const rules = view?.riskRules || {};
     const summary = view?.summary || {};
+    const cacheHits = releases.filter(item => item?.risk?.cacheState === 'HIT').length;
 
     panel.dataset.priorityReady = 'true';
     setText('xwrReleaseReviewPriorityState', summary.currentNeedsAction ? '当前版本仍需复核' : '当前版本复核已完成');
@@ -130,7 +131,7 @@
     setText('xwrReleasePriorityUnknown', Number(runtime.unknownCount || 0));
     setText('xwrReleasePriorityReason', current?.priorityReason || '当前版本没有复核解释。');
     setText('xwrReleasePriorityCache',
-      `单 PR 外部请求预算 ${formatMillis(rules.perPrLookupBudgetMillis || runtime.perLookupBudgetMillis)}；成功结果缓存 ${formatDuration(rules.successCacheTtlMillis)}；UNKNOWN 短缓存 ${formatDuration(rules.unknownCacheTtlMillis)}。本次尝试 ${Number(runtime.lookupCount || 0)} 个 PR，预算只约束外部风险查询，不代表整个接口 SLA。`);
+      `单 PR 外部请求预算 ${formatMillis(rules.perPrLookupBudgetMillis || runtime.perLookupBudgetMillis)}；成功结果缓存 ${formatDuration(rules.successCacheTtlMillis)}；UNKNOWN 短缓存 ${formatDuration(rules.unknownCacheTtlMillis)}。本次尝试 ${Number(runtime.lookupCount || 0)} 个 PR，缓存命中 ${cacheHits} 个；预算只约束外部风险查询，不代表整个接口 SLA。`);
   }
 
   function tick() {
@@ -142,15 +143,18 @@
       }
       return;
     }
-    const current = Array.isArray(view.releases) ? view.releases.find(item => item?.current) : null;
+    const releases = Array.isArray(view.releases) ? view.releases : [];
+    const current = releases.find(item => item?.current);
     const runtime = view.riskRuntime || {};
+    const cacheSignature = releases.map(item => item?.risk?.cacheState || '').join(',');
     const signature = [
       view.sampledAt || '',
       current?.reviewPriority || '',
       current?.priorityReason || '',
       runtime.elapsedMillis || 0,
       runtime.lookupCount || 0,
-      runtime.unknownCount || 0
+      runtime.unknownCount || 0,
+      cacheSignature
     ].join('|');
     if (signature === lastSignature) return;
     lastSignature = signature;

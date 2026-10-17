@@ -49,7 +49,7 @@ public class XingweiBusinessScopeService {
         XingweiPermissionGuard.AccessSnapshot access = permissions.resolve(authentication);
         ScopeClause scope = scopeClause(access);
         String sql = """
-                SELECT q.business_no, q.game, q.demand, q.current_progress, q.customer_supplement,
+                SELECT q.business_no, q.customer_account_id, q.game, q.demand, q.current_progress, q.customer_supplement,
                        q.platform, q.expected_time, q.contact_method, q.customer_contact,
                        q.customer_ip_hash, q.status, q.created_at,
                        (q.screenshot_asset_id IS NOT NULL) AS has_screenshot,
@@ -442,6 +442,11 @@ public class XingweiBusinessScopeService {
         row.put("customerContact", rs.getString("customer_contact"));
         row.put("customerIpHash", rs.getString("customer_ip_hash"));
         row.put("status", rs.getString("status"));
+        boolean anonymous = rs.getObject("customer_account_id") == null;
+        row.put("customerType", anonymous ? "GUEST" : "ACCOUNT");
+        row.put("canOffer", anonymous && operations.quoteManage()
+                && !List.of("CONVERTED", "CLOSED", "CANCELLED").contains(rs.getString("status"))
+                && canAccessForMutation(access, ownership));
         row.put("createdAt", timestamp(rs, "created_at"));
         row.put("hasScreenshot", rs.getBoolean("has_screenshot"));
         row.put("ownership", ownershipMap(ownership));

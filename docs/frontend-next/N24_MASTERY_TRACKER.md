@@ -2,6 +2,8 @@
 
 N24 将旧 `/mastery` 的核心能力迁入 Frontend Next，新增显式 `/next/mastery`，重点不是复制静态页面，而是保持用户已有进度数据连续。
 
+> 当前阶段为开发与 CI 验证态；在合并并再次执行生产预览发布前，不能把 `/next/mastery` 视为已上线能力，正式 `/mastery` 继续保持不变。
+
 ## 目标
 
 - 新增 `/next/mastery` 显式预览入口，不替换公开旧 `/mastery`。

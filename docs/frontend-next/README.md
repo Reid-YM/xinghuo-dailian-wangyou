@@ -12,7 +12,7 @@ N12 已补齐“询价上下文连续性”：`/next/quote?service={slug}` 会�
 
 N13 已补齐“业务记录预览链路”：N3 询价提交成功后进入 `/next/record/{businessNo}`，只读现有公开记录与进度截图，保留旧 `/record/{businessNo}` 对照入口，并对记录预览设置 `noindex,nofollow`。详见 [N13 业务记录预览链路](N13_RECORD_DETAIL_PREVIEW.md)。
 
-N14 已补齐“Next 内部路由连续性”：Next 页面里的普通 `/services`、`/quote`、`/account`、`/service/{slug}`、`/record/{businessNo}` 链接统一留在 `/next` 路径族；首页游戏卡片使用已加载真实 catalog 的 `seoSlug -> code` 映射进入 `/next/services?game={code}`。带 `legacy=1` 和已有显式 legacy 标记的旧版入口继续保留。N22 起攻略详情 `/guides/{slug}` 纳入归一，N23 起攻略中心 `/guides` 纳入归一，N24 起工具站 `/mastery` 纳入归一，N25 起投稿工作台 `/account/submit` 纳入归一，N26 起业务记录中心 `/records` 纳入归一。详见 [N14 Next 内部路由连续性](N14_ROUTE_CONTINUITY.md)。
+N14 已补齐“Next 内部路由连续性”：Next 页面里的普通 `/services`、`/quote`、`/account`、`/service/{slug}`、`/record/{businessNo}` 链接统一留在 `/next` 路径族；首页游戏卡片使用已加载真实 catalog 的 `seoSlug -> code` 映射进入 `/next/services?game={code}`。带 `legacy=1` 和已有显式 legacy 标记的旧版入口继续保留。N22 起攻略详情 `/guides/{slug}` 纳入归一，N23 起攻略中心 `/guides` 纳入归一，N24 起工具站 `/mastery` 纳入归一，N25 起投稿工作台 `/account/submit` 纳入归一，N26 起业务记录中心 `/records` 纳入归一，N27 起 `/contact` 与 `/trust` 纳入归一。详见 [N14 Next 内部路由连续性](N14_ROUTE_CONTINUITY.md)。
 
 N15 已补齐“认证回跳连续性”：密码登录、注册、微信开放平台扫码和小程序扫码统一使用安全 `next` 返回目标；已有旧版 `/services`、`/quote`、`/account`、`/service/{slug}`、`/record/{businessNo}` 深链在认证完成后归一到对应 `/next` 路径。微信 OAuth 取消、限流或失败时，只有从 Next 发起的流程返回 `/next/account`，旧版登录流程继续保持旧版。详见 [N15 认证回跳连续性](N15_AUTH_RETURN_CONTINUITY.md)。
 
@@ -36,19 +36,21 @@ N24 已补齐“MW4 工具站 Next 预览”：新增 `/next/mastery`，继续�
 
 N25 已补齐“投稿工作台 Next 预览”：新增 `/next/account/submit`，复用现有账号投稿创建、列表、详情与撤回 API，并与旧投稿页共用本机草稿键 `xinghuo:submission-draft:v1`。新版提供游戏选择、标题/摘要/Markdown 文本正文、本机自动草稿、安全文本预览、审核状态/意见、正文查看、撤回和已发布攻略跳转。当前后端没有用户侧修改已提交投稿的接口，因此 N25 明确不伪造“编辑已提交稿件”。详见 [N25 投稿工作台 Next 预览](N25_SUBMISSION_WORKBENCH.md)。
 
-N26 已补齐“业务记录中心 Next 预览”：新增 `/next/records`，只读现有 `GET /api/records/{businessNo}`，支持统一业务编号查询、当前浏览器历史列表和清除本机编号索引。N26 与旧 `/records` 共用 `xh_client_records_v1`；新增轻量 history bridge，在 Next 询价成功和 N13 记录详情中记录同一业务编号，并在 N13 操作区补充“业务记录中心”入口。详见 [N26 业务记录中心 Next 预览](N26_RECORDS_CENTER.md)。
+N26 已补齐“业务记录中心 Next 预览”：新增 `/next/records`，只读现有 `GET /api/records/{businessNo}`，支持统一业务编号查询、当前浏览器历史列表和清除本机编号索引。N26 与旧 `/records` 共用 `xh_client_records_v1`；新增轻量 history bridge，在 Next 询价成功和 N13 记录详情中记录同一业务编号，并在 N13 操作区补充“业务记录中心”入口。N23–N26 组合 CI 已在修正阶段 runtime 内容指纹后通过 Maven、Chromium 与 WebKit。详见 [N26 业务记录中心 Next 预览](N26_RECORDS_CENTER.md)。
+
+N27 已进入“公共支持与信任页”收口：新增 `/next/contact` 与 `/next/trust`，直接复用 `/api/site-config` 的真实客服渠道、企业微信入口、服务状态、信任标签/案例/FAQ；信任页额外只读 `GET /api/public/cases` 展示服务端允许公开的脱敏完成案例。N14 将 Next 内普通 `/contact`、`/trust` 归一到对应 Next 页面，同时保留 `data-n27-legacy=1` 的旧版对照入口。N27 不复制 `/rules`、`/privacy` 法律正文，两者继续作为唯一正式内容源。详见 [N27 公共支持与信任页 Next 预览](N27_SUPPORT_TRUST.md)。
 
 ## 当前部署与流量状态
 
-N9–N22 已于 2026-10-17 通过标准生产发布链进入同一生产应用，并保留 `/next/**` 作为显式预览入口；正式默认前端仍为 Legacy，没有把 `/`、`/services`、`/quote`、`/account` 等默认入口切到 Next。N23 已完成独立 CI；N23–N24 组合 CI 已全绿；N23–N25 组合 CI 也已于修正测试合约后全绿。N26 在 N25 之上继续独立开发验证。正式流量仍不受本阶段开发影响。
+N9–N22 已于 2026-10-17 通过标准生产发布链进入同一生产应用，并保留 `/next/**` 作为显式预览入口；正式默认前端仍为 Legacy，没有把 `/`、`/services`、`/quote`、`/account` 等默认入口切到 Next。N23 已完成独立 CI，N23–N26 组合 CI 已全绿；N27 在 N26 之上继续开发验证。正式流量仍不受本阶段开发影响。
 
 用户要求正式前端保持旧版。当前代码默认关闭 Next 正式映射，发布后以实际正式页面核验为准；新版后台继续保留。详见 [前端回退记录](../development/2026-10-16-frontend-rollback.md)。重新启用正式 Next 必须单独获得明确授权。
 
 - 默认入口 /、/services、/quote、/account 及认证/设置子页保持旧视图和原账号鉴权。
-- 已部署生产预览入口目前仍是 N9–N22；N23–N26 尚未合并/部署，因此 `/next/guides`、`/next/mastery`、`/next/account/submit`、`/next/records` 不能视为线上已发布能力。
+- 已部署生产预览入口目前仍是 N9–N22；N23–N27 尚未合并/部署，因此 `/next/guides`、`/next/mastery`、`/next/account/submit`、`/next/records`、`/next/contact`、`/next/trust` 不能视为线上已发布能力。
 - 页面级回退使用 `?legacy=1`；整体回退配置 `app.frontend-next.default-enabled=false`。不能通过改静态首页文件假称已切换实际路由。
-- JS 由真实内容指纹或阶段固定版本确定缓存版本。账号/console 写请求遵循服务端 `X-Requested-With: fetch`，不放宽鉴权。
+- Next runtime 使用真实 64 位内容指纹；N23 以后按需加载的阶段 runtime 复用已版本化 N14 manifest 指纹，不再使用日期式固定版本。账号/console 写请求遵循服务端 `X-Requested-With: fetch`，不放宽鉴权。
 - 数据失败时只保留已读真实数据或错误/重试状态，不回退模拟商品、价格、订单或投稿。
 - 原业务 API、数据库、金额确认与 Session/CSRF 保持；不引入第二套业务数据。
 
-最终替换阶段接下来重点转向 Contact / Trust / Legal 等公共辅助页统一、全站移动端/错误态/空状态收口、真实全链路验收和正式切换前灰度准备；当前仍不能宣称完整替换已完成。
+最终替换阶段下一步重点是 Legal 法律内容单一来源、全站移动端/错误态/空状态收口、真实全链路验收和正式切换前灰度准备；当前仍不能宣称完整替换已完成。

@@ -28,9 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Guest quote lifecycle: browser capability -> quote -> staff offer -> accept -> order -> payment.
  *
- * <p>Guest identity is deliberately independent from customer_accounts. The browser receives a
- * random capability while the database stores only its SHA-256 hash. One browser session can own
- * multiple business records without creating fake customer accounts.
+ * <p>Guest identity is deliberately independent from customer_accounts. Browser sessions and the
+ * stable business customer are also separate: an original browser and a later browser opened from
+ * a one-time staff link may both access the same guest_business_access id, while order/payment
+ * ownership remains stable.
  */
 @Service
 public class GuestQuoteFlowService {
@@ -38,6 +39,7 @@ public class GuestQuoteFlowService {
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final Duration SESSION_TTL = Duration.ofDays(90);
     private static final Duration DEFAULT_OFFER_TTL = Duration.ofDays(3);
+    private static final Duration ACCESS_LINK_TTL = Duration.ofHours(24);
 
     private final JdbcTemplate jdbc;
     private final QuoteRepository quotes;
@@ -71,7 +73,8 @@ public class GuestQuoteFlowService {
             if (!ids.isEmpty()) {
                 Instant expiry = Instant.now().plus(SESSION_TTL);
                 jdbc.update("""
-                        UPDATE guest_session SET last_seen_at=CURRENT_TIMESTAMP,expires_at=?,updated_at=CURRENT_TIMESTAMP
+                        UPDATE guest_session
+                           SET last_seen_at=CURRENT_TIMESTAMP,expires_at=?,updated_at=CURRENT_TIMESTAMP
                          WHERE id=? AND status='ACTIVE'
                         """, Timestamp.from(expiry), ids.getFirst());
                 return new SessionHandle(ids.getFirst(), rawToken, false, expiry);
@@ -86,7 +89,9 @@ public class GuestQuoteFlowService {
                         INSERT INTO guest_session(token_hash,status,expires_at,last_seen_at,created_at,updated_at)
                         VALUES (?,'ACTIVE',?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
                         """, HashUtil.sha256(token), Timestamp.from(expiry));
-                Long id = jdbc.queryForObject("SELECT id FROM guest_session WHERE token_hash=?", Long.class,
+                Long id = jdbc.queryForObject(
+                        "SELECT id FROM guest_session WHERE token_hash=?",
+                        Long.class,
                         HashUtil.sha256(token));
                 if (id == null) {
                     throw new IllegalStateException("游客会话创建失败");
@@ -99,25 +104,59 @@ public class GuestQuoteFlowService {
         throw new IllegalStateException("暂时无法创建游客会话，请稍后重试");
     }
 
-    /** Attach a newly created anonymous quote to the current guest browser session. */
+    /**
+     * Attach a newly created anonymous quote to the current browser session.
+     *
+     * <p>An idempotent replay may reuse the same quote only from a browser that already owns its
+     * guest access. A different browser cannot steal an existing quote merely by replaying an
+     * Idempotency-Key; cross-browser access must use a one-time staff link.
+     */
     @Transactional
     public void attachQuote(long sessionId, UUID quoteId, String businessNo) {
         if (quoteId == null || businessNo == null || businessNo.isBlank()) {
             throw new IllegalArgumentException("游客询价信息不完整");
         }
-        List<Long> owners = jdbc.query("SELECT customer_account_id FROM quotes WHERE id=?",
-                (rs, i) -> (Long) rs.getObject(1), quoteId.toString());
+        List<Long> owners = jdbc.query(
+                "SELECT customer_account_id FROM quotes WHERE id=?",
+                (rs, i) -> (Long) rs.getObject(1),
+                quoteId.toString());
         if (owners.isEmpty()) {
             throw new NotFoundException();
         }
         if (owners.getFirst() != null) {
             return;
         }
-        jdbc.update("""
+
+        int created = jdbc.update("""
                 INSERT IGNORE INTO guest_business_access(
-                  guest_session_id,quote_id,business_no,status,created_at,updated_at)
-                VALUES (?,?,?,'ACTIVE',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
-                """, sessionId, quoteId.toString(), businessNo.trim());
+                  quote_id,business_no,status,created_at,updated_at)
+                VALUES (?,?,'ACTIVE',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+                """, quoteId.toString(), businessNo.trim());
+        Long accessId = jdbc.queryForObject(
+                "SELECT id FROM guest_business_access WHERE quote_id=? AND business_no=?",
+                Long.class,
+                quoteId.toString(),
+                businessNo.trim());
+        if (accessId == null) {
+            throw new IllegalStateException("游客业务凭证创建失败");
+        }
+
+        if (created == 0) {
+            Integer alreadyOwned = jdbc.queryForObject("""
+                    SELECT COUNT(*) FROM guest_business_session_access
+                     WHERE guest_session_id=? AND guest_access_id=?
+                    """, Integer.class, sessionId, accessId);
+            if (alreadyOwned == null || alreadyOwned == 0) {
+                throw new ConflictException("该询价已建立游客访问凭证，请使用原浏览器或客服安全链接查看");
+            }
+            return;
+        }
+
+        jdbc.update("""
+                INSERT IGNORE INTO guest_business_session_access(
+                  guest_session_id,guest_access_id,created_at)
+                VALUES (?,?,CURRENT_TIMESTAMP)
+                """, sessionId, accessId);
     }
 
     /** Publish a formal price to an anonymous quote. Previous active offers remain as history. */
@@ -156,12 +195,14 @@ public class GuestQuoteFlowService {
         }
 
         jdbc.update("""
-                UPDATE quote_offer SET status='CANCELLED',cancelled_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP
+                UPDATE quote_offer
+                   SET status='CANCELLED',cancelled_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP
                  WHERE quote_id=? AND status='QUOTED'
                 """, quote.quoteId());
         Integer previous = jdbc.queryForObject(
                 "SELECT COALESCE(MAX(version),0) FROM quote_offer WHERE quote_id=?",
-                Integer.class, quote.quoteId());
+                Integer.class,
+                quote.quoteId());
         int version = (previous == null ? 0 : previous) + 1;
         Instant expiresAt = body.expiresAt() == null
                 ? Instant.now().plus(DEFAULT_OFFER_TTL)
@@ -179,14 +220,98 @@ public class GuestQuoteFlowService {
                 quote.quoteId());
 
         Map<String, Object> after = offerMap(latestOffer(no));
-        audit.log("GUEST_QUOTE_OFFER_PUBLISH", "QUOTE", no,
-                operator == null ? "system" : operator, null, after,
-                body.reason() == null || body.reason().isBlank() ? "发布游客正式报价" : body.reason().trim(),
+        audit.log(
+                "GUEST_QUOTE_OFFER_PUBLISH",
+                "QUOTE",
+                no,
+                operator == null ? "system" : operator,
+                null,
+                after,
+                body.reason() == null || body.reason().isBlank()
+                        ? "发布游客正式报价"
+                        : body.reason().trim(),
                 request);
         return after;
     }
 
-    @Transactional(readOnly = true)
+    /** Create a single-use 24-hour link that can authorize another browser for this guest business. */
+    @Transactional
+    public AccessLink issueAccessLink(String businessNo, String operator) {
+        String no = normalizeBusinessNo(businessNo);
+        List<Long> accessIds = jdbc.query("""
+                SELECT id FROM guest_business_access
+                 WHERE business_no=? AND status='ACTIVE'
+                 LIMIT 1 FOR UPDATE
+                """, (rs, i) -> rs.getLong(1), no);
+        if (accessIds.isEmpty()) {
+            throw new BadRequestException("该询价不是可分享的游客业务");
+        }
+        long accessId = accessIds.getFirst();
+        jdbc.update("""
+                UPDATE guest_access_link
+                   SET used_at=CURRENT_TIMESTAMP
+                 WHERE guest_access_id=? AND used_at IS NULL
+                """, accessId);
+
+        for (int attempt = 0; attempt < 8; attempt++) {
+            String token = randomToken();
+            Instant expiresAt = Instant.now().plus(ACCESS_LINK_TTL);
+            try {
+                jdbc.update("""
+                        INSERT INTO guest_access_link(
+                          guest_access_id,token_hash,expires_at,used_at,created_by,created_at)
+                        VALUES (?,?,?,NULL,?,CURRENT_TIMESTAMP)
+                        """, accessId, HashUtil.sha256(token), Timestamp.from(expiresAt),
+                        operator == null || operator.isBlank() ? "system" : operator);
+                return new AccessLink("/guest/access/" + token, expiresAt);
+            } catch (DuplicateKeyException collision) {
+                // retry an astronomically unlikely hash collision
+            }
+        }
+        throw new IllegalStateException("暂时无法生成游客安全链接，请稍后重试");
+    }
+
+    /** Consume a one-time link and grant the current/new browser access to the same guest business. */
+    @Transactional
+    public ExchangeResult exchangeAccessLink(String rawLinkToken, String currentSessionToken) {
+        if (!usableToken(rawLinkToken)) {
+            throw new NotFoundException();
+        }
+        List<LinkRow> rows = jdbc.query("""
+                SELECT l.id,l.guest_access_id,a.business_no
+                  FROM guest_access_link l
+                  JOIN guest_business_access a ON a.id=l.guest_access_id
+                 WHERE l.token_hash=?
+                   AND l.used_at IS NULL
+                   AND l.expires_at>CURRENT_TIMESTAMP
+                   AND a.status='ACTIVE'
+                 LIMIT 1 FOR UPDATE
+                """, (rs, i) -> new LinkRow(
+                        rs.getLong("id"),
+                        rs.getLong("guest_access_id"),
+                        rs.getString("business_no")),
+                HashUtil.sha256(rawLinkToken));
+        if (rows.isEmpty()) {
+            throw new NotFoundException();
+        }
+        LinkRow link = rows.getFirst();
+        SessionHandle session = ensureSession(currentSessionToken);
+        jdbc.update("""
+                INSERT IGNORE INTO guest_business_session_access(
+                  guest_session_id,guest_access_id,created_at)
+                VALUES (?,?,CURRENT_TIMESTAMP)
+                """, session.id(), link.accessId());
+        int used = jdbc.update("""
+                UPDATE guest_access_link SET used_at=CURRENT_TIMESTAMP
+                 WHERE id=? AND used_at IS NULL
+                """, link.linkId());
+        if (used != 1) {
+            throw new ConflictException("游客安全链接已被使用，请让客服重新生成");
+        }
+        return new ExchangeResult(session, link.businessNo());
+    }
+
+    @Transactional
     public Map<String, Object> snapshot(String rawToken, String businessNo) {
         Access access = requireAccess(rawToken, normalizeBusinessNo(businessNo), false);
         return snapshot(access);
@@ -237,7 +362,10 @@ public class GuestQuoteFlowService {
         }
 
         ApiDtos.AdminOrderResponse order = orders.createFromQuote(
-                quote, "guest:" + access.accessId(), request, "游客接受正式报价");
+                quote,
+                "guest:" + access.accessId(),
+                request,
+                "游客接受正式报价");
         int owned = jdbc.update("""
                 UPDATE customer_orders
                    SET guest_access_id=?, progress_text='报价已确认，等待支付并安排服务',
@@ -263,16 +391,23 @@ public class GuestQuoteFlowService {
             paymentService.prepare(order.orderNo(), access.accessId(), offer.amount(), offer.subject());
         }
 
-        audit.log("GUEST_QUOTE_ACCEPT", "QUOTE", no,
-                "guest:" + access.accessId(), offerMap(offer), Map.of("orderNo", order.orderNo()),
-                "游客接受正式报价", request);
+        audit.log(
+                "GUEST_QUOTE_ACCEPT",
+                "QUOTE",
+                no,
+                "guest:" + access.accessId(),
+                offerMap(offer),
+                Map.of("orderNo", order.orderNo()),
+                "游客接受正式报价",
+                request);
         return snapshot(access);
     }
 
     /** Authorize and request a Native payment code for the current guest business. */
     @Transactional
     public com.xinghuo.payment.WeChatNativePaymentService.Payment nativePayment(
-            String rawToken, String businessNo) {
+            String rawToken,
+            String businessNo) {
         String no = normalizeBusinessNo(businessNo);
         Access access = requireAccess(rawToken, no, false);
         GuestWeChatPaymentService payments = guestPayments.getIfAvailable();
@@ -287,9 +422,10 @@ public class GuestQuoteFlowService {
         return payments.nativeQr(payment.paymentNo(), access.accessId());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public com.xinghuo.payment.WeChatNativePaymentService.Payment payment(
-            String rawToken, String businessNo) {
+            String rawToken,
+            String businessNo) {
         String no = normalizeBusinessNo(businessNo);
         Access access = requireAccess(rawToken, no, false);
         GuestWeChatPaymentService payments = guestPayments.getIfAvailable();
@@ -299,7 +435,8 @@ public class GuestQuoteFlowService {
     private Map<String, Object> snapshot(Access access) {
         List<Map<String, Object>> quoteRows = jdbc.query("""
                 SELECT q.business_no,q.status,q.game,q.demand,q.current_progress,q.expected_time,
-                       o.order_no,o.status AS order_status,o.progress_percent,o.progress_text,o.updated_at AS order_updated_at
+                       o.order_no,o.status AS order_status,o.progress_percent,o.progress_text,
+                       o.updated_at AS order_updated_at
                   FROM quotes q
                   LEFT JOIN customer_orders o ON o.source_quote_id=q.id
                  WHERE q.id=? AND q.business_no=?
@@ -317,8 +454,7 @@ public class GuestQuoteFlowService {
                         Map<String, Object> order = new LinkedHashMap<>();
                         order.put("orderNo", orderNo);
                         order.put("status", rs.getString("order_status"));
-                        Object progress = rs.getObject("progress_percent");
-                        order.put("progressPercent", progress);
+                        order.put("progressPercent", rs.getObject("progress_percent"));
                         order.put("progressText", rs.getString("progress_text"));
                         Timestamp updated = rs.getTimestamp("order_updated_at");
                         order.put("updatedAt", updated == null ? null : updated.toInstant());
@@ -335,7 +471,8 @@ public class GuestQuoteFlowService {
         Offer offer = latestOffer(access.businessNo());
         out.put("customerType", "GUEST");
         out.put("offer", offer == null ? null : offerMap(offer));
-        boolean offerActive = offer != null && "QUOTED".equals(offer.status())
+        boolean offerActive = offer != null
+                && "QUOTED".equals(offer.status())
                 && (offer.expiresAt() == null || offer.expiresAt().isAfter(Instant.now()));
         out.put("canAccept", offerActive && out.get("order") == null);
 
@@ -370,22 +507,32 @@ public class GuestQuoteFlowService {
         String sql = """
                 SELECT a.id,a.quote_id,a.business_no
                   FROM guest_business_access a
-                  JOIN guest_session s ON s.id=a.guest_session_id
-                 WHERE s.token_hash=? AND s.status='ACTIVE' AND s.expires_at>CURRENT_TIMESTAMP
-                   AND a.business_no=? AND a.status='ACTIVE'
+                  JOIN guest_business_session_access x ON x.guest_access_id=a.id
+                  JOIN guest_session s ON s.id=x.guest_session_id
+                 WHERE s.token_hash=?
+                   AND s.status='ACTIVE'
+                   AND s.expires_at>CURRENT_TIMESTAMP
+                   AND a.business_no=?
+                   AND a.status='ACTIVE'
                  LIMIT 1
                 """ + (lock ? " FOR UPDATE" : "");
-        List<Access> rows = jdbc.query(sql,
-                (rs, i) -> new Access(rs.getLong("id"), rs.getString("quote_id"), rs.getString("business_no")),
-                HashUtil.sha256(rawToken), businessNo);
+        String tokenHash = HashUtil.sha256(rawToken);
+        List<Access> rows = jdbc.query(
+                sql,
+                (rs, i) -> new Access(
+                        rs.getLong("id"),
+                        rs.getString("quote_id"),
+                        rs.getString("business_no")),
+                tokenHash,
+                businessNo);
         if (rows.isEmpty()) {
             throw new NotFoundException();
         }
         jdbc.update("""
                 UPDATE guest_session
                    SET last_seen_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP
-                 WHERE id=(SELECT guest_session_id FROM guest_business_access WHERE id=?)
-                """, rows.getFirst().accessId());
+                 WHERE token_hash=? AND status='ACTIVE'
+                """, tokenHash);
         return rows.getFirst();
     }
 
@@ -393,7 +540,8 @@ public class GuestQuoteFlowService {
         List<Offer> rows = jdbc.query("""
                 SELECT id,version,subject,amount,currency,estimated_duration,customer_message,status,
                        quoted_at,expires_at,accepted_at
-                  FROM quote_offer WHERE business_no=? ORDER BY id DESC LIMIT 1
+                  FROM quote_offer
+                 WHERE business_no=? ORDER BY id DESC LIMIT 1
                 """, this::offer, businessNo);
         return rows.isEmpty() ? null : rows.getFirst();
     }
@@ -435,19 +583,24 @@ public class GuestQuoteFlowService {
     }
 
     private void validateOffer(OfferRequest body) {
-        if (body == null || body.amount() == null || body.amount().signum() <= 0
+        if (body == null
+                || body.amount() == null
+                || body.amount().signum() <= 0
                 || body.amount().scale() > 2
                 || body.amount().compareTo(new BigDecimal("9999999.99")) > 0) {
             throw new BadRequestException("报价必须为大于零的人民币金额，最多两位小数");
         }
-        if (body.subject() == null || body.subject().isBlank()
+        if (body.subject() == null
+                || body.subject().isBlank()
                 || body.subject().trim().getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 127) {
             throw new BadRequestException("请填写不超过 127 字节的服务名称");
         }
-        if (trim(body.estimatedDuration()) != null && trim(body.estimatedDuration()).length() > 120) {
+        if (trim(body.estimatedDuration()) != null
+                && trim(body.estimatedDuration()).length() > 120) {
             throw new BadRequestException("预计时长不能超过 120 字");
         }
-        if (trim(body.customerMessage()) != null && trim(body.customerMessage()).length() > 1000) {
+        if (trim(body.customerMessage()) != null
+                && trim(body.customerMessage()).length() > 1000) {
             throw new BadRequestException("报价说明不能超过 1000 字");
         }
         if (body.expiresAt() != null && !body.expiresAt().isAfter(Instant.now())) {
@@ -482,6 +635,10 @@ public class GuestQuoteFlowService {
 
     public record SessionHandle(long id, String token, boolean newlyIssued, Instant expiresAt) {}
 
+    public record AccessLink(String path, Instant expiresAt) {}
+
+    public record ExchangeResult(SessionHandle session, String businessNo) {}
+
     public record OfferRequest(
             BigDecimal amount,
             String subject,
@@ -492,6 +649,7 @@ public class GuestQuoteFlowService {
 
     private record QuoteState(String quoteId, String status, Long accountId, Long guestAccessId) {}
     private record Access(long accessId, String quoteId, String businessNo) {}
+    private record LinkRow(long linkId, long accessId, String businessNo) {}
     private record Offer(
             long id,
             int version,

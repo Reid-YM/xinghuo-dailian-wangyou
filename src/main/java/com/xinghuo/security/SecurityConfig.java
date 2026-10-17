@@ -36,6 +36,11 @@ public class SecurityConfig {
      * {@code @RequireAccount} 注解负责鉴权。用户中心页面同样必须先通过这里，
      * 才能由拦截器把未登录访问统一 302 到账号登录页；这里的 permitAll
      * 并不代表业务页面免登录。
+     *
+     * <p>{@code /api/guest/**} 同理：它不使用 Spring 登录态，而是由服务端生成的
+     * 256-bit 随机 capability Cookie 授权。Cookie 为 host-only / HttpOnly /
+     * SameSite=Lax，数据库仅保存 SHA-256 哈希；业务接口仍会逐条校验 guest session
+     * 与 business access，因此 permitAll 只表示“不要求后台账号登录”。
      */
     private static final String[] PERMIT_ALL = {
             "/", "/services", "/service/**", "/game/**", "/guides", "/guides/**", "/mastery", "/quote",
@@ -55,7 +60,8 @@ public class SecurityConfig {
             "/api/site-config", "/api/site-assets/**", "/api/public/**",
             "/api/services", "/api/catalog", "/api/quote", "/api/records/**",
             "/api/orders/**", "/api/uploads/quote", "/api/track",
-            "/api/tool-station", "/api/guides", "/api/guides/**", "/api/loadouts", "/api/account/**", "/api/console/**",
+            "/api/tool-station", "/api/guides", "/api/guides/**", "/api/loadouts",
+            "/api/account/**", "/api/console/**", "/api/guest/**",
             "/api/wechat-pay/notify",
             "/admin/login", "/admin/xingwei/wecom/login", "/admin/xingwei/wecom/callback",
             "/admin/xingwei/wecom/pending", "/error"
@@ -98,7 +104,7 @@ public class SecurityConfig {
                         PathPatternRequestMatcher.withDefaults().matcher("/api/**")))
                 .csrf(c -> c.ignoringRequestMatchers(
                         "/api/quote", "/api/uploads/quote", "/api/track", "/api/account/**", "/api/console/**",
-                        "/api/wechat-pay/notify"))
+                        "/api/guest/**", "/api/wechat-pay/notify"))
                 .headers(h -> h
                         .cacheControl(c -> c.disable())
                         .contentSecurityPolicy(c -> c.policyDirectives(

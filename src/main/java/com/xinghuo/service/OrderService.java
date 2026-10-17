@@ -203,6 +203,9 @@ public class OrderService {
                 null,
                 internal);
         repo.save(order);
+        // The guest acceptance path updates this row via JdbcTemplate in the same transaction.
+        // Flush the JPA insert now so that JDBC can observe the newly created order.
+        repo.flush();
 
         ApiDtos.AdminOrderResponse after = admin(order);
         audit.log(

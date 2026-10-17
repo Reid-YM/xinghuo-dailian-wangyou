@@ -1,6 +1,7 @@
 package com.xinghuo.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.xinghuo.dto.ApiDtos;
+import com.xinghuo.exception.ConflictException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.model.Quote;
 import com.xinghuo.payment.GuestWeChatPaymentService;
@@ -54,9 +56,19 @@ class GuestQuoteFlowServiceTest {
                 """);
         jdbc.execute("""
                 CREATE TABLE guest_business_access(
-                  id BIGINT AUTO_INCREMENT PRIMARY KEY,guest_session_id BIGINT,quote_id VARCHAR(36) UNIQUE,
+                  id BIGINT AUTO_INCREMENT PRIMARY KEY,quote_id VARCHAR(36) UNIQUE,
                   business_no VARCHAR(40) UNIQUE,status VARCHAR(16),claimed_account_id BIGINT,
                   created_at TIMESTAMP,updated_at TIMESTAMP)
+                """);
+        jdbc.execute("""
+                CREATE TABLE guest_business_session_access(
+                  guest_session_id BIGINT,guest_access_id BIGINT,created_at TIMESTAMP,
+                  PRIMARY KEY(guest_session_id,guest_access_id))
+                """);
+        jdbc.execute("""
+                CREATE TABLE guest_access_link(
+                  id BIGINT AUTO_INCREMENT PRIMARY KEY,guest_access_id BIGINT,token_hash VARCHAR(64) UNIQUE,
+                  expires_at TIMESTAMP,used_at TIMESTAMP,created_by VARCHAR(100),created_at TIMESTAMP)
                 """);
         jdbc.execute("""
                 CREATE TABLE quote_offer(
@@ -97,12 +109,54 @@ class GuestQuoteFlowServiceTest {
         service.attachQuote(session.id(), q1, "B-1");
         service.attachQuote(session.id(), q2, "B-2");
 
-        assertEquals(2, jdbc.queryForObject(
-                "SELECT COUNT(*) FROM guest_business_access WHERE guest_session_id=?", Integer.class, session.id()));
+        assertEquals(2, jdbc.queryForObject("""
+                SELECT COUNT(*) FROM guest_business_session_access
+                 WHERE guest_session_id=?
+                """, Integer.class, session.id()));
         assertEquals("B-1", service.snapshot(session.token(), "B-1").get("businessNo"));
         assertEquals("B-2", service.snapshot(session.token(), "B-2").get("businessNo"));
         assertThrows(NotFoundException.class,
                 () -> service.snapshot("x".repeat(43), "B-1"));
+    }
+
+    @Test
+    void existingQuoteCannotBeStolenByASecondSessionWithoutOneTimeLink() {
+        UUID quoteId = UUID.randomUUID();
+        insertQuote(quoteId, "B-LOCK");
+        GuestQuoteFlowService.SessionHandle first = service.ensureSession(null);
+        GuestQuoteFlowService.SessionHandle second = service.ensureSession(null);
+        service.attachQuote(first.id(), quoteId, "B-LOCK");
+
+        assertThrows(ConflictException.class,
+                () -> service.attachQuote(second.id(), quoteId, "B-LOCK"));
+        assertEquals("B-LOCK", service.snapshot(first.token(), "B-LOCK").get("businessNo"));
+        assertThrows(NotFoundException.class,
+                () -> service.snapshot(second.token(), "B-LOCK"));
+    }
+
+    @Test
+    void oneTimeLinkAuthorizesSecondBrowserWithoutChangingStableGuestAccess() {
+        UUID quoteId = UUID.randomUUID();
+        insertQuote(quoteId, "B-SHARE");
+        GuestQuoteFlowService.SessionHandle first = service.ensureSession(null);
+        service.attachQuote(first.id(), quoteId, "B-SHARE");
+        Long accessBefore = jdbc.queryForObject(
+                "SELECT id FROM guest_business_access WHERE business_no='B-SHARE'", Long.class);
+
+        GuestQuoteFlowService.AccessLink link = service.issueAccessLink("B-SHARE", "admin");
+        String rawToken = link.path().substring(link.path().lastIndexOf('/') + 1);
+        GuestQuoteFlowService.ExchangeResult exchanged = service.exchangeAccessLink(rawToken, null);
+
+        assertNotEquals(first.id(), exchanged.session().id());
+        assertEquals("B-SHARE", exchanged.businessNo());
+        assertEquals("B-SHARE", service.snapshot(exchanged.session().token(), "B-SHARE").get("businessNo"));
+        assertEquals(accessBefore, jdbc.queryForObject(
+                "SELECT id FROM guest_business_access WHERE business_no='B-SHARE'", Long.class));
+        assertEquals(2, jdbc.queryForObject("""
+                SELECT COUNT(*) FROM guest_business_session_access WHERE guest_access_id=?
+                """, Integer.class, accessBefore));
+        assertThrows(NotFoundException.class,
+                () -> service.exchangeAccessLink(rawToken, null));
     }
 
     @Test
@@ -173,7 +227,6 @@ class GuestQuoteFlowServiceTest {
         assertNotNull(result.get("order"));
         verify(quotes).save(quote);
 
-        // Repeating accept is idempotent and must not create a second order.
         service.accept(session.token(), "B-4", null);
         assertEquals(1, jdbc.queryForObject(
                 "SELECT COUNT(*) FROM customer_orders WHERE business_no='B-4'", Integer.class));

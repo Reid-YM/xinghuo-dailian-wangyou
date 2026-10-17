@@ -21,8 +21,8 @@ public class FrontendMigrationConfig implements WebMvcConfigurer {
             Map.entry("/","/next"),Map.entry("/services","/next/services"),Map.entry("/quote","/next/quote"),
             Map.entry("/account","/next/account"),Map.entry("/account/login","/next/account"),
             Map.entry("/account/register","/next/account"),Map.entry("/account/reset","/next/account"),
-            Map.entry("/account/settings","/next/account"),Map.entry("/account/requests","/next/account"),
-            Map.entry("/account/orders","/next/account"),Map.entry("/account/progress","/next/account"));
+            Map.entry("/account/settings","/next/account/settings"),Map.entry("/account/requests","/next/account/requests"),
+            Map.entry("/account/orders","/next/account/orders"),Map.entry("/account/progress","/next/account/progress"));
         private final boolean enabled;
         public Replacement(boolean enabled){this.enabled=enabled;}
         @Override public void postHandle(HttpServletRequest request,HttpServletResponse response,Object handler,ModelAndView view) {

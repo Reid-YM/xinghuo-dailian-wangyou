@@ -13,6 +13,9 @@
   const setVisible = (selector, visible) => {
     $$(selector).forEach(node => { node.hidden = !visible; });
   };
+  const serviceEntryHref = settings => String(settings?.servicesEntryMode || 'legacy').toLowerCase() === 'next'
+    ? '/next/services'
+    : '/services';
 
   function protectUserCenterFromAdminLinks() {
     if (!(location.pathname === '/account' || location.pathname.startsWith('/account/') || location.pathname === '/console' || location.pathname.startsWith('/console/'))) return;
@@ -47,6 +50,11 @@
     ];
     labels.forEach(([key, value]) => setText(`[data-global-ui="${key}"]`, value));
 
+    const serviceHref = serviceEntryHref(settings);
+    $$('[data-global-ui="nav-services"], [data-global-ui="footer-services"]').forEach(link => {
+      if (link instanceof HTMLAnchorElement) link.setAttribute('href', serviceHref);
+    });
+
     const masteryVisible = bool(settings.navMasteryVisible, true) && site.toolPublicEnabled !== false;
     const visibility = {
       navServicesVisible: bool(settings.navServicesVisible, true),
@@ -74,8 +82,14 @@
       policeLink.href = `https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=${encodeURIComponent(digits)}`;
     }
 
+    // The drawer can be rendered after settings load, so match both possible rollout targets.
+    $$('.nav-drawer a[href="/services"], .nav-drawer a[href="/next/services"]').forEach(link => {
+      link.setAttribute('href', serviceHref);
+      link.textContent = settings.navServicesLabel || '服务';
+      link.hidden = !visibility.navServicesVisible;
+    });
+
     const drawerRules = [
-      ['/services', settings.navServicesLabel || '服务', visibility.navServicesVisible],
       ['/guides', settings.navGuidesLabel || '攻略', visibility.navGuidesVisible],
       ['/mastery', settings.navMasteryLabel || 'MW4 工具站', visibility.navMasteryVisible],
       ['/records', settings.navRecordsLabel || '业务记录', visibility.navRecordsVisible],
@@ -123,9 +137,9 @@
   protectUserCenterFromAdminLinks();
   document.addEventListener('xh:mobile-nav-rendered', reapplySharedNavigation);
   window.addEventListener('xh:site-config', event => {
-    currentSite=event.detail||{};
+    currentSite = event.detail || {};
     reapplySharedNavigation();
-    applyPageControls(currentSettings||{},currentSite);
+    applyPageControls(currentSettings || {}, currentSite);
   });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load, { once: true });
   else load();

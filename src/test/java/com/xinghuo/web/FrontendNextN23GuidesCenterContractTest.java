@@ -53,7 +53,7 @@ class FrontendNextN23GuidesCenterContractTest {
 
         assertTrue(routes.contains("url.pathname === '/guides'"));
         assertTrue(routes.contains("nextUrl(url, '/next/guides')"));
-        assertTrue(routes.contains("/next/n23-guides-center.js?v=20261017-n23"));
+        assertTrue(routes.contains("stageSource('/next/n23-guides-center.js')"));
         assertTrue(routes.contains("link.dataset.n23Legacy === '1'"));
     }
 }

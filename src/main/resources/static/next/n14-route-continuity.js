@@ -7,7 +7,7 @@
 
   function explicitLegacy(link, url) {
     if (!link || !url) return false;
-    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n22Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1' || link.dataset.n25Legacy === '1') return true;
+    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n22Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1' || link.dataset.n25Legacy === '1' || link.dataset.n26Legacy === '1') return true;
     return url.searchParams.get('legacy') === '1';
   }
 
@@ -65,6 +65,9 @@
     if (url.pathname === '/account/submit' || url.pathname === '/account/submit/') return nextUrl(url, '/next/account/submit');
     if (url.pathname === '/guides' || url.pathname === '/guides/') return nextUrl(url, '/next/guides');
     if (url.pathname === '/mastery' || url.pathname === '/mastery/') return nextUrl(url, '/next/mastery');
+    if (url.pathname === '/records' || url.pathname === '/records/') return nextUrl(url, '/next/records');
+    if (url.pathname === '/contact' || url.pathname === '/contact/') return nextUrl(url, '/next/contact');
+    if (url.pathname === '/trust' || url.pathname === '/trust/') return nextUrl(url, '/next/trust');
 
     const service = /^\/service\/([^/?#]+)\/?$/.exec(url.pathname);
     if (service) return nextUrl(url, `/next/service/${service[1]}`);

@@ -70,14 +70,25 @@ public class XingweiBusinessScopeController {
             @RequestBody GuestQuoteFlowService.OfferRequest body,
             Authentication authentication,
             HttpServletRequest request) {
-        if (!business.canAccessBusiness(authentication, businessNo)) {
-            throw new AccessDeniedException("当前询价超出你的数据范围");
-        }
+        requireBusinessAccess(authentication, businessNo);
         return guestQuotes.publishOffer(
                 businessNo,
                 body,
                 authentication == null ? "system" : authentication.getName(),
                 request);
+    }
+
+    /** Generate a single-use short-lived link that grants the same guest business to another browser. */
+    @PostMapping("/quotes/{businessNo}/guest-link")
+    @PreAuthorize("@xingweiPermissionGuard.has(authentication, 'quote:manage')")
+    public Map<String, Object> guestLink(
+            @PathVariable String businessNo,
+            Authentication authentication) {
+        requireBusinessAccess(authentication, businessNo);
+        GuestQuoteFlowService.AccessLink link = guestQuotes.issueAccessLink(
+                businessNo,
+                authentication == null ? "system" : authentication.getName());
+        return Map.of("path", link.path(), "expiresAt", link.expiresAt());
     }
 
     @GetMapping("/ownership-candidates")
@@ -114,6 +125,12 @@ public class XingweiBusinessScopeController {
                 body.departmentCode(),
                 authentication,
                 request);
+    }
+
+    private void requireBusinessAccess(Authentication authentication, String businessNo) {
+        if (!business.canAccessBusiness(authentication, businessNo)) {
+            throw new AccessDeniedException("当前询价超出你的数据范围");
+        }
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

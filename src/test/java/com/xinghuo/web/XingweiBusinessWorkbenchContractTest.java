@@ -19,7 +19,8 @@ class XingweiBusinessWorkbenchContractTest {
 
         assertTrue(controller.contains("@GetMapping(\"/admin/xingwei/business\")"));
         assertTrue(controller.contains("return \"admin-xingwei-business\""));
-        assertTrue(template.contains("admin-xingwei-business.js?v=20261017search1"));
+        assertTrue(template.contains("admin-xingwei-business.js?v=20261018offerhotfix1"));
+        assertTrue(template.contains("admin-xingwei-guest-offer.js?v=20261018offerhotfix1"));
         assertTrue(template.contains("meta name=\"_csrf\""));
         assertTrue(js.contains("/api/admin/xingwei/business/${endpoint}"));
         assertTrue(js.contains("/api/admin/xingwei/business/ownership-candidates"));

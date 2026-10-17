@@ -215,6 +215,11 @@
       const tr = document.createElement('tr');
       tr.dataset.search = quoteSearchText(item);
       tr.dataset.guestOfferAllowed = item.canOffer === true ? 'true' : 'false';
+      tr.dataset.guestOfferReason = item.customerType === 'ACCOUNT'
+        ? '这是注册账号询价，请使用账号报价流程'
+        : ['CONVERTED', 'CLOSED', 'CANCELLED'].includes(item.status)
+          ? '该询价已经转单、关闭或取消，不能再发布游客报价'
+          : '当前账号没有此业务的游客报价操作权限';
 
       const idCell = document.createElement('td');
       appendText(idCell, 'span', item.businessNo, 'xwb-primary');

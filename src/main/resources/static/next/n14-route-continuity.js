@@ -17,7 +17,7 @@
   function explicitLegacy(link, url) {
     if (!link || !url) return false;
     if ((url.pathname === '/mastery' || url.pathname === '/account/submit') && link.dataset.n21Legacy === '1') return false;
-    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1' || link.dataset.n25Legacy === '1' || link.dataset.n26Legacy === '1' || link.dataset.n27Legacy === '1') return true;
+    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1' || link.dataset.n25Legacy === '1' || link.dataset.n26Legacy === '1' || link.dataset.n27Legacy === '1' || link.dataset.n28Legacy === '1') return true;
     if (link.dataset.n22Legacy === '1' && url.pathname !== '/guides') return true;
     return url.searchParams.get('legacy') === '1';
   }
@@ -75,6 +75,8 @@
     if (url.pathname === '/records') return nextUrl(url, '/next/records');
     if (url.pathname === '/contact') return nextUrl(url, '/next/contact');
     if (url.pathname === '/trust') return nextUrl(url, '/next/trust');
+    if (url.pathname === '/rules') return nextUrl(url, '/next/rules');
+    if (url.pathname === '/privacy') return nextUrl(url, '/next/privacy');
     if (url.pathname === '/account') return nextUrl(url, '/next/account');
     if (url.pathname === '/account/submit') return nextUrl(url, '/next/account/submit');
     if (url.pathname === '/guides') return nextUrl(url, '/next/guides');
@@ -126,6 +128,7 @@
     ensureRuntime('frontend-next-n26-runtime', stageSource('/next/n26-records-center.js'), /^\/next\/records\/?$/);
     ensureRuntime('frontend-next-n26-history-bridge', stageSource('/next/n26-record-history-bridge.js'), /^\/next\/(?:quote\/?$|record\/)/);
     ensureRuntime('frontend-next-n27-runtime', stageSource('/next/n27-support-trust.js'), /^\/next\/(?:contact|trust)\/?$/);
+    ensureRuntime('frontend-next-n28-runtime', stageSource('/next/n28-legal-single-source.js'), /^\/next\/(?:rules|privacy)\/?$/);
   }
 
   document.addEventListener('click', (event) => {

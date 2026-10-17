@@ -7,6 +7,7 @@
 
   function explicitLegacy(link, url) {
     if (!link || !url) return false;
+    if (url.pathname === '/mastery' && link.dataset.n21Legacy === '1') return false;
     if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1') return true;
     if (link.dataset.n22Legacy === '1' && url.pathname !== '/guides') return true;
     return url.searchParams.get('legacy') === '1';

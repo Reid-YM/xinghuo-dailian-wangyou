@@ -3,6 +3,7 @@ package com.xinghuo.service;
 import com.xinghuo.account.service.AutomaticOrderAccountLinkService;
 import com.xinghuo.exception.BadRequestException;
 import com.xinghuo.exception.NotFoundException;
+import com.xinghuo.payment.GuestWeChatPaymentService;
 import com.xinghuo.payment.WeChatNativePaymentService;
 import com.xinghuo.security.XingweiPermissionGuard;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,9 +28,11 @@ public class XingweiPaymentWorkspaceService {
     private final XingweiPermissionGuard guard;
     private final XingweiBusinessScopeService business;
     private final ObjectProvider<WeChatNativePaymentService> provider;
+    private final ObjectProvider<GuestWeChatPaymentService> guestProvider;
     private final AuditService audits;
     private final AutomaticOrderAccountLinkService accountLinks;
 
+    /** Kept for focused unit tests that do not exercise guest payment creation. */
     public XingweiPaymentWorkspaceService(
             JdbcTemplate jdbc,
             XingweiPermissionGuard guard,
@@ -36,10 +40,23 @@ public class XingweiPaymentWorkspaceService {
             ObjectProvider<WeChatNativePaymentService> provider,
             AuditService audits,
             AutomaticOrderAccountLinkService accountLinks) {
+        this(jdbc, guard, business, provider, null, audits, accountLinks);
+    }
+
+    @Autowired
+    public XingweiPaymentWorkspaceService(
+            JdbcTemplate jdbc,
+            XingweiPermissionGuard guard,
+            XingweiBusinessScopeService business,
+            ObjectProvider<WeChatNativePaymentService> provider,
+            ObjectProvider<GuestWeChatPaymentService> guestProvider,
+            AuditService audits,
+            AutomaticOrderAccountLinkService accountLinks) {
         this.jdbc = jdbc;
         this.guard = guard;
         this.business = business;
         this.provider = provider;
+        this.guestProvider = guestProvider;
         this.audits = audits;
         this.accountLinks = accountLinks;
     }
@@ -107,7 +124,7 @@ public class XingweiPaymentWorkspaceService {
     public Map<String, Object> order(String identifier, Authentication actor) {
         require(actor, "payment:view");
         Map<String, Object> row = orderState(identifier, actor, false, null);
-        if (!Boolean.TRUE.equals(row.get("customerBound"))) {
+        if (!hasCustomerSubject(row)) {
             var outcome = accountLinks.reconcile(identifier);
             if (outcome.linked()) {
                 auditAutoLink(row, outcome, actor);
@@ -127,15 +144,25 @@ public class XingweiPaymentWorkspaceService {
             throw new BadRequestException("请填写有效订单号或业务编号");
         }
         var rows = jdbc.query(
-                "SELECT order_no,COALESCE(business_no,order_no),status,customer_account_id,updated_at,business_no FROM customer_orders WHERE order_no=? OR business_no=?" + (lock ? " FOR UPDATE" : ""),
+                "SELECT order_no,COALESCE(business_no,order_no),status,customer_account_id,guest_access_id,updated_at,business_no FROM customer_orders WHERE order_no=? OR business_no=?" + (lock ? " FOR UPDATE" : ""),
                 (rs, n) -> {
                     var row = new LinkedHashMap<String, Object>();
+                    boolean accountBound = rs.getObject(4) != null;
+                    Long guestAccessId = (Long) rs.getObject(5);
+                    boolean guestBound = guestAccessId != null;
+                    String rawBusinessNo = rs.getString(7);
                     row.put("orderNo", rs.getString(1));
                     row.put("businessNo", rs.getString(2));
                     row.put("status", rs.getString(3));
-                    row.put("customerBound", rs.getObject(4) != null);
-                    row.put("paymentEligible", rs.getObject(4) != null && rs.getString(6) != null && !rs.getString(6).isBlank());
-                    row.put("revision", revision("order", rs.getString(1), rs.getTimestamp(5)));
+                    row.put("customerBound", accountBound);
+                    row.put("guestBound", guestBound);
+                    row.put("customerType", accountBound ? "ACCOUNT" : guestBound ? "GUEST" : "UNBOUND");
+                    row.put("paymentEligible", (accountBound || guestBound)
+                            && rawBusinessNo != null && !rawBusinessNo.isBlank());
+                    row.put("revision", revision("order", rs.getString(1), rs.getTimestamp(6)));
+                    if (lock && guestAccessId != null) {
+                        row.put("guestAccessId", guestAccessId);
+                    }
                     return row;
                 },
                 identifier.trim(), identifier.trim());
@@ -163,7 +190,7 @@ public class XingweiPaymentWorkspaceService {
         require(actor, "payment:manage");
 
         Map<String, Object> preview = orderState(identifier, actor, false, null);
-        if (!Boolean.TRUE.equals(preview.get("customerBound"))) {
+        if (!hasCustomerSubject(preview)) {
             var outcome = accountLinks.reconcile(identifier);
             if (outcome.linked()) {
                 auditAutoLink(preview, outcome, actor);
@@ -171,18 +198,32 @@ public class XingweiPaymentWorkspaceService {
         }
 
         var row = orderState(identifier, actor, true, expected);
-        var payments = enabled();
         if (!Boolean.TRUE.equals(row.get("paymentEligible"))) {
-            throw new BadRequestException("未找到可自动确认的客户账号，请让客户登录后提交询价，或先完成主联系方式验证");
+            throw new BadRequestException("订单尚未建立可支付客户归属；游客订单需先通过正式报价链接确认，注册用户订单需绑定账号");
         }
-        var result = payments.prepare(String.valueOf(row.get("orderNo")), body.amount(), body.subject());
+
+        WeChatNativePaymentService.Payment result;
+        if (Boolean.TRUE.equals(row.get("guestBound"))) {
+            GuestWeChatPaymentService guestPayments = enabledGuest();
+            result = guestPayments.prepare(
+                    String.valueOf(row.get("orderNo")),
+                    ((Number) row.get("guestAccessId")).longValue(),
+                    body.amount(),
+                    body.subject());
+        } else {
+            result = enabled().prepare(String.valueOf(row.get("orderNo")), body.amount(), body.subject());
+        }
         audits.log(
                 "XW_PAYMENT_PREPARE",
                 "PAYMENT",
                 result.paymentNo(),
                 actor.getName(),
                 null,
-                Map.of("businessNo", result.businessNo(), "amount", result.amount(), "status", result.status()),
+                Map.of(
+                        "businessNo", result.businessNo(),
+                        "amount", result.amount(),
+                        "status", result.status(),
+                        "customerType", row.get("customerType")),
                 body.reason(),
                 request);
         return publicPayment(result);
@@ -209,8 +250,6 @@ public class XingweiPaymentWorkspaceService {
         scope(actor, String.valueOf(row.get("businessNo")));
         match(String.valueOf(row.get("revision")), expected);
         var payments = enabled();
-        // Write the request audit before a provider operation; an unavailable audit must
-        // never cause an external close followed by a local audit rollback.
         audits.log(
                 "XW_PAYMENT_CLOSE_REQUEST",
                 "PAYMENT",
@@ -221,6 +260,10 @@ public class XingweiPaymentWorkspaceService {
                 "管理员确认关闭待支付单",
                 request);
         return Map.of("status", payments.close(paymentNo) ? "CANCELLED" : "CAPTURED");
+    }
+
+    private boolean hasCustomerSubject(Map<String, Object> row) {
+        return Boolean.TRUE.equals(row.get("customerBound")) || Boolean.TRUE.equals(row.get("guestBound"));
     }
 
     private void auditAutoLink(
@@ -234,12 +277,20 @@ public class XingweiPaymentWorkspaceService {
                 actor.getName(),
                 Map.of("customerBound", false),
                 Map.of("customerBound", true, "source", outcome.source()),
-                "支付工作台自动确认客户账号归属",
+                "支付工作台按来源询价自动恢复客户账号归属",
                 null);
     }
 
     private WeChatNativePaymentService enabled() {
         var service = provider.getIfAvailable();
+        if (service == null) {
+            throw new BadRequestException("真实收款开关未开启，此处只能查看已有记录");
+        }
+        return service;
+    }
+
+    private GuestWeChatPaymentService enabledGuest() {
+        var service = guestProvider == null ? null : guestProvider.getIfAvailable();
         if (service == null) {
             throw new BadRequestException("真实收款开关未开启，此处只能查看已有记录");
         }

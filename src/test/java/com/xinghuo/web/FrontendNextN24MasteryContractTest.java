@@ -58,7 +58,8 @@ class FrontendNextN24MasteryContractTest {
         assertTrue(routes.contains("url.pathname === '/mastery'"));
         assertTrue(routes.contains("nextUrl(url, '/next/mastery')"));
         assertTrue(routes.contains("/next/n24-mastery.js?v=20261017-n24"));
-        assertTrue(routes.contains("url.pathname === '/mastery' && link.dataset.n21Legacy === '1'"));
+        assertTrue(routes.contains("url.pathname === '/account/submit'"));
+        assertTrue(routes.contains("link.dataset.n21Legacy === '1'"));
         assertTrue(routes.contains("link.dataset.n24Legacy === '1'"));
     }
 }

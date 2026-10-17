@@ -7,8 +7,8 @@
 
   function explicitLegacy(link, url) {
     if (!link || !url) return false;
-    if (url.pathname === '/mastery' && link.dataset.n21Legacy === '1') return false;
-    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1') return true;
+    if ((url.pathname === '/mastery' || url.pathname === '/account/submit') && link.dataset.n21Legacy === '1') return false;
+    if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1' || link.dataset.n25Legacy === '1') return true;
     if (link.dataset.n22Legacy === '1' && url.pathname !== '/guides') return true;
     return url.searchParams.get('legacy') === '1';
   }
@@ -64,6 +64,7 @@
     if (url.pathname === '/services') return nextUrl(url, '/next/services');
     if (url.pathname === '/quote') return nextUrl(url, '/next/quote');
     if (url.pathname === '/account') return nextUrl(url, '/next/account');
+    if (url.pathname === '/account/submit') return nextUrl(url, '/next/account/submit');
     if (url.pathname === '/guides') return nextUrl(url, '/next/guides');
     if (url.pathname === '/mastery') return nextUrl(url, '/next/mastery');
 
@@ -105,6 +106,7 @@
   function ensureStageRuntimes() {
     ensureRuntime('frontend-next-n23-runtime', '/next/n23-guides-center.js?v=20261017-n23', /^\/next\/guides\/?$/);
     ensureRuntime('frontend-next-n24-runtime', '/next/n24-mastery.js?v=20261017-n24', /^\/next\/mastery\/?$/);
+    ensureRuntime('frontend-next-n25-runtime', '/next/n25-submission-workbench.js?v=20261017-n25', /^\/next\/account\/submit\/?$/);
   }
 
   document.addEventListener('click', (event) => {

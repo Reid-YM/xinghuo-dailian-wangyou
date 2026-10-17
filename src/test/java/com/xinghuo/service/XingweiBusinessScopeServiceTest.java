@@ -39,6 +39,7 @@ class XingweiBusinessScopeServiceTest {
         jdbc.execute("CREATE TABLE xw_role_permissions (role_id BIGINT, permission_id BIGINT)");
         jdbc.execute("CREATE TABLE xw_business_ownership (business_no VARCHAR(20) PRIMARY KEY, owner_admin_user_id BIGINT, department_id BIGINT NOT NULL, created_by VARCHAR(64), updated_by VARCHAR(64), created_at TIMESTAMP, updated_at TIMESTAMP)");
         jdbc.execute("CREATE TABLE quotes (business_no VARCHAR(20) PRIMARY KEY, game VARCHAR(100), demand VARCHAR(200), current_progress VARCHAR(500), customer_supplement CLOB, screenshot_asset_id VARCHAR(64), platform VARCHAR(50), expected_time VARCHAR(100), contact_method VARCHAR(40), customer_contact VARCHAR(120), customer_ip_hash VARCHAR(128), status VARCHAR(24), created_at TIMESTAMP)");
+        jdbc.execute("ALTER TABLE quotes ADD COLUMN customer_account_id BIGINT NULL");
         jdbc.execute("CREATE TABLE customer_orders (order_no VARCHAR(40) PRIMARY KEY, business_no VARCHAR(20), status VARCHAR(32), progress_percent INT, progress_text VARCHAR(240), progress_image_asset_id VARCHAR(64), customer_note VARCHAR(500), internal_note VARCHAR(1200), updated_at TIMESTAMP, version BIGINT)");
 
         jdbc.update("INSERT INTO admin_users VALUES (1,'admin',TRUE),(2,'dept',TRUE),(3,'self',TRUE),(4,'agent03',TRUE),(5,'agent04',TRUE)");
@@ -72,6 +73,30 @@ class XingweiBusinessScopeServiceTest {
         assertEquals(4, quotes.get("visibleCount"));
         assertEquals(1L, quotes.get("unassignedCount"));
         assertTrue((Boolean) quotes.get("unassignedVisible"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void offerActionsOnlyAppearForOpenAnonymousAuthorizedQuotes() {
+        jdbc.update("UPDATE quotes SET customer_account_id=77 WHERE business_no='XHDEPT04'");
+        jdbc.update("UPDATE quotes SET status='CLOSED' WHERE business_no='XHSELF03'");
+        Map<String, Object> snapshot = service.quoteSnapshot(authentication("admin", "ROLE_ADMIN"));
+        List<Map<String, Object>> items = (List<Map<String, Object>>) snapshot.get("items");
+        Map<String, Object> activeGuest = items.stream()
+                .filter(row -> "XHDEPT03".equals(row.get("businessNo"))).findFirst().orElseThrow();
+        Map<String, Object> account = items.stream()
+                .filter(row -> "XHDEPT04".equals(row.get("businessNo"))).findFirst().orElseThrow();
+        Map<String, Object> closed = items.stream()
+                .filter(row -> "XHSELF03".equals(row.get("businessNo"))).findFirst().orElseThrow();
+
+        assertEquals("GUEST", activeGuest.get("customerType"));
+        assertEquals(true, activeGuest.get("canOffer"));
+        assertEquals("ACCOUNT", account.get("customerType"));
+        assertEquals(false, account.get("canOffer"));
+        assertEquals(false, closed.get("canOffer"));
+        List<Map<String, Object>> limited = (List<Map<String, Object>>) service
+                .quoteSnapshot(authentication("self", "ROLE_OPERATOR")).get("items");
+        assertTrue(limited.stream().noneMatch(row -> Boolean.TRUE.equals(row.get("canOffer"))));
     }
 
     @Test

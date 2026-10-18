@@ -47,6 +47,15 @@
       else if (url.pathname === '/services') url.pathname = '/next/services';
       else if (url.pathname === '/quote') url.pathname = '/next/quote';
       else if (url.pathname === '/account') url.pathname = '/next/account';
+      else if (url.pathname === '/account/submit') url.pathname = '/next/account/submit';
+      else if (url.pathname === '/guides') url.pathname = '/next/guides';
+      else if (url.pathname === '/mastery') url.pathname = '/next/mastery';
+      else if (url.pathname === '/records') url.pathname = '/next/records';
+      else if (url.pathname === '/contact') url.pathname = '/next/contact';
+      else if (url.pathname === '/trust') url.pathname = '/next/trust';
+      else if (url.pathname === '/rules') url.pathname = '/next/rules';
+      else if (url.pathname === '/privacy') url.pathname = '/next/privacy';
+      else if (/^\/guides\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');
       else if (/^\/service\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');
       else if (/^\/record\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');
     }

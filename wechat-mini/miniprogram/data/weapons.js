@@ -420,20 +420,6 @@ module.exports = {
           "note": ""
         },
         {
-          "code": "HK45",
-          "name": "HK-45",
-          "nameZh": "HK-45",
-          "image": "",
-          "weaponType": "手枪",
-          "unlockLabel": "",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": [],
-          "apexAttachments": [],
-          "note": ""
-        },
-        {
           "code": "VEL46",
           "name": "VEL 46",
           "nameZh": "威尔46",
@@ -831,7 +817,7 @@ module.exports = {
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "武器等级 + 挑战（具体未公布��",
+                "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               }

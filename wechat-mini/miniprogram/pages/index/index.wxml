@@ -212,11 +212,14 @@
                 <text class="camo-guide-group-title">{{grp.title}}</text>
               </view>
               <view class="camo-guide-row" wx:for="{{grp.items}}" wx:for-item="cg" wx:key="key">
-                <view class="camo-guide-row-top">
-                  <text class="camo-guide-name">{{cg.name}}</text>
-                  <text class="camo-guide-tag" wx:if="{{cg.estimate}}">参考</text>
+                <image class="camo-guide-thumb" wx:if="{{cg.image}}" src="{{cg.image}}" mode="aspectFill" lazy-load></image>
+                <view class="camo-guide-row-body">
+                  <view class="camo-guide-row-top">
+                    <text class="camo-guide-name">{{cg.name}}</text>
+                    <text class="camo-guide-tag" wx:if="{{cg.estimate}}">参考</text>
+                  </view>
+                  <text class="camo-guide-req">{{cg.req}}</text>
                 </view>
-                <text class="camo-guide-req">{{cg.req}}</text>
               </view>
             </view>
             <view class="camo-guide-note" wx:if="{{w.camoGuide.note}}">{{w.camoGuide.note}}</view>

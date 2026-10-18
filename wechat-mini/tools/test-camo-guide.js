@@ -57,7 +57,7 @@ const payload = {
       note: '测试说明',
       classes: {
         '突击步枪': {
-          military: { count: 8, text: 'Lv 10/18/25/34/42/50/57/65', estimate: false },
+          military: { count: 8, text: 'Lv 10/18/25/34/42/50/57/65', estimate: false, image: '/assets/mw4camo/military.webp' },
           special: [
             { name: '特种迷彩 1', text: 'Lv 25 + 架设 20 杀', estimate: false },
             { name: '特种迷彩 2', text: 'Lv 46 + 消音器 50 杀', estimate: false },
@@ -91,6 +91,7 @@ assert.strictEqual(ar.groups.length, 3, 'AR should have military/special/complet
 assert.strictEqual(ar.groups[0].key, 'military')
 assert.strictEqual(ar.groups[0].title, '军事迷彩 · 8 档')
 assert.strictEqual(ar.groups[0].items.length, 1)
+assert.strictEqual(ar.groups[0].items[0].image, '/images/camo/military.webp', 'bundled swatch should map to local path')
 assert.strictEqual(ar.groups[1].title, '特种迷彩 · 3 档')
 assert.strictEqual(ar.groups[1].items.length, 3)
 assert.strictEqual(ar.groups[2].title, '完成主义 · 4 档')

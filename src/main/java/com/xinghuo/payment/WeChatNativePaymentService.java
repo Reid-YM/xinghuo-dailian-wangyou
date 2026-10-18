@@ -277,7 +277,9 @@ public class WeChatNativePaymentService {
             try {
                 reconcile(row.paymentNo());
                 if (row.expiresAt() != null && row.expiresAt().isBefore(Instant.now())) {
-                    close(row.paymentNo());
+                    // This same-instance call bypasses Spring's @Transactional proxy.
+                    // Each expired payment needs its own row lock and rollback boundary.
+                    transactions.executeWithoutResult(status -> close(row.paymentNo()));
                 }
             } catch (RuntimeException error) {
                 // Keep the payment pending so the next run retries; never infer success from a timeout.

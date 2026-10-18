@@ -35,7 +35,8 @@ public class DashboardService {
                 this.services.count(),
                 this.quotes.countByStatus(Quote.Status.NEW),
                 this.orders.countByStatus(CustomerOrder.Status.IN_PROGRESS),
-                this.orders.countByStatus(CustomerOrder.Status.COMPLETED),
+                this.orders.countByStatus(CustomerOrder.Status.COMPLETED)
+                        + this.orders.countByStatus(CustomerOrder.Status.CLOSED),
                 this.events.count(),
                 this.feedback.newCount());
     }

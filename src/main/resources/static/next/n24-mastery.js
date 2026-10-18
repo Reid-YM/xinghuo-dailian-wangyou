@@ -136,6 +136,9 @@
       .n24-global{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.n24-global .n24-check{min-height:110px}.n24-empty,.n24-state{min-height:260px;border:1px solid #ffffff15;border-radius:14px;background:#0d1116;display:grid;place-items:center;text-align:center;padding:28px;color:#919ba5}.n24-state h2,.n24-empty h2{color:#f2f4f6;margin:0 0 8px}.n24-state p,.n24-empty p{margin:0 0 14px;line-height:1.7}.n24-note{margin-top:14px;color:#66717c;font-size:9px;line-height:1.65}
       @media(max-width:980px){.n24-head{grid-template-columns:1fr}.n24-overview{grid-template-columns:1fr 1fr}.n24-tier-grid,.n24-checks,.n24-global{grid-template-columns:1fr 1fr}.n24-toolbar{top:78px;grid-template-columns:1fr 1fr}}
       @media(max-width:650px){.n24-mastery{padding-top:92px}.n24-actions{display:grid}.n24-toolbar{position:relative;top:auto;grid-template-columns:1fr}.n24-tier-grid,.n24-checks,.n24-global,.n24-overview{grid-template-columns:1fr}.n24-weapon-head{grid-template-columns:auto 58px minmax(0,1fr)}.n24-thumb{width:58px}.n24-weapon-score{grid-column:2/-1}.n24-sync{align-items:flex-start;flex-direction:column}}
+      /* N29 mobile: allow long customer-provided and published content to wrap safely. */
+      .n24-mastery .n24-weapon-head,.n24-mastery .n24-weapon-head>*,.n24-mastery .n24-state,.n24-mastery .n24-check{min-width:0}
+      .n24-mastery .n24-weapon-head :is(h2,h3,p,span),.n24-mastery .n24-check,.n24-mastery .n24-state{overflow-wrap:anywhere}
     `;
     document.head.append(style);
   }

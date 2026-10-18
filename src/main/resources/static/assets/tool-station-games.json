@@ -466,20 +466,6 @@
           "note": ""
         },
         {
-          "code": "M91",
-          "name": "M91",
-          "nameZh": "M91",
-          "image": "",
-          "weaponType": "轻机枪",
-          "unlockLabel": "",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": [],
-          "apexAttachments": [],
-          "note": ""
-        },
-        {
           "code": "MOSINNAGANT",
           "name": "Mosin-Nagant",
           "nameZh": "莫辛纳甘",

@@ -4,6 +4,7 @@ import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountAuditService;
 import com.xinghuo.account.service.AccountException;
 import com.xinghuo.account.service.AfterSalesLedger;
+import com.xinghuo.account.service.TrustedOrderVisibilitySql;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -43,11 +44,13 @@ public class ConsoleApiController {
     public SummaryResponse summary(HttpServletRequest request) {
         Account account = AccountAuthInterceptor.requireAccount(request);
         long quoteTotal = count("SELECT COUNT(*) FROM quotes WHERE customer_account_id = ?", account.getId());
-        long orderTotal = count("SELECT COUNT(*) FROM customer_orders WHERE customer_account_id = ?", account.getId());
+        long orderTotal = count(
+                "SELECT COUNT(*) FROM customer_orders o WHERE " + TrustedOrderVisibilitySql.PREDICATE,
+                account.getId(), account.getId());
         long activeOrders = count("""
-                SELECT COUNT(*) FROM customer_orders
-                 WHERE customer_account_id = ? AND status IN ('WAITING_CONFIRMATION','IN_PROGRESS','EXCEPTION')
-                """, account.getId());
+                SELECT COUNT(*) FROM customer_orders o
+                 WHERE %s AND o.status IN ('WAITING_CONFIRMATION','IN_PROGRESS','EXCEPTION')
+                """.formatted(TrustedOrderVisibilitySql.PREDICATE), account.getId(), account.getId());
         long securityEvents = count("SELECT COUNT(*) FROM user_audit_log WHERE user_id = ?", account.getId());
         return new SummaryResponse(quoteTotal, orderTotal, activeOrders, securityEvents,
                 quotes(account, 0, 3).items(), orders(account, 0, 3).items(), loginLogs(account, 5));
@@ -241,11 +244,13 @@ public class ConsoleApiController {
                        q.business_no AS quote_business_no, q.game AS game_name, q.demand AS service_name
                   FROM customer_orders o
                   LEFT JOIN quotes q ON q.id = o.source_quote_id
-                 WHERE o.customer_account_id = ?
+                 WHERE %s
                  ORDER BY o.created_at DESC
                  LIMIT ? OFFSET ?
-                """, (rs, i) -> orderItem(rs), account.getId(), size, (long) page * size);
-        long total = count("SELECT COUNT(*) FROM customer_orders WHERE customer_account_id = ?", account.getId());
+                """.formatted(TrustedOrderVisibilitySql.PREDICATE),
+                (rs, i) -> orderItem(rs), account.getId(), account.getId(), size, (long) page * size);
+        long total = count("SELECT COUNT(*) FROM customer_orders o WHERE " + TrustedOrderVisibilitySql.PREDICATE,
+                account.getId(), account.getId());
         return new OrderListResponse(items, total, page, size);
     }
 
@@ -277,9 +282,10 @@ public class ConsoleApiController {
                        q.business_no AS quote_business_no, q.game AS game_name, q.demand AS service_name
                   FROM customer_orders o
                   LEFT JOIN quotes q ON q.id = o.source_quote_id
-                 WHERE o.customer_account_id = ? AND (o.business_no = ? OR o.order_no = ?)
+                 WHERE %s AND (o.business_no = ? OR o.order_no = ?)
                  LIMIT 1
-                """, (rs, i) -> orderItem(rs), account.getId(), businessNo, businessNo);
+                """.formatted(TrustedOrderVisibilitySql.PREDICATE),
+                (rs, i) -> orderItem(rs), account.getId(), account.getId(), businessNo, businessNo);
         if (rows.isEmpty()) throw AccountException.notFound("ORDER_NOT_FOUND", "订单不存在或不属于当前账号");
         return rows.get(0);
     }

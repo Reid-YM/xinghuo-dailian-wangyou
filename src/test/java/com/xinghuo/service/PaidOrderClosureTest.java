@@ -98,9 +98,10 @@ class PaidOrderClosureTest {
     void existingButUnpaidWeChatPaymentMustNeverCountAsCompleted() {
         when(jdbc.queryForObject(anyString(), eq(Integer.class), eq(order.getBusinessNo())))
                 .thenReturn(1, 0);
+        service.update(order.getOrderNo(), change("IN_PROGRESS", 35), "staff", null);
         assertThrows(ConflictException.class,
                 () -> service.update(order.getOrderNo(), change("COMPLETED", 100), "staff", null));
-        assertEquals(CustomerOrder.Status.WAITING_CONFIRMATION, order.getStatus());
+        assertEquals(CustomerOrder.Status.IN_PROGRESS, order.getStatus());
     }
 
     @Test

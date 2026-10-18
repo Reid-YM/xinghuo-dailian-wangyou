@@ -76,7 +76,19 @@ function normalizeCamoGuide(raw) {
       return { key: 'comp-' + i, name: it.name || '', req: it.text || '', estimate: !!it.estimate, image: resolveImage(it.image || ''), imageRemote: api.asset(it.image || '') }
     }).filter(function (it) { return it.req })
     if (comp.length) groups.push({ key: 'completionist', title: '完成主义 · ' + comp.length + ' 档', items: comp })
-    classes[cls] = { groups: groups, note: raw.note || '' }
+    const milImages = (raw.militaryImages && raw.militaryImages.length) ? raw.militaryImages : (military.image ? [military.image] : [])
+    const milLevels = military.levels || []
+    const militaryTiles = []
+    for (let i = 0; i < (military.count || 8); i++) {
+      const img = milImages.length ? milImages[i % milImages.length] : ''
+      militaryTiles.push({
+        key: 'mil-' + i,
+        label: milLevels[i] ? ('Lv ' + milLevels[i]) : ('第' + (i + 1) + '档'),
+        image: resolveImage(img),
+        imageRemote: api.asset(img)
+      })
+    }
+    classes[cls] = { groups: groups, note: raw.note || '', militaryTiles: militaryTiles }
   })
   return { version: raw.version || '', note: raw.note || '', classes: classes }
 }

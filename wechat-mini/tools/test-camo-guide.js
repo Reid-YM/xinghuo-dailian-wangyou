@@ -54,10 +54,11 @@ const payload = {
     ],
     camoGuide: {
       version: 'v1',
+      militaryImages: ['/assets/mw4camo/military-1.webp', '/assets/mw4camo/military-2.webp'],
       note: '测试说明',
       classes: {
         '突击步枪': {
-          military: { count: 8, text: 'Lv 10/18/25/34/42/50/57/65', estimate: false, image: '/assets/mw4camo/military.webp' },
+          military: { count: 8, text: 'Lv 10/18/25/34/42/50/57/65', estimate: false, image: '/assets/mw4camo/military.webp', levels: [10, 18, 25, 34, 42, 50, 57, 65] },
           special: [
             { name: '特种迷彩 1', text: 'Lv 25 + 架设 20 杀', estimate: false },
             { name: '特种迷彩 2', text: 'Lv 46 + 消音器 50 杀', estimate: false },
@@ -92,6 +93,9 @@ assert.strictEqual(ar.groups[0].key, 'military')
 assert.strictEqual(ar.groups[0].title, '军事迷彩 · 8 档')
 assert.strictEqual(ar.groups[0].items.length, 1)
 assert.strictEqual(ar.groups[0].items[0].image, '/images/camo/military.webp', 'bundled swatch should map to local path')
+assert.strictEqual(ar.militaryTiles.length, 8, 'military should expand to 8 tiles')
+assert.strictEqual(ar.militaryTiles[0].label, 'Lv 10')
+assert.strictEqual(ar.militaryTiles[0].image, '/images/camo/military-1.webp')
 assert.strictEqual(ar.groups[1].title, '特种迷彩 · 3 档')
 assert.strictEqual(ar.groups[1].items.length, 3)
 assert.strictEqual(ar.groups[2].title, '完成主义 · 4 档')
@@ -100,6 +104,7 @@ assert.strictEqual(ar.groups[2].items[2].name, 'Harmonic Break（谐波）')
 
 const smg = cat.camoGuide.classes['冲锋枪']
 assert.strictEqual(smg.groups[0].items[0].estimate, true, 'estimate flag should survive')
+assert.strictEqual(smg.militaryTiles[0].label, '第1档')
 
 // 页面渲染时按武器职业取指南；没有数据的职业应当是 undefined（模板里有 wx:if 保护）
 const arWeapon = cat.weapons.filter(function (w) { return w.code === 'AR1' })[0]

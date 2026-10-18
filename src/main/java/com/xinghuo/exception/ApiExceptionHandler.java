@@ -1,5 +1,7 @@
 package com.xinghuo.exception;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wechat.pay.java.core.exception.ServiceException;
 import com.wechat.pay.java.core.exception.HttpException;
 import com.wechat.pay.java.core.exception.ValidationException;
@@ -44,6 +46,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice(assignableTypes={com.xinghuo.controller.GuestBusinessApiController.class, com.xinghuo.controller.XingweiBusinessScopeController.class, PublicApiController.class, AdminApiController.class, AdminLeadController.class, PublicGuideController.class, AdminGuideController.class, SeoController.class, XingweiOperationsController.class, XingweiAdminAccountController.class, XingweiPaymentWorkspaceController.class, XingweiAuxiliaryWorkspaceController.class, XingweiCatalogDetailsController.class, XingweiServiceCatalogController.class, XingweiBusinessMaintenanceController.class})
 public class ApiExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
+    private static final ObjectMapper paymentErrorJson = new ObjectMapper();
 
     private ResponseEntity<Map<String, Object>> body(HttpStatus s, String code, String message) {
         return ResponseEntity.status((HttpStatusCode)s).body(Map.of("code", code, "message", message));
@@ -120,8 +123,16 @@ public class ApiExceptionHandler {
     @ExceptionHandler(value={ServiceException.class})
     ResponseEntity<?> weChatService(ServiceException e) {
         String code = safeWeChatErrorCode(e.getErrorCode());
-        log.warn("WeChat API v3 request rejected: errorCode={}", code);
-        return this.body(HttpStatus.BAD_GATEWAY, "WECHAT_PAY_REJECTED", weChatFailureMessage(code));
+        // A gateway response may include personal values. Read only a whitelist of field names;
+        // never log or return the raw response body, remote message, or request.
+        String field = "PARAM_ERROR".equals(code)
+                ? safeWeChatParameterField(e.getResponseBody()) : "";
+        log.warn("WeChat API v3 request rejected: errorCode={} parameterField={}",
+                code, field.isEmpty() ? "UNSPECIFIED" : field);
+        String message = "PARAM_ERROR".equals(code) && !field.isEmpty()
+                ? "微信支付下单参数不符合要求：" + field + "（PARAM_ERROR），请联系客服核对配置"
+                : weChatFailureMessage(code);
+        return this.body(HttpStatus.BAD_GATEWAY, "WECHAT_PAY_REJECTED", message);
     }
 
     @ExceptionHandler(value={HttpException.class, ValidationException.class,
@@ -135,6 +146,24 @@ public class ApiExceptionHandler {
 
     static String safeWeChatErrorCode(String code) {
         return code != null && code.matches("[A-Z0-9_]{1,40}") ? code : "UNKNOWN";
+    }
+
+    static String safeWeChatParameterField(String responseBody) {
+        if (responseBody == null || responseBody.length() > 8192) {
+            return "";
+        }
+        try {
+            JsonNode detail = paymentErrorJson.readTree(responseBody).path("detail");
+            String field = detail.path("field").asText("");
+            return switch (field) {
+                case "appid", "mchid", "description", "out_trade_no", "time_expire",
+                     "notify_url", "amount", "amount.total", "amount.currency",
+                     "currency", "scene_info", "attach" -> field;
+                default -> "";
+            };
+        } catch (Exception invalidResponse) {
+            return "";
+        }
     }
 
     static String weChatFailureMessage(String code) {

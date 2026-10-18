@@ -35,6 +35,27 @@ class WeChatPrepayErrorContractTest {
     }
 
     @Test
+    void paramErrorReturnsOnlyApprovedFieldNameAndNeverGatewayValues() {
+        ServiceException exception = mock(ServiceException.class);
+        when(exception.getErrorCode()).thenReturn("PARAM_ERROR");
+        when(exception.getResponseBody()).thenReturn(
+                "{\"code\":\"PARAM_ERROR\",\"message\":\"private_key_sensitive\","
+                + "\"detail\":{\"field\":\"time_expire\",\"value\":\"sensitive-token\"}}");
+        ResponseEntity<?> reply = new ApiExceptionHandler().weChatService(exception);
+        assertEquals(HttpStatus.BAD_GATEWAY, reply.getStatusCode());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> body = (Map<String, Object>) reply.getBody();
+        assertTrue(String.valueOf(body.get("message")).contains("time_expire"));
+        assertFalse(String.valueOf(body.get("message")).contains("sensitive-token"));
+        assertFalse(String.valueOf(body.get("message")).contains("private_key_sensitive"));
+        assertEquals("", ApiExceptionHandler.safeWeChatParameterField(
+                "{\"detail\":{\"field\":\"card_secret_password\"}}"));
+        assertEquals("", ApiExceptionHandler.safeWeChatParameterField("not-json"));
+        assertEquals("notify_url", ApiExceptionHandler.safeWeChatParameterField(
+                "{\"detail\":{\"field\":\"notify_url\"}}"));
+    }
+
+    @Test
     void malformedOrSensitiveRemoteCodesNeverAppearInCustomerResponses() {
         String unsafe = "SIGN_ERROR_private_key_secret\\n";
         assertEquals("UNKNOWN", ApiExceptionHandler.safeWeChatErrorCode(unsafe));

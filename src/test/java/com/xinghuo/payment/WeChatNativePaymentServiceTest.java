@@ -94,6 +94,12 @@ class WeChatNativePaymentServiceTest {
         verify(nativePay, times(1)).prepay(request.capture());
         assertEquals(2980, request.getValue().getAmount().getTotal());
         assertEquals(payment.paymentNo(), request.getValue().getOutTradeNo());
+        // Verify the actual SDK request, not only the helper formatter.
+        String gatewayExpiry = request.getValue().getTimeExpire();
+        org.junit.jupiter.api.Assertions.assertTrue(gatewayExpiry.matches(
+                "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+08:00"));
+        assertEquals(service.getForAccount(payment.paymentNo(), 7).expiresAt(),
+                java.time.OffsetDateTime.parse(gatewayExpiry).toInstant());
         assertEquals("APPROVED", service.getForAccount(payment.paymentNo(), 7).status());
     }
 

@@ -14,9 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
@@ -146,7 +144,7 @@ public class WeChatNativePaymentService {
             throw new IllegalStateException("二维码已过期，请联系客服重新确认支付单");
         }
         // External request runs under the row lock so concurrent clicks cannot issue two codes.
-        Instant expiry = Instant.now().plusSeconds(QR_MINUTES * 60L);
+        Instant expiry = NativePrepayTime.afterMinutes(Instant.now(), QR_MINUTES);
         PrepayRequest request = new PrepayRequest();
         Amount amount = new Amount();
         amount.setTotal(payment.amount().movePointRight(2).intValueExact());
@@ -157,8 +155,7 @@ public class WeChatNativePaymentService {
         request.setDescription(payment.subject());
         request.setOutTradeNo(payment.paymentNo());
         request.setNotifyUrl(client.notifyUrl());
-        request.setTimeExpire(OffsetDateTime.ofInstant(expiry, ZoneOffset.ofHours(8))
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        request.setTimeExpire(NativePrepayTime.timeExpire(expiry));
         String codeUrl = client.nativePay().prepay(request).getCodeUrl();
         if (codeUrl == null || !codeUrl.startsWith("weixin://")) {
             throw new IllegalStateException("微信支付未返回可用的扫码地址");

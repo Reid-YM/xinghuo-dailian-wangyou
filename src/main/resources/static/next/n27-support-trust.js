@@ -70,6 +70,9 @@
       .n27-section{margin-top:24px}.n27-section-head{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:11px}.n27-section-head h2{margin:0}.n27-section-head p{margin:0;color:#7f8993;font-size:10px}.n27-faq{display:grid;gap:8px}.n27-faq details{border:1px solid #ffffff15;border-radius:12px;background:#0d1116;padding:13px}.n27-faq summary{cursor:pointer;font-weight:800}.n27-faq p{color:#8f99a3;line-height:1.75;margin:10px 0 0}.n27-empty{border:1px dashed #ffffff20;border-radius:14px;padding:24px;text-align:center;color:#818b95}.n27-case-meta{display:flex;justify-content:space-between;gap:8px;color:#717c87;font-size:9px;margin-top:10px}.n27-note{margin-top:18px;color:#66717c;font-size:9px;line-height:1.7}
       @media(max-width:900px){.n27-head{grid-template-columns:1fr}.n27-grid{grid-template-columns:1fr 1fr}}
       @media(max-width:650px){.n27-page{padding-top:92px}.n27-actions{display:grid}.n27-grid{grid-template-columns:1fr}.n27-status{grid-template-columns:1fr}.n27-section-head{align-items:flex-start;flex-direction:column}}
+      /* N29 mobile: allow long customer-provided and published content to wrap safely. */
+      .n27-page .n27-card,.n27-page .n27-empty,.n27-page .n27-status>*,.n27-page .n27-section-head>*{min-width:0}
+      .n27-page .n27-card,.n27-page .n27-empty,.n27-page .n27-section-head,.n27-page .n27-faq{overflow-wrap:anywhere}
     `;
     document.head.append(style);
   }

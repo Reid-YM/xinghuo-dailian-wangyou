@@ -603,8 +603,23 @@
   letter-spacing: 0.5rpx;
 }
 .camo-guide-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14rpx;
   padding: 10rpx 0;
   border-bottom: 1rpx dashed rgba(255, 255, 255, 0.05);
+}
+.camo-guide-thumb {
+  flex: none;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 10rpx;
+  background: #1b1f27;
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+}
+.camo-guide-row-body {
+  flex: 1;
+  min-width: 0;
 }
 .camo-guide-row:last-child {
   border-bottom: none;

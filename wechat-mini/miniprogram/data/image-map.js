@@ -37,5 +37,11 @@ module.exports = {
   "/assets/mw4weapon/kraitp68.webp": "/images/weapon/kraitp68.webp",
   "/assets/mw4weapon/50gs.webp": "/images/weapon/50gs.webp",
   "/assets/mw4weapon/pila.webp": "/images/weapon/pila.webp",
-  "/assets/mw4weapon/combatknife.webp": "/images/weapon/combatknife.webp"
+  "/assets/mw4weapon/combatknife.webp": "/images/weapon/combatknife.webp",
+  "/assets/mw4camo/military.webp": "/images/camo/military.webp",
+  "/assets/mw4camo/special.webp": "/images/camo/special.webp",
+  "/assets/mw4camo/gold.webp": "/images/camo/gold.webp",
+  "/assets/mw4camo/platinum.webp": "/images/camo/platinum.webp",
+  "/assets/mw4camo/harmonic-break.webp": "/images/camo/harmonic-break.webp",
+  "/assets/mw4camo/divergence.webp": "/images/camo/divergence.webp",
 }

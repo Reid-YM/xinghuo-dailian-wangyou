@@ -65,15 +65,15 @@ function normalizeCamoGuide(raw) {
       groups.push({
         key: 'military',
         title: '军事迷彩 · ' + (military.count || 8) + ' 档',
-        items: [{ key: 'military', name: '按武器等级解锁', req: military.text, estimate: !!military.estimate }]
+        items: [{ key: 'military', name: '按武器等级解锁', req: military.text, estimate: !!military.estimate, image: resolveImage(military.image || ''), imageRemote: api.asset(military.image || '') }]
       })
     }
     const special = (c.special || []).map(function (it, i) {
-      return { key: 'special-' + i, name: it.name || ('特种迷彩 ' + (i + 1)), req: it.text || '', estimate: !!it.estimate }
+      return { key: 'special-' + i, name: it.name || ('特种迷彩 ' + (i + 1)), req: it.text || '', estimate: !!it.estimate, image: resolveImage(it.image || ''), imageRemote: api.asset(it.image || '') }
     }).filter(function (it) { return it.req })
     if (special.length) groups.push({ key: 'special', title: '特种迷彩 · ' + special.length + ' 档', items: special })
     const comp = (c.completionist || []).map(function (it, i) {
-      return { key: 'comp-' + i, name: it.name || '', req: it.text || '', estimate: !!it.estimate }
+      return { key: 'comp-' + i, name: it.name || '', req: it.text || '', estimate: !!it.estimate, image: resolveImage(it.image || ''), imageRemote: api.asset(it.image || '') }
     }).filter(function (it) { return it.req })
     if (comp.length) groups.push({ key: 'completionist', title: '完成主义 · ' + comp.length + ' 档', items: comp })
     classes[cls] = { groups: groups, note: raw.note || '' }

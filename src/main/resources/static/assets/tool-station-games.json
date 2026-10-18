@@ -410,20 +410,6 @@
           "note": ""
         },
         {
-          "code": "HK45",
-          "name": "HK-45",
-          "nameZh": "HK-45",
-          "image": "",
-          "weaponType": "手枪",
-          "unlockLabel": "",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": [],
-          "apexAttachments": [],
-          "note": ""
-        },
-        {
           "code": "VEL46",
           "name": "VEL 46",
           "nameZh": "威尔46",

@@ -233,16 +233,50 @@ public class OrderService {
 
         ApiDtos.AdminOrderResponse before = admin(order);
         CustomerOrder.Status nextStatus = parseStatus(request.status());
+        CustomerOrder.Status currentStatus = order.getStatus();
+        if (currentStatus == CustomerOrder.Status.CLOSED && nextStatus != CustomerOrder.Status.CLOSED) {
+            throw new ConflictException("订单已经结单，不能重新进入履约，请联系管理员核对售后流程");
+        }
+        if (nextStatus == CustomerOrder.Status.CLOSED
+                && currentStatus != CustomerOrder.Status.COMPLETED
+                && currentStatus != CustomerOrder.Status.CLOSED) {
+            throw new ConflictException("请先确认服务已完成，再结束并结单");
+        }
+        // Payment settlement and service delivery are independent. A payment record
+        // must be verified as CAPTURED before the order can be finalized; orders
+        // without any online payment records may have been settled offline.
+        if (jdbc != null && (nextStatus == CustomerOrder.Status.COMPLETED
+                || nextStatus == CustomerOrder.Status.CLOSED)) {
+            Integer paymentCount = jdbc.queryForObject(
+                    "SELECT COUNT(*) FROM payment_order WHERE business_no=? AND provider='WECHAT'",
+                    Integer.class, order.getBusinessNo());
+            if (paymentCount != null && paymentCount > 0) {
+                Integer captured = jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM payment_order WHERE business_no=? AND provider='WECHAT' AND status='CAPTURED'",
+                        Integer.class, order.getBusinessNo());
+                if (captured == null || captured == 0) {
+                    throw new ConflictException("微信支付单尚未确认到账或已进入退款流程，不能完成或结单");
+                }
+            }
+        }
         order.setStatus(nextStatus);
         order.setProgressPercent(
-                nextStatus == CustomerOrder.Status.COMPLETED && request.progressPercent() == null
+                nextStatus == CustomerOrder.Status.COMPLETED || nextStatus == CustomerOrder.Status.CLOSED
                         ? 100
                         : request.progressPercent());
         order.setProgressText(request.progressText().trim());
         order.setCustomerNote(trimNull(request.customerNote()));
         order.setInternalNote(trimNull(request.internalNote()));
-        if (nextStatus == CustomerOrder.Status.COMPLETED && order.getFinishedAt() == null) {
+        if ((nextStatus == CustomerOrder.Status.COMPLETED
+                || nextStatus == CustomerOrder.Status.CLOSED) && order.getFinishedAt() == null) {
             order.setFinishedAt(Instant.now());
+        } else if (currentStatus == CustomerOrder.Status.COMPLETED
+                && nextStatus != CustomerOrder.Status.COMPLETED
+                && nextStatus != CustomerOrder.Status.CLOSED) {
+            // Reopened work is no longer a completed public case.
+            order.setFinishedAt(null);
+            order.setAllowPublicCase(false);
+            order.setPublicEnabledAt(null);
         }
         order.setUpdatedAt(Instant.now());
         repo.flush();

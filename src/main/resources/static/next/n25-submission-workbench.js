@@ -278,18 +278,44 @@
     root.append(host);
   }
 
+  function showGameError(error) {
+    const select = $('#n25Game');
+    if (!select) return;
+    let state = $('#n25GameLoadState');
+    if (!state) {
+      state = node('div', 'n25-game-error');
+      state.id = 'n25GameLoadState';
+      state.setAttribute('role', 'alert');
+      select.after(state);
+    }
+    const retry = node('button', 'btn', '重新读取游戏列表');
+    retry.type = 'button';
+    retry.addEventListener('click', async () => {
+      retry.disabled = true;
+      retry.textContent = '读取中…';
+      try { await loadGames(); }
+      catch (retryError) { showGameError(retryError); message('游戏列表读取失败，可再次重试。', 'error'); }
+    });
+    state.replaceChildren(node('p', '', text(error?.message) || '游戏列表暂时无法读取。'), retry);
+  }
+
   async function loadGames() {
     const select = $('#n25Game');
     if (!select) return;
     const payload = await api('/api/catalog');
-    const games = list(payload?.games);
+    if (!Array.isArray(payload?.games)) throw new Error('游戏目录返回异常，请重新读取。');
+    const games = payload.games;
+    const selected = text(select.value) || text(draftValue()?.gameCode);
     select.replaceChildren();
     const blank = document.createElement('option'); blank.value = ''; blank.textContent = games.length ? '请选择游戏' : '暂无可投稿游戏'; select.append(blank);
+    gameNames.clear();
     games.forEach((game) => {
       const code = text(game.code); if (!code) return;
       gameNames.set(code, text(game.name) || code);
       const option = document.createElement('option'); option.value = code; option.textContent = text(game.name) || code; select.append(option);
     });
+    if ([...select.options].some((option) => option.value === selected)) select.value = selected;
+    $('#n25GameLoadState')?.remove();
   }
 
   async function loadMine() {
@@ -392,7 +418,7 @@
   async function load() {
     const section = ensureSection(); activate(section); installStyles(); setMetadata(); buildUi(section);
     const token = ++loadToken;
-    try { await loadGames(); } catch (error) { if (token === loadToken) message(error.message || '游戏列表读取失败。', 'error'); }
+    try { await loadGames(); } catch (error) { if (token === loadToken) { showGameError(error); message('游戏列表读取失败，可在游戏选择处重试。', 'error'); } }
     restoreDraft();
     const logged = await loadAccount();
     if (token !== loadToken) return;

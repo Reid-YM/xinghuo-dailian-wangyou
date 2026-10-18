@@ -207,12 +207,15 @@ public class XingweiBusinessScopeService {
                        o2.order_no, o2.status, o2.progress_percent, o2.progress_text,
                        (o2.progress_image_asset_id IS NOT NULL) AS has_progress_image,
                        o2.customer_note, o2.internal_note, o2.updated_at, o2.version,
+                       o2.source_quote_id, o2.customer_account_id AS order_customer_account_id,
+                       q.customer_account_id AS source_quote_account_id, q.status AS source_quote_status,
                        own.owner_admin_user_id,
                        owner.username AS owner_username,
                        owner_profile.display_name AS owner_display_name,
                        d.code AS department_code,
                        d.name AS department_name
                 FROM customer_orders o2
+                LEFT JOIN quotes q ON q.id = o2.source_quote_id
                 LEFT JOIN xw_business_ownership own
                        ON own.business_no = COALESCE(o2.business_no, o2.order_no)
                 LEFT JOIN admin_users owner ON owner.id = own.owner_admin_user_id
@@ -226,7 +229,11 @@ public class XingweiBusinessScopeService {
         BusinessPermissions operations = businessPermissions(authentication);
         List<Map<String, Object>> items = jdbc.query(
                 sql,
-                (rs, rowNum) -> orderRow(rs, access, operations),
+                (rs, rowNum) -> {
+                    Map<String, Object> row = orderRow(rs, access, operations);
+                    populateOrderGuestOffer(row, rs, access, operations);
+                    return row;
+                },
                 scope.args().toArray());
         return snapshot(access, items);
     }
@@ -444,9 +451,21 @@ public class XingweiBusinessScopeService {
         row.put("status", rs.getString("status"));
         boolean anonymous = rs.getObject("customer_account_id") == null;
         row.put("customerType", anonymous ? "GUEST" : "ACCOUNT");
-        row.put("canOffer", anonymous && operations.quoteManage()
-                && !List.of("CONVERTED", "CLOSED", "CANCELLED").contains(rs.getString("status"))
-                && canAccessForMutation(access, ownership));
+        boolean allowedToManage = operations.quoteManage()
+                && canAccessForMutation(access, ownership);
+        boolean closed = List.of("CLOSED", "CANCELLED").contains(rs.getString("status"));
+        boolean converted = "CONVERTED".equals(rs.getString("status"));
+        boolean hasValidOrder = !converted || hasUnpaidGuestSourceOrder(businessNo);
+        boolean hasActivePayment = converted && hasValidOrder && hasActiveWechatPayment(businessNo);
+        boolean canOffer = anonymous && allowedToManage && !closed
+                && hasValidOrder && !hasActivePayment;
+        row.put("canOffer", canOffer);
+        row.put("guestOfferReason", !anonymous ? "这是注册账号询价，请使用账号报价流程"
+                : closed ? "询价已关闭或取消，不能继续报价"
+                : !allowedToManage ? "当前账号缺少此业务的报价权限"
+                : !hasValidOrder ? "已转单记录缺少可核对的游客订单"
+                : hasActivePayment ? "存在待支付或已付款单，请先到支付工作台核对"
+                : "");
         row.put("createdAt", timestamp(rs, "created_at"));
         row.put("hasScreenshot", rs.getBoolean("has_screenshot"));
         row.put("ownership", ownershipMap(ownership));
@@ -459,6 +478,49 @@ public class XingweiBusinessScopeService {
         row.put("canAssign", operations.quoteManage()
                 && canAccessForMutation(access, ownership));
         return row;
+    }
+
+    /** Order-first guest checkout: provide the same offer action on its order workbench row. */
+    private void populateOrderGuestOffer(Map<String, Object> row, ResultSet rs,
+            XingweiPermissionGuard.AccessSnapshot access,
+            BusinessPermissions operations) throws SQLException {
+        String sourceQuoteId = rs.getString("source_quote_id");
+        if (sourceQuoteId == null) {
+            return; // orders created without a quote have no guest quote to price
+        }
+        String no = rs.getString("business_no");
+        boolean guest = rs.getObject("order_customer_account_id") == null
+                && rs.getObject("source_quote_account_id") == null;
+        boolean active = !List.of("CLOSED", "CANCELLED").contains(rs.getString("source_quote_status"));
+        boolean permission = operations.quoteManage()
+                && canAccessForMutation(access, ownershipFromJoinedRow(rs, no));
+        boolean pending = guest && active && permission && hasActiveWechatPayment(no);
+        row.put("guestQuoteLinked", true);
+        row.put("canOffer", guest && active && permission && !pending);
+        row.put("guestOfferReason", !guest ? "注册账号订单不能使用游客报价"
+                : !active ? "来源询价已关闭或取消"
+                : !permission ? "当前账号没有此订单的询价报价权限"
+                : pending ? "存在待支付或已付款单，请先到支付工作台核对"
+                : "");
+    }
+
+    private boolean hasUnpaidGuestSourceOrder(String no) {
+        Integer count = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM customer_orders o
+                  JOIN quotes q ON q.id=o.source_quote_id
+                 WHERE o.business_no=? AND q.business_no=?
+                   AND o.customer_account_id IS NULL AND q.customer_account_id IS NULL
+                """, Integer.class, no, no);
+        return count != null && count == 1;
+    }
+
+    private boolean hasActiveWechatPayment(String no) {
+        Integer count = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM payment_order
+                 WHERE business_no=? AND provider='WECHAT'
+                   AND status IN ('CREATED','APPROVED','CAPTURED')
+                """, Integer.class, no);
+        return count != null && count > 0;
     }
 
     private Map<String, Object> orderRow(ResultSet rs, XingweiPermissionGuard.AccessSnapshot access, BusinessPermissions operations) throws SQLException {

@@ -34,7 +34,9 @@ public class AutomaticOrderAccountLinkService {
             return LinkOutcome.none();
         }
 
-        List<Candidate> rows = candidates("WHERE o.order_no = ? OR o.business_no = ? LIMIT 2", key, key);
+        List<Candidate> rows = candidates(
+                "WHERE (o.order_no = ? OR o.business_no = ?) AND o.guest_access_id IS NULL LIMIT 2",
+                key, key);
         if (rows.size() != 1) {
             return LinkOutcome.none();
         }
@@ -64,9 +66,19 @@ public class AutomaticOrderAccountLinkService {
             return 0;
         }
 
+        // Filter by verified quote lineage before pagination. A global LIMIT 500 silently
+        // skipped older orders for accounts when the site had many unrelated orphans.
+        // Guest-owned orders must remain guest-owned until an explicit claim flow exists.
         List<Candidate> rows = candidates(
-                "WHERE o.customer_account_id IS NULL ORDER BY o.created_at DESC LIMIT ?",
-                CANDIDATE_SCAN_LIMIT);
+                """
+                WHERE o.customer_account_id IS NULL
+                  AND o.guest_access_id IS NULL
+                  AND (q_source.customer_account_id = ?
+                       OR (o.source_quote_id IS NULL AND q_legacy.customer_account_id = ?))
+                ORDER BY o.created_at DESC
+                LIMIT ?
+                """,
+                account.getId(), account.getId(), CANDIDATE_SCAN_LIMIT);
 
         int linked = 0;
         for (Candidate row : rows) {
@@ -108,6 +120,7 @@ public class AutomaticOrderAccountLinkService {
                 UPDATE customer_orders
                    SET customer_account_id = ?, version = version + 1, updated_at = CURRENT_TIMESTAMP
                  WHERE order_no = ? AND customer_account_id IS NULL
+                   AND guest_access_id IS NULL
                 """, ownerId, row.orderNo());
         if (updated == 0) {
             return false;

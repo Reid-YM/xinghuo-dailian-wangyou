@@ -1,6 +1,11 @@
 (() => {
   'use strict';
  const display=value=>window.XWLabels?.value(value)??value;
+  const orderStatusText = value => value === 'CLOSED' ? '已结单' : display(value);
+  const paymentStatusText = value => ({
+    CAPTURED: '微信已付款', PENDING_PAYMENT: '等待微信付款',
+    REFUNDED: '已退款', CANCELLED: '支付单已关闭', NO_PAYMENT: '无在线支付单'
+  })[value] || '支付状态待核对';
 
   const accessBadge = document.getElementById('xwbAccessBadge');
   const scopeText = document.getElementById('xwbScopeText');
@@ -164,6 +169,24 @@
     if (item.canManage && activeTab !== 'after-sales') {
       const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'xw-mini-button';
       edit.textContent = type === 'quotes' ? '处理询价' : '编辑订单'; edit.addEventListener('click', () => type === 'quotes' ? openQuoteAction(item) : openOrderAction(item)); td.appendChild(edit);
+      if (type === 'orders') {
+        const actions = {
+          WAITING_CONFIRMATION: ['IN_PROGRESS', '开始服务'],
+          IN_PROGRESS: ['COMPLETED', '确认完成'],
+          COMPLETED: ['CLOSED', '确认结单']
+        };
+        const action = actions[item.status];
+        if (action) {
+          const quick = document.createElement('button');
+          quick.type = 'button';
+          quick.className = 'xw-mini-button';
+          quick.textContent = action[1];
+          quick.disabled = item.paymentStatus === 'PENDING_PAYMENT' || item.paymentStatus === 'REFUNDED';
+          if (quick.disabled) quick.title = '尚未收款或已退款，请先核对支付状态';
+          quick.addEventListener('click', () => quickOrderTransition(item, action[0], action[1]));
+          td.appendChild(quick);
+        }
+      }
     }
     if (!item.canAssign) {
       if (activeTab !== 'after-sales' && !td.children.length) appendText(td, 'span', '只读', 'xw-muted-label');
@@ -271,7 +294,9 @@
       appendText(idCell, 'small', item.orderNo && item.orderNo !== item.businessNo ? `订单号 ${item.orderNo}` : '统一业务编号', 'xwb-secondary');
       tr.appendChild(idCell);
 
-      tr.appendChild(textCell(display(item.status), 'xwb-primary'));
+      const statusCell = textCell(orderStatusText(item.status), 'xwb-primary');
+      appendText(statusCell, 'small', paymentStatusText(item.paymentStatus), 'xwb-secondary');
+      tr.appendChild(statusCell);
 
       const progressCell = document.createElement('td');
       progressCell.className = 'xwb-progress';
@@ -603,6 +628,38 @@
   document.querySelectorAll('[data-action-close]').forEach(button => button.addEventListener('click',() => closeAction(button.dataset.actionClose)));
   quoteActionDialog?.addEventListener('cancel',event => {event.preventDefault();closeAction('quote');});
   orderActionDialog?.addEventListener('cancel',event => {event.preventDefault();closeAction('order');});
+  async function quickOrderTransition(item, nextStatus, actionText) {
+    if (actionBusy || assignmentBusy || !item.canManage || activeTab !== 'orders') return;
+    const reason = prompt(`请填写「${actionText}」原因（写入审计记录）：`, actionText + '，已核对履约进度');
+    if (!reason || !reason.trim()) return;
+    if (nextStatus === 'CLOSED' && !confirm('结单后订单不能重新进入履约。请确认服务已交付、款项已核对，是否继续？')) return;
+    const progressText = {
+      IN_PROGRESS: '客服已安排服务，正在履约',
+      COMPLETED: '服务已经交付完成，等待工作人员结单',
+      CLOSED: '订单已完成并结单，服务履约结束'
+    }[nextStatus];
+    const payload = {
+      version: item.version, status: nextStatus,
+      progressPercent: nextStatus === 'IN_PROGRESS' ? (item.progressPercent ?? 0) : 100,
+      progressText, customerNote: item.customerNote,
+      internalNote: item.internalNote, reason: reason.trim().slice(0, 500)
+    };
+    actionBusy = true;
+    setMessage(`正在${actionText}……`);
+    try {
+      await actionRequest(`/api/admin/xingwei/business/orders/${encodeURIComponent(item.businessNo)}`, {
+        method:'PATCH',
+        headers:{'Content-Type':'application/json',[csrfHeader]:csrfToken},
+        body:JSON.stringify(payload)
+      }, '订单操作结果未确认，请刷新列表核对，勿重复提交。');
+      await refreshAfterAction(`${actionText}成功，客户履约页面将同步更新。`, 'orders');
+    } catch (error) {
+      setMessage(error.message, 'error');
+    } finally {
+      actionBusy = false;
+    }
+  }
+
   orderActionForm?.addEventListener('submit',async event => {
     event.preventDefault(); if (actionBusy || !orderActionForm.reportValidity()) return;
     if(imageDirty&&!confirm('已选择的截图尚未上传，保存订单会清除该选择。确认先保存订单？'))return;

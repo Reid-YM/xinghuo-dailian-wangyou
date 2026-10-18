@@ -13,6 +13,8 @@
 - N25 在游戏选择控件下增加有语义的错误提示和“重新读取游戏列表”按钮，重试成功只更新游戏 options，保留已填写的标题、摘要、正文及本机草稿。
 - 不更改 `/api/catalog`、`/api/public/cases`、服务端鉴权、正式 Legacy、订单、支付、部署默认前端或站点内容来源。
 
+组合验证采用最新 `main` 基线 `e1a15c664f25bef3b39154f2258f2d11314b90e1`；本阶段仍未进行合并与生产发布。
+
 ## 验收
 
 - `FrontendNextN29PublicCasesRecoveryTest`：合同及 Chromium 503 → 重试 200 空数组，验证失败不伪装为空、重试次数和真实空状态。

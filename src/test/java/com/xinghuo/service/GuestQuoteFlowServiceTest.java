@@ -232,6 +232,106 @@ class GuestQuoteFlowServiceTest {
                 "SELECT COUNT(*) FROM customer_orders WHERE business_no='B-4'", Integer.class));
     }
 
+    @Test
+    void staffConvertedUnpaidGuestOrderCanBeQuotedAcceptedAndPaidWithoutDuplicateOrder() {
+        UUID quoteId = UUID.randomUUID();
+        insertQuote(quoteId, "B-ORDERFIRST");
+        GuestQuoteFlowService.SessionHandle session = service.ensureSession(null);
+        service.attachQuote(session.id(), quoteId, "B-ORDERFIRST");
+        jdbc.update("UPDATE quotes SET status='CONVERTED' WHERE id=?", quoteId.toString());
+        jdbc.update("""
+                INSERT INTO customer_orders(order_no,business_no,source_quote_id,
+                  customer_account_id,guest_access_id,status,progress_percent,progress_text,updated_at)
+                VALUES('O-ORDERFIRST','B-ORDERFIRST',?,NULL,NULL,'WAITING_CONFIRMATION',
+                       NULL,'等待客服报价',CURRENT_TIMESTAMP)
+                """, quoteId.toString());
+
+        service.publishOffer("B-ORDERFIRST", offer("168.00", "已转单补价"), "admin", null);
+        assertEquals("CONVERTED", jdbc.queryForObject(
+                "SELECT status FROM quotes WHERE id=?", String.class, quoteId.toString()));
+        assertEquals(true, service.snapshot(session.token(), "B-ORDERFIRST").get("canAccept"));
+
+        Quote quote = Quote.builder().id(quoteId).businessNo("B-ORDERFIRST")
+                .game("MW4").demand("测试需求").status(Quote.Status.CONVERTED)
+                .createdAt(Instant.now()).updatedAt(Instant.now()).build();
+        when(quotes.findById(quoteId)).thenReturn(java.util.Optional.of(quote));
+        ApiDtos.AdminOrderResponse original = new ApiDtos.AdminOrderResponse(
+                UUID.randomUUID(), "O-ORDERFIRST", "B-ORDERFIRST", quoteId,
+                "WAITING_CONFIRMATION", null, "等待客服报价", false,
+                null, null, Instant.now(), 0L);
+        when(orders.createFromQuote(any(Quote.class), anyString(), any(), anyString()))
+                .thenReturn(original);
+
+        var accepted = service.accept(session.token(), "B-ORDERFIRST", null);
+        Long accessId = jdbc.queryForObject(
+                "SELECT guest_access_id FROM customer_orders WHERE business_no='B-ORDERFIRST'",
+                Long.class);
+        assertNotNull(accessId);
+        assertEquals("ACCEPTED", jdbc.queryForObject(
+                "SELECT status FROM quote_offer WHERE business_no='B-ORDERFIRST'",
+                String.class));
+        assertEquals(1, jdbc.queryForObject(
+                "SELECT COUNT(*) FROM customer_orders WHERE business_no='B-ORDERFIRST'",
+                Integer.class));
+        assertNotNull(accepted.get("order"));
+        service.accept(session.token(), "B-ORDERFIRST", null);
+        verify(orders).createFromQuote(any(Quote.class), anyString(), any(), anyString());
+
+        // If WeChat pay was disabled at the original acceptance, a later enabled gateway
+        // can safely prepare the same accepted amount for the already-linked guest order.
+        GuestWeChatPaymentService gateway = mock(GuestWeChatPaymentService.class);
+        when(payments.getIfAvailable()).thenReturn(gateway);
+        var intent = new com.xinghuo.payment.WeChatNativePaymentService.Payment(
+                "P-ORDERFIRST", "B-ORDERFIRST", "已转单补价", new BigDecimal("168.00"),
+                "CREATED", null, null);
+        when(gateway.latestForGuest("B-ORDERFIRST", accessId)).thenReturn(null);
+        when(gateway.prepare("O-ORDERFIRST", accessId, new BigDecimal("168.00"), "已转单补价"))
+                .thenReturn(intent);
+        when(gateway.nativeQr("P-ORDERFIRST", accessId)).thenReturn(intent);
+        assertEquals("P-ORDERFIRST",
+                service.nativePayment(session.token(), "B-ORDERFIRST").paymentNo());
+        verify(gateway).prepare("O-ORDERFIRST", accessId, new BigDecimal("168.00"), "已转单补价");
+    }
+
+    @Test
+    void paidOrPendingGuestPaymentPreventsPostConversionRepricing() {
+        UUID quoteId = UUID.randomUUID();
+        insertQuote(quoteId, "B-PAID");
+        GuestQuoteFlowService.SessionHandle session = service.ensureSession(null);
+        service.attachQuote(session.id(), quoteId, "B-PAID");
+        jdbc.update("UPDATE quotes SET status='CONVERTED' WHERE id=?", quoteId.toString());
+        jdbc.update("""
+                INSERT INTO customer_orders(order_no,business_no,source_quote_id,
+                  customer_account_id,guest_access_id,status,progress_percent,progress_text,updated_at)
+                VALUES('O-PAID','B-PAID',?,NULL,NULL,'WAITING_CONFIRMATION',
+                       NULL,'等待客服报价',CURRENT_TIMESTAMP)
+                """, quoteId.toString());
+        jdbc.update("""
+                INSERT INTO payment_order(payment_no,guest_access_id,business_no,subject,
+                  amount,status,provider,updated_at)
+                VALUES('P-PAID',NULL,'B-PAID','旧支付单',100.00,'APPROVED','WECHAT',CURRENT_TIMESTAMP)
+                """);
+        assertThrows(ConflictException.class,
+                () -> service.publishOffer("B-PAID", offer("120.00", "新价"), "admin", null));
+        jdbc.update("UPDATE payment_order SET status='CAPTURED' WHERE business_no='B-PAID'");
+        assertThrows(ConflictException.class,
+                () -> service.publishOffer("B-PAID", offer("120.00", "新价"), "admin", null));
+    }
+
+    @Test
+    void noPaymentIntentCanBeMadeBeforeGuestAcceptsAnOffer() {
+        UUID quoteId = UUID.randomUUID();
+        insertQuote(quoteId, "B-CONSENT");
+        GuestQuoteFlowService.SessionHandle session = service.ensureSession(null);
+        service.attachQuote(session.id(), quoteId, "B-CONSENT");
+        GuestWeChatPaymentService gateway = mock(GuestWeChatPaymentService.class);
+        when(payments.getIfAvailable()).thenReturn(gateway);
+        assertThrows(ConflictException.class,
+                () -> service.nativePayment(session.token(), "B-CONSENT"));
+        verify(gateway, org.mockito.Mockito.never()).prepare(anyString(),
+                org.mockito.ArgumentMatchers.anyLong(), any(), anyString());
+    }
+
     private void insertQuote(UUID id, String businessNo) {
         jdbc.update("""
                 INSERT INTO quotes(

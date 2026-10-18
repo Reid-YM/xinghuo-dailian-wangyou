@@ -181,6 +181,31 @@
       panel.append(payBox);
     }
 
+    if (state.order && !payment) {
+      const payBox = document.createElement('section');
+      payBox.className = 'card soft-card';
+      payBox.append(text('h3', '微信支付'));
+      if (!state.paymentEnabled) {
+        payBox.append(text('p', '当前网站尚未启用微信在线支付。订单和报价已经保留，请联系客服确认付款方式。', 'notice'));
+      } else if (offer?.status === 'ACCEPTED') {
+        payBox.append(text('p', '报价已确认，订单尚未生成付款单，可以在这里继续获取支付二维码。', 'muted'));
+        const retry = button('生成微信支付二维码', async () => {
+          retry.disabled = true;
+          try {
+            await api(`/api/guest/business/${encodeURIComponent(businessNo)}/payment/native`, {method:'POST'});
+            await load();
+          } catch (error) {
+            alert(error.message || '创建支付二维码失败');
+            retry.disabled = false;
+          }
+        }, true);
+        payBox.append(retry);
+      } else {
+        payBox.append(text('p', '请先点击上方的「接受报价并生成订单」，确认金额后才能生成微信支付二维码。', 'muted'));
+      }
+      panel.append(payBox);
+    }
+
     schedulePoll(state);
   }
 

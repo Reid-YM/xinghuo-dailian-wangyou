@@ -2,6 +2,7 @@
   'use strict';
 
   const rows = document.getElementById('xwbQuoteRows');
+  const orderRows = document.getElementById('xwbOrderRows');
   if (!rows) return;
   const csrfToken = document.querySelector('meta[name="_csrf"]')?.content || '';
   const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
@@ -96,8 +97,9 @@
     }
   }
 
-  function enhance() {
-    rows.querySelectorAll('tr[data-search]').forEach(row => {
+  function enhanceRows(container, ordersView = false) {
+    container.querySelectorAll('tr[data-search]').forEach(row => {
+      if (ordersView && row.dataset.guestOfferView !== 'orders') return;
       if (row.dataset.guestOfferEnhanced === '1') return;
       const allowed = row.dataset.guestOfferAllowed === 'true';
       const blockedReason = row.dataset.guestOfferReason || '报价权限未同步，请刷新业务工作台';
@@ -135,6 +137,11 @@
     });
   }
 
-  new MutationObserver(enhance).observe(rows, {childList:true, subtree:true});
-  enhance();
+  new MutationObserver(() => enhanceRows(rows)).observe(rows, {childList:true, subtree:true});
+  enhanceRows(rows);
+  if (orderRows) {
+    new MutationObserver(() => enhanceRows(orderRows, true))
+      .observe(orderRows, {childList:true, subtree:true});
+    enhanceRows(orderRows, true);
+  }
 })();

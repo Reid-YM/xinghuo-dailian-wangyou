@@ -61,6 +61,11 @@ class XingweiBusinessScopeServiceTest {
         jdbc.update("INSERT INTO xw_business_ownership VALUES ('XHDEPT03',4,3,'admin','admin',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)");
         jdbc.update("INSERT INTO xw_business_ownership VALUES ('XHDEPT04',5,4,'admin','admin',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)");
         jdbc.update("INSERT INTO xw_business_ownership VALUES ('XHSELF03',3,3,'admin','admin',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)");
+        // The real production schema has quote lineage and payment state fields.
+        jdbc.execute("ALTER TABLE quotes ADD COLUMN id VARCHAR(36)");
+        jdbc.execute("ALTER TABLE customer_orders ADD COLUMN source_quote_id VARCHAR(36)");
+        jdbc.execute("ALTER TABLE customer_orders ADD COLUMN customer_account_id BIGINT");
+        jdbc.execute("CREATE TABLE payment_order (business_no VARCHAR(20), provider VARCHAR(24), status VARCHAR(24))");
 
         XingweiPermissionGuard guard = new XingweiPermissionGuard(jdbc);
         service = new XingweiBusinessScopeService(jdbc, guard, mock(AuditService.class));
@@ -97,6 +102,48 @@ class XingweiBusinessScopeServiceTest {
         List<Map<String, Object>> limited = (List<Map<String, Object>>) service
                 .quoteSnapshot(authentication("self", "ROLE_OPERATOR")).get("items");
         assertTrue(limited.stream().noneMatch(row -> Boolean.TRUE.equals(row.get("canOffer"))));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void manuallyConvertedUnpaidGuestOrderCanStillBeQuotedButPaidCannot() {
+        jdbc.update("UPDATE quotes SET id='quote-dept-03',status='CONVERTED' WHERE business_no='XHDEPT03'");
+        jdbc.update("UPDATE customer_orders SET source_quote_id='quote-dept-03' WHERE business_no='XHDEPT03'");
+        List<Map<String, Object>> quoteRows = (List<Map<String, Object>>) service
+                .quoteSnapshot(authentication("admin", "ROLE_ADMIN")).get("items");
+        var quote = quoteRows.stream().filter(row -> "XHDEPT03".equals(row.get("businessNo")))
+                .findFirst().orElseThrow();
+        assertEquals(true, quote.get("canOffer"));
+        List<Map<String, Object>> orderRows = (List<Map<String, Object>>) service
+                .orderSnapshot(authentication("admin", "ROLE_ADMIN")).get("items");
+        var order = orderRows.stream().filter(row -> "XHDEPT03".equals(row.get("businessNo")))
+                .findFirst().orElseThrow();
+        assertEquals(true, order.get("guestQuoteLinked"));
+        assertEquals(true, order.get("canOffer"));
+
+        jdbc.update("INSERT INTO payment_order VALUES('XHDEPT03','WECHAT','CREATED')");
+        quoteRows = (List<Map<String, Object>>) service
+                .quoteSnapshot(authentication("admin", "ROLE_ADMIN")).get("items");
+        quote = quoteRows.stream().filter(row -> "XHDEPT03".equals(row.get("businessNo")))
+                .findFirst().orElseThrow();
+        assertEquals(false, quote.get("canOffer"));
+        orderRows = (List<Map<String, Object>>) service
+                .orderSnapshot(authentication("admin", "ROLE_ADMIN")).get("items");
+        order = orderRows.stream().filter(row -> "XHDEPT03".equals(row.get("businessNo")))
+                .findFirst().orElseThrow();
+        assertEquals(false, order.get("canOffer"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void orphanedSourceQuoteNeverBreaksOrderListOrExposesGuestOffer() {
+        jdbc.update("UPDATE customer_orders SET source_quote_id='orphan' WHERE business_no='XHDEPT04'");
+        List<Map<String, Object>> orders = (List<Map<String, Object>>) service
+                .orderSnapshot(authentication("admin", "ROLE_ADMIN")).get("items");
+        Map<String, Object> orphan = orders.stream()
+                .filter(row -> "XHDEPT04".equals(row.get("businessNo"))).findFirst().orElseThrow();
+        assertFalse(orphan.containsKey("guestQuoteLinked"));
+        assertFalse(Boolean.TRUE.equals(orphan.get("canOffer")));
     }
 
     @Test

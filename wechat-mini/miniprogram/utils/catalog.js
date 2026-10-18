@@ -54,43 +54,72 @@ function classHint(cls) {
 
 /* ------------------------------------------------------------------ 归一化 */
 
-function normalizeCamoGuide(raw) {
-  if (!raw || !raw.classes) return null
-  const classes = {}
-  Object.keys(raw.classes).forEach(function (cls) {
-    const c = raw.classes[cls] || {}
-    const groups = []
-    const military = c.military || {}
-    if (military.text) {
-      groups.push({
+function buildGuideEntry(c, militaryImages) {
+  const groups = []
+  const military = c.military || {}
+  if (military.text) {
+    groups.push({
+      key: 'military',
+      title: '军事迷彩 · ' + (military.count || 8) + ' 档',
+      items: [{
         key: 'military',
-        title: '军事迷彩 · ' + (military.count || 8) + ' 档',
-        items: [{ key: 'military', name: '按武器等级解锁', req: military.text, estimate: !!military.estimate, image: resolveImage(military.image || ''), imageRemote: api.asset(military.image || '') }]
-      })
+        name: '按武器等级解锁',
+        req: military.text,
+        estimate: !!military.estimate,
+        image: resolveImage(military.image || ''),
+        imageRemote: api.asset(military.image || '')
+      }]
+    })
+  }
+  const special = (c.special || []).map(function (it, i) {
+    return {
+      key: 'special-' + i,
+      name: it.name || ('特种迷彩 ' + (i + 1)),
+      req: it.text || '',
+      estimate: !!it.estimate,
+      image: resolveImage(it.image || ''),
+      imageRemote: api.asset(it.image || '')
     }
-    const special = (c.special || []).map(function (it, i) {
-      return { key: 'special-' + i, name: it.name || ('特种迷彩 ' + (i + 1)), req: it.text || '', estimate: !!it.estimate, image: resolveImage(it.image || ''), imageRemote: api.asset(it.image || '') }
-    }).filter(function (it) { return it.req })
-    if (special.length) groups.push({ key: 'special', title: '特种迷彩 · ' + special.length + ' 档', items: special })
-    const comp = (c.completionist || []).map(function (it, i) {
-      return { key: 'comp-' + i, name: it.name || '', req: it.text || '', estimate: !!it.estimate, image: resolveImage(it.image || ''), imageRemote: api.asset(it.image || '') }
-    }).filter(function (it) { return it.req })
-    if (comp.length) groups.push({ key: 'completionist', title: '完成主义 · ' + comp.length + ' 档', items: comp })
-    const milImages = (raw.militaryImages && raw.militaryImages.length) ? raw.militaryImages : (military.image ? [military.image] : [])
-    const milLevels = military.levels || []
-    const militaryTiles = []
-    for (let i = 0; i < (military.count || 8); i++) {
-      const img = milImages.length ? milImages[i % milImages.length] : ''
-      militaryTiles.push({
-        key: 'mil-' + i,
-        label: milLevels[i] ? (milLevels[i] + '级') : ('第' + (i + 1) + '档'),
-        image: resolveImage(img),
-        imageRemote: api.asset(img)
-      })
+  }).filter(function (it) { return it.req })
+  if (special.length) groups.push({ key: 'special', title: '特种迷彩 · ' + special.length + ' 档', items: special })
+  const comp = (c.completionist || []).map(function (it, i) {
+    return {
+      key: 'comp-' + i,
+      name: it.name || '',
+      req: it.text || '',
+      estimate: !!it.estimate,
+      image: resolveImage(it.image || ''),
+      imageRemote: api.asset(it.image || '')
     }
-    classes[cls] = { groups: groups, note: raw.note || '', militaryTiles: militaryTiles }
+  }).filter(function (it) { return it.req })
+  if (comp.length) groups.push({ key: 'completionist', title: '完成主义 · ' + comp.length + ' 档', items: comp })
+
+  const milImages = (militaryImages && militaryImages.length) ? militaryImages : (military.image ? [military.image] : [])
+  const milLevels = military.levels || []
+  const militaryTiles = []
+  for (let i = 0; i < (military.count || 8); i++) {
+    const img = milImages.length ? milImages[i % milImages.length] : ''
+    militaryTiles.push({
+      key: 'mil-' + i,
+      label: milLevels[i] ? (milLevels[i] + '级') : ('第' + (i + 1) + '档'),
+      image: resolveImage(img),
+      imageRemote: api.asset(img)
+    })
+  }
+  return { groups: groups, militaryTiles: militaryTiles, note: c.note || '' }
+}
+
+function normalizeCamoGuide(raw) {
+  if (!raw || (!raw.classes && !raw.weapons)) return null
+  const classes = {}
+  Object.keys(raw.classes || {}).forEach(function (cls) {
+    classes[cls] = buildGuideEntry(raw.classes[cls], raw.militaryImages)
   })
-  return { version: raw.version || '', note: raw.note || '', classes: classes }
+  const weapons = {}
+  Object.keys(raw.weapons || {}).forEach(function (code) {
+    weapons[code] = buildGuideEntry(raw.weapons[code])
+  })
+  return { version: raw.version || '', note: raw.note || '', classes: classes, weapons: weapons }
 }
 
 function normalize(payload, source, fetchedAt) {

@@ -1244,7 +1244,1203 @@ module.exports = {
           "/assets/mw4camo/military-6.webp",
           "/assets/mw4camo/military-7.webp",
           "/assets/mw4camo/military-8.webp"
-        ]
+        ],
+        "weapons": {
+          "HAN86": {
+            "maxLevel": "72",
+            "unlock": "军阶4级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 72）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "25级，20次架枪击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "46级，消音器50次击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "72级，15次不死3杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "50次爆头击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "25次双杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "M4": {
+            "maxLevel": "72",
+            "unlock": "军阶14级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 72）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "26级，20次零距离击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "51级，20次架枪击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "71级，25次背后击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "50次爆头击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "25次双杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "HYEONBURST": {
+            "maxLevel": "68",
+            "unlock": "军阶21级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 68）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "23级，10次不换弹2次击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "46级，20次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "68级，全自动100次击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "50次爆头击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "25次双杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "KASTOV762": {
+            "maxLevel": "71",
+            "unlock": "军阶34级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 71）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "24级，10次不死3杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "48级，20次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "71级，20次腰射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "50次爆头击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "25次双杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "PATRIOTXMR": {
+            "maxLevel": "72",
+            "unlock": "军阶27级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 72）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "24级。20次腰射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [],
+            "mastery": ""
+          },
+          "ISONIGHTSHADE": {
+            "maxLevel": "64",
+            "unlock": "军阶4级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 64）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "22级，举枪瞄准50次击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "44级，10次双杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "64级，15次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "50次爆头击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "25次双杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "VEL46": {
+            "maxLevel": "60",
+            "unlock": "军阶5级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 60）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "20级，20次卧倒击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "40级，20次卧倒击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "60级，20次爆头击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "25次背后击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "50次腰射击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "WZ55STRIGA": {
+            "maxLevel": "60",
+            "unlock": "军阶18级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 60）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "20级，消音器50次击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "41级，20次跳跃击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "60级，40次零距离击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "25次背后击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "50次腰射击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "PPSH41": {
+            "maxLevel": "62",
+            "unlock": "军阶30级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 62）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "20级，10次双杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "41级，20次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "62级，举枪瞄准100次击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "25次背后击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "50次腰射击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "X58NYX": {
+            "maxLevel": "53",
+            "unlock": "军阶46级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 53）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "17级，20次移动���杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "35级，20次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [],
+            "mastery": ""
+          },
+          "REZI12": {
+            "maxLevel": "60",
+            "unlock": "军阶4级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 60）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "22级，20次零距离击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "42级，10次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "60级，40次跳跃击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "50次腰射击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "25次不换弹2次击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "WARLORD": {
+            "maxLevel": "60",
+            "unlock": "军阶32级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 60）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "21级，20次移动击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "41级，10次双杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "60级，50次卧倒击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "50次腰射击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "25次不换弹2次击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "FINNLMG": {
+            "maxLevel": "60",
+            "unlock": "军阶4级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 60）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "18级，20次零距离击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "39级，10次不换弹2次击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "60级，30次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "15次不死3杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "25次不松扳机2次击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "TYPE73": {
+            "maxLevel": "65",
+            "unlock": "军阶9级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 65）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "23级，20次架枪击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "45级，10次双杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "65级，40次爆头击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "15次不死3杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "25次不松扳机2次击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "APOC338": {
+            "maxLevel": "56",
+            "unlock": "军阶44级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 56）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "15级，20次腰射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "36级，40次爆头击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "56级，100次卧倒击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "15次不死3杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "25次不松扳机2次击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "MAR9": {
+            "maxLevel": "73",
+            "unlock": "军阶4级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 73）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "26级，20次架枪击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "49级，25次蹲下击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "73级，30次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "75次卧倒击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "75次一枪一个",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "ORIS86": {
+            "maxLevel": "70",
+            "unlock": "军阶11级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 70）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "27级，10次瞬狙击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "49级，20次双杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "70级，15次不死3杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "75次卧倒击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "75次一枪一个",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "MOSINNAGANT": {
+            "maxLevel": "69",
+            "unlock": "军阶36级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 69）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "25级，25次爆头击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "15次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "20次爆头击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "75次卧倒击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "75次一枪一个",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "KG7VULCAN": {
+            "maxLevel": "75",
+            "unlock": "军阶4级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 75）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "22级，10次腰射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "47级，20次爆头击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "75级，20次无伤2杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "75次卧倒击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "75次一枪一个",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "SIGNAL50": {
+            "maxLevel": "74",
+            "unlock": "军阶50级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 74）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "28级，10次5秒内2杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "52级，20次瞬狙击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "74级，40次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "75次卧倒击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "75次一枪一个",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "SANG9MM": {
+            "maxLevel": "38",
+            "unlock": "军阶4级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 38）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "13级，举枪瞄准25次击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "25级，5次不死3杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "38级，50次双持击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "20次背后击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "40次腰射击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "KARITP68": {
+            "maxLevel": "28",
+            "unlock": "军机7级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 28）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "13级，15次悬挂击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "25级，15次零距离击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "38级，消音器50次击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "20次背后击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "40次腰射击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "50GS": {
+            "maxLevel": "50",
+            "unlock": "军阶41级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 50）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "18级，20次爆头击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "34级，7次双杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "50级，50零距离击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "20次背后击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "40次腰射击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "MOHAVE357": {
+            "maxLevel": "44",
+            "unlock": "军阶48级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 44）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "16级，15次一枪一个击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "30级，10次不换弹2杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "44级，30次零距离击杀",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "20次背后击杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "40次腰射击杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          },
+          "RPG": {
+            "maxLevel": "46",
+            "unlock": "军阶23级解锁",
+            "military": {
+              "count": 8,
+              "text": "武器等级解锁（满级 46）：每达到指定等级解锁一款",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": false
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "16级，10次趴下击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "31级，10次远射击杀",
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "46级，摧毁30个连杀或载具",
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单局15次击杀",
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "15次无伤2杀",
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "谐波",
+                "text": "7次单局10杀",
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器所有的皮肤挑战",
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "mastery": "模式大师-霞流"
+          }
+        },
+        "source": "Lunana66 武器迷彩信息表（docs.qq.com/smartsheet/DQ3FRemRxcHZrTFJo）2026-10-18"
       }
     }
   ]

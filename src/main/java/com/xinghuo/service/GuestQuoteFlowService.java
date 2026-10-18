@@ -190,8 +190,28 @@ public class GuestQuoteFlowService {
         if (quote.guestAccessId() == null) {
             throw new BadRequestException("该历史询价没有游客访问凭证，不能在线发布游客报价");
         }
-        if (List.of("CONVERTED", "CLOSED", "CANCELLED").contains(quote.status())) {
-            throw new ConflictException("当前询价状态不能重新发布报价");
+        if (List.of("CLOSED", "CANCELLED").contains(quote.status())) {
+            throw new ConflictException("当前询价已关闭或取消，不能重新报价");
+        }
+        if ("CONVERTED".equals(quote.status())) {
+            Integer validOrders = jdbc.queryForObject("""
+                    SELECT COUNT(*) FROM customer_orders
+                     WHERE source_quote_id=? AND business_no=? AND customer_account_id IS NULL
+                       AND (guest_access_id IS NULL OR guest_access_id=?)
+                    """, Integer.class, quote.quoteId(), no, quote.guestAccessId());
+            if (validOrders == null || validOrders != 1) {
+                throw new ConflictException("已转单询价缺少同主体订单，请联系客服核对订单归属");
+            }
+        }
+        // Never reprice while a payable WeChat intent exists: its amount might already be
+        // presented to the customer. Staff must close it through the payment workspace first.
+        Integer activePayments = jdbc.queryForObject("""
+                SELECT COUNT(*) FROM payment_order
+                 WHERE business_no=? AND provider='WECHAT'
+                   AND status IN ('CREATED','APPROVED','CAPTURED')
+                """, Integer.class, no);
+        if (activePayments != null && activePayments > 0) {
+            throw new ConflictException("订单已有待支付或已支付的收款单，不能直接改价；请先在支付工作台核对处理");
         }
 
         jdbc.update("""
@@ -216,8 +236,12 @@ public class GuestQuoteFlowService {
                 trim(body.estimatedDuration()), trim(body.customerMessage()),
                 operator == null || operator.isBlank() ? "system" : operator,
                 Timestamp.from(expiresAt));
-        jdbc.update("UPDATE quotes SET status='QUOTED',updated_at=CURRENT_TIMESTAMP WHERE id=?",
-                quote.quoteId());
+        // A manually converted quote remains CONVERTED: the existing order must not disappear
+        // from the business lifecycle merely because staff publishes a price afterwards.
+        if (!"CONVERTED".equals(quote.status())) {
+            jdbc.update("UPDATE quotes SET status='QUOTED',updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                    quote.quoteId());
+        }
 
         Map<String, Object> after = offerMap(latestOffer(no));
         audit.log(
@@ -474,7 +498,9 @@ public class GuestQuoteFlowService {
         boolean offerActive = offer != null
                 && "QUOTED".equals(offer.status())
                 && (offer.expiresAt() == null || offer.expiresAt().isAfter(Instant.now()));
-        out.put("canAccept", offerActive && out.get("order") == null);
+        boolean alreadyPaid = false;
+        // The order may predate the offer (staff manually converted the quote). That does not
+        // remove the customer's right to accept an unpaid quote and bind the existing order.
 
         List<Map<String, Object>> payments = jdbc.query("""
                 SELECT payment_no,subject,amount,currency,status,native_expires_at,paid_at,updated_at
@@ -496,7 +522,13 @@ public class GuestQuoteFlowService {
                     payment.put("updatedAt", updated == null ? null : updated.toInstant());
                     return payment;
                 }, access.businessNo(), access.accessId());
-        out.put("payment", payments.isEmpty() ? null : payments.getFirst());
+        Map<String, Object> payment = payments.isEmpty() ? null : payments.getFirst();
+        out.put("payment", payment);
+        alreadyPaid = payment != null && "CAPTURED".equals(payment.get("status"));
+        out.put("canAccept", offerActive && !alreadyPaid
+                && !"CLOSED".equals(out.get("quoteStatus"))
+                && !"CANCELLED".equals(out.get("quoteStatus")));
+        out.put("paymentEnabled", guestPayments.getIfAvailable() != null);
         return out;
     }
 

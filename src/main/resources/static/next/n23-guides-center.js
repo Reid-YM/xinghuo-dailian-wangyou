@@ -55,6 +55,9 @@
       .n23-state{min-height:280px;border:1px solid #ffffff18;border-radius:16px;background:#0d1116;display:grid;place-items:center;text-align:center;padding:30px;color:#9aa3ad}.n23-state h2{margin:0 0 8px;color:#f3f5f7}.n23-state p{margin:0 0 15px;line-height:1.7}.n23-state .btn{display:inline-block}
       @media(max-width:980px){.n23-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.n23-head{grid-template-columns:1fr}.n23-toolbar{top:78px}}
       @media(max-width:650px){.n23-guides{padding-top:92px}.n23-toolbar{position:relative;top:auto;grid-template-columns:1fr}.n23-grid{grid-template-columns:1fr}.n23-head-actions{display:grid}.n23-head-actions .btn{text-align:center}}
+      /* N29 mobile: allow long customer-provided and published content to wrap safely. */
+      .n23-guides .n23-card,.n23-guides .n23-state,.n23-guides .n23-head{min-width:0;overflow-wrap:anywhere}
+      .n23-guides .n23-card :is(h2,h3,p,a),.n23-guides .n23-state :is(h2,p){overflow-wrap:anywhere}
     `;
     document.head.append(style);
   }

@@ -50,7 +50,7 @@ class PaidOrderClosureTest {
     @Test
     void deliveryCompletionAndClosureStaySeparateFromWeChatCapture() {
         when(jdbc.queryForObject(anyString(), eq(Integer.class), eq(order.getBusinessNo())))
-                .thenReturn(1, 1, 1, 1);
+                .thenReturn(1, 1, 0, 1, 1, 0);
         service.update(order.getOrderNo(), change("IN_PROGRESS", 20), "staff", null);
         assertEquals(CustomerOrder.Status.IN_PROGRESS, order.getStatus());
         assertNull(order.getFinishedAt());
@@ -77,6 +77,24 @@ class PaidOrderClosureTest {
     }
 
     @Test
+    void cannotSkipServiceDeliveryAndCompleteImmediatelyAfterPayment() {
+        assertThrows(ConflictException.class,
+                () -> service.update(order.getOrderNo(), change("COMPLETED", 100), "staff", null));
+        assertEquals(CustomerOrder.Status.WAITING_CONFIRMATION, order.getStatus());
+    }
+
+    @Test
+    void refundedWeChatReceiptMustNotBeClosedAsFullyDelivered() {
+        when(jdbc.queryForObject(anyString(), eq(Integer.class), eq(order.getBusinessNo())))
+                .thenReturn(1, 1, 1);
+        service.update(order.getOrderNo(), change("IN_PROGRESS", 35), "staff", null);
+        assertThrows(ConflictException.class,
+                () -> service.update(order.getOrderNo(), change("COMPLETED", 100), "staff", null));
+        assertEquals(CustomerOrder.Status.IN_PROGRESS, order.getStatus());
+        assertNull(order.getFinishedAt());
+    }
+
+    @Test
     void existingButUnpaidWeChatPaymentMustNeverCountAsCompleted() {
         when(jdbc.queryForObject(anyString(), eq(Integer.class), eq(order.getBusinessNo())))
                 .thenReturn(1, 0);
@@ -89,6 +107,7 @@ class PaidOrderClosureTest {
     void historicalOfflineOrdersMayStillCompleteWithoutOnlinePayment() {
         when(jdbc.queryForObject(anyString(), eq(Integer.class), eq(order.getBusinessNo())))
                 .thenReturn(0);
+        service.update(order.getOrderNo(), change("IN_PROGRESS", 50), "staff", null);
         service.update(order.getOrderNo(), change("COMPLETED", null), "staff", null);
         assertEquals(CustomerOrder.Status.COMPLETED, order.getStatus());
         service.update(order.getOrderNo(), change("CLOSED", null), "staff", null);

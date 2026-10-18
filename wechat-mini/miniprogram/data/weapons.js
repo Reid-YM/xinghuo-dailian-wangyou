@@ -613,14 +613,14 @@ module.exports = {
             "shortName": "战区",
             "mastery": true,
             "finalCamo": "Empyros",
-            "finalCamoZh": "天焰",
+            "finalCamoZh": "炽焰",
             "status": "placeholder",
             "items": [
               {
                 "code": "TIER_1",
                 "tier": 1,
                 "name": "Parallax",
-                "nameZh": "视差",
+                "nameZh": "幻彩",
                 "requirement": "完成该武器的基础迷彩挑战后，累计 10 次不死 3 杀。",
                 "image": "/assets/mw4camo/parallax.webp"
               },
@@ -628,7 +628,7 @@ module.exports = {
                 "code": "TIER_2",
                 "tier": 2,
                 "name": "Damascus Reforged",
-                "nameZh": "大马士革·重铸",
+                "nameZh": "重铸大马士革",
                 "requirement": "使用该武器完成 10 次双杀或更高连杀。",
                 "image": "/assets/mw4camo/damascus-reforged.webp"
               },
@@ -636,7 +636,7 @@ module.exports = {
                 "code": "TIER_3",
                 "tier": 3,
                 "name": "Empyros",
-                "nameZh": "天焰",
+                "nameZh": "炽焰",
                 "requirement": "累计 3 次不死 5 杀（发射器：单局 5 杀）。条件参考 BO7 推演，MW4 正式条件以上线为准。",
                 "image": "/assets/mw4camo/empyros.webp"
               }
@@ -830,8 +830,8 @@ module.exports = {
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
-                "name": "铂金",
-                "text": "本职业全部金皮后：25 次背后击杀",
+                "name": "铂��",
+                "text": "本职业全部金皮后：25 ��背后击杀",
                 "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
@@ -1905,7 +1905,7 @@ module.exports = {
               },
               {
                 "name": "和声间奏",
-                "text": "25次不松扳机2次击杀",
+                "text": "25次不松扳��2次击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {

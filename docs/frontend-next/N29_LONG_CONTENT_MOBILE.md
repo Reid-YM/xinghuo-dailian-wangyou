@@ -14,6 +14,8 @@ N23–N28 各路由已有响应式布局，但真实业务中可能出现很长�
 - N28 法律内容：正式规则/隐私页安全重建的正文和链接可以在窄屏换行。
 - 仅新增 CSS `min-width:0` 与 `overflow-wrap:anywhere`，不修改后端业务响应、不隐藏溢出内容，也不截断法律原文。
 
+当前 N23–N29 组合 CI 目标主线：`e1a15c664f25bef3b39154f2258f2d11314b90e1`；仅在 CI 全绿后才标记为阶段验收通过。
+
 ## 浏览器验收
 
 `FrontendNextN29LongContentMobileTest` 从实际阶段运行时抽取 CSS，与现有 Next 预览基础样式一并装载。在 Chromium 和 WebKit 的 320px、390px 视口，为六类页面注入超长无空格用户/已发布内容，检查 `documentElement.scrollWidth` 没有超过视口宽度。静态合同断言每个阶段具有换行及 Grid/Flex 收缩保护。

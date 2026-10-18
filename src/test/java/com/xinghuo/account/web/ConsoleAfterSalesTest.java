@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountAuditService;
 import com.xinghuo.account.service.AccountException;
+import com.xinghuo.account.service.OrderLinkService;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,11 +31,18 @@ class ConsoleAfterSalesTest {
     void setUp() {
         jdbc = new JdbcTemplate(new DriverManagerDataSource(
                 "jdbc:h2:mem:after_sales_" + UUID.randomUUID() + ";MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", ""));
-        jdbc.execute("CREATE TABLE quotes(id VARCHAR(36), business_no VARCHAR(20), game VARCHAR(30), demand VARCHAR(30))");
+        jdbc.execute("""
+                CREATE TABLE quotes(
+                  id VARCHAR(36) PRIMARY KEY, business_no VARCHAR(20), game VARCHAR(30),
+                  demand VARCHAR(30), customer_account_id BIGINT, customer_supplement VARCHAR(500),
+                  current_progress VARCHAR(120), platform VARCHAR(32), expected_time VARCHAR(32),
+                  status VARCHAR(24), created_at TIMESTAMP, updated_at TIMESTAMP)
+                """);
+        jdbc.execute("CREATE TABLE user_audit_log(user_id BIGINT, action VARCHAR(50))");
         jdbc.execute("""
                 CREATE TABLE customer_orders(
                   id VARCHAR(36), order_no VARCHAR(40), business_no VARCHAR(20), source_quote_id VARCHAR(36),
-                  customer_account_id BIGINT, status VARCHAR(32), progress_percent INT, progress_text VARCHAR(240),
+                  customer_account_id BIGINT, guest_access_id BIGINT, status VARCHAR(32), progress_percent INT, progress_text VARCHAR(240),
                   customer_note VARCHAR(500), version BIGINT, created_at TIMESTAMP, updated_at TIMESTAMP)
                 """);
         jdbc.execute("""
@@ -53,6 +61,77 @@ class ConsoleAfterSalesTest {
         controller = new ConsoleApiController(jdbc, audit);
         request = new MockHttpServletRequest();
         request.setAttribute(AccountAuthInterceptor.ATTR_ACCOUNT, Account.builder().id(1L).build());
+    }
+
+
+    @Test
+    void consoleAndAccountOrderApisReadTrustedHistoricalLineageWithoutGetWrites() {
+        jdbc.update("""
+                INSERT INTO quotes(id,business_no,game,demand,customer_account_id,status,created_at,updated_at)
+                VALUES('Q-OWNED','B-QUOTE','MW4','测试服务',1,'CONVERTED',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+                """);
+        jdbc.update("""
+                INSERT INTO customer_orders(id,order_no,business_no,source_quote_id,customer_account_id,
+                                            status,version,created_at,updated_at)
+                VALUES('order-legacy','ORD-LEGACY','B-ORDER','Q-OWNED',NULL,
+                       'IN_PROGRESS',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+                """);
+
+        assertEquals("ORD-LEGACY", controller.order("B-ORDER", request).order().orderNo());
+        assertEquals(2L, controller.orders(request).total());
+        assertEquals(2L, controller.summary(request).orderTotal());
+        assertEquals(1L, controller.summary(request).activeOrders());
+        var accountOrders = new OrderLinkService(jdbc);
+        assertEquals(2L, accountOrders.countOrders(1L));
+        assertEquals(2, accountOrders.listOrders(1L, 0, 20).size());
+
+        // Reading an order does not update ownership, revision or timestamp.
+        assertNull(jdbc.queryForObject(
+                "SELECT customer_account_id FROM customer_orders WHERE order_no='ORD-LEGACY'",
+                Long.class));
+        assertEquals(0L, jdbc.queryForObject(
+                "SELECT version FROM customer_orders WHERE order_no='ORD-LEGACY'", Long.class));
+    }
+
+    @Test
+    void readOnlyLineageFallbackExcludesGuestsOthersAndBrokenSourceReferences() {
+        jdbc.update("""
+                INSERT INTO quotes(id,business_no,game,demand,customer_account_id)
+                VALUES('Q-1','B-GUEST','MW4','游戏服务',1),
+                      ('Q-2','B-OTHER','MW4','游戏服务',2),
+                      ('Q-3','B-BROKEN','MW4','游戏服务',1)
+                """);
+        jdbc.update("""
+                INSERT INTO customer_orders(id,order_no,business_no,source_quote_id,guest_access_id,
+                                            status,version,created_at,updated_at)
+                VALUES('guest','ORD-GUEST','B-GUEST','Q-1',77,'IN_PROGRESS',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+                      ('other','ORD-OTHER','B-OTHER','Q-2',NULL,'IN_PROGRESS',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+                      ('broken','ORD-BROKEN','B-BROKEN','Q-MISSING',NULL,'IN_PROGRESS',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+                """);
+
+        for (String number : java.util.List.of("ORD-GUEST", "ORD-OTHER", "ORD-BROKEN")) {
+            assertEquals("ORDER_NOT_FOUND", assertThrows(AccountException.class,
+                    () -> controller.order(number, request)).getCode());
+        }
+        assertEquals(1L, controller.orders(request).total());
+        assertEquals(1L, new OrderLinkService(jdbc).countOrders(1L));
+    }
+
+    @Test
+    void legacyNoSourceQuoteMayBeReadBySameBusinessNumberButNotWrongAccount() {
+        jdbc.update("""
+                INSERT INTO quotes(id,business_no,customer_account_id)
+                VALUES('Q-LEGACY','B-LEGACY',1)
+                """);
+        jdbc.update("""
+                INSERT INTO customer_orders(id,order_no,business_no,source_quote_id,status,version,created_at,updated_at)
+                VALUES('legacy','ORD-LEGACY','B-LEGACY',NULL,'WAITING_CONFIRMATION',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+                """);
+
+        assertEquals("ORD-LEGACY", controller.order("ORD-LEGACY", request).order().orderNo());
+        request.setAttribute(AccountAuthInterceptor.ATTR_ACCOUNT, Account.builder().id(2L).build());
+        assertEquals("ORDER_NOT_FOUND", assertThrows(AccountException.class,
+                () -> controller.order("ORD-LEGACY", request)).getCode());
     }
 
     @Test

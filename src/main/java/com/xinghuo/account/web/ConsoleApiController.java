@@ -123,7 +123,7 @@ public class ConsoleApiController {
                                       @Valid @RequestBody SupplementRequest body,
                                       HttpServletRequest request) {
         Account account = AccountAuthInterceptor.requireAccount(request);
-        OrderItem order = findOrder(account, businessNo);
+        OrderItem order = writableOrder(account, businessNo, request);
         rejectReservedAfterSalesMarker(body.content());
         String note = appendBlock(body.content());
         int updated = jdbc.update("""
@@ -146,7 +146,7 @@ public class ConsoleApiController {
                                        @Valid @RequestBody AfterSalesRequest body,
                                        HttpServletRequest request) {
         Account account = AccountAuthInterceptor.requireAccount(request);
-        OrderItem order = findOrder(account, businessNo);
+        OrderItem order = writableOrder(account, businessNo, request);
         String category = afterSalesCategory(body.category());
         String content = body.content().trim();
         if (content.isEmpty()) {
@@ -189,7 +189,7 @@ public class ConsoleApiController {
                                          @Valid @RequestBody AfterSalesFollowupRequest body,
                                          HttpServletRequest request) {
         Account account = AccountAuthInterceptor.requireAccount(request);
-        OrderItem order = findOrder(account, businessNo);
+        OrderItem order = writableOrder(account, businessNo, request);
         if (recordId <= 0) throw AccountException.badRequest("AFTER_SALES_RECORD_INVALID", "售后记录编号无效");
         String content = body.content().trim();
         if (content.isEmpty()) throw AccountException.badRequest("AFTER_SALES_CONTENT_REQUIRED", "请填写补充说明");
@@ -273,6 +273,31 @@ public class ConsoleApiController {
 
     private QuoteItem findQuoteOrNull(Account account, String businessNo) {
         try { return findQuote(account, businessNo); } catch (AccountException ignored) { return null; }
+    }
+
+    /**
+     * Reading historical orders never writes. A subsequent customer POST can safely
+     * repair a missing owner from the same verified quote lineage, atomically under
+     * the mutation transaction. It never claims a guest-owned or foreign order.
+     */
+    private OrderItem writableOrder(Account account, String businessNo, HttpServletRequest request) {
+        OrderItem item = findOrder(account, businessNo);
+        int assigned = jdbc.update("""
+                UPDATE customer_orders o
+                   SET customer_account_id = ?, version = version + 1,
+                       updated_at = CURRENT_TIMESTAMP(6)
+                 WHERE o.order_no = ? AND o.customer_account_id IS NULL
+                   AND o.guest_access_id IS NULL
+                   AND %s
+                """.formatted(TrustedOrderVisibilitySql.PREDICATE),
+                account.getId(), item.orderNo(), account.getId(), account.getId());
+        if (assigned > 0) {
+            audit.record(account.getId(), "ORDER_AUTO_LINK",
+                    "orderNo=" + item.orderNo() + ",source=TRUSTED_QUOTE", request);
+        }
+        // Recheck ownership after a possible concurrent claim; the existing scoped
+        // mutation UPDATE statements still require customer_account_id = account.id.
+        return findOrder(account, businessNo);
     }
 
     private OrderItem findOrder(Account account, String businessNo) {

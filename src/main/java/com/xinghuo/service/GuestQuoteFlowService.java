@@ -441,7 +441,24 @@ public class GuestQuoteFlowService {
         com.xinghuo.payment.WeChatNativePaymentService.Payment payment =
                 payments.latestForGuest(no, access.accessId());
         if (payment == null) {
-            throw new ConflictException("当前业务还没有待支付单");
+            // Recover a payment intent when the customer accepted while WeChat pay was disabled,
+            // or when staff converted the order before publishing the accepted price.
+            Offer offer = latestOffer(no);
+            if (offer == null || !"ACCEPTED".equals(offer.status())) {
+                throw new ConflictException("请先确认客服正式报价，再生成支付二维码");
+            }
+            List<String> orderNumbers = jdbc.query("""
+                    SELECT order_no FROM customer_orders
+                     WHERE business_no=? AND source_quote_id=? AND customer_account_id IS NULL
+                       AND guest_access_id=?
+                     LIMIT 1
+                    """, (rs, rowNum) -> rs.getString(1),
+                    no, access.quoteId(), access.accessId());
+            if (orderNumbers.isEmpty()) {
+                throw new ConflictException("订单未绑定该游客业务，暂时无法生成支付二维码");
+            }
+            payment = payments.prepare(orderNumbers.getFirst(), access.accessId(),
+                    offer.amount(), offer.subject());
         }
         return payments.nativeQr(payment.paymentNo(), access.accessId());
     }

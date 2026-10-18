@@ -301,9 +301,11 @@ public class WeChatNativePaymentService {
                 || !"CNY".equals(transaction.getAmount().getCurrency())) {
             throw new IllegalArgumentException("微信支付通知金额不匹配");
         }
-        if (row.status().equals("CAPTURED")) {
+        // A repeated success reports the original receipt, not a reversal of a
+        // later refund. Keep both settled states idempotent under the row lock.
+        if (row.status().equals("CAPTURED") || row.status().equals("REFUNDED")) {
             if (!transaction.getTransactionId().equals(row.providerOrderId())) {
-                throw new IllegalStateException("已支付单收到不同微信流水号，请人工核查");
+                throw new IllegalStateException("已收款或退款的支付单收到不匹配的微信流水号，请人工核查");
             }
             return;
         }

@@ -18,6 +18,7 @@ import com.wechat.pay.java.service.payments.model.TransactionAmount;
 import com.wechat.pay.java.service.payments.nativepay.NativePayService;
 import com.wechat.pay.java.service.payments.nativepay.model.PrepayRequest;
 import com.wechat.pay.java.service.payments.nativepay.model.PrepayResponse;
+import com.wechat.pay.java.service.payments.nativepay.model.QueryOrderByOutTradeNoRequest;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -139,6 +140,86 @@ class WeChatNativePaymentServiceTest {
                 "SELECT status FROM payment_order WHERE payment_no='XHPTEST01'", String.class));
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM payment_transaction", Integer.class));
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM payment_webhook_event", Integer.class));
+    }
+
+    @Test
+    void newSuccessEventAfterRefundPreservesRefundAndOriginalReceipt() throws Exception {
+        when(parser.parse(any(RequestParam.class), eq(Transaction.class))).thenReturn(success(1234));
+        String original = "{\"id\":\"original-receipt\",\"event_type\":\"TRANSACTION.SUCCESS\"}";
+        service.acceptNotification(request(original), original);
+        jdbc.update("UPDATE payment_order SET status='REFUNDED' WHERE payment_no='XHPTEST01'");
+        String replay = "{\"id\":\"replayed-receipt\",\"event_type\":\"TRANSACTION.SUCCESS\"}";
+
+        service.acceptNotification(request(replay), replay);
+        service.acceptNotification(request(replay), replay);
+
+        assertEquals("REFUNDED", service.getForAccount("XHPTEST01", 7).status());
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM payment_transaction", Integer.class));
+        assertEquals(2, jdbc.queryForObject(
+                "SELECT COUNT(*) FROM payment_webhook_event WHERE process_result='SUCCESS'", Integer.class));
+        assertEquals("420000TEST01", jdbc.queryForObject(
+                "SELECT provider_order_id FROM payment_order WHERE payment_no='XHPTEST01'", String.class));
+    }
+
+    @Test
+    void reconciliationAfterRefundDoesNotRestoreCapturedStateOrDuplicateReceipt() {
+        jdbc.update("""
+                UPDATE payment_order SET status='REFUNDED',provider_order_id='420000TEST01'
+                 WHERE payment_no='XHPTEST01'
+                """);
+        when(nativePay.queryOrderByOutTradeNo(any(QueryOrderByOutTradeNoRequest.class)))
+                .thenReturn(success(1234));
+
+        service.reconcile("XHPTEST01");
+        service.reconcile("XHPTEST01");
+
+        assertEquals("REFUNDED", service.getForAccount("XHPTEST01", 7).status());
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM payment_transaction", Integer.class));
+    }
+
+    @Test
+    void refundedPaymentWithDifferentOrMissingOriginalReceiptRequiresReview() {
+        when(nativePay.queryOrderByOutTradeNo(any(QueryOrderByOutTradeNoRequest.class)))
+                .thenReturn(success(1234));
+        for (String originalId : new String[]{"different-receipt", null}) {
+            jdbc.update("""
+                    UPDATE payment_order SET status='REFUNDED',provider_order_id=?
+                     WHERE payment_no='XHPTEST01'
+                    """, originalId);
+
+            assertThrows(IllegalStateException.class, () -> service.reconcile("XHPTEST01"));
+
+            assertEquals("REFUNDED", service.getForAccount("XHPTEST01", 7).status());
+            assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM payment_transaction", Integer.class));
+        }
+    }
+
+    @Test
+    void refundedPaymentStillValidatesReceiptAmountBeforeIgnoringReplay() {
+        jdbc.update("""
+                UPDATE payment_order SET status='REFUNDED',provider_order_id='420000TEST01'
+                 WHERE payment_no='XHPTEST01'
+                """);
+        when(nativePay.queryOrderByOutTradeNo(any(QueryOrderByOutTradeNoRequest.class)))
+                .thenReturn(success(1235));
+
+        assertThrows(IllegalArgumentException.class, () -> service.reconcile("XHPTEST01"));
+
+        assertEquals("REFUNDED", service.getForAccount("XHPTEST01", 7).status());
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM payment_transaction", Integer.class));
+    }
+
+    @Test
+    void verifiedLateSuccessForCancelledPaymentStillRecordsActualReceipt() {
+        jdbc.update("UPDATE payment_order SET status='CANCELLED' WHERE payment_no='XHPTEST01'");
+        when(nativePay.queryOrderByOutTradeNo(any(QueryOrderByOutTradeNoRequest.class)))
+                .thenReturn(success(1234));
+
+        service.reconcile("XHPTEST01");
+        service.reconcile("XHPTEST01");
+
+        assertEquals("CAPTURED", service.getForAccount("XHPTEST01", 7).status());
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM payment_transaction", Integer.class));
     }
 
     @Test

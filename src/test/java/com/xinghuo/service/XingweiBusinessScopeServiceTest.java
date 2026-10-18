@@ -135,6 +135,18 @@ class XingweiBusinessScopeServiceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void orphanedSourceQuoteNeverBreaksOrderListOrExposesGuestOffer() {
+        jdbc.update("UPDATE customer_orders SET source_quote_id='orphan' WHERE business_no='XHDEPT04'");
+        List<Map<String, Object>> orders = (List<Map<String, Object>>) service
+                .orderSnapshot(authentication("admin", "ROLE_ADMIN")).get("items");
+        Map<String, Object> orphan = orders.stream()
+                .filter(row -> "XHDEPT04".equals(row.get("businessNo"))).findFirst().orElseThrow();
+        assertFalse(orphan.containsKey("guestQuoteLinked"));
+        assertFalse(Boolean.TRUE.equals(orphan.get("canOffer")));
+    }
+
+    @Test
     void departmentScopeOnlySeesItsOwnedDepartment() {
         Map<String, Object> quotes = service.quoteSnapshot(authentication("dept", "ROLE_OPERATOR"));
         @SuppressWarnings("unchecked")

@@ -147,6 +147,30 @@ class XingweiBusinessScopeServiceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void paidOrderStatusIsVisibleToStaffOnlyWithinTheirBusinessScope() {
+        jdbc.update("INSERT INTO payment_order VALUES ('XHDEPT03','WECHAT','CAPTURED')");
+        jdbc.update("INSERT INTO payment_order VALUES ('XHDEPT04','WECHAT','APPROVED')");
+        List<Map<String, Object>> all = (List<Map<String, Object>>) service
+                .orderSnapshot(authentication("admin", "ROLE_ADMIN")).get("items");
+        assertEquals("CAPTURED", all.stream()
+                .filter(row -> "XHDEPT03".equals(row.get("businessNo")))
+                .findFirst().orElseThrow().get("paymentStatus"));
+        assertEquals("PENDING_PAYMENT", all.stream()
+                .filter(row -> "XHDEPT04".equals(row.get("businessNo")))
+                .findFirst().orElseThrow().get("paymentStatus"));
+        assertEquals("NO_PAYMENT", all.stream()
+                .filter(row -> "XHSELF03".equals(row.get("businessNo")))
+                .findFirst().orElseThrow().get("paymentStatus"));
+
+        List<Map<String, Object>> self = (List<Map<String, Object>>) service
+                .orderSnapshot(authentication("self", "ROLE_OPERATOR")).get("items");
+        assertEquals(1, self.size());
+        assertEquals("XHSELF03", self.getFirst().get("businessNo"));
+        assertEquals("NO_PAYMENT", self.getFirst().get("paymentStatus"));
+    }
+
+    @Test
     void departmentScopeOnlySeesItsOwnedDepartment() {
         Map<String, Object> quotes = service.quoteSnapshot(authentication("dept", "ROLE_OPERATOR"));
         @SuppressWarnings("unchecked")

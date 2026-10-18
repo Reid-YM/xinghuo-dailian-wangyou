@@ -73,7 +73,6 @@ public class XingweiBusinessScopeService {
                 sql,
                 (rs, rowNum) -> quoteRow(rs, access, operations),
                 scope.args().toArray());
-        populateOrderPayments(items);
         return snapshot(access, items);
     }
 
@@ -237,6 +236,7 @@ public class XingweiBusinessScopeService {
                     return row;
                 },
                 scope.args().toArray());
+        populateOrderPayments(items);
         return snapshot(access, items);
     }
 

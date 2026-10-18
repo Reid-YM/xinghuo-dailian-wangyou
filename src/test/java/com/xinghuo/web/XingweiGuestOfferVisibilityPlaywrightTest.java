@@ -24,7 +24,7 @@ class XingweiGuestOfferVisibilityPlaywrightTest {
                 Browser browser = playwright.chromium().launch()) {
             Page page = browser.newPage();
             String template = Files.readString(TEMPLATE);
-            assertTrue(template.contains("admin-xingwei-business.js?v=20261018unpaidflow1"));
+            assertTrue(template.contains("admin-xingwei-business.js?v=20261018fulfillment1"));
             assertTrue(template.contains("admin-xingwei-guest-offer.js?v=20261018unpaidflow1"));
             page.setContent(template);
             page.evaluate("""

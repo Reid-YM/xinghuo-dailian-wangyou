@@ -72,12 +72,12 @@ class FrontendNextN5ActionsPlaywrightTest {
             page.locator("[data-n5-action=order-supplement] button[type=submit]").click();
             page.waitForFunction("() => window.__writes.length===1 && window.__reloads===1");
 
-            page.locator("[data-n5-action=after-sales] select").selectOption("REFUND_REVIEW");
-            page.locator("[data-n5-action=after-sales] textarea").fill("请核对本订单退款情况");
+            page.locator("[data-n5-action=after-sales]").getByLabel("问题类型").selectOption("REFUND_REVIEW");
+            page.locator("[data-n5-action=after-sales]").getByLabel("问题说明").fill("请核对本订单退款情况");
             page.locator("[data-n5-action=after-sales] button[type=submit]").click();
             page.waitForFunction("() => window.__writes.length===2 && window.__reloads===2");
 
-            page.locator("[data-n5-action=after-sales-followup][data-record-id='7'] textarea").fill("补充：订单截图已准备");
+            page.locator("[data-n5-action=after-sales-followup][data-record-id='7']").getByLabel("补充说明").fill("补充：订单截图已准备");
             page.locator("[data-n5-action=after-sales-followup][data-record-id='7'] button[type=submit]").click();
             page.waitForFunction("() => window.__writes.length===3 && window.__reloads===3");
 

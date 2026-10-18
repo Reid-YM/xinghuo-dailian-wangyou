@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const match = /^\/next\/(rules|privacy)\/?$/.exec(location.pathname);
+  const match = /^\/next\/(rules(?:-en)?|privacy(?:-en)?)\/?$/.exec(location.pathname);
   if (!match) return;
 
   const STAGE = 'N28 · LEGAL SINGLE SOURCE';
@@ -11,7 +11,7 @@
   let requestToken = 0;
 
   function currentDoc() {
-    const current = /^\/next\/(rules|privacy)\/?$/.exec(location.pathname);
+    const current = /^\/next\/(rules(?:-en)?|privacy(?:-en)?)\/?$/.exec(location.pathname);
     return current ? current[1] : '';
   }
 
@@ -38,6 +38,8 @@
     try {
       const url = new URL(safe, location.origin);
       if (url.origin !== location.origin) return safe;
+      if (url.searchParams.get('legacy') === '1') return url.pathname + url.search + url.hash;
+      if (url.pathname === '/rules-en' || url.pathname === '/privacy-en') return '/next' + url.pathname + url.search + url.hash;
       if (url.pathname === '/rules') return '/next/rules' + url.search + url.hash;
       if (url.pathname === '/privacy') return '/next/privacy' + url.search + url.hash;
       if (url.pathname === '/contact') return '/next/contact' + url.search + url.hash;
@@ -58,6 +60,7 @@
       }
       if (!(child instanceof Element)) return;
       const tag = child.tagName.toLowerCase();
+      if (['script','style','iframe','object','template','form','input','button'].includes(tag)) return;
       if (tag === 'a') {
         const href = nextLegalHref(child.getAttribute('href'));
         if (!href) {
@@ -127,6 +130,8 @@
     if (section) return section;
     section = node('section', 'page n28-legal');
     section.id = 'n28Legal';
+    section.setAttribute('role', 'main');
+    section.tabIndex = -1;
     section.dataset.page = 'legal';
     section.append(node('div', 'shell'));
     const footer = $('.next-footer') || $('.footer');
@@ -147,7 +152,7 @@
   function setMetadata(source, doc) {
     const formalPath = `/${doc}`;
     const sourceTitle = text(source.querySelector('title')?.textContent);
-    document.title = sourceTitle || (doc === 'rules' ? '服务规则 · 星火网游' : '隐私说明 · 星火网游');
+    document.title = sourceTitle || (doc.startsWith('rules') ? '服务规则 · 星火网游' : '隐私说明 · 星火网游');
 
     let description = $('meta[name="description"]');
     if (!description) {
@@ -156,7 +161,7 @@
       document.head.append(description);
     }
     description.content = text(source.querySelector('meta[name="description"]')?.getAttribute('content'))
-      || (doc === 'rules' ? '服务规则。' : '隐私说明。');
+      || (doc.startsWith('rules') ? '服务规则。' : '隐私说明。');
 
     let canonical = $('link[rel="canonical"]');
     if (!canonical) {
@@ -184,16 +189,21 @@
   function header(doc) {
     const head = node('div', 'n28-head');
     const intro = node('div');
-    intro.append(node('div', 'n28-kicker', STAGE));
-    intro.append(node('h1', '', doc === 'rules' ? '服务规则' : '隐私说明'));
-    intro.append(node('p', '', '新版只负责展示；正文实时读取正式法律页面并安全重建，因此不会维护第二份法律文案。'));
+    const english = doc.endsWith('-en');
+    const rules = doc.startsWith('rules');
+    intro.append(node('div', 'n28-kicker', english ? 'Rules & Privacy' : '规则与隐私'));
+    intro.append(node('h1', '', english ? (rules ? 'Service Rules' : 'Privacy Notice') : (rules ? '服务规则' : '隐私说明')));
+    intro.append(node('p', '', english ? 'Please read the current published document before using the service.' : '使用服务前，请阅读当前公布的规则和隐私说明。'));
     const actions = node('div', 'n28-actions');
-    const legacy = node('a', 'btn', '打开正式原文');
+    const legacy = node('a', 'btn', doc.endsWith('-en') ? 'Open original document' : '打开正式原文');
     legacy.href = `/${doc}`;
     legacy.dataset.n28Legacy = '1';
-    const sibling = node('a', 'btn gold', doc === 'rules' ? '查看隐私说明' : '查看服务规则');
-    sibling.href = doc === 'rules' ? '/next/privacy' : '/next/rules';
-    actions.append(legacy, sibling);
+    const sibling = node('a', 'btn gold', english ? (rules ? 'Privacy Notice' : 'Service Rules') : (rules ? '查看隐私说明' : '查看服务规则'));
+    sibling.href = '/next/' + (rules ? 'privacy' : 'rules') + (english ? '-en' : '');
+    const language = node('a', 'btn', english ? '中文版' : 'English');
+    language.href = '/next/' + (rules ? 'rules' : 'privacy') + (english ? '' : '-en');
+    language.lang = english ? 'zh-CN' : 'en';
+    actions.append(legacy, sibling, language);
     head.append(intro, actions);
     return head;
   }
@@ -202,13 +212,18 @@
     const sourceCard = source.querySelector('.rules-card');
     if (!sourceCard) throw new Error('formal legal source missing');
 
+    const site = window.XHFrontendShell?.configuration;
+    if (text(site?.legalEntityName)) sourceCard.querySelectorAll('[data-config=legalEntityName]').forEach(el => { el.textContent = site.legalEntityName; });
+    if (site) sourceCard.querySelectorAll('[data-contact=wechat]').forEach(el => { el.textContent = text(site.wechatId) || '未配置'; });
     const container = node('div', 'n28-document');
+    container.lang = doc.endsWith('-en') ? 'en' : 'zh-CN';
     const eyebrow = sourceCard.querySelector(':scope > .eyebrow');
     if (eyebrow) container.append(node('div', 'n28-eyebrow', eyebrow.textContent));
     const mainTitle = sourceCard.querySelector(':scope > h1');
     if (mainTitle) container.append(node('h2', '', mainTitle.textContent));
-    const alert = sourceCard.querySelector(':scope > .rule-alert');
-    if (alert) container.append(node('div', 'n28-alert', alert.textContent));
+    sourceCard.querySelectorAll(':scope > .rule-alert').forEach(alert => {
+      const copy = node('div', 'n28-alert'); cloneInline(alert, copy); container.append(copy);
+    });
 
     sourceCard.querySelectorAll(':scope > section').forEach((sourceSection) => {
       const section = node('section', 'n28-section');
@@ -229,14 +244,15 @@
   }
 
   function renderState(shell, doc, message) {
-    const state = node('div', 'n28-state');
+    const state = node('div', 'n28-state'); state.setAttribute('role', 'alert');
+    const english = doc.endsWith('-en');
     const box = node('div');
-    box.append(node('h2', '', '正式法律内容暂时无法读取'));
-    box.append(node('p', '', message || '请重试，或直接打开正式原文。'));
-    const retry = node('button', 'btn gold', '重新读取');
+    box.append(node('h2', '', english ? 'The published document is temporarily unavailable' : '正式法律内容暂时无法读取'));
+    box.append(node('p', '', english ? 'Please try again or open the original document.' : '请重试，或直接打开正式原文。'));
+    const retry = node('button', 'btn gold', english ? 'Try again' : '重新读取');
     retry.type = 'button';
     retry.addEventListener('click', () => render());
-    const legacy = node('a', 'btn', '打开正式原文');
+    const legacy = node('a', 'btn', doc.endsWith('-en') ? 'Open original document' : '打开正式原文');
     legacy.href = `/${doc}`;
     legacy.dataset.n28Legacy = '1';
     box.append(retry, legacy);
@@ -245,6 +261,8 @@
   }
 
   async function loadFormalSource(doc, request) {
+    await window.XHFrontendShell?.configurationReady;
+    if (request !== requestToken) return null;
     const response = await fetch(`/${doc}`, {
       method: 'GET',
       credentials: 'same-origin',
@@ -263,21 +281,22 @@
     installStyles();
     const section = ensureSection();
     activate(section);
+    section.lang = doc.endsWith('-en') ? 'en' : 'zh-CN';
     const shell = $('.shell', section);
     const request = ++requestToken;
     shell.replaceChildren(header(doc));
     const sourceNote = node('div', 'n28-source');
-    sourceNote.append(document.createTextNode('正文来源：'));
-    sourceNote.append(node('strong', '', `正式 /${doc}`));
-    sourceNote.append(document.createTextNode(' · Next 不保存第二份法律正文'));
-    shell.append(sourceNote, node('div', 'n28-state', '正在读取正式法律内容…'));
+    sourceNote.append(document.createTextNode(doc.endsWith('-en') ? 'Content is read from the current published document.' : '以下正文与当前公布的正式原文同步。'));
+    const loading = node('div', 'n28-state', doc.endsWith('-en') ? 'Loading the published document…' : '正在读取正式法律内容…');
+    loading.setAttribute('role', 'status');
+    shell.append(sourceNote, loading);
 
     try {
       const source = await loadFormalSource(doc, request);
       if (!source || request !== requestToken || doc !== currentDoc()) return;
       setMetadata(source, doc);
       shell.replaceChildren(header(doc), sourceNote, renderFormalDocument(source, doc));
-      shell.append(node('p', 'n28-footnote', '本预览页仅安全重建正式法律页面中的标题、段落、列表与允许链接；更新法律文案时只需修改正式 `/rules` 或 `/privacy` 源页面。'));
+      shell.append(node('p', 'n28-footnote', doc.endsWith('-en') ? 'For the current published text, open the original document.' : '如需核对或查看最新内容，请打开正式原文。'));
     } catch (_) {
       if (request !== requestToken || doc !== currentDoc()) return;
       shell.replaceChildren(header(doc), sourceNote);
@@ -289,6 +308,7 @@
     if (currentDoc()) render();
   });
 
+  window.addEventListener('xh:site-config', () => { if (currentDoc()) render(); });
   window.XHFrontendNextN28 = { render, currentDoc };
   render();
 })();

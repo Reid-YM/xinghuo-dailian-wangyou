@@ -15,7 +15,7 @@ public class FrontendNextN28LegalController {
         this.preview = preview;
     }
 
-    @GetMapping({"/next/rules", "/next/privacy"})
+    @GetMapping({"/next/rules", "/next/privacy", "/next/rules-en", "/next/privacy-en"})
     public ResponseEntity<String> legal(HttpServletRequest request) throws IOException {
         return preview.frontendNext(request);
     }

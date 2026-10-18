@@ -81,6 +81,8 @@
       }
       if(existingInputs[1]){
         existingInputs[1].id='n3CustomerContact';
+        const label = existingInputs[1].closest('.field')?.querySelector('label');
+        if (label) label.htmlFor = existingInputs[1].id;
         existingInputs[1].maxLength=120;
         existingInputs[1].autocomplete='off';
       }
@@ -272,7 +274,7 @@
     const badge=$('.badge');
     if(badge) badge.textContent='FRONTEND NEXT · N3 QUOTE ENABLED';
     const demoNote=[...document.querySelectorAll('.page[data-page="quote"] .sub')].find(node=>node.textContent.includes('演示模式'));
-    if(demoNote) demoNote.textContent='新版询价已接入现有安全提交接口；旧 /quote 仍保留，可随时回退。';
+    if(demoNote) demoNote.textContent='提交后会生成业务编号，可随时查询进度。';
   }
 
   window.XHFrontendNextN3={submit:submitQuote,payload};

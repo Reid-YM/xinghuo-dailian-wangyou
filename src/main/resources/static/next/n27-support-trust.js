@@ -41,6 +41,8 @@
     if (section) return section;
     section = node('section', `page n27-page n27-${page}`);
     section.id = id;
+    section.setAttribute('role', 'main');
+    section.tabIndex = -1;
     section.dataset.page = page;
     section.append(node('div', 'shell'));
     const footer = $('.next-footer') || $('.footer');
@@ -110,13 +112,13 @@
   function header(page) {
     const head = node('div', 'n27-head');
     const intro = node('div');
-    intro.append(node('div', 'n27-kicker', STAGE));
+    intro.append(node('div', 'n27-kicker', '咨询与服务保障'));
     intro.append(node('h1', '', page === 'contact' ? '一对一咨询' : '信任中心'));
     intro.append(node('p', '', page === 'contact'
-      ? '只展示后台当前真实客服渠道和服务状态；需要报价时可直接带需求进入新版询价。'
-      : '把服务保障、公开完成案例和常见问题集中到 Frontend Next，内容继续由现有后台配置与公开接口维护。'));
+      ? '查看客服渠道和接单状态，也可提交需求获取报价。'
+      : '了解服务保障、已完成的交付案例和下单前常见问题。'));
     const actions = node('div', 'n27-actions');
-    const legacy = node('a', 'btn', page === 'contact' ? '对照旧版咨询页' : '对照旧版信任页');
+    const legacy = node('a', 'btn', page === 'contact' ? '打开旧版咨询页' : '打开旧版信任页');
     legacy.href = `/${page}`;
     legacy.dataset.n27Legacy = '1';
     const primary = node('a', 'btn gold', page === 'contact' ? '提交询价' : '查看服务大厅');

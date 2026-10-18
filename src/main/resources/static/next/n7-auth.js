@@ -118,7 +118,8 @@
 
   function field(label, input) {
     const wrap = node('div', 'n7-field');
-    append(wrap, node('label', '', label), input);
+    const caption = node('label', '', label); caption.htmlFor = input.id;
+    append(wrap, caption, input);
     return wrap;
   }
 
@@ -149,10 +150,10 @@
       const active = tab.dataset.mode === activeMode;
       tab.classList.toggle('active', active);
       tab.setAttribute('aria-selected', active ? 'true' : 'false');
+      tab.tabIndex = active ? 0 : -1;
     });
     if (activeMode !== 'login') stopMiniLogin();
-    const target = activeMode === 'login' ? $('#n4ContactValue') : activeMode === 'register' ? $('#n7RegisterEmail') : $('#n7ResetEmail');
-    window.setTimeout(() => target?.focus(), 0);
+
   }
 
   function normalizeLoginForm(form) {
@@ -192,10 +193,14 @@
     [['login', '登录'], ['register', '注册'], ['reset', '找回密码']].forEach(([mode, label]) => {
       const tab = button(label, 'n7-auth-tab');
       tab.dataset.mode = mode;
+      tab.id = 'n7Tab-' + mode;
+      tab.setAttribute('aria-controls', mode === 'login' ? 'n4LoginForm' : mode === 'register' ? 'n7RegisterPanel' : 'n7ResetPanel');
       tab.setAttribute('role', 'tab');
       tab.addEventListener('click', () => setMode(mode));
       switcher.append(tab);
     });
+    form.setAttribute('role', 'tabpanel'); form.setAttribute('aria-labelledby', 'n7Tab-login');
+    window.XHFrontendShell?.bindTabs?.(switcher);
     host.insertBefore(switcher, form);
     return switcher;
   }
@@ -203,6 +208,7 @@
   function createRegisterPanel(host, form) {
     const panel = node('section', 'n7-auth-panel');
     panel.id = 'n7RegisterPanel';
+    panel.setAttribute('role', 'tabpanel'); panel.setAttribute('aria-labelledby', 'n7Tab-register');
     panel.hidden = true;
     append(panel,
       node('h2', '', '注册邮箱账号'),
@@ -241,6 +247,7 @@
   function createResetPanel(host) {
     const panel = node('section', 'n7-auth-panel');
     panel.id = 'n7ResetPanel';
+    panel.setAttribute('role', 'tabpanel'); panel.setAttribute('aria-labelledby', 'n7Tab-reset');
     panel.hidden = true;
     append(panel,
       node('h2', '', '找回登录密码'),
@@ -385,6 +392,7 @@
       const result = await request('/api/account/password/reset', { method: 'POST', body: fields.token ? { token:fields.token,newPassword:password } : { email,code,newPassword:password } });
       resetToken='';
       setMode('login');
+      $('#n7Tab-login')?.focus();
       const loginMessage = $('#n4LoginMessage');
       message(loginMessage, text(result?.message) || '密码已重置，请使用新密码登录。', 'ok');
       const loginEmail = $('#n4ContactValue');

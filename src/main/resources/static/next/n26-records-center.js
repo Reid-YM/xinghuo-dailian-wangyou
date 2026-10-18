@@ -87,6 +87,8 @@
     if (section) return section;
     section = node('section', 'page n26-records');
     section.id = 'n26RecordsCenter';
+    section.setAttribute('role', 'main');
+    section.tabIndex = -1;
     section.dataset.page = 'records';
     section.append(node('div', 'shell'));
     const footer = $('.next-footer') || $('.footer');
@@ -155,18 +157,18 @@
     shell.replaceChildren();
     const head = node('div', 'n26-head');
     const intro = node('div');
-    intro.append(node('div', 'n26-kicker', STAGE), node('h1', '', '业务记录'));
-    intro.append(node('p', '', '输入业务编号查询公开进度；当前浏览器曾访问或在 Next 提交过的业务编号会与旧版共用同一份本机历史。'));
+    intro.append(node('div', 'n26-kicker', '业务进度'), node('h1', '', '业务记录'));
+    intro.append(node('p', '', '输入业务编号查询进度，也可继续查看当前设备的最近记录。'));
     const actions = node('div', 'n26-actions');
-    const legacy = node('a', 'btn', '对照旧版业务记录'); legacy.href = '/records'; legacy.dataset.n26Legacy = '1';
+    const legacy = node('a', 'btn', '打开旧版业务记录'); legacy.href = '/records'; legacy.dataset.n26Legacy = '1';
     const quote = node('a', 'btn gold', '提交新询价'); quote.href = '/next/quote';
     actions.append(legacy, quote); head.append(intro, actions); shell.append(head);
 
     const search = node('section', 'n26-search');
     const form = document.createElement('form'); form.id = 'n26LookupForm';
-    const input = document.createElement('input'); input.id = 'n26BusinessNo'; input.name = 'businessNo'; input.placeholder = '例如 XHXXXXXXXXXX 或 XH-XXXXXXXXXXXXXXXXXXXXXXXX'; input.maxLength = 40; input.autocomplete = 'off';
+    const input = document.createElement('input'); input.id = 'n26BusinessNo'; input.setAttribute('aria-label', '业务编号'); input.name = 'businessNo'; input.placeholder = '例如 XHXXXXXXXXXX 或 XH-XXXXXXXXXXXXXXXXXXXXXXXX'; input.maxLength = 40; input.autocomplete = 'off';
     const submit = node('button', 'btn gold', '查询记录'); submit.type = 'submit';
-    form.append(input, submit); search.append(form); const msg = node('div', 'n26-msg'); msg.id = 'n26Message'; search.append(msg); shell.append(search);
+    form.append(input, submit); search.append(form); const msg = node('div', 'n26-msg'); msg.id = 'n26Message'; msg.setAttribute('role', 'status'); search.append(msg); shell.append(search);
 
     const summary = node('div', 'n26-summary'); summary.append(node('h2', '', '当前浏览器记录'), node('span', '', '最多保留最近 30 个业务编号'));
     const clear = node('button', 'btn', '清除本机历史'); clear.type = 'button'; clear.id = 'n26Clear'; summary.append(clear); shell.append(summary);

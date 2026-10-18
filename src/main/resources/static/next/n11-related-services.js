@@ -133,7 +133,7 @@
     const head = node('div', 'n11-head');
     const title = node('div');
     title.append(node('div', 'n10-kicker', 'Related Services'), node('h2', '', '同游戏的其他服务'));
-    head.append(title, node('p', '', '继续比较时保持在 Frontend Next 预览链路，不跳回旧页面。'));
+    head.append(title, node('p', '', '查看同一游戏的其他服务，按目标和进度选择。'));
     const grid = node('div', 'n11-grid');
     related.forEach(service => grid.append(card(service)));
     section.replaceChildren(head, grid);

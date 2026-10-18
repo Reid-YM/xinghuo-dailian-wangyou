@@ -77,6 +77,8 @@
     if (section) return section;
     section = node('section', 'page n23-guides');
     section.id = 'n23GuidesCenter';
+    section.setAttribute('role', 'main');
+    section.tabIndex = -1;
     section.dataset.page = 'guides';
     section.append(node('div', 'shell'));
     const footer = $('.next-footer') || $('.footer');
@@ -219,10 +221,10 @@
 
     const head = node('div', 'n23-head');
     const intro = node('div');
-    intro.append(node('div', 'n23-kicker', STAGE), node('h1', '', '攻略中心'));
-    intro.append(node('p', '', '按游戏浏览真实已发布攻略，搜索技巧、路线与进度说明；进入详情后继续留在 Frontend Next。'));
+    intro.append(node('div', 'n23-kicker', '游戏攻略'), node('h1', '', '攻略中心'));
+    intro.append(node('p', '', '按游戏查找攻略，浏览技巧、路线与进度说明。'));
     const actions = node('div', 'n23-head-actions');
-    const legacy = node('a', 'btn', '对照旧版攻略中心');
+    const legacy = node('a', 'btn', '打开旧版攻略中心');
     legacy.href = '/guides';
     legacy.dataset.n23Legacy = '1';
     const services = node('a', 'btn gold', '查看服务大厅');
@@ -233,11 +235,13 @@
     const toolbar = node('div', 'n23-toolbar');
     const search = document.createElement('input');
     search.id = 'n23GuideSearch';
+    search.setAttribute('aria-label', '搜索攻略');
     search.type = 'search';
     search.placeholder = '搜索攻略标题、标签、游戏…';
     search.autocomplete = 'off';
     const game = document.createElement('select');
     game.id = 'n23GuideGame';
+    game.setAttribute('aria-label', '筛选攻略游戏');
     const all = document.createElement('option');
     all.value = '';
     all.textContent = '全部游戏';
@@ -250,6 +254,7 @@
     });
     const sort = document.createElement('select');
     sort.id = 'n23GuideSort';
+    sort.setAttribute('aria-label', '攻略排序');
     [['featured', '精选优先'], ['latest', '最新发布'], ['popular', '阅读最多']].forEach(([value, label]) => {
       const option = document.createElement('option');
       option.value = value;
@@ -258,7 +263,7 @@
     });
     toolbar.append(search, game, sort);
 
-    const summary = node('div', 'n23-summary');
+    const summary = node('div', 'n23-summary'); summary.setAttribute('role', 'status');
     const grid = node('div', 'n23-grid');
     shell.append(head, toolbar, summary, grid);
 

@@ -62,6 +62,8 @@
     if (section) return section;
     section = node('section', 'page n22-detail');
     section.id = 'n22GuideDetail';
+    section.setAttribute('role', 'main');
+    section.tabIndex = -1;
     section.dataset.page = 'guide-detail';
     section.append(node('div', 'shell'));
     const footer = $('.next-footer') || $('.footer');
@@ -299,11 +301,11 @@
       aside.append(node('h3', '', '相关攻略'), related);
     }
     const note = node('div', 'n22-note');
-    note.append(document.createTextNode('攻略内容与讨论沿用原站点数据。旧版 '));
-    const legacy = node('a', '', `/guides/${slug}`);
+    note.append(document.createTextNode('也可打开 '));
+    const legacy = node('a', '', '旧版攻略详情');
     legacy.href = `/guides/${encodeURIComponent(slug)}`;
     legacy.dataset.n22Legacy = '1';
-    note.append(legacy, document.createTextNode(' 继续保留，不修改原页面。'));
+    note.append(legacy, document.createTextNode('。'));
     aside.append(note);
 
     const community = renderCommunity(slug);

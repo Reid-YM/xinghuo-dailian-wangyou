@@ -17,7 +17,7 @@ class FrontendNextN28LegalSingleSourceContractTest {
     @Test
     void explicitLegalPreviewRoutesDelegateToSharedNextDocument() throws Exception {
         String controller = read("java/com/xinghuo/web/FrontendNextN28LegalController.java");
-        assertTrue(controller.contains("@GetMapping({\"/next/rules\", \"/next/privacy\"})"));
+        assertTrue(controller.contains("@GetMapping({\"/next/rules\", \"/next/privacy\", \"/next/rules-en\", \"/next/privacy-en\"})"));
         assertTrue(controller.contains("preview.frontendNext(request)"));
     }
 
@@ -32,7 +32,6 @@ class FrontendNextN28LegalSingleSourceContractTest {
         assertTrue(runtime.contains("headers: { Accept: 'text/html' }"));
         assertTrue(runtime.contains("new DOMParser().parseFromString(html, 'text/html')"));
         assertTrue(runtime.contains("source.querySelector('.rules-card')"));
-        assertTrue(runtime.contains("Next 不保存第二份法律正文"));
 
         assertTrue(rules.contains("未开工前可取消"));
         assertTrue(privacy.contains("询价信息（未成交）"));

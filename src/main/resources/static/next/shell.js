@@ -13,6 +13,27 @@
     if (path === '/account' || path.startsWith('/account/')) return 'account';
     return 'home';
   }
+  function bindTabs(list) {
+    list.addEventListener('keydown', event => {
+      if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+      const tabs = [...list.querySelectorAll('[role=tab]')].filter(tab => !tab.disabled);
+      const index = tabs.indexOf(event.target.closest('[role=tab]'));
+      if (index < 0 || !tabs.length) return;
+      event.preventDefault();
+      const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1
+        : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      const next = tabs[nextIndex];
+      next.click();
+      (document.getElementById(next.id) || next).focus();
+    });
+  }
+  document.querySelector('.next-skip-link')?.addEventListener('click', () => {
+    const page = document.querySelector('.page.active');
+    if (!page) return;
+    page.tabIndex = -1;
+    page.focus({preventScroll:true});
+    page.scrollIntoView({block:'start',behavior:'auto'});
+  });
   function go(page, push = true) {
     if (!pages.has(page)) page = 'home';
     document.querySelectorAll('.page').forEach(node => node.classList.toggle('active', node.dataset.page === page));
@@ -178,7 +199,7 @@
     if(event.target.closest('.record-card a[href="/records"]'))track('hero_order_click');
     const service=event.target.closest('a.home-service-card[href^="/service/"]');if(service)track('service_card_click',service.getAttribute('href').slice('/service/'.length));
   });
-  window.XHFrontendShell = {go, route, resolveLocation, applyConfiguration, updateServices, updateCatalog, dataUnavailable, safeAccountReturn, track, attribution, get configuration(){return configuration;}};
+  window.XHFrontendShell = {bindTabs, go, route, resolveLocation, applyConfiguration, updateServices, updateCatalog, dataUnavailable, safeAccountReturn, track, attribution, get configuration(){return configuration;}};
   window.XHFrontendShell.configurationReady=loadConfiguration();
   publicCases();
   go(resolveLocation(), false);

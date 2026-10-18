@@ -70,6 +70,8 @@
     if (section) return section;
     section = make('section', 'page n13-record');
     section.id = 'n13RecordDetail';
+    section.setAttribute('role', 'main');
+    section.tabIndex = -1;
     section.dataset.page = 'record-detail';
     const shell = make('div', 'shell');
     section.append(shell);
@@ -180,7 +182,7 @@
     const account = make('a', 'btn', '个人中心'); account.href = '/next/account';
     const legacy = make('a', 'btn', '查看旧版记录页'); legacy.href = `/record/${encodeURIComponent(businessNo)}`; legacy.dataset.n13Legacy = '1';
     actions.append(quote, account, legacy); aside.append(actions);
-    aside.append(make('p', 'n13-safe', 'Frontend Next N13 仅展示现有公开业务记录，不提供订单、支付、退款或售后写操作。旧版记录页继续保留。'));
+    aside.append(make('p', 'n13-safe', '通过业务编号查看已公开的进度。如需修改需求或处理售后，请登录个人中心或联系客服。'));
 
     grid.append(main, aside); shell.replaceChildren(grid);
   }

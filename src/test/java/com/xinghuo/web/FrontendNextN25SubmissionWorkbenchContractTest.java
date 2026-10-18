@@ -47,7 +47,7 @@ class FrontendNextN25SubmissionWorkbenchContractTest {
         assertFalse(runtime.contains("insertAdjacentHTML"));
         assertFalse(runtime.contains("method: 'PUT'"));
         assertFalse(runtime.contains("method: 'PATCH'"));
-        assertTrue(runtime.contains("当前后端只支持新建投稿，不伪造“修改已提交稿件”"));
+        assertTrue(runtime.contains("提交后可查看审核状态或撤回。"));
     }
 
     @Test

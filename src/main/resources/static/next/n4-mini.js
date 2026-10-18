@@ -160,7 +160,7 @@
     try {
       await post('/api/account/wechat-mini/complete');
       stopPolling();
-      setState('登录完成，正在进入 Frontend Next 个人中心…', 'ok');
+      setState('登录完成，正在进入个人中心…', 'ok');
       location.assign('/next/account');
     } catch (error) {
       setState(text(error?.message) || '暂时无法完成登录，请刷新二维码后重试。', 'error');

@@ -122,12 +122,12 @@
     });
     const fragment=document.createDocumentFragment();
     fragment.append(title);
-    const all=make('div','cat active',`全部服务 (${state.services.length})`);
-    all.dataset.cat='all';
+    const all=make('button','cat active',`全部服务 (${state.services.length})`);
+    all.type='button';all.dataset.cat='all';
     fragment.append(all);
     [...counts.values()].sort((a,b)=>a.label.localeCompare(b.label,'zh-CN')).forEach(row=>{
-      const item=make('div','cat',`${row.label} (${row.count})`);
-      item.dataset.cat=row.key;
+      const item=make('button','cat',`${row.label} (${row.count})`);
+      item.type='button';item.dataset.cat=row.key;
       fragment.append(item);
     });
     side.replaceChildren(fragment);
@@ -157,7 +157,7 @@
     if($('#hallGame'))$('#hallGame').value=state.game;
     if($('#hallPlatform'))$('#hallPlatform').value=state.platform;
     if($('#hallSort'))$('#hallSort').value=state.sort;
-    $$('.side .cat').forEach(node=>node.classList.toggle('active',node.dataset.cat===state.category));
+    $$('.side .cat').forEach(node=>{const active=node.dataset.cat===state.category;node.classList.toggle('active',active);node.setAttribute('aria-pressed',String(active));});
   }
   function restoreFilters(){
     const params=new URLSearchParams(location.search);state.query=params.get('q')||'';state.game=code(params.get('game'));state.platform=code(params.get('platform'));state.category=(params.get('category')||'all').toLowerCase();state.sort=['name','price'].includes(params.get('sort'))?params.get('sort'):'default';syncFilters();applyFilter(false);
@@ -256,6 +256,7 @@
     if(!item) return;
     $$('.services .side .cat').forEach(row=>row.classList.remove('active'));
     item.classList.add('active');
+    $$('.services .side .cat').forEach(row=>row.setAttribute('aria-pressed',String(row===item)));
     state.category=item.dataset.cat||'all';
     applyFilter();
   });

@@ -1,6 +1,7 @@
 package com.xinghuo.web;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Browser;
@@ -115,6 +116,7 @@ class FrontendNextN28LegalSingleSourcePlaywrightTest {
 
             assertTrue(page.locator("#n28Legal").textContent().contains("正式规则正文"));
             assertEquals(0, page.locator("#n28Legal script").count());
+            assertFalse(page.locator("#n28Legal .n28-document").textContent().contains("__unsafeLegal"));
             assertEquals(null, page.evaluate("() => window.__unsafeLegal ?? null"));
             assertEquals("/next/privacy", page.getByText("隐私说明", new Page.GetByTextOptions().setExact(true))
                     .last().getAttribute("href"));

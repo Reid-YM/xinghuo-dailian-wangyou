@@ -75,6 +75,7 @@
     if (url.pathname === '/trust') return nextUrl(url, '/next/trust');
     if (url.pathname === '/rules') return nextUrl(url, '/next/rules');
     if (url.pathname === '/privacy') return nextUrl(url, '/next/privacy');
+    if (url.pathname === '/rules-en' || url.pathname === '/privacy-en') return nextUrl(url, '/next' + url.pathname);
     if (url.pathname === '/account') return nextUrl(url, '/next/account');
     if (url.pathname === '/account/submit') return nextUrl(url, '/next/account/submit');
     if (url.pathname === '/guides') return nextUrl(url, '/next/guides');
@@ -147,7 +148,7 @@
     ensureRuntime('frontend-next-n26-runtime', stageSource('/next/n26-records-center.js'), /^\/next\/records\/?$/);
     ensureRuntime('frontend-next-n26-history-bridge', stageSource('/next/n26-record-history-bridge.js'), /^\/next\/(?:quote\/?$|record\/)/);
     ensureRuntime('frontend-next-n27-runtime', stageSource('/next/n27-support-trust.js'), /^\/next\/(?:contact|trust)\/?$/);
-    ensureRuntime('frontend-next-n28-runtime', stageSource('/next/n28-legal-single-source.js'), /^\/next\/(?:rules|privacy)\/?$/);
+    ensureRuntime('frontend-next-n28-runtime', stageSource('/next/n28-legal-single-source.js'), /^\/next\/(?:rules|privacy)(?:-en)?\/?$/);
   }
 
   document.addEventListener('click', (event) => {

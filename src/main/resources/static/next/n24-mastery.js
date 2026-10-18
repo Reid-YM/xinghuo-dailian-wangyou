@@ -23,6 +23,8 @@
   let state = loadState();
   cloud.dirty = state.syncPending === true;
   let requestToken = 0;
+  let searchTimer = 0;
+  let composingSearch = false;
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
@@ -154,6 +156,8 @@
     if (section) return section;
     section = node('section', 'page n24-mastery');
     section.id = 'n24Mastery';
+    section.setAttribute('role', 'main');
+    section.tabIndex = -1;
     section.dataset.page = 'mastery';
     section.append(node('div', 'shell'));
     const footer = $('.next-footer') || $('.footer');
@@ -339,14 +343,14 @@
   }
 
   function scheduleCloudSave() {
-    if (!cloud.enabled || !cloud.ready || cloud.conflict || cloud.reading) return;
+    if (!/^\/next\/mastery\/?$/.test(location.pathname) || !cloud.enabled || !cloud.ready || cloud.conflict || cloud.reading) return;
     clearTimeout(cloud.timer);
     if (!cloud.saving) setSync('pending', '本机进度已保存', '正在等待同步到账号…');
     cloud.timer = setTimeout(() => pushCloudProgress(false), 800);
   }
 
   async function pushCloudProgress(silent) {
-    if (!cloud.enabled || !cloud.ready || cloud.reading || cloud.conflict || cloud.saving) return;
+    if (!/^\/next\/mastery\/?$/.test(location.pathname) || !cloud.enabled || !cloud.ready || cloud.reading || cloud.conflict || cloud.saving) return;
     cloud.saving = true;
     const revision = localRevision;
     let saved = false;
@@ -441,6 +445,8 @@
     const total = node('div', 'n24-stat');
     total.append(node('small', '', '总体进度'), node('strong', '', `${overall.percent}%`));
     const bar = node('div', 'n24-progress');
+    bar.setAttribute('role', 'progressbar'); bar.setAttribute('aria-label', '总体进度');
+    bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', '100'); bar.setAttribute('aria-valuenow', String(overall.percent));
     const fill = node('i');
     fill.style.width = `${overall.percent}%`;
     bar.append(fill);
@@ -457,17 +463,21 @@
 
   function renderTabs(root) {
     const tabs = node('div', 'n24-tabs');
-    tabs.setAttribute('role', 'tablist');
+    tabs.setAttribute('role', 'tablist'); tabs.setAttribute('aria-label', '工具模式');
     modes.forEach((mode) => {
       const stats = modeStats(mode);
       const button = node('button', 'n24-tab', text(mode.shortName) || text(mode.name) || text(mode.code));
       button.type = 'button';
       button.dataset.mode = mode.code;
+      button.id = 'n24Tab-' + mode.code;
+      button.tabIndex = mode.code === activeMode ? 0 : -1;
+      button.setAttribute('aria-controls', 'n24ModePanel');
       button.setAttribute('role', 'tab');
       button.setAttribute('aria-selected', String(mode.code === activeMode));
       button.append(node('small', '', `${stats.done}/${stats.total}`));
       tabs.append(button);
     });
+    window.XHFrontendShell?.bindTabs?.(tabs);
     root.append(tabs);
   }
 
@@ -505,12 +515,17 @@
     fav.dataset.favorite = weapon.code;
     fav.setAttribute('aria-pressed', String(state.favorites.includes(weapon.code)));
     fav.setAttribute('aria-label', `${state.favorites.includes(weapon.code) ? '取消收藏' : '收藏'} ${text(weapon.nameZh) || text(weapon.name)}`);
-    const image = document.createElement('img');
-    image.className = 'n24-thumb';
-    image.alt = '';
-    image.loading = 'lazy';
     const imageUrl = safeImage(weapon.image);
-    if (imageUrl) image.src = imageUrl;
+    const image = document.createElement(imageUrl ? 'img' : 'span');
+    image.className = 'n24-thumb';
+    image.setAttribute('aria-hidden', 'true');
+    if (imageUrl) {
+      image.alt = ''; image.loading = 'lazy'; image.src = imageUrl;
+      image.addEventListener('error', () => {
+        const placeholder = node('span', 'n24-thumb'); placeholder.setAttribute('aria-hidden', 'true');
+        image.replaceWith(placeholder);
+      }, { once: true });
+    }
     const title = node('div', 'n24-weapon-title');
     title.append(node('strong', '', text(weapon.nameZh) || text(weapon.name) || text(weapon.code)));
     title.append(node('span', '', `${text(weapon.weaponType) || '武器'} · ${text(weapon.unlockLabel) || '解锁条件待确认'}`));
@@ -628,8 +643,24 @@
     root.append(toolbar);
   }
 
+  function focusedControl(section) {
+    const element = document.activeElement;
+    if (!element || !section.contains(element)) return null;
+    let selector = element.id ? '#' + CSS.escape(element.id) : '';
+    if (!selector && element.matches('input[data-item-code]')) selector = 'input'
+      + ['modeCode', 'weaponCode', 'itemCode'].map(key => '[data-' + key.replace(/[A-Z]/g, c => '-' + c.toLowerCase()) + '="' + CSS.escape(element.dataset[key]) + '"]').join('');
+    if (!selector && element.dataset.favorite) selector = '[data-favorite="' + CSS.escape(element.dataset.favorite) + '"]';
+    if (!selector) return null;
+    return { selector, start: element.selectionStart, end: element.selectionEnd };
+  }
+
   function render() {
+    if (!/^\/next\/mastery\/?$/.test(location.pathname)) return;
+    if (composingSearch && document.activeElement?.id === 'n24Search') return;
+    composingSearch = false;
+    clearTimeout(searchTimer);
     const section = ensureSection();
+    const focused = focusedControl(section);
     activate(section);
     const shell = $('.shell', section);
     if (!shell || !game || !modes.length) return;
@@ -655,7 +686,7 @@
     shell.append(head);
 
     const sync = node('div', 'n24-sync');
-    sync.id = 'n24Sync';
+    sync.id = 'n24Sync'; sync.setAttribute('role', 'status'); sync.tabIndex = -1;
     sync.dataset.state = cloud.enabled ? 'syncing' : 'checking';
     const syncCopy = node('div', 'n24-sync-copy');
     syncCopy.append(node('strong', '', '正在检查账号状态'), node('span', '', '本机进度始终保留。'));
@@ -674,12 +705,21 @@
     renderOverview(shell);
     renderTabs(shell);
     const mode = modeByCode(activeMode);
-    renderToolbar(shell, mode);
-    renderTierCards(shell, mode);
-    if (isMastery(mode)) renderWeapons(shell, mode); else renderGlobal(shell, mode);
+    const panel = node('div'); panel.id = 'n24ModePanel'; panel.tabIndex = 0;
+    panel.setAttribute('role', 'tabpanel'); panel.setAttribute('aria-labelledby', 'n24Tab-' + activeMode);
+    renderToolbar(panel, mode);
+    renderTierCards(panel, mode);
+    if (isMastery(mode)) renderWeapons(panel, mode); else renderGlobal(panel, mode);
+    shell.append(panel);
     shell.append(node('p', 'n24-note', '进度保存在当前浏览器。清理浏览器数据前，请先登录并确认账号同步完成。'));
     bindRenderedControls(section);
     updateSyncAfterRender();
+    if (focused) {
+      const control = section.querySelector(focused.selector);
+      control?.focus({preventScroll:true});
+      if (control && ['text', 'search'].includes(control.type) && focused.start != null)
+        control.setSelectionRange(focused.start, focused.end);
+    }
   }
 
   function updateSyncAfterRender() {
@@ -710,14 +750,16 @@
     const search = $('#n24Search', section);
     const type = $('#n24Type', section);
     const status = $('#n24Status', section);
-    let timer = 0;
-    search?.addEventListener('input', () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        writeRoute({ ...routeState(), mode: activeMode, q: search.value });
-        render();
-      }, 180);
-    });
+    const applySearch = () => {
+      clearTimeout(searchTimer);
+      if (!/^\/next\/mastery\/?$/.test(location.pathname)) return;
+      writeRoute({ ...routeState(), mode: activeMode, q: search.value });
+      searchTimer = setTimeout(render, 180);
+    };
+    search?.addEventListener('compositionstart', () => { composingSearch = true; clearTimeout(searchTimer); });
+    search?.addEventListener('compositionend', () => { composingSearch = false; applySearch(); });
+    search?.addEventListener('blur', () => { if (composingSearch) { composingSearch = false; applySearch(); } });
+    search?.addEventListener('input', event => { if (!event.isComposing && !composingSearch) applySearch(); });
     type?.addEventListener('change', () => {
       writeRoute({ ...routeState(), mode: activeMode, type: type.value });
       render();
@@ -799,7 +841,7 @@
     if (!/^\/next\/mastery\/?$/.test(location.pathname)) return;
     const requested = routeState().mode;
     if (modeByCode(requested)) activeMode = requested;
-    if (game) render(); else load();
+    if (game) { render(); checkAccount(); } else load();
   });
 
   window.addEventListener('pagehide', () => { clearTimeout(cloud.timer); });

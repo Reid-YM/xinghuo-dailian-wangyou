@@ -30,6 +30,12 @@
     return element;
   }
 
+  function labelFor(value, id) {
+    const label = node('label', '', value);
+    label.htmlFor = id;
+    return label;
+  }
+
   function append(parent, ...children) {
     children.filter(Boolean).forEach((child) => parent.append(child));
     return parent;
@@ -175,7 +181,7 @@
   function renderQuotes(body) {
     const items = Array.isArray(state.quotes?.items) ? state.quotes.items : [];
     if (!items.length) {
-      body.append(node('div', 'n5-empty', '当前账号还没有询价记录。你从 Frontend Next 提交的新询价，登录状态下会自动归入这里。'));
+      body.append(node('div', 'n5-empty', '当前账号还没有询价记录。登录后提交的询价会归入当前账号。'));
       return;
     }
     const wrap = node('div', 'n5-table-wrap');
@@ -202,10 +208,12 @@
   function renderRecords() {
     const body = $('#n5RecordsBody');
     if (!body) return;
+    body.setAttribute('aria-labelledby', 'n5Tab-' + state.active);
     body.replaceChildren();
     if (state.active === 'quotes') renderQuotes(body); else renderOrders(body);
     document.querySelectorAll('.n5-tab').forEach((tab) => {
       tab.setAttribute('aria-selected', String(tab.dataset.n5Tab === state.active));
+      tab.tabIndex = tab.dataset.n5Tab === state.active ? 0 : -1;
     });
   }
 
@@ -451,7 +459,7 @@
     const section = node('section', 'n5-section'); section.id = 'n5BusinessCenter';
     const shell = node('div', 'shell');
     const head = node('div', 'n5-head');
-    const copy = node('div'); append(copy, node('div', 'kicker', 'Frontend Next · N5 Business Center'), node('h2', '', '询价、订单与服务进度'), node('p', '', '全部数据来自当前登录账号的生产接口；未返回的数据保持空白，不生成演示金额或虚构进度。'));
+    const copy = node('div'); append(copy, node('div', 'kicker', '业务中心'), node('h2', '', '询价、订单与服务进度'), node('p', '', '查看与当前账号关联的询价、订单和交付进度。'));
     append(head, copy, node('span', 'n5-live', 'REAL ACCOUNT DATA'));
     shell.append(head);
 
@@ -460,11 +468,12 @@
     const records = node('section', 'n5-panel');
     const tabs = node('div', 'n5-tabs'); tabs.setAttribute('role', 'tablist');
     [['orders', '我的订单'], ['quotes', '询价记录']].forEach(([key, label]) => {
-      const tab = button(label, 'n5-tab'); tab.dataset.n5Tab = key; tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(state.active === key));
+      const tab = button(label, 'n5-tab'); tab.dataset.n5Tab = key; tab.id = 'n5Tab-' + key; tab.tabIndex = state.active === key ? 0 : -1; tab.setAttribute('aria-controls', 'n5RecordsBody'); tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(state.active === key));
       tab.addEventListener('click', () => { stopPayment();state.active = key; state.detail = null; const detail = $('#n5Detail'); if (detail) { detail.hidden = true; detail.replaceChildren(); } renderRecords(); }); tabs.append(tab);
     });
+    window.XHFrontendShell?.bindTabs?.(tabs);
     records.append(tabs);
-    const body = node('div'); body.id = 'n5RecordsBody'; records.append(body);
+    const body = node('div'); body.id = 'n5RecordsBody'; body.setAttribute('role', 'tabpanel'); body.tabIndex = 0; records.append(body);
     const message = node('div', 'n5-message'); message.id = 'n5Message'; message.setAttribute('aria-live', 'polite'); records.append(message);
     const detail = node('div', 'n5-detail'); detail.id = 'n5Detail'; detail.hidden = true; records.append(detail);
 
@@ -473,7 +482,7 @@
     const candidates = node('div', 'n5-claim-list'); candidates.id = 'n5Candidates'; claim.append(candidates);
     const field = node('div', 'n5-claim-field');
     const input = document.createElement('input'); input.id = 'n5ClaimNo'; input.maxLength = 40; input.autocomplete = 'off'; input.placeholder = '完整订单号 / 业务编号';
-    append(field, node('label', '', '完整编号'), input); claim.append(field);
+    append(field, labelFor('完整编号', 'n5ClaimNo'), input); claim.append(field);
     const claimButton = button('确认认领到当前账号', 'btn gold'); claimButton.id = 'n5ClaimButton'; claimButton.addEventListener('click', claimOrder); claim.append(claimButton);
     const warning = node('p', 'n5-claim-tip'); append(warning, node('strong', '', '不会自动认领：'), document.createTextNode('候选列表只用于提示可能存在历史订单，完整编号不从页面泄露。')); claim.append(warning);
 
@@ -491,7 +500,7 @@
     renderSummary($('#n5Summary'));
     renderRecords();
     renderCandidates();
-    const badge = $('.badge'); if (badge) badge.textContent = 'FRONTEND NEXT · N5 BUSINESS LIVE';
+    const badge = $('.badge'); if (badge) badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火服务平台';
     setMessage('真实业务数据已读取。');
     if(!initialFocus && /^\/account\/(orders|requests|progress)$/.test(location.pathname)){initialFocus=true;const focus=location.pathname.endsWith('/progress')?section.querySelector('[data-personal-asset=progress]'):section;focus?.scrollIntoView({block:'start'});}
   }

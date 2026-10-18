@@ -55,6 +55,7 @@
       else if (url.pathname === '/trust') url.pathname = '/next/trust';
       else if (url.pathname === '/rules') url.pathname = '/next/rules';
       else if (url.pathname === '/privacy') url.pathname = '/next/privacy';
+      else if (url.pathname === '/rules-en' || url.pathname === '/privacy-en') url.pathname = '/next' + url.pathname;
       else if (/^\/guides\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');
       else if (/^\/service\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');
       else if (/^\/record\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');

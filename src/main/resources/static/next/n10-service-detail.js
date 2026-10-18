@@ -109,6 +109,8 @@
     if (section) return section;
     section = node('section', 'page n10-detail');
     section.id = 'n10ServiceDetail';
+    section.setAttribute('role', 'main');
+    section.tabIndex = -1;
     section.dataset.page = 'service-detail';
     section.append(node('div', 'shell'));
     const footer = $('.footer');
@@ -220,11 +222,11 @@
     actions.append(quote, back);
     aside.append(actions);
     const safe = node('div', 'n10-safe');
-    safe.append(node('strong', '', '预览链路说明'), document.createTextNode('：这是 Frontend Next N10 预览详情页。旧版 '));
-    const legacy = node('a', '', `/service/${slug}`);
+    safe.append(document.createTextNode('也可打开 '));
+    const legacy = node('a', '', '旧版服务详情');
     legacy.href = `/service/${encodeURIComponent(slug)}`;
     legacy.dataset.n10Legacy = '1';
-    safe.append(legacy, document.createTextNode(' 仍保持原样，不会被重定向或删除。'));
+    safe.append(legacy, document.createTextNode('。'));
     aside.append(safe);
 
     grid.append(main, aside);

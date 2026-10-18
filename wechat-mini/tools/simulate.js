@@ -270,7 +270,7 @@ global.Page = function (def) {
   index.onMode({ currentTarget: { dataset: { key: 'WARZONE' } } })
   check('切到战区', index.data.activeMode, 'WARZONE')
   check('战区里 M4 还没完成', index.data.modeStats[1].count, 0)
-  assert('战区迷彩名是中文', index.data.tierCounts[0].name === '视差', index.data.tierCounts[0].name)
+  assert('战区迷彩名是中文', index.data.tierCounts[0].name === '幻彩', index.data.tierCounts[0].name)
   index.onMode({ currentTarget: { dataset: { key: 'MULTIPLAYER' } } })
 
   // Event 迷彩
@@ -612,7 +612,7 @@ global.Page = function (def) {
   // 点模式卡片切换（就是「点多人显示哪 3 个迷彩」那个交互）
   idx.onMode({ currentTarget: { dataset: { key: 'WARZONE' } } })
   check('点战区卡片后切到战区', idx.data.activeMode, 'WARZONE')
-  check('战区第一档名', idx.data.tierCounts[0].name, '视差')
+  check('战区第一档名', idx.data.tierCounts[0].name, '幻彩')
   check('模式统计高亮项对得上', idx.data.modeStats.filter(function (m) { return m.code === 'WARZONE' })[0].short, '战区')
   idx.onMode({ currentTarget: { dataset: { key: 'DMZ' } } })
   assert('点 DMZ 卡片后第一档换了名字', idx.data.tierCounts[0].name && idx.data.tierCounts[0].name !== '霞流', idx.data.tierCounts[0].name)

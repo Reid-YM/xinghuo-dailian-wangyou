@@ -693,3 +693,43 @@
   line-height: 1.5;
   color: #6f7785;
 }
+
+.camo-guide-hint {
+  display: block;
+  margin: -4rpx 0 10rpx;
+  font-size: 20rpx;
+  color: #6f7785;
+}
+.camo-guide-tile {
+  position: relative;
+}
+.camo-guide-tile.on .camo-guide-tile-img {
+  opacity: 0.5;
+  border-color: rgba(198, 242, 78, 0.6);
+}
+.camo-guide-tile-check {
+  position: absolute;
+  right: -4rpx;
+  top: -4rpx;
+  width: 30rpx;
+  height: 30rpx;
+  line-height: 30rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: #c6f24e;
+  color: #0d0f13;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+.camo-guide-row.on .camo-guide-name {
+  color: #c6f24e;
+}
+.camo-guide-row.on .camo-guide-thumb {
+  opacity: 0.5;
+}
+.camo-guide-check {
+  margin-left: auto;
+  font-size: 20rpx;
+  color: #c6f24e;
+  white-space: nowrap;
+}

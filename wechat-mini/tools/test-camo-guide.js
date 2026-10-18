@@ -96,6 +96,11 @@ assert.strictEqual(ar.groups[0].items[0].image, '/images/camo/military.jpg', 'bu
 assert.strictEqual(ar.militaryTiles.length, 8, 'military should expand to 8 tiles')
 assert.strictEqual(ar.militaryTiles[0].label, '10级')
 assert.strictEqual(ar.militaryTiles[0].image, '/images/camo/military-1.jpg')
+
+// 勾选键 = 武器code + '::' + 条目key，同一职业内必须唯一
+const tickKeys = ar.militaryTiles.map(function (t) { return t.key })
+  .concat(ar.groups.reduce(function (acc, g) { return acc.concat(g.items.map(function (i) { return i.key })) }, []))
+assert.strictEqual(new Set(tickKeys).size, tickKeys.length, 'tick keys must be unique')
 assert.strictEqual(ar.groups[1].title, '特种迷彩 · 3 档')
 assert.strictEqual(ar.groups[1].items.length, 3)
 assert.strictEqual(ar.groups[2].title, '完成主义 · 4 档')

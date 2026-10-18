@@ -7,6 +7,40 @@ const business = require('../../config/business')
 const kf = require('../../utils/kf')
 const format = require('../../utils/format')
 
+/** 完整迷彩挑战：按武器 + 条目生成可勾选状态（本机记录，不计入主进度）。 */
+function guideForClass(guide, weaponCode, guideDone) {
+  if (!guide) return null
+  function on(key) {
+    return !!(guideDone && guideDone[weaponCode + '::' + key])
+  }
+  function mark(item) {
+    return {
+      key: item.key,
+      name: item.name,
+      req: item.req,
+      estimate: !!item.estimate,
+      image: item.image,
+      imageRemote: item.imageRemote,
+      on: on(item.key)
+    }
+  }
+  return {
+    note: guide.note || '',
+    groups: (guide.groups || []).map(function (g) {
+      return { key: g.key, title: g.title, items: (g.items || []).map(mark) }
+    }),
+    militaryTiles: (guide.militaryTiles || []).map(function (item) {
+      return {
+        key: item.key,
+        label: item.label,
+        image: item.image,
+        imageRemote: item.imageRemote,
+        on: on(item.key)
+      }
+    })
+  }
+}
+
 Page({
   data: {
     brand: business.BRAND.name,
@@ -51,6 +85,7 @@ Page({
     favs: {},
     expanded: {},
     collapsed: {},
+    guideDone: {},
     guideOpen: false,
     // 包内图片读不出来时（比如没打进上传包）整体切到官网地址
     useRemoteImages: false
@@ -62,7 +97,8 @@ Page({
     this.cat = null
     this.setData({
       done: storage.loadDone(),
-      favs: storage.loadFavs()
+      favs: storage.loadFavs(),
+      guideDone: storage.loadGuideDone()
     })
     this._unsub = cloud.subscribe(this.applyCloudState.bind(this))
     // ready 是给测试脚本 await 用的，页面里不需要关心
@@ -297,6 +333,17 @@ Page({
     cloud.queuePush()
   },
 
+  onToggleGuideItem(e) {
+    const key = e.currentTarget.dataset.key
+    if (!key) return
+    const guideDone = Object.assign({}, this.data.guideDone)
+    if (guideDone[key]) delete guideDone[key]
+    else guideDone[key] = true
+    storage.saveGuideDone(guideDone)
+    this.setData({ guideDone: guideDone })
+    this.render()
+  },
+
   onToggleFav(e) {
     const code = e.currentTarget.dataset.weapon
     if (!code) return
@@ -362,6 +409,7 @@ Page({
 
     const done = this.data.done
     const favs = this.data.favs
+    const guideDone = this.data.guideDone || {}
     const expanded = this.data.expanded
     const useRemote = this.data.useRemoteImages
     const collapsed = this.data.collapsed
@@ -397,7 +445,7 @@ Page({
           total: mode.tiers.length,
           complete: wp.complete,
           expanded: !!expanded[w.code],
-          camoGuide: cat.camoGuide && cat.camoGuide.classes ? cat.camoGuide.classes[w.cls] || null : null,
+          camoGuide: guideForClass(cat.camoGuide && cat.camoGuide.classes ? cat.camoGuide.classes[w.cls] : null, w.code, guideDone),
           tiers: wp.tiers.map(function (t) {
             return {
               key: t.key,

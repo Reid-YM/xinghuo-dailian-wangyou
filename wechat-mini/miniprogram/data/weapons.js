@@ -742,7 +742,7 @@ module.exports = {
       },
       "camoGuide": {
         "version": "v25r1",
-        "note": "军事/特种仅突击步枪（汉86）为官方数值，其余职业为估算；标「参考」的项以游戏内实测为准",
+        "note": "军事/特殊仅突击步枪（汉86）为官方数值，其余职业为估算；标「参考」的项以游戏内实测为准",
         "classes": {
           "突击步枪": {
             "military": {
@@ -763,19 +763,19 @@ module.exports = {
             },
             "special": [
               {
-                "name": "特种迷彩 1",
+                "name": "特殊迷彩 1",
                 "text": "Lv 25 + 架设状态 20 击杀",
                 "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 2",
+                "name": "特殊迷彩 2",
                 "text": "Lv 46 + 消音器 50 击杀",
                 "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 3",
+                "name": "特殊迷彩 3",
                 "text": "Lv 72 + 3 杀不死 ×15",
                 "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
@@ -795,7 +795,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "完成本职业 8 个谐波挑战",
                 "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
@@ -818,20 +818,20 @@ module.exports = {
             },
             "special": [
               {
-                "name": "特种迷彩 1",
+                "name": "特殊迷彩 1",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 2",
+                "name": "特殊迷彩 2",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 3",
-                "text": "武器等级 + 挑战（具体未公布）",
+                "name": "特殊迷彩 3",
+                "text": "武器等级 + 挑战（具体未公布��",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               }
@@ -850,7 +850,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "完成本职业若干谐波挑战（数量未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/harmonic-break.webp"
@@ -873,19 +873,19 @@ module.exports = {
             },
             "special": [
               {
-                "name": "特种迷彩 1",
+                "name": "特殊迷彩 1",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 2",
+                "name": "特殊迷彩 2",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 3",
+                "name": "特殊迷彩 3",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
@@ -905,7 +905,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "完成本职业 2 个谐波挑战",
                 "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
@@ -928,19 +928,19 @@ module.exports = {
             },
             "special": [
               {
-                "name": "特种迷彩 1",
+                "name": "特殊迷彩 1",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 2",
+                "name": "特殊迷彩 2",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 3",
+                "name": "特殊迷彩 3",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
@@ -960,7 +960,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "完成本职业 3 个谐波挑战",
                 "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
@@ -983,19 +983,19 @@ module.exports = {
             },
             "special": [
               {
-                "name": "特种迷彩 1",
+                "name": "特殊迷彩 1",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 2",
+                "name": "特殊迷彩 2",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 3",
+                "name": "特殊迷彩 3",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
@@ -1015,7 +1015,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "完成本职业 3 个谐波挑战",
                 "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
@@ -1038,19 +1038,19 @@ module.exports = {
             },
             "special": [
               {
-                "name": "特种迷彩 1",
+                "name": "特殊迷彩 1",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 2",
+                "name": "特殊迷彩 2",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 3",
+                "name": "特殊迷彩 3",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
@@ -1070,7 +1070,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "完成本职业 3 个谐波挑战",
                 "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
@@ -1093,19 +1093,19 @@ module.exports = {
             },
             "special": [
               {
-                "name": "特种迷彩 1",
+                "name": "特殊迷彩 1",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 2",
+                "name": "特殊迷彩 2",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 3",
+                "name": "特殊迷彩 3",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
@@ -1125,7 +1125,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "完成本职业 2 个谐波挑战",
                 "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
@@ -1148,19 +1148,19 @@ module.exports = {
             },
             "special": [
               {
-                "name": "特种迷彩 1",
+                "name": "特殊迷彩 1",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 2",
+                "name": "特殊迷彩 2",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 3",
+                "name": "特殊迷彩 3",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
@@ -1180,7 +1180,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "完成本职业若干谐波挑战（数量未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/harmonic-break.webp"
@@ -1203,19 +1203,19 @@ module.exports = {
             },
             "special": [
               {
-                "name": "特种迷彩 1",
+                "name": "特殊迷彩 1",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 2",
+                "name": "特殊迷彩 2",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特种迷彩 3",
+                "name": "特殊迷彩 3",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
@@ -1235,7 +1235,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "完成本职业若干谐波挑战（数量未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/harmonic-break.webp"
@@ -1298,7 +1298,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次双杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1348,7 +1348,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次双杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1398,7 +1398,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次双杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1448,7 +1448,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次双杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1508,7 +1508,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次双杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1558,7 +1558,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次双杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1608,7 +1608,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "50次腰射击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1658,7 +1658,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "50次腰射击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1708,7 +1708,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "50次腰射击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1768,7 +1768,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "50次腰射击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1818,7 +1818,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次不换弹2次击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1868,7 +1868,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次不换弹2次击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1918,7 +1918,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次不松扳机2次击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -1968,7 +1968,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次不松扳机2次击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2018,7 +2018,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次不松扳机2次击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2068,7 +2068,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "75次一枪一个",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2118,7 +2118,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "75次一枪一个",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2168,7 +2168,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "75次一枪一个",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2218,7 +2218,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "75次一枪一个",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2268,7 +2268,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "75次一枪一个",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2318,7 +2318,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "40次腰射击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2368,7 +2368,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "40次腰射击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2418,7 +2418,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "40次腰射击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2468,7 +2468,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "40次腰射击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2518,7 +2518,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "7次单局10杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2578,7 +2578,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次双杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2638,7 +2638,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次双杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2698,7 +2698,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次双杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2758,7 +2758,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "25次背后击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2818,7 +2818,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "7次单局10杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2878,7 +2878,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "7次单局10杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
@@ -2938,7 +2938,7 @@ module.exports = {
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
-                "name": "谐波",
+                "name": "和声间奏",
                 "text": "75次一枪一个",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },

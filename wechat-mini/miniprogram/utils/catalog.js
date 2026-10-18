@@ -83,7 +83,7 @@ function normalizeCamoGuide(raw) {
       const img = milImages.length ? milImages[i % milImages.length] : ''
       militaryTiles.push({
         key: 'mil-' + i,
-        label: milLevels[i] ? ('Lv ' + milLevels[i]) : ('第' + (i + 1) + '档'),
+        label: milLevels[i] ? (milLevels[i] + '级') : ('第' + (i + 1) + '档'),
         image: resolveImage(img),
         imageRemote: api.asset(img)
       })

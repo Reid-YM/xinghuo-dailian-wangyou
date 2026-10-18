@@ -242,6 +242,10 @@ public class OrderService {
                 && currentStatus != CustomerOrder.Status.CLOSED) {
             throw new ConflictException("请先确认服务已完成，再结束并结单");
         }
+        if (nextStatus == CustomerOrder.Status.COMPLETED
+                && currentStatus == CustomerOrder.Status.WAITING_CONFIRMATION) {
+            throw new ConflictException("请先开始服务并更新履约进度，再确认服务完成");
+        }
         // Payment settlement and service delivery are independent. A payment record
         // must be verified as CAPTURED before the order can be finalized; orders
         // without any online payment records may have been settled offline.
@@ -255,7 +259,13 @@ public class OrderService {
                         "SELECT COUNT(*) FROM payment_order WHERE business_no=? AND provider='WECHAT' AND status='CAPTURED'",
                         Integer.class, order.getBusinessNo());
                 if (captured == null || captured == 0) {
-                    throw new ConflictException("微信支付单尚未确认到账或已进入退款流程，不能完成或结单");
+                    throw new ConflictException("微信支付单尚未确认到账，不能完成或结单");
+                }
+                Integer refunded = jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM payment_order WHERE business_no=? AND provider='WECHAT' AND status='REFUNDED'",
+                        Integer.class, order.getBusinessNo());
+                if (refunded != null && refunded > 0) {
+                    throw new ConflictException("该业务已有退款支付记录，不能直接完成或结单，请先处理售后与对账");
                 }
             }
         }

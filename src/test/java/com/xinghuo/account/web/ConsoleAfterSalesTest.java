@@ -38,7 +38,7 @@ class ConsoleAfterSalesTest {
                   current_progress VARCHAR(120), platform VARCHAR(32), expected_time VARCHAR(32),
                   status VARCHAR(24), created_at TIMESTAMP, updated_at TIMESTAMP)
                 """);
-        jdbc.execute("CREATE TABLE user_audit_log(user_id BIGINT, action VARCHAR(50))");
+        jdbc.execute("CREATE TABLE user_audit_log(user_id BIGINT, action VARCHAR(50), detail VARCHAR(500), ip VARCHAR(100), user_agent VARCHAR(255), created_at TIMESTAMP)");
         jdbc.execute("""
                 CREATE TABLE customer_orders(
                   id VARCHAR(36), order_no VARCHAR(40), business_no VARCHAR(20), source_quote_id VARCHAR(36),

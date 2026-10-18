@@ -485,8 +485,8 @@ public class XingweiBusinessScopeService {
             XingweiPermissionGuard.AccessSnapshot access,
             BusinessPermissions operations) throws SQLException {
         String sourceQuoteId = rs.getString("source_quote_id");
-        if (sourceQuoteId == null) {
-            return; // orders created without a quote have no guest quote to price
+        if (sourceQuoteId == null || rs.getString("source_quote_status") == null) {
+            return; // no verified quote lineage: never expose guest payment actions
         }
         String no = rs.getString("business_no");
         boolean guest = rs.getObject("order_customer_account_id") == null

@@ -429,7 +429,8 @@ public class CustomerOrder {
         WAITING_CONFIRMATION,
         IN_PROGRESS,
         COMPLETED,
-        EXCEPTION;
+        EXCEPTION,
+        CLOSED;
 
     }
 }

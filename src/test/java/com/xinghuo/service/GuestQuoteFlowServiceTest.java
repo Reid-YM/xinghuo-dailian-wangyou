@@ -81,7 +81,7 @@ class GuestQuoteFlowServiceTest {
                 CREATE TABLE customer_orders(
                   order_no VARCHAR(64) PRIMARY KEY,business_no VARCHAR(40),source_quote_id VARCHAR(36),
                   customer_account_id BIGINT,guest_access_id BIGINT,status VARCHAR(32),progress_percent INT,
-                  progress_text VARCHAR(240),updated_at TIMESTAMP)
+                  progress_text VARCHAR(240),updated_at TIMESTAMP,finished_at TIMESTAMP)
                 """);
         jdbc.execute("""
                 CREATE TABLE payment_order(

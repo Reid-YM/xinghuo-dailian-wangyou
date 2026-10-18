@@ -400,6 +400,7 @@ public class ConsoleApiController {
             case "WAITING_CONFIRMATION" -> "等待确认";
             case "IN_PROGRESS" -> "进行中";
             case "COMPLETED" -> "已完成";
+            case "CLOSED" -> "已结单";
             case "EXCEPTION" -> "异常处理中";
             default -> status == null ? "状态未知" : status;
         };

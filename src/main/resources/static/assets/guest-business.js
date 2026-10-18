@@ -63,20 +63,40 @@
     return wrap;
   }
 
+  const orderLabels = {
+    WAITING_CONFIRMATION: '待安排服务', IN_PROGRESS: '服务进行中',
+    COMPLETED: '服务已完成', CLOSED: '订单已结单', EXCEPTION: '异常处理中'
+  };
+  const paymentLabels = {
+    CREATED: '待生成支付二维码', APPROVED: '等待微信付款确认',
+    CAPTURED: '微信已收款', CANCELLED: '已关闭', REFUNDED: '已退款', FAILED: '支付失败'
+  };
+
   function schedulePoll(state) {
     clearTimeout(pollTimer);
     const status = state?.payment?.status;
-    if (!status || ['CAPTURED','CANCELLED','REFUNDED','FAILED'].includes(status)) return;
-    pollTimer = setTimeout(load, 5000);
+    // After a successful payment the service can take hours/days. Keep a
+    // lightweight guest-authorized poll so completion/closure appears without
+    // relying on the customer to refresh or create another payment.
+    if (status === 'CAPTURED' && !['CLOSED'].includes(state?.order?.status)) {
+      pollTimer = setTimeout(load, 20000);
+    } else if (status && !['CAPTURED','CANCELLED','REFUNDED','FAILED'].includes(status)) {
+      pollTimer = setTimeout(load, 5000);
+    }
   }
 
   function render(state) {
     panel.hidden = false;
     panel.replaceChildren();
     panel.append(text('div', '游客专属业务中心', 'eyebrow'));
-    panel.append(text('h2', state.offer ? '正式报价与付款' : '等待客服报价'));
+    const paymentCaptured = state.payment?.status === 'CAPTURED';
+    const serviceFinished = ['COMPLETED','CLOSED'].includes(state.order?.status);
+    panel.append(text('h2', serviceFinished ? (state.order.status === 'CLOSED' ? '订单已完成并结单' : '服务已完成')
+      : paymentCaptured ? '已付款 · 订单履约进度' : state.offer ? '正式报价与付款' : '等待客服报价'));
 
-    const intro = state.offer
+    const intro = paymentCaptured
+      ? '微信付款已经确认，接下来由客服安排服务并更新履约进度。付款成功与服务完成是两个不同阶段。'
+      : state.offer
       ? '这份报价只对当前浏览器持有的游客凭证可见，无需注册账号即可确认和付款。'
       : '询价已保存。客服发布正式报价后，你可以直接在这里确认并付款，无需注册。';
     panel.append(text('p', intro, 'muted'));
@@ -127,9 +147,34 @@
       orderBox.append(text('h3', '订单状态'));
       orderBox.append(
         row('订单号', state.order.orderNo),
-        row('状态', state.order.status),
-        row('当前进度', state.order.progressText || '等待更新')
+        row('履约状态', orderLabels[state.order.status] || state.order.status),
+        row('当前进度', state.order.progressText || '等待客服更新'),
+        row('进度比例', state.order.progressPercent == null ? '尚未设置' : `${state.order.progressPercent}%`),
+        row('最近更新', time(state.order.updatedAt))
       );
+      if (state.order.finishedAt) orderBox.append(row('服务完成时间', time(state.order.finishedAt)));
+      const milestones = [
+        ['1 · 确认报价', state.offer?.status === 'ACCEPTED' || paymentCaptured],
+        ['2 · 微信付款成功', paymentCaptured],
+        ['3 · 服务开始', ['IN_PROGRESS','COMPLETED','CLOSED'].includes(state.order.status)],
+        ['4 · 服务交付完成', serviceFinished],
+        ['5 · 订单结单', state.order.status === 'CLOSED']
+      ];
+      const track = document.createElement('div');
+      track.className = 'business-lifecycle';
+      track.setAttribute('aria-label', '付款与履约时间线');
+      for (const [label, done] of milestones) {
+        const item = text('span', label, done ? 'is-done' : 'muted');
+        item.style.display = 'inline-block';
+        item.style.margin = '6px';
+        track.append(item);
+      }
+      orderBox.append(track);
+      if (state.order.status === 'CLOSED') {
+        orderBox.append(text('p', '此订单已结单，服务履约结束。需要售后支持请联系平台客服。', 'notice success'));
+      } else if (state.order.status === 'COMPLETED') {
+        orderBox.append(text('p', '服务已完成，等待平台工作人员核对并结单。', 'notice success'));
+      }
       panel.append(orderBox);
     }
 
@@ -138,7 +183,8 @@
       const payBox = document.createElement('section');
       payBox.className = 'card soft-card';
       payBox.append(text('h3', '微信支付'));
-      payBox.append(row('金额', money(payment.amount)), row('支付状态', payment.status));
+      payBox.append(row('金额', money(payment.amount)), row('支付状态', paymentLabels[payment.status] || payment.status));
+      if (payment.paidAt) payBox.append(row('确认收款时间', time(payment.paidAt)));
 
       if (payment.status === 'CAPTURED') {
         const ok = document.createElement('div');

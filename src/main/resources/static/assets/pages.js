@@ -305,18 +305,19 @@
 
   function lifecycle(stage, status) {
     const reachedOrder = stage === 'ORDER';
-    const done = reachedOrder && status === 'COMPLETED';
-    const working = reachedOrder && ['IN_PROGRESS','COMPLETED','EXCEPTION'].includes(status);
+    const done = reachedOrder && ['COMPLETED', 'CLOSED'].includes(status);
+    const working = reachedOrder && ['IN_PROGRESS','COMPLETED','EXCEPTION','CLOSED'].includes(status);
     return [
       ['01','需求已提交', true],
       ['02','客服已确认', reachedOrder || ['CONTACTED','QUOTED','CONVERTED'].includes(status)],
       ['03','进入履约', reachedOrder],
-      ['04','完成交付', done]
+      ['04','完成交付', done],
+      ['05','订单结单', reachedOrder && status === 'CLOSED']
     ].map(([no,label,on]) => `<div class="lifecycle-step ${on?'is-done':''}"><b>${no}</b><span>${label}</span></div>`).join('');
   }
 
   function statusClass(stage, status) {
-    if (stage === 'ORDER' && status === 'COMPLETED') return 'ok';
+    if (stage === 'ORDER' && ['COMPLETED','CLOSED'].includes(status)) return 'ok';
     if ((stage === 'ORDER' && status === 'EXCEPTION') || (stage === 'QUOTE' && ['CANCELLED','CLOSED'].includes(status))) return 'danger-text';
     return 'working';
   }

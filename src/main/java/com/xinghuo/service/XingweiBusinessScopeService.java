@@ -174,6 +174,7 @@ public class XingweiBusinessScopeService {
         BusinessPermissions operations = businessPermissions(authentication);
         List<Map<String, Object>> items = jdbc.query(
                 sql, (rs, rowNum) -> orderRow(rs, access, operations), args.toArray());
+        populateOrderPayments(items);
         List<String> orderNos = items.stream().map(row -> (String) row.get("orderNo")).toList();
         Map<String, List<AfterSalesNoteParser.AfterSalesRecord>> stored =
                 AfterSalesLedger.recordsForOrders(jdbc, orderNos);
@@ -235,6 +236,7 @@ public class XingweiBusinessScopeService {
                     return row;
                 },
                 scope.args().toArray());
+        populateOrderPayments(items);
         return snapshot(access, items);
     }
 
@@ -521,6 +523,35 @@ public class XingweiBusinessScopeService {
                    AND status IN ('CREATED','APPROVED','CAPTURED')
                 """, Integer.class, no);
         return count != null && count > 0;
+    }
+
+    /** Only expose paid/pending receipt indicators for already-authorized order rows. */
+    private void populateOrderPayments(List<Map<String, Object>> rows) {
+        if (rows.isEmpty()) {
+            return;
+        }
+        List<String> businessNos = rows.stream()
+                .map(row -> (String) row.get("businessNo")).distinct().toList();
+        String placeholders = String.join(",", java.util.Collections.nCopies(businessNos.size(), "?"));
+        String sql = """
+                SELECT business_no,
+                       MAX(CASE WHEN status='CAPTURED' THEN 1 ELSE 0 END) AS captured,
+                       MAX(CASE WHEN status IN ('CREATED','APPROVED') THEN 1 ELSE 0 END) AS pending,
+                       MAX(CASE WHEN status='REFUNDED' THEN 1 ELSE 0 END) AS refunded
+                  FROM payment_order WHERE provider='WECHAT' AND business_no IN (%s)
+                 GROUP BY business_no
+                """.formatted(placeholders);
+        Map<String, String> statuses = new java.util.HashMap<>();
+        jdbc.query(sql, rs -> {
+            String state = rs.getInt("refunded") > 0 ? "REFUNDED"
+                    : rs.getInt("captured") > 0 ? "CAPTURED"
+                    : rs.getInt("pending") > 0 ? "PENDING_PAYMENT" : "CANCELLED";
+            statuses.put(rs.getString("business_no"), state);
+        }, businessNos.toArray());
+        for (Map<String, Object> row : rows) {
+            row.put("paymentStatus",
+                    statuses.getOrDefault((String) row.get("businessNo"), "NO_PAYMENT"));
+        }
     }
 
     private Map<String, Object> orderRow(ResultSet rs, XingweiPermissionGuard.AccessSnapshot access, BusinessPermissions operations) throws SQLException {

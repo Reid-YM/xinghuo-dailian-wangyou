@@ -12,7 +12,7 @@
 
   const statusLabels = {
     NEW: '询价已提交', CONTACTED: '客服已联系', QUOTED: '已完成报价', CONVERTED: '已转为订单', CLOSED: '询价已关闭', CANCELLED: '询价已取消',
-    WAITING_CONFIRMATION: '待确认', IN_PROGRESS: '进行中', COMPLETED: '已完成', EXCEPTION: '异常处理中'
+    WAITING_CONFIRMATION: '待确认', IN_PROGRESS: '进行中', COMPLETED: '已完成', EXCEPTION: '异常处理中', CLOSED: '已结单'
   };
 
   function make(tag, className, value) {

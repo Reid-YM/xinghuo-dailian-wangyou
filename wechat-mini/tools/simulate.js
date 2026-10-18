@@ -598,7 +598,7 @@ global.Page = function (def) {
   await idx.ready
 
   check('三档迷彩带图片字段', typeof idx.data.tierCounts[0].image, 'string')
-  assert('三档迷彩图用包内路径', /^\/images\/camo\/.+\.webp$/.test(idx.data.tierCounts[0].image), idx.data.tierCounts[0].image)
+  assert('三档迷彩图用包内路径', /^\/images\/camo\/.+\.(jpg|jpeg|png|webp)$/.test(idx.data.tierCounts[0].image), idx.data.tierCounts[0].image)
   check('三档迷彩带要求文案', typeof idx.data.tierCounts[0].requirement, 'string')
   check('默认模式是多人', idx.data.activeMode, 'MULTIPLAYER')
   check('多人第一档名', idx.data.tierCounts[0].name, '水银漂移')

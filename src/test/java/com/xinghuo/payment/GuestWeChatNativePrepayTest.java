@@ -1,6 +1,7 @@
 package com.xinghuo.payment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -70,5 +71,23 @@ class GuestWeChatNativePrepayTest {
         assertTrue(expire.matches(
                 "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+08:00"));
         assertEquals(first.expiresAt(), OffsetDateTime.parse(expire).toInstant());
+
+        for (String state : new String[]{"REFUNDED", "FAILED", "UNKNOWN"}) {
+            jdbc.update("""
+                    UPDATE payment_order SET status=?,native_code_url=?,
+                           native_expires_at=? WHERE payment_no=?
+                    """, state, "weixin://wxpay/old-refunded-qr",
+                    java.sql.Timestamp.from(java.time.Instant.now().plusSeconds(600)),
+                    payment.paymentNo());
+            assertThrows(com.xinghuo.exception.ConflictException.class,
+                    () -> service.nativeQr(payment.paymentNo(), 21));
+        }
+        // Even an APPROVED payment may have had an incomplete remote operation.
+        // A null QR must be investigated, not used for a second remote prepay.
+        jdbc.update("UPDATE payment_order SET status='APPROVED',native_code_url=NULL WHERE payment_no=?",
+                payment.paymentNo());
+        assertThrows(com.xinghuo.exception.ConflictException.class,
+                () -> service.nativeQr(payment.paymentNo(), 21));
+        verify(api, times(1)).prepay(any(PrepayRequest.class));
     }
 }

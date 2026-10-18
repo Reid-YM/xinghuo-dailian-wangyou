@@ -152,6 +152,10 @@ public class GuestWeChatPaymentService {
         if ("CANCELLED".equals(payment.status())) {
             throw new ConflictException("支付单已关闭");
         }
+        // The guest path obeys the same terminal-state boundaries as account pay.
+        if (!"CREATED".equals(payment.status()) && !"APPROVED".equals(payment.status())) {
+            throw new ConflictException("支付单状态不允许生成二维码，请联系客服核对收款记录");
+        }
         if ("APPROVED".equals(payment.status()) && payment.codeUrl() == null) {
             throw new ConflictException("支付单状态异常，请联系客服核对微信支付交易，暂勿重复付款");
         }

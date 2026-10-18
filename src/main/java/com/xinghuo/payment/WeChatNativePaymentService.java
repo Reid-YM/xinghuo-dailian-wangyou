@@ -139,6 +139,15 @@ public class WeChatNativePaymentService {
         Payment payment = lockForAccount(paymentNo, accountId);
         if (payment.status().equals("CAPTURED")) return payment;
         if (payment.status().equals("CANCELLED")) throw new IllegalStateException("支付单已关闭");
+        // Never issue or reuse a Native QR for refunded, failed, or unknown states.
+        // APPROVED without a QR is inconsistent; retrying prepay with the same
+        // out_trade_no could create a remote intent that cannot be persisted.
+        if (!"CREATED".equals(payment.status()) && !"APPROVED".equals(payment.status())) {
+            throw new IllegalStateException("支付单状态不允许生成二维码，请联系客服核对收款记录");
+        }
+        if ("APPROVED".equals(payment.status()) && payment.codeUrl() == null) {
+            throw new IllegalStateException("支付单状态异常，请联系客服核对微信支付交易，暂勿重复付款");
+        }
         if (payment.codeUrl() != null) {
             if (payment.expiresAt() != null && payment.expiresAt().isAfter(Instant.now())) return payment;
             throw new IllegalStateException("二维码已过期，请联系客服重新确认支付单");

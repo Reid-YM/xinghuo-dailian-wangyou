@@ -104,6 +104,32 @@ class WeChatNativePaymentServiceTest {
     }
 
     @Test
+    void qrNeverReusesRefundedOrFailedPaymentEvenWhenOldCodeLooksValid() {
+        String validLookingQr = "weixin://wxpay/old-receipt-must-not-be-reused";
+        for (String status : new String[]{"REFUNDED", "FAILED", "UNKNOWN"}) {
+            jdbc.update("""
+                    UPDATE payment_order
+                       SET status=?,native_code_url=?,native_expires_at=?
+                     WHERE payment_no='XHPTEST01'
+                    """, status, validLookingQr,
+                    java.sql.Timestamp.from(java.time.Instant.now().plusSeconds(600)));
+            assertThrows(IllegalStateException.class, () -> service.nativeQr("XHPTEST01", 7),
+                    "Must refuse a terminal or unknown payment state: " + status);
+        }
+        org.mockito.Mockito.verifyNoInteractions(nativePay);
+        assertEquals("UNKNOWN", jdbc.queryForObject(
+                "SELECT status FROM payment_order WHERE payment_no='XHPTEST01'", String.class));
+    }
+
+    @Test
+    void approvedPaymentWithoutPersistedQrCannotIssueAnotherRemotePrepay() {
+        // An APPROVED row without code URL may represent an incomplete external
+        // operation. Never call the WeChat prepay API with that stale payment id.
+        assertThrows(IllegalStateException.class, () -> service.nativeQr("XHPTEST01", 7));
+        org.mockito.Mockito.verifyNoInteractions(nativePay);
+    }
+
+    @Test
     void verifiedDuplicateNotificationCreditsExactlyOnce() throws Exception {
         when(parser.parse(any(RequestParam.class), eq(Transaction.class))).thenReturn(success(1234));
         String body = "{\"id\":\"evt-1\",\"event_type\":\"TRANSACTION.SUCCESS\"}";

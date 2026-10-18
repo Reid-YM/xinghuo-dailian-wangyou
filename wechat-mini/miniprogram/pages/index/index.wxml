@@ -207,24 +207,27 @@
               <text class="camo-guide-title">完整迷彩挑战</text>
               <text class="camo-guide-flow">军事 → 特种 → 完成主义 → 精通</text>
             </view>
+            <view class="camo-guide-hint">点一下条目可标记完成（仅本机记录）</view>
             <view class="camo-guide-group" wx:for="{{w.camoGuide.groups}}" wx:for-item="grp" wx:key="key">
               <view class="camo-guide-group-head">
                 <text class="camo-guide-group-title">{{grp.title}}</text>
               </view>
               <view class="camo-guide-tiles" wx:if="{{grp.key === 'military' && w.camoGuide.militaryTiles.length}}">
-                <view class="camo-guide-tile" wx:for="{{w.camoGuide.militaryTiles}}" wx:for-item="mt" wx:key="key">
+                <view class="camo-guide-tile {{mt.on ? 'on' : ''}}" wx:for="{{w.camoGuide.militaryTiles}}" wx:for-item="mt" wx:key="key" data-key="{{w.code}}::{{mt.key}}" bindtap="onToggleGuideItem" role="button" aria-label="{{w.nameZh}}{{mt.label}}{{mt.on ? '已完成' : '未完成'}}">
                   <image class="camo-guide-tile-img" wx:if="{{mt.image}}" src="{{mt.image}}" mode="aspectFill" lazy-load></image>
                   <view class="camo-guide-tile-img camo-guide-tile-empty" wx:else></view>
+                  <view class="camo-guide-tile-check" wx:if="{{mt.on}}">✓</view>
                   <text class="camo-guide-tile-label">{{mt.label}}</text>
                 </view>
               </view>
               <block wx:if="{{grp.key !== 'military'}}">
-                <view class="camo-guide-row" wx:for="{{grp.items}}" wx:for-item="cg" wx:key="key">
+                <view class="camo-guide-row {{cg.on ? 'on' : ''}}" wx:for="{{grp.items}}" wx:for-item="cg" wx:key="key" data-key="{{w.code}}::{{cg.key}}" bindtap="onToggleGuideItem" role="button" aria-label="{{w.nameZh}}{{cg.name}}{{cg.on ? '已完成' : '未完成'}}">
                   <image class="camo-guide-thumb" wx:if="{{cg.image}}" src="{{cg.image}}" mode="aspectFill" lazy-load></image>
                   <view class="camo-guide-row-body">
                     <view class="camo-guide-row-top">
                       <text class="camo-guide-name">{{cg.name}}</text>
                       <text class="camo-guide-tag" wx:if="{{cg.estimate}}">参考</text>
+                      <text class="camo-guide-check" wx:if="{{cg.on}}">✓ 已完成</text>
                     </view>
                     <text class="camo-guide-req">{{cg.req}}</text>
                   </view>

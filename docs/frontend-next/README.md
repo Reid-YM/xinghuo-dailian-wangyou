@@ -42,14 +42,16 @@ N27 已补齐“公共支持与信任页 Next 预览”：新增 `/next/contact`
 
 N28 已进入“法律内容单一来源”收口：新增 `/next/rules` 与 `/next/privacy`，但不保存第二份服务规则或隐私正文。新版只读正式 `/rules`、`/privacy` HTML，经 `DOMParser` 后仅安全重建文本、标题、段落、列表、有限行内标签与允许链接；正式源不可读取时不使用备用法律副本。N14 将 Next 内普通 `/rules`、`/privacy` 归一到对应 Next 页面，`data-n28-legacy=1` 仍可打开正式原文。详见 [N28 法律内容单一来源 Next 预览](N28_LEGAL_SINGLE_SOURCE.md)。
 
+N29 已开始移动端与可达性收口的第一项：新增触控友好的 Next 移动底部导航，覆盖首页、服务、询价、账号、攻略、工具站、业务记录和客服，并补上安全区、焦点高亮和减少动画支持；配套 Chromium/WebKit 多视口测试。其它全站加载/错误/空状态仍待进一步验收，不视为 N29 全部完成。详见 [N29 移动导航第一阶段](N29_MOBILE_NAVIGATION.md)。
+
 ## 当前部署与流量状态
 
-N9–N22 已于 2026-10-17 通过标准生产发布链进入同一生产应用，并保留 `/next/**` 作为显式预览入口；正式默认前端仍为 Legacy，没有把 `/`、`/services`、`/quote`、`/account` 等默认入口切到 Next。N23–N27 组合 CI 已在最新 main 上全绿；N28 在 N27 之上继续开发验证。正式流量仍不受本阶段开发影响。
+N9–N22 已于 2026-10-17 通过标准生产发布链进入同一生产应用，并保留 `/next/**` 作为显式预览入口；正式默认前端仍为 Legacy，没有把 `/`、`/services`、`/quote`、`/account` 等默认入口切到 Next。N23–N28 组合 CI 已在最新 main 上全绿；N29 在 N28 之上独立开发验证。正式流量仍不受本阶段开发影响。
 
 用户要求正式前端保持旧版。当前代码默认关闭 Next 正式映射，发布后以实际正式页面核验为准；新版后台继续保留。详见 [前端回退记录](../development/2026-10-16-frontend-rollback.md)。重新启用正式 Next 必须单独获得明确授权。
 
 - 默认入口 /、/services、/quote、/account 及认证/设置子页保持旧视图和原账号鉴权。
-- 已部署生产预览入口目前仍是 N9–N22；N23–N28 尚未合并/部署，因此 `/next/guides`、`/next/mastery`、`/next/account/submit`、`/next/records`、`/next/contact`、`/next/trust`、`/next/rules`、`/next/privacy` 不能视为线上已发布能力。
+- 已部署生产预览入口目前仍是 N9–N22；N23–N29 尚未合并/部署，因此 `/next/guides`、`/next/mastery`、`/next/account/submit`、`/next/records`、`/next/contact`、`/next/trust`、`/next/rules`、`/next/privacy` 及 N29 移动底栏不能视为线上已发布能力。
 - 页面级回退使用 `?legacy=1`；整体回退配置 `app.frontend-next.default-enabled=false`。不能通过改静态首页文件假称已切换实际路由。
 - Next runtime 使用真实 64 位内容指纹；N23 以后按需加载的阶段 runtime 复用已版本化 N14 manifest 指纹，不再使用日期式固定版本。账号/console 写请求遵循服务端 `X-Requested-With: fetch`，不放宽鉴权。
 - 数据失败时只保留已读真实数据或错误/重试状态，不回退模拟商品、价格、订单、投稿或法律正文。

@@ -39,6 +39,8 @@
       .n22-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}.n22-content{display:grid;gap:12px}.n22-section{padding:22px}.n22-section h2{font-size:24px;margin:0 0 13px}.n22-body{display:grid;gap:9px;color:#b0b7bf;line-height:1.82}.n22-body p{margin:0}.n22-body ul{margin:0;padding-left:20px;display:grid;gap:7px}.n22-image{margin-top:16px;border:1px solid #ffffff10;border-radius:13px;overflow:hidden}.n22-image img{display:block;width:100%;max-height:520px;object-fit:contain;background:#080b0e}
       .n22-side{padding:18px;position:sticky;top:94px}.n22-side h3{margin:5px 0 12px}.n22-actions{display:grid;gap:8px}.n22-actions .btn{text-align:center}.n22-note{margin-top:14px;padding-top:14px;border-top:1px solid #ffffff10;color:#7e8791;font-size:10px;line-height:1.7}.n22-note a{color:#d9bb61}
       .n22-products,.n22-related{display:grid;gap:9px}.n22-product,.n22-related a{display:block;border:1px solid #ffffff12;border-radius:12px;padding:13px;background:#0a0e12}.n22-product strong,.n22-related strong{display:block;margin-bottom:5px}.n22-product p,.n22-related span{margin:0;color:#89929c;font-size:10px;line-height:1.65}.n22-product-actions{display:flex;gap:7px;margin-top:10px}.n22-product-actions a{font-size:10px;padding:8px 10px}.n22-faq{border-bottom:1px solid #ffffff10;padding:10px 0}.n22-faq:last-child{border-bottom:0}.n22-faq summary{cursor:pointer;font-weight:700}.n22-faq p{color:#949da7;line-height:1.75;margin:9px 0 0}.n22-loading{min-height:320px;display:grid;place-items:center;text-align:center;color:#9aa2ac}.n22-error h1{font-size:36px;margin:10px 0}.n22-error p{color:#9aa2ac;line-height:1.7}.n22-error-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+      .n22-detail .gc-root{--xh-line:var(--line);--xh-line-strong:#ffffff38;--xh-surface-2:#090d11;--xh-text:var(--txt);--xh-text-muted:var(--muted);--xh-gold:var(--gold);--xh-danger:#ff9b87;--xh-warning:#d8bb61;min-width:0;overflow-wrap:anywhere}
+      .n22-detail .gc-form[hidden]{display:none}.n22-detail .gc-comment-actions button{min-height:44px;min-width:44px}.n22-detail .gc-form .btn{min-height:44px}
       @media(max-width:880px){.n22-detail{padding-top:92px}.n22-layout{grid-template-columns:1fr}.n22-side{position:relative;top:auto}.n22-cover,.n22-cover img{min-height:210px}}
       @media(max-width:560px){.n22-hero-copy,.n22-section{padding:16px}.n22-title{font-size:38px}.n22-error-actions{display:grid}.n22-product-actions{display:grid}}
     `;
@@ -200,6 +202,34 @@
     return box.children.length ? box : null;
   }
 
+  function renderCommunity(slug) {
+    const root = node('section', 'n22-section gc-root');
+    root.dataset.guideCommunity = '';
+    root.dataset.guideSlug = slug;
+    const head = node('div', 'gc-head');
+    head.append(node('h2', '', '玩家讨论'));
+    const favorite = node('button', 'btn', '');
+    favorite.type = 'button'; favorite.dataset.favoriteToggle = '';
+    const label = node('span', '', '收藏本篇'); label.dataset.favoriteLabel = '';
+    favorite.append(label); head.append(favorite);
+    const note = node('p', 'gc-note', '正在加载讨论…');
+    note.dataset.communityNote = ''; note.setAttribute('role', 'status');
+    const form = document.createElement('form'); form.className = 'gc-form';
+    form.dataset.commentForm = ''; form.hidden = true;
+    const fieldLabel = node('label', 'gc-label', '写下你的经验或补充');
+    fieldLabel.htmlFor = 'n22CommentInput';
+    const input = document.createElement('textarea');
+    input.id = 'n22CommentInput'; input.className = 'gc-input'; input.maxLength = 2000; input.rows = 3;
+    const error = node('p', 'gc-error'); error.dataset.commentError = ''; error.hidden = true;
+    error.setAttribute('role', 'alert');
+    const submit = node('button', 'btn gold', '发表评论');
+    submit.type = 'submit'; submit.dataset.commentSubmit = '';
+    form.append(fieldLabel, input, error, submit);
+    const comments = node('div', 'gc-list'); comments.dataset.commentList = '';
+    root.append(head, note, form, comments);
+    return root;
+  }
+
   function renderDetail(section, detail) {
     const shell = $('.shell', section);
     if (!shell) return;
@@ -269,15 +299,18 @@
       aside.append(node('h3', '', '相关攻略'), related);
     }
     const note = node('div', 'n22-note');
-    note.append(document.createTextNode('这是 Frontend Next N22 只读攻略详情。旧版 '));
+    note.append(document.createTextNode('攻略内容与讨论沿用原站点数据。旧版 '));
     const legacy = node('a', '', `/guides/${slug}`);
     legacy.href = `/guides/${encodeURIComponent(slug)}`;
     legacy.dataset.n22Legacy = '1';
     note.append(legacy, document.createTextNode(' 继续保留，不修改原页面。'));
     aside.append(note);
 
+    const community = renderCommunity(slug);
+    content.append(community);
     layout.append(content, aside);
     shell.replaceChildren(breadcrumb, hero, layout);
+    window.XHGuideCommunity?.mount(community);
   }
 
   function renderError(section, message, slug) {

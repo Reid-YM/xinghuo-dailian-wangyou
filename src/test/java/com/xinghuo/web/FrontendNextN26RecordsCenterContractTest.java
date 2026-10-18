@@ -74,11 +74,11 @@ class FrontendNextN26RecordsCenterContractTest {
     }
 
     @Test
-    void stagedRuntimesReuseTheVersionedN14ManifestFingerprint() throws Exception {
+    void stagedRuntimesUseTheirOwnManifestFingerprint() throws Exception {
         String routes = read("resources/static/next/n14-route-continuity.js");
-        assertTrue(routes.contains("document.currentScript?.src"));
-        assertTrue(routes.contains("searchParams.get('v')"));
+        assertTrue(routes.contains("document.currentScript?.dataset.stageVersions"));
+        assertTrue(routes.contains("STAGE_RUNTIME_VERSIONS[path]"));
         assertTrue(routes.contains("/^[0-9a-f]{64}$/"));
-        assertTrue(routes.contains("`${path}?v=${STAGE_RUNTIME_VERSION}`"));
+        assertTrue(routes.contains("`${path}?v=${version}`"));
     }
 }

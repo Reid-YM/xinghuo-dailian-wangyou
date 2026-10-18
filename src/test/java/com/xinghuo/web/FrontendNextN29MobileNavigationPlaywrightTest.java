@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-class FrontendNextN29MobileNavigationTest {
+class FrontendNextN29MobileNavigationPlaywrightTest {
     private static final Path HTML = Path.of("src/main/resources/static/next/index.html");
 
     @Test

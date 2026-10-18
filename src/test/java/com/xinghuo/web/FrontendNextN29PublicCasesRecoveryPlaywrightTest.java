@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-class FrontendNextN29PublicCasesRecoveryTest {
+class FrontendNextN29PublicCasesRecoveryPlaywrightTest {
     private static final Path RUNTIME =
             Path.of("src/main/resources/static/next/n27-support-trust.js");
 

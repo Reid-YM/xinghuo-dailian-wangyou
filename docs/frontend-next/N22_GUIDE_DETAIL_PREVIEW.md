@@ -101,3 +101,9 @@ N22 继续遵守 Frontend Next 开发边界：
 - 不切正式流量；
 - Legacy 继续作为正式前端；
 - `app.frontend-next.default-enabled=false` 不变。
+
+## 2026-10-19 完整迁移补查
+
+旧攻略页还有收藏与讨论能力，仅提供只读正文不能算完整迁移。Next 详情现在建立讨论区域并显式调用共享 `XHGuideCommunity.mount(root)`，继续由既有 `assets/guide-community.js` 唯一拥有收藏、评论、回复、举报及账号请求协议。保留 `X-Requested-With: fetch`、原审核状态、已删除内容过滤与安全文本渲染；登录返回保留具体 Next 攻略地址。评论失败保留输入，提交期间阻止重复提交和编辑，评论列表失败可原位重试。N22 的正文读取本身继续只用原公开攻略 GET。
+
+`FrontendNextN30GuideCommunityPlaywrightTest` 覆盖 Next 整页实际加载、收藏、举报、回复提交失败/重试、待审显示、删除过滤、安全文本及访客回跳；开发验证不等于生产提交评论或真实员工审核验收。社区 JS/CSS 与阶段脚本均由服务器按实际内容产生版本。

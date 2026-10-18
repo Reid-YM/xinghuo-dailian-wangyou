@@ -49,7 +49,13 @@ public class FrontendNextPreviewController {
     private static final String N19_RUNTIME = "<script src=\"/next/n19-account-detail-context.js\" defer></script>";
     private static final String N20_RUNTIME = "<script src=\"/next/n20-account-list-view-state.js\" defer></script>";
     private static final String N21_RUNTIME = "<script src=\"/next/n21-account-personal-assets.js\" defer></script>";
+    private static final String GUIDE_COMMUNITY_RUNTIME = "<script src=\"/assets/guide-community.js\" defer></script>";
     private static final String N22_RUNTIME = "<script src=\"/next/n22-guide-detail.js\" defer></script>";
+    private static final String[] STAGED_RUNTIMES = {
+            "n23-guides-center.js", "n24-mastery.js", "n25-submission-workbench.js",
+            "n26-records-center.js", "n26-record-history-bridge.js", "n27-support-trust.js",
+            "n28-legal-single-source.js"
+    };
     private SiteConfigService configuration;
     @Autowired void configuration(SiteConfigService configuration) { this.configuration = configuration; }
     private final Map<String,String> runtimeVersions = new ConcurrentHashMap<>();
@@ -163,9 +169,22 @@ public class FrontendNextPreviewController {
         if (!html.contains(N21_RUNTIME)) {
             html = html.replace("</body>", N21_RUNTIME + "</body>");
         }
+        if (!html.contains(GUIDE_COMMUNITY_RUNTIME)) {
+            html = html.replace("</body>", GUIDE_COMMUNITY_RUNTIME + "</body>");
+        }
         if (!html.contains(N22_RUNTIME)) {
             html = html.replace("</body>", N22_RUNTIME + "</body>");
         }
+        // The loader's own digest cannot invalidate a changed, independently loaded resource.
+        StringBuilder manifest = new StringBuilder("{");
+        for (String name : STAGED_RUNTIMES) {
+            if (manifest.length() > 1) manifest.append(',');
+            manifest.append('"').append("/next/").append(name).append("\":\"")
+                    .append(runtimeVersion("next/" + name)).append('"');
+        }
+        manifest.append('}');
+        html = html.replace(N14_RUNTIME, N14_RUNTIME.replace(" defer", " data-stage-versions=\""
+                + HtmlUtils.htmlEscape(manifest.toString()) + "\" defer"));
         html = versionRuntimes(html);
         if (configuration != null) {
             var site = configuration.publicConfig();
@@ -188,24 +207,29 @@ public class FrontendNextPreviewController {
             html = html.replace("</head>", metadata + "</head>");
         }
         return ResponseEntity.ok()
-                .contentType(MediaType.TEXT_HTML)
+                .contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))
                 .header("X-Xinghuo-Frontend", "next")
                 .cacheControl(CacheControl.noStore())
                 .body(html);
     }
     private String versionRuntimes(String html) throws IOException {
-        for (String name : new String[]{"next/shell.js","next/n2.js","next/n3.js","next/n4.js","next/n4-mini.js","next/n5.js","next/n5-actions.js","next/n6-account-security.js","next/n7-auth.js","next/n8-integration.js","next/n10-service-detail.js","next/n11-related-services.js","next/n12-quote-context.js","next/n13-record-detail.js","next/n14-route-continuity.js","next/n15-auth-return.js","next/n16-account-deep-links.js","next/n17-account-navigation.js","next/n18-account-detail-deep-links.js","next/n19-account-detail-context.js","next/n20-account-list-view-state.js","next/n21-account-personal-assets.js","next/n22-guide-detail.js","assets/global-ui-controls.js","assets/frontend-controls-runtime.js","assets/site-image-controls.js","assets/site-image-controls.css"}) {
-            String version = runtimeVersions.get(name);
-            if (version == null) {
-                try (var input = new ClassPathResource("static/" + name).getInputStream()) {
-                    version = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(input.readAllBytes()));
-                } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
-                runtimeVersions.put(name, version);
-            }
+        for (String name : new String[]{"next/shell.js","next/n2.js","next/n3.js","next/n4.js","next/n4-mini.js","next/n5.js","next/n5-actions.js","next/n6-account-security.js","next/n7-auth.js","next/n8-integration.js","next/n10-service-detail.js","next/n11-related-services.js","next/n12-quote-context.js","next/n13-record-detail.js","next/n14-route-continuity.js","next/n15-auth-return.js","next/n16-account-deep-links.js","next/n17-account-navigation.js","next/n18-account-detail-deep-links.js","next/n19-account-detail-context.js","next/n20-account-list-view-state.js","next/n21-account-personal-assets.js","next/n22-guide-detail.js","assets/guide-community.js","assets/guide-community.css","assets/global-ui-controls.js","assets/frontend-controls-runtime.js","assets/site-image-controls.js","assets/site-image-controls.css"}) {
+            String version = runtimeVersion(name);
             String path = "/" + name;
             html = html.replace("src=\"" + path + "\"", "src=\"" + path + "?v=" + version + "\"");
             html = html.replace("href=\"" + path + "\"", "href=\"" + path + "?v=" + version + "\"");
         }
         return html;
     }
+    private String runtimeVersion(String name) throws IOException {
+        String version = runtimeVersions.get(name);
+        if (version == null) {
+            try (var input = new ClassPathResource("static/" + name).getInputStream()) {
+                version = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(input.readAllBytes()));
+            } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
+            runtimeVersions.put(name, version);
+        }
+        return version;
+    }
+
 }

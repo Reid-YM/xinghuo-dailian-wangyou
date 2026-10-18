@@ -4,13 +4,11 @@
   if (!/^\/next(?:\/|$)/.test(location.pathname)) return;
 
   const text = (value) => String(value ?? '').trim();
-  const STAGE_RUNTIME_VERSION = (() => {
+  const STAGE_RUNTIME_VERSIONS = (() => {
     try {
-      const source = document.currentScript?.src || '';
-      const version = new URL(source, location.origin).searchParams.get('v') || '';
-      return /^[0-9a-f]{64}$/.test(version) ? version : '';
+      return JSON.parse(document.currentScript?.dataset.stageVersions || '{}');
     } catch (ignore) {
-      return '';
+      return {};
     }
   })();
 
@@ -109,7 +107,8 @@
   }
 
   function stageSource(path) {
-    return STAGE_RUNTIME_VERSION ? `${path}?v=${STAGE_RUNTIME_VERSION}` : path;
+    const version = STAGE_RUNTIME_VERSIONS[path];
+    return /^[0-9a-f]{64}$/.test(version || '') ? `${path}?v=${version}` : path;
   }
 
   function ensureRuntime(id, source, matcher) {
@@ -118,6 +117,26 @@
     script.id = id;
     script.src = source;
     script.defer = true;
+    const status = document.createElement('div');
+    status.className = 'next-config-state';
+    status.setAttribute('role', 'status');
+    status.textContent = '正在加载页面…';
+    document.querySelector('.nav')?.after(status);
+    script.onload = () => status.remove();
+    script.onerror = () => {
+      if (!matcher.test(location.pathname)) { status.remove(); return; }
+      status.textContent = '页面资源加载失败，请重试。';
+      const retry = document.createElement('button');
+      retry.type = 'button';
+      retry.className = 'btn';
+      retry.textContent = '重新加载页面';
+      retry.onclick = () => {
+        status.remove();
+        script.remove();
+        ensureRuntime(id, source, matcher);
+      };
+      status.append(retry);
+    };
     document.head.append(script);
   }
 

@@ -50,6 +50,7 @@
 
 ### 攻略
 - `guide.css` / `guide-render.js` / `guide-community.*`：攻略前台；
+- `guide-community.js` 的 `XHGuideCommunity.mount(root)` 同时拥有旧攻略和 Next 详情的收藏、讨论、回复、举报请求；Next 的 `n22-guide-detail.js` 仅建立界面并显式挂载，不复制社区状态机。重复挂载同一 root 不重复绑定事件。
 - `admin-guides-workspace.css`：攻略后台主结构。
 
 ## 4. 后台

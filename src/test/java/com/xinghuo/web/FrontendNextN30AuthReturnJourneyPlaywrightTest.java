@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-class FrontendNextN30AuthReturnJourneyTest {
+class FrontendNextN30AuthReturnJourneyPlaywrightTest {
     private static final Path RUNTIME = Path.of("src/main/resources/static/next/n15-auth-return.js");
 
     @Test

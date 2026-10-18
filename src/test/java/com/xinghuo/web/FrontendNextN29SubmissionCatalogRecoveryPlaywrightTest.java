@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-class FrontendNextN29SubmissionCatalogRecoveryTest {
+class FrontendNextN29SubmissionCatalogRecoveryPlaywrightTest {
     private static final Path RUNTIME =
             Path.of("src/main/resources/static/next/n25-submission-workbench.js");
 
@@ -82,7 +82,7 @@ class FrontendNextN29SubmissionCatalogRecoveryTest {
                 assertEquals(1, catalogCalls.get());
                 page.locator("#n25Title").fill("保留中的投稿标题");
                 page.locator("#n25GameLoadState button").click();
-                page.waitForSelector("#n25Game option[value='CODMW4']");
+                page.waitForFunction("() => !!document.querySelector(\"#n25Game option[value='CODMW4']\")");
                 assertEquals(2, catalogCalls.get());
                 assertEquals("保留中的投稿标题", page.locator("#n25Title").inputValue());
                 assertEquals(0, page.locator("#n25GameLoadState").count());

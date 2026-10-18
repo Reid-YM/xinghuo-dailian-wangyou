@@ -13,6 +13,9 @@
   let submissions = [];
   let loadToken = 0;
   let draftTimer = 0;
+  let draftPending = false;
+  let submitting = false;
+  let accountReady = false;
 
   const STATUS = Object.freeze({
     SUBMITTED: '已提交，等待审核',
@@ -149,24 +152,36 @@
     try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (_) { return null; }
   }
 
+  function flushDraft() {
+    clearTimeout(draftTimer);
+    if (!draftPending) return;
+    draftPending = false;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        gameCode: text($('#n25Game')?.value) || text(draftValue()?.gameCode),
+        title: text($('#n25Title')?.value),
+        summary: text($('#n25Summary')?.value),
+        contentMd: String($('#n25Content')?.value || ''),
+        savedAt: Date.now()
+      }));
+      const target = $('#n25DraftState');
+      if (target) target.textContent = '草稿已自动保存到本机';
+    } catch (_) {
+      const target = $('#n25DraftState');
+      if (target) target.textContent = '本机草稿保存不可用，请保留当前页面';
+    }
+  }
+
   function saveDraft() {
     clearTimeout(draftTimer);
-    draftTimer = setTimeout(() => {
-      try {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({
-          gameCode: text($('#n25Game')?.value),
-          title: text($('#n25Title')?.value),
-          summary: text($('#n25Summary')?.value),
-          contentMd: String($('#n25Content')?.value || ''),
-          savedAt: Date.now()
-        }));
-        const target = $('#n25DraftState');
-        if (target) target.textContent = '草稿已自动保存到本机';
-      } catch (_) {
-        const target = $('#n25DraftState');
-        if (target) target.textContent = '本机草稿保存不可用';
-      }
-    }, 350);
+    draftPending = true;
+    draftTimer = setTimeout(flushDraft, 350);
+  }
+
+  function discardDraft() {
+    clearTimeout(draftTimer);
+    draftPending = false;
+    try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
   }
 
   function restoreDraft() {
@@ -344,6 +359,9 @@
       $('#n25AuthText').textContent = '登录后可创建投稿、查看审核状态与撤回自己的内容。';
       const action = $('#n25AuthAction'); action.hidden = false; action.href = '/next/account?next=%2Fnext%2Faccount%2Fsubmit'; action.textContent = '登录 / 注册';
     }
+    accountReady = false;
+    $('#n25AuthAction')?.removeAttribute('onclick');
+    if ($('#n25AuthAction')) $('#n25AuthAction').onclick = null;
     const submit = $('#n25Submit'); if (submit) submit.disabled = true;
   }
 
@@ -355,11 +373,22 @@
       $('#n25AuthLead').textContent = `投稿账号：${text(me?.displayName) || '已登录用户'}`;
       $('#n25AuthText').textContent = me?.emailVerified ? '安全邮箱已验证 · 投稿归属于当前账号' : '投稿归属于当前账号';
       $('#n25AuthAction').hidden = true;
+      $('#n25AuthAction').onclick = null;
+      accountReady = true;
+      $('#n25Submit').disabled = false;
       return true;
     } catch (error) {
       if (error.status === 401) { showGuest(); return false; }
       const auth = $('#n25Auth'); if (auth) auth.dataset.state = 'error';
-      $('#n25AuthLead').textContent = '账号状态暂不可用'; $('#n25AuthText').textContent = '请刷新后重试。';
+      accountReady = false;
+      $('#n25Submit').disabled = true;
+      $('#n25AuthLead').textContent = '账号状态暂不可用'; $('#n25AuthText').textContent = '请重试账号状态，当前稿件会保留。';
+      const action = $('#n25AuthAction');
+      action.hidden = false; action.textContent = '重试账号状态'; action.href = '#';
+      action.onclick = async event => {
+        event.preventDefault();
+        if (await loadAccount()) await loadMine();
+      };
       return false;
     }
   }
@@ -384,7 +413,7 @@
     const titleField = node('div', 'n25-field'); titleField.append(node('label', '', '标题 *')); const title = document.createElement('input'); title.id = 'n25Title'; title.maxLength = 180; title.placeholder = '例如：多人迷彩路线与注意事项'; titleField.append(title); row.append(gameField, titleField); form.append(row);
     const summaryField = node('div', 'n25-field'); summaryField.append(node('label', '', '摘要')); const summary = document.createElement('input'); summary.id = 'n25Summary'; summary.maxLength = 500; summary.placeholder = '用一句话说明攻略适合谁、解决什么问题'; summaryField.append(summary); form.append(summaryField);
     const contentField = node('div', 'n25-field'); contentField.append(node('label', '', '正文 *')); const content = document.createElement('textarea'); content.id = 'n25Content'; content.placeholder = '# 一级标题\n\n- 支持标题、列表和普通段落\n- 预览只生成安全文本节点，不执行 HTML 或脚本'; contentField.append(content); form.append(contentField);
-    const formActions = node('div', 'n25-form-actions'); const submit = node('button', 'btn gold', '提交审核'); submit.type = 'submit'; submit.id = 'n25Submit'; const clear = node('button', 'btn', '清空本机草稿'); clear.type = 'button'; clear.id = 'n25ClearDraft'; const draft = node('span', 'n25-draft', '草稿等待输入'); draft.id = 'n25DraftState'; formActions.append(submit, clear, draft); form.append(formActions);
+    const formActions = node('div', 'n25-form-actions'); const submit = node('button', 'btn gold', '提交审核'); submit.type = 'submit'; submit.id = 'n25Submit'; submit.disabled = true; const clear = node('button', 'btn', '清空本机草稿'); clear.type = 'button'; clear.id = 'n25ClearDraft'; const draft = node('span', 'n25-draft', '草稿等待输入'); draft.id = 'n25DraftState'; formActions.append(submit, clear, draft); form.append(formActions);
     const msg = node('div', 'n25-msg'); msg.id = 'n25Message'; form.append(msg); editor.append(form);
     const previewPanel = node('section', 'n25-panel'); previewPanel.append(node('h2', '', '安全预览'), node('p', 'sub', '这里只解析标题、列表和普通段落；不会执行用户输入的 HTML 或脚本。')); const preview = node('div', 'n25-preview'); preview.id = 'n25Preview'; previewPanel.append(preview); const count = node('div', 'n25-count', '0 字符'); count.id = 'n25Count'; previewPanel.append(count);
     const left = node('div'); left.append(editor, previewPanel);
@@ -394,7 +423,7 @@
     [game, title, summary, content].forEach((input) => { input.addEventListener('input', () => { updatePreview(); saveDraft(); }); input.addEventListener('change', saveDraft); });
     clear.addEventListener('click', () => {
       if (!confirm('确定清空当前设备上的未提交草稿吗？')) return;
-      form.reset(); try { localStorage.removeItem(DRAFT_KEY); } catch (_) {} draft.textContent = '草稿已清空'; updatePreview();
+      form.reset(); discardDraft(); draft.textContent = '草稿已清空'; updatePreview();
     });
     form.addEventListener('submit', submitForm);
     updatePreview();
@@ -402,33 +431,39 @@
 
   async function submitForm(event) {
     event.preventDefault();
+    if (submitting || !accountReady) return;
     const button = $('#n25Submit');
     const body = { gameCode: text($('#n25Game')?.value), title: text($('#n25Title')?.value), summary: text($('#n25Summary')?.value), contentMd: String($('#n25Content')?.value || '') };
     if (!body.gameCode) return message('请选择投稿对应的游戏。', 'error');
     if (!body.title) return message('请填写标题。', 'error');
     if (!body.contentMd.trim()) return message('正文不能为空。', 'error');
+    submitting = true;
+    flushDraft();
+    const fields = [...$('#n25Form').elements];
+    fields.forEach(field => { field.disabled = true; });
     button.disabled = true; button.textContent = '提交中…'; message('正在安全提交投稿…');
     try {
       await api('/api/account/submissions', { method: 'POST', body });
-      $('#n25Form').reset(); try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
+      $('#n25Form').reset(); discardDraft();
       $('#n25DraftState').textContent = '投稿已提交'; updatePreview(); message('投稿已提交，我们会尽快审核。', 'ok'); await loadMine();
     } catch (error) {
       if (error.status === 401) showGuest();
       message(error.message || '投稿失败，请稍后重试。', 'error');
-    } finally { button.disabled = false; button.textContent = '提交审核'; }
+    } finally { submitting = false; fields.forEach(field => { field.disabled = false; }); button.disabled = !accountReady; button.textContent = '提交审核'; }
   }
 
   async function load() {
     const section = ensureSection(); activate(section); installStyles(); setMetadata(); buildUi(section);
+    restoreDraft();
     const token = ++loadToken;
     try { await loadGames(); } catch (error) { if (token === loadToken) { showGameError(error); message('游戏列表读取失败，可在游戏选择处重试。', 'error'); } }
-    restoreDraft();
     const logged = await loadAccount();
     if (token !== loadToken) return;
     if (logged) await loadMine(); else renderMine($('#n25Mine'));
   }
 
-  window.addEventListener('pagehide', () => clearTimeout(draftTimer), { once: true });
+  window.addEventListener('pagehide', flushDraft);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) flushDraft(); });
   window.XHFrontendNextN25 = { reload: load, get state() { return { submissions: [...submissions], draft: draftValue() }; } };
   load();
 })();

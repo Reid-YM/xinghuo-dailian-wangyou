@@ -8,7 +8,7 @@ N15 账号登录回跳最初只覆盖 N1–N13 的 `/services`、`/quote`、`/ac
 
 ## 新增浏览器验收
 
-- `FrontendNextN30AuthReturnJourneyTest`：Chromium 和 WebKit 验证新版所有后续页面的登录回跳；旧版显式 escape、原 `/guest-access` 独立链路、外站与管理/API 入口的边界保持不变。
+- `FrontendNextN30AuthReturnJourneyPlaywrightTest`：Chromium 和 WebKit 验证新版所有后续页面的登录回跳；旧版显式 escape、原 `/guest-access` 独立链路、外站与管理/API 入口的边界保持不变。
 - `FrontendNextN30QuoteRecordJourneyPlaywrightTest`：Chromium 和 WebKit 在网络模拟中从 N3 真实提交运行时（请求 `POST /api/quote` 带幂等键）获取业务编号、由 N26 history bridge 写入与旧版相同的本机 `xh_client_records_v1`，再走 N13 `GET /api/records/{businessNo}` 详情以及 N26 `/next/records` 列表，验证持续可返回单条真实记录并且没有重复提交。
 - 这些验收使用本地 Playwright 路由模拟服务器返回（非生产业务请求）。它们验证浏览器内真实 JS 模块协作，但不声称已经完成线上全链路、真实微信支付、真实订单履约或账号授权验收。
 

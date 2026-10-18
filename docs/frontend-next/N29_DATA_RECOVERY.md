@@ -17,8 +17,8 @@
 
 ## 验收
 
-- `FrontendNextN29PublicCasesRecoveryTest`：合同及 Chromium 503 → 重试 200 空数组，验证失败不伪装为空、重试次数和真实空状态。
-- `FrontendNextN29SubmissionCatalogRecoveryTest`：合同及 Chromium 503 → 重试 200 游戏列表，验证编辑器内容未被重置。
+- `FrontendNextN29PublicCasesRecoveryPlaywrightTest`：合同及 Chromium 503 → 重试 200 空数组，验证失败不伪装为空、重试次数和真实空状态。
+- `FrontendNextN29SubmissionCatalogRecoveryPlaywrightTest`：合同及 Chromium 503 → 重试 200 游戏列表，验证编辑器内容未被重置。
 - 与 N23–N29 整栈组合运行 Maven 和 Chromium+WebKit。
 - 本次属于 N29 的第二阶段，不等于全部页面的错误态与全链路验收已完成。
 

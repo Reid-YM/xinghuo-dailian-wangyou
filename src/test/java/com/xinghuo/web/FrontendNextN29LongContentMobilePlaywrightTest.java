@@ -14,7 +14,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-class FrontendNextN29LongContentMobileTest {
+class FrontendNextN29LongContentMobilePlaywrightTest {
     private static final Path NEXT = Path.of("src/main/resources/static/next");
     private static final Map<String, String> FIXTURES = new LinkedHashMap<>();
 

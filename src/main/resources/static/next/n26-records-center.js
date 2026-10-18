@@ -76,7 +76,7 @@
       .n26-state{min-height:250px;border:1px solid #ffffff15;border-radius:14px;background:#0d1116;display:grid;place-items:center;text-align:center;padding:30px;color:#909aa4}.n26-state h2{color:#f2f4f6;margin:0 0 7px}.n26-state p{margin:0 0 13px;line-height:1.7}.n26-footnote{color:#68727d;font-size:9px;line-height:1.7;margin-top:13px}
       @media(max-width:760px){.n26-head{grid-template-columns:1fr}.n26-list{grid-template-columns:1fr}.n26-search form{grid-template-columns:1fr}.n26-actions{display:grid}.n26-records{padding-top:92px}}
       /* N29 mobile: allow long customer-provided and published content to wrap safely. */
-      .n26-records .n26-card,.n26-records .n26-head,.n26-records .n26-state,.n26-records .n26-summary>*{min-width:0}
+      .n26-records .n26-card,.n26-records .n26-head,.n26-records .n26-state,.n26-records .n26-summary>*{min-width:0;overflow-wrap:anywhere}
       .n26-records .n26-card,.n26-records .n26-state,.n26-records .n26-summary{overflow-wrap:anywhere}
     `;
     document.head.append(style);

@@ -18,7 +18,7 @@ N23–N28 各路由已有响应式布局，但真实业务中可能出现很长�
 
 ## 浏览器验收
 
-`FrontendNextN29LongContentMobileTest` 从实际阶段运行时抽取 CSS，与现有 Next 预览基础样式一并装载。在 Chromium 和 WebKit 的 320px、390px 视口，为六类页面注入超长无空格用户/已发布内容，检查 `documentElement.scrollWidth` 没有超过视口宽度。静态合同断言每个阶段具有换行及 Grid/Flex 收缩保护。
+`FrontendNextN29LongContentMobilePlaywrightTest` 从实际阶段运行时抽取 CSS，与现有 Next 预览基础样式一并装载。在 Chromium 和 WebKit 的 320px、390px 视口，为六类页面注入超长无空格用户/已发布内容，检查 `documentElement.scrollWidth` 没有超过视口宽度。静态合同断言每个阶段具有换行及 Grid/Flex 收缩保护。
 
 本测试专注窄屏长内容布局，不冒充完整业务场景端到端验收。完整 N29–N30 仍需核心交易流、未登录状态、真实错误/重试及正式灰度切换前验收。
 

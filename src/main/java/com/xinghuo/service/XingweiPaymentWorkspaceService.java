@@ -2,6 +2,7 @@ package com.xinghuo.service;
 
 import com.xinghuo.account.service.AutomaticOrderAccountLinkService;
 import com.xinghuo.exception.BadRequestException;
+import com.xinghuo.exception.ConflictException;
 import com.xinghuo.exception.NotFoundException;
 import com.xinghuo.payment.GuestWeChatPaymentService;
 import com.xinghuo.payment.WeChatNativePaymentService;
@@ -173,7 +174,14 @@ public class XingweiPaymentWorkspaceService {
             throw new BadRequestException("编号对应多个订单，请使用完整订单号");
         }
         var row = rows.getFirst();
+        // Check staff data scope before returning any ownership diagnostics.
         scope(actor, String.valueOf(row.get("businessNo")));
+        // Legacy migrations/manual edits can leave both subjects set. Such an order
+        // must never be classified as ACCOUNT in the preview but charged as GUEST.
+        if (Boolean.TRUE.equals(row.get("customerBound"))
+                && Boolean.TRUE.equals(row.get("guestBound"))) {
+            throw new ConflictException("订单同时关联注册账号和游客凭证，已停止收款，请联系管理员核对归属");
+        }
         if (lock) {
             match(String.valueOf(row.get("revision")), expected);
         }

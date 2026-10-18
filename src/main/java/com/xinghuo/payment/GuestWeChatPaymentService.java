@@ -11,9 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.HexFormat;
 import java.util.List;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -165,7 +162,7 @@ public class GuestWeChatPaymentService {
             throw new ConflictException("二维码已过期，请联系客服核对旧支付单后重新发起收款");
         }
 
-        Instant expiry = Instant.now().plusSeconds(QR_MINUTES * 60L);
+        Instant expiry = NativePrepayTime.afterMinutes(Instant.now(), QR_MINUTES);
         PrepayRequest request = new PrepayRequest();
         Amount wechatAmount = new Amount();
         wechatAmount.setTotal(payment.amount().movePointRight(2).intValueExact());
@@ -176,8 +173,7 @@ public class GuestWeChatPaymentService {
         request.setDescription(payment.subject());
         request.setOutTradeNo(payment.paymentNo());
         request.setNotifyUrl(client.notifyUrl());
-        request.setTimeExpire(OffsetDateTime.ofInstant(expiry, ZoneOffset.ofHours(8))
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        request.setTimeExpire(NativePrepayTime.timeExpire(expiry));
         String codeUrl = client.nativePay().prepay(request).getCodeUrl();
         if (codeUrl == null || !codeUrl.startsWith("weixin://")) {
             throw new ConflictException("微信支付未返回可用的扫码地址，请联系客服核对商户配置");

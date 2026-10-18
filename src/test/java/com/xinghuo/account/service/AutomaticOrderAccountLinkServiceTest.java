@@ -30,6 +30,7 @@ class AutomaticOrderAccountLinkServiceTest {
                     business_no VARCHAR(64),
                     source_quote_id VARCHAR(36),
                     customer_account_id BIGINT,
+                    guest_access_id BIGINT,
                     version BIGINT NOT NULL DEFAULT 0,
                     created_at TIMESTAMP NOT NULL,
                     updated_at TIMESTAMP NOT NULL
@@ -138,6 +139,35 @@ class AutomaticOrderAccountLinkServiceTest {
         assertEquals(55L, owner("O-6"));
         assertNull(owner("O-7"));
         assertNull(owner("O-8"));
+    }
+
+
+    @Test
+    void accountReconcileFindsOwnedOldOrderAfterMoreThanFiveHundredUnrelatedOrphans() {
+        insertQuote("Q-OLD", "B-OLD", 77L, null, null);
+        insertOrder("O-OLD", "B-OLD", "Q-OLD", null);
+        jdbc.update("UPDATE customer_orders SET created_at = '2020-01-01 00:00:00' WHERE order_no='O-OLD'");
+
+        // Previously the global LIMIT 500 excluded this older, provably owned order.
+        for (int i = 0; i < 510; i++) {
+            insertOrder("O-OTHER-" + i, "B-OTHER-" + i, null, null);
+        }
+
+        Account owner = Account.builder().id(77L).build();
+        assertEquals(1, service.reconcile(owner));
+        assertEquals(77L, owner("O-OLD"));
+        assertNull(owner("O-OTHER-0"));
+    }
+
+    @Test
+    void accountAndAdminReconcileNeverSilentlyConvertGuestOrderIntoAccountOrder() {
+        insertQuote("Q-GUEST", "B-GUEST", 33L, null, null);
+        insertOrder("O-GUEST", "B-GUEST", "Q-GUEST", null);
+        jdbc.update("UPDATE customer_orders SET guest_access_id = 101 WHERE order_no = 'O-GUEST'");
+
+        assertEquals(0, service.reconcile(Account.builder().id(33L).build()));
+        assertFalse(service.reconcile("O-GUEST").linked());
+        assertNull(owner("O-GUEST"));
     }
 
     private void insertQuote(

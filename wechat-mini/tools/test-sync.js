@@ -65,7 +65,7 @@ function sameList(actual, expected, label) {
   await cloud.bootstrap()
   await cloud.login()
   sameList(document.done, ['A'], 'initial local progress uploads')
-  assert.strictEqual(document.total, 310, 'cloud receives current catalog total')
+  assert.strictEqual(document.total, 328, 'cloud receives current catalog total')
 
   const currentCallFunction = wx.cloud.callFunction
   wx.cloud.callFunction = function () {

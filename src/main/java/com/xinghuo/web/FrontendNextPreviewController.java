@@ -1,6 +1,8 @@
 package com.xinghuo.web;
 
 import java.io.IOException;
+import com.xinghuo.model.GameCatalog;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.RequestDispatcher;
 import com.xinghuo.service.SiteConfigService;
@@ -54,7 +56,7 @@ public class FrontendNextPreviewController {
     private static final String[] STAGED_RUNTIMES = {
             "n23-guides-center.js", "n24-mastery.js", "n25-submission-workbench.js",
             "n26-records-center.js", "n26-record-history-bridge.js", "n27-support-trust.js",
-            "n28-legal-single-source.js"
+            "n28-legal-single-source.js", "game-detail.js"
     };
     private SiteConfigService configuration;
     @Autowired void configuration(SiteConfigService configuration) { this.configuration = configuration; }
@@ -186,24 +188,47 @@ public class FrontendNextPreviewController {
         html = html.replace(N14_RUNTIME, N14_RUNTIME.replace(" defer", " data-stage-versions=\""
                 + HtmlUtils.htmlEscape(manifest.toString()) + "\" defer"));
         html = versionRuntimes(html);
-        if (configuration != null) {
-            var site = configuration.publicConfig();
+        GameCatalog game = request == null ? null : (GameCatalog) request.getAttribute("frontendGame");
+        if (configuration != null || game != null) {
+            var site = configuration == null ? null : configuration.publicConfig();
             String original = request == null ? "/" : (String)request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
             String path = original == null ? request.getRequestURI().replaceFirst("^/next", "") : original;
             if (path.isBlank() || "/home".equals(path) || "/index.html".equals(path)) path = "/";
-            String brand = site.brandName() == null ? "星火网游" : site.brandName();
+            String brand = site == null || site.brandName() == null ? "星火网游" : site.brandName();
             String title = path.startsWith("/account") ? "个人中心 · " + brand
                     : "/services".equals(path) ? "服务大厅 · " + brand
                     : path.startsWith("/service/") ? "服务详情 · " + brand
                     : path.startsWith("/guides/") ? "攻略详情 · " + brand
                     : path.startsWith("/record/") ? "业务记录 · " + brand
                     : "/quote".equals(path) ? "提交询价 · " + brand
-                    : site.seoTitle() == null ? brand : site.seoTitle();
-            String description = site.seoDescription() == null ? site.heroSubtitle() : site.seoDescription();
+                    : site == null || site.seoTitle() == null ? brand : site.seoTitle();
+            String description = site == null ? "" : site.seoDescription() == null ? site.heroSubtitle() : site.seoDescription();
+            if (game != null) {
+                title = game.getSeoTitle() == null || game.getSeoTitle().isBlank() ? game.getName() + " 任务服务 · " + brand : game.getSeoTitle();
+                description = game.getSeoDescription() == null || game.getSeoDescription().isBlank() ? game.getDescription() : game.getSeoDescription();
+            }
             html = html.replace("<title>星火网游服务平台</title>", "<title>" + HtmlUtils.htmlEscape(title) + "</title>");
             String metadata = "<meta name=\"description\" content=\"" + HtmlUtils.htmlEscape(description == null ? "" : description) + "\"/><link rel=\"canonical\" href=\"https://wydlgf.cn" + HtmlUtils.htmlEscape(path) + "\"/>";
             if (path.startsWith("/account") || path.startsWith("/record/")) metadata += "<meta name=\"robots\" content=\"noindex,nofollow\"/>";
-            else if (path.startsWith("/service/") || path.startsWith("/guides/")) metadata += "<meta name=\"robots\" content=\"noindex,follow\"/>";
+            else if (path.startsWith("/game/") || path.startsWith("/service/") || path.startsWith("/guides/")) metadata += "<meta name=\"robots\" content=\"noindex,follow\"/>";
+            if (game != null) {
+                String canonical = "https://wydlgf.cn" + path;
+                String cover = game.getCoverImage();
+                String image = cover != null && (cover.startsWith("https://") || cover.startsWith("/") && !cover.startsWith("//"))
+                        ? cover.startsWith("/") ? "https://wydlgf.cn" + cover : cover : "https://wydlgf.cn/og.png";
+                metadata += "<meta property=\"og:type\" content=\"website\"/>"
+                        + "<meta property=\"og:title\" content=\"" + HtmlUtils.htmlEscape(title) + "\"/>"
+                        + "<meta property=\"og:description\" content=\"" + HtmlUtils.htmlEscape(description == null ? "" : description) + "\"/>"
+                        + "<meta property=\"og:url\" content=\"" + HtmlUtils.htmlEscape(canonical) + "\"/>"
+                        + "<meta property=\"og:image\" content=\"" + HtmlUtils.htmlEscape(image) + "\"/>";
+                var crumbs = java.util.List.of(
+                        Map.of("@type", "ListItem", "position", 1, "name", "首页", "item", "https://wydlgf.cn/"),
+                        Map.of("@type", "ListItem", "position", 2, "name", "服务大厅", "item", "https://wydlgf.cn/services"),
+                        Map.of("@type", "ListItem", "position", 3, "name", game.getName(), "item", canonical));
+                String json = new ObjectMapper().writeValueAsString(Map.of("@context", "https://schema.org", "@type", "BreadcrumbList", "itemListElement", crumbs))
+                        .replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026");
+                metadata += "<script type=\"application/ld+json\">" + json + "</script>";
+            }
             html = html.replace("</head>", metadata + "</head>");
         }
         return ResponseEntity.ok()

@@ -28,7 +28,7 @@ class FrontendNextAssetVersionTest {
                 org.springframework.web.util.HtmlUtils.htmlUnescape(attribute.group(1)));
         for (String name : new String[]{"n23-guides-center.js", "n24-mastery.js",
                 "n25-submission-workbench.js", "n26-records-center.js", "n26-record-history-bridge.js",
-                "n27-support-trust.js", "n28-legal-single-source.js"}) {
+                "n27-support-trust.js", "n28-legal-single-source.js", "game-detail.js"}) {
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                     .digest(Files.readAllBytes(Path.of("src/main/resources/static/next/" + name))));
             assertEquals(digest, manifest.path("/next/" + name).asText(), name);

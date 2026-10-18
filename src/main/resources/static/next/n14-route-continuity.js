@@ -38,32 +38,6 @@
     return target.pathname + target.search + target.hash;
   }
 
-  function catalogGameForSlug(slug) {
-    const games = window.XHFrontendNextN2?.state?.catalog?.games;
-    if (!Array.isArray(games)) return null;
-    let normalized = text(slug);
-    try {
-      normalized = decodeURIComponent(normalized);
-    } catch (ignore) {
-      return null;
-    }
-    return games.find((game) => text(game?.seoSlug) === normalized && text(game?.code));
-  }
-
-  function gameHallTarget(url) {
-    const match = /^\/game\/([^/?#]+)\/?$/.exec(url.pathname);
-    if (!match) return '';
-    const game = catalogGameForSlug(match[1]);
-    if (!game) return '';
-    const target = new URL('/next/services', location.origin);
-    url.searchParams.forEach((value, key) => {
-      if (key !== 'legacy' && key !== 'game') target.searchParams.append(key, value);
-    });
-    target.searchParams.set('game', text(game.code).toUpperCase());
-    target.hash = url.hash;
-    return target.pathname + target.search + target.hash;
-  }
-
   function normalizedHref(link) {
     const url = sameOriginUrl(link);
     if (!url || explicitLegacy(link, url)) return '';
@@ -90,7 +64,9 @@
     const record = /^\/record\/([^/?#]+)\/?$/.exec(url.pathname);
     if (record) return nextUrl(url, `/next/record/${record[1]}`);
 
-    return gameHallTarget(url);
+    const game = /^\/game\/([^/?#]+)\/?$/.exec(url.pathname);
+    if (game) return nextUrl(url, `/next/game/${game[1]}`);
+    return '';
   }
 
   function normalizeLink(link) {
@@ -142,6 +118,7 @@
   }
 
   function ensureStageRuntimes() {
+    ensureRuntime('frontend-game-runtime', stageSource('/next/game-detail.js'), /^\/next\/game\/[^/]+\/?$/);
     ensureRuntime('frontend-next-n23-runtime', stageSource('/next/n23-guides-center.js'), /^\/next\/guides\/?$/);
     ensureRuntime('frontend-next-n24-runtime', stageSource('/next/n24-mastery.js'), /^\/next\/mastery\/?$/);
     ensureRuntime('frontend-next-n25-runtime', stageSource('/next/n25-submission-workbench.js'), /^\/next\/account\/submit\/?$/);

@@ -107,3 +107,5 @@
 - `next/shell.js` 负责跳过导航和标签组通用键盘行为；各业务模块明确绑定自己的 tablist 并维护 tab/panel 的关联，不通过全局 DOM 修补观察器推断表单。
 - `next/index.html` 拥有公共手机输入/触控/禁用状态与导航留白；控件名称、表单错误、业务重绘后的焦点和对话框归各表单模块负责。
 - `next/n28-legal-single-source.js` 只安全展示正式中英文法律页面，并按与正式页一致的公开字段绑定主体/客服信息，不拥有第二份法律条款。
+
+- `next/game-detail.js` 负责独立游戏资料及该游戏公开服务列表，复用 `/api/catalog`、`/api/services` 和公开站点配置；`FrontendNextGameController` 复用原公开游戏校验，`FrontendNextPreviewController` 唯一生成文档元信息与资源指纹。

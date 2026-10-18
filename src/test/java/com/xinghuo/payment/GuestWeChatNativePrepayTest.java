@@ -63,7 +63,7 @@ class GuestWeChatNativePrepayTest {
         verify(api, times(1)).prepay(sent.capture());
         PrepayRequest request = sent.getValue();
         assertEquals(1023, request.getAmount().getTotal());
-        assertEquals("O-GUEST", first.businessNo() == null ? null : "O-GUEST");
+        assertEquals("B-GUEST", first.businessNo());
         assertEquals("APPROVED", first.status());
         assertEquals(first.paymentNo(), second.paymentNo());
         String expire = request.getTimeExpire();

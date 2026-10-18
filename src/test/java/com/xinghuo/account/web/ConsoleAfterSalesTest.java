@@ -135,6 +135,27 @@ class ConsoleAfterSalesTest {
     }
 
     @Test
+    void authenticatedCustomerPostClaimsOnlyTrustedLegacyOrderBeforeWriting() {
+        jdbc.update("""
+                INSERT INTO quotes(id,business_no,customer_account_id)
+                VALUES('Q-MUTATE','B-MUTATE',1)
+                """);
+        jdbc.update("""
+                INSERT INTO customer_orders(id,order_no,business_no,source_quote_id,status,version,created_at,updated_at)
+                VALUES('mutation','ORD-MUTATE','B-MUTATE','Q-MUTATE','IN_PROGRESS',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+                """);
+
+        assertTrue(controller.supplementOrder("ORD-MUTATE",
+                new ConsoleApiController.SupplementRequest("更新服务需求"), request).ok());
+        assertEquals(1L, jdbc.queryForObject(
+                "SELECT customer_account_id FROM customer_orders WHERE order_no='ORD-MUTATE'",
+                Long.class));
+        assertTrue(controller.order("ORD-MUTATE", request).order().customerNote().contains("更新服务需求"));
+        verify(audit).record(eq(1L), eq("ORDER_AUTO_LINK"), eq(
+                "orderNo=ORD-MUTATE,source=TRUSTED_QUOTE"), any());
+    }
+
+    @Test
     void submitsScopedIssueWithoutChangingOrderStatus() {
         var result = controller.submitAfterSales("XH-1",
                 new ConsoleApiController.AfterSalesRequest("REFUND_REVIEW", "请核对未完成部分"), request);

@@ -205,7 +205,7 @@
           <view class="camo-guide" wx:if="{{w.camoGuide && w.camoGuide.groups.length}}">
             <view class="camo-guide-head">
               <text class="camo-guide-title">完整迷彩挑战</text>
-              <text class="camo-guide-flow">军事 → 特种 → 完成主义 → 精通</text>
+              <text class="camo-guide-flow">军事 → 特殊 → 完成主义 → 精通</text>
             </view>
             <view class="camo-guide-hint">点一下条目可标记完成（仅本机记录）</view>
             <view class="camo-guide-group" wx:for="{{w.camoGuide.groups}}" wx:for-item="grp" wx:key="key">

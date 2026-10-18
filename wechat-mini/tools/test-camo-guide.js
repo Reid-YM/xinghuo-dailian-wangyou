@@ -60,9 +60,9 @@ const payload = {
         '突击步枪': {
           military: { count: 8, text: 'Lv 10/18/25/34/42/50/57/65', estimate: false, image: '/assets/mw4camo/military.webp', levels: [10, 18, 25, 34, 42, 50, 57, 65] },
           special: [
-            { name: '特种迷彩 1', text: 'Lv 25 + 架设 20 杀', estimate: false },
-            { name: '特种迷彩 2', text: 'Lv 46 + 消音器 50 杀', estimate: false },
-            { name: '特种迷彩 3', text: 'Lv 72 + 3 杀不死 ×15', estimate: false }
+            { name: '特殊迷彩 1', text: 'Lv 25 + 架设 20 杀', estimate: false },
+            { name: '特殊迷彩 2', text: 'Lv 46 + 消音器 50 杀', estimate: false },
+            { name: '特殊迷彩 3', text: 'Lv 72 + 3 杀不死 ×15', estimate: false }
           ],
           completionist: [
             { name: 'Gold（金）', text: '单局 15 击杀', estimate: false },
@@ -73,7 +73,7 @@ const payload = {
         },
         '冲锋枪': {
           military: { count: 8, text: '按武器等级解锁（具体等级未公布）', estimate: true },
-          special: [{ name: '特种迷彩 1', text: '等级 + 挑战（未公布）', estimate: true }],
+          special: [{ name: '特殊迷彩 1', text: '等级 + 挑战（未公布）', estimate: true }],
           completionist: [{ name: 'Gold（金）', text: '单局 15 击杀', estimate: false }]
         }
       }
@@ -101,7 +101,7 @@ assert.strictEqual(ar.militaryTiles[0].image, '/images/camo/military-1.jpg')
 const tickKeys = ar.militaryTiles.map(function (t) { return t.key })
   .concat(ar.groups.reduce(function (acc, g) { return acc.concat(g.items.map(function (i) { return i.key })) }, []))
 assert.strictEqual(new Set(tickKeys).size, tickKeys.length, 'tick keys must be unique')
-assert.strictEqual(ar.groups[1].title, '特种迷彩 · 3 档')
+assert.strictEqual(ar.groups[1].title, '特殊迷彩 · 3 档')
 assert.strictEqual(ar.groups[1].items.length, 3)
 assert.strictEqual(ar.groups[2].title, '完成主义 · 4 档')
 assert.strictEqual(ar.groups[2].items.length, 4)

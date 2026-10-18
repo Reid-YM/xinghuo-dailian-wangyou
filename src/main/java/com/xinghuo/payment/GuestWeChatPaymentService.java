@@ -1,5 +1,7 @@
 package com.xinghuo.payment;
 
+import com.xinghuo.exception.ConflictException;
+
 import com.wechat.pay.java.service.payments.nativepay.model.Amount;
 import com.wechat.pay.java.service.payments.nativepay.model.PrepayRequest;
 import java.math.BigDecimal;
@@ -57,10 +59,10 @@ public class GuestWeChatPaymentService {
         }
         OrderOwner order = owners.getFirst();
         if (order.accountId() != null) {
-            throw new IllegalStateException("该订单已经归属注册账号，请使用账号支付路径");
+            throw new ConflictException("该订单已经归属注册账号，请使用账号支付路径");
         }
         if (order.guestAccessId() == null || order.guestAccessId() != guestAccessId) {
-            throw new IllegalStateException("游客业务凭证与订单不匹配");
+            throw new ConflictException("游客业务凭证与订单不匹配");
         }
 
         Integer captured = jdbc.queryForObject("""
@@ -68,7 +70,7 @@ public class GuestWeChatPaymentService {
                  WHERE business_no=? AND provider='WECHAT' AND status='CAPTURED'
                 """, Integer.class, order.businessNo());
         if (captured != null && captured > 0) {
-            throw new IllegalStateException("该订单已支付");
+            throw new ConflictException("该订单已支付");
         }
 
         List<WeChatNativePaymentService.Payment> existing = jdbc.query("""
@@ -81,13 +83,13 @@ public class GuestWeChatPaymentService {
         if (!existing.isEmpty()) {
             WeChatNativePaymentService.Payment previous = existing.getFirst();
             if ("CAPTURED".equals(previous.status())) {
-                throw new IllegalStateException("该订单已支付");
+                throw new ConflictException("该订单已支付");
             }
             if (previous.amount().compareTo(amount) == 0
                     && previous.subject().equals(subject.trim())) {
                 return previous;
             }
-            throw new IllegalStateException("已有待支付单；改价前须先关闭该支付单");
+            throw new ConflictException("已有待支付单；改价前须先关闭该支付单");
         }
 
         String paymentNo = "XHP" + randomHex(12);
@@ -151,13 +153,16 @@ public class GuestWeChatPaymentService {
             return payment;
         }
         if ("CANCELLED".equals(payment.status())) {
-            throw new IllegalStateException("支付单已关闭");
+            throw new ConflictException("支付单已关闭");
+        }
+        if ("APPROVED".equals(payment.status()) && payment.codeUrl() == null) {
+            throw new ConflictException("支付单状态异常，请联系客服核对微信支付交易，暂勿重复付款");
         }
         if (payment.codeUrl() != null) {
             if (payment.expiresAt() != null && payment.expiresAt().isAfter(Instant.now())) {
                 return payment;
             }
-            throw new IllegalStateException("二维码已过期，请联系客服重新确认支付单");
+            throw new ConflictException("二维码已过期，请联系客服核对旧支付单后重新发起收款");
         }
 
         Instant expiry = Instant.now().plusSeconds(QR_MINUTES * 60L);
@@ -175,7 +180,7 @@ public class GuestWeChatPaymentService {
                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         String codeUrl = client.nativePay().prepay(request).getCodeUrl();
         if (codeUrl == null || !codeUrl.startsWith("weixin://")) {
-            throw new IllegalStateException("微信支付未返回可用的扫码地址");
+            throw new ConflictException("微信支付未返回可用的扫码地址，请联系客服核对商户配置");
         }
         jdbc.update("""
                 UPDATE payment_order

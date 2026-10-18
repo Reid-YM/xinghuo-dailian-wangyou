@@ -13,11 +13,15 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const text = (value) => String(value ?? '').trim();
   const list = (value) => Array.isArray(value) ? value : [];
-  const cloud = { enabled: false, version: null, timer: null, saving: false, dirty: false };
+  const cloud = { enabled: false, ready: false, reading: false, conflict: null, needsChoice: false, version: null, timer: null, saving: false, dirty: false };
+  let localRevision = 0;
+  let syncView = null;
+  let localStorageAvailable = true;
   let game = null;
   let modes = [];
   let activeMode = '';
   let state = loadState();
+  cloud.dirty = state.syncPending === true;
   let requestToken = 0;
 
   function node(tag, className, value) {
@@ -46,10 +50,12 @@
   }
 
   function saveLocal({ cloudSave = true } = {}) {
+    if (cloudSave) state.syncPending = true;
     state.activeMode = activeMode;
     state.updatedAt = new Date().toISOString();
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
-    if (cloudSave) scheduleCloudSave();
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); localStorageAvailable = true; }
+    catch (_) { localStorageAvailable = false; }
+    if (cloudSave) { localRevision++; cloud.dirty = true; scheduleCloudSave(); }
   }
 
   function routeState() {
@@ -127,7 +133,7 @@
     style.textContent = `
       .n24-mastery{min-height:100vh;padding:112px 0 84px;background:radial-gradient(circle at 80% 8%,#ffcb2d14,transparent 30rem)}
       .n24-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;margin-bottom:16px}.n24-head h1{font-size:clamp(42px,6vw,72px);margin:10px 0 8px}.n24-head p{max-width:760px;color:#9ba4ae;line-height:1.75;margin:0}.n24-kicker{color:#d9bb61;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}.n24-actions{display:flex;gap:8px;flex-wrap:wrap}
-      .n24-sync{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid #ffffff15;border-radius:13px;padding:12px 14px;background:#0a0e12;margin-bottom:12px}.n24-sync-copy{display:grid;gap:3px}.n24-sync-copy strong{font-size:11px}.n24-sync-copy span{font-size:9px;color:#78828d}.n24-sync[data-state="synced"]{border-color:#47d78a44}.n24-sync[data-state="error"],.n24-sync[data-state="conflict"]{border-color:#ff9b8755}
+      .n24-sync{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid #ffffff15;border-radius:13px;padding:12px 14px;background:#0a0e12;margin-bottom:12px}.n24-sync [hidden]{display:none}.n24-sync{flex-wrap:wrap}.n24-sync-copy{display:grid;gap:3px}.n24-sync-copy strong{font-size:11px}.n24-sync-copy span{font-size:9px;color:#78828d}.n24-sync[data-state="synced"]{border-color:#47d78a44}.n24-sync[data-state="error"],.n24-sync[data-state="conflict"]{border-color:#ff9b8755}
       .n24-overview{display:grid;grid-template-columns:1.2fr repeat(3,.7fr);gap:9px;margin-bottom:12px}.n24-stat{border:1px solid #ffffff15;border-radius:13px;background:#0d1116;padding:15px}.n24-stat small{color:#7d8791;font-size:9px}.n24-stat strong{display:block;font-size:26px;margin-top:5px}.n24-progress{height:7px;border-radius:99px;background:#252b32;overflow:hidden;margin-top:10px}.n24-progress i{display:block;height:100%;background:var(--gold);border-radius:99px}
       .n24-tabs{display:flex;gap:7px;overflow:auto;padding:5px 0 11px}.n24-tab{flex:0 0 auto;border:1px solid #ffffff15;background:#0d1116;color:#929ba5;border-radius:10px;padding:10px 12px}.n24-tab[aria-selected="true"]{background:var(--gold);color:#17130a;border-color:var(--gold);font-weight:900}.n24-tab small{display:block;font-size:8px;opacity:.7;margin-top:3px}
       .n24-toolbar{display:grid;grid-template-columns:minmax(210px,1.3fr) minmax(150px,.7fr) minmax(140px,.6fr) auto;gap:8px;position:sticky;top:86px;z-index:35;padding:10px;border:1px solid #ffffff15;border-radius:13px;background:#090d11e9;backdrop-filter:blur(16px);margin-bottom:12px}.n24-toolbar input,.n24-toolbar select{margin:0}.n24-toolbar .btn{white-space:nowrap}
@@ -209,11 +215,16 @@
   }
 
   function setSync(stateName, lead, detail, action = null) {
+    syncView = { stateName, lead, detail, action };
     const bar = $('#n24Sync');
     if (!bar) return;
     bar.dataset.state = stateName;
+    for (const id of ['n24UseLocal', 'n24UseCloud']) {
+      const choice = document.getElementById(id);
+      if (choice) choice.hidden = !cloud.conflict;
+    }
     $('#n24SyncLead').textContent = lead;
-    $('#n24SyncText').textContent = detail;
+    $('#n24SyncText').textContent = detail + (localStorageAvailable ? '' : ' 当前浏览器无法保存本机进度，请保持页面打开并重试同步。');
     const button = $('#n24SyncAction');
     if (!button) return;
     if (!action) {
@@ -239,6 +250,7 @@
       if (!parsed || typeof parsed !== 'object') return false;
       state.progress = parsed.progress && typeof parsed.progress === 'object' ? parsed.progress : {};
       state.favorites = Array.isArray(parsed.favorites) ? parsed.favorites : [];
+      state.syncPending = false;
       saveLocal({ cloudSave: false });
       return true;
     } catch (_) {
@@ -247,86 +259,145 @@
   }
 
   async function checkAccount() {
+    cloud.ready = false;
     setSync('checking', '正在检查账号状态', '登录后可跨设备同步工具进度。');
     try {
       const response = await fetch('/api/account/me', { headers: ACCOUNT_HEADERS, credentials: 'same-origin', cache: 'no-store' });
-      if (!response.ok) {
+      if (response.status === 401) {
+        cloud.enabled = false;
         setSync('guest', '当前使用本机保存', '登录后可跨设备同步工具进度。', { label: '登录同步', href: '/next/account?next=%2Fnext%2Fmastery' });
         return;
       }
+      if (!response.ok) throw new Error('account read failed');
       cloud.enabled = true;
       await loadCloudProgress();
     } catch (_) {
-      setSync('guest', '当前使用本机保存', '账号状态暂不可用，本机进度不受影响。', { label: '登录同步', href: '/next/account?next=%2Fnext%2Fmastery' });
+      cloud.enabled = false;
+      setSync('error', '账号状态暂不可用', '本机进度保留，请重试账号状态。', { label: '重试同步', retry: true });
     }
   }
 
-  async function loadCloudProgress() {
-    if (!cloud.enabled) return;
-    setSync('syncing', '正在同步账号进度', '正在读取账号里的迷彩进度…');
+  function validCloudPayload(payload) {
+    const parsed = typeof payload === 'string' ? JSON.parse(payload) : payload;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)
+        || !parsed.progress || typeof parsed.progress !== 'object' || Array.isArray(parsed.progress)
+        || !Array.isArray(parsed.favorites)) throw new Error('invalid cloud progress');
+    return JSON.stringify({ progress: parsed.progress, favorites: parsed.favorites });
+  }
+
+  async function loadCloudProgress({ forceChoice = false } = {}) {
+    if (!cloud.enabled || cloud.reading) return;
+    cloud.reading = true;
+    cloud.ready = false;
+    const revision = localRevision;
+    cloud.needsChoice = cloud.needsChoice || forceChoice || !!cloud.conflict;
+    cloud.conflict = null;
+    clearTimeout(cloud.timer);
+    setSync('syncing', '正在读取账号进度', '此期间的勾选仍会保存在本机。');
     try {
       const response = await fetch(`/api/account/progress/${TOOL_KEY}`, {
         method: 'GET', headers: ACCOUNT_HEADERS, credentials: 'same-origin', cache: 'no-store'
       });
       if (response.status === 401) {
         cloud.enabled = false;
-        setSync('guest', '登录状态已失效', '重新登录后可继续同步。', { label: '重新登录', href: '/next/account?next=%2Fnext%2Fmastery' });
+        setSync('guest', '登录状态已失效', '本机进度保留，重新登录后可继续同步。', { label: '重新登录', href: '/next/account?next=%2Fnext%2Fmastery' });
         return;
       }
       if (response.status === 404) {
         cloud.version = 0;
-        await pushCloudProgress(true);
+        cloud.needsChoice = false;
+        cloud.conflict = null;
+        cloud.ready = true;
+        cloud.reading = false;
+        if (cloud.saving) setSync('pending', '云端还没有进度', '本机进度已保留，可以重新同步。', { label: '同步本机进度', retry: true });
+        else await pushCloudProgress(true);
         return;
       }
       if (!response.ok) throw new Error('read failed');
       const data = await response.json();
-      cloud.version = Number(data.version) || 0;
-      if (applyCloudPayload(data.payload)) render();
-      setSync('synced', '已同步到您的账号', '当前进度可在登录设备间继续使用。');
+      if (!Number.isInteger(data.version) || data.version < 1) throw new Error('invalid version');
+      const payload = validCloudPayload(data.payload);
+      cloud.version = data.version;
+      const hasLocal = state.syncPending === true || Object.keys(state.progress).length > 0 || state.favorites.length > 0;
+      if (cloud.needsChoice || revision !== localRevision || (hasLocal && cloudPayload() !== payload)) {
+        cloud.conflict = { payload };
+        cloud.needsChoice = true;
+        setSync('conflict', '本机与云端进度不同', '本机勾选已保留。请选择使用哪份进度，确认前不会自动覆盖。');
+        return;
+      }
+      cloud.conflict = null;
+      cloud.dirty = false;
+      cloud.ready = true;
+      if (!applyCloudPayload(payload)) throw new Error('invalid progress');
+      render();
+      setSync('synced', '已同步到您的账号', '修改后将自动同步。');
     } catch (_) {
-      setSync('error', '云同步读取失败', '本机进度仍然保留。', { label: '重试同步', retry: true });
+      setSync('error', '云同步读取失败', '本机进度保留，读取成功前不会上传覆盖云端。', { label: '重试同步', retry: true });
+    } finally {
+      cloud.reading = false;
     }
   }
 
   function scheduleCloudSave() {
-    if (!cloud.enabled) return;
-    cloud.dirty = true;
+    if (!cloud.enabled || !cloud.ready || cloud.conflict || cloud.reading) return;
     clearTimeout(cloud.timer);
+    if (!cloud.saving) setSync('pending', '本机进度已保存', '正在等待同步到账号…');
     cloud.timer = setTimeout(() => pushCloudProgress(false), 800);
   }
 
   async function pushCloudProgress(silent) {
-    if (!cloud.enabled || cloud.saving) return;
+    if (!cloud.enabled || !cloud.ready || cloud.reading || cloud.conflict || cloud.saving) return;
     cloud.saving = true;
-    cloud.dirty = false;
+    const revision = localRevision;
+    let saved = false;
     if (!silent) setSync('syncing', '正在同步账号进度', '正在保存当前工具进度…');
     try {
       const response = await fetch(`/api/account/progress/${TOOL_KEY}`, {
-        method: 'PUT',
-        credentials: 'same-origin',
+        method: 'PUT', credentials: 'same-origin',
         headers: { ...ACCOUNT_HEADERS, 'Content-Type': 'application/json' },
         body: JSON.stringify({ version: cloud.version ?? 0, payload: cloudPayload() })
       });
       if (response.status === 401) {
         cloud.enabled = false;
+        cloud.ready = false;
         setSync('guest', '登录状态已失效', '本机进度已保存，重新登录后可继续同步。', { label: '重新登录', href: '/next/account?next=%2Fnext%2Fmastery' });
         return;
       }
       if (response.status === 409) {
-        await loadCloudProgress();
-        setSync('conflict', '其他设备有更新', '已载入账号里的最新版本，避免静默覆盖。');
+        cloud.ready = false;
+        await loadCloudProgress({ forceChoice: true });
         return;
       }
       if (!response.ok) throw new Error('save failed');
       const data = await response.json();
-      cloud.version = Number(data.version) || cloud.version;
-      setSync('synced', '已同步到您的账号', '当前进度可在登录设备间继续使用。');
+      if (!Number.isInteger(data.version) || data.version <= cloud.version) throw new Error('invalid version');
+      cloud.version = data.version;
+      cloud.dirty = revision !== localRevision;
+      if (!cloud.dirty) { state.syncPending = false; saveLocal({ cloudSave: false }); }
+      saved = true;
+      setSync(cloud.dirty ? 'syncing' : 'synced', cloud.dirty ? '正在保存后续修改' : '已同步到您的账号', '本机进度保留。');
     } catch (_) {
-      setSync('error', '云同步保存失败', '本机进度已保存，下次修改会自动重试。', { label: '重试同步', retry: true });
+      cloud.dirty = true;
+      setSync('error', '云同步保存失败', '本机进度已保存，请重试同步。', { label: '重试同步', retry: true });
     } finally {
       cloud.saving = false;
-      if (cloud.dirty) scheduleCloudSave();
+      if (saved && cloud.dirty) scheduleCloudSave();
     }
+  }
+
+  function chooseProgress(source) {
+    if (!cloud.conflict || cloud.reading || cloud.saving) return;
+    const remote = source === 'cloud';
+    if (!confirm(remote ? '使用云端进度替换此设备当前进度？' : '使用此设备当前进度更新账号，替换云端记录？')) return;
+    if (remote && !applyCloudPayload(cloud.conflict.payload)) return;
+    cloud.conflict = null;
+    cloud.needsChoice = false;
+    cloud.ready = true;
+    cloud.dirty = !remote;
+    render();
+    publishQuoteSnapshot();
+    if (remote) setSync('synced', '已使用云端进度', '当前设备已保存所选进度。');
+    else pushCloudProgress(false);
   }
 
   function toggleFavorite(code) {
@@ -521,12 +592,14 @@
     const toolbar = node('div', 'n24-toolbar');
     const search = document.createElement('input');
     search.id = 'n24Search';
+    search.setAttribute('aria-label', '搜索武器');
     search.type = 'search';
     search.value = filters.q;
     search.placeholder = '搜索武器、中英文名、解锁条件…';
     search.autocomplete = 'off';
     const type = document.createElement('select');
     type.id = 'n24Type';
+    type.setAttribute('aria-label', '筛选武器类型');
     const allTypes = document.createElement('option');
     allTypes.value = '';
     allTypes.textContent = '全部武器类型';
@@ -540,6 +613,7 @@
     type.value = filters.type;
     const status = document.createElement('select');
     status.id = 'n24Status';
+    status.setAttribute('aria-label', '筛选完成状态');
     [['all', '全部状态'], ['todo', '未完成'], ['done', '已完成'], ['fav', '仅收藏']].forEach(([value, label]) => {
       const option = document.createElement('option');
       option.value = value;
@@ -566,11 +640,11 @@
     shell.replaceChildren();
     const head = node('div', 'n24-head');
     const intro = node('div');
-    intro.append(node('div', 'n24-kicker', STAGE));
+    intro.append(node('div', 'n24-kicker', '武器与迷彩'));
     intro.append(node('h1', '', `${text(game.shortName) || 'MW4'} 工具站`));
-    intro.append(node('p', '', '记录武器与迷彩完成进度；沿用旧工具站本机存档，并在登录后继续使用原账号云同步协议。'));
+    intro.append(node('p', '', '勾选已完成的武器与迷彩，进度自动保存在此设备；登录后可跨设备同步。'));
     const actions = node('div', 'n24-actions');
-    const legacy = node('a', 'btn', '对照旧版工具站');
+    const legacy = node('a', 'btn', '打开旧版工具站');
     legacy.href = '/mastery';
     legacy.dataset.n24Legacy = '1';
     const quote = node('a', 'btn gold', '带进度去询价');
@@ -590,7 +664,11 @@
     const syncAction = node('a', 'btn', '重试同步');
     syncAction.id = 'n24SyncAction';
     syncAction.hidden = true;
-    sync.append(syncCopy, syncAction);
+    const useLocal = node('button', 'btn', '保留本机并同步');
+    useLocal.type = 'button'; useLocal.id = 'n24UseLocal'; useLocal.hidden = true;
+    const useCloud = node('button', 'btn', '使用云端进度');
+    useCloud.type = 'button'; useCloud.id = 'n24UseCloud'; useCloud.hidden = true;
+    sync.append(syncCopy, syncAction, useLocal, useCloud);
     shell.append(sync);
 
     renderOverview(shell);
@@ -599,16 +677,17 @@
     renderToolbar(shell, mode);
     renderTierCards(shell, mode);
     if (isMastery(mode)) renderWeapons(shell, mode); else renderGlobal(shell, mode);
-    shell.append(node('p', 'n24-note', `本机存档键：${STORAGE_KEY} · 账号云同步工具键：${TOOL_KEY}。新版与旧版共享同一份进度结构。`));
+    shell.append(node('p', 'n24-note', '进度保存在当前浏览器。清理浏览器数据前，请先登录并确认账号同步完成。'));
     bindRenderedControls(section);
     updateSyncAfterRender();
   }
 
   function updateSyncAfterRender() {
-    if (!cloud.enabled) {
-      setSync('guest', '当前使用本机保存', state.updatedAt ? `最近保存：${new Date(state.updatedAt).toLocaleString('zh-CN')}` : '修改后会自动保存到当前浏览器。', { label: '登录同步', href: '/next/account?next=%2Fnext%2Fmastery' });
-    } else if (!cloud.saving) {
-      setSync('synced', '账号同步已启用', state.updatedAt ? `最近本机保存：${new Date(state.updatedAt).toLocaleString('zh-CN')}` : '修改后会自动同步。');
+    if (syncView) {
+      const { stateName, lead, detail, action } = syncView;
+      setSync(stateName, lead, detail, action);
+    } else {
+      setSync('checking', '正在检查账号状态', '本机进度会自动保存。');
     }
   }
 
@@ -618,7 +697,7 @@
         activeMode = button.dataset.mode;
         const filters = routeState();
         writeRoute({ ...filters, mode: activeMode });
-        saveLocal();
+        saveLocal({ cloudSave: false });
         render();
       });
     });
@@ -656,11 +735,15 @@
       publishQuoteSnapshot();
       render();
     });
+    $('#n24UseLocal', section)?.addEventListener('click', () => chooseProgress('local'));
+    $('#n24UseCloud', section)?.addEventListener('click', () => chooseProgress('cloud'));
     $('#n24SyncAction', section)?.addEventListener('click', (event) => {
       const action = event.currentTarget;
       if (!action.dataset.retry) return;
       event.preventDefault();
-      if (cloud.enabled) pushCloudProgress(false); else checkAccount();
+      if (!cloud.enabled) checkAccount();
+      else if (!cloud.ready) loadCloudProgress();
+      else pushCloudProgress(false);
     });
   }
 
@@ -719,9 +802,8 @@
     if (game) render(); else load();
   });
 
-  window.addEventListener('pagehide', () => {
-    clearTimeout(cloud.timer);
-  }, { once: true });
+  window.addEventListener('pagehide', () => { clearTimeout(cloud.timer); });
+  window.addEventListener('pageshow', () => { if (cloud.dirty) scheduleCloudSave(); });
 
   window.XHFrontendNextN24 = {
     reload: load,

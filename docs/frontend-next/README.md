@@ -32,7 +32,7 @@ N22 已补齐“攻略详情 Next 预览连续性”：新增 `/next/guides/{slu
 
 N23 已进入“最终替换阶段”的第一步，补齐“攻略中心 Next 预览”：新增 `/next/guides`，只读现有 `GET /api/guides?limit=100`，支持搜索、游戏筛选和精选/最新/热门排序，并把 `q`、`game`、`sort` 保存在 URL；卡片继续进入 N22 `/next/guides/{slug}`。N14 同时把 Next 内普通 `/guides` 归一到新版攻略中心，显式旧版入口继续保留。详见 [N23 攻略中心 Next 预览](N23_GUIDES_CENTER.md)。
 
-N24 已补齐“MW4 工具站 Next 预览”：新增 `/next/mastery`，继续读取现有 `GET /api/tool-station`，并与旧工具站共用本机存档键 `xinghuo-mw4-camo-tracker-v2`、账号云同步工具键 `mw4_camo_tracker` 和询价进度快照键 `xinghuo-cod-tool-quote-snapshot`。新版支持模式切换、总体/模式进度、武器搜索/筛选/收藏、逐项迷彩勾选、本机自动保存与账号乐观锁云同步；遇到 409 会先载入云端最新版，避免静默覆盖其它设备。N14 将 Next 内普通 `/mastery` 归一到 `/next/mastery`，但旧 `/mastery` 仍保留为显式对照入口。详见 [N24 MW4 工具站 Next 预览](N24_MASTERY_TRACKER.md)。
+N24 已补齐“MW4 工具站 Next 预览”：新增 `/next/mastery`，继续读取现有 `GET /api/tool-station`，并与旧工具站共用本机存档键 `xinghuo-mw4-camo-tracker-v2`、账号云同步工具键 `mw4_camo_tracker` 和询价进度快照键 `xinghuo-cod-tool-quote-snapshot`。新版支持模式切换、总体/模式进度、武器搜索/筛选/收藏、逐项迷彩勾选、本机自动保存与账号乐观锁云同步；遇到 409 会先读取云端最新版并保留本机勾选，由用户明确选择使用哪份进度。N14 将 Next 内普通 `/mastery` 归一到 `/next/mastery`，但旧 `/mastery` 仍保留为显式对照入口。详见 [N24 MW4 工具站 Next 预览](N24_MASTERY_TRACKER.md)。
 
 N25 已补齐“投稿工作台 Next 预览”：新增 `/next/account/submit`，复用现有账号投稿创建、列表、详情与撤回 API，并与旧投稿页共用本机草稿键 `xinghuo:submission-draft:v1`。新版提供游戏选择、标题/摘要/Markdown 文本正文、本机自动草稿、安全文本预览、审核状态/意见、正文查看、撤回和已发布攻略跳转。当前后端没有用户侧修改已提交投稿的接口，因此 N25 明确不伪造“编辑已提交稿件”。详见 [N25 投稿工作台 Next 预览](N25_SUBMISSION_WORKBENCH.md)。
 

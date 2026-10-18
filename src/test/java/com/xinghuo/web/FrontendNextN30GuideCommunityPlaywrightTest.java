@@ -5,19 +5,20 @@ import com.microsoft.playwright.*;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.atomic.*;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @EnabledIfEnvironmentVariable(named = "PLAYWRIGHT_UI_TESTS", matches = "1")
 class FrontendNextN30GuideCommunityPlaywrightTest {
-    @Test void guideDiscussionAndFavoritesUseExistingApisAndRetainFailedComment() {
+    @org.junit.jupiter.api.RepeatedTest(3) void guideDiscussionAndFavoritesUseExistingApisAndRetainFailedComment() {
         var preview = new FrontendNextPreviewController();
         var mvc = MockMvcBuilders.standaloneSetup(preview).build();
         try (Playwright playwright = Playwright.create(); Browser chromium = playwright.chromium().launch();
              Browser webkit = playwright.webkit().launch()) {
             for (Browser browser : List.of(chromium, webkit)) {
                 Page page = browser.newPage(new Browser.NewPageOptions().setViewportSize(390, 844));
+                page.context().tracing().start(new Tracing.StartOptions().setScreenshots(true).setSnapshots(true));
+                boolean verified = false;
                 AtomicInteger posts = new AtomicInteger();
                 AtomicInteger favorites = new AtomicInteger();
                 AtomicInteger reports = new AtomicInteger();
@@ -55,7 +56,8 @@ class FrontendNextN30GuideCommunityPlaywrightTest {
                     page.waitForSelector("#n22GuideDetail [data-comment-form]:not([hidden])");
                     page.waitForSelector(".gc-comment");
                     assertEquals(0, page.locator(".gc-comment img").count());
-                    page.locator("[data-favorite-toggle]").click();
+                    page.waitForResponse(response -> response.url().endsWith("/api/account/favorites/toggle"),
+                            () -> page.locator("[data-favorite-toggle]").click());
                     page.waitForFunction("() => !document.querySelector('[data-favorite-toggle]').disabled");
                     assertEquals("已收藏", page.locator("[data-favorite-label]").textContent(),
                             "writes=" + favorites.get() + " note=" + page.locator("[data-community-note]").textContent());
@@ -87,8 +89,18 @@ class FrontendNextN30GuideCommunityPlaywrightTest {
                     page.locator("[data-favorite-toggle]").click();
                     page.waitForURL("**/next/account?next=*");
                     assertTrue(page.url().contains("%2Fnext%2Fguides%2Ftest-guide"));
+                    verified = true;
                 } catch (Exception e) { throw new RuntimeException(e); }
-                finally { page.close(); }
+                finally {
+                    try {
+                        if (verified) page.context().tracing().stop();
+                        else {
+                            new java.io.File("target/frontend-review").mkdirs();
+                            page.context().tracing().stop(new Tracing.StopOptions().setPath(java.nio.file.Path.of(
+                                    "target/frontend-review/guide-failure-" + browser.browserType().name() + "-" + System.nanoTime() + ".zip")));
+                        }
+                    } finally { page.close(); }
+                }
             }
         }
     }

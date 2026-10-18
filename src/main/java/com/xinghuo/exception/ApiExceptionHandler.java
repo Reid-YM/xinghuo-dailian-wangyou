@@ -37,7 +37,7 @@ import org.springframework.web.context.request.async.AsyncRequestNotUsableExcept
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-@RestControllerAdvice(assignableTypes={PublicApiController.class, AdminApiController.class, AdminLeadController.class, PublicGuideController.class, AdminGuideController.class, SeoController.class, XingweiOperationsController.class, XingweiAdminAccountController.class, XingweiPaymentWorkspaceController.class, XingweiAuxiliaryWorkspaceController.class, XingweiCatalogDetailsController.class, XingweiServiceCatalogController.class, XingweiBusinessMaintenanceController.class})
+@RestControllerAdvice(assignableTypes={com.xinghuo.controller.GuestBusinessApiController.class, com.xinghuo.controller.XingweiBusinessScopeController.class, PublicApiController.class, AdminApiController.class, AdminLeadController.class, PublicGuideController.class, AdminGuideController.class, SeoController.class, XingweiOperationsController.class, XingweiAdminAccountController.class, XingweiPaymentWorkspaceController.class, XingweiAuxiliaryWorkspaceController.class, XingweiCatalogDetailsController.class, XingweiServiceCatalogController.class, XingweiBusinessMaintenanceController.class})
 public class ApiExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
 

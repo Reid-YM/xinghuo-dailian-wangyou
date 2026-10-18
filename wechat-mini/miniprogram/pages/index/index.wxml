@@ -146,7 +146,7 @@
             aria-label="{{w.fav ? '取消收藏' : '收藏'}}{{w.nameZh}}"
           >★</view>
           <image
-            class="w-img"
+            class="w-img {{w.imgFallback ? 'fallback' : ''}}"
             wx:if="{{showImages && w.image}}"
             src="{{w.image}}"
             binderror="onImgError"

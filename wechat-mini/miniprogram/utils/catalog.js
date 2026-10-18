@@ -160,6 +160,18 @@ function normalize(payload, source, fetchedAt) {
     }
   })
 
+  // 没有实拍图的武器：借用同职业第一张图（界面半透明显示），避免列表空一块
+  const classImage = {}
+  weapons.forEach(function (w) {
+    if (w.image && !classImage[w.cls]) classImage[w.cls] = w.image
+  })
+  weapons.forEach(function (w) {
+    if (!w.image && classImage[w.cls]) {
+      w.image = classImage[w.cls]
+      w.imgFallback = true
+    }
+  })
+
   const classes = []
   weapons.forEach(function (w) {
     if (classes.indexOf(w.cls) === -1) classes.push(w.cls)

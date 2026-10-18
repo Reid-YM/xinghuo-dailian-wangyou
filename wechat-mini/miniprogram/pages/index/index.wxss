@@ -733,3 +733,8 @@
   color: #c6f24e;
   white-space: nowrap;
 }
+
+/* 没有实拍图的武器：借同类图并降低不透明度，明确是占位 */
+.w-img.fallback {
+  opacity: 0.32;
+}

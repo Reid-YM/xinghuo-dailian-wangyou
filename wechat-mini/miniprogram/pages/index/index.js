@@ -273,7 +273,20 @@ Page({
     const key = e.currentTarget.dataset.key
     if (!key) return
     const done = Object.assign({}, this.data.done)
-    if (done[key]) {
+    const parts = key.split('::')
+    const tier = parts.length === 3 ? parseInt(parts[2], 10) : NaN
+    if (!isNaN(tier)) {
+      // 迷彩按顺序解锁：勾第 N 档要连带勾上前几档；取消第 N 档要连带取消后几档
+      const modeCode = parts[0]
+      const weaponCode = parts[1]
+      const mode = (this.cat.modes || []).filter(function (m) { return m.code === modeCode })[0]
+      const total = mode ? mode.tiers.length : 3
+      if (done[key]) {
+        for (let i = tier; i <= total; i++) delete done[modeCode + '::' + weaponCode + '::' + i]
+      } else {
+        for (let i = 1; i <= tier; i++) done[modeCode + '::' + weaponCode + '::' + i] = true
+      }
+    } else if (done[key]) {
       delete done[key]
     } else {
       done[key] = true

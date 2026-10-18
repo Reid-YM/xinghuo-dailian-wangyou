@@ -230,6 +230,12 @@ global.Page = function (def) {
   check('取消后剩 2', index.data.stats.count, 2)
   index.onToggleTier({ currentTarget: { dataset: { key: 'MULTIPLAYER::M4::3' } } })
 
+  // 顺序解锁：取消第 1 档会连带取消 2/3；从空勾第 3 档会连带勾 1/2
+  index.onToggleTier({ currentTarget: { dataset: { key: 'MULTIPLAYER::M4::1' } } })
+  check('取消第1档后三档全清', index.data.stats.count, 0)
+  index.onToggleTier({ currentTarget: { dataset: { key: 'MULTIPLAYER::M4::3' } } })
+  check('直接勾第3档会连带勾1/2', index.data.stats.count, 3)
+
   index.onToggleFav({ currentTarget: { dataset: { weapon: 'AXION' } } })
   const axion = index.data.groups[0].weapons.filter(function (w) { return w.code === 'AXION' })[0]
   check('Axion 已收藏', axion.fav, true)

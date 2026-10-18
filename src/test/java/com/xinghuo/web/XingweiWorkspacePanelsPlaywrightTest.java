@@ -1,6 +1,7 @@
 package com.xinghuo.web;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import com.microsoft.playwright.*;
 import java.nio.file.Path;
 import java.util.Map;
@@ -83,7 +84,7 @@ class XingweiWorkspacePanelsPlaywrightTest {
         page.navigate("http://xinghuo.test/admin/xingwei#organization/employees");assertTrue(page.locator("#org-employees").isVisible());assertTrue(page.locator("#org-roles").isHidden());assertTrue(page.locator("#org-positions").isHidden());
         group(page,"organization","structure");assertTrue(page.locator("#org-departments").isVisible());assertTrue(page.locator("#org-positions").isVisible());assertTrue(page.locator("#org-employees").isHidden());
         group(page,"organization","roles");assertTrue(page.locator("#org-roles").isVisible());assertTrue(page.locator("#org-employees").isHidden());assertTrue(page.locator("#org-positions").isHidden());
-        page.navigate("http://xinghuo.test/admin/xingwei#org-employees");assertTrue(page.locator("#org-employees").isVisible());assertEquals("page",page.locator("#xwWorkspaceGroups a[href='#organization/employees']").getAttribute("aria-current"));
+        page.navigate("http://xinghuo.test/admin/xingwei#org-employees");assertThat(page.locator("#org-employees")).isVisible();assertEquals("page",page.locator("#xwWorkspaceGroups a[href='#organization/employees']").getAttribute("aria-current"));
         page.setViewportSize(390,844);page.locator("#xwMenuButton").click();page.locator(".xw-nav-item[href='#business']").click();page.waitForFunction("()=>document.querySelector('#xwSidebar').getBoundingClientRect().right<=1");
         Locator content=page.locator("#xwWorkspaceGroups a[href='#business/content']");content.focus();content.press("Enter");assertTrue(page.url().endsWith("#business/content"));assertEquals("#business/content",page.evaluate("()=>document.activeElement.getAttribute('href')"));page.waitForFunction("()=>scrollY<=1");page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/admin-subgroups-content-mobile.png")));page.close();
         Page author=setup(browser,"content","#business");assertTrue(author.url().endsWith("#business/content"));assertEquals(1,author.locator("#business .xw-module:visible").count());assertEquals(1,author.locator("#xwWorkspaceGroups a").count());

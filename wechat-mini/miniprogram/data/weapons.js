@@ -476,20 +476,6 @@ module.exports = {
           "note": ""
         },
         {
-          "code": "M91",
-          "name": "M91",
-          "nameZh": "M91",
-          "image": "",
-          "weaponType": "轻机枪",
-          "unlockLabel": "",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": [],
-          "apexAttachments": [],
-          "note": ""
-        },
-        {
           "code": "MOSINNAGANT",
           "name": "Mosin-Nagant",
           "nameZh": "莫辛纳甘",
@@ -838,7 +824,7 @@ module.exports = {
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "��种迷彩 2",
+                "name": "特种迷彩 2",
                 "text": "武器等级 + 挑战（具体未公布）",
                 "estimate": true,
                 "image": "/assets/mw4camo/special.webp"
@@ -1689,7 +1675,7 @@ module.exports = {
             "unlock": "军阶30级解锁",
             "military": {
               "count": 8,
-              "text": "武器等级解锁（满级 62）：每达到指定等级���锁一款",
+              "text": "武器等级解锁（满级 62）：每达到指定等级解锁一款",
               "image": "/assets/mw4camo/military.webp",
               "estimate": false
             },
@@ -2575,7 +2561,7 @@ module.exports = {
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特��迷彩 3",
+                "name": "特殊迷彩 3",
                 "text": "65级，举枪瞄准100次击杀",
                 "image": "/assets/mw4camo/special.webp"
               }

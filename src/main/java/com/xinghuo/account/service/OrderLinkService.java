@@ -61,8 +61,8 @@ public class OrderLinkService {
     @Transactional(readOnly = true)
     public long countOrders(Long userId) {
         Long total = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM customer_orders WHERE customer_account_id = ?",
-                Long.class, userId);
+                "SELECT COUNT(*) FROM customer_orders o WHERE " + TrustedOrderVisibilitySql.PREDICATE,
+                Long.class, userId, userId);
         return total == null ? 0 : total;
     }
 
@@ -74,10 +74,10 @@ public class OrderLinkService {
                        q.game AS game_name, q.demand AS service_name
                   FROM customer_orders o
                   LEFT JOIN quotes q ON q.id = o.source_quote_id
-                 WHERE o.customer_account_id = ?
+                 WHERE %s
                  ORDER BY o.created_at DESC
                  LIMIT ? OFFSET ?
-                """,
+                """.formatted(TrustedOrderVisibilitySql.PREDICATE),
                 (rs, i) -> new OrderRow(
                         rs.getString("order_no"),
                         rs.getString("business_no"),
@@ -89,7 +89,7 @@ public class OrderLinkService {
                         rs.getString("service_name"),
                         toInstant(rs.getTimestamp("created_at")),
                         toInstant(rs.getTimestamp("updated_at"))),
-                userId, size, (long) page * size);
+                userId, userId, size, (long) page * size);
     }
 
     // ------------------------------------------------------------------ 候选
@@ -115,6 +115,7 @@ public class OrderLinkService {
                   FROM customer_orders o
                   LEFT JOIN quotes q ON q.id = o.source_quote_id
                  WHERE o.customer_account_id IS NULL
+                   AND o.guest_access_id IS NULL
                    AND q.customer_contact IS NOT NULL
                  ORDER BY o.created_at DESC
                  LIMIT ?
@@ -127,7 +128,8 @@ public class OrderLinkService {
                         rs.getString("customer_contact"),
                         rs.getString("contact_method"),
                         null,
-                        toInstant(rs.getTimestamp("created_at"))),
+                        toInstant(rs.getTimestamp("created_at")),
+                        false),
                 CANDIDATE_SCAN_LIMIT);
 
         List<OrderRow> out = new ArrayList<>();
@@ -162,6 +164,7 @@ public class OrderLinkService {
 
         List<ClaimableRow> found = jdbc.query("""
                 SELECT o.order_no, o.business_no, o.created_at, o.customer_account_id,
+                       o.guest_access_id,
                        q.game AS game_name, q.demand AS service_name,
                        q.customer_contact, q.contact_method
                   FROM customer_orders o
@@ -177,7 +180,8 @@ public class OrderLinkService {
                         rs.getString("customer_contact"),
                         rs.getString("contact_method"),
                         (Long) rs.getObject("customer_account_id"),
-                        toInstant(rs.getTimestamp("created_at"))),
+                        toInstant(rs.getTimestamp("created_at")),
+                        rs.getObject("guest_access_id") != null),
                 key, key);
 
         if (found.isEmpty()) {
@@ -185,8 +189,8 @@ public class OrderLinkService {
         }
         ClaimableRow row = found.get(0);
 
-        if (row.ownerId() != null) {
-            // 已归属（无论是自己还是他人）都不再重复认领，避免绕过联系方式校验。
+        if (row.ownerId() != null || row.guestOwned()) {
+            // 账号或游客凭证已经拥有该单时不得通过联系方式重复认领。
             throw AccountException.conflict("ORDER_ALREADY_LINKED",
                     "该订单已归属账号，如需变更请联系客服");
         }
@@ -196,7 +200,7 @@ public class OrderLinkService {
 
         int updated = jdbc.update(
                 "UPDATE customer_orders SET customer_account_id = ?, version = version + 1 WHERE order_no = ? "
-                        + "AND customer_account_id IS NULL",
+                        + "AND customer_account_id IS NULL AND guest_access_id IS NULL",
                 account.getId(), row.orderNo());
         if (updated == 0) {
             // 并发下被别人抢先，或已被后台绑定。
@@ -276,7 +280,8 @@ public class OrderLinkService {
             String contactValue,
             String contactMethod,
             Long ownerId,
-            Instant createdAt) {
+            Instant createdAt,
+            boolean guestOwned) {
     }
 }
 

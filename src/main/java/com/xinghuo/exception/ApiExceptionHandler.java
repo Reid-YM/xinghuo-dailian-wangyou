@@ -1,5 +1,9 @@
 package com.xinghuo.exception;
 
+import com.wechat.pay.java.core.exception.ServiceException;
+import com.wechat.pay.java.core.exception.HttpException;
+import com.wechat.pay.java.core.exception.ValidationException;
+import com.wechat.pay.java.core.exception.MalformedMessageException;
 import com.xinghuo.controller.AdminApiController;
 import com.xinghuo.controller.AdminLeadController;
 import com.xinghuo.controller.PublicApiController;
@@ -108,6 +112,51 @@ public class ApiExceptionHandler {
     ResponseEntity<?> integrity(DataIntegrityViolationException e) {
         log.warn("Integrity violation", (Throwable)e);
         return this.body(HttpStatus.CONFLICT, "DATA_CONFLICT", "\u6570\u636e\u51b2\u7a81\uff0c\u8bf7\u68c0\u67e5\u552f\u4e00\u5b57\u6bb5\u6216\u5173\u8054\u5173\u7cfb");
+    }
+
+    // Do not turn merchant authorization/signature errors into a meaningless HTTP 500.
+    // The SDK's raw response body and HTTP request can contain sensitive data: never
+    // expose either to anonymous customers or store them in these diagnostic logs.
+    @ExceptionHandler(value={ServiceException.class})
+    ResponseEntity<?> weChatService(ServiceException e) {
+        String code = safeWeChatErrorCode(e.getErrorCode());
+        log.warn("WeChat API v3 request rejected: errorCode={}", code);
+        return this.body(HttpStatus.BAD_GATEWAY, "WECHAT_PAY_REJECTED", weChatFailureMessage(code));
+    }
+
+    @ExceptionHandler(value={HttpException.class, ValidationException.class,
+            MalformedMessageException.class})
+    ResponseEntity<?> weChatTransport(RuntimeException e) {
+        log.warn("WeChat API v3 transport / verification failure: type={}",
+                e.getClass().getSimpleName());
+        return this.body(HttpStatus.BAD_GATEWAY, "WECHAT_PAY_UNAVAILABLE",
+                "微信支付服务连接或校验异常，请稍后重试；如持续发生，请联系客服核对支付配置");
+    }
+
+    static String safeWeChatErrorCode(String code) {
+        return code != null && code.matches("[A-Z0-9_]{1,40}") ? code : "UNKNOWN";
+    }
+
+    static String weChatFailureMessage(String code) {
+        return switch (code) {
+            case "APPID_MCHID_NOT_MATCH" ->
+                    "微信支付应用与商户号尚未正确绑定，请联系客服核对 AppID 与商户关系（APPID_MCHID_NOT_MATCH）";
+            case "NO_AUTH", "NOAUTH" ->
+                    "微信商户暂未开通或获准使用 Native 扫码支付，请联系客服检查商户支付权限（NO_AUTH）";
+            case "SIGN_ERROR" ->
+                    "微信支付商户签名验证失败，请联系客服核对商户证书和密钥（SIGN_ERROR）";
+            case "MCH_NOT_EXISTS" ->
+                    "微信支付商户号未被识别，请联系客服核对商户配置（MCH_NOT_EXISTS）";
+            case "OUT_TRADE_NO_USED" ->
+                    "微信提示支付单号已存在，请联系客服核对交易状态，暂勿重复生成新支付单（OUT_TRADE_NO_USED）";
+            case "INVALID_REQUEST", "PARAM_ERROR" ->
+                    "微信支付请求参数未被接受，请联系客服检查下单参数（" + code + "）";
+            case "FREQUENCY_LIMITED", "RULE_LIMIT" ->
+                    "微信支付服务暂时限制了请求频率，请稍后再试（" + code + "）";
+            case "SYSTEM_ERROR", "BANK_ERROR" ->
+                    "微信支付服务暂时异常，请稍后重试（" + code + "）";
+            default -> "微信支付未能生成二维码，请联系客服查询错误码：" + code;
+        };
     }
 
     @ExceptionHandler(value={Exception.class})

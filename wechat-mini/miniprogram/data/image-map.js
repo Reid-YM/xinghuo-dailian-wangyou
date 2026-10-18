@@ -44,4 +44,12 @@ module.exports = {
   "/assets/mw4camo/platinum.webp": "/images/camo/platinum.webp",
   "/assets/mw4camo/harmonic-break.webp": "/images/camo/harmonic-break.webp",
   "/assets/mw4camo/divergence.webp": "/images/camo/divergence.webp",
+  "/assets/mw4camo/military-1.webp": "/images/camo/military-1.webp",
+  "/assets/mw4camo/military-2.webp": "/images/camo/military-2.webp",
+  "/assets/mw4camo/military-3.webp": "/images/camo/military-3.webp",
+  "/assets/mw4camo/military-4.webp": "/images/camo/military-4.webp",
+  "/assets/mw4camo/military-5.webp": "/images/camo/military-5.webp",
+  "/assets/mw4camo/military-6.webp": "/images/camo/military-6.webp",
+  "/assets/mw4camo/military-7.webp": "/images/camo/military-7.webp",
+  "/assets/mw4camo/military-8.webp": "/images/camo/military-8.webp",
 }

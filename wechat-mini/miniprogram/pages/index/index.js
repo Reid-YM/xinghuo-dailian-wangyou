@@ -384,6 +384,7 @@ Page({
           total: mode.tiers.length,
           complete: wp.complete,
           expanded: !!expanded[w.code],
+          camoGuide: cat.camoGuide && cat.camoGuide.classes ? cat.camoGuide.classes[w.cls] || null : null,
           tiers: wp.tiers.map(function (t) {
             return {
               key: t.key,

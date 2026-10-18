@@ -202,6 +202,25 @@
             </view>
             <text class="detail-state">{{t.on ? '已获得' : '未获得'}}</text>
           </view>
+          <view class="camo-guide" wx:if="{{w.camoGuide && w.camoGuide.groups.length}}">
+            <view class="camo-guide-head">
+              <text class="camo-guide-title">完整迷彩挑战</text>
+              <text class="camo-guide-flow">军事 → 特种 → 完成主义 → 精通</text>
+            </view>
+            <view class="camo-guide-group" wx:for="{{w.camoGuide.groups}}" wx:for-item="grp" wx:key="key">
+              <view class="camo-guide-group-head">
+                <text class="camo-guide-group-title">{{grp.title}}</text>
+              </view>
+              <view class="camo-guide-row" wx:for="{{grp.items}}" wx:for-item="cg" wx:key="key">
+                <view class="camo-guide-row-top">
+                  <text class="camo-guide-name">{{cg.name}}</text>
+                  <text class="camo-guide-tag" wx:if="{{cg.estimate}}">参考</text>
+                </view>
+                <text class="camo-guide-req">{{cg.req}}</text>
+              </view>
+            </view>
+            <view class="camo-guide-note" wx:if="{{w.camoGuide.note}}">{{w.camoGuide.note}}</view>
+          </view>
           <view class="hint">{{w.hint}}</view>
         </view>
       </view>

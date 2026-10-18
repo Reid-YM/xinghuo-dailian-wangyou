@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.xinghuo.account.service.AutomaticOrderAccountLinkService;
 import com.xinghuo.exception.BadRequestException;
+import com.xinghuo.exception.ConflictException;
 import com.xinghuo.payment.WeChatNativePaymentService;
 import com.xinghuo.security.XingweiPermissionGuard;
 import com.xinghuo.security.XingweiPermissionGuard.AccessSnapshot;
@@ -128,6 +129,28 @@ class XingweiPaymentWorkspaceServiceTest {
         assertEquals("GUEST", row.get("customerType"));
         assertEquals(true, row.get("paymentEligible"));
         verifyNoInteractions(accountLinks);
+    }
+
+    @Test
+    void conflictedGuestAndAccountOwnershipCannotBeReadAsPayableOrCharged() {
+        // The old preview classified this as ACCOUNT while prepare routed to GUEST,
+        // so legacy/corrupt dual-owner rows must be rejected before payment.
+        jdbc.update("UPDATE customer_orders SET guest_access_id=555 WHERE order_no='O-1'");
+
+        ConflictException readError = assertThrows(ConflictException.class,
+                () -> work.order("B-1", self));
+        assertTrue(readError.getMessage().contains("同时关联"));
+
+        var input = new XingweiPaymentWorkspaceService.PrepareInput(
+                new BigDecimal("95.50"), "客服确认服务", "核对最终金额");
+        assertThrows(ConflictException.class,
+                () -> work.prepare("B-1", input, "not-applicable", self, null));
+        verifyNoInteractions(nativePay, accountLinks);
+        verifyNoInteractions(audits);
+
+        // Scope denial still takes precedence over details of conflicted ownership.
+        jdbc.update("UPDATE customer_orders SET guest_access_id=888 WHERE order_no='O-3'");
+        assertThrows(AccessDeniedException.class, () -> work.order("B-3", self));
     }
 
     @Test

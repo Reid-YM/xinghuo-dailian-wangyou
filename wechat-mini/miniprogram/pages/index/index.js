@@ -446,7 +446,7 @@ Page({
           total: mode.tiers.length,
           complete: wp.complete,
           expanded: !!expanded[w.code],
-          camoGuide: guideForClass(cat.camoGuide && cat.camoGuide.classes ? cat.camoGuide.classes[w.cls] : null, w.code, guideDone),
+          camoGuide: guideForClass((mode.code === 'MULTIPLAYER' && cat.camoGuide && cat.camoGuide.weapons && cat.camoGuide.weapons[w.code]) || (cat.camoGuide && cat.camoGuide.classes ? cat.camoGuide.classes[w.cls] : null), w.code, guideDone),
           tiers: wp.tiers.map(function (t) {
             return {
               key: t.key,

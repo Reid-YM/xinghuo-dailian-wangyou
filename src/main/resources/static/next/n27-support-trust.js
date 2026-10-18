@@ -10,7 +10,7 @@
   const text = (value) => String(value ?? '').trim();
   const list = (value) => Array.isArray(value) ? value : [];
   let publicCases = [];
-  let publicCasesLoaded = false;
+  let publicCasesStatus = 'idle'; // idle | loading | ready | error
   let publicCasesRequest = 0;
 
   function currentPage() {
@@ -244,9 +244,19 @@
     casesHead.append(node('h2', '', '公开完成案例'), node('p', '', '仅展示服务端明确允许公开的脱敏记录。'));
     cases.append(casesHead);
     const caseGrid = node('div', 'n27-grid');
-    if (publicCasesLoaded) {
+    caseGrid.id = 'n27PublicCases';
+    caseGrid.setAttribute('aria-live', 'polite');
+    if (publicCasesStatus === 'ready') {
       publicCases.slice(0, 6).forEach((item) => caseGrid.append(publicCaseCard(item)));
       if (!caseGrid.childElementCount) caseGrid.append(node('div', 'n27-empty', '当前没有公开完成案例。'));
+    } else if (publicCasesStatus === 'error') {
+      const state = node('div', 'n27-empty');
+      state.append(node('p', '', '公开案例暂时读取失败，不能据此判断当前没有案例。'));
+      const retry = node('button', 'btn', '重新读取公开案例');
+      retry.type = 'button';
+      retry.addEventListener('click', () => loadPublicCases());
+      state.append(retry);
+      caseGrid.append(state);
     } else {
       caseGrid.append(node('div', 'n27-empty', '正在读取公开完成案例…'));
     }
@@ -279,8 +289,11 @@
   }
 
   async function loadPublicCases() {
-    if (publicCasesLoaded) return;
+    if (publicCasesStatus === 'loading' || publicCasesStatus === 'ready') return;
     const request = ++publicCasesRequest;
+    publicCasesStatus = 'loading';
+    const caseGrid = $('#n27PublicCases');
+    if (caseGrid) caseGrid.replaceChildren(node('div', 'n27-empty', '正在读取公开完成案例…'));
     try {
       const response = await fetch('/api/public/cases', {
         method: 'GET',
@@ -290,16 +303,15 @@
       });
       if (!response.ok) throw new Error('public cases unavailable');
       const body = await response.json();
+      if (!Array.isArray(body)) throw new Error('public cases invalid response');
       if (request !== publicCasesRequest) return;
-      publicCases = list(body);
+      publicCases = body;
+      publicCasesStatus = 'ready';
     } catch (_) {
       if (request !== publicCasesRequest) return;
-      publicCases = [];
+      publicCasesStatus = 'error';
     } finally {
-      if (request === publicCasesRequest) {
-        publicCasesLoaded = true;
-        if (currentPage() === 'trust') render();
-      }
+      if (request === publicCasesRequest && currentPage() === 'trust') render();
     }
   }
 
@@ -327,7 +339,7 @@
     if (page === 'contact') renderContact(shell, config);
     else {
       renderTrust(shell, config);
-      if (!publicCasesLoaded) loadPublicCases();
+      if (publicCasesStatus === 'idle') loadPublicCases();
     }
   }
 
@@ -338,7 +350,7 @@
 
   window.XHFrontendNextN27 = {
     render,
-    get state() { return { page: currentPage(), publicCases: [...publicCases] }; }
+    get state() { return { page: currentPage(), publicCases: [...publicCases], publicCasesStatus }; }
   };
 
   render();

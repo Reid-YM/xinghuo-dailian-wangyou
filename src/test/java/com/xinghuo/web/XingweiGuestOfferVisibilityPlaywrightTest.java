@@ -79,6 +79,54 @@ class XingweiGuestOfferVisibilityPlaywrightTest {
     }
 
     @Test
+    void convertedUnpaidQuoteRemainsActionableFromOrderWorkbench() throws Exception {
+        try (Playwright playwright = Playwright.create();
+                Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            page.setContent(Files.readString(TEMPLATE));
+            page.evaluate("""
+                    () => {
+                      window.fetch = async (url) => {
+                        const path = String(url);
+                        if (path === '/api/admin/xingwei/access')
+                          return {ok:true,json:async()=>({mode:'LEGACY_ADMIN_OVERRIDE',
+                            allowAll:true,permissionCodes:[],dataScope:'ALL',adminUserId:1})};
+                        if (path === '/api/admin/xingwei/business/quotes')
+                          return {ok:true,json:async()=>({dataScope:'ALL',visibleCount:1,
+                            unassignedVisible:true,unassignedCount:1,
+                            items:[{businessNo:'XHORDERFIRST1',game:'MW4',demand:'已转单未支付',
+                              status:'CONVERTED',customerType:'GUEST',canOffer:true,
+                              canAssign:true,ownership:{assigned:false}}]})};
+                        if (path === '/api/admin/xingwei/business/orders')
+                          return {ok:true,json:async()=>({dataScope:'ALL',visibleCount:1,
+                            unassignedVisible:true,unassignedCount:1,
+                            items:[{businessNo:'XHORDERFIRST1',orderNo:'XHORDERFIRST1',
+                              status:'WAITING_CONFIRMATION',progressText:'等待付款',
+                              guestQuoteLinked:true,canOffer:true,canManage:true,
+                              canAssign:true,ownership:{assigned:false}}]})};
+                        return {ok:false,status:404,json:async()=>({error:'not found'})};
+                      };
+                    }
+                    """);
+            page.addScriptTag(new Page.AddScriptTagOptions()
+                    .setPath(ASSETS.resolve("admin-xingwei-business.js")));
+            page.addScriptTag(new Page.AddScriptTagOptions()
+                    .setPath(ASSETS.resolve("admin-xingwei-guest-offer.js")));
+            page.waitForFunction("""
+                    () => document.querySelector('#xwbQuoteRows')?.textContent.includes('XHORDERFIRST1')
+                    """);
+            assertTrue(page.locator("#xwbQuoteRows button:has-text('发布报价')").isEnabled());
+            page.locator("[data-tab='orders']").click();
+            page.waitForFunction("""
+                    () => document.querySelector('#xwbOrderRows button')?.textContent.includes('发布报价')
+                    """);
+            assertEquals(1, page.locator("#xwbOrderRows button:has-text('发布报价')").count());
+            assertTrue(page.locator("#xwbOrderRows button:has-text('发布报价')").isEnabled());
+            assertTrue(page.locator("#xwbOrderRows button:has-text('复制游客链接')").isEnabled());
+        }
+    }
+
+    @Test
     void staleQuoteListBundleNeverMakesOfferControlDisappear() throws Exception {
         try (Playwright playwright = Playwright.create();
                 Browser browser = playwright.chromium().launch()) {

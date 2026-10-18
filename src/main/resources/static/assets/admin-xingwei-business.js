@@ -215,7 +215,12 @@
       const tr = document.createElement('tr');
       tr.dataset.search = quoteSearchText(item);
       tr.dataset.guestOfferAllowed = item.canOffer === true ? 'true' : 'false';
-      tr.dataset.guestOfferReason = item.guestOfferReason || '当前询价不能发布游客报价';
+      tr.dataset.guestOfferReason = item.guestOfferReason || (
+        item.customerType === 'ACCOUNT' ? '这是注册账号询价，请使用账号报价流程'
+          : ['CLOSED', 'CANCELLED'].includes(item.status) ? '该询价已关闭或取消，不能再发布游客报价'
+          : item.status === 'CONVERTED' ? '该订单可能已有收款单或缺少游客归属'
+          : '当前账号没有此业务的游客报价操作权限'
+      );
 
       const idCell = document.createElement('td');
       appendText(idCell, 'span', item.businessNo, 'xwb-primary');

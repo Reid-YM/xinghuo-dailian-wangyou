@@ -118,7 +118,7 @@ class FrontendNextN28LegalSingleSourcePlaywrightTest {
             assertEquals(null, page.evaluate("() => window.__unsafeLegal ?? null"));
             assertEquals("/next/privacy", page.getByText("隐私说明", new Page.GetByTextOptions().setExact(true))
                     .last().getAttribute("href"));
-            assertEquals("/next/contact", page.getByText("一对一咨询", new Page.GetByTextOptions().setExact(true))
+            assertEquals("/next/contact", page.locator("#n28Legal a.n28-link[href='/next/contact']")
                     .getAttribute("href"));
             assertEquals("/rules", page.getByText("打开正式原文", new Page.GetByTextOptions().setExact(true))
                     .getAttribute("href"));

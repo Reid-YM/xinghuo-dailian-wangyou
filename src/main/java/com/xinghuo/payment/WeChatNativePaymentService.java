@@ -234,8 +234,12 @@ public class WeChatNativePaymentService {
         List<String> statuses = jdbc.query("SELECT status FROM payment_order WHERE payment_no=? "
                 + "AND provider='WECHAT' FOR UPDATE", (rs, i) -> rs.getString(1), paymentNo);
         if (statuses.isEmpty()) throw new IllegalArgumentException("支付单不存在");
-        if (statuses.getFirst().equals("CAPTURED")) throw new IllegalStateException("已支付的订单不能关闭");
-        if (statuses.getFirst().equals("CANCELLED")) return true;
+        String status = statuses.getFirst();
+        if ("CAPTURED".equals(status)) throw new IllegalStateException("已支付的订单不能关闭");
+        if ("CANCELLED".equals(status)) return true;
+        if (!"CREATED".equals(status) && !"APPROVED".equals(status)) {
+            throw new IllegalStateException("支付单当前状态不允许关闭，请核对收款与退款记录");
+        }
         QueryOrderByOutTradeNoRequest query = new QueryOrderByOutTradeNoRequest();
         query.setMchid(client.merchantId());
         query.setOutTradeNo(paymentNo);

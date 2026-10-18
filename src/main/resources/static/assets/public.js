@@ -210,7 +210,7 @@
     unlock: '解锁 / 收集', battlepass: '战斗通行证', class: '兵种 / 职能', squad: '组队协同', other: '其他任务'
   };
   const orderStatusMap = {
-    WAITING_CONFIRMATION: '等待确认', IN_PROGRESS: '进行中', COMPLETED: '已完成', EXCEPTION: '异常'
+    WAITING_CONFIRMATION: '待安排服务', IN_PROGRESS: '进行中', COMPLETED: '已完成', EXCEPTION: '异常', CLOSED: '已结单'
   };
   const quoteStatusMap = {
     NEW: '已提交', CONTACTED: '客服已联系', QUOTED: '已报价', CONVERTED: '已进入履约', CLOSED: '已关闭', CANCELLED: '已取消'

@@ -439,6 +439,7 @@ Page({
           name: w.name,
           nameZh: w.nameZh,
           image: useRemote ? (w.imageRemote || w.image) : w.image,
+          imgFallback: !!w.imgFallback,
           hint: w.hint,
           fav: fav,
           count: wp.count,

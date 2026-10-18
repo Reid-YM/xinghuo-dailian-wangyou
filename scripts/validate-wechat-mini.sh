@@ -43,4 +43,5 @@ node "$root/tools/simulate.js"
 node "$root/tools/test-sync.js"
 node "$root/tools/check-images.js"
 node "$root/tools/test-site-account-page.js"
+node "$root/tools/test-camo-guide.js"
 echo 'PASS: collaborator mini-program source and website login validation succeeded.'

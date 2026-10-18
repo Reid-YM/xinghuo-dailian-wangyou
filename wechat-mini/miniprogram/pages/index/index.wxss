@@ -565,3 +565,81 @@
   margin-right: 16rpx;
   flex-shrink: 0;
 }
+
+/* 完整迷彩挑战（数据来自官网工具站 camoGuide） */
+.camo-guide {
+  margin-top: 8rpx;
+  padding: 20rpx 20rpx 12rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1rpx solid rgba(198, 242, 78, 0.14);
+}
+.camo-guide-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+.camo-guide-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #e8edf5;
+}
+.camo-guide-flow {
+  font-size: 20rpx;
+  color: #7f8794;
+}
+.camo-guide-group {
+  margin-top: 14rpx;
+}
+.camo-guide-group-head {
+  padding-bottom: 6rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.06);
+}
+.camo-guide-group-title {
+  font-size: 22rpx;
+  color: #c6f24e;
+  letter-spacing: 0.5rpx;
+}
+.camo-guide-row {
+  padding: 10rpx 0;
+  border-bottom: 1rpx dashed rgba(255, 255, 255, 0.05);
+}
+.camo-guide-row:last-child {
+  border-bottom: none;
+}
+.camo-guide-row-top {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+.camo-guide-name {
+  font-size: 24rpx;
+  color: #cbd2dc;
+  font-weight: 500;
+}
+.camo-guide-tag {
+  padding: 0 10rpx;
+  border-radius: 999rpx;
+  font-size: 18rpx;
+  line-height: 30rpx;
+  color: #ffca7a;
+  background: rgba(255, 202, 122, 0.12);
+  border: 1rpx solid rgba(255, 202, 122, 0.28);
+}
+.camo-guide-req {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  line-height: 1.5;
+  color: #8b94a3;
+}
+.camo-guide-note {
+  margin-top: 12rpx;
+  padding-top: 10rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.06);
+  font-size: 20rpx;
+  line-height: 1.5;
+  color: #6f7785;
+}

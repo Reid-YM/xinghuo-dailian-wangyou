@@ -54,6 +54,33 @@ function classHint(cls) {
 
 /* ------------------------------------------------------------------ 归一化 */
 
+function normalizeCamoGuide(raw) {
+  if (!raw || !raw.classes) return null
+  const classes = {}
+  Object.keys(raw.classes).forEach(function (cls) {
+    const c = raw.classes[cls] || {}
+    const groups = []
+    const military = c.military || {}
+    if (military.text) {
+      groups.push({
+        key: 'military',
+        title: '军事迷彩 · ' + (military.count || 8) + ' 档',
+        items: [{ key: 'military', name: '按武器等级解锁', req: military.text, estimate: !!military.estimate }]
+      })
+    }
+    const special = (c.special || []).map(function (it, i) {
+      return { key: 'special-' + i, name: it.name || ('特种迷彩 ' + (i + 1)), req: it.text || '', estimate: !!it.estimate }
+    }).filter(function (it) { return it.req })
+    if (special.length) groups.push({ key: 'special', title: '特种迷彩 · ' + special.length + ' 档', items: special })
+    const comp = (c.completionist || []).map(function (it, i) {
+      return { key: 'comp-' + i, name: it.name || '', req: it.text || '', estimate: !!it.estimate }
+    }).filter(function (it) { return it.req })
+    if (comp.length) groups.push({ key: 'completionist', title: '完成主义 · ' + comp.length + ' 档', items: comp })
+    classes[cls] = { groups: groups, note: raw.note || '' }
+  })
+  return { version: raw.version || '', note: raw.note || '', classes: classes }
+}
+
 function normalize(payload, source, fetchedAt) {
   const games = (payload && payload.games) || []
   const game =
@@ -126,7 +153,10 @@ function normalize(payload, source, fetchedAt) {
     if (classes.indexOf(w.cls) === -1) classes.push(w.cls)
   })
 
+
+
   const tiersPerMode = tracks.tiersPerMode || 3
+  const camoGuide = normalizeCamoGuide(game.camoGuide)
   const total =
     weapons.length * perWeaponModes.length * tiersPerMode +
     (eventMode ? eventMode.items.length : 0)
@@ -153,6 +183,7 @@ function normalize(payload, source, fetchedAt) {
     weapons: weapons,
     classes: classes,
     tiersPerMode: tiersPerMode,
+    camoGuide: camoGuide,
     total: total
   }
 }

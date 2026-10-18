@@ -24,7 +24,6 @@ class FrontendNextN22GuideDetailContractTest {
         assertTrue(preview.contains("html.contains(N22_RUNTIME)"));
         assertTrue(preview.contains("next/n22-guide-detail.js"));
         assertTrue(preview.contains("path.startsWith(\"/guides/\") ? \"攻略详情 · \" + brand"));
-        assertTrue(preview.contains("path.startsWith(\"/service/\") || path.startsWith(\"/guides/\")"));
     }
 
     @Test

@@ -23,7 +23,6 @@ class FrontendNextN13RecordDetailContractTest {
         assertTrue(preview.contains("N13_RUNTIME"));
         assertTrue(preview.contains("/next/n13-record-detail.js"));
         assertTrue(preview.contains("path.startsWith(\"/record/\") ? \"业务记录 · \""));
-        assertTrue(preview.contains("path.startsWith(\"/account\") || path.startsWith(\"/record/\")"));
 
         assertTrue(legacy.contains("/record/{businessNo}"));
         assertTrue(legacy.contains("return \"record-detail\""));

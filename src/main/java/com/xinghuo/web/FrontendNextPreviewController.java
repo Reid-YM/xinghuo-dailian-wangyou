@@ -189,11 +189,15 @@ public class FrontendNextPreviewController {
                 + HtmlUtils.htmlEscape(manifest.toString()) + "\" defer"));
         html = versionRuntimes(html);
         GameCatalog game = request == null ? null : (GameCatalog) request.getAttribute("frontendGame");
-        if (configuration != null || game != null) {
+        String original = request == null ? null : (String) request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
+        boolean previewRequest = original == null || original.equals("/next") || original.startsWith("/next/");
+        String requestPath = request == null ? "/next" : request.getRequestURI();
+        String path = original == null ? requestPath.replaceFirst("^/next(?=/|$)", "") : original;
+        if (path.isBlank() || "/home".equals(path) || "/index.html".equals(path)) path = "/";
+        boolean privatePage = path.startsWith("/account") || path.equals("/records") || path.startsWith("/record/");
+        String robotsPolicy = privatePage ? "noindex,nofollow" : "noindex,follow";
+        {
             var site = configuration == null ? null : configuration.publicConfig();
-            String original = request == null ? "/" : (String)request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
-            String path = original == null ? request.getRequestURI().replaceFirst("^/next", "") : original;
-            if (path.isBlank() || "/home".equals(path) || "/index.html".equals(path)) path = "/";
             String brand = site == null || site.brandName() == null ? "星火网游" : site.brandName();
             String title = path.startsWith("/account") ? "个人中心 · " + brand
                     : "/services".equals(path) ? "服务大厅 · " + brand
@@ -201,6 +205,15 @@ public class FrontendNextPreviewController {
                     : path.startsWith("/guides/") ? "攻略详情 · " + brand
                     : path.startsWith("/record/") ? "业务记录 · " + brand
                     : "/quote".equals(path) ? "提交询价 · " + brand
+                    : "/guides".equals(path) ? "攻略中心 · " + brand
+                    : "/mastery".equals(path) ? "MW4 工具站 · " + brand
+                    : "/records".equals(path) ? "业务记录 · " + brand
+                    : "/contact".equals(path) ? "联系客服 · " + brand
+                    : "/trust".equals(path) ? "服务保障 · " + brand
+                    : "/rules".equals(path) ? "服务规则 · " + brand
+                    : "/privacy".equals(path) ? "隐私说明 · " + brand
+                    : "/rules-en".equals(path) ? "Service Rules · " + brand
+                    : "/privacy-en".equals(path) ? "Privacy Policy · " + brand
                     : site == null || site.seoTitle() == null ? brand : site.seoTitle();
             String description = site == null ? "" : site.seoDescription() == null ? site.heroSubtitle() : site.seoDescription();
             if (game != null) {
@@ -209,8 +222,7 @@ public class FrontendNextPreviewController {
             }
             html = html.replace("<title>星火网游服务平台</title>", "<title>" + HtmlUtils.htmlEscape(title) + "</title>");
             String metadata = "<meta name=\"description\" content=\"" + HtmlUtils.htmlEscape(description == null ? "" : description) + "\"/><link rel=\"canonical\" href=\"https://wydlgf.cn" + HtmlUtils.htmlEscape(path) + "\"/>";
-            if (path.startsWith("/account") || path.startsWith("/record/")) metadata += "<meta name=\"robots\" content=\"noindex,nofollow\"/>";
-            else if (path.startsWith("/game/") || path.startsWith("/service/") || path.startsWith("/guides/")) metadata += "<meta name=\"robots\" content=\"noindex,follow\"/>";
+            if (previewRequest || privatePage) metadata += "<meta name=\"robots\" content=\"" + robotsPolicy + "\"/>";
             if (game != null) {
                 String canonical = "https://wydlgf.cn" + path;
                 String cover = game.getCoverImage();
@@ -231,11 +243,13 @@ public class FrontendNextPreviewController {
             }
             html = html.replace("</head>", metadata + "</head>");
         }
-        return ResponseEntity.ok()
+        if (path.equals("/rules-en") || path.equals("/privacy-en")) html = html.replace("<html lang=\"zh-CN\">", "<html lang=\"en\">");
+        var response = ResponseEntity.ok()
                 .contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))
                 .header("X-Xinghuo-Frontend", "next")
-                .cacheControl(CacheControl.noStore())
-                .body(html);
+                .cacheControl(CacheControl.noStore());
+        if (previewRequest || privatePage) response.header("X-Robots-Tag", robotsPolicy);
+        return response.body(html);
     }
     private String versionRuntimes(String html) throws IOException {
         for (String name : new String[]{"next/shell.js","next/n2.js","next/n3.js","next/n4.js","next/n4-mini.js","next/n5.js","next/n5-actions.js","next/n6-account-security.js","next/n7-auth.js","next/n8-integration.js","next/n10-service-detail.js","next/n11-related-services.js","next/n12-quote-context.js","next/n13-record-detail.js","next/n14-route-continuity.js","next/n15-auth-return.js","next/n16-account-deep-links.js","next/n17-account-navigation.js","next/n18-account-detail-deep-links.js","next/n19-account-detail-context.js","next/n20-account-list-view-state.js","next/n21-account-personal-assets.js","next/n22-guide-detail.js","assets/guide-community.js","assets/guide-community.css","assets/global-ui-controls.js","assets/frontend-controls-runtime.js","assets/site-image-controls.js","assets/site-image-controls.css"}) {

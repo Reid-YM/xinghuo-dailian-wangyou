@@ -79,7 +79,7 @@ module.exports = {
         {
           "code": "HYEONBURST",
           "name": "Hyeon Burst",
-          "nameZh": "玄铁(点射型)",
+          "nameZh": "玄铁（点射型）",
           "image": "/assets/mw4weapon/hyeonburst.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "玩家等级 18",
@@ -207,7 +207,7 @@ module.exports = {
         {
           "code": "REZI12",
           "name": "REZI 12",
-          "nameZh": "雷齐12",
+          "nameZh": "雷兹12",
           "image": "/assets/mw4weapon/rezi12.webp",
           "weaponType": "霰弹枪",
           "unlockLabel": "立即解锁",
@@ -223,7 +223,7 @@ module.exports = {
         {
           "code": "FINNLMG",
           "name": "Finn LMG",
-          "nameZh": "菲恩轻机枪",
+          "nameZh": "菲恩轻型机枪",
           "image": "/assets/mw4weapon/finnlmg.webp",
           "weaponType": "轻机枪",
           "unlockLabel": "立即解锁",
@@ -255,7 +255,7 @@ module.exports = {
         {
           "code": "MAR9",
           "name": "Mar-9",
-          "nameZh": "3月9日",
+          "nameZh": "MAR-9",
           "image": "/assets/mw4weapon/mar9.webp",
           "weaponType": "射手步枪",
           "unlockLabel": "立即解锁",
@@ -271,7 +271,7 @@ module.exports = {
         {
           "code": "ORIS86",
           "name": "Oris 8.6",
-          "nameZh": "奥里斯8.6",
+          "nameZh": "奥里斯 8.6",
           "image": "/assets/mw4weapon/oris86.webp",
           "weaponType": "射手步枪",
           "unlockLabel": "玩家等级 14",
@@ -287,7 +287,7 @@ module.exports = {
         {
           "code": "KG7VULCAN",
           "name": "KG-7 Vulcan",
-          "nameZh": "KG-7 火神",
+          "nameZh": "KG-7火神",
           "image": "/assets/mw4weapon/kg7vulcan.webp",
           "weaponType": "狙击步枪",
           "unlockLabel": "立即解锁",
@@ -303,7 +303,7 @@ module.exports = {
         {
           "code": "SIGNAL50",
           "name": "Signal 50",
-          "nameZh": "信号50",
+          "nameZh": "西格诺50",
           "image": "/assets/mw4weapon/signal50.webp",
           "weaponType": "狙击步枪",
           "unlockLabel": "玩家等级 30",
@@ -335,7 +335,7 @@ module.exports = {
         {
           "code": "50GS",
           "name": ".50 GS",
-          "nameZh": "点50GS",
+          "nameZh": "点50 GS",
           "image": "/assets/mw4weapon/50gs.webp",
           "weaponType": "手枪",
           "unlockLabel": "玩家等级 23",
@@ -464,7 +464,7 @@ module.exports = {
         {
           "code": "WARLORD",
           "name": "Warlord",
-          "nameZh": "军阀",
+          "nameZh": "战将",
           "image": "",
           "weaponType": "霰弹枪",
           "unlockLabel": "",
@@ -492,7 +492,7 @@ module.exports = {
         {
           "code": "MOSINNAGANT",
           "name": "Mosin-Nagant",
-          "nameZh": "莫辛-纳甘",
+          "nameZh": "莫辛纳甘",
           "image": "",
           "weaponType": "狙击步枪",
           "unlockLabel": "",
@@ -520,7 +520,7 @@ module.exports = {
         {
           "code": "RPG",
           "name": "RPG",
-          "nameZh": "RPG",
+          "nameZh": "RPG-8",
           "image": "",
           "weaponType": "发射器",
           "unlockLabel": "",
@@ -1677,7 +1677,7 @@ module.exports = {
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "17级，20次移动���杀",
+                "text": "17级，20���移动击杀",
                 "image": "/assets/mw4camo/special.webp"
               },
               {

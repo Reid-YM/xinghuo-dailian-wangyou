@@ -477,7 +477,7 @@ public class GuestQuoteFlowService {
         List<Map<String, Object>> quoteRows = jdbc.query("""
                 SELECT q.business_no,q.status,q.game,q.demand,q.current_progress,q.expected_time,
                        o.order_no,o.status AS order_status,o.progress_percent,o.progress_text,
-                       o.updated_at AS order_updated_at
+                       o.updated_at AS order_updated_at,o.finished_at AS order_finished_at
                   FROM quotes q
                   LEFT JOIN customer_orders o ON o.source_quote_id=q.id
                  WHERE q.id=? AND q.business_no=?
@@ -499,6 +499,8 @@ public class GuestQuoteFlowService {
                         order.put("progressText", rs.getString("progress_text"));
                         Timestamp updated = rs.getTimestamp("order_updated_at");
                         order.put("updatedAt", updated == null ? null : updated.toInstant());
+                        Timestamp finished = rs.getTimestamp("order_finished_at");
+                        order.put("finishedAt", finished == null ? null : finished.toInstant());
                         row.put("order", order);
                     } else {
                         row.put("order", null);

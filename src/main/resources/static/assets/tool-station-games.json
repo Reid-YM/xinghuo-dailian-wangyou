@@ -563,7 +563,7 @@
                 "tier": 1,
                 "name": "Mercurial Drift",
                 "nameZh": "霞流",
-                "requirement": "前置：先解锁完美主义者（武器精通迷彩）。单局击杀 10 名敌人，累计 250 次。",
+                "requirement": "所有枪械完成完美主义后，可用任意一把枪完成精通迷彩。前置：先解锁完美主义者（武器精通迷彩）。单局击杀 10 名敌人，累计 250 次。",
                 "image": "/assets/mw4camo/mercurial-drift.webp"
               },
               {
@@ -637,7 +637,7 @@
                 "tier": 1,
                 "name": "Chiral",
                 "nameZh": "赤流",
-                "requirement": "前置：先解锁完美主义者（武器精通迷彩）。在 3 级区及以上累计击杀 1000 名敌人。",
+                "requirement": "所有枪械完成完美主义后，可用任意一把枪完成精通迷彩。前置：先解锁完美主义者（武器精通迷彩）。在 3 级区及以上累计击杀 1000 名敌人。",
                 "image": "/assets/mw4camo/chiral.webp"
               },
               {

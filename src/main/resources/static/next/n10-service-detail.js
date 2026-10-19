@@ -1,5 +1,7 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
 
   const STAGE = 'N10 · SERVICE DETAIL PREVIEW';
   const DETAIL_RE = /^\/next\/service\/([^/?#]+)\/?$/;
@@ -64,7 +66,7 @@
   }
 
   function detailRoute() {
-    const match = location.pathname.match(DETAIL_RE);
+    const match = runtimePath().match(DETAIL_RE);
     if (!match) return null;
     try { return decodeURIComponent(match[1]); } catch (_) { return match[1]; }
   }
@@ -73,11 +75,11 @@
     if (!(link instanceof HTMLAnchorElement) || link.dataset.n10Legacy === '1') return;
     const raw = link.getAttribute('href') || '';
     if (!raw.startsWith('/service/') || raw.startsWith('/next/service/')) return;
-    link.setAttribute('href', '/next' + raw);
+    link.setAttribute('href', runtimeHref('/next' + raw));
   }
 
   function rewriteServiceLinks(root = document) {
-    if (!location.pathname.startsWith('/next')) return;
+    if (!runtimePath().startsWith('/next')) return;
     if (root instanceof HTMLAnchorElement) rewriteServiceLink(root);
     if (root.querySelectorAll) root.querySelectorAll('a[href^="/service/"]').forEach(rewriteServiceLink);
   }
@@ -109,6 +111,8 @@
     if (section) return section;
     section = node('section', 'page n10-detail');
     section.id = 'n10ServiceDetail';
+    section.setAttribute('role', 'main');
+    section.tabIndex = -1;
     section.dataset.page = 'service-detail';
     section.append(node('div', 'shell'));
     const footer = $('.footer');
@@ -161,7 +165,8 @@
       robots.name = 'robots';
       document.head.append(robots);
     }
-    robots.content = 'noindex,follow';
+    if (window.XHFrontendShell?.isPreview === false) robots.remove();
+    else robots.content = 'noindex,follow';
   }
 
   function fact(label, value) {
@@ -220,11 +225,11 @@
     actions.append(quote, back);
     aside.append(actions);
     const safe = node('div', 'n10-safe');
-    safe.append(node('strong', '', '预览链路说明'), document.createTextNode('：这是 Frontend Next N10 预览详情页。旧版 '));
-    const legacy = node('a', '', `/service/${slug}`);
+    safe.append(document.createTextNode('也可打开 '));
+    const legacy = node('a', '', '旧版服务详情');
     legacy.href = `/service/${encodeURIComponent(slug)}`;
     legacy.dataset.n10Legacy = '1';
-    safe.append(legacy, document.createTextNode(' 仍保持原样，不会被重定向或删除。'));
+    safe.append(legacy, document.createTextNode('。'));
     aside.append(safe);
 
     grid.append(main, aside);

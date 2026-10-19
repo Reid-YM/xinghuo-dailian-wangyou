@@ -23,8 +23,10 @@ extends OncePerRequestFilter {
     }
 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        String target;
-        String string = target = "GET".equalsIgnoreCase(request.getMethod()) ? (String)PERMANENT_REDIRECTS.get(request.getRequestURI()) : null;
+        String path = request.getRequestURI();
+        boolean preview = path.startsWith("/next/");
+        String target = "GET".equalsIgnoreCase(request.getMethod()) ? PERMANENT_REDIRECTS.get(preview ? path.substring(5) : path) : null;
+        if (target != null && preview) target = "/next" + target;
         if (target == null) {
             chain.doFilter((ServletRequest)request, (ServletResponse)response);
             return;

@@ -24,7 +24,6 @@ class FrontendNextN22GuideDetailContractTest {
         assertTrue(preview.contains("html.contains(N22_RUNTIME)"));
         assertTrue(preview.contains("next/n22-guide-detail.js"));
         assertTrue(preview.contains("path.startsWith(\"/guides/\") ? \"攻略详情 · \" + brand"));
-        assertTrue(preview.contains("path.startsWith(\"/service/\") || path.startsWith(\"/guides/\")"));
     }
 
     @Test
@@ -36,8 +35,10 @@ class FrontendNextN22GuideDetailContractTest {
         assertTrue(n14.contains("`/next/guides/${guide[1]}`"));
         assertTrue(n14.contains("link.dataset.n22Legacy === '1'"));
         assertFalse(n21.contains("/^\\/guides\\//.test(raw)"));
-        assertTrue(n21.contains("raw === '/mastery' || raw === '/account/submit'"));
-        assertTrue(n21.contains("攻略详情由 N22 留在 Next 预览链路"));
+        assertFalse(n21.contains("link.dataset.n14Legacy = '1'"));
+        assertTrue(n21.contains("window.XHFrontendNextN14?.normalize?.(root)"));
+        String detail = read("resources/static/next/n22-guide-detail.js");
+        assertTrue(detail.contains("legacyList.href = runtimeHref('/next/guides')"));
     }
 
     @Test

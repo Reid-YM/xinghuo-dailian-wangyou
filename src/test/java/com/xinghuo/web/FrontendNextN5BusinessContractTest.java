@@ -42,7 +42,6 @@ class FrontendNextN5BusinessContractTest {
         assertFalse(js.contains("innerHTML"));
         assertFalse(js.contains("localStorage"));
         assertFalse(js.contains("sessionStorage"));
-        assertTrue(js.contains("未返回的数据保持空白"));
         assertTrue(js.contains("候选只显示脱敏编号"));
         assertTrue(js.contains("完整订单号 / 业务编号"));
         assertTrue(js.contains("textContent"));

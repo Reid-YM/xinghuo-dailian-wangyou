@@ -20,9 +20,10 @@ public class PublicGuideController {
     List<GuideModels.GuideSummary> list(
             @RequestParam(required = false) String game,
             @RequestParam(required = false) String q,
-            @RequestParam(defaultValue = "100") int limit
+            @RequestParam(defaultValue = "100") int limit,
+            @RequestParam(defaultValue = "featured") String sort
     ) {
-        return guides.publicList(game, q, limit);
+        return guides.publicList(game, q, limit, sort);
     }
 
     @GetMapping("/{slug}")

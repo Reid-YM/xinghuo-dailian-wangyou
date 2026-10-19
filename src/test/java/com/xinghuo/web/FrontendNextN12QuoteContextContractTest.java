@@ -47,8 +47,8 @@ class FrontendNextN12QuoteContextContractTest {
         assertTrue(runtime.contains("const url = new URL(location.href)"));
         assertTrue(runtime.contains("url.searchParams.set('service', next)"));
         assertTrue(runtime.contains("url.searchParams.delete('service')"));
-        assertTrue(runtime.contains("history.replaceState"));
-        assertFalse(runtime.contains("history.pushState"));
+        assertTrue(runtime.contains("navigation.replaceState"));
+        assertFalse(runtime.contains("navigation.pushState"));
         assertTrue(runtime.contains("new URLSearchParams(location.search).get('service')"));
         assertTrue(runtime.contains("game.dispatchEvent(new Event('change'"));
         assertTrue(runtime.contains("category.dispatchEvent(new Event('change'"));

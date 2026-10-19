@@ -46,18 +46,12 @@ class FrontendNextN14RouteContinuityContractTest {
     }
 
     @Test
-    void homeGameCardsUseRealCatalogCodeToStayInNextServicesHall() throws Exception {
+    void homeGameCardsKeepTheIndependentGameProfileInNext() throws Exception {
         String runtime = read("resources/static/next/n14-route-continuity.js");
         String shell = read("resources/static/next/shell.js");
-        String n2 = read("resources/static/next/n2.js");
-
         assertTrue(shell.contains("game.seoSlug?'/game/'"));
-        assertTrue(runtime.contains("window.XHFrontendNextN2?.state?.catalog?.games"));
-        assertTrue(runtime.contains("text(game?.seoSlug)"));
-        assertTrue(runtime.contains("new URL('/next/services', location.origin)"));
-        assertTrue(runtime.contains("target.searchParams.set('game', text(game.code).toUpperCase())"));
-        assertTrue(n2.contains("state.game=code(params.get('game'))"));
-        assertTrue(n2.contains("const gameOk=!state.game||card.dataset.game===state.game"));
+        assertTrue(runtime.contains("`/next/game/${game[1]}`"));
+        assertFalse(runtime.contains("gameHallTarget"));
     }
 
     @Test

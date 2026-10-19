@@ -54,7 +54,7 @@ class FrontendNextN10ServiceDetailContractTest {
         String runtime = read("resources/static/next/n10-service-detail.js");
         String n2 = read("resources/static/next/n2.js");
 
-        assertTrue(runtime.contains("link.setAttribute('href', '/next' + raw)"));
+        assertTrue(runtime.contains("link.setAttribute('href', runtimeHref('/next' + raw))"));
         assertTrue(runtime.contains("MutationObserver"));
         assertTrue(runtime.contains("link.dataset.n10Legacy === '1'"));
         assertTrue(runtime.contains("legacy.dataset.n10Legacy = '1'"));

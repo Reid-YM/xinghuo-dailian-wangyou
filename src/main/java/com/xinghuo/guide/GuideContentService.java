@@ -40,6 +40,11 @@ public class GuideContentService {
 
     @Transactional(readOnly = true)
     public List<GuideModels.GuideSummary> publicList(String gameCode, String query, int limit) {
+        return publicList(gameCode, query, limit, "featured");
+    }
+
+    @Transactional(readOnly = true)
+    public List<GuideModels.GuideSummary> publicList(String gameCode, String query, int limit, String sort) {
         StringBuilder sql = new StringBuilder(summarySql());
         sql.append(" WHERE g.status = 'PUBLISHED' AND g.published_at IS NOT NULL AND g.published_at <= NOW()");
         List<Object> args = new ArrayList<>();
@@ -48,14 +53,17 @@ public class GuideContentService {
             args.add(gameCode.trim().toUpperCase(Locale.ROOT));
         }
         if (query != null && !query.isBlank()) {
-            sql.append(" AND (g.title LIKE ? OR g.summary LIKE ? OR gc.name LIKE ? OR gc.name_en LIKE ?)");
+            sql.append(" AND (g.title LIKE ? OR g.summary LIKE ? OR gc.name LIKE ? OR gc.name_en LIKE ?"
+                    + " OR g.subtitle LIKE ? OR g.game_code LIKE ? OR g.tags_json LIKE ?)");
             String like = "%" + query.trim() + "%";
-            args.add(like);
-            args.add(like);
-            args.add(like);
-            args.add(like);
+            for (int field = 0; field < 7; field++) args.add(like);
         }
-        sql.append(" ORDER BY g.is_featured DESC, g.sort_order ASC, g.published_at DESC, g.id DESC LIMIT ?");
+        String ordering = switch (sort == null ? "featured" : sort) {
+            case "latest" -> "g.published_at DESC, g.id DESC";
+            case "popular" -> "g.view_count DESC, g.published_at DESC, g.id DESC";
+            default -> "g.is_featured DESC, g.sort_order ASC, g.published_at DESC, g.id DESC";
+        };
+        sql.append(" ORDER BY ").append(ordering).append(" LIMIT ?");
         args.add(Math.max(1, Math.min(limit, 200)));
         return jdbc.queryForList(sql.toString(), args.toArray()).stream().map(this::summary).toList();
     }

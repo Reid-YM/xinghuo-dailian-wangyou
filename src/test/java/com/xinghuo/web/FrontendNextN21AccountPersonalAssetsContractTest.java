@@ -47,7 +47,7 @@ class FrontendNextN21AccountPersonalAssetsContractTest {
         assertTrue(runtime.contains("['submissions', { label: '我的投稿', paged: true }]"));
         assertTrue(runtime.contains("#n5PersonalAssets"));
         assertTrue(runtime.contains("data-personal-asset"));
-        assertTrue(runtime.contains("history.pushState"));
+        assertTrue(runtime.contains("navigation.pushState"));
         assertTrue(runtime.contains("window.XHFrontendNextN16?.applyRoute"));
         assertTrue(n17.contains("['favorites', 'submissions'].includes(child)"));
     }
@@ -69,13 +69,12 @@ class FrontendNextN21AccountPersonalAssetsContractTest {
     }
 
     @Test
-    void onlyKnownLegacyAssetTargetsArePinnedWhileN14MayNormalizeSupportedTargets() throws Exception {
+    void supportedAssetTargetsUseTheSharedRouteNamespaceWithoutObsoleteLegacyMarkers() throws Exception {
         String runtime = read("resources/static/next/n21-account-personal-assets.js");
 
-        assertTrue(runtime.contains("raw === '/mastery'"));
-        assertTrue(runtime.contains("raw === '/account/submit'"));
+        assertTrue(runtime.contains("normalizeAssetLinks"));
         assertFalse(runtime.contains("/^\\/guides\\//.test(raw)"));
-        assertTrue(runtime.contains("link.dataset.n14Legacy = '1'"));
+        assertFalse(runtime.contains("link.dataset.n14Legacy = '1'"));
         assertTrue(runtime.contains("window.XHFrontendNextN14?.normalize?.(root)"));
         assertFalse(runtime.contains("a[href^=\"/game/\"]"));
     }

@@ -22,12 +22,20 @@
   let paymentTimer=null;
   let paymentGeneration=0;
   let initialFocus=false;
+  let suspended=false;
+  const pendingReads = new Set();
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
     if (className) element.className = className;
     if (value !== undefined && value !== null) element.textContent = String(value);
     return element;
+  }
+
+  function labelFor(value, id) {
+    const label = node('label', '', value);
+    label.htmlFor = id;
+    return label;
   }
 
   function append(parent, ...children) {
@@ -67,20 +75,41 @@
   }
 
   async function request(url, options = {}) {
-    const headers = Object.assign({ Accept: 'application/json' }, options.headers || {});
-    const response = await fetch(url, Object.assign({
-      credentials: 'same-origin',
-      cache: 'no-store'
-    }, options, { headers }));
-    let body = null;
-    try { body = await response.json(); } catch (ignore) { body = null; }
-    if (!response.ok) {
-      const error = new Error(text(body?.message) || text(body?.error) || `请求失败（${response.status}）`);
-      error.status = response.status;
-      error.body = body;
-      throw error;
+    const readOnly = String(options.method || 'GET').toUpperCase() === 'GET';
+    const account = profile();
+    if (readOnly && !authenticated()) throw new DOMException('页面已离开', 'AbortError');
+    const controller = readOnly ? new AbortController() : null;
+    if (controller) pendingReads.add(controller);
+    try {
+      const headers = Object.assign({ Accept: 'application/json' }, options.headers || {});
+      const response = await fetch(url, Object.assign({
+        credentials: 'same-origin', cache: 'no-store'
+      }, options, { headers, signal: controller?.signal || options.signal }));
+      let body = null;
+      try { body = await response.json(); }
+      catch (error) { if (error?.name === 'AbortError') throw error; }
+      if (!response.ok) {
+        const error = new Error(text(body?.message) || text(body?.error) || `请求失败（${response.status}）`);
+        error.status = response.status;
+        error.body = body;
+        throw error;
+      }
+      if (readOnly && (!authenticated() || profile() !== account)) throw new DOMException('会话已变更', 'AbortError');
+      return body;
+    } finally {
+      if (controller) pendingReads.delete(controller);
     }
-    return body;
+  }
+
+  function leaveBusinessView() {
+    ++state.generation;
+    state.loading = false;
+    pendingReads.forEach(controller => controller.abort());
+    pendingReads.clear();
+    stopPayment();
+    if (mountTimer) clearTimeout(mountTimer);
+    $('#n5BusinessCenter')?.remove();
+    state.detail = null;
   }
 
   function profile() {
@@ -88,7 +117,7 @@
   }
 
   function authenticated() {
-    return !!profile() && !!$('.n4-shell', page);
+    return !suspended && page.classList.contains('active') && !!profile() && !!$('.n4-shell', page);
   }
 
   function installStyles() {
@@ -175,7 +204,7 @@
   function renderQuotes(body) {
     const items = Array.isArray(state.quotes?.items) ? state.quotes.items : [];
     if (!items.length) {
-      body.append(node('div', 'n5-empty', '当前账号还没有询价记录。你从 Frontend Next 提交的新询价，登录状态下会自动归入这里。'));
+      body.append(node('div', 'n5-empty', '当前账号还没有询价记录。登录后提交的询价会归入当前账号。'));
       return;
     }
     const wrap = node('div', 'n5-table-wrap');
@@ -202,10 +231,12 @@
   function renderRecords() {
     const body = $('#n5RecordsBody');
     if (!body) return;
+    body.setAttribute('aria-labelledby', 'n5Tab-' + state.active);
     body.replaceChildren();
     if (state.active === 'quotes') renderQuotes(body); else renderOrders(body);
     document.querySelectorAll('.n5-tab').forEach((tab) => {
       tab.setAttribute('aria-selected', String(tab.dataset.n5Tab === state.active));
+      tab.tabIndex = tab.dataset.n5Tab === state.active ? 0 : -1;
     });
   }
 
@@ -332,8 +363,9 @@
     for(const [kind,label,path] of [['progress','云端工具存档','/api/account/progress'],['favorites','我的收藏','/api/account/favorites'],['submissions','我的投稿','/api/account/submissions']]){
       const section=node('section');section.dataset.personalAsset=kind;section.append(node('h4','',label));const content=node('div');section.append(content);wrapper.append(section);let pageNumber=0;let generation=0;
       async function load(){
+        if (!authenticated()) return;
         const current=++generation;content.replaceChildren(node('p','','正在读取…'));
-        try{const result=await request(path+(kind==='progress'?'':'?page='+pageNumber+'&size=20'));if(!content.isConnected||current!==generation)return;const list=Array.isArray(result)?result:[];content.replaceChildren();if(!list.length)content.append(node('p','','暂无记录。'));
+        try{const result=await request(path+(kind==='progress'?'':'?page='+pageNumber+'&size=20'));if(!authenticated()||!content.isConnected||current!==generation)return;const list=Array.isArray(result)?result:[];content.replaceChildren();if(!list.length)content.append(node('p','','暂无记录。'));
           list.forEach(item=>{
             const row=node('div','n5-source');
             if(kind==='progress'){row.append(node('b','','工具存档 · '+text(item.toolKey)),node('span','','最近同步：'+fmtDate(item.updatedAt)));const open=node('a','btn','打开工具站');open.href='/mastery';row.append(open);}
@@ -349,7 +381,7 @@
             content.append(row);
           });
           if(kind!=='progress'){const nav=node('div','n5-tabs');const previous=button('上一页','btn');previous.disabled=pageNumber===0;previous.onclick=()=>{pageNumber--;load();};const next=button('下一页','btn');next.disabled=list.length<20;next.onclick=()=>{pageNumber++;load();};nav.append(previous,node('span','','第 '+(pageNumber+1)+' 页'),next);content.append(nav);}
-        }catch(error){if(!content.isConnected||current!==generation)return;content.replaceChildren(node('p','',text(error.message)||'读取失败。'));const retry=button('重新读取','btn');retry.onclick=load;content.append(retry);}
+        }catch(error){if(!authenticated()||!content.isConnected||current!==generation)return;content.replaceChildren(node('p','',text(error.message)||'读取失败。'));const retry=button('重新读取','btn');retry.onclick=load;content.append(retry);}
       }
       // A microtask runs after buildShell has connected the section.
       queueMicrotask(load);
@@ -408,6 +440,7 @@
   }
 
   async function claimOrder() {
+    const account = profile();
     const input = $('#n5ClaimNo');
     const submit = $('#n5ClaimButton');
     const businessNo = text(input?.value);
@@ -430,6 +463,7 @@
         headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
         body: JSON.stringify({ businessNo })
       });
+      if (!authenticated() || profile() !== account) return;
       input.value = '';
       setMessage(`认领成功：${text(claimed?.businessNo) || '订单已归入当前账号'}。正在刷新个人中心…`, 'ok');
       if (window.XHFrontendNextN4?.reload) {
@@ -451,7 +485,7 @@
     const section = node('section', 'n5-section'); section.id = 'n5BusinessCenter';
     const shell = node('div', 'shell');
     const head = node('div', 'n5-head');
-    const copy = node('div'); append(copy, node('div', 'kicker', 'Frontend Next · N5 Business Center'), node('h2', '', '询价、订单与服务进度'), node('p', '', '全部数据来自当前登录账号的生产接口；未返回的数据保持空白，不生成演示金额或虚构进度。'));
+    const copy = node('div'); append(copy, node('div', 'kicker', '业务中心'), node('h2', '', '询价、订单与服务进度'), node('p', '', '查看与当前账号关联的询价、订单和交付进度。'));
     append(head, copy, node('span', 'n5-live', 'REAL ACCOUNT DATA'));
     shell.append(head);
 
@@ -460,11 +494,12 @@
     const records = node('section', 'n5-panel');
     const tabs = node('div', 'n5-tabs'); tabs.setAttribute('role', 'tablist');
     [['orders', '我的订单'], ['quotes', '询价记录']].forEach(([key, label]) => {
-      const tab = button(label, 'n5-tab'); tab.dataset.n5Tab = key; tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(state.active === key));
+      const tab = button(label, 'n5-tab'); tab.dataset.n5Tab = key; tab.id = 'n5Tab-' + key; tab.tabIndex = state.active === key ? 0 : -1; tab.setAttribute('aria-controls', 'n5RecordsBody'); tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(state.active === key));
       tab.addEventListener('click', () => { stopPayment();state.active = key; state.detail = null; const detail = $('#n5Detail'); if (detail) { detail.hidden = true; detail.replaceChildren(); } renderRecords(); }); tabs.append(tab);
     });
+    window.XHFrontendShell?.bindTabs?.(tabs);
     records.append(tabs);
-    const body = node('div'); body.id = 'n5RecordsBody'; records.append(body);
+    const body = node('div'); body.id = 'n5RecordsBody'; body.setAttribute('role', 'tabpanel'); body.tabIndex = 0; records.append(body);
     const message = node('div', 'n5-message'); message.id = 'n5Message'; message.setAttribute('aria-live', 'polite'); records.append(message);
     const detail = node('div', 'n5-detail'); detail.id = 'n5Detail'; detail.hidden = true; records.append(detail);
 
@@ -473,7 +508,7 @@
     const candidates = node('div', 'n5-claim-list'); candidates.id = 'n5Candidates'; claim.append(candidates);
     const field = node('div', 'n5-claim-field');
     const input = document.createElement('input'); input.id = 'n5ClaimNo'; input.maxLength = 40; input.autocomplete = 'off'; input.placeholder = '完整订单号 / 业务编号';
-    append(field, node('label', '', '完整编号'), input); claim.append(field);
+    append(field, labelFor('完整编号', 'n5ClaimNo'), input); claim.append(field);
     const claimButton = button('确认认领到当前账号', 'btn gold'); claimButton.id = 'n5ClaimButton'; claimButton.addEventListener('click', claimOrder); claim.append(claimButton);
     const warning = node('p', 'n5-claim-tip'); append(warning, node('strong', '', '不会自动认领：'), document.createTextNode('候选列表只用于提示可能存在历史订单，完整编号不从页面泄露。')); claim.append(warning);
 
@@ -491,7 +526,7 @@
     renderSummary($('#n5Summary'));
     renderRecords();
     renderCandidates();
-    const badge = $('.badge'); if (badge) badge.textContent = 'FRONTEND NEXT · N5 BUSINESS LIVE';
+    const badge = $('.badge'); if (badge) badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火服务平台';
     setMessage('真实业务数据已读取。');
     if(!initialFocus && /^\/account\/(orders|requests|progress)$/.test(location.pathname)){initialFocus=true;const focus=location.pathname.endsWith('/progress')?section.querySelector('[data-personal-asset=progress]'):section;focus?.scrollIntoView({block:'start'});}
   }
@@ -500,6 +535,7 @@
     if (!authenticated() || state.loading) return;
     state.loading = true;
     const generation = ++state.generation;
+    const account = profile();
     try {
       const results = await Promise.allSettled([
         request('/api/console/summary'),
@@ -507,7 +543,7 @@
         request('/api/console/orders'),
         request('/api/account/orders/candidates')
       ]);
-      if (generation !== state.generation || !authenticated()) return;
+      if (generation !== state.generation || profile() !== account || !authenticated()) return;
       const failures = results.filter((result) => result.status === 'rejected');
       const authFailure = failures.find((result) => result.reason?.status === 401);
       if (authFailure) return;
@@ -518,15 +554,17 @@
       render();
       if (failures.length) setMessage('部分业务数据暂不可用，其余已成功读取；旧版账号中心仍可回退。', 'error');
     } finally {
-      state.loading = false;
+      if (generation === state.generation) state.loading = false;
+      if ((generation !== state.generation || profile() !== account) && authenticated() && !$('#n5BusinessCenter')) scheduleMount();
     }
   }
 
   function scheduleMount() {
     if (mountTimer) clearTimeout(mountTimer);
+    if (suspended) return;
     mountTimer = setTimeout(() => {
       if (!authenticated()) {
-        $('#n5BusinessCenter')?.remove();
+        leaveBusinessView();
         return;
       }
       if (!$('#n5BusinessCenter')) load();
@@ -539,11 +577,21 @@
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && page.classList.contains('active') && authenticated()) load();
   });
-  window.addEventListener('xh:pagechange',event=>{if(event.detail?.page!=='account')stopPayment();else if(state.detail?.order){const host=$('#n5Detail');if(host&&!host.hidden){stopPayment();$('#n5Payment')?.remove();paymentPanel(host,state.detail.order.businessNo||state.detail.order.orderNo);}}});
+  window.addEventListener('xh:pagechange',event=>{if(event.detail?.page!=='account'){leaveBusinessView();}else {scheduleMount();}if(event.detail?.page==='account'&&state.detail?.order){const host=$('#n5Detail');if(host&&!host.hidden){stopPayment();$('#n5Payment')?.remove();paymentPanel(host,state.detail.order.businessNo||state.detail.order.orderNo);}}});
   window.addEventListener('pagehide', () => {
-    stopPayment();
+    suspended=true;
+    leaveBusinessView();
     if (observer) observer.disconnect();
     if (mountTimer) clearTimeout(mountTimer);
+  });
+
+  window.addEventListener('pageshow', event => {
+    suspended=false;
+    if(event.persisted){
+      observer.observe(page,{childList:true,subtree:true});
+      scheduleMount();
+      if (page.classList.contains('active')) window.dispatchEvent(new CustomEvent('xh:pagechange', {detail:{page:'account'}}));
+    }
   });
 
   window.XHFrontendNextN5 = { reload: load, state };

@@ -45,4 +45,28 @@ class PublicUtilitySeoFilterTest {
         assertEquals(200, response.getStatus());
         assertEquals("noindex, follow", response.getHeader("X-Robots-Tag"));
     }
+    @Test
+    void historicalOrderAliasesKeepOnlyTheExplicitRollbackChoice() throws Exception {
+        for (String path : java.util.List.of("/order", "/order/XHABCDEF1234")) {
+            var request = new MockHttpServletRequest("GET", path);
+            request.setParameter("legacy", "1"); request.setParameter("token", "private-test-value");
+            var response = new MockHttpServletResponse();
+            filter.doFilterInternal(request, response, new MockFilterChain());
+            assertEquals(301, response.getStatus());
+            assertEquals((path.equals("/order") ? "/records" : "/record/XHABCDEF1234") + "?legacy=1", response.getHeader("Location"));
+        }
+    }
+
+    @Test void previewOrderAliasesStayInPreviewAndHistoricalServicesKeepTheirQuery() throws Exception {
+        for(String base:java.util.List.of("","/next")){
+            var old=new MockHttpServletRequest("GET",base+"/order/XHABCDEF1234");var response=new MockHttpServletResponse();
+            filter.doFilterInternal(old,response,new MockFilterChain());assertEquals(base+"/record/XHABCDEF1234",response.getHeader("Location"));
+            var redirects=new LegacyRedirectFilter(org.mockito.Mockito.mock(RouteHealthMonitor.class));
+            for(var alias:java.util.Map.of("/loadouts","/mastery","/loadouts/","/mastery","/service/dmz-task","/service/mw4-dmz","/service/camo","/service/camo-task","/service/other","/service/other-task").entrySet()){
+                var request=new MockHttpServletRequest("GET",base+alias.getKey());request.setQueryString("legacy=1&source=old-link");var result=new MockHttpServletResponse();
+                redirects.doFilterInternal(request,result,new MockFilterChain());assertEquals(301,result.getStatus());assertEquals(base+alias.getValue()+"?legacy=1&source=old-link",result.getHeader("Location"));
+            }
+        }
+    }
+
 }

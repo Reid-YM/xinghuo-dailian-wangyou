@@ -1,5 +1,7 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
 
   const ROUTE_RE = /^\/next\/record\/([^/?#]+)\/?$/;
   const BUSINESS_NO_RE = /^(XH[A-Z0-9]{10}|XH-[A-Z2-9]{24})$/;
@@ -9,6 +11,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const text = value => String(value ?? '').trim();
   let routeRequest = 0;
+  let guestBusiness = null;
 
   const statusLabels = {
     NEW: '询价已提交', CONTACTED: '客服已联系', QUOTED: '已完成报价', CONVERTED: '已转为订单', CLOSED: '询价已关闭', CANCELLED: '询价已取消',
@@ -23,7 +26,7 @@
   }
 
   function routeNo() {
-    const match = location.pathname.match(ROUTE_RE);
+    const match = runtimePath().match(ROUTE_RE);
     if (!match) return null;
     let value = match[1];
     try { value = decodeURIComponent(value); } catch (_) {}
@@ -50,7 +53,7 @@
     const section = from === 'account-requests' ? 'requests' : from === 'account-orders' ? 'orders' : '';
     if (!section) return '';
     const target = appendAccountViewState(new URL(`/next/account/${section}/${encodeURIComponent(normalized)}`, location.origin));
-    return target.pathname + target.search;
+    return runtimeHref(target.pathname + target.search);
   }
 
   function installStyles() {
@@ -62,6 +65,17 @@
       .n13-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}.n13-card{border:1px solid #ffffff18;border-radius:18px;background:#0d1116;padding:22px;box-shadow:0 26px 70px #0006}.n13-kicker{color:#d9bb61;font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase}.n13-title{font-size:clamp(30px,4.5vw,52px);line-height:1.05;margin:12px 0}.n13-muted{color:#9098a2;line-height:1.7}.n13-status{display:inline-flex;align-items:center;gap:7px;border:1px solid #ffcb2d48;border-radius:999px;padding:7px 10px;color:#f0cf70;font-size:11px;margin:6px 0 18px}.n13-status:before{content:'';width:7px;height:7px;border-radius:50%;background:#ffcb2d}.n13-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.n13-fact{padding:13px;border:1px solid #ffffff12;border-radius:12px;background:#ffffff04}.n13-fact small{display:block;color:#7f8790;font-size:9px;margin-bottom:5px}.n13-fact strong{font-size:12px;overflow-wrap:anywhere}.n13-progress{margin-top:18px;padding:15px;border:1px solid #ffffff12;border-radius:14px;background:#090d11}.n13-progress-head{display:flex;justify-content:space-between;gap:14px}.n13-progress-bar{height:7px;margin-top:11px;background:#252b31;border-radius:999px;overflow:hidden}.n13-progress-bar i{display:block;height:100%;background:linear-gradient(90deg,#eaa600,#ffcb2d);border-radius:inherit}.n13-note{margin-top:13px;padding:13px;border-left:2px solid #ffcb2d;color:#abb2ba;background:#ffcb2d08;white-space:pre-wrap;overflow-wrap:anywhere}.n13-image{display:block;margin-top:14px;border:1px solid #ffffff14;border-radius:13px;overflow:hidden}.n13-image img{display:block;width:100%;max-height:440px;object-fit:contain;background:#07090c}.n13-actions{display:grid;gap:8px}.n13-actions .btn{text-align:center}.n13-safe{margin-top:14px;color:#848c95;font-size:10px;line-height:1.7}.n13-loading{min-height:300px;display:grid;place-items:center;text-align:center;color:#9aa2ac}.n13-error h1{font-size:34px;margin:10px 0}.n13-error p{color:#9aa2ac;line-height:1.7}
       @media(max-width:850px){.n13-grid{grid-template-columns:1fr}.n13-record{padding-top:92px}.n13-facts{grid-template-columns:1fr 1fr}}@media(max-width:520px){.n13-card{padding:16px}.n13-facts{grid-template-columns:1fr}}
     `;
+    style.textContent += `
+      #n13GuestShell{margin-top:18px}#n13GuestShell .n13-guest{overflow-wrap:anywhere}
+      .n13-guest .soft-card{padding:16px;margin:14px 0;border:1px solid var(--line);border-radius:12px;background:#080c10}
+      .n13-guest .detail-row{display:grid;grid-template-columns:minmax(90px,.4fr) minmax(0,1fr);gap:16px;margin:12px 0}
+      .n13-guest .muted{color:#a1aab4}.n13-guest .notice{padding:12px;border:1px solid var(--line);border-radius:10px;line-height:1.7}
+      .n13-guest .notice.error{color:#ffb4ae}.n13-guest .notice.success{color:#87e9b5}
+      .n13-guest .actions{display:flex;gap:10px;flex-wrap:wrap}.n13-guest .btn.primary{background:var(--gold);color:#14100a;font-weight:800}
+      .n13-guest .payment-qr img{display:block;background:white;border:12px solid white;border-radius:10px;margin:16px 0}
+      .n13-guest .business-lifecycle{display:flex;flex-wrap:wrap;gap:6px}.n13-guest .is-done{color:#87e9b5}
+      @media(max-width:560px){.n13-guest .detail-row{grid-template-columns:1fr;gap:5px}}
+    `;
     document.head.append(style);
   }
 
@@ -70,6 +84,8 @@
     if (section) return section;
     section = make('section', 'page n13-record');
     section.id = 'n13RecordDetail';
+    section.setAttribute('role', 'main');
+    section.tabIndex = -1;
     section.dataset.page = 'record-detail';
     const shell = make('div', 'shell');
     section.append(shell);
@@ -180,7 +196,7 @@
     const account = make('a', 'btn', '个人中心'); account.href = '/next/account';
     const legacy = make('a', 'btn', '查看旧版记录页'); legacy.href = `/record/${encodeURIComponent(businessNo)}`; legacy.dataset.n13Legacy = '1';
     actions.append(quote, account, legacy); aside.append(actions);
-    aside.append(make('p', 'n13-safe', 'Frontend Next N13 仅展示现有公开业务记录，不提供订单、支付、退款或售后写操作。旧版记录页继续保留。'));
+    aside.append(make('p', 'n13-safe', '通过业务编号查看已公开的进度。如需修改需求或处理售后，请登录个人中心或联系客服。'));
 
     grid.append(main, aside); shell.replaceChildren(grid);
   }
@@ -209,14 +225,39 @@
     return body;
   }
 
+  function stopGuestBusiness() {
+    guestBusiness?.dispose(); guestBusiness = null;
+    document.getElementById('n13GuestShell')?.remove();
+  }
+
+  function mountGuestBusiness(section, businessNo) {
+    stopGuestBusiness();
+    const shell = make('div', 'shell'); shell.id = 'n13GuestShell';
+    const panel = make('section', 'n13-card n13-guest'); panel.id = 'guestBusinessPanel';
+    panel.hidden = true; panel.setAttribute('aria-live', 'polite');
+    shell.append(panel); section.append(shell);
+    if (!window.XHGuestBusiness?.mount) {
+      panel.hidden = false;
+      panel.append(make('p', '', '报价与付款组件加载失败。请重新加载页面，或打开旧版业务记录。'));
+      const retry = make('button', 'btn gold', '重新加载报价与付款'); retry.type = 'button';
+      retry.onclick = () => location.reload();
+      const legacy = make('a', 'btn', '打开旧版业务记录'); legacy.href = '/record/' + encodeURIComponent(businessNo) + '?legacy=1';
+      panel.append(retry, legacy); return;
+    }
+    guestBusiness = window.XHGuestBusiness.mount(panel, businessNo, {
+      isActive: () => routeNo() === businessNo && section.classList.contains('active')
+    });
+  }
+
   async function syncRoute() {
     const request = ++routeRequest;
     const businessNo = routeNo();
-    if (businessNo === null) return;
+    if (businessNo === null) { stopGuestBusiness(); return; }
     installStyles();
     const section = ensureSection(); activate(section);
-    if (!businessNo) { renderError(section, '业务编号格式无效，请从提交成功页面或完整业务链接进入。'); return; }
+    if (!businessNo) { stopGuestBusiness(); renderError(section, '业务编号格式无效，请从提交成功页面或完整业务链接进入。'); return; }
     renderLoading(section, businessNo);
+    mountGuestBusiness(section, businessNo);
     try {
       const record = await getRecord(businessNo);
       if (request !== routeRequest || routeNo() !== businessNo) return;
@@ -234,6 +275,7 @@
     });
     syncRoute();
     window.addEventListener('popstate', syncRoute);
+    window.addEventListener('xh:pagechange', () => { if (routeNo() === null) stopGuestBusiness(); });
   }
 
   window.XHFrontendNextN13 = { routeNo, syncRoute, accountReturnTarget, appendAccountViewState };

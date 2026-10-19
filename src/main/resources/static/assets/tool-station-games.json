@@ -129,7 +129,8 @@
           "apexAttachments": [
             "AXION CRUSADER"
           ],
-          "note": "默认配置不支持武器改装与 Apex 配件。"
+          "note": "默认配置不支持武器改装与 Apex 配件。",
+          "image": "/assets/mw4weapon/axion.webp"
         },
         {
           "code": "ISONIGHTSHADE",
@@ -192,7 +193,8 @@
           "apexAttachments": [
             "[CLASSIFIED]"
           ],
-          "note": "战役任务获取，不支持武器改装与 Apex 配件。"
+          "note": "战役任务获取，不支持武器改装与 Apex 配件。",
+          "image": "/assets/mw4weapon/wz55striga.webp"
         },
         {
           "code": "REZI12",
@@ -351,7 +353,8 @@
           "apexAttachments": [
             "SANG 9&12"
           ],
-          "note": "默认配置不支持武器改装与 Apex 配件。"
+          "note": "默认配置不支持武器改装与 Apex 配件。",
+          "image": "/assets/mw4weapon/sang9mm.webp"
         },
         {
           "code": "PILA",
@@ -385,7 +388,7 @@
           "code": "ODEN",
           "name": "Oden",
           "nameZh": "欧登",
-          "image": "",
+          "image": "/assets/mw4weapon/oden.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -399,7 +402,7 @@
           "code": "CRONENSQUALL",
           "name": "Cronen Squall",
           "nameZh": "克洛南烈风",
-          "image": "",
+          "image": "/assets/mw4weapon/cronensquall.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -413,21 +416,7 @@
           "code": "VEL46",
           "name": "VEL 46",
           "nameZh": "威尔46",
-          "image": "",
-          "weaponType": "冲锋枪",
-          "unlockLabel": "",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": [],
-          "apexAttachments": [],
-          "note": ""
-        },
-        {
-          "code": "STERLING",
-          "name": "Sterling",
-          "nameZh": "斯特林",
-          "image": "",
+          "image": "/assets/mw4weapon/vel46.webp",
           "weaponType": "冲锋枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -441,7 +430,7 @@
           "code": "WARLORD",
           "name": "Warlord",
           "nameZh": "战将",
-          "image": "",
+          "image": "/assets/mw4weapon/warlord.webp",
           "weaponType": "霰弹枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -455,7 +444,7 @@
           "code": "MOSINNAGANT",
           "name": "Mosin-Nagant",
           "nameZh": "莫辛纳甘",
-          "image": "",
+          "image": "/assets/mw4weapon/mosinnagant.webp",
           "weaponType": "狙击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -469,7 +458,7 @@
           "code": "JOKR",
           "name": "JOKR",
           "nameZh": "标枪导弹",
-          "image": "",
+          "image": "/assets/mw4weapon/jokr.webp",
           "weaponType": "发射器",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -497,7 +486,7 @@
           "code": "APOC338",
           "name": "APOC 338",
           "nameZh": "APOC 338",
-          "image": "",
+          "image": "/assets/mw4weapon/apoc338.webp",
           "weaponType": "轻机枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -511,7 +500,7 @@
           "code": "MOHAVE357",
           "name": "Mohave .357",
           "nameZh": "莫哈韦点357",
-          "image": "",
+          "image": "/assets/mw4weapon/mohave357.webp",
           "weaponType": "手枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -525,7 +514,7 @@
           "code": "ATALOS57",
           "name": ".57 Atalos",
           "nameZh": "点57阿塔罗斯",
-          "image": "",
+          "image": "/assets/mw4weapon/atalos57.webp",
           "weaponType": "狙击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -539,7 +528,7 @@
           "code": "PM40",
           "name": "PM-40",
           "nameZh": "PM-40铁砧",
-          "image": "",
+          "image": "/assets/mw4weapon/pm40.webp",
           "weaponType": "发射器",
           "unlockLabel": "",
           "unlockPlayerRank": null,

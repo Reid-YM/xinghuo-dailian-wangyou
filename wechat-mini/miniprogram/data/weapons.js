@@ -139,7 +139,8 @@ module.exports = {
           "apexAttachments": [
             "AXION CRUSADER"
           ],
-          "note": "默认配置不支持武器改装与 Apex 配件。"
+          "note": "默认配置不支持武器改装与 Apex 配件。",
+          "image": "/assets/mw4weapon/axion.webp"
         },
         {
           "code": "ISONIGHTSHADE",
@@ -202,7 +203,8 @@ module.exports = {
           "apexAttachments": [
             "[CLASSIFIED]"
           ],
-          "note": "战役任务获取，不支持武器改装与 Apex 配件。"
+          "note": "战役任务获取，不支持武器改装与 Apex 配件。",
+          "image": "/assets/mw4weapon/wz55striga.webp"
         },
         {
           "code": "REZI12",
@@ -361,7 +363,8 @@ module.exports = {
           "apexAttachments": [
             "SANG 9&12"
           ],
-          "note": "默认配置不支持武器改装与 Apex 配件。"
+          "note": "默认配置不支持武器改装与 Apex 配件。",
+          "image": "/assets/mw4weapon/sang9mm.webp"
         },
         {
           "code": "PILA",
@@ -395,7 +398,7 @@ module.exports = {
           "code": "ODEN",
           "name": "Oden",
           "nameZh": "欧登",
-          "image": "",
+          "image": "/assets/mw4weapon/oden.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -409,7 +412,7 @@ module.exports = {
           "code": "CRONENSQUALL",
           "name": "Cronen Squall",
           "nameZh": "克洛南烈风",
-          "image": "",
+          "image": "/assets/mw4weapon/cronensquall.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -423,21 +426,7 @@ module.exports = {
           "code": "VEL46",
           "name": "VEL 46",
           "nameZh": "威尔46",
-          "image": "",
-          "weaponType": "冲锋枪",
-          "unlockLabel": "",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": [],
-          "apexAttachments": [],
-          "note": ""
-        },
-        {
-          "code": "STERLING",
-          "name": "Sterling",
-          "nameZh": "斯特林",
-          "image": "",
+          "image": "/assets/mw4weapon/vel46.webp",
           "weaponType": "冲锋枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -451,7 +440,7 @@ module.exports = {
           "code": "WARLORD",
           "name": "Warlord",
           "nameZh": "战将",
-          "image": "",
+          "image": "/assets/mw4weapon/warlord.webp",
           "weaponType": "霰弹枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -465,7 +454,7 @@ module.exports = {
           "code": "MOSINNAGANT",
           "name": "Mosin-Nagant",
           "nameZh": "莫辛纳甘",
-          "image": "",
+          "image": "/assets/mw4weapon/mosinnagant.webp",
           "weaponType": "狙击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -479,7 +468,7 @@ module.exports = {
           "code": "JOKR",
           "name": "JOKR",
           "nameZh": "标枪导弹",
-          "image": "",
+          "image": "/assets/mw4weapon/jokr.webp",
           "weaponType": "发射器",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -507,7 +496,7 @@ module.exports = {
           "code": "APOC338",
           "name": "APOC 338",
           "nameZh": "APOC 338",
-          "image": "",
+          "image": "/assets/mw4weapon/apoc338.webp",
           "weaponType": "轻机枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -521,7 +510,7 @@ module.exports = {
           "code": "MOHAVE357",
           "name": "Mohave .357",
           "nameZh": "莫哈韦点357",
-          "image": "",
+          "image": "/assets/mw4weapon/mohave357.webp",
           "weaponType": "手枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -535,7 +524,7 @@ module.exports = {
           "code": "ATALOS57",
           "name": ".57 Atalos",
           "nameZh": "点57阿塔罗斯",
-          "image": "",
+          "image": "/assets/mw4weapon/atalos57.webp",
           "weaponType": "狙击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -549,7 +538,7 @@ module.exports = {
           "code": "PM40",
           "name": "PM-40",
           "nameZh": "PM-40铁砧",
-          "image": "",
+          "image": "/assets/mw4weapon/pm40.webp",
           "weaponType": "发射器",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -1668,7 +1657,7 @@ module.exports = {
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "20级，10���双杀",
+                "text": "20级，10次双杀",
                 "image": "/assets/mw4camo/special.webp"
               },
               {
@@ -2110,7 +2099,7 @@ module.exports = {
               },
               {
                 "name": "分歧",
-                "text": "完成该武器���有的皮肤挑战",
+                "text": "完成该武器所有的皮肤挑战",
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
@@ -2548,7 +2537,7 @@ module.exports = {
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "65级，举���瞄准100次击杀",
+                "text": "65级，举枪瞄准100次击杀",
                 "image": "/assets/mw4camo/special.webp"
               }
             ],

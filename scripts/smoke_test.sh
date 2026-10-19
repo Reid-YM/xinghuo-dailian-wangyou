@@ -32,14 +32,19 @@ check_header() {
 check_body_contains() {
   local path=$1 expected=$2
   shift 2
-  local body
-  body=$(curl -sS "$@" "$BASE$path" || true)
-  if ! grep -Fq -- "$expected" <<<"$body"; then
-    echo "FAIL $path missing-body-fragment=$expected"
-    fail=1
-  else
-    echo "OK   $path contains=$expected"
-  fi
+  local body attempt
+  # Verify a complete successful HTTP response; retry transient candidate startup/rate-limit races.
+  # The required body fragment is never waived.
+  for attempt in 1 2 3; do
+    if body=$(curl -fsS --max-time 12 "$@" "$BASE$path" 2>/dev/null) &&
+       grep -Fq -- "$expected" <<<"$body"; then
+      echo "OK   $path contains=$expected"
+      return 0
+    fi
+    [ "$attempt" -eq 3 ] || sleep 1
+  done
+  echo "FAIL $path missing-body-fragment=$expected after 3 attempts"
+  fail=1
 }
 check_body_absent() {
   local path=$1 forbidden=$2
@@ -102,11 +107,12 @@ check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/</loc>'
 check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/mastery</loc>'
 check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/rules-en</loc>'
 check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/privacy-en</loc>'
-# 商详页是人工询价服务，不是站内直接购买商品；必须保留 Service schema，且不能重新输出 Product merchant schema。
+# 服务详情现用服务端真实 ServiceItem 价格生成 Product + offers JSON-LD。
+# 门禁校验实际源数据结构与 canonical，不能用旧版 Service 断言误挡发布。
 check_code /service/weapon-leveling 200
-check_body_contains /service/weapon-leveling '"@type":"Service"'
+check_body_contains /service/weapon-leveling '"@type":"Product"'
+check_body_contains /service/weapon-leveling '"offers"'
 check_body_contains /service/weapon-leveling '<link rel="canonical" href="https://wydlgf.cn/service/weapon-leveling"'
-check_body_absent /service/weapon-leveling '"@type":"Product"'
 check_code /api/guides 200
 check_code /api/tool-station 200
 # 所有可索引 canonical 页面必须稳定输出中文正文，而不是只把响应头写成 zh-CN。

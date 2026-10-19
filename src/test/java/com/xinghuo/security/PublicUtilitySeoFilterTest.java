@@ -69,4 +69,29 @@ class PublicUtilitySeoFilterTest {
         }
     }
 
+
+    @Test
+    void enabledNextRecordsAreNoindexNofollowAndLegacyRollbackKeepsOldPolicy() throws Exception {
+        org.springframework.test.util.ReflectionTestUtils.setField(filter, "frontendNextEnabled", true);
+        for (String path : java.util.List.of("/records", "/record/XHABCDEF1234")) {
+            var nextRequest = new MockHttpServletRequest("GET", path);
+            var nextResponse = new MockHttpServletResponse();
+            filter.doFilterInternal(nextRequest, nextResponse, new MockFilterChain());
+            assertEquals("noindex,nofollow", nextResponse.getHeader("X-Robots-Tag"));
+
+            var legacyRequest = new MockHttpServletRequest("GET", path);
+            legacyRequest.setParameter("legacy", "1");
+            var legacyResponse = new MockHttpServletResponse();
+            filter.doFilterInternal(legacyRequest, legacyResponse, new MockFilterChain());
+            assertEquals("noindex, follow", legacyResponse.getHeader("X-Robots-Tag"));
+        }
+    }
+
+    @Test
+    void explicitNextPreviewUsesPrivatePolicyEvenWhenDefaultIsLegacy() throws Exception {
+        var request = new MockHttpServletRequest("GET", "/next/records");
+        var response = new MockHttpServletResponse();
+        filter.doFilterInternal(request, response, new MockFilterChain());
+        assertEquals("noindex,nofollow", response.getHeader("X-Robots-Tag"));
+    }
 }

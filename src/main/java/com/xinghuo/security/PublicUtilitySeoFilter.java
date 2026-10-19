@@ -7,6 +7,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -18,6 +19,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class PublicUtilitySeoFilter extends OncePerRequestFilter {
 
     private static final String NOINDEX = "noindex, follow";
+    // Align the first X-Robots-Tag header with the actual frontend mode.
+    @Value("${app.frontend-next.default-enabled:false}")
+    private boolean frontendNextEnabled;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -39,7 +43,9 @@ public class PublicUtilitySeoFilter extends OncePerRequestFilter {
         }
 
         if ("/records".equals(path) || (path != null && path.startsWith("/record/"))) {
-            response.setHeader("X-Robots-Tag", NOINDEX);
+            boolean nextView = !"1".equals(request.getParameter("legacy"))
+                    && (!base.isEmpty() || frontendNextEnabled);
+            response.setHeader("X-Robots-Tag", nextView ? "noindex,nofollow" : NOINDEX);
         }
 
         chain.doFilter((ServletRequest) request, (ServletResponse) response);

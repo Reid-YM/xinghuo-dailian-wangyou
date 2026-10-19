@@ -137,12 +137,12 @@ global.Page = function (def) {
 
   const cat1 = await catalog.load()
   check('数据来源标记为快照', cat1.source, 'builtin')
-  check('武器数', cat1.weapons.length, 34)
+  check('武器数', cat1.weapons.length, 33)
   check('职业数', cat1.classes.length, 9)
   check('职业是中文', cat1.classes[0], '突击步枪')
   check('枪械模式数（不含 Event）', cat1.modes.length, 3)
   check('每模式三档', cat1.modes[0].tiers.length, 3)
-  check('进度项总数', cat1.total, 310)
+  check('进度项总数', cat1.total, 301)
   check('第一把武器中文名', cat1.weapons[0].nameZh, '汉86')
   check('第一把武器 code', cat1.weapons[0].code, 'HAN86')
   check('迷彩中文名', cat1.modes[0].tiers[0].nameZh, '霞流')
@@ -199,8 +199,8 @@ global.Page = function (def) {
   await index.ready
 
   check('已退出 loading', index.data.loading, false)
-  check('武器总数', index.data.weaponCount, 34)
-  check('总项目数', index.data.stats.total, 310)
+  check('武器总数', index.data.weaponCount, 33)
+  check('总项目数', index.data.stats.total, 301)
   check('初始完成 0', index.data.stats.count, 0)
   check('模式切换项是中文简称', index.data.modes[0].short, '多人')
   check('第一个分组是中文职业', index.data.groups[0].cls, '突击步枪')
@@ -216,7 +216,7 @@ global.Page = function (def) {
   check('M4 完成三档', m4.count, 3)
   check('M4 标记完成', m4.complete, true)
   check('总完成数 3', index.data.stats.count, 3)
-  check('进度百分比', index.data.stats.pct, Math.round((3 / 310) * 100))
+  check('进度百分比', index.data.stats.pct, Math.round((3 / 301) * 100))
   check('多人模式统计', index.data.modeStats[0].count, 3)
   check('本机存了 3 条', JSON.parse(JSON.stringify(store.get('mw4_camo_v1'))).length, 3)
   check('档位按钮显示 1/2/3', m4.tiers.map(function (t) { return t.tier }).join(','), '1,2,3')
@@ -264,7 +264,7 @@ global.Page = function (def) {
   check('空结果数量为零', index.data.visibleCount, 0)
   check('空结果提示可清除筛选', index.data.hasActiveFilters, true)
   index.onResetFilters()
-  check('清除后恢复全部项目', index.data.visibleCount, 38)
+  check('清除后恢复全部项目', index.data.visibleCount, 37)
 
   // 模式切换
   index.onMode({ currentTarget: { dataset: { key: 'WARZONE' } } })
@@ -303,9 +303,9 @@ global.Page = function (def) {
   me.onLoad()
   await me.ready
   check('初始进度 0', me.data.summary.count, 0)
-  check('进度总数', me.data.summary.total, 310)
+  check('进度总数', me.data.summary.total, 301)
   check('Event 总数带过来了', me.data.summary.eventTotal, 4)
-  check('武器数', me.data.weaponCount, 34)
+  check('武器数', me.data.weaponCount, 33)
   assert('显示数据来源', !!me.data.dataSource, me.data.dataSource)
   me.onShow()
   assert('未登录有提示', !!me.data.cloud.hint || !!me.data.copy.cardTitle)
@@ -336,7 +336,7 @@ global.Page = function (def) {
 
   console.log('\n[7] 一致性')
   const summary = require(path.join(ROOT, 'utils', 'stats.js')).computeStats(cat1, {})
-  check('空进度时 total', summary.total, 310)
+  check('空进度时 total', summary.total, 301)
   check('空进度时 count', summary.count, 0)
   check('三个模式', summary.modes.map(function (m) { return m.code }).join(','), 'MULTIPLAYER,WARZONE,DMZ')
   const allDone = {}
@@ -352,7 +352,7 @@ global.Page = function (def) {
   })
   const full = require(path.join(ROOT, 'utils', 'stats.js')).computeStats(cat1, allDone)
   check('全勾满时 100%', full.pct, 100)
-  check('全勾满时数量', full.count, 310)
+  check('全勾满时数量', full.count, 301)
 
   /* ---------------------------------------------------------- 8. 业务进度查询 */
 

@@ -55,7 +55,7 @@
 
   <view class="card mode-detail">
     <view class="card-title">{{activeModeName}}进度</view>
-    <view class="camo-row" wx:for="{{tierCounts}}" wx:key="tier">
+    <view class="camo-row" wx:for="{{tierCounts}}" wx:key="tier" data-tier="{{item.tier}}" bindtap="onToggleMastery" role="button" aria-label="{{activeModeName}}{{item.name}}{{item.count === weaponCount ? '已解锁' : '未解锁'}}">
       <image
         class="camo-thumb"
         wx:if="{{showImages && item.image}}"
@@ -72,7 +72,7 @@
       <view class="camo-text">
         <text class="camo-name">{{item.tier}} · {{item.name}}</text>
       </view>
-      <text class="mono camo-count {{item.count === weaponCount ? 'ok' : ''}}">{{item.count}}/{{weaponCount}}</text>
+      <text class="mono camo-count {{item.count === weaponCount ? 'ok' : ''}}">{{item.count === weaponCount ? '已解锁' : '未解锁'}}</text>
     </view>
     <view class="camo-tap-hint" wx:if="{{showImages}}">点迷彩图看大图</view>
     <view class="guide-toggle" bindtap="onToggleGuide">
@@ -157,19 +157,6 @@
             <text class="weapon-name">{{w.nameZh}}</text>
             <text class="weapon-name-en">{{w.name}}</text>
           </view>
-          <view class="tier-btns">
-            <view
-              class="tier-btn {{t.on ? 'on' : ''}}"
-              wx:for="{{w.tiers}}"
-              wx:for-item="t"
-              wx:key="key"
-              data-key="{{t.key}}"
-              catchtap="onToggleTier"
-              role="button"
-              aria-label="{{w.nameZh}}第{{t.tier}}档，{{t.on ? '已获得' : '未获得'}}"
-            >{{t.tier}}</view>
-          </view>
-          <text class="mono weapon-count {{w.complete ? 'ok' : ''}}">{{w.count}}/{{w.total}}</text>
           <view
             class="chev {{w.expanded ? 'open' : ''}}"
             data-weapon="{{w.code}}"
@@ -178,30 +165,6 @@
         </view>
 
         <view class="weapon-detail" wx:if="{{w.expanded}}">
-          <view
-            class="detail-row"
-            wx:for="{{w.tiers}}"
-            wx:for-item="t"
-            wx:key="key"
-            data-key="{{t.key}}"
-            bindtap="onToggleTier"
-          >
-            <image
-              class="detail-thumb"
-              wx:if="{{showImages && t.image}}"
-              src="{{t.image}}"
-              binderror="onImgError"
-              mode="aspectFill"
-              lazy-load
-              data-url="{{t.image}}"
-              catchtap="onPreviewCamo"
-            ></image>
-            <view class="tier-dot {{t.on ? 'on' : ''}}" wx:else></view>
-            <view class="detail-text">
-              <text class="detail-camo">{{t.tier}} · {{t.name}}</text>
-            </view>
-            <text class="detail-state">{{t.on ? '已获得' : '未获得'}}</text>
-          </view>
           <view class="camo-guide" wx:if="{{w.camoGuide && w.camoGuide.groups.length}}">
             <view class="camo-guide-head">
               <text class="camo-guide-title">完整迷彩挑战</text>

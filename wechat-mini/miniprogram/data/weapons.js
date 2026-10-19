@@ -139,7 +139,8 @@ module.exports = {
           "apexAttachments": [
             "AXION CRUSADER"
           ],
-          "note": "默认配置不支持武器改装与 Apex 配件。"
+          "note": "默认配置不支持武器改装与 Apex 配件。",
+          "image": "/assets/mw4weapon/axion.webp"
         },
         {
           "code": "ISONIGHTSHADE",
@@ -202,7 +203,8 @@ module.exports = {
           "apexAttachments": [
             "[CLASSIFIED]"
           ],
-          "note": "战役任务获取，不支持武器改装与 Apex 配件。"
+          "note": "战役任务获取，不支持武器改装与 Apex 配件。",
+          "image": "/assets/mw4weapon/wz55striga.webp"
         },
         {
           "code": "REZI12",
@@ -361,7 +363,8 @@ module.exports = {
           "apexAttachments": [
             "SANG 9&12"
           ],
-          "note": "默认配置不支持武器改装与 Apex 配件。"
+          "note": "默认配置不支持武器改装与 Apex 配件。",
+          "image": "/assets/mw4weapon/sang9mm.webp"
         },
         {
           "code": "PILA",
@@ -395,7 +398,7 @@ module.exports = {
           "code": "ODEN",
           "name": "Oden",
           "nameZh": "欧登",
-          "image": "",
+          "image": "/assets/mw4weapon/oden.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -409,7 +412,7 @@ module.exports = {
           "code": "CRONENSQUALL",
           "name": "Cronen Squall",
           "nameZh": "克洛南烈风",
-          "image": "",
+          "image": "/assets/mw4weapon/cronensquall.webp",
           "weaponType": "突击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -423,21 +426,7 @@ module.exports = {
           "code": "VEL46",
           "name": "VEL 46",
           "nameZh": "威尔46",
-          "image": "",
-          "weaponType": "冲锋枪",
-          "unlockLabel": "",
-          "unlockPlayerRank": null,
-          "maxLevel": 0,
-          "levelingEnabled": false,
-          "gunsmith": [],
-          "apexAttachments": [],
-          "note": ""
-        },
-        {
-          "code": "STERLING",
-          "name": "Sterling",
-          "nameZh": "斯特林",
-          "image": "",
+          "image": "/assets/mw4weapon/vel46.webp",
           "weaponType": "冲锋枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -451,7 +440,7 @@ module.exports = {
           "code": "WARLORD",
           "name": "Warlord",
           "nameZh": "战将",
-          "image": "",
+          "image": "/assets/mw4weapon/warlord.webp",
           "weaponType": "霰弹枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -465,7 +454,7 @@ module.exports = {
           "code": "MOSINNAGANT",
           "name": "Mosin-Nagant",
           "nameZh": "莫辛纳甘",
-          "image": "",
+          "image": "/assets/mw4weapon/mosinnagant.webp",
           "weaponType": "狙击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -479,7 +468,7 @@ module.exports = {
           "code": "JOKR",
           "name": "JOKR",
           "nameZh": "标枪导弹",
-          "image": "",
+          "image": "/assets/mw4weapon/jokr.webp",
           "weaponType": "发射器",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -507,7 +496,7 @@ module.exports = {
           "code": "APOC338",
           "name": "APOC 338",
           "nameZh": "APOC 338",
-          "image": "",
+          "image": "/assets/mw4weapon/apoc338.webp",
           "weaponType": "轻机枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -521,7 +510,7 @@ module.exports = {
           "code": "MOHAVE357",
           "name": "Mohave .357",
           "nameZh": "莫哈韦点357",
-          "image": "",
+          "image": "/assets/mw4weapon/mohave357.webp",
           "weaponType": "手枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -535,7 +524,7 @@ module.exports = {
           "code": "ATALOS57",
           "name": ".57 Atalos",
           "nameZh": "点57阿塔罗斯",
-          "image": "",
+          "image": "/assets/mw4weapon/atalos57.webp",
           "weaponType": "狙击步枪",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -549,7 +538,7 @@ module.exports = {
           "code": "PM40",
           "name": "PM-40",
           "nameZh": "PM-40铁砧",
-          "image": "",
+          "image": "/assets/mw4weapon/pm40.webp",
           "weaponType": "发射器",
           "unlockLabel": "",
           "unlockPlayerRank": null,
@@ -584,7 +573,7 @@ module.exports = {
                 "tier": 1,
                 "name": "Mercurial Drift",
                 "nameZh": "霞流",
-                "requirement": "前置：先解锁完美主义者（武器精通迷彩）。单局击杀 10 名敌人，累计 250 次。",
+                "requirement": "所有枪械完成完美主义后，可用任意一把枪完成精通迷彩。前置：先解锁完美主义者（武器精通迷彩）。单局击杀 10 名敌人，累计 250 次。",
                 "image": "/assets/mw4camo/mercurial-drift.webp"
               },
               {
@@ -658,7 +647,7 @@ module.exports = {
                 "tier": 1,
                 "name": "Chiral",
                 "nameZh": "赤流",
-                "requirement": "前置：先解锁完美主义者（武器精通迷彩）。在 3 级区及以上累计击杀 1000 名敌人。",
+                "requirement": "所有枪械完成完美主义后，可用任意一把枪完成精通迷彩。前置：先解锁完美主义者（武器精通迷彩）。在 3 级区及以上累计击杀 1000 名敌人。",
                 "image": "/assets/mw4camo/chiral.webp"
               },
               {
@@ -687,35 +676,35 @@ module.exports = {
             "shortName": "火山碎屑",
             "mastery": false,
             "finalCamo": "Pyroclast Cascade",
-            "finalCamoZh": "火山碎屑流级联",
+            "finalCamoZh": "火山碎屑倾屑",
             "status": "placeholder",
             "items": [
               {
                 "code": "PYROCLAST",
                 "name": "Pyroclast",
                 "nameZh": "火山碎屑",
-                "requirement": "条件暂未公布",
+                "requirement": "武器满级后可自愿进行「武器巅峰转身」：等级归零、配件重新锁定，同时解锁第一档火山碎屑。",
                 "image": "/assets/mw4camo/pyroclast.webp"
               },
               {
                 "code": "PYROCLAST_VERGE",
                 "name": "Pyroclast Verge",
-                "nameZh": "火山碎屑边缘",
-                "requirement": "条件暂未公布",
+                "nameZh": "火山碎屑终点",
+                "requirement": "武器巅峰等级达到指定级数时解锁（具体级数以游戏内为准）。",
                 "image": "/assets/mw4camo/pyroclast-verge.webp"
               },
               {
                 "code": "PYROCLAST_SCATTER",
                 "name": "Pyroclast Scatter",
                 "nameZh": "火山碎屑散落",
-                "requirement": "条件暂未公布",
+                "requirement": "武器巅峰等级达到 150 级时解锁。",
                 "image": "/assets/mw4camo/pyroclast-scatter.webp"
               },
               {
                 "code": "PYROCLAST_CASCADE",
                 "name": "Pyroclast Cascade",
-                "nameZh": "火山碎屑流级联",
-                "requirement": "条件暂未公布",
+                "nameZh": "火山碎屑倾屑",
+                "requirement": "武器巅峰等级达到 250 级时解锁。",
                 "image": "/assets/mw4camo/pyroclast-cascade.webp"
               }
             ],
@@ -830,8 +819,8 @@ module.exports = {
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
-                "name": "铂��",
-                "text": "本职业全部金皮后：25 ��背后击杀",
+                "name": "铂金",
+                "text": "本职业全部金皮后：25 次背后击杀",
                 "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
@@ -1905,7 +1894,7 @@ module.exports = {
               },
               {
                 "name": "和声间奏",
-                "text": "25次不松扳��2次击杀",
+                "text": "25次不松扳机2次击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {

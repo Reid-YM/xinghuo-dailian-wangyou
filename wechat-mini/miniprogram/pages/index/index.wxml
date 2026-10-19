@@ -219,6 +219,7 @@
           <view class="weapon-name-box">
             <text class="weapon-name">{{item.name}}</text>
             <text class="weapon-name-en">{{item.nameEn}}</text>
+            <text class="event-req" wx:if="{{item.requirement}}">{{item.requirement}}</text>
           </view>
           <text class="mono weapon-count {{item.on ? 'ok' : ''}}">{{item.on ? '1/1' : '0/1'}}</text>
           <view class="tier-btn {{item.on ? 'on' : ''}}" data-key="{{item.key}}" catchtap="onToggleTier" role="button" aria-label="{{item.name}}{{item.on ? '已完成' : '未完成'}}">✓</view>

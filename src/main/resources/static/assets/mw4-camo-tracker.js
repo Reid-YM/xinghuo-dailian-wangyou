@@ -549,7 +549,7 @@
       const mode = modeByCode(activeMode);
       if (!mode) return;
       const label = mode.shortName || mode.name || mode.code;
-      if (!confirm(`确定清空「${label}」的全部勾选进度吗？收藏不会被清除。`)) return;
+      if (!confirm(`确定清空「${label}」的大师迷彩进度吗？完整挑战记录和收藏会保留。`)) return;
       if (isMastery(mode)) state.progress[activeMode] = {};
       else { state.progress.PYROCLAST = {}; }
       saveState();

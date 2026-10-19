@@ -67,6 +67,11 @@ class WebCamoMiniParityPlaywrightTest {
         assertThat(page.locator("[data-guide-item='HAN86::special-1']")).isChecked();
         assertThat(page.locator("[data-mastery-item]").nth(1)).isChecked();
         assertEquals(0, page.locator("[data-camo-item]").count());
+        page.onDialog(dialog -> dialog.accept());
+        page.locator("#resetProgress").click();
+        assertEquals(0, page.locator("[data-mastery-item]:checked").count());
+        assertThat(page.locator("[data-guide-item='HAN86::special-1']")).isChecked();
+        assertThat(page.locator("[data-fav=HAN86]")).hasAttribute("aria-label", "取消收藏 汉86");
         page.locator("[data-mode=WARZONE]").click();
         assertEquals(0, page.locator("[data-mastery-item]:checked").count());
         page.locator("[data-toggle-weapon=HAN86]").click();

@@ -18,8 +18,8 @@ public class XingweiIntegrationConfigService {
 
     public WeComStatus weCom() {
         List<Check> checks = List.of(
-                check("WECOM_CORP_ID", "企业 ID", present("wecom.corp-id")),
-                check("WECOM_APP_SECRET", "通讯录读取密钥", present("wecom.app-secret")));
+                check("WECOM_CORP_ID", "企业身份", present("wecom.corp-id")),
+                check("WECOM_APP_SECRET", "通讯录读取授权", present("wecom.app-secret")));
         return new WeComStatus(checks, allReady(checks), present("WECOM_SECRET"));
     }
 
@@ -28,13 +28,13 @@ public class XingweiIntegrationConfigService {
         String notifyUrl = value("app.wechat-pay.notify-url");
         List<Check> checks = List.of(
                 check("WECHAT_PAY_MERCHANT_ID", "商户号", present("app.wechat-pay.merchant-id")),
-                check("WECHAT_PAY_APP_ID", "支付 AppID", present("app.wechat-pay.app-id")),
-                check("WECHAT_PAY_MERCHANT_SERIAL", "商户证书序列号", present("app.wechat-pay.merchant-serial")),
-                check("WECHAT_PAY_PRIVATE_KEY_PATH", "商户私钥文件可读", readableAbsoluteFile("app.wechat-pay.private-key-path")),
-                check("WECHAT_PAY_PUBLIC_KEY_PATH", "微信支付公钥文件可读", readableAbsoluteFile("app.wechat-pay.public-key-path")),
-                check("WECHAT_PAY_PUBLIC_KEY_ID", "微信支付公钥 ID", present("app.wechat-pay.public-key-id")),
-                check("WECHAT_PAY_API_V3_KEY", "APIv3 密钥格式", key.getBytes(StandardCharsets.UTF_8).length == 32),
-                check("WECHAT_PAY_NOTIFY_URL", "HTTPS 支付回调地址", notifyUrl.startsWith("https://")
+                check("WECHAT_PAY_APP_ID", "支付应用绑定", present("app.wechat-pay.app-id")),
+                check("WECHAT_PAY_MERCHANT_SERIAL", "商户认证", present("app.wechat-pay.merchant-serial")),
+                check("WECHAT_PAY_PRIVATE_KEY_PATH", "商户支付授权", readableAbsoluteFile("app.wechat-pay.private-key-path")),
+                check("WECHAT_PAY_PUBLIC_KEY_PATH", "支付平台认证", readableAbsoluteFile("app.wechat-pay.public-key-path")),
+                check("WECHAT_PAY_PUBLIC_KEY_ID", "支付平台身份", present("app.wechat-pay.public-key-id")),
+                check("WECHAT_PAY_API_V3_KEY", "支付安全配置", key.getBytes(StandardCharsets.UTF_8).length == 32),
+                check("WECHAT_PAY_NOTIFY_URL", "支付结果通知", notifyUrl.startsWith("https://")
                         && notifyUrl.endsWith("/api/wechat-pay/notify")));
         boolean enabled = Boolean.parseBoolean(value("app.wechat-pay.enabled"));
         String miniAppId = value("app.wechat-mini.app-id");

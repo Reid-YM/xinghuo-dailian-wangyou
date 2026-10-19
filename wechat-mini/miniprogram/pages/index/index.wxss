@@ -747,3 +747,11 @@
   margin-right: 12rpx;
   flex: none;
 }
+
+.event-req {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  line-height: 1.45;
+  color: #8b94a3;
+}

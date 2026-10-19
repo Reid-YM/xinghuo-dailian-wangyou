@@ -507,6 +507,7 @@ Page({
             name: it.nameZh || it.name,
             nameEn: it.name,
             image: useRemote ? (it.imageRemote || it.image) : it.image,
+            requirement: it.requirement || '',
             on: !!done[key]
           }
         }).filter(function (it) {

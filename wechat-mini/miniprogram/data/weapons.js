@@ -672,8 +672,8 @@ module.exports = {
           },
           "PYROCLAST": {
             "code": "PYROCLAST",
-            "name": "Pyroclast",
-            "shortName": "火山碎屑",
+            "name": "巅峰迷彩",
+            "shortName": "巅峰迷彩",
             "mastery": false,
             "finalCamo": "Pyroclast Cascade",
             "finalCamoZh": "火山碎屑倾屑",
@@ -683,28 +683,28 @@ module.exports = {
                 "code": "PYROCLAST",
                 "name": "Pyroclast",
                 "nameZh": "火山碎屑",
-                "requirement": "武器满级后可自愿进行「武器巅峰转身」：等级归零、配件重新锁定，同时解锁第一档火山碎屑。",
+                "requirement": "武器满级后可自愿「巅峰转身」：等级归零、配件重新锁定，解锁第 1 档「火山碎屑」。",
                 "image": "/assets/mw4camo/pyroclast.webp"
               },
               {
                 "code": "PYROCLAST_VERGE",
                 "name": "Pyroclast Verge",
                 "nameZh": "火山碎屑终点",
-                "requirement": "武器巅峰等级达到指定级数时解锁（具体级数以游戏内为准）。",
+                "requirement": "巅峰等级达到对应级数，解锁第 2 档「火山碎屑终点」。",
                 "image": "/assets/mw4camo/pyroclast-verge.webp"
               },
               {
                 "code": "PYROCLAST_SCATTER",
                 "name": "Pyroclast Scatter",
                 "nameZh": "火山碎屑散落",
-                "requirement": "武器巅峰等级达到 150 级时解锁。",
+                "requirement": "巅峰等级达到 150 级，解锁第 3 档「火山碎屑散落」。",
                 "image": "/assets/mw4camo/pyroclast-scatter.webp"
               },
               {
                 "code": "PYROCLAST_CASCADE",
                 "name": "Pyroclast Cascade",
                 "nameZh": "火山碎屑倾屑",
-                "requirement": "武器巅峰等级达到 250 级时解锁。",
+                "requirement": "巅峰等级达到 250 级，解锁第 4 档「火山碎屑倾屑」。",
                 "image": "/assets/mw4camo/pyroclast-cascade.webp"
               }
             ],
@@ -1638,7 +1638,7 @@ module.exports = {
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
-                "name": "分歧",
+                "name": "���歧",
                 "text": "完成该武器所有的皮肤挑战",
                 "image": "/assets/mw4camo/divergence.webp"
               }

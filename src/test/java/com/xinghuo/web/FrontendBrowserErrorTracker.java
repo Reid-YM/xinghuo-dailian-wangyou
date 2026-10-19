@@ -12,11 +12,15 @@ final class FrontendBrowserErrorTracker {
         (() => {
           if(window.__xhTestErrorCaptureReady)return;
           window.__xhTestErrorCaptureReady=true;
-          const report=value=>Promise.resolve(window.__xhTestUncaught(String(value))).catch(()=>{});
+          const report=value=>{
+            // WebKit stacks may contain only frames, without the exception message.
+            const description=[value?.message||String(value),value?.stack].filter(Boolean).join('\\n');
+            return Promise.resolve(window.__xhTestUncaught(description)).catch(()=>{});
+          };
           window.addEventListener('error',event=>{
-            if(event instanceof ErrorEvent)report(event.error?.stack||event.message);
+            if(event instanceof ErrorEvent)report(event.error||event.message);
           });
-          window.addEventListener('unhandledrejection',event=>report(event.reason?.stack||event.reason));
+          window.addEventListener('unhandledrejection',event=>report(event.reason));
         })();
         """;
     private final List<String> unexpected;

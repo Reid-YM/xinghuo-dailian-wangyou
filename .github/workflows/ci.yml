@@ -66,6 +66,9 @@ jobs:
         shell: bash
         run: bash -n scripts/deploy-zero-downtime.sh scripts/deploy-from-github.sh scripts/github-deploy-gateway.sh scripts/install-github-deploy-bridge.sh scripts/smoke_test.sh scripts/validate-wechat-mini.sh scripts/validate-xingwei-release-state.sh
 
+      - name: Verify website images match mini-program
+        run: python3 scripts/sync-web-camo-images.py --check
+
       - name: Validate WeChat mini-program source
         shell: bash
         run: bash scripts/validate-wechat-mini.sh

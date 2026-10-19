@@ -4,6 +4,7 @@
   const $=(selector,root=document)=>root.querySelector(selector);
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
   const state={catalog:null,services:null,category:'all',query:'',game:'',platform:'',sort:'default'};
+  let loadRequest = 0;
   const text=value=>String(value??'').trim();
   const code=value=>text(value).toUpperCase();
   const list=value=>Array.isArray(value)?value:[];
@@ -204,8 +205,7 @@
   function populateServices(){
     const game=$('#qGame')?.value||'';
     const category=$('#qCat')?.value||'';
-    let rows=matchingServices(game,category);
-    if(!rows.length) rows=matchingServices(game,'');
+    const rows=matchingServices(game,category);
     setOptions($('#qSvc'),rows,row=>row?.slug||row?.id||row?.name,row=>row?.name||row?.slug,'暂无服务');
     syncSummary();
   }
@@ -286,9 +286,11 @@
   $('#qSvc')?.addEventListener('change',syncSummary);
 
   async function load(){
+    const request = ++loadRequest;
     const hadServices=Array.isArray(state.services);
     ['qGame','qCat','qSvc'].forEach(id=>{const node=$('#'+id);if(node)node.disabled=true;});
     const [catalog,services]=await Promise.allSettled([getJson('/api/catalog'),getJson('/api/services')]);
+    if (request !== loadRequest) return;
     const catalogOk=catalog.status==='fulfilled' && Array.isArray(catalog.value?.games);
     const servicesOk=services.status==='fulfilled' && Array.isArray(services.value);
     if(catalogOk){state.catalog=catalog.value;window.XHFrontendShell?.updateCatalog?.(state.catalog);window.dispatchEvent(new Event('xh:catalogupdated'));}

@@ -54,21 +54,38 @@ check_body_absent() {
 }
 check_code / 200
 check_code /services 200
-# 正式前端回退到旧版；候选、金丝雀、正式端口都必须确认实际视图，防止误切新版。
-check_header / X-Xinghuo-Frontend ''
-check_header /services X-Xinghuo-Frontend ''
-check_header /quote X-Xinghuo-Frontend ''
-check_header /account/login X-Xinghuo-Frontend ''
-check_body_contains / 'data-page="home"'
-check_body_contains /services 'data-page="services"'
-check_body_contains /quote 'data-page="quote"'
-check_body_contains /account/login 'data-page="account-login"'
-check_body_contains /account/register 'data-page="account-register"'
-check_body_contains /account/reset 'data-page="account-reset"'
+# 发布目标必须显式符合预期；不得把误回旧版或误切新版当成通过。
+FRONTEND_EXPECTED_MODE=${FRONTEND_EXPECTED_MODE:-next}
+case "$FRONTEND_EXPECTED_MODE" in
+  next)
+    for path in / /services /quote /account/login /account/register /account/reset /guides /mastery /records /contact /trust /rules /privacy /rules-en /privacy-en; do
+      check_header "$path" X-Xinghuo-Frontend next
+      check_body_contains "$path" '/next/shell.js'
+    done
+    check_body_contains / 'data-page="home"'
+    check_body_contains /services 'data-page="services"'
+    check_body_contains /quote 'data-page="quote"'
+    check_body_contains /account/login 'data-page="account"'
+    ;;
+  legacy)
+    for path in / /services /quote /account/login /account/register /account/reset; do
+      check_header "$path" X-Xinghuo-Frontend ''
+      check_body_absent "$path" '/next/shell.js'
+    done
+    check_body_contains / 'data-page="home"'
+    check_body_contains /services 'data-page="services"'
+    check_body_contains /quote 'data-page="quote"'
+    check_body_contains /account/login 'data-page="account-login"'
+    check_body_contains /account/register 'data-page="account-register"'
+    check_body_contains /account/reset 'data-page="account-reset"'
+    ;;
+  *) echo "FAIL invalid FRONTEND_EXPECTED_MODE"; exit 1 ;;
+esac
 for path in / /services /quote /account/login /account/register /account/reset; do
-  check_body_absent "$path" '/next/shell.js'
+  check_code "${path}?legacy=1" 200
+  check_body_absent "${path}?legacy=1" '/next/shell.js'
+  check_header "${path}?legacy=1" X-Xinghuo-Frontend ''
 done
-check_body_absent '/services?legacy=1' '/next/shell.js'
 check_code /next/services 200
 check_code /admin 302 -H 'Accept: text/html'
 check_code /admin/xingwei 302 -H 'Accept: text/html'
@@ -130,7 +147,11 @@ check_code '/language?lang=en&returnTo=/rules' 302
 check_header '/language?lang=en&returnTo=/rules' X-Robots-Tag 'noindex, nofollow'
 check_code /contact 200
 check_code /records 200
-check_header /records X-Robots-Tag 'noindex, follow'
+if [ "$FRONTEND_EXPECTED_MODE" = next ]; then
+  check_header /records X-Robots-Tag 'noindex,nofollow'
+else
+  check_header /records X-Robots-Tag 'noindex, follow'
+fi
 check_code /trust 200
 # 旧业务查询 URL 必须永久归并到当前 canonical 工具地址，不能继续返回第二套 200 页面。
 check_code /order 301

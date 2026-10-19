@@ -1,6 +1,6 @@
 # 前端完整开发验收清单
 
-## 当前结论（2026-10-19）
+## 开发收口结论（2026-10-19，发布授权前）
 
 N1–N30、独立游戏资料页、正式路径适配及游客业务模块已进入同一开发分支 `feat/frontend-completion-20261019`，PR #575。开发验收由下列逐项证据、完整构建及 [PR #575](https://github.com/Reid-YM/xinghuo-dailian-wangyou/pull/575) 精确提交的默认 Chromium/WebKit CI 共同构成；仅在全部门禁成功后合并。生产部署及正式流量切换不在本次授权内。
 
@@ -69,3 +69,9 @@ N1–N30、独立游戏资料页、正式路径适配及游客业务模块已进
 - 同步最新工具站后的专项：MasteryParity、N30MasterySync、N30Accessibility 与 AssetVersion 共 11 项，零失败/错误/跳过（本机兼容 Playwright 1.48，Chromium 与 WebKit）；最终默认版本全量 CI 另见 PR 检查。
 
 - 错误捕获工具明确拼接异常 message 与 stack，避免部分 WebKit 堆栈只有帧地址而丢失消息；自检在与脚本同源的 HTTP 文档中运行，并等待目标错误消息后再断言，仍要求真正抛错/未处理拒绝被记录为失败。应用运行代码不因此改变。相关捕获器、CanonicalRoutes、RealSession 本机 9 项专项通过；最终同源自检 4 项再次通过。默认版本全量 CI 继续以精确提交检查为准。
+
+## 后续生产启用授权（2026-10-19）
+
+用户在开发验收完成后明确“确认部署”，并单独确认“同时启用新版默认入口”。本次发布准备使用 `app.frontend-next.default-enabled=${FRONTEND_NEXT_DEFAULT_ENABLED:true}`，保留 Java 无配置场景的安全 false 后备及 `?legacy=1` 原页面回退。全局回退为服务器环境 `FRONTEND_NEXT_DEFAULT_ENABLED=false`；冒烟预期同步设为 `FRONTEND_EXPECTED_MODE=legacy`。
+
+发布脚本默认要求 Next 响应头/运行时，并验证显式 Legacy 入口，无放宽账号/API/后台权限。当前是源码发布准备记录；上线结果须以目标提交 Deploy Production 的 18080/8081/8080 门禁和公网实测为准。

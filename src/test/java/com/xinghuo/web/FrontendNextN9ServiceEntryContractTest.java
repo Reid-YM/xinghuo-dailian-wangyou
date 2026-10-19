@@ -40,8 +40,8 @@ class FrontendNextN9ServiceEntryContractTest {
 
         assertTrue(controller.contains("/admin/xingwei/frontend-next"));
         assertTrue(template.contains("servicesEntryMode"));
-        assertTrue(template.contains("旧版稳定入口 · /services"));
-        assertTrue(template.contains("新版候选入口 · /next/services"));
+        assertTrue(template.contains("标准地址 · /services"));
+        assertTrue(template.contains("显式新版 · /next/services"));
         assertTrue(template.contains("/admin/xingwei/frontend-controls"));
         assertTrue(runtime.contains("/api/admin/global-ui-settings"));
         assertTrue(runtime.contains("servicesEntryMode: requested"));

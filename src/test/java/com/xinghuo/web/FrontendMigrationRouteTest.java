@@ -24,7 +24,7 @@ class FrontendMigrationRouteTest {
         var rollback=MockMvcBuilders.standaloneSetup(new Pages()).addInterceptors(new FrontendMigrationConfig.Replacement(false)).build();
         rollback.perform(get("/")).andExpect(view().name("old-home"));
     }
-    @Test void productionDefaultKeepsLegacyViewsAndAdminRoutes() {
+    @Test void bareContextKeepsSafeFallbackAndAdminRoutes() {
         new org.springframework.boot.test.context.runner.ApplicationContextRunner()
             .withUserConfiguration(FrontendMigrationConfig.class).run(context->{
                 var registry=mock(org.springframework.web.servlet.config.annotation.InterceptorRegistry.class);
@@ -38,6 +38,26 @@ class FrontendMigrationRouteTest {
                 mvc.perform(get("/admin/xingwei")).andExpect(view().name("new-admin"));
                 mvc.perform(get("/next/services")).andExpect(view().name("next-preview"));
             });
+    }
+    @Test void actualApplicationConfigurationEnablesNextAndEnvironmentRollbackRestoresLegacy() {
+        var runner=new org.springframework.boot.test.context.runner.ApplicationContextRunner()
+            .withInitializer(new org.springframework.boot.test.context.ConfigDataApplicationContextInitializer())
+            .withUserConfiguration(FrontendMigrationConfig.class);
+        for(boolean rollback:new boolean[]{false,true}) {
+            var configured=rollback ? runner.withPropertyValues("FRONTEND_NEXT_DEFAULT_ENABLED=false") : runner;
+            configured.run(context->{
+                assertEquals(!rollback,context.getEnvironment().getProperty("app.frontend-next.default-enabled",Boolean.class));
+                var registry=mock(org.springframework.web.servlet.config.annotation.InterceptorRegistry.class);
+                var interceptor=org.mockito.ArgumentCaptor.forClass(org.springframework.web.servlet.HandlerInterceptor.class);
+                context.getBean(FrontendMigrationConfig.class).addInterceptors(registry);
+                verify(registry).addInterceptor(interceptor.capture());
+                var mvc=MockMvcBuilders.standaloneSetup(new Pages()).addInterceptors(interceptor.getValue()).build();
+                mvc.perform(get("/")).andExpect(view().name(rollback ? "old-home" : "forward:/next"));
+                mvc.perform(get("/services")).andExpect(view().name(rollback ? "old-services" : "forward:/next/services"));
+                mvc.perform(get("/services").param("legacy","1")).andExpect(view().name("old-services"));
+                mvc.perform(get("/admin/xingwei")).andExpect(view().name("new-admin"));
+            });
+        }
     }
     @Test void accountAuthenticationCannotBeBypassedByTheReplacement() throws Exception {
         var sessions=mock(AccountSessionService.class);when(sessions.current(any())).thenReturn(Optional.empty());

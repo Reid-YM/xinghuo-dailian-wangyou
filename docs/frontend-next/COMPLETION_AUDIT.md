@@ -75,3 +75,5 @@ N1–N30、独立游戏资料页、正式路径适配及游客业务模块已进
 用户在开发验收完成后明确“确认部署”，并单独确认“同时启用新版默认入口”。本次发布准备使用 `app.frontend-next.default-enabled=${FRONTEND_NEXT_DEFAULT_ENABLED:true}`，保留 Java 无配置场景的安全 false 后备及 `?legacy=1` 原页面回退。全局回退为服务器环境 `FRONTEND_NEXT_DEFAULT_ENABLED=false`；冒烟预期同步设为 `FRONTEND_EXPECTED_MODE=legacy`。
 
 发布脚本默认要求 Next 响应头/运行时，并验证显式 Legacy 入口，无放宽账号/API/后台权限。当前是源码发布准备记录；上线结果须以目标提交 Deploy Production 的 18080/8081/8080 门禁和公网实测为准。
+
+发布脚本在切换前读取并记录 8080 的前端模式，只用于旧包回滚验收。新候选仍按 Next 预期严格验证；回滚使用之前记录的 Legacy/Next 预期。`FrontendDeploymentRollbackTest` 以隔离 shell 替身执行真实函数，覆盖模式识别失败关闭、候选 Next 与旧包 Legacy 的分离验证；不操作真实服务或符号链接。

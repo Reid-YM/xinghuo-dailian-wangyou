@@ -214,7 +214,8 @@
     <view class="weapons">
       <view class="weapon" wx:for="{{eventList}}" wx:key="code">
         <view class="weapon-head">
-          <view class="event-badge">EV</view>
+          <image class="event-thumb" wx:if="{{showImages && item.image}}" src="{{item.image}}" mode="aspectFill" lazy-load></image>
+          <view class="event-badge" wx:else>EV</view>
           <view class="weapon-name-box">
             <text class="weapon-name">{{item.name}}</text>
             <text class="weapon-name-en">{{item.nameEn}}</text>

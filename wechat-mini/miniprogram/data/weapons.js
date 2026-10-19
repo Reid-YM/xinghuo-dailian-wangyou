@@ -687,35 +687,35 @@ module.exports = {
             "shortName": "火山碎屑",
             "mastery": false,
             "finalCamo": "Pyroclast Cascade",
-            "finalCamoZh": "火山碎屑流级联",
+            "finalCamoZh": "火山碎屑倾屑",
             "status": "placeholder",
             "items": [
               {
                 "code": "PYROCLAST",
                 "name": "Pyroclast",
                 "nameZh": "火山碎屑",
-                "requirement": "条件暂未公布",
+                "requirement": "武器满级后可自愿进行「武器巅峰转身」：等级归零、配件重新锁定，同时解锁第一档火山碎屑。",
                 "image": "/assets/mw4camo/pyroclast.webp"
               },
               {
                 "code": "PYROCLAST_VERGE",
                 "name": "Pyroclast Verge",
-                "nameZh": "火山碎屑边缘",
-                "requirement": "条件暂未公布",
+                "nameZh": "火山碎屑终点",
+                "requirement": "武器巅峰等级达到指定级数时解锁（具体级数以游戏内为准）。",
                 "image": "/assets/mw4camo/pyroclast-verge.webp"
               },
               {
                 "code": "PYROCLAST_SCATTER",
                 "name": "Pyroclast Scatter",
                 "nameZh": "火山碎屑散落",
-                "requirement": "条件暂未公布",
+                "requirement": "武器巅峰等级达到 150 级时解锁。",
                 "image": "/assets/mw4camo/pyroclast-scatter.webp"
               },
               {
                 "code": "PYROCLAST_CASCADE",
                 "name": "Pyroclast Cascade",
-                "nameZh": "火山碎屑流级联",
-                "requirement": "条件暂未公布",
+                "nameZh": "火山碎屑倾屑",
+                "requirement": "武器巅峰等级达到 250 级时解锁。",
                 "image": "/assets/mw4camo/pyroclast-cascade.webp"
               }
             ],
@@ -830,8 +830,8 @@ module.exports = {
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
-                "name": "铂��",
-                "text": "本职业全部金皮后：25 ��背后击杀",
+                "name": "铂金",
+                "text": "本职业全部金皮后：25 次背后击杀",
                 "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
@@ -1668,7 +1668,7 @@ module.exports = {
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "20级，10次双杀",
+                "text": "20级，10���双杀",
                 "image": "/assets/mw4camo/special.webp"
               },
               {
@@ -1905,7 +1905,7 @@ module.exports = {
               },
               {
                 "name": "和声间奏",
-                "text": "25次不松扳��2次击杀",
+                "text": "25次不松扳机2次击杀",
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
@@ -2110,7 +2110,7 @@ module.exports = {
               },
               {
                 "name": "分歧",
-                "text": "完成该武器所有的皮肤挑战",
+                "text": "完成该武器���有的皮肤挑战",
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
@@ -2548,7 +2548,7 @@ module.exports = {
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "65级，举枪瞄准100次击杀",
+                "text": "65级，举���瞄准100次击杀",
                 "image": "/assets/mw4camo/special.webp"
               }
             ],

@@ -738,3 +738,12 @@
 .w-img.fallback {
   opacity: 0.32;
 }
+
+.event-thumb {
+  width: 96rpx;
+  height: 64rpx;
+  border-radius: 8rpx;
+  background: #1b1f27;
+  margin-right: 12rpx;
+  flex: none;
+}

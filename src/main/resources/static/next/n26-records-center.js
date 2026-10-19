@@ -10,7 +10,9 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const text = value => String(value ?? '').trim();
+  const onRoute = () => /^\/next\/records\/?$/.test(runtimePath());
   let requestToken = 0;
+  let lookupToken = 0;
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
@@ -178,18 +180,24 @@
 
     form.addEventListener('submit', async event => {
       event.preventDefault();
+      if (submit.disabled || !onRoute()) return;
       const businessNo = normalized(input.value);
       if (!businessNo) { message('业务编号格式不正确，请检查后重试。', 'error'); return; }
+      const lookup = ++lookupToken;
       submit.disabled = true; submit.textContent = '查询中…'; message('正在读取业务记录…');
       try {
         const record = await fetchRecord(businessNo);
-        remember(record);
+        // A previous lookup must never reopen a record after the visitor has navigated away.
+        if (lookup !== lookupToken || !onRoute()) return;
+        remember({ ...record, businessNo });
         message('已找到业务记录，正在打开详情。', 'ok');
         location.href = `/next/record/${encodeURIComponent(businessNo)}`;
       } catch (error) {
-        message(error.message || '查询失败，请稍后重试。', 'error');
+        if (lookup === lookupToken && onRoute()) message(error.message || '查询失败，请稍后重试。', 'error');
       } finally {
-        submit.disabled = false; submit.textContent = '查询记录';
+        if (lookup === lookupToken) {
+          submit.disabled = false; submit.textContent = '查询记录';
+        }
       }
     });
     clear.addEventListener('click', () => {
@@ -210,16 +218,23 @@
       const quote = node('a', 'btn gold', '去提交询价'); quote.href = '/next/quote'; box.append(quote); empty.append(box); host.replaceChildren(empty); return;
     }
     const loading = node('div', 'n26-state'); loading.append(node('div', '', `正在读取 ${saved.length} 条业务记录…`)); host.replaceChildren(loading);
-    const rows = await Promise.all(saved.map(async savedRow => {
-      const businessNo = normalized(savedRow.businessNo);
-      try {
-        const record = await fetchRecord(businessNo);
-        return { record, unavailable: false };
-      } catch (_) {
-        return { record: { businessNo, stage: savedRow.stage || 'QUOTE', createdAt: savedRow.createdAt, updatedAt: savedRow.savedAt, title: '历史业务记录' }, unavailable: true };
+    // Bound simultaneous reads: a browser holding 30 saved numbers should not flood the public API.
+    const rows = new Array(saved.length);
+    let nextIndex = 0;
+    await Promise.all(Array.from({ length: Math.min(saved.length, 4) }, async () => {
+      while (nextIndex < saved.length && token === requestToken && onRoute()) {
+        const index = nextIndex++;
+        const savedRow = saved[index];
+        const businessNo = normalized(savedRow.businessNo);
+        try {
+          const record = await fetchRecord(businessNo);
+          rows[index] = { record: { ...record, businessNo }, unavailable: false };
+        } catch (_) {
+          rows[index] = { record: { businessNo, stage: savedRow.stage || 'QUOTE', createdAt: savedRow.createdAt, updatedAt: savedRow.savedAt, title: '历史业务记录' }, unavailable: true };
+        }
       }
     }));
-    if (token !== requestToken) return;
+    if (token !== requestToken || !onRoute()) return;
     const grid = node('div', 'n26-list');
     rows.forEach(row => grid.append(recordCard(row.record, row.unavailable)));
     host.replaceChildren(grid);
@@ -228,6 +243,16 @@
   async function load() {
     const section = ensureSection(); activate(section); installStyles(); setMetadata(); renderShell(section); await loadSaved();
   }
+
+  // Shell navigation can stay in the same document; ignore responses from the previous page.
+  window.addEventListener('xh:pagechange', () => {
+    if (!onRoute()) { ++lookupToken; ++requestToken; }
+  });
+  window.addEventListener('popstate', () => {
+    if (onRoute()) load();
+    else { ++lookupToken; ++requestToken; }
+  });
+  window.addEventListener('pagehide', () => { ++lookupToken; ++requestToken; });
 
   window.XHFrontendNextN26 = { reload: load, remember, savedRows, normalized };
   load();

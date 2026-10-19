@@ -32,18 +32,25 @@ check_header() {
 check_body_contains() {
   local path=$1 expected=$2
   shift 2
-  local body attempt
-  # Verify a complete successful HTTP response; retry transient candidate startup/rate-limit races.
-  # The required body fragment is never waived.
+  local body_file code="" attempt bytes
+  # Verify the actual response bytes, not a command-substitution/here-string copy.
+  # The full Next runtime marker is still mandatory; non-200 or incomplete bodies fail closed.
+  body_file=$(mktemp) || { echo "FAIL $path could-not-create-body-file"; fail=1; return 0; }
   for attempt in 1 2 3; do
-    if body=$(curl -fsS --max-time 12 "$@" "$BASE$path" 2>/dev/null) &&
-       grep -Fq -- "$expected" <<<"$body"; then
+    : > "$body_file"
+    code=""
+    if code=$(curl -sS --max-time 12 -o "$body_file" -w '%{http_code}' "$@" "$BASE$path" 2>/dev/null) &&
+       [ "$code" = 200 ] &&
+       grep -Fq -- "$expected" "$body_file"; then
       echo "OK   $path contains=$expected"
+      rm -f "$body_file"
       return 0
     fi
     [ "$attempt" -eq 3 ] || sleep 1
   done
-  echo "FAIL $path missing-body-fragment=$expected after 3 attempts"
+  bytes=$(wc -c < "$body_file" | tr -d '[:space:]')
+  echo "FAIL $path missing-body-fragment=$expected after 3 attempts http=${code:-000} body_bytes=$bytes"
+  rm -f "$body_file"
   fail=1
 }
 check_body_absent() {

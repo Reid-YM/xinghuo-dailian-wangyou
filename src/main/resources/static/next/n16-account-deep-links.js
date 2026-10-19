@@ -1,10 +1,13 @@
-(() => {
+(function initializeAccount() {
   'use strict';
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
   const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
   const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(runtimePath())) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath()) && !document.querySelector('.page[data-page="account"].active')) {
+    window.addEventListener('xh:pagechange', initializeAccount, { once: true });
+    return;
+  }
 
   const transientParams = new Set(['auth', 'token', 'verifyToken', 'wechat']);
   let applying = false;

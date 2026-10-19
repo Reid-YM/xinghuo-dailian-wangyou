@@ -23,6 +23,7 @@
   let paymentGeneration=0;
   let initialFocus=false;
   let suspended=false;
+  const pendingReads = new Set();
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
@@ -74,20 +75,41 @@
   }
 
   async function request(url, options = {}) {
-    const headers = Object.assign({ Accept: 'application/json' }, options.headers || {});
-    const response = await fetch(url, Object.assign({
-      credentials: 'same-origin',
-      cache: 'no-store'
-    }, options, { headers }));
-    let body = null;
-    try { body = await response.json(); } catch (ignore) { body = null; }
-    if (!response.ok) {
-      const error = new Error(text(body?.message) || text(body?.error) || `请求失败（${response.status}）`);
-      error.status = response.status;
-      error.body = body;
-      throw error;
+    const readOnly = String(options.method || 'GET').toUpperCase() === 'GET';
+    const account = profile();
+    if (readOnly && !authenticated()) throw new DOMException('页面已离开', 'AbortError');
+    const controller = readOnly ? new AbortController() : null;
+    if (controller) pendingReads.add(controller);
+    try {
+      const headers = Object.assign({ Accept: 'application/json' }, options.headers || {});
+      const response = await fetch(url, Object.assign({
+        credentials: 'same-origin', cache: 'no-store'
+      }, options, { headers, signal: controller?.signal || options.signal }));
+      let body = null;
+      try { body = await response.json(); }
+      catch (error) { if (error?.name === 'AbortError') throw error; }
+      if (!response.ok) {
+        const error = new Error(text(body?.message) || text(body?.error) || `请求失败（${response.status}）`);
+        error.status = response.status;
+        error.body = body;
+        throw error;
+      }
+      if (readOnly && (!authenticated() || profile() !== account)) throw new DOMException('会话已变更', 'AbortError');
+      return body;
+    } finally {
+      if (controller) pendingReads.delete(controller);
     }
-    return body;
+  }
+
+  function leaveBusinessView() {
+    ++state.generation;
+    state.loading = false;
+    pendingReads.forEach(controller => controller.abort());
+    pendingReads.clear();
+    stopPayment();
+    if (mountTimer) clearTimeout(mountTimer);
+    $('#n5BusinessCenter')?.remove();
+    state.detail = null;
   }
 
   function profile() {
@@ -341,8 +363,9 @@
     for(const [kind,label,path] of [['progress','云端工具存档','/api/account/progress'],['favorites','我的收藏','/api/account/favorites'],['submissions','我的投稿','/api/account/submissions']]){
       const section=node('section');section.dataset.personalAsset=kind;section.append(node('h4','',label));const content=node('div');section.append(content);wrapper.append(section);let pageNumber=0;let generation=0;
       async function load(){
+        if (!authenticated()) return;
         const current=++generation;content.replaceChildren(node('p','','正在读取…'));
-        try{const result=await request(path+(kind==='progress'?'':'?page='+pageNumber+'&size=20'));if(!content.isConnected||current!==generation)return;const list=Array.isArray(result)?result:[];content.replaceChildren();if(!list.length)content.append(node('p','','暂无记录。'));
+        try{const result=await request(path+(kind==='progress'?'':'?page='+pageNumber+'&size=20'));if(!authenticated()||!content.isConnected||current!==generation)return;const list=Array.isArray(result)?result:[];content.replaceChildren();if(!list.length)content.append(node('p','','暂无记录。'));
           list.forEach(item=>{
             const row=node('div','n5-source');
             if(kind==='progress'){row.append(node('b','','工具存档 · '+text(item.toolKey)),node('span','','最近同步：'+fmtDate(item.updatedAt)));const open=node('a','btn','打开工具站');open.href='/mastery';row.append(open);}
@@ -358,7 +381,7 @@
             content.append(row);
           });
           if(kind!=='progress'){const nav=node('div','n5-tabs');const previous=button('上一页','btn');previous.disabled=pageNumber===0;previous.onclick=()=>{pageNumber--;load();};const next=button('下一页','btn');next.disabled=list.length<20;next.onclick=()=>{pageNumber++;load();};nav.append(previous,node('span','','第 '+(pageNumber+1)+' 页'),next);content.append(nav);}
-        }catch(error){if(!content.isConnected||current!==generation)return;content.replaceChildren(node('p','',text(error.message)||'读取失败。'));const retry=button('重新读取','btn');retry.onclick=load;content.append(retry);}
+        }catch(error){if(!authenticated()||!content.isConnected||current!==generation)return;content.replaceChildren(node('p','',text(error.message)||'读取失败。'));const retry=button('重新读取','btn');retry.onclick=load;content.append(retry);}
       }
       // A microtask runs after buildShell has connected the section.
       queueMicrotask(load);
@@ -417,6 +440,7 @@
   }
 
   async function claimOrder() {
+    const account = profile();
     const input = $('#n5ClaimNo');
     const submit = $('#n5ClaimButton');
     const businessNo = text(input?.value);
@@ -439,6 +463,7 @@
         headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' },
         body: JSON.stringify({ businessNo })
       });
+      if (!authenticated() || profile() !== account) return;
       input.value = '';
       setMessage(`认领成功：${text(claimed?.businessNo) || '订单已归入当前账号'}。正在刷新个人中心…`, 'ok');
       if (window.XHFrontendNextN4?.reload) {
@@ -510,6 +535,7 @@
     if (!authenticated() || state.loading) return;
     state.loading = true;
     const generation = ++state.generation;
+    const account = profile();
     try {
       const results = await Promise.allSettled([
         request('/api/console/summary'),
@@ -517,7 +543,7 @@
         request('/api/console/orders'),
         request('/api/account/orders/candidates')
       ]);
-      if (generation !== state.generation || !authenticated()) return;
+      if (generation !== state.generation || profile() !== account || !authenticated()) return;
       const failures = results.filter((result) => result.status === 'rejected');
       const authFailure = failures.find((result) => result.reason?.status === 401);
       if (authFailure) return;
@@ -528,8 +554,8 @@
       render();
       if (failures.length) setMessage('部分业务数据暂不可用，其余已成功读取；旧版账号中心仍可回退。', 'error');
     } finally {
-      state.loading = false;
-      if (generation !== state.generation && authenticated() && !$('#n5BusinessCenter')) scheduleMount();
+      if (generation === state.generation) state.loading = false;
+      if ((generation !== state.generation || profile() !== account) && authenticated() && !$('#n5BusinessCenter')) scheduleMount();
     }
   }
 
@@ -538,7 +564,7 @@
     if (suspended) return;
     mountTimer = setTimeout(() => {
       if (!authenticated()) {
-        $('#n5BusinessCenter')?.remove();
+        leaveBusinessView();
         return;
       }
       if (!$('#n5BusinessCenter')) load();
@@ -551,11 +577,10 @@
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && page.classList.contains('active') && authenticated()) load();
   });
-  window.addEventListener('xh:pagechange',event=>{if(event.detail?.page!=='account'){stopPayment();++state.generation;if(mountTimer)clearTimeout(mountTimer);}else {scheduleMount();}if(event.detail?.page==='account'&&state.detail?.order){const host=$('#n5Detail');if(host&&!host.hidden){stopPayment();$('#n5Payment')?.remove();paymentPanel(host,state.detail.order.businessNo||state.detail.order.orderNo);}}});
+  window.addEventListener('xh:pagechange',event=>{if(event.detail?.page!=='account'){leaveBusinessView();}else {scheduleMount();}if(event.detail?.page==='account'&&state.detail?.order){const host=$('#n5Detail');if(host&&!host.hidden){stopPayment();$('#n5Payment')?.remove();paymentPanel(host,state.detail.order.businessNo||state.detail.order.orderNo);}}});
   window.addEventListener('pagehide', () => {
     suspended=true;
-    ++state.generation;
-    stopPayment();
+    leaveBusinessView();
     if (observer) observer.disconnect();
     if (mountTimer) clearTimeout(mountTimer);
   });
@@ -565,6 +590,7 @@
     if(event.persisted){
       observer.observe(page,{childList:true,subtree:true});
       scheduleMount();
+      if (page.classList.contains('active')) window.dispatchEvent(new CustomEvent('xh:pagechange', {detail:{page:'account'}}));
     }
   });
 

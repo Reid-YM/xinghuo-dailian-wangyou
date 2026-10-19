@@ -114,10 +114,10 @@ class FrontendNextN30AccessibilityPlaywrightTest {
                 assertEquals("n24Tab-WARZONE", f.page.locator("#n24ModePanel").getAttribute("aria-labelledby"));
                 f.page.keyboard().press("Home");
                 assertEquals("n24Tab-MULTIPLAYER", f.page.evaluate("() => document.activeElement.id"));
-                var checkbox = f.page.locator("input[data-weapon-code=A]");
+                var checkbox = f.page.locator("input[data-weapon-code=__mastery]");
                 checkbox.focus(); f.page.keyboard().press("Space");
                 assertTrue(checkbox.isChecked());
-                assertEquals("A", f.page.evaluate("() => document.activeElement.dataset.weaponCode"));
+                assertEquals("__mastery", f.page.evaluate("() => document.activeElement.dataset.weaponCode"));
                 var original = f.page.locator("#n24Search").elementHandle();
                 f.page.getByLabel("搜索武器").fill("Weapon A");
                 f.page.waitForFunction("e => !e.isConnected", original);

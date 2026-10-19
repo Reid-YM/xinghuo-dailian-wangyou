@@ -27,6 +27,7 @@
   let requestToken = 0;
   let searchTimer = 0;
   let composingSearch = false;
+  const openGuides = new Set();
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
@@ -36,7 +37,7 @@
   }
 
   function safeImage(value) {
-    const url = text(value);
+    const url = text(window.XinghuoCamoImages?.[value] || value);
     if ((url.startsWith('/') && !url.startsWith('//')) || url.startsWith('https://')) return url;
     return '';
   }
@@ -47,10 +48,11 @@
       if (parsed && typeof parsed === 'object') {
         parsed.progress = parsed.progress && typeof parsed.progress === 'object' ? parsed.progress : {};
         parsed.favorites = Array.isArray(parsed.favorites) ? parsed.favorites : [];
+        parsed.guideDone = parsed.guideDone && typeof parsed.guideDone === 'object' ? parsed.guideDone : {};
         return parsed;
       }
     } catch (_) {}
-    return { activeMode: null, progress: {}, favorites: [], updatedAt: null };
+    return { activeMode: null, progress: {}, favorites: [], guideDone: {}, updatedAt: null };
   }
 
   function saveLocal({ cloudSave = true } = {}) {
@@ -144,6 +146,7 @@
       .n24-tier-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:12px}.n24-tier{border:1px solid #ffffff15;border-radius:13px;background:#0d1116;overflow:hidden}.n24-tier-media{aspect-ratio:16/7;background:#090d11;display:grid;place-items:center;overflow:hidden}.n24-tier-media img{width:100%;height:100%;object-fit:cover}.n24-tier-body{padding:13px}.n24-tier-body small{color:#c9b76f}.n24-tier-body strong{display:block;margin:5px 0}.n24-tier-body p{color:#87909a;font-size:9px;line-height:1.55;margin:0}
       .n24-weapons{display:grid;gap:10px}.n24-group{display:grid;gap:8px}.n24-group-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:6px}.n24-group-head h2{font-size:18px;margin:0}.n24-group-head span{color:#79838d;font-size:9px}.n24-weapon{border:1px solid #ffffff15;border-radius:14px;background:#0d1116;padding:14px}.n24-weapon-head{display:grid;grid-template-columns:auto 72px minmax(0,1fr) auto;gap:11px;align-items:center}.n24-fav{border:0;background:transparent;color:#57616c;font-size:19px;padding:5px}.n24-fav[aria-pressed="true"]{color:var(--gold)}.n24-thumb{width:72px;height:50px;object-fit:contain;background:#090d11;border-radius:8px}.n24-weapon-title strong{display:block}.n24-weapon-title span{display:block;color:#7f8993;font-size:9px;margin-top:4px}.n24-weapon-score{color:#d8bb61;font-size:11px;font-weight:800}.n24-checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}.n24-check{display:flex;gap:8px;align-items:flex-start;border:1px solid #ffffff10;border-radius:10px;padding:10px;background:#090d11}.n24-check input{width:auto;margin:2px 0 0;accent-color:#ffcb2d}.n24-check strong{display:block;font-size:10px}.n24-check small{display:block;color:#77818b;font-size:8px;line-height:1.45;margin-top:3px}.n24-check.is-done{border-color:#47d78a44;background:#47d78a0a}
       .n24-global{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.n24-global .n24-check{min-height:110px}.n24-empty,.n24-state{min-height:260px;border:1px solid #ffffff15;border-radius:14px;background:#0d1116;display:grid;place-items:center;text-align:center;padding:28px;color:#919ba5}.n24-state h2,.n24-empty h2{color:#f2f4f6;margin:0 0 8px}.n24-state p,.n24-empty p{margin:0 0 14px;line-height:1.7}.n24-note{margin-top:14px;color:#66717c;font-size:9px;line-height:1.65}
+      .n24-tier{cursor:pointer}.n24-tier input[type=checkbox]{width:20px;height:20px;margin:0 8px 8px 0;accent-color:#ffcb2d}.n24-tier:has(input:checked){border-color:#47d78a88}.n24-guide{margin-top:14px}.n24-guide summary{cursor:pointer;font-weight:800;padding:10px 0}.n24-guide p{color:#9ba4ae;line-height:1.6;overflow-wrap:anywhere}.n24-guide h3{font-size:13px;margin:16px 0 8px}.n24-guide .n24-check img{width:58px;height:42px;object-fit:contain;flex-shrink:0}.n24-guide .n24-check>span{min-width:0}
       @media(max-width:980px){.n24-head{grid-template-columns:1fr}.n24-overview{grid-template-columns:1fr 1fr}.n24-tier-grid,.n24-checks,.n24-global{grid-template-columns:1fr 1fr}.n24-toolbar{top:78px;grid-template-columns:1fr 1fr}}
       @media(max-width:650px){.n24-mastery{padding-top:92px}.n24-actions{display:grid}.n24-toolbar{position:relative;top:auto;grid-template-columns:1fr}.n24-tier-grid,.n24-checks,.n24-global,.n24-overview{grid-template-columns:1fr}.n24-weapon-head{grid-template-columns:44px 58px minmax(0,1fr)}.n24-thumb{width:58px}.n24-weapon-score{grid-column:2/-1}.n24-sync{align-items:flex-start;flex-direction:column}}
       /* N29 mobile: allow long customer-provided and published content to wrap safely. */
@@ -416,7 +419,11 @@
   }
 
   function toggleItem(modeCode, weaponCode, itemCode, checked) {
-    ensureBuckets(modeCode, weaponCode)[itemCode] = checked;
+    const weapons = weaponCode === '__mastery' ? list(game?.weapons).map(weapon => weapon.code) : [weaponCode];
+    for (const code of weapons) {
+      const bucket = ensureBuckets(modeCode, code);
+      if (checked) bucket[itemCode] = true; else delete bucket[itemCode];
+    }
     saveLocal();
     publishQuoteSnapshot();
     render();
@@ -488,7 +495,7 @@
     if (!isMastery(mode) || !list(mode.items).length) return;
     const grid = node('div', 'n24-tier-grid');
     list(mode.items).forEach((item, index) => {
-      const card = node('article', 'n24-tier');
+      const card = node('label', 'n24-tier');
       const media = node('div', 'n24-tier-media');
       const imageUrl = safeImage(item.image);
       if (imageUrl) {
@@ -500,7 +507,13 @@
       }
       const body = node('div', 'n24-tier-body');
       const done = list(game?.weapons).filter((weapon) => isDone(mode.code, weapon.code, item.code)).length;
-      body.append(node('small', '', `第 ${index + 1} 层 · ${done}/${list(game?.weapons).length}`));
+      const total = list(game?.weapons).length;
+      const input = document.createElement('input');
+      input.type = 'checkbox'; input.checked = total > 0 && done === total; input.disabled = total === 0;
+      input.dataset.modeCode = mode.code; input.dataset.weaponCode = '__mastery'; input.dataset.itemCode = item.code;
+      input.dataset.masteryItem = item.code;
+      body.append(input, node('small', '', `第 ${index + 1} 层 · 当前模式全部武器通用`));
+      if (done > 0 && done < total) body.append(node('p', '', `已有 ${done}/${total} 把武器的历史记录，勾选后统一解锁`));
       body.append(node('strong', '', text(item.nameZh) || text(item.name) || text(item.code)));
       body.append(node('p', '', text(item.requirement) || '条件暂未公布'));
       card.append(media, body);
@@ -510,7 +523,6 @@
   }
 
   function weaponCard(mode, weapon) {
-    const stats = weaponStats(mode, weapon);
     const card = node('article', 'n24-weapon');
     const head = node('div', 'n24-weapon-head');
     const fav = node('button', 'n24-fav', '★');
@@ -532,26 +544,50 @@
     const title = node('div', 'n24-weapon-title');
     title.append(node('strong', '', text(weapon.nameZh) || text(weapon.name) || text(weapon.code)));
     title.append(node('span', '', `${text(weapon.weaponType) || '武器'} · ${text(weapon.unlockLabel) || '解锁条件待确认'}`));
-    const score = node('span', 'n24-weapon-score', `${stats.done}/${stats.total}`);
-    head.append(fav, image, title, score);
+    head.append(fav, image, title);
     card.append(head);
-    const checks = node('div', 'n24-checks');
-    list(mode.items).forEach((item) => {
-      const checked = isDone(mode.code, weapon.code, item.code);
-      const label = node('label', `n24-check${checked ? ' is-done' : ''}`);
-      const input = document.createElement('input');
-      input.type = 'checkbox';
-      input.checked = checked;
-      input.dataset.modeCode = mode.code;
-      input.dataset.weaponCode = weapon.code;
-      input.dataset.itemCode = item.code;
-      const copy = node('span');
-      copy.append(node('strong', '', text(item.nameZh) || text(item.name) || text(item.code)));
-      copy.append(node('small', '', text(item.requirement) || '条件暂未公布'));
-      label.append(input, copy);
-      checks.append(label);
-    });
-    card.append(checks);
+    const catalog = game.camoGuide || {};
+    const specific = mode.code === 'MULTIPLAYER' && catalog.weapons?.[weapon.code];
+    const guide = specific || catalog.classes?.[weapon.weaponType];
+    if (guide) {
+      const details = node('details', 'n24-guide');
+      details.dataset.guideWeapon = weapon.code;
+      details.open = openGuides.has(weapon.code);
+      details.append(node('summary', '', '完整迷彩挑战'));
+      details.append(node('p', '', (specific ? `满级 ${text(guide.maxLevel) || '待确认'} · ${text(guide.unlock)}` : '职业通用挑战参考') + ' · 挑战勾选仅保存在本机，不计入大师进度'));
+      const addCheck = (root, key, title, description, imagePath) => {
+        const id = `${weapon.code}::${key}`;
+        const label = node('label', 'n24-check');
+        const input = document.createElement('input');
+        input.type = 'checkbox'; input.dataset.guideItem = id; input.checked = !!state.guideDone[id];
+        label.append(input);
+        const url = safeImage(imagePath);
+        if (url) {
+          const image = document.createElement('img'); image.src = url; image.alt = ''; image.loading = 'lazy';
+          label.append(image);
+        }
+        const copy = node('span');copy.append(node('strong', '', title));
+        if (description) copy.append(node('small', '', description));
+        label.append(copy);root.append(label);
+      };
+      const military = guide.military || {};
+      const images = specific ? [military.image].filter(Boolean) : list(catalog.militaryImages).length ? catalog.militaryImages : [military.image].filter(Boolean);
+      details.append(node('h3', '', `军事迷彩 · ${military.count || 8} 档`), node('p', '', `${military.estimate ? '参考条件 · ' : ''}${text(military.text)}`));
+      const grid = node('div', 'n24-checks');
+      for (let i = 0; i < (military.count || 8); i++) addCheck(grid, `mil-${i}`, military.levels?.[i] ? `${military.levels[i]}级` : `第${i + 1}档`, '', images[i % images.length]);
+      details.append(grid);
+      for (const [field, title, prefix] of [['special', '特殊迷彩', 'special'], ['completionist', '完成主义', 'comp']]) {
+        const rows = list(guide[field]).filter(item => item.text);
+        if (!rows.length) continue;
+        details.append(node('h3', '', title));
+        const group = node('div', 'n24-checks');
+        list(guide[field]).forEach((item, i) => { if (item.text) addCheck(group, `${prefix}-${i}`, text(item.name) || `${title} ${i + 1}`, `${item.estimate ? '参考条件 · ' : ''}${text(item.text)}`, item.image); });
+        details.append(group);
+      }
+      if (guide.note) details.append(node('p', '', guide.note));
+      details.addEventListener('toggle', () => { if (details.isConnected) { if (details.open) openGuides.add(weapon.code); else openGuides.delete(weapon.code); } });
+      card.append(details);
+    }
     return card;
   }
 
@@ -605,7 +641,9 @@
   }
 
   function renderToolbar(root, mode) {
-    if (!isMastery(mode)) return;
+    const reset = node('button', 'btn', isMastery(mode) ? '清空当前模式大师进度' : '清空当前活动进度');
+    reset.type = 'button'; reset.id = 'n24Reset';
+    if (!isMastery(mode)) { root.append(reset); return; }
     const filters = routeState();
     const toolbar = node('div', 'n24-toolbar');
     const search = document.createElement('input');
@@ -639,9 +677,6 @@
       status.append(option);
     });
     status.value = filters.status;
-    const reset = node('button', 'btn', '清空当前模式');
-    reset.type = 'button';
-    reset.id = 'n24Reset';
     toolbar.append(search, type, status, reset);
     root.append(toolbar);
   }
@@ -652,6 +687,7 @@
     let selector = element.id ? '#' + CSS.escape(element.id) : '';
     if (!selector && element.matches('input[data-item-code]')) selector = 'input'
       + ['modeCode', 'weaponCode', 'itemCode'].map(key => '[data-' + key.replace(/[A-Z]/g, c => '-' + c.toLowerCase()) + '="' + CSS.escape(element.dataset[key]) + '"]').join('');
+    if (!selector && element.dataset.guideItem) selector = '[data-guide-item="' + CSS.escape(element.dataset.guideItem) + '"]';
     if (!selector && element.dataset.favorite) selector = '[data-favorite="' + CSS.escape(element.dataset.favorite) + '"]';
     if (!selector) return null;
     return { selector, start: element.selectionStart, end: element.selectionEnd };
@@ -676,7 +712,7 @@
     const intro = node('div');
     intro.append(node('div', 'n24-kicker', '武器与迷彩'));
     intro.append(node('h1', '', `${text(game.shortName) || 'MW4'} 工具站`));
-    intro.append(node('p', '', '勾选已完成的武器与迷彩，进度自动保存在此设备；登录后可跨设备同步。'));
+    intro.append(node('p', '', '大师迷彩按模式统一解锁；枪械挑战可独立勾选并保存在此设备。登录后可同步大师进度与收藏。'));
     const actions = node('div', 'n24-actions');
     const legacy = node('a', 'btn', '打开旧版工具站');
     legacy.href = '/mastery';
@@ -750,6 +786,13 @@
     section.querySelectorAll('input[data-item-code]').forEach((input) => {
       input.addEventListener('change', () => toggleItem(input.dataset.modeCode, input.dataset.weaponCode, input.dataset.itemCode, input.checked));
     });
+    section.querySelectorAll('input[data-guide-item]').forEach(input => {
+      input.addEventListener('change', () => {
+        if (input.checked) state.guideDone[input.dataset.guideItem] = true;
+        else delete state.guideDone[input.dataset.guideItem];
+        saveLocal({ cloudSave: false });
+      });
+    });
     const search = $('#n24Search', section);
     const type = $('#n24Type', section);
     const status = $('#n24Status', section);
@@ -774,7 +817,7 @@
     $('#n24Reset', section)?.addEventListener('click', () => {
       const mode = modeByCode(activeMode);
       const label = text(mode?.shortName) || text(mode?.name) || activeMode;
-      if (!confirm(`确定清空「${label}」的全部勾选进度吗？收藏不会清除。`)) return;
+      if (!confirm(`确定清空「${label}」的${isMastery(mode) ? '大师' : '活动'}进度吗？收藏和枪械挑战记录不会清除。`)) return;
       state.progress[activeMode] = {};
       saveLocal();
       publishQuoteSnapshot();

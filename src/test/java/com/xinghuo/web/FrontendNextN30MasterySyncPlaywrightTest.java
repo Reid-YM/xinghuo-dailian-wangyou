@@ -20,14 +20,14 @@ class FrontendNextN30MasterySyncPlaywrightTest {
         bothEngines(browser -> {
             try (Fixture fixture = new Fixture(browser, true, false, false)) {
                 fixture.open();
-                fixture.page.locator("input[data-weapon-code=A]").check();
+                fixture.page.locator("input[data-mastery-item=GOLD]").check();
                 fixture.page.evaluate("() => new Promise(resolve => setTimeout(resolve, 950))");
                 assertEquals(0, fixture.writes.get());
                 assertNotNull(fixture.held.get());
                 fixture.cloud(fixture.held.get(), 3, REMOTE);
                 fixture.page.waitForSelector("#n24Sync[data-state=conflict]");
-                assertTrue(fixture.page.locator("input[data-weapon-code=A]").isChecked());
-                assertFalse(fixture.page.locator("input[data-weapon-code=B]").isChecked());
+                assertTrue(fixture.page.locator("input[data-mastery-item=GOLD]").isChecked());
+                assertTrue(localChecked(fixture.page, "B"));
                 fixture.page.locator("[data-favorite=A]").click();
                 assertTrue(fixture.page.locator("#n24UseLocal").isVisible(), "rerender must retain conflict actions");
                 fixture.page.locator("#n24UseLocal").click();
@@ -47,16 +47,17 @@ class FrontendNextN30MasterySyncPlaywrightTest {
             try (Fixture fixture = new Fixture(browser, false, true, false)) {
                 fixture.open();
                 fixture.page.waitForSelector("#n24Sync[data-state=synced]");
-                fixture.page.locator("input[data-weapon-code=A]").check();
+                fixture.page.locator("input[data-mastery-item=GOLD]").check();
                 fixture.page.waitForSelector("#n24Sync[data-state=conflict]");
                 assertEquals(1, fixture.writes.get());
-                assertTrue(fixture.page.locator("input[data-weapon-code=A]").isChecked());
+                assertTrue(fixture.page.locator("input[data-mastery-item=GOLD]").isChecked());
                 fixture.page.locator("#n24UseCloud").click();
                 fixture.page.waitForSelector("#n24Sync[data-state=synced]");
-                assertFalse(fixture.page.locator("input[data-weapon-code=A]").isChecked());
-                assertTrue(fixture.page.locator("input[data-weapon-code=B]").isChecked());
+                assertFalse(fixture.page.locator("input[data-mastery-item=GOLD]").isChecked());
+                assertTrue(localChecked(fixture.page, "B"));
+                assertFalse(localChecked(fixture.page, "A"));
                 assertEquals(1, fixture.writes.get(), "choosing cloud must not upload local automatically");
-                fixture.page.locator("input[data-weapon-code=A]").check();
+                fixture.page.locator("input[data-mastery-item=GOLD]").check();
                 fixture.page.waitForSelector("#n24Sync[data-state=synced]");
                 assertEquals(2, fixture.writes.get());
                 assertEquals(2, JSON.readTree(fixture.lastWrite.get()).path("version").asInt());
@@ -69,16 +70,16 @@ class FrontendNextN30MasterySyncPlaywrightTest {
             try (Fixture fixture = new Fixture(browser, false, false, true)) {
                 fixture.open();
                 fixture.page.waitForSelector("#n24Sync[data-state=error]");
-                fixture.page.locator("input[data-weapon-code=A]").check();
+                fixture.page.locator("input[data-mastery-item=GOLD]").check();
                 fixture.page.evaluate("() => new Promise(resolve => setTimeout(resolve, 950))");
                 assertEquals(0, fixture.writes.get());
                 fixture.page.locator("#n24SyncAction").click();
                 fixture.page.waitForSelector("#n24Sync[data-state=conflict]");
                 assertEquals(2, fixture.reads.get());
-                assertTrue(fixture.page.locator("input[data-weapon-code=A]").isChecked());
+                assertTrue(fixture.page.locator("input[data-mastery-item=GOLD]").isChecked());
                 fixture.page.reload();
                 fixture.page.waitForSelector("#n24Sync[data-state=conflict]");
-                assertTrue(fixture.page.locator("input[data-weapon-code=A]").isChecked());
+                assertTrue(fixture.page.locator("input[data-mastery-item=GOLD]").isChecked());
                 assertEquals(0, fixture.writes.get());
             }
         });
@@ -94,10 +95,14 @@ class FrontendNextN30MasterySyncPlaywrightTest {
                 assertEquals(0, fixture.page.evaluate("() => JSON.parse(localStorage.getItem('xinghuo-mw4-camo-tracker-v2')).favorites.length"));
                 fixture.page.reload();
                 fixture.page.waitForSelector("#n24Sync[data-state=conflict]");
-                assertFalse(fixture.page.locator("input[data-weapon-code=B]").isChecked());
+                assertFalse(localChecked(fixture.page, "B"));
                 assertEquals(0, fixture.writes.get());
             }
         });
+    }
+
+    private static boolean localChecked(Page page, String weapon) {
+        return Boolean.TRUE.equals(page.evaluate("weapon => !!JSON.parse(localStorage.getItem('xinghuo-mw4-camo-tracker-v2')).progress?.MULTIPLAYER?.[weapon]?.GOLD", weapon));
     }
 
     interface Check { void run(Browser browser) throws Exception; }

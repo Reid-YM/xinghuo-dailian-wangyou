@@ -1,10 +1,13 @@
-(() => {
+(function initializeAccount() {
   'use strict';
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
   const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
   const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(runtimePath())) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath()) && !document.querySelector('.page[data-page="account"].active')) {
+    window.addEventListener('xh:pagechange', initializeAccount, { once: true });
+    return;
+  }
 
   const items = [
     ['overview', '总览', '/next/account'],
@@ -58,6 +61,7 @@
     if (href === location.pathname + location.search + location.hash) return;
     navigation.pushState({ ...(navigation.state || {}), n17AccountRoute: href }, '', href);
     const active = updateActive();
+    window.dispatchEvent(new CustomEvent('xh:pagechange', { detail: { page: 'account' } }));
     if (active === 'overview') {
       document.querySelector('.n4-shell')?.scrollIntoView({ block: 'start' });
       return;
@@ -119,7 +123,13 @@
 
   observer = new MutationObserver(() => mount());
   observer.observe(document.body, { childList: true, subtree: true });
-  window.addEventListener('pagehide', () => observer?.disconnect(), { once: true });
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      observer?.observe(document.body, { childList: true, subtree: true });
+      mount();
+    }
+  });
+  window.addEventListener('pagehide', () => observer?.disconnect());
 
   mount();
 

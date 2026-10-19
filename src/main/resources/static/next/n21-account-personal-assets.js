@@ -1,10 +1,13 @@
-(() => {
+(function initializeAccount() {
   'use strict';
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
   const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
   const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(runtimePath())) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath()) && !document.querySelector('.page[data-page="account"].active')) {
+    window.addEventListener('xh:pagechange', initializeAccount, { once: true });
+    return;
+  }
 
   const PAGE_MAX = 1000;
   const ASSETS = new Map([
@@ -254,10 +257,16 @@
 
   observer = new MutationObserver(scheduleMount);
   observer.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      observer?.observe(document.body, { childList: true, subtree: true });
+      scheduleMount();
+    }
+  });
   window.addEventListener('pagehide', () => {
     observer?.disconnect();
     if (mountTimer) clearTimeout(mountTimer);
-  }, { once: true });
+  });
 
   window.XHFrontendNextN21 = {
     assetKey,

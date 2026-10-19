@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
 import com.xinghuo.account.model.*;
 import com.xinghuo.account.repo.*;
 import com.xinghuo.account.service.*;
@@ -51,7 +52,9 @@ class FrontendRealSessionPlaywrightTest {
                 login(f.page,PASSWORD);f.page.waitForSelector("#n5RecordsBody tbody tr");
                 f.records.keySet().forEach(f.sessions::revoke);
                 f.page.reload();f.page.waitForSelector("#n4LoginForm");assertEquals(0,f.page.locator("#n5BusinessCenter").count());
-                assertEquals(List.of(),f.errors);
+                f.page.waitForLoadState(LoadState.NETWORKIDLE);
+                assertTrue(f.clientDisconnects.stream().allMatch(f.failedReadRequests::contains),f.clientDisconnects.toString());
+                assertEquals(List.of(),f.errors,f.pageDiagnostics.events().toString());
             }
         }
     }
@@ -67,7 +70,10 @@ class FrontendRealSessionPlaywrightTest {
     }
     static class Fixture implements AutoCloseable {
         final Map<String,AccountSession> records=new ConcurrentHashMap<>();final AccountSessionService sessions;final BusinessProbe probe=new BusinessProbe();
-        final MockMvc mvc;final com.sun.net.httpserver.HttpServer server;final String origin;final Page page;final List<String> errors=new ArrayList<>();
+        final MockMvc mvc;final com.sun.net.httpserver.HttpServer server;final String origin;final Page page;final List<String> errors=Collections.synchronizedList(new ArrayList<>());
+        final FrontendBrowserErrorTracker pageDiagnostics=new FrontendBrowserErrorTracker(errors);
+        final List<String> clientDisconnects=Collections.synchronizedList(new ArrayList<>());
+        final Set<String> failedReadRequests=ConcurrentHashMap.newKeySet();
         Fixture(Browser browser)throws Exception{
             var accounts=mock(AccountRepository.class);var repository=mock(AccountSessionRepository.class);var encoder=new BCryptPasswordEncoder(4);
             var account=Account.builder().id(7L).contactType(Account.ContactType.EMAIL).contactValue(EMAIL).contactNorm(EMAIL).email(EMAIL).emailNorm(EMAIL).emailVerified(true).contactVerified(true)
@@ -84,7 +90,8 @@ class FrontendRealSessionPlaywrightTest {
                 .setControllerAdvice(new AccountExceptionHandler()).addInterceptors(new AccountAuthInterceptor(sessions),new FrontendMigrationConfig.Replacement(true))
                 .setViewResolvers(new org.springframework.web.servlet.view.InternalResourceViewResolver("/templates/",".html")).build();
             server=com.sun.net.httpserver.HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);server.createContext("/",this::handle);server.start();origin="http://127.0.0.1:"+server.getAddress().getPort();
-            page=browser.newPage(new Browser.NewPageOptions().setViewportSize(390,900));page.onPageError(errors::add);
+            page=browser.newPage(new Browser.NewPageOptions().setViewportSize(390,900));pageDiagnostics.attach(page);
+            page.onRequestFailed(request->{if("GET".equals(request.method()))failedReadRequests.add(URI.create(request.url()).getPath());});
             page.route("**/*",route->{String path=URI.create(route.request().url()).getPath();
                 if(List.of("/api/account/login","/api/account/me","/api/account/logout","/api/console/orders","/api/console/quotes","/api/console/summary").contains(path))route.resume();
                 else if(path.startsWith("/api/")||path.endsWith(".js")||path.endsWith(".css"))FrontendNextN30DocumentJourneyPlaywrightTest.fulfill(route,mvc,new HashSet<>());
@@ -104,9 +111,13 @@ class FrontendRealSessionPlaywrightTest {
                     response=mvc.perform(forward).andReturn().getResponse();
                 }
                 for(String header:response.getHeaderNames())exchange.getResponseHeaders().put(header,new ArrayList<>(response.getHeaders(header)));
-                if(response.getRedirectedUrl()!=null){exchange.sendResponseHeaders(response.getStatus(),-1);return;}
-                byte[] bytes=response.getContentAsByteArray();exchange.sendResponseHeaders(response.getStatus(),bytes.length);exchange.getResponseBody().write(bytes);
-            }catch(Throwable error){errors.add(error.getClass().getSimpleName());exchange.sendResponseHeaders(500,-1);}finally{exchange.close();}
+                // Transport disconnects must match browser-observed failed GET delivery; error descriptions are localized.
+                // MVC/application failures above remain errors, independently of response streaming.
+                try {
+                    if(response.getRedirectedUrl()!=null){exchange.sendResponseHeaders(response.getStatus(),-1);return;}
+                    byte[] bytes=response.getContentAsByteArray();exchange.sendResponseHeaders(response.getStatus(),bytes.length);exchange.getResponseBody().write(bytes);
+                } catch(java.io.IOException disconnected) {clientDisconnects.add(uri.getPath());}
+            }catch(Throwable error){errors.add(error.toString());exchange.sendResponseHeaders(500,-1);}finally{exchange.close();}
         }
         public void close(){page.close();server.stop(0);}
     }

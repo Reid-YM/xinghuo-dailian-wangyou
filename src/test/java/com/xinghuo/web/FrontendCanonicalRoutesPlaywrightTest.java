@@ -65,7 +65,7 @@ class FrontendCanonicalRoutesPlaywrightTest {
                     if(!entry.getKey().startsWith("/account")&&!entry.getKey().startsWith("/record"))
                         assertEquals(0,f.page.locator("meta[name=robots][content^=noindex]").count(),entry.getKey());
                 }
-                assertEquals(List.of(),f.errors);
+                assertEquals(List.of(),f.errors,f.pageDiagnostics.events().toString());
             }
         });
     }
@@ -86,7 +86,7 @@ class FrontendCanonicalRoutesPlaywrightTest {
             f.page.getByLabel("账号",new Page.GetByLabelOptions().setExact(true)).fill("test@example.test");f.page.getByLabel("密码",new Page.GetByLabelOptions().setExact(true)).fill("test-password");
             f.page.locator("#n4LoginForm button[type=submit]").click();
             f.page.waitForSelector("#n25Submit:not([disabled])");assertTrue(f.page.url().endsWith("/account/submit"));
-            assertEquals(List.of(),f.errors);
+            assertEquals(List.of(),f.errors,f.pageDiagnostics.events().toString());
         }});
     }
     @Test void authenticatedDeepLinksAndFiltersRetainCanonicalUrlsAcrossTabsAndReload() throws Exception {
@@ -104,7 +104,7 @@ class FrontendCanonicalRoutesPlaywrightTest {
                 assertEquals(path,URI.create(f.page.url()).getPath());
                 assertEquals(1,f.page.locator("meta[name=robots][content='noindex,nofollow']").count());
             }
-            assertEquals(List.of(),f.errors);
+            assertEquals(List.of(),f.errors,f.pageDiagnostics.events().toString());
         }});
     }
     @Test void passwordLoginReturnsToTheExactAccountDetailInEitherNamespace() throws Exception {
@@ -119,13 +119,14 @@ class FrontendCanonicalRoutesPlaywrightTest {
             f.page.locator("#n4LoginForm button[type=submit]").click();f.page.waitForSelector("#n5Detail:not([hidden])");
             assertEquals(base+"/account/orders/"+NO,URI.create(f.page.url()).getPath());
             assertEquals("IN_PROGRESS",f.page.evaluate("() => new URL(location.href).searchParams.get('status')"));
-            assertEquals(List.of(),f.errors);
+            assertEquals(List.of(),f.errors,f.pageDiagnostics.events().toString());
         }});
     }
     interface Check {void run(Browser browser) throws Exception;}
     void both(Check check)throws Exception{try(Playwright p=Playwright.create();Browser a=p.chromium().launch();Browser b=p.webkit().launch()){for(Browser browser:List.of(a,b))check.run(browser);}}
     static class Fixture implements AutoCloseable {
-        final Page page;final MockMvc mvc;final com.sun.net.httpserver.HttpServer server;final String origin;final AtomicBoolean logged;final List<String> errors=new ArrayList<>();
+        final Page page;final MockMvc mvc;final com.sun.net.httpserver.HttpServer server;final String origin;final AtomicBoolean logged;final List<String> errors=Collections.synchronizedList(new ArrayList<>());
+        final FrontendBrowserErrorTracker pageDiagnostics=new FrontendBrowserErrorTracker(errors);
         Fixture(Browser browser,int width,boolean loggedIn)throws Exception{
             logged=new AtomicBoolean(loggedIn);var mapper=new ObjectMapper();
             var config=mock(SiteConfigService.class);var site=mock(ApiDtos.SiteConfigResponse.class);
@@ -144,7 +145,7 @@ class FrontendCanonicalRoutesPlaywrightTest {
                 .setViewResolvers(new org.springframework.web.servlet.view.InternalResourceViewResolver("/templates/", ".html")).build();
             server=com.sun.net.httpserver.HttpServer.create(new java.net.InetSocketAddress("127.0.0.1",0),0);
             server.createContext("/",this::document);server.start();origin="http://127.0.0.1:"+server.getAddress().getPort();
-            page=browser.newPage(new Browser.NewPageOptions().setViewportSize(width,900));page.onPageError(errors::add);page.route("**/*",this::fulfill);
+            page=browser.newPage(new Browser.NewPageOptions().setViewportSize(width,900));pageDiagnostics.attach(page);page.route("**/*",this::fulfill);
         }
         void open(String path,String selector){page.navigate(origin+path);page.waitForSelector(selector);page.waitForFunction("() => document.documentElement.dataset.siteConfiguration === 'ready'");}
         void fulfill(Route route){try{

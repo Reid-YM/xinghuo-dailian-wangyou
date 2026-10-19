@@ -78,6 +78,69 @@ class FrontendAccountContextPlaywrightTest {
             assertTrue(reads.stream().anyMatch(query->query.contains("page=1")));assertEquals(List.of(),f.errors);
         }});
     }
+    @Test void homeToAccountInitializesEveryExtensionOnceAndCacheRestoreReattachesObservers() throws Exception {
+        both(browser->{for(String base:List.of("/next",""))try(var f=new FrontendCanonicalRoutesPlaywrightTest.Fixture(browser,390,true)){
+            List<Route> progressReads=new ArrayList<>();List<String> cancellations=new ArrayList<>();
+            f.page.route("**/api/account/progress",progressReads::add);
+            f.page.onRequestFailed(request->{if(URI.create(request.url()).getPath().equals("/api/account/progress"))cancellations.add(request.failure());});
+            f.open(base.isEmpty()?"/":base,"#nextHomeGames a");
+            f.page.waitForFunction("() => !!window.XHFrontendNextN4?.state?.profile");
+            f.page.evaluate("() => window.__documentMarker='same-document'");
+            var dock=f.page.locator(".next-mobile-dock");
+            dock.locator("[data-go=services]").click();dock.locator("[data-go=account]").click();
+            f.page.waitForSelector("#n17AccountNav");f.page.waitForSelector("#n21AssetNav");
+            assertEquals("same-document",f.page.evaluate("() => window.__documentMarker"));
+            f.page.evaluate("() => window.__accountModules=[16,17,18,19,20,21].map(n=>window['XHFrontendNextN'+n])");
+            assertEquals(true,f.page.evaluate("() => window.__accountModules.every(Boolean)"));
+            f.page.locator("#n17AccountNav [data-n17-key=orders]").click();f.page.waitForSelector("#n20Status");
+            assertEquals(base+"/account/orders",URI.create(f.page.url()).getPath());
+            f.page.locator("#n20Search").fill("no-matching-record");f.page.waitForSelector("#n20Empty");
+            f.page.evaluate("() => {window.__idleCountMutations=0;window.__countObserver=new MutationObserver(records=>window.__idleCountMutations+=records.length);for(const id of ['n20Count','n20Empty'])window.__countObserver.observe(document.getElementById(id),{childList:true,subtree:true,characterData:true});}");
+            f.page.waitForTimeout(150);assertEquals(0,((Number)f.page.evaluate("() => window.__idleCountMutations")).intValue());
+            f.page.evaluate("() => window.__countObserver.disconnect()");
+            f.page.locator("#n20Reset").click();f.page.waitForSelector("#n5RecordsBody tbody tr:visible");
+            f.page.locator("#n5RecordsBody tbody tr").first().getByRole(AriaRole.BUTTON,new Locator.GetByRoleOptions().setName("查看详情")).click();
+            f.page.waitForSelector("#n19DetailContext");
+            assertEquals(base+"/account/orders/"+FIRST,URI.create(f.page.url()).getPath());
+            f.page.locator("#n19DetailContext").getByRole(AriaRole.BUTTON,new Locator.GetByRoleOptions().setName("返回订单列表")).click();
+            dock.locator("[data-go=home]").click();dock.locator("[data-go=account]").click();
+            f.page.waitForSelector("#n21AssetNav");
+            assertEquals(true,f.page.evaluate("() => window.__accountModules.every((m,i)=>m===window['XHFrontendNextN'+(i+16)])"));
+            f.page.locator("#n17AccountNav [data-n17-key=orders]").click();f.page.waitForSelector("#n20Status");
+            f.page.evaluate("() => {window.__cacheEvents=[];for(const type of ['pagehide','pageshow'])window.addEventListener(type,event=>window.__cacheEvents.push({type,persisted:event.persisted,active:document.querySelector('.page.active')?.dataset.page,profile:window.XHFrontendNextN4?.state?.profile?.id,loading:window.XHFrontendNextN5?.state?.loading,center:!!document.querySelector('#n5BusinessCenter')}),{once:true});window.dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true}));document.querySelector('#n17AccountNavWrap')?.remove();document.querySelector('#n21AssetNav')?.remove();window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}));}");
+            f.page.waitForSelector("#n17AccountNav");
+            try {f.page.waitForSelector("#n21AssetNav",new Page.WaitForSelectorOptions().setTimeout(5000));}
+            catch(PlaywrightException error){throw new AssertionError("Cache restore: "+f.page.evaluate("() => ({url:location.href,active:document.querySelector('.page.active')?.dataset.page,profile:window.XHFrontendNextN4?.state?.profile?.id,state:window.XHFrontendNextN5?.state,center:!!document.querySelector('#n5BusinessCenter'),assets:!!document.querySelector('#n5PersonalAssets'),nav:!!document.querySelector('#n21AssetNav'),events:window.__cacheEvents})")+", reads="+progressReads.size()+", cancellations="+cancellations+", errors="+f.errors,error);}
+            f.page.waitForCondition(()->cancellations.size()>=2 && progressReads.size()>=3);
+            assertTrue(cancellations.stream().allMatch(message->message!=null&&!message.isBlank()),cancellations.toString());
+            f.json(progressReads.getLast(),200,"[]");
+            f.page.waitForFunction("() => document.querySelector('[data-personal-asset=progress]')?.textContent.includes('暂无记录')");
+            assertEquals(1,f.page.locator("#n17AccountNav").count());assertEquals(1,f.page.locator("#n21AssetNav").count());
+            assertEquals("same-document",f.page.evaluate("() => window.__documentMarker"));assertEquals(List.of(),f.errors);
+        }});
+    }
+    @Test void changingAccountsCancelsOldOwnedReadsBeforeDisplayingTheNextAccount() throws Exception {
+        both(browser->{for(String base:List.of("/next",""))try(var f=new FrontendCanonicalRoutesPlaywrightTest.Fixture(browser,390,true)){
+            var owner=new java.util.concurrent.atomic.AtomicInteger(1);var hold=new java.util.concurrent.atomic.AtomicBoolean(false);
+            List<Route> held=new ArrayList<>();List<String> cancelled=new ArrayList<>();
+            f.page.route("**/api/account/me",route->{int id=owner.get();f.json(route,id==0?401:200,"{\"id\":"+id+",\"displayName\":\"账号"+id+"\",\"emailVerified\":true}");});
+            f.page.route("**/api/account/logout",route->{owner.set(0);f.logged.set(false);f.json(route,200,"{}");});
+            f.page.route("**/api/account/login",route->{owner.set(2);f.logged.set(true);f.json(route,200,"{\"id\":2,\"displayName\":\"账号2\",\"emailVerified\":true}");});
+            f.page.route("**/api/console/orders",route->{if(hold.compareAndSet(true,false)){held.add(route);return;}int id=owner.get();f.json(route,200,"{\"items\":["+order(id==1?FIRST:SECOND,"账号"+id+"订单","IN_PROGRESS","2026-10-19T08:00:00Z")+"],\"total\":1}");});
+            f.page.onRequestFailed(request->{if(!held.isEmpty()&&request.url().equals(held.getFirst().request().url()))cancelled.add(request.failure());});
+            f.open(base+"/account","#n5RecordsBody tbody tr");
+            assertTrue(f.page.locator("#n5RecordsBody").textContent().contains("账号1订单"));
+            f.page.evaluate("() => window.__accountDocument='same-document'");hold.set(true);
+            f.page.evaluate("() => {window.XHFrontendNextN5.reload();}");f.page.waitForCondition(()->!held.isEmpty());
+            f.page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("退出登录").setExact(true)).click();f.page.waitForSelector("#n4LoginForm");
+            f.page.waitForCondition(()->!cancelled.isEmpty());
+            f.page.getByLabel("账号",new Page.GetByLabelOptions().setExact(true)).fill("second-account@example.test");
+            f.page.getByLabel("密码",new Page.GetByLabelOptions().setExact(true)).fill("test-password");f.page.locator("#n4LoginButton").click();
+            f.page.waitForFunction("() => window.XHFrontendNextN4?.state?.profile?.id===2 && document.querySelector('#n5RecordsBody')?.textContent.includes('账号2订单')");
+            assertFalse(f.page.locator("#n5RecordsBody").textContent().contains("账号1订单"));
+            assertEquals("same-document",f.page.evaluate("() => window.__accountDocument"));assertEquals(List.of(),f.errors,f.pageDiagnostics.events().toString());
+        }});
+    }
     static String order(String no,String name,String status,String updated){return "{\"businessNo\":\""+no+"\",\"gameName\":\"测试游戏\",\"serviceName\":\""+name+"\",\"status\":\""+status+"\",\"updatedAt\":\""+updated+"\"}";}
     interface Check{void run(Browser browser)throws Exception;}
     void both(Check check)throws Exception{try(Playwright p=Playwright.create();Browser a=p.chromium().launch();Browser b=p.webkit().launch()){for(Browser browser:List.of(a,b))check.run(browser);}}

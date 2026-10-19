@@ -1,10 +1,13 @@
-(() => {
+(function initializeAccount() {
   'use strict';
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
   const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
   const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(runtimePath())) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath()) && !document.querySelector('.page[data-page="account"].active')) {
+    window.addEventListener('xh:pagechange', initializeAccount, { once: true });
+    return;
+  }
 
   const BUSINESS_NO_RE = /^(XH[A-Z0-9]{10}|XH-[A-Z2-9]{24})$/;
   const transientParams = new Set(['auth', 'token', 'verifyToken', 'wechat', 'next', 'legacy']);
@@ -248,10 +251,18 @@
 
   observer = new MutationObserver(() => applyDetailRoute());
   observer.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      observer?.observe(document.body, { childList: true, subtree: true });
+      applyDetailRoute();
+    }
+  });
   window.addEventListener('pagehide', () => {
     observer?.disconnect();
+    openingKey = '';
+    focusedDetail = '';
     if (openingTimer) clearTimeout(openingTimer);
-  }, { once: true });
+  });
 
   applyDetailRoute();
 

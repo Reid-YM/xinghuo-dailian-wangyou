@@ -1,10 +1,13 @@
-(() => {
+(function initializeAccount() {
   'use strict';
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
   const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
   const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(runtimePath())) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath()) && !document.querySelector('.page[data-page="account"].active')) {
+    window.addEventListener('xh:pagechange', initializeAccount, { once: true });
+    return;
+  }
 
   const BUSINESS_NO_RE = /^(XH[A-Z0-9]{10}|XH-[A-Z2-9]{24})$/;
   const SORTS = new Set(['source', 'updated-desc', 'updated-asc']);
@@ -249,7 +252,8 @@
     const visible = new Set(ids);
     const total = sourceItems(info).length;
     const count = document.querySelector('#n20Count');
-    if (count) count.textContent = `当前已加载 ${total} 条 · 筛选后显示 ${ids.length} 条${total >= 50 ? ' · 最多显示最近 50 条' : ''}`;
+    const countText = `当前已加载 ${total} 条 · 筛选后显示 ${ids.length} 条${total >= 50 ? ' · 最多显示最近 50 条' : ''}`;
+    if (count && count.textContent !== countText) count.textContent = countText;
 
     const empty = body.querySelector('#n20Empty');
     if (!tbody) {
@@ -273,7 +277,8 @@
       const notice = empty || document.createElement('div');
       notice.id = 'n20Empty';
       notice.className = 'n20-empty';
-      notice.textContent = '当前筛选条件没有匹配记录。清除筛选后可恢复已加载列表。';
+      const emptyText = '当前筛选条件没有匹配记录。清除筛选后可恢复已加载列表。';
+      if (notice.textContent !== emptyText) notice.textContent = emptyText;
       if (!empty) body.append(notice);
     } else {
       empty?.remove();
@@ -347,10 +352,16 @@
 
   observer = new MutationObserver(scheduleApply);
   observer.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      observer?.observe(document.body, { childList: true, subtree: true });
+      scheduleApply();
+    }
+  });
   window.addEventListener('pagehide', () => {
     observer?.disconnect();
     if (mountTimer) clearTimeout(mountTimer);
-  }, { once: true });
+  });
 
   window.XHFrontendNextN20 = {
     routeInfo,

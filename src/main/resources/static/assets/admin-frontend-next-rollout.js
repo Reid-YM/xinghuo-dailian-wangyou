@@ -7,7 +7,7 @@
   let currentMode = 'legacy';
 
   const hrefFor = mode => mode === 'next' ? '/next/services' : '/services';
-  const labelFor = mode => mode === 'next' ? '新版候选' : '旧版稳定';
+  const labelFor = mode => mode === 'next' ? '显式新版地址' : '标准地址';
 
   function setMessage(value, kind = '') {
     const host = $('#rolloutMessage');
@@ -57,7 +57,7 @@
       setMessage('当前配置已读取。', 'ok');
     } catch (error) {
       render('legacy');
-      setMessage(`${error.message || '读取失败'} 页面按安全默认值显示旧版入口。`, 'error');
+      setMessage(`${error.message || '读取失败'} 页面暂按标准地址显示，已保存配置未改变。`, 'error');
     }
   }
 
@@ -72,7 +72,7 @@
       return;
     }
     if (requested === 'next') {
-      const ok = window.confirm('确认把公共“服务”入口切到新版 /next/services？旧 /services 仍会保留，可随时恢复。');
+      const ok = window.confirm('确认把服务导航链接设为 /next/services？此操作不改变全站默认版本。');
       if (!ok) {
         if (select) select.value = currentMode;
         setMessage('已取消切换，入口配置未改变。');
@@ -92,8 +92,8 @@
         body: {
           servicesEntryMode: requested,
           reason: requested === 'next'
-            ? 'Frontend Next N9：公共服务入口切换到新版候选'
-            : 'Frontend Next N9：公共服务入口回退到旧版稳定入口'
+            ? 'Frontend Next N9：公共服务导航使用显式新版地址'
+            : 'Frontend Next N9：公共服务导航恢复标准地址'
         }
       });
       render(settings.servicesEntryMode);

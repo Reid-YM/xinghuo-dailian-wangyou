@@ -18,7 +18,7 @@ class XingweiWorkspacePanelsPlaywrightTest {
     private Page setup(Browser browser,boolean scoped,String hash){return setup(browser,scoped?"orders":"all",hash);}
     private Page setup(Browser browser,String scope,String hash){
         var resolver=new ClassLoaderTemplateResolver();resolver.setPrefix("templates/");resolver.setSuffix(".html");var engine=new SpringTemplateEngine();engine.setTemplateResolver(resolver);
-        var context=new Context();context.setVariables(Map.of("workspaceName","星维网络服务工作室","username","测试员工","restoreAdmin",false,"csrf",new DefaultCsrfToken("X-CSRF-TOKEN","_csrf","test"),"consoleVersion","20261016-v6a","consoleStage","V6A · UNIFIED DELIVERY","consoleStageLabel","V6A · 统一交付"));String html=engine.process("admin-xingwei",context);
+        var context=new Context();context.setVariables(Map.of("workspaceName","星维网络服务工作室","username","测试员工","restoreAdmin",false,"csrf",new DefaultCsrfToken("X-CSRF-TOKEN","_csrf","test"),"consoleVersion","20261019-v6b","consoleStage","V6B · UNIFIED DELIVERY","consoleStageLabel","V6B · 统一交付"));String html=engine.process("admin-xingwei",context);
         Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(1440,900));
         page.route("**/*",r->{String path=java.net.URI.create(r.request().url()).getPath();if(path.startsWith("/assets/"))r.fulfill(new Route.FulfillOptions().setPath(Path.of("src/main/resources/static"+path)));else r.fulfill(new Route.FulfillOptions().setContentType("text/html").setBody(html));});
         page.addInitScript("""
@@ -26,7 +26,7 @@ class XingweiWorkspacePanelsPlaywrightTest {
             window.fetch=async url=>{
               const result=body=>new Response(JSON.stringify(body),{headers:{'Content-Type':'application/json'}});
               if(url.endsWith('/access'))return result({mode:window.scoped?'SHADOW_RBAC':'LEGACY_ADMIN_OVERRIDE',allowAll:!window.scoped,dataScope:window.scoped?'SELF':'ALL',permissionCodes:window.scope==='content'?['content:view']:window.scope==='employee'?['employee:view']:window.scoped?['order:view']:[],roleCodes:[]});
-              if(url.endsWith('/health'))return result({version:'20261016-v6a',stage:'V6A · UNIFIED DELIVERY'});
+              if(url.endsWith('/health'))return result({version:'20261019-v6b',stage:'V6B · UNIFIED DELIVERY'});
               if(window.scoped&&window.scope!=='employee')return new Response(JSON.stringify({error:'无组织查看权限'}),{status:403});
               return result({counts:{},departments:[],positions:[],employees:[],roles:[],permissions:[],dataScope:'ALL'});
             };

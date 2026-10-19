@@ -1,5 +1,5 @@
 <main class="fc-shell" th:fragment="workspace" xmlns:th="http://www.thymeleaf.org">
-  <section class="fc-hero"><div><span class="eyebrow">前台展示控制</span><h1>导航、首页与主题配置</h1><p>导航、首页模块、按钮、跳转、显隐和主题参数从后台配置读取；价格、主图、背景图、客服资料继续使用现有站点配置。</p></div><div class="fc-status-card"><b>后端配置驱动</b><small>保存后前台刷新读取最新值</small></div></section>
+  <section class="fc-hero"><div><span class="eyebrow">前台展示控制</span><h1>导航、首页与主题配置</h1><p>导航、首页模块、按钮、跳转、显隐和主题参数从后台配置读取；价格、主图、背景图、客服资料继续使用现有站点配置。</p></div><div class="fc-status-card"><b>全站统一设置</b><small>保存后前台刷新读取最新值</small></div></section>
   <nav class="fc-section-nav"><a href="#global">导航与备案</a><a href="#home">首页模块</a><a href="#theme">主题样式</a><a href="#existing">已有配置</a></nav>
 
   <section class="fc-card" id="global"><div class="fc-card-head"><div><span class="eyebrow">全站</span><h2>导航、页脚与备案</h2><p>桌面导航、移动端抽屉和页脚共用同一份配置。</p></div><span class="fc-badge">全站生效</span></div>
@@ -44,7 +44,7 @@
       </div>
     </section>
 
-    <section class="fc-card" id="theme"><div class="fc-card-head"><div><span class="eyebrow">主题</span><h2>全站主题样式</h2><p>只开放经过校验的安全变量，不允许后台注入任意 CSS 或 JavaScript。</p></div><span class="fc-badge">安全变量</span></div>
+    <section class="fc-card" id="theme"><div class="fc-card-head"><div><span class="eyebrow">主题</span><h2>全站主题样式</h2><p>通过颜色、圆角和字号调整页面风格。</p></div><span class="fc-badge">安全变量</span></div>
       <div class="fc-theme-preview" id="themePreview"><span>主题预览</span><strong>星火前端</strong><button type="button">主按钮</button></div>
       <div class="fc-grid two">
         <div class="field color-field"><label>主强调色</label><div><input id="xw-field-themeAccentColor" type="color" name="themeAccentColor"><output data-color-output="themeAccentColor"></output></div></div><div class="field color-field"><label>页面背景色</label><div><input id="xw-field-themeBackgroundColor" type="color" name="themeBackgroundColor"><output data-color-output="themeBackgroundColor"></output></div></div>

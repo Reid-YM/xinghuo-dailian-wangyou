@@ -91,7 +91,7 @@
       <label>预计时长<input id="xcatCreateDuration" maxlength="100" placeholder="例如 1-2 天" required/></label>
       <label>展示排序<input id="xcatCreateSortOrder" type="number" step="1" value="0" required/></label>
       <label>人工优先级<input id="xcatCreatePriority" type="number" step="1" value="0" required/></label>
-      <label class="xcat-span-2">新增原因<textarea id="xcatCreateReason" maxlength="500" rows="2" required placeholder="说明为什么新增该服务，记录服务创建审计"></textarea></label>
+      <input id="xcatCreateReason" type="hidden"/>
     </div>
     <div class="xcat-dialog-note">新服务默认下线并停用，封面和到期时间留空，热度为零。游戏和分类只能从已有目录选择；新增和修改请进入游戏与分类工作台。</div>
     <div class="xcat-dialog-actions">
@@ -117,7 +117,7 @@
       <label>预计时长<input id="xcatEditDuration" maxlength="100" required/></label>
       <label>展示排序<input id="xcatEditSortOrder" type="number" step="1" required/></label>
       <label>人工优先级<input id="xcatEditPriority" type="number" step="1" required/></label>
-      <label class="xcat-span-2">变更原因<textarea id="xcatEditReason" maxlength="500" rows="2" required placeholder="写清本次调整原因，进入审计日志"></textarea></label>
+      <input id="xcatEditReason" type="hidden"/>
     </div>
     <div class="xcat-dialog-note">访问标识、游戏、分类、封面、热度、到期时间和当前上下架状态在基础编辑中保持原值；完整字段、封面和有效期请使用本页上方的“完整资料、图片与批量维护”。</div>
     <div class="xcat-dialog-actions">

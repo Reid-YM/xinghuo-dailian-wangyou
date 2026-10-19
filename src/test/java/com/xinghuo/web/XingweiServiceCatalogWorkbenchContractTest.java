@@ -69,8 +69,8 @@ class XingweiServiceCatalogWorkbenchContractTest {
         assertTrue(template.contains("id=\"xcatReviewDialog\""));
         assertTrue(template.contains("id=\"xcatReviewPublish\""));
         assertTrue(template.contains("阻断项必须全部通过才允许上架"));
-        assertTrue(template.contains("新增原因"));
-        assertTrue(template.contains("记录服务创建审计"));
+        assertTrue(template.contains("id=\"xcatCreateReason\" type=\"hidden\""));
+        assertFalse(template.contains("记录服务创建审计"));
         assertTrue(shell.contains("href=\"/admin/xingwei/catalog\""));
         assertTrue(shell.contains("B03"));
     }

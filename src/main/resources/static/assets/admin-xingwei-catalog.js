@@ -171,6 +171,7 @@
   function openCreate() {
     if(!canManage||!snapshot) return;
     createForm.reset();
+    createReason.value='新增服务项目';
     createPriceMode.value='QUOTE';
     createSortOrder.value='0';
     createPriority.value='0';
@@ -196,7 +197,7 @@
     editDuration.value=item.durationText||'';
     editSortOrder.value=String(item.sortOrder??0);
     editPriority.value=String(item.manualPriority??0);
-    editReason.value='';
+    editReason.value='维护服务资料';
     syncPriceFields(editPriceMode,editPriceFixed,editPriceMin,editPriceMax);
     editDialog.showModal();
     editName.focus();
@@ -338,7 +339,7 @@
       await write(`/api/admin/xingwei/catalog/services/${item.id}/restore`,'POST');
       closeReview();
       await loadSnapshot(false);
-      setMessage(`「${item.name}」已通过发布检查并正式上架，SERVICE_RESTORE 已记录审计。`,'ok');
+      setMessage(`「${item.name}」已通过发布检查并正式上架，操作已记录。`,'ok');
     }catch(error){
       setMessage(`上架失败：${error.message}`,'error');
       reviewPublish.disabled=false;

@@ -26,7 +26,7 @@ class XingweiEmployeeFieldPrivacyPlaywrightTest {
         var engine=new SpringTemplateEngine();engine.setTemplateResolver(resolver);
         var context=new Context();context.setVariables(Map.of("username","manager","workspaceName","星维工作台",
                 "csrf",new DefaultCsrfToken("X-CSRF-TOKEN","_csrf","test-token"),
-                "consoleVersion","20261016-v6a","consoleStage","V6A · UNIFIED DELIVERY","consoleStageLabel","内部版本"));
+                "consoleVersion","20261019-v6b","consoleStage","V6B · UNIFIED DELIVERY","consoleStageLabel","内部版本"));
         String html=engine.process("admin-xingwei",context);
         Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(390,844));
         page.route("**/*",route->{String path=java.net.URI.create(route.request().url()).getPath();
@@ -46,7 +46,7 @@ class XingweiEmployeeFieldPrivacyPlaywrightTest {
               if(url.endsWith('/profile'))window.org.employees[0].displayName=body.displayName;
               return new Response('{}');
             }
-            if(url.endsWith('/health'))return new Response(JSON.stringify({version:'20261016-v6a',stage:'V6A · UNIFIED DELIVERY'}));
+            if(url.endsWith('/health'))return new Response(JSON.stringify({version:'20261019-v6b',stage:'V6B · UNIFIED DELIVERY'}));
             if(url.endsWith('/access'))return new Response(JSON.stringify({mode:'LEGACY_ADMIN_OVERRIDE',allowAll:true,dataScope:'ALL',permissionCodes:[]}));
             return new Response(JSON.stringify(window.org));
           };

@@ -35,16 +35,16 @@ public class XingweiResponseSanitizerAdvice implements ResponseBodyAdvice<Object
         String path = request.getURI().getPath();
         if (body == null || !(path.equals(ROOT) || path.startsWith(ROOT + "/"))) return body;
         JsonNode tree = mapper.valueToTree(body);
-        strip(tree);
+        strip(tree, path.equals(ROOT + "/release-confirmation"));
         return tree;
     }
 
-    private void strip(JsonNode node) {
+    private void strip(JsonNode node, boolean hideConfirmationNotes) {
         if (node.isObject()) {
             ObjectNode object = (ObjectNode) node;
             PRIVATE_NOTES.forEach(object::remove);
-            if (object.has("channelCode") && object.has("serviceState")) object.remove("note");
-            object.elements().forEachRemaining(this::strip);
-        } else if (node.isArray()) node.elements().forEachRemaining(this::strip);
+            if (hideConfirmationNotes || (object.has("channelCode") && object.has("serviceState"))) object.remove("note");
+            object.elements().forEachRemaining(child -> strip(child, hideConfirmationNotes));
+        } else if (node.isArray()) node.elements().forEachRemaining(child -> strip(child, hideConfirmationNotes));
     }
 }

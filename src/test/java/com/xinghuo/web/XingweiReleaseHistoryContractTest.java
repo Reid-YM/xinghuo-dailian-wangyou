@@ -15,9 +15,9 @@ class XingweiReleaseHistoryContractTest {
     @Test
     void currentVersionsStageAndReleaseHistoryAreCentralized() throws Exception {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
-        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261016-v6a\""));
-        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V6A · UNIFIED DELIVERY\""));
-        assertTrue(controller.contains("static final String BUSINESS_VERSION = \"20261016-v6a\""));
+        assertTrue(controller.contains("static final String CONSOLE_VERSION = \"20261019-v6b\""));
+        assertTrue(controller.contains("static final String CONSOLE_STAGE = \"V6B · UNIFIED DELIVERY\""));
+        assertTrue(controller.contains("static final String BUSINESS_VERSION = \"20261019-v6b\""));
         assertTrue(controller.contains("static final String TAXONOMY_VERSION = \"20261014-v3i\""));
         assertTrue(controller.contains("model.addAttribute(\"consoleStage\", CONSOLE_STAGE)"));
         assertTrue(controller.contains("@GetMapping(\"/admin/xingwei/releases\")"));

@@ -318,7 +318,7 @@
     editPercent.value = item.progressPercent == null ? '' : String(item.progressPercent);
     editProgress.value = item.progressText || '';
     editCustomerNote.value = item.customerNote || '';
-    editReason.value = '';
+    editReason.value = '更新任务履约进度';
     editState.textContent = '';
     dialog.showModal();
   }

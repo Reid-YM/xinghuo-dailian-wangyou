@@ -91,7 +91,7 @@ class XingweiWorkWorkbenchPlaywrightTest {
             assertEquals(0,page.locator("#xwwEditInternalNote").count());
             page.locator("#xwwEditPercent").fill("60");
             page.locator("#xwwEditProgress").fill("已完成 60%");
-            page.locator("#xwwEditReason").fill("更新当前代练进度");
+
             page.locator("#xwwEditForm button[type='submit']").click();
             page.waitForFunction("() => window.__updateBody?.progressPercent === 60");
             assertEquals("csrf-v2f-token", page.evaluate("() => window.__updateCsrf"));

@@ -20,7 +20,7 @@
     if (csrf && csrfHeader && mutation) headers[csrfHeader] = csrf;
     if(nativeMode&&mutation&&!url.endsWith('/image')){
       if(!toolRevision)throw new Error('请先读取工具站当前版本');
-      const reason=prompt('请填写本次修改说明（最多500字）');if(!reason?.trim())throw new Error('已取消，尚未写入资料');if(reason.length>500)throw new Error('修改说明不能超过500字');
+      const reason=url.endsWith('/reset')?'恢复工具站内置资料':'维护工具站资料';
       headers['If-Match']=toolRevision;url+='?reason='+encodeURIComponent(reason.trim());
     }
     if(nativeMode&&mutation)mutationBusy=true;
@@ -37,7 +37,7 @@
   function applyPermissions(){
     if(!nativeMode)return;
     $$('#toolStationForm input,#toolStationForm select,#toolStationForm textarea,#toolStationForm button,#toolStationSaveAll,#toolStationReset').forEach(field=>field.disabled=!canManage);
-    const status=$('#toolStationAccessState');if(status)status.textContent=canManage?'可编辑全站工具站资料，写入时核对版本和修改说明。':'当前只读，可选择武器查看资料。';
+    const status=$('#toolStationAccessState');if(status)status.textContent=canManage?'可编辑工具站资料，保存后公开页面读取最新内容。':'当前只读，可选择武器查看资料。';
   }
 
   function toast(message, type = 'success') {
@@ -68,7 +68,7 @@
 
   function fillWeaponForm() {
     if (!weapon) return;
-    $('#toolStationWeaponTitle').textContent = `${weapon.name} · ${weapon.code}`;
+    $('#toolStationWeaponTitle').textContent = weapon.name;
     setFormValue('weaponCode', weapon.code);
     setFormValue('code', weapon.code);
     setFormValue('name', weapon.name);

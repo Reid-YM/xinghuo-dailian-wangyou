@@ -25,6 +25,10 @@ class XingweiInternalFieldsBoundaryTest {
             return Map.of("items",List.of(new XingweiAuditQueryService.AuditItem(9,"UPDATE","ORDER",
                     "database-key","staff","历史内部处理说明","request-key","2026-10-19")));
         }
+        @GetMapping("/api/admin/xingwei/release-confirmation") Object releaseConfirmation() {
+            return Map.of("latest",Map.of("decision","CONTINUE_OBSERVATION","note","内部发布说明"),"history",List.of(Map.of("note","历史内部说明")));
+        }
+        @GetMapping("/api/admin/xingwei/tool-station") Object tools() { return Map.of("weapon",Map.of("note","公开武器解锁说明")); }
         @GetMapping("/api/elsewhere") Object elsewhere() { return order; }
     }
     @Test void nativeResponsesHideNestedNotesButKeepBusinessTextAndConcurrencyProtocol() throws Exception {
@@ -44,6 +48,16 @@ class XingweiInternalFieldsBoundaryTest {
                 .andExpect(jsonPath("$.case.recordId").value(11));
         assertEquals("历史员工备注",controller.order.get("internalNote"));
         mvc.perform(get("/api/elsewhere")).andExpect(jsonPath("$.internalNote").value("历史员工备注"));
+    }
+    @Test void releaseNotesStayPrivateWhilePublicWeaponInstructionsRemainAvailable() throws Exception {
+        var mvc=MockMvcBuilders.standaloneSetup(new Probe())
+                .setControllerAdvice(new XingweiResponseSanitizerAdvice(new ObjectMapper())).build();
+        mvc.perform(get("/api/admin/xingwei/release-confirmation"))
+                .andExpect(jsonPath("$.latest.note").doesNotExist())
+                .andExpect(jsonPath("$.history[0].note").doesNotExist())
+                .andExpect(jsonPath("$.latest.decision").value("CONTINUE_OBSERVATION"));
+        mvc.perform(get("/api/admin/xingwei/tool-station"))
+                .andExpect(jsonPath("$.weapon.note").value("公开武器解锁说明"));
     }
     @Test void auditSummariesDoNotReturnInternalRemarksOrTechnicalLookupFields() throws Exception {
         var mvc=MockMvcBuilders.standaloneSetup(new Probe())

@@ -83,7 +83,7 @@ class XingweiOperationsPlaywrightTest {
     @Test void webkitDraftsAndPendingSavesStaySafe()throws Exception{try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){draftJourney(b);}}
     private void draftJourney(Browser b)throws Exception{
         Page page=setup(b,"module=crm");page.evaluate("()=>window.confirm=()=>false");
-        page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("维护跟进")).click();page.locator("#operations-nextAction").fill("尚未保存的联系计划");page.locator("#operations-reason").fill("联系客户后更新");
+        page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("维护跟进")).click();page.locator("#operations-nextAction").fill("尚未保存的联系计划");
         page.locator("#operationsClose").click();assertTrue(page.locator("#operations-nextAction").isVisible());page.keyboard().press("Escape");assertEquals("尚未保存的联系计划",page.locator("#operations-nextAction").inputValue());
         assertEquals(true,page.evaluate("()=>{const e=new Event('beforeunload',{cancelable:true});window.dispatchEvent(e);return e.defaultPrevented;}"));
         assertEquals(0,page.locator("#operations-followUpNote").count());
@@ -123,7 +123,7 @@ class XingweiOperationsPlaywrightTest {
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("查看正文").setExact(true)).click();
             page.waitForFunction("()=>document.querySelector('#operationsFields').textContent.includes('不能执行')");assertEquals(0,page.locator("#operationsFields script").count());page.locator("#operationsClose").click();
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("首页展示位").setExact(true)).click();
-            page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("编辑展示位").setExact(true)).click();page.locator("#operations-mode").selectOption("MANUAL");assertEquals("手动",page.locator("#operations-mode option[value=MANUAL]").textContent());page.locator("#operations-serviceId").selectOption("1");page.locator("#operations-reason").fill("选择已发布服务");page.locator("#operationsSave").click();page.waitForFunction("()=>!document.querySelector('#operationsDialog').open");
+            page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("编辑展示位").setExact(true)).click();page.locator("#operations-mode").selectOption("MANUAL");assertEquals("手动",page.locator("#operations-mode option[value=MANUAL]").textContent());page.locator("#operations-serviceId").selectOption("1");page.locator("#operationsSave").click();page.waitForFunction("()=>!document.querySelector('#operationsDialog').open");
             assertEquals("\"slot-r1\"",page.evaluate("()=>window.calls.find(c=>c.method==='PATCH').headers['if-match']"));
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("测试反馈").setExact(true)).click();page.waitForSelector("#operationsRows article");page.locator("#operationsCreate").click();assertEquals("NORMAL",page.locator("#operations-priority").inputValue());page.locator("#operationsClose").click();
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("客户线索").setExact(true)).click();page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("维护跟进").setExact(true)).click();assertEquals("60",page.locator("#operations-leadScore").inputValue());page.locator("#operationsClose").click();

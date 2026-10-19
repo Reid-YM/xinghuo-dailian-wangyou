@@ -16,7 +16,7 @@ class XingweiReleaseSidebarPlaywrightTest {
     private Browser chromium(Playwright p){var options=new BrowserType.LaunchOptions();String executable=System.getenv("XINGHUO_TEST_CHROMIUM");if(executable!=null&&!executable.isBlank())options.setExecutablePath(Path.of(executable));return p.chromium().launch(options);}
     private String render(String template){
         var resolver=new ClassLoaderTemplateResolver();resolver.setPrefix("templates/");resolver.setSuffix(".html");var engine=new SpringTemplateEngine();engine.setTemplateResolver(resolver);
-        var context=new Context();context.setVariables(Map.of("workspaceName","星维网络服务工作室","username","测试员工","restoreAdmin",false,"csrf",new DefaultCsrfToken("X-CSRF-TOKEN","_csrf","test-token"),"consoleVersion","20261016-v6a","consoleStage","V6A · UNIFIED DELIVERY","consoleStageLabel","V6A · 统一交付","releaseHistory",List.of(Map.of("date","2026-10-16","version","V6A","status","本版本","title","交付记录","detail","具体部署结果由发布记录确认"))));return engine.process(template,context);
+        var context=new Context();context.setVariables(Map.of("workspaceName","星维网络服务工作室","username","测试员工","restoreAdmin",false,"csrf",new DefaultCsrfToken("X-CSRF-TOKEN","_csrf","test-token"),"consoleVersion","20261019-v6b","consoleStage","V6B · UNIFIED DELIVERY","consoleStageLabel","V6B · 统一交付","releaseHistory",List.of(Map.of("date","2026-10-16","version","V6B","status","本版本","title","交付记录","detail","具体部署结果由发布记录确认"))));return engine.process(template,context);
     }
     @Test void chromiumNativeBrandKeepsTechnicalMetadataHidden()throws Exception{try(Playwright p=Playwright.create();Browser b=chromium(p)){journey(b);}}
     @Test void webkitNativeBrandKeepsTechnicalMetadataHidden()throws Exception{try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){journey(b);}}
@@ -28,7 +28,7 @@ class XingweiReleaseSidebarPlaywrightTest {
             window.mismatch=false;
             window.fetch=async url=>{
               if(url.endsWith('/access'))return new Response(JSON.stringify({mode:'SHADOW_RBAC',dataScope:'SELF',allowAll:false,permissionCodes:['order:view']}));
-              if(url.endsWith('/health'))return new Response(JSON.stringify({version:window.mismatch?'other-version':'20261016-v6a',stage:'V6A · UNIFIED DELIVERY',serverTime:'2026-10-16T23:30:00+08:00'}));
+              if(url.endsWith('/health'))return new Response(JSON.stringify({version:window.mismatch?'other-version':'20261019-v6b',stage:'V6B · UNIFIED DELIVERY',serverTime:'2026-10-16T23:30:00+08:00'}));
               return new Response(JSON.stringify({error:'无组织查看权限'}),{status:403});
             };
             """);
@@ -36,7 +36,7 @@ class XingweiReleaseSidebarPlaywrightTest {
         page.waitForFunction("()=>document.documentElement.dataset.xwRuntimeState==='match'");
         assertTrue(page.locator(".xw-runtime-metadata").isHidden());
         assertEquals(0,page.locator("#xwReleaseMenu,#xwReleaseHistoryLink,a[href*='legacy=1']").count());
-        assertFalse(page.locator("body").innerText().contains("20261016-v6a"));
+        assertFalse(page.locator("body").innerText().contains("20261019-v6b"));
         assertFalse(page.locator("#xwBackendStatus").getAttribute("title").contains("20261016"));
         page.waitForFunction("()=>document.querySelector('.xw-brand-mark').naturalWidth>0");
         assertTrue(page.locator(".xw-brand-mark").getAttribute("src").startsWith("/assets/brand-logo.svg"));

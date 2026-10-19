@@ -96,7 +96,7 @@ class XingweiOrgRbacContractTest {
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
         assertTrue(template.contains("/assets/admin-xingwei.js?v=20261019cutover"));
         assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261019cutover"));
-        assertTrue(template.contains("V6A · UNIFIED DELIVERY"));
+        assertTrue(template.contains("V6B · UNIFIED DELIVERY"));
         assertTrue(template.contains("员工数据范围"));
         assertTrue(template.contains("员工按角色与数据范围执行"));
         assertTrue(orgJs.contains("/api/admin/xingwei/org/snapshot"));
@@ -116,7 +116,7 @@ class XingweiOrgRbacContractTest {
         assertTrue(mainJs.contains("xw:runtime-health"));
         assertTrue(accessController.contains("@GetMapping(\"/access\")"));
         assertTrue(controller.contains("20261013-v2c"));
-        assertTrue(controller.contains("20261016-v6a"));
+        assertTrue(controller.contains("20261019-v6b"));
     }
 
     private static int occurrences(String source, String needle) {

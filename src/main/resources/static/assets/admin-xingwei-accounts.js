@@ -12,7 +12,7 @@
   }
   function field(name,label,value='',type='text',options){
     const wrap=node('label',label),input=node(options?'select':'input');input.name=name;input.id='adminAccount-'+name;
-    if(options)options.forEach(option=>input.append(new Option(option.name||option.code,option.code)));else input.type=type;
+    if(options)options.forEach(option=>input.append(new Option(option.name||'未命名选项',option.code)));else input.type=type;
     if(type==='checkbox')input.checked=!!value;else input.value=String(value??'');
     if(type==='password'){input.autocomplete='new-password';input.maxLength=72;input.minLength=8;input.required=true;}
     if(name==='username'){input.maxLength=64;input.pattern='[A-Za-z0-9_.-]{3,64}';input.autocomplete='off';input.required=true;}
@@ -39,7 +39,7 @@
     const result=await api('?q='+encodeURIComponent(new FormData($('#adminAccountSearch')).get('q')||''));if(id!==sequence)return;snapshot=result;
     $('#adminAccountCreate').hidden=!snapshot.canCreate;
     $('#adminAccountRows').replaceChildren(...(snapshot.items||[]).map(item=>{
-      const row=node('article',null,'xaa-record');row.append(node('h3',(item.displayName||item.username)+' · '+item.username),node('p',[item.loginEnabled?'允许登录':'已停用',item.legacyRole==='ADMIN'?'系统管理员':'员工',item.departmentName,...(item.roleCodes||[])].filter(Boolean).join(' · ')));
+      const row=node('article',null,'xaa-record');row.append(node('h3',(item.displayName||item.username)+' · '+item.username),node('p',[item.loginEnabled?'允许登录':'已停用',item.legacyRole==='ADMIN'?'系统管理员':'员工',item.departmentName,...(item.roleCodes||[]).map(code=>(snapshot.roles||[]).find(role=>role.code===code)?.name||'已配置角色')].filter(Boolean).join(' · ')));
       if(snapshot.canManage&&(item.legacyRole!=='ADMIN'||snapshot.restoreAdmin)){const actions=node('div',null,'xwi-actions');actions.append(button('登录状态',()=>edit(item)),button('重置密码',()=>password(item)));row.append(actions);}return row;
     }));if(!snapshot.items?.length)$('#adminAccountRows').append(node('p','暂无符合条件的账号。'));
     message(snapshot.canManage?'可维护全站后台登录账号；星维业务权限仍按角色与数据范围执行。':'当前仅可查看后台登录账号。');

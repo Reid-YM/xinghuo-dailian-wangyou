@@ -70,7 +70,7 @@ class XingweiCatalogDetailsContinuityPlaywrightTest {
     @Test void webkitDraftUploadAndSaveRemainSafe(){try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){drafts(b);}}
     private void drafts(Browser browser){
         Page page=setup(browser);edit(page);assertFalse(unloadProtected(page));
-        page.locator("#catalogDetails-name").fill("修改后的服务");page.locator("#catalogDetails-status").selectOption("BUSY");page.locator("#catalogDetails-reason").fill("更新资料");
+        page.locator("#catalogDetails-name").fill("修改后的服务");page.locator("#catalogDetails-status").selectOption("BUSY");
         page.locator("#catalogDetails-upload-coverImage").setInputFiles(new FilePayload("cover.png","image/png",new byte[]{1,2,3}));
         page.onceDialog(Dialog::dismiss);page.locator("#catalogDetailsClose").click();assertTrue(page.locator("#catalogDetailsDialog").isVisible());assertTrue(unloadProtected(page));
         page.onceDialog(Dialog::dismiss);page.keyboard().press("Escape");assertEquals("修改后的服务",page.locator("#catalogDetails-name").inputValue());
@@ -85,11 +85,11 @@ class XingweiCatalogDetailsContinuityPlaywrightTest {
         page.setViewportSize(390,844);assertEquals(true,page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth+1"));page.locator("#catalogDetailsSave").scrollIntoViewIfNeeded();page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/catalog-details-saving-mobile.png")));
         page.evaluate("()=>window.finishWrite()");page.waitForFunction("()=>!document.querySelector('#catalogDetailsDialog').open");ready(page);assertTrue(page.locator("#catalogDetailsRows").textContent().contains("修改后的服务"));
         assertEquals(true,page.evaluate("()=>{const c=window.calls.find(c=>c.method==='PUT');return c.headers['if-match']==='\"v7\"'&&c.headers['x-csrf-token']==='test-csrf'&&c.body.coverImage==='/api/site-assets/new-cover'&&c.body.status==='BUSY';}"));
-        edit(page);assertFalse(unloadProtected(page));page.locator("#catalogDetails-name").fill("未知结果草稿");page.locator("#catalogDetails-reason").fill("另一次修改");page.evaluate("()=>window.writeMode='network'");page.locator("#catalogDetailsSave").click();
+        edit(page);assertFalse(unloadProtected(page));page.locator("#catalogDetails-name").fill("未知结果草稿");page.evaluate("()=>window.writeMode='network'");page.locator("#catalogDetailsSave").click();
         page.waitForFunction("()=>document.querySelector('#catalogDetailsFormMessage').textContent.includes('保存结果尚未确认')");assertTrue(page.locator("#catalogDetailsSave").isDisabled());assertEquals("未知结果草稿",page.locator("#catalogDetails-name").inputValue());
         assertTrue(page.getByText("上传服务封面",new Page.GetByTextOptions().setExact(true)).isDisabled());assertTrue(page.locator("#catalogDetails-upload-coverImage").isDisabled());int before=writeCount(page);submitAgain(page);assertEquals(before,writeCount(page));assertEquals(0,page.locator("#catalogDetailsRows button").count());
         page.onceDialog(Dialog::accept);page.locator("#catalogDetailsClose").click();page.locator("#catalogDetailsReload").click();ready(page);assertTrue(page.locator("#catalogDetailsRows").textContent().contains("修改后的服务"));
-        edit(page);page.locator("#catalogDetails-name").fill("请求超时草稿");page.locator("#catalogDetails-reason").fill("验证超时保护");page.evaluate("()=>window.writeMode='pending'");page.locator("#catalogDetailsSave").click();
+        edit(page);page.locator("#catalogDetails-name").fill("请求超时草稿");page.evaluate("()=>window.writeMode='pending'");page.locator("#catalogDetailsSave").click();
         page.waitForFunction("()=>document.querySelector('#catalogDetailsFormMessage').textContent.includes('保存结果尚未确认')");assertTrue(page.locator("#catalogDetailsSave").isDisabled());assertFalse(page.locator("#catalogDetailsClose").isDisabled());
         page.onceDialog(Dialog::accept);page.locator("#catalogDetailsClose").click();page.locator("#catalogDetailsReload").click();ready(page);
         page.locator("#catalogDetailsMode").selectOption("games");edit(page);assertFalse(unloadProtected(page));page.locator("#catalogDetails-featured").check();assertTrue(unloadProtected(page));page.locator("#catalogDetails-featured").uncheck();assertFalse(unloadProtected(page));
@@ -102,7 +102,7 @@ class XingweiCatalogDetailsContinuityPlaywrightTest {
         page.evaluate("()=>window.serverName='最新资料'");page.locator("#catalogDetailsReload").click();ready(page);assertTrue(page.locator("#catalogDetailsRows").textContent().contains("最新资料"));
         page.evaluate("()=>window.finishOldRead(true)");page.waitForFunction("()=>document.querySelector('#catalogDetailsRows').getAttribute('aria-busy')==='false'");assertFalse(page.locator("#catalogDetailsMessage").textContent().contains("过期"));
         page.evaluate("()=>window.failRead=true");page.locator("#catalogDetailsReload").click();ready(page);assertEquals(0,page.locator("#catalogDetailsRows button").count());assertTrue(page.locator("#catalogDetailsRows").textContent().contains("读取失败"));assertTrue(page.locator("#catalogDetailsBulk").isHidden());
-        page.evaluate("()=>window.failRead=false");page.locator("#catalogDetailsReload").click();ready(page);edit(page);page.locator("#catalogDetails-name").fill("保存成功但刷新失败");page.locator("#catalogDetails-reason").fill("修改并核对");
+        page.evaluate("()=>window.failRead=false");page.locator("#catalogDetailsReload").click();ready(page);edit(page);page.locator("#catalogDetails-name").fill("保存成功但刷新失败");
         page.evaluate("()=>window.failRead=true");page.locator("#catalogDetailsSave").click();page.waitForFunction("()=>document.querySelector('#catalogDetailsMessage').textContent.includes('已保存，但列表刷新失败')");assertTrue(page.locator("#catalogDetailsDialog").isHidden());assertEquals(0,page.locator("#catalogDetailsRows button").count());
         page.evaluate("()=>window.failRead=false");page.locator("#catalogDetailsReload").click();ready(page);assertTrue(page.locator("#catalogDetailsRows").textContent().contains("保存成功但刷新失败"));
         page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/catalog-details-recovered-desktop.png")));page.close();

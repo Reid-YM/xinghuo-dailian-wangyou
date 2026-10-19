@@ -40,9 +40,10 @@ class XingweiAuditPlaywrightTest {
             page.getByText("查看变更摘要",new Page.GetByTextOptions().setExact(true)).click();
             page.waitForFunction("() => document.querySelector('#auditDetail').textContent.includes('已解决')");
             assertTrue(page.locator("#auditDetail").textContent().contains("内容已隐藏"));
+            assertFalse(page.locator("#auditDetail").innerText().contains("REQ-1"));
             page.locator("#auditClose").click();
             page.locator("#auditFilters input[name=q]").fill("O1");page.locator("#auditFilters button[type=submit]").click();
-            page.waitForURL("**q=O1**");
+            page.waitForFunction("()=>new URLSearchParams(location.search).get('q')==='O1'");
             assertTrue(page.url().contains("action=UPDATE"));assertFalse(page.url().contains("page=1"));
         }
     }
@@ -52,7 +53,7 @@ class XingweiAuditPlaywrightTest {
         assertTrue(page.url().contains("source=members"));assertFalse(page.url().contains("page="));
         assertTrue(page.locator("#auditRows").textContent().contains("192.168.*.*"));assertEquals(0,page.locator("#auditRows button").count());
         assertEquals(true,page.evaluate("()=>window.auditUrls.some(url=>url.includes('/api/admin/xingwei/audits/member-activity'))"));
-        page.locator("#auditSource").selectOption("staff");page.waitForFunction("()=>document.querySelector('#auditRows').textContent.includes('O1')");assertEquals(1,page.locator("#auditRows button").count());
+        page.locator("#auditSource").selectOption("staff");page.waitForFunction("()=>document.querySelector('#auditRows').textContent.includes('对象：订单')");assertFalse(page.locator("#auditRows").innerText().contains("O1"));assertFalse(page.locator("#auditRows").innerText().contains("跟进处理"));assertEquals(1,page.locator("#auditRows button").count());
     }}
     @Test
     void webkitMobileRetriesDetailsAndRecoversListPagination()throws Exception{
@@ -63,7 +64,7 @@ class XingweiAuditPlaywrightTest {
             page.waitForFunction("() => !document.querySelector('#auditDetailRetry').hidden");
             page.evaluate("() => window.failDetail=false");page.locator("#auditDetailRetry").click();
             page.waitForFunction("() => document.querySelector('#auditDetail').textContent.includes('已解决')");page.locator("#auditClose").click();
-            page.locator("#auditNext").click();page.waitForURL("**page=2");
+            page.locator("#auditNext").click();page.waitForFunction("()=>new URLSearchParams(location.search).get('page')==='2'");
             page.goBack();page.waitForFunction("() => document.querySelector('#auditPage').textContent.includes('2')");
             page.evaluate("() => window.failList=true");page.locator("#auditRefresh").click();page.waitForFunction("() => !document.querySelector('#auditRetry').hidden");
             page.evaluate("() => window.failList=false");page.locator("#auditRetry").click();page.waitForFunction("() => document.querySelector('#auditMessage').textContent.includes('已更新')");

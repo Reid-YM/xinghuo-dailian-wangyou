@@ -33,6 +33,8 @@ class XingweiToolsAndStatisticsPlaywrightTest {
     @Test void chromiumConsecutiveSavesUseCurrentWeaponAndRevisionAndKeepConflictingDraft()throws Exception{
         try(Playwright p=Playwright.create();Browser b=chromium(p)){
             Page page=setup(b,true);page.navigate("http://xinghuo.test/admin/xingwei/tool-station");page.waitForFunction("()=>document.querySelector('#toolStationForm input[name=name]').value==='实际武器'");
+            assertTrue(page.locator("#toolStationForm input[name=code]").isHidden());
+            assertEquals("实际武器",page.locator("#toolStationWeaponTitle").innerText());
             page.locator("#toolStationForm input[name=name]").fill("第一次更新");page.locator("#toolStationSaveAll").click();page.waitForFunction("()=>window.version===2&&!document.querySelector('#toolStationForm input[name=name]').disabled");
             page.locator("#toolStationForm input[name=name]").fill("第二次更新");page.locator("#toolStationSaveAll").click();page.waitForFunction("()=>window.version===3&&!document.querySelector('#toolStationForm input[name=name]').disabled");
             assertEquals("第二次更新",page.evaluate("()=>window.toolData.games[0].weapons[0].name"));assertEquals("\"r2\"",page.evaluate("()=>window.calls.filter(c=>c.method==='PUT')[1].headers['If-Match']"));assertEquals("test-csrf",page.evaluate("()=>window.calls.find(c=>c.method==='PUT').headers['X-CSRF-TOKEN']"));

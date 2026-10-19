@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-taxonomy.css?v=20261014v3i"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-taxonomy-v3i.css?v=20261014v3i"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-taxonomy.js?v=20261017search1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-taxonomy.js?v=20261019cutover"></script>
 <link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
@@ -21,7 +21,6 @@
     <div class="xtax-actions">
       <span class="xw-status" id="xtaxMode"><i></i><span>权限检查中</span></span>
       <span class="xw-status" id="xtaxStatus"><i></i><span>正在读取</span></span>
-      <a class="xw-button xw-button-ghost" href="/admin/xingwei/releases">更新记录</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/catalog">返回服务目录</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/catalog-details">完整资料、图片与批量维护</a><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
     </div>
@@ -89,15 +88,13 @@
     </div>
     <p class="xtax-effect" id="xtaxEffect">—</p>
 
-    <label class="xtax-reason" id="xtaxReasonWrap" hidden>启停原因
-      <textarea id="xtaxReason" rows="3" maxlength="500" placeholder="说明为什么要启用/停用；该原因进入现有 GAME_UPDATE / CATEGORY_UPDATE 审计"></textarea>
-    </label>
+    <div id="xtaxReasonWrap" hidden><input type="hidden" id="xtaxReason" value="维护游戏分类启停"/></div>
     <label class="xtax-ack" id="xtaxAckWrap" hidden>
       <input id="xtaxAcknowledge" type="checkbox"/>
       <span>我已核对“当前前台服务 / 操作后前台服务”和上述风险提示，确认按本次影响执行。</span>
     </label>
 
-    <div class="xtax-note">提交时会携带本次影响快照凭证。若你查看预览后分类、服务或公开条件发生变化，服务端会拒绝旧确认，要求重新预览；不会按过期影响直接执行。</div>
+    <div class="xtax-note">若分类、服务或公开条件在预览后发生变化，请重新读取影响并确认后再操作。</div>
     <div class="xtax-dialog-actions">
       <button class="xw-button xw-button-ghost" id="xtaxCancel" type="button">取消</button>
       <button class="xw-button" id="xtaxToggle" type="button" hidden disabled>确认启停</button>
@@ -110,10 +107,10 @@
     <p id="xtaxEditHint">新增项目默认停用；编辑不改变启停状态。</p>
     <label id="xtaxEditGameWrap">所属游戏<select id="xtaxEditGame"></select></label>
     <label>名称<input id="xtaxEditName" maxlength="80" required autocomplete="off"/></label>
-    <label>图标标识<input id="xtaxEditIcon" maxlength="40" autocomplete="off" placeholder="gamepad / service"/></label>
+    <input id="xtaxEditIcon" type="hidden"/>
     <label>说明<textarea id="xtaxEditDescription" maxlength="240" rows="3"></textarea></label>
     <label>排序<input id="xtaxEditSort" type="number" step="1"/></label>
-    <label>操作原因<textarea id="xtaxEditReason" maxlength="500" rows="2" required></textarea></label>
+    <input id="xtaxEditReason" type="hidden" value="维护目录资料"/>
     <div class="xtax-dialog-actions"><button type="button" class="xw-button xw-button-ghost" id="xtaxEditCancel">取消</button><button type="submit" class="xw-button" id="xtaxEditSave">保存</button></div>
   </form>
 </dialog>

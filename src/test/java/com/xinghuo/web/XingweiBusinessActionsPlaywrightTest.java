@@ -39,12 +39,12 @@ class XingweiBusinessActionsPlaywrightTest {
         try(Playwright p=Playwright.create();Browser b=chromium(p)){
             Page page=b.newPage();page.onDialog(Dialog::accept);setup(page,false);
             page.locator("#xwbQuoteRows").getByText("处理询价",new Locator.GetByTextOptions().setExact(true)).click();
-            page.locator("#xwbQuoteActionForm textarea[name=reason]").fill("需求已确认");page.locator("#xwbConvertQuote").click();
+            page.locator("#xwbConvertQuote").click();
             page.waitForFunction("() => document.querySelector('#xwbOrderRows').textContent.includes('XWB1')");
             assertEquals("test-token",page.evaluate("() => window.calls.find(c=>c.url.endsWith('/convert')).headers['X-CSRF-TOKEN']"));
             assertEquals("NEW",page.evaluate("() => JSON.parse(window.calls.find(c=>c.url.endsWith('/convert')).body).expectedStatus"));
             page.locator("#xwbOrderRows").getByText("编辑订单",new Locator.GetByTextOptions().setExact(true)).click();
-            page.locator("#xwbOrderActionForm input[name=progressText]").fill("保留我的进度输入");page.locator("#xwbOrderActionForm textarea[name=reason]").fill("更新进度");
+            page.locator("#xwbOrderActionForm input[name=progressText]").fill("保留我的进度输入");
             page.evaluate("() => window.conflict=true");page.locator("#xwbOrderActionForm button[type=submit]").click();
             page.waitForFunction("() => document.querySelector('#xwbOrderActionState').textContent.includes('已被更新')");
             assertEquals("保留我的进度输入",page.locator("#xwbOrderActionForm input[name=progressText]").inputValue());

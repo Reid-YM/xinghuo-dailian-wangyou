@@ -112,11 +112,12 @@ class XingweiServiceCatalogWorkbenchPlaywrightTest {
             assertEquals(2, page.locator("#xcatCreateCategory option").count());
             assertEquals("MW4", page.locator("#xcatCreateGame").inputValue());
 
+            assertTrue(page.locator("#xcatCreateReason").isHidden());
             page.locator("#xcatCreateSlug").fill("weapon-mastery");
             page.locator("#xcatCreateName").fill("武器精通服务");
             page.locator("#xcatCreateShortDesc").fill("按现有分类新增的离线服务");
             page.locator("#xcatCreateDuration").fill("1-2 天");
-            page.locator("#xcatCreateReason").fill("新增 MW4 武器精通服务，先离线检查");
+
             page.locator("#xcatCreateSave").click();
             page.waitForFunction("() => window.__writes.length === 1");
 
@@ -171,10 +172,11 @@ class XingweiServiceCatalogWorkbenchPlaywrightTest {
             page.locator("button[data-action='edit']").click();
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xcatEditDialog').open"));
             page.locator("#xcatEditName").fill("武器升级 Pro");
-            page.locator("#xcatEditReason").fill("调整服务展示名称");
+
             page.locator("#xcatEditSave").click();
             page.waitForFunction("() => window.__writes.length === 1");
 
+            assertEquals("维护服务资料",page.evaluate("() => window.__writes[0].body.reason"));
             assertEquals("PUT", page.evaluate("() => window.__writes[0].method"));
             assertEquals("\"v3\"", page.evaluate("() => window.__writes[0].headers['If-Match']"));
             assertEquals("csrf-token", page.evaluate("() => window.__writes[0].headers['X-CSRF-TOKEN']"));

@@ -67,6 +67,7 @@ class XingweiGuideWorkspacePlaywrightTest {
         try(Playwright p=Playwright.create();Browser b=chromium(p)){
             Page page=b.newPage();setup(page,false);
             page.locator("[data-guide-id='1']").click();
+            assertTrue(page.locator("#guideForm input[name=reason]").isHidden());
             page.locator("#guideForm input[name=title]").fill("尚未保存的草稿");
             page.locator("#guideStatusFilter").selectOption("PUBLISHED");
             page.locator("#guideFilters button[type=submit]").click();

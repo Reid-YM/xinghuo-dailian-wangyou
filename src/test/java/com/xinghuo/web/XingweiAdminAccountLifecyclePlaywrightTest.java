@@ -21,7 +21,7 @@ class XingweiAdminAccountLifecyclePlaywrightTest {
               if(window.failRead)return new Response(JSON.stringify({message:'读取失败'}),{status:503});
               return new Response(JSON.stringify({canCreate:window.canManage,canManage:window.canManage,restoreAdmin:true,roles:[{code:'XW_MANAGEMENT',name:'管理层',enabled:true}],departments:[{code:'01',name:'管理中心'}],items:[{id:3,username:'operator',displayName:'测试员工',legacyRole:'OPERATOR',loginEnabled:true,roleCodes:['XW_MANAGEMENT'],authVersion:5},{id:1,username:'first',legacyRole:'ADMIN',loginEnabled:true,roleCodes:[],authVersion:0}]}));};
             """);
-        page.navigate("http://xinghuo.test/admin/xingwei/security");page.waitForSelector(".xaa-record");return page;
+        page.navigate("http://xinghuo.test/admin/xingwei/security");page.waitForSelector(".xaa-record");assertFalse(page.locator("#adminAccountRows").innerText().contains("XW_MANAGEMENT"));assertTrue(page.locator("#adminAccountRows").innerText().contains("管理层"));return page;
     }
     @Test void chromiumCreateAndPasswordResetSendActualFormValuesWithoutReadingCredentials() throws Exception {
         try(Playwright p=Playwright.create();Browser b=p.chromium().launch()){

@@ -627,8 +627,8 @@
   orderActionDialog?.addEventListener('cancel',event => {event.preventDefault();closeAction('order');});
   async function quickOrderTransition(item, nextStatus, actionText) {
     if (actionBusy || assignmentBusy || !item.canManage || activeTab !== 'orders') return;
-    const reason = prompt(`请填写「${actionText}」原因（写入审计记录）：`, actionText + '，已核对履约进度');
-    if (!reason || !reason.trim()) return;
+    if (!confirm(`确认「${actionText}」？请先核对当前履约进度。`)) return;
+    const reason = actionText + '，已核对履约进度';
     if (nextStatus === 'CLOSED' && !confirm('结单后订单不能重新进入履约。请确认服务已交付、款项已核对，是否继续？')) return;
     const progressText = {
       IN_PROGRESS: '客服已安排服务，正在履约',

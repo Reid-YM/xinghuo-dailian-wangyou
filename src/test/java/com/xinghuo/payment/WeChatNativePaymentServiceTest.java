@@ -450,6 +450,66 @@ class WeChatNativePaymentServiceTest {
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM payment_transaction", Integer.class));
     }
 
+    @Test
+    void failedRecoveriesDoNotStarveLaterPendingPayments() {
+        jdbc.update("UPDATE payment_order SET status='CANCELLED' WHERE payment_no='XHPTEST01'");
+        java.time.LocalDateTime old = java.time.LocalDateTime.of(2020, 1, 1, 0, 0);
+        for (int i = 1; i <= 31; i++) {
+            String no = i == 31 ? "XHPLATE" : "XHPFAIL" + i;
+            jdbc.update("""
+                    INSERT INTO payment_order(payment_no,subject,amount,status,provider,updated_at)
+                    VALUES (?,'测试服务',12.34,'APPROVED','WECHAT',?)
+                    """, no, old.plusSeconds(i));
+        }
+        when(nativePay.queryOrderByOutTradeNo(any(QueryOrderByOutTradeNoRequest.class)))
+                .thenAnswer(call -> {
+                    QueryOrderByOutTradeNoRequest query = call.getArgument(0);
+                    if (!"XHPLATE".equals(query.getOutTradeNo())) {
+                        throw new IllegalStateException("gateway unavailable");
+                    }
+                    Transaction unpaid = success(1234);
+                    unpaid.setOutTradeNo("XHPLATE");
+                    unpaid.setTradeState(Transaction.TradeStateEnum.NOTPAY);
+                    return unpaid;
+                });
+
+        service.recoverPending();
+        verify(nativePay, org.mockito.Mockito.never()).queryOrderByOutTradeNo(
+                org.mockito.ArgumentMatchers.argThat(q -> q != null && "XHPLATE".equals(q.getOutTradeNo())));
+
+        service.recoverPending();
+
+        verify(nativePay).queryOrderByOutTradeNo(
+                org.mockito.ArgumentMatchers.argThat(q -> q != null && "XHPLATE".equals(q.getOutTradeNo())));
+        verify(nativePay, times(60)).queryOrderByOutTradeNo(any(QueryOrderByOutTradeNoRequest.class));
+        assertEquals(31, jdbc.queryForObject(
+                "SELECT COUNT(*) FROM payment_order WHERE status='APPROVED'", Integer.class));
+        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM payment_transaction", Integer.class));
+        verify(nativePay, org.mockito.Mockito.never()).closeOrder(any(CloseOrderRequest.class));
+    }
+
+    @Test
+    void failedRecoveryDoesNotTouchConcurrentTerminalState() {
+        java.time.LocalDateTime updated = java.time.LocalDateTime.of(2020, 1, 1, 0, 0);
+        for (String terminal : new String[]{"CAPTURED", "REFUNDED", "CANCELLED"}) {
+            jdbc.update("UPDATE payment_order SET status='APPROVED',updated_at=? WHERE payment_no='XHPTEST01'",
+                    updated.minusSeconds(10));
+            org.mockito.Mockito.doAnswer(call -> {
+                // Simulate another transaction completing while the SDK request fails.
+                jdbc.update("UPDATE payment_order SET status=?,updated_at=? WHERE payment_no='XHPTEST01'",
+                        terminal, updated);
+                throw new IllegalStateException("gateway unavailable");
+            }).when(nativePay).queryOrderByOutTradeNo(any(QueryOrderByOutTradeNoRequest.class));
+
+            service.recoverPending();
+
+            assertEquals(terminal, service.getForAccount("XHPTEST01", 7).status());
+            assertEquals(updated, jdbc.queryForObject(
+                    "SELECT updated_at FROM payment_order WHERE payment_no='XHPTEST01'",
+                    java.time.LocalDateTime.class));
+        }
+    }
+
     private void expirePending(String paymentNo) {
         jdbc.update("UPDATE payment_order SET native_expires_at=? WHERE payment_no=?",
                 java.time.LocalDateTime.ofInstant(java.time.Instant.now().minusSeconds(60),

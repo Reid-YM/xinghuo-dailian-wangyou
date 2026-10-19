@@ -273,7 +273,7 @@ public class WeChatNativePaymentService {
         List<Pending> pending = jdbc.query("""
                 SELECT payment_no,native_expires_at FROM payment_order
                  WHERE provider='WECHAT' AND status='APPROVED'
-                 ORDER BY updated_at ASC LIMIT 30
+                 ORDER BY updated_at ASC,id ASC LIMIT 30
                 """, (rs, i) -> new Pending(rs.getString(1), asInstant(rs.getObject(2, LocalDateTime.class))));
         for (Pending row : pending) {
             try {
@@ -286,6 +286,17 @@ public class WeChatNativePaymentService {
             } catch (RuntimeException error) {
                 // Keep the payment pending so the next run retries; never infer success from a timeout.
                 LOG.warn("WeChat Pay reconciliation failed for {}: {}", row.paymentNo(), error.getClass().getSimpleName());
+                try {
+                    // Failed attempts must rotate too, or 30 persistent failures
+                    // permanently exclude every later pending payment from recovery.
+                    jdbc.update("UPDATE payment_order SET updated_at=? WHERE payment_no=? "
+                                    + "AND provider='WECHAT' AND status='APPROVED'",
+                            utc(Instant.now()), row.paymentNo());
+                } catch (RuntimeException retryError) {
+                    // A scheduling write failure must not abort the rest of this batch.
+                    LOG.warn("WeChat Pay retry scheduling failed for {}: {}",
+                            row.paymentNo(), retryError.getClass().getSimpleName());
+                }
             }
         }
     }

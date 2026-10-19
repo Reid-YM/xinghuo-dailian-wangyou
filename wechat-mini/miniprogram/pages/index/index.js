@@ -344,6 +344,21 @@ Page({
     this.render()
   },
 
+  /** 精通迷彩是模式级共享：顶部点一下 = 该模式全部武器该档一起标记 */
+  onToggleMastery(e) {
+    const tier = Number(e.currentTarget.dataset.tier)
+    const modeCode = this.data.activeMode
+    if (!tier || !modeCode || !this.cat) return
+    const done = Object.assign({}, this.data.done)
+    const keys = this.cat.weapons.map(function (w) { return progress.tierKey(modeCode, w.code, tier) })
+    const unlocked = keys.every(function (k) { return done[k] })
+    keys.forEach(function (k) { if (unlocked) delete done[k]; else done[k] = true })
+    storage.saveDone(done)
+    this.setData({ done: done })
+    this.render()
+    cloud.queuePush()
+  },
+
   onToggleFav(e) {
     const code = e.currentTarget.dataset.weapon
     if (!code) return

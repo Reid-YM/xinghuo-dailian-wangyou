@@ -83,7 +83,7 @@ class FrontendResponsivePlaywrightTest {
         assertTrue(next.contains("var(--accent-rgb"));
 
         int compatibilityIndex = fragment.indexOf("site-experience-v2.css?v=20261012ux04");
-        int nextIndex = fragment.indexOf("frontend-next-foundation.css?v=20261014nx01");
+        int nextIndex = fragment.indexOf("frontend-next-foundation.css?v=20261019cc01");
         int runtimeIndex = fragment.indexOf("frontend-controls-runtime.js");
         assertTrue(compatibilityIndex >= 0 && nextIndex > compatibilityIndex);
         assertTrue(runtimeIndex > nextIndex);

@@ -417,7 +417,7 @@
   flex: 1 1 auto;
   min-width: 0;
   display: grid;
-  grid-template-columns: 46px minmax(0, 1fr) auto 18px;
+  grid-template-columns: 46px minmax(0, 1fr) 18px;
   align-items: center;
   gap: 10px;
   padding: 8px 6px;
@@ -674,7 +674,7 @@
   .camo-filters { grid-template-columns: 1fr; }
   .camo-filter-actions { flex-direction: column; }
   .camo-filter-actions .btn { width: 100%; }
-  .weapon-tracker-main { grid-template-columns: 38px minmax(0, 1fr) auto; }
+  .weapon-tracker-main { grid-template-columns: 38px minmax(0, 1fr); }
   .weapon-thumb { width: 38px; height: 38px; }
   .weapon-chevron { display: none; }
   .camo-note { flex-direction: column; align-items: flex-start; }
@@ -689,3 +689,28 @@
   .camo-tab { min-width: 78px; padding: 9px 8px; font-size: 13px; }
   .camo-tier-card { grid-template-columns: 64px minmax(0, 1fr); }
 }
+
+/* 与小程序同源的逐武器挑战 */
+.camo-guide { min-width: 0; border-top: 1px solid var(--line, #30383f); margin-top: 10px; padding-top: 12px; }
+.camo-guide h3 { margin: 8px 0; font-size: 15px; }
+.camo-guide h4 { margin: 14px 0 8px; font-size: 14px; }
+.camo-guide p { color: #aeb9c5; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.camo-guide-item { display: flex; align-items: center; gap: 10px; padding: 10px; margin-bottom: 6px; border: 1px solid #30383f; border-radius: 10px; cursor: pointer; min-width: 0; }
+.camo-guide-item:has(input:checked) { border-color: #7ca477; background: #223628; }
+.camo-guide-item input { width: 18px; height: 18px; min-width: 18px; padding: 0; margin: 0; flex: 0 0 18px; accent-color: #85b57e; }
+.camo-guide-item img { width: 64px; height: 42px; flex: 0 0 64px; object-fit: cover; border-radius: 5px; }
+.camo-guide-item span { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
+.camo-guide-item strong { font-size: 13px; }
+.camo-guide-item small { display: block; color: #b9c4ce; line-height: 1.6; margin-top: 4px; }
+.camo-military-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.camo-military-grid .camo-guide-item { flex-wrap: wrap; gap: 6px; margin: 0; }
+.camo-military-grid img { width: 100%; flex-basis: 100%; height: 54px; order: -1; }
+@media (max-width: 420px) { .camo-military-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.camo-tier-card { position: relative; cursor: pointer; }
+.camo-tier-card > input { position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; accent-color: var(--camo-gold); z-index: 1; }
+.camo-tier-card.is-done { border-color: var(--camo-gold); }
+.camo-tier-card:focus-within { outline: 2px solid var(--camo-gold); outline-offset: 3px; }
+.camo-tier-body small { color: var(--camo-dim); font-size: 12px; line-height: 1.6; }
+
+.camo-tier-body { padding-right: 24px; }

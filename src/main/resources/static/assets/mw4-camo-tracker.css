@@ -697,14 +697,14 @@
 .camo-guide p { color: #aeb9c5; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
 .camo-guide-item { display: flex; align-items: center; gap: 10px; padding: 10px; margin-bottom: 6px; border: 1px solid #30383f; border-radius: 10px; cursor: pointer; min-width: 0; }
 .camo-guide-item:has(input:checked) { border-color: #7ca477; background: #223628; }
-.camo-guide-item input { flex: 0 0 auto; accent-color: #85b57e; }
-.camo-guide-item img { width: 64px; height: 42px; object-fit: cover; border-radius: 5px; }
-.camo-guide-item span { min-width: 0; overflow-wrap: anywhere; }
+.camo-guide-item input { width: 18px; height: 18px; min-width: 18px; padding: 0; margin: 0; flex: 0 0 18px; accent-color: #85b57e; }
+.camo-guide-item img { width: 64px; height: 42px; flex: 0 0 64px; object-fit: cover; border-radius: 5px; }
+.camo-guide-item span { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
 .camo-guide-item strong { font-size: 13px; }
 .camo-guide-item small { display: block; color: #b9c4ce; line-height: 1.6; margin-top: 4px; }
 .camo-military-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
 .camo-military-grid .camo-guide-item { flex-wrap: wrap; gap: 6px; margin: 0; }
-.camo-military-grid img { width: 100%; height: 54px; order: -1; }
+.camo-military-grid img { width: 100%; flex-basis: 100%; height: 54px; order: -1; }
 @media (max-width: 420px) { .camo-military-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 .camo-tier-card { position: relative; cursor: pointer; }

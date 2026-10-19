@@ -58,9 +58,9 @@ class WebCamoMiniParityPlaywrightTest {
         page.locator(".camo-guide img").first().scrollIntoViewIfNeeded();
         page.waitForFunction("()=>document.querySelector('.camo-guide img').naturalWidth>0");
         assertTrue(page.locator(".camo-guide img").first().getAttribute("src").startsWith("/assets/mini-camo/"));
-        page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("target/web-camo-desktop.png")));
+        page.locator(".camo-guide").screenshot(new Locator.ScreenshotOptions().setPath(Path.of("target/web-camo-desktop.png")));
         page.setViewportSize(390, 844);
-        page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("target/web-camo-mobile.png")));
+        page.locator(".camo-guide").screenshot(new Locator.ScreenshotOptions().setPath(Path.of("target/web-camo-mobile.png")));
         page.reload();
         page.locator("#weaponSearch").fill("汉86");
         page.locator("[data-toggle-weapon=HAN86]").click();

@@ -74,7 +74,7 @@ class WebCamoMiniParityPlaywrightTest {
         page.locator("[data-mode=PYROCLAST]").click();
         assertThat(page.locator("#pyroCards")).containsText("150");
         assertThat(page.locator("#pyroCards")).containsText("250");
-        page.locator("[data-pyro-item]").nth(3).check();
+        page.locator(".camo-pyro-card").nth(3).click();
         assertEquals(1, page.locator("[data-pyro-item]:checked").count());
         page.close();
     }

@@ -166,14 +166,17 @@
     const weapons = (game.weapons || []).length;
     $('#tierCards').innerHTML = (mode.items || []).map((item, index) => {
       const done = tierCount(mode, item);
-      return `<article class="camo-tier-card">
+      const unlocked = weapons > 0 && done === weapons;
+      return `<label class="camo-tier-card ${unlocked ? 'is-done' : ''}">
+        <input type="checkbox" data-mastery-item="${esc(item.code)}" ${unlocked ? 'checked' : ''}>
         <div class="camo-tier-media"><img src="${esc(resolveImage(item.image))}" alt="${esc(zhName(item))} 迷彩" loading="lazy"></div>
         <div class="camo-tier-body">
           <span class="camo-tier-label">${TIER_LABELS[index] || `第 ${index + 1} 层`}</span>
-          <div class="camo-tier-title"><b>${esc(zhName(item))}</b><span class="mono">${done} / ${weapons}</span></div>
+          <div class="camo-tier-title"><b>${esc(zhName(item))}</b><span>${unlocked ? '已解锁' : '未解锁'}</span></div>
           <p>${esc(item.requirement || '条件暂未公布')}</p>
+          ${done > 0 && !unlocked ? `<small>已有 ${done}/${weapons} 把武器的历史记录，勾选后统一解锁</small>` : ''}
         </div>
-      </article>`;
+      </label>`;
     }).join('');
   }
 
@@ -206,19 +209,12 @@
       return;
     }
 
-    const stats = modeStats(mode);
     const weapons = (game.weapons || []).length;
     $('#modeHeadTitle').textContent = `${mode.shortName || mode.name || mode.code} 大师迷彩`;
-    $('#modeHeadMeta').textContent = `${weightsDone(stats)} / ${weapons} 把武器完成任意一层`;
+    $('#modeHeadMeta').textContent = `${(mode.items || []).filter(item => weapons > 0 && tierCount(mode, item) === weapons).length} / ${(mode.items || []).length} 档已解锁 · 当前模式全部武器通用`;
     $('#modeHeadFinal').textContent = mode.finalCamoZh ? `最终层级 · ${mode.finalCamoZh}` : '';
     $('#modeNote').textContent = mode.note || '';
     renderTierCards(mode);
-  }
-
-  function weightsDone(stats) {
-    const mode = modeByCode(activeMode);
-    if (!mode) return 0;
-    return (game.weapons || []).filter(weapon => weaponStats(mode, weapon).done > 0).length;
   }
 
   function filteredWeapons(mode) {
@@ -236,18 +232,6 @@
         .join(' ').toLowerCase();
       return !query || haystack.includes(query);
     });
-  }
-
-  function renderCheckItem(mode, weapon, item) {
-    const done = isDone(mode.code, weapon.code, item.code);
-    return `<label class="camo-check-item ${done ? 'is-done' : ''}">
-      <input type="checkbox" data-camo-item="${esc(item.code)}" data-weapon="${esc(weapon.code)}" ${done ? 'checked' : ''}>
-      <span class="camo-check-box">✓</span>
-      <span class="camo-check-copy">
-        <strong>${esc(zhName(item))}</strong>
-        <small>${esc(item.requirement || '条件暂未公布')}</small>
-      </span>
-    </label>`;
   }
 
   function renderGuide(mode, weapon) {
@@ -277,7 +261,6 @@
   }
 
   function renderWeapon(mode, weapon) {
-    const stats = weaponStats(mode, weapon);
     const favorite = state.favorites.includes(weapon.code);
     const open = openWeapons.has(weapon.code);
     const label = zhName(weapon);
@@ -293,11 +276,10 @@
             <strong>${esc(label)}</strong>
             <small>${esc(weapon.weaponType || '武器')} · ${esc(weapon.unlockLabel || '解锁条件待确认')}</small>
           </span>
-          <span class="weapon-progress-mini ${stats.complete ? 'is-done' : ''}">${stats.done}/${stats.total}</span>
           <span class="weapon-chevron" aria-hidden="true">⌄</span>
         </button>
       </div>
-      <div class="weapon-tracker-body"><h3 class="camo-mastery-heading">大师迷彩 · 按顺序完成</h3>${stats.items.map(item => renderCheckItem(mode, weapon, item)).join('')}${renderGuide(mode, weapon)}</div>
+      <div class="weapon-tracker-body">${renderGuide(mode, weapon)}</div>
     </article>`;
   }
 
@@ -364,16 +346,15 @@
     render();
   }
 
-  function toggleItem(weaponCode, itemCode, checked) {
-    buckets(activeMode);
-    state.progress[activeMode][weaponCode] = state.progress[activeMode][weaponCode] || {};
-    const items = modeByCode(activeMode)?.items || [];
-    const index = items.findIndex(item => item.code === itemCode);
-    if (index < 0) return;
-    items.forEach((item, i) => {
-      if (checked && i <= index) state.progress[activeMode][weaponCode][item.code] = true;
-      if (!checked && i >= index) delete state.progress[activeMode][weaponCode][item.code];
-    });
+  function toggleMastery(itemCode, checked) {
+    const mode = modeByCode(activeMode);
+    if (!mode || !isMastery(mode) || !(mode.items || []).some(item => item.code === itemCode)) return;
+    const progress = buckets(activeMode);
+    for (const weapon of game.weapons || []) {
+      progress[weapon.code] = progress[weapon.code] || {};
+      if (checked) progress[weapon.code][itemCode] = true;
+      else delete progress[weapon.code][itemCode];
+    }
     saveState();
     render();
   }
@@ -546,9 +527,12 @@
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (ignored) {}
         return;
       }
-      const input = event.target.closest('[data-camo-item]');
-      if (!input) return;
-      toggleItem(input.dataset.weapon, input.dataset.camoItem, input.checked);
+
+    });
+
+    $('#tierCards').addEventListener('change', event => {
+      const input = event.target.closest('[data-mastery-item]');
+      if (input) toggleMastery(input.dataset.masteryItem, input.checked);
     });
 
     $('#pyroCards').addEventListener('change', event => {

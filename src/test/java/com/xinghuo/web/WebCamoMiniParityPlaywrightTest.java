@@ -38,12 +38,16 @@ class WebCamoMiniParityPlaywrightTest {
         assertThat(page.locator(".camo-guide")).containsText("46级，消音器50次击杀");
         assertThat(page.locator(".camo-guide")).containsText("和声间奏");
         assertThat(page.locator(".camo-guide")).containsText("分歧");
-        assertEquals(1, page.locator("[data-camo-item]:checked").count());
+        assertEquals(0, page.locator("[data-camo-item]").count());
         assertThat(page.locator("[data-fav=HAN86]")).hasAttribute("aria-label", "取消收藏 汉86");
-        page.locator("[data-camo-item]").nth(2).check();
-        assertEquals(3, page.locator("[data-camo-item]:checked").count());
-        page.locator("[data-camo-item]").nth(1).uncheck();
-        assertEquals(1, page.locator("[data-camo-item]:checked").count());
+        assertThat(page.locator("#tierCards")).containsText("已有 1/33 把武器的历史记录");
+        page.locator("[data-mastery-item]").nth(2).check();
+        assertEquals(1, page.locator("[data-mastery-item]:checked").count());
+        assertEquals(true, page.evaluate("()=>Object.values(JSON.parse(localStorage.getItem('xinghuo-mw4-camo-tracker-v2')).progress.MULTIPLAYER).every(w=>w.TIER_3)"));
+        page.locator("[data-mastery-item]").nth(2).uncheck();
+        assertEquals(0, page.locator("[data-mastery-item]:checked").count());
+        assertEquals(true, page.evaluate("()=>JSON.parse(localStorage.getItem('xinghuo-mw4-camo-tracker-v2')).progress.MULTIPLAYER.HAN86.TIER_1"));
+        page.locator("[data-mastery-item]").nth(1).check();
         String overall = page.locator("#overallCount").textContent();
         page.locator("[data-guide-item='HAN86::special-1']").check();
         assertEquals(overall, page.locator("#overallCount").textContent());
@@ -61,8 +65,10 @@ class WebCamoMiniParityPlaywrightTest {
         page.locator("#weaponSearch").fill("汉86");
         page.locator("[data-toggle-weapon=HAN86]").click();
         assertThat(page.locator("[data-guide-item='HAN86::special-1']")).isChecked();
-        assertEquals(1, page.locator("[data-camo-item]:checked").count());
+        assertThat(page.locator("[data-mastery-item]").nth(1)).isChecked();
+        assertEquals(0, page.locator("[data-camo-item]").count());
         page.locator("[data-mode=WARZONE]").click();
+        assertEquals(0, page.locator("[data-mastery-item]:checked").count());
         page.locator("[data-toggle-weapon=HAN86]").click();
         assertThat(page.locator(".camo-guide")).containsText("职业通用挑战参考");
         page.locator("[data-mode=PYROCLAST]").click();
@@ -73,7 +79,7 @@ class WebCamoMiniParityPlaywrightTest {
         page.close();
     }
 
-    @Test void chromiumMatchesReleasedMiniProgram() throws Exception {
+    @Test void chromiumMatchesMiniProgram128() throws Exception {
         try (Playwright p = Playwright.create()) {
             var options = new BrowserType.LaunchOptions();
             String executable = System.getenv("XINGHUO_TEST_CHROMIUM");
@@ -82,7 +88,7 @@ class WebCamoMiniParityPlaywrightTest {
         }
     }
 
-    @Test void webkitMatchesReleasedMiniProgram() throws Exception {
+    @Test void webkitMatchesMiniProgram128() throws Exception {
         try (Playwright p = Playwright.create(); Browser browser = p.webkit().launch()) { verify(browser); }
     }
 }

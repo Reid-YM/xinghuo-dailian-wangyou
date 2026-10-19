@@ -23,12 +23,12 @@
   function values(){const result=Object.fromEntries(new FormData($('#adminAccountForm')));$('#adminAccountFields').querySelectorAll('input[type=checkbox]').forEach(input=>result[input.name]=input.checked);return result;}
   function create(){open('创建后台登录账号',()=>{
     field('username','登录名');field('displayName','员工姓名');field('departmentCode','所属中心','','text',[{code:'',name:'暂不分配中心'},...(snapshot.departments||[])]);
-    field('password','初始密码','','password');field('legacyRole','登录角色','OPERATOR','text',snapshot.restoreAdmin?[{code:'OPERATOR',name:'员工'},{code:'ADMIN',name:'恢复管理员'}]:[{code:'OPERATOR',name:'员工'}]);
+    field('password','初始密码','','password');field('legacyRole','登录角色','OPERATOR','text',snapshot.restoreAdmin?[{code:'OPERATOR',name:'员工'},{code:'ADMIN',name:'系统管理员'}]:[{code:'OPERATOR',name:'员工'}]);
     const roles=field('roleCodes','星维角色（员工至少选择一个）','','text',(snapshot.roles||[]).filter(role=>role.enabled!==false));roles.multiple=true;roles.size=Math.min(8,Math.max(2,roles.options.length));
     $('#adminAccountFields').append(node('p','使用至少8位密码，含字母、数字或符号中的至少两类；请通过安全渠道交付初始密码。'));
   },()=>{const data=values();data.roleCodes=[...$('#adminAccount-roleCodes').selectedOptions].map(option=>option.value);return api('',{method:'POST',body:data});});}
   function edit(item){open('维护 '+item.username,()=>{
-    const role=field('legacyRole','登录角色',item.legacyRole,'text',snapshot.restoreAdmin?[{code:'OPERATOR',name:'员工'},{code:'ADMIN',name:'恢复管理员'}]:[{code:'OPERATOR',name:'员工'}]);
+    const role=field('legacyRole','登录角色',item.legacyRole,'text',snapshot.restoreAdmin?[{code:'OPERATOR',name:'员工'},{code:'ADMIN',name:'系统管理员'}]:[{code:'OPERATOR',name:'员工'}]);
     const enabled=field('enabled','允许后台登录',item.loginEnabled,'checkbox');
     if(item.username===document.body.dataset.adminUsername){role.disabled=true;enabled.disabled=true;$('#adminAccountFields').append(node('p','当前账号的登录角色和启用状态保持不变，防止锁住自己。'));}
     $('#adminAccountFields').append(node('p','保存后撤销该账号的现有登录会话。星维角色及档案请在组织工作台维护。'));
@@ -39,7 +39,7 @@
     const result=await api('?q='+encodeURIComponent(new FormData($('#adminAccountSearch')).get('q')||''));if(id!==sequence)return;snapshot=result;
     $('#adminAccountCreate').hidden=!snapshot.canCreate;
     $('#adminAccountRows').replaceChildren(...(snapshot.items||[]).map(item=>{
-      const row=node('article',null,'xaa-record');row.append(node('h3',(item.displayName||item.username)+' · '+item.username),node('p',[item.loginEnabled?'允许登录':'已停用',item.legacyRole==='ADMIN'?'恢复管理员':'员工',item.departmentName,...(item.roleCodes||[])].filter(Boolean).join(' · ')));
+      const row=node('article',null,'xaa-record');row.append(node('h3',(item.displayName||item.username)+' · '+item.username),node('p',[item.loginEnabled?'允许登录':'已停用',item.legacyRole==='ADMIN'?'系统管理员':'员工',item.departmentName,...(item.roleCodes||[])].filter(Boolean).join(' · ')));
       if(snapshot.canManage&&(item.legacyRole!=='ADMIN'||snapshot.restoreAdmin)){const actions=node('div',null,'xwi-actions');actions.append(button('登录状态',()=>edit(item)),button('重置密码',()=>password(item)));row.append(actions);}return row;
     }));if(!snapshot.items?.length)$('#adminAccountRows').append(node('p','暂无符合条件的账号。'));
     message(snapshot.canManage?'可维护全站后台登录账号；星维业务权限仍按角色与数据范围执行。':'当前仅可查看后台登录账号。');

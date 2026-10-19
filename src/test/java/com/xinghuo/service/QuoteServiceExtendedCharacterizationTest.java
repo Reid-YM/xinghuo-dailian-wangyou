@@ -64,6 +64,18 @@ class QuoteServiceExtendedCharacterizationTest {
     }
 
     @Test
+    void omittedCrmInternalNotePreservesHistoryWhileUpdatingContactPlan() {
+        QuoteRepository repo = mock(QuoteRepository.class);
+        Quote quote = quote(Quote.Status.NEW);
+        quote.setFollowUpNote("历史内部跟进记录");
+        when(repo.findById(quote.getId())).thenReturn(Optional.of(quote));
+        QuoteService service = new QuoteService(repo, mock(UploadService.class), mock(AuditService.class), mock(OrderService.class));
+        service.updateCrm(quote.getId(), new QuoteLeadDtos.QuoteCrmUpdateRequest(60, "MEDIUM", "明天联系", null, "更新联系计划"), "admin", mock(HttpServletRequest.class));
+        assertEquals("历史内部跟进记录", quote.getFollowUpNote());
+        assertEquals("明天联系", quote.getNextAction());
+    }
+
+    @Test
     void generateLeadSuggestionCapsCompleteLeadAtHundredAndHighIntent() {
         QuoteRepository repo = mock(QuoteRepository.class);
         AuditService audit = mock(AuditService.class);

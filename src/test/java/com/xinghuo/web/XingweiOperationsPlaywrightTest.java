@@ -83,12 +83,14 @@ class XingweiOperationsPlaywrightTest {
     @Test void webkitDraftsAndPendingSavesStaySafe()throws Exception{try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){draftJourney(b);}}
     private void draftJourney(Browser b)throws Exception{
         Page page=setup(b,"module=crm");page.evaluate("()=>window.confirm=()=>false");
-        page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("维护跟进")).click();page.locator("#operations-followUpNote").fill("尚未保存的跟进记录");page.locator("#operations-reason").fill("联系客户后更新");
-        page.locator("#operationsClose").click();assertTrue(page.locator("#operations-followUpNote").isVisible());page.keyboard().press("Escape");assertEquals("尚未保存的跟进记录",page.locator("#operations-followUpNote").inputValue());
+        page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("维护跟进")).click();page.locator("#operations-nextAction").fill("尚未保存的联系计划");page.locator("#operations-reason").fill("联系客户后更新");
+        page.locator("#operationsClose").click();assertTrue(page.locator("#operations-nextAction").isVisible());page.keyboard().press("Escape");assertEquals("尚未保存的联系计划",page.locator("#operations-nextAction").inputValue());
         assertEquals(true,page.evaluate("()=>{const e=new Event('beforeunload',{cancelable:true});window.dispatchEvent(e);return e.defaultPrevented;}"));
+        assertEquals(0,page.locator("#operations-followUpNote").count());
         page.evaluate("()=>window.holdWrite=true");page.locator("#operationsSave").click();page.waitForFunction("()=>typeof window.releaseWrite==='function'");
         page.evaluate("()=>{document.querySelector('#operationsForm').dispatchEvent(new Event('submit',{cancelable:true}));document.querySelector('#operationsRefresh').click();document.querySelector('#operationsFilters').dispatchEvent(new Event('submit',{cancelable:true}));}");
-        assertEquals(1,page.evaluate("()=>window.calls.filter(c=>c.method==='PATCH').length"));assertEquals(1,page.evaluate("()=>window.calls.filter(c=>c.url.includes('/leads?')).length"));
+        assertEquals(1,page.evaluate("()=>window.calls.filter(c=>c.method==='PATCH').length"));
+        assertEquals(false,page.evaluate("()=>Object.hasOwn(JSON.parse(window.calls.find(c=>c.method==='PATCH').body),'followUpNote')"));assertEquals(1,page.evaluate("()=>window.calls.filter(c=>c.url.includes('/leads?')).length"));
         page.evaluate("()=>{window.failRead=true;window.holdWrite=false;window.releaseWrite();}");page.waitForFunction("()=>document.querySelector('#operationsMessage').textContent.includes('保存成功，但列表读取失败')");
         assertEquals(false,page.evaluate("()=>document.querySelector('#operationsDialog').open"));assertEquals(0,page.locator("#operationsRows article").count());assertEquals(0,page.locator("#operationsFields input,#operationsFields textarea").count());
         assertEquals(false,page.evaluate("()=>{const e=new Event('beforeunload',{cancelable:true});window.dispatchEvent(e);return e.defaultPrevented;}"));

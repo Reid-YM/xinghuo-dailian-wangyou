@@ -68,14 +68,14 @@
 
   <section class="xwb-kpis" aria-label="当前列表指标">
     <div><span>数据范围</span><strong id="xwbKpiScope">-</strong></div>
-    <div><span id="xwbKpiVisibleLabel">接口可见</span><strong id="xwbKpiVisible">-</strong></div>
+    <div><span id="xwbKpiVisibleLabel">可查看记录</span><strong id="xwbKpiVisible">-</strong></div>
     <div><span id="xwbKpiFilteredLabel">当前筛选</span><strong id="xwbKpiFiltered">-</strong></div>
     <div><span>未归属可见</span><strong id="xwbKpiUnassigned">-</strong></div>
   </section>
 
   <section class="xw-data-panel xwb-panel" id="xwbQuotesPanel" hidden>
     <div class="xw-data-head">
-      <div><h3>询价与线索</h3><p>按当前账号数据范围从数据库先过滤，再按创建时间倒序返回。</p></div>
+      <div><h3>询价与线索</h3><p>显示当前账号可查看的询价，按创建时间由新到旧排列。</p></div>
       <span class="xw-pill" id="xwbQuotePermission">询价查看</span>
     </div>
     <div class="xw-table-wrap xw-table-tall">
@@ -106,7 +106,7 @@
 
   <section class="xwb-empty" id="xwbNoAccess" hidden>
     <strong>当前账号没有询价或订单查看权限</strong>
-    <p>页面不会尝试绕过后端权限。可返回星维后台检查角色配置，恢复管理员 仍保留安全兜底。</p>
+    <p>请联系管理员核对当前账号的角色和业务数据范围。</p>
   </section>
 
   <footer class="xw-footer"><span th:text="${workspaceName}">星维网络服务工作室</span><span>业务归属 · 全部数据 / 本中心 / 仅本人 · 后端授权 · 审计留痕</span></footer>

@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 public class XingweiResponseSanitizerAdvice implements ResponseBodyAdvice<Object> {
     private static final String ROOT = "/api/admin/xingwei";
     private static final Set<String> PRIVATE_NOTES = Set.of(
-            "internalNote", "internal_note", "handlingNote", "handling_note", "operatorNote", "operator_note");
+            "internalNote", "internal_note", "handlingNote", "handling_note", "operatorNote", "operator_note", "followUpNote", "follow_up_note");
     private final ObjectMapper mapper;
 
     public XingweiResponseSanitizerAdvice(ObjectMapper mapper) { this.mapper = mapper; }

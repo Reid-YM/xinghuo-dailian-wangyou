@@ -61,7 +61,6 @@
     try{
       const data=await get('/api/admin/xingwei/audits/'+encodeURIComponent(id));if(current!==detailSequence)return;
       const content=$('auditDetail');content.append(el('p',actionLabel(data.entry.action)+' · '+data.entry.operatorName));
-      if(data.entry.requestId)content.append(el('p','请求编号：'+data.entry.requestId));
       for(const change of data.changes){const row=el('p');const fieldLabel=el('strong',labels[change.field]||'其他字段');row.append(fieldLabel,document.createTextNode('：'+changeValue(change.field,change.before)+' → '+changeValue(change.field,change.after)));content.append(row);}
       $('auditDetailMessage').textContent=data.changes.length?'敏感值与完整内容已隐藏。':'没有可展示的字段变化。';
     }catch(error){if(current===detailSequence){$('auditDetailMessage').textContent=error.message;$('auditDetailRetry').hidden=false;}}

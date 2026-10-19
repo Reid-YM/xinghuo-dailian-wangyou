@@ -23,8 +23,8 @@ public class XingweiSecurityPageController {
         model.addAttribute("username", actor.getName());
         model.addAttribute("accessMode", access.mode());
         model.addAttribute("accessModeLabel", switch(access.mode()) {
-            case "LEGACY_ADMIN_OVERRIDE" -> "恢复管理员全量权限";
-            case "LEGACY_OPERATOR_COMPAT" -> "兼容员工只读权限";
+            case "LEGACY_ADMIN_OVERRIDE" -> "系统管理员全量权限";
+            case "LEGACY_OPERATOR_COMPAT" -> "员工查看权限";
             case "SHADOW_RBAC" -> "角色权限与数据范围";
             default -> "无访问权限";
         });

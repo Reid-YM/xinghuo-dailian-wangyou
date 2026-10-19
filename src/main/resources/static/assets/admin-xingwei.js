@@ -304,7 +304,7 @@
 
   function modeLabel(snapshot) {
     switch (snapshot?.mode) {
-      case 'LEGACY_ADMIN_OVERRIDE': return '管理员兜底 · 全权限 · 全部数据';
+      case 'LEGACY_ADMIN_OVERRIDE': return '系统管理员 · 全权限 · 全部数据';
       case 'LEGACY_OPERATOR_COMPAT': return '旧版运营员工兼容 · 只读 · 全部数据';
       case 'SHADOW_RBAC': return `角色权限已生效 · ${scopeLabel(snapshot)}`;
       default: return '新版权限不可用';

@@ -80,7 +80,7 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             page.waitForFunction("() => document.querySelector('#xwbQuoteRows')?.textContent.includes('XH1001')");
 
             assertEquals(2, page.locator("#xwbQuoteRows tr[data-search]").count());
-            assertTrue(page.locator("#xwbAccessBadge").textContent().contains("管理员兜底"));
+            assertTrue(page.locator("#xwbAccessBadge").textContent().contains("系统管理员"));
             assertEquals("2", page.locator("#xwbKpiVisible").textContent());
             assertEquals("1", page.locator("#xwbKpiUnassigned").textContent());
 

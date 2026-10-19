@@ -60,7 +60,7 @@ class XingweiServiceCatalogWorkbenchContractTest {
         assertTrue(pageController.contains("static final String CATALOG_VERSION = \"20261014-v3f\""));
         assertTrue(pageController.contains("model.addAttribute(\"catalogVersion\", CATALOG_VERSION)"));
         assertFalse(template.contains("legacy=1"));
-        assertTrue(template.contains("V3D · 发布检查"));
+        assertTrue(template.contains("服务发布检查"));
         assertTrue(template.contains("href=\"/admin/xingwei/taxonomy\""));
         assertTrue(template.contains("id=\"xcatCreateOpen\""));
         assertTrue(template.contains("id=\"xcatCreateDialog\""));

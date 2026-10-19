@@ -1,6 +1,7 @@
 package com.xinghuo.web;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Browser;
@@ -45,6 +46,11 @@ class XingweiServiceCatalogWorkbenchPlaywrightTest {
             assertEquals("2", page.locator("#xcatServiceCount").textContent());
             assertTrue(page.locator("#xcatServiceRows").textContent().contains("武器升级"));
             assertTrue(page.locator("#xcatGameRows").textContent().contains("使命召唤现代战争4"));
+            assertTrue(page.locator("#xcatServiceRows").innerText().contains("升级"));
+            assertFalse(page.locator("#xcatServiceRows").innerText().contains("LEVELING"));
+            assertFalse(page.locator("#xcatServiceRows").innerText().contains("v3"));
+            assertFalse(page.locator("#xcatCategoryRows").innerText().contains("RANK"));
+            assertFalse(page.locator("#xcatGameFilter").innerText().contains("MW4"));
             assertEquals(0, page.locator("button[data-action='edit']").count());
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xcatCreateOpen').hidden"));
             assertTrue(page.locator("#xcatManageMode").textContent().contains("只读"));
@@ -170,6 +176,7 @@ class XingweiServiceCatalogWorkbenchPlaywrightTest {
             page.waitForFunction("() => window.__writes.length === 1");
 
             assertEquals("PUT", page.evaluate("() => window.__writes[0].method"));
+            assertEquals("\"v3\"", page.evaluate("() => window.__writes[0].headers['If-Match']"));
             assertEquals("csrf-token", page.evaluate("() => window.__writes[0].headers['X-CSRF-TOKEN']"));
             assertEquals("weapon-leveling", page.evaluate("() => window.__writes[0].body.slug"));
             assertEquals("MW4", page.evaluate("() => window.__writes[0].body.gameCode"));

@@ -44,7 +44,7 @@ class XingweiAdminPlaywrightTest {
                     }
                     """, new Object[] {VERSION, STAGE});
             addMainScript(page);
-            page.waitForFunction("() => document.querySelector('#xwAccessMode')?.textContent.includes('管理员兜底')");
+            page.waitForFunction("() => document.querySelector('#xwAccessMode')?.textContent.includes('系统管理员')");
             page.waitForFunction("() => document.documentElement.dataset.xwRuntimeState === 'match'");
 
             assertTrue(page.locator("#xwBackendStatus").textContent().contains("已核对"));

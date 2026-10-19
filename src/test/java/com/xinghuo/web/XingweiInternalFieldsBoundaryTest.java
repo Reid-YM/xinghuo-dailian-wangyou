@@ -18,7 +18,7 @@ class XingweiInternalFieldsBoundaryTest {
                 "internalNote","历史员工备注","customerNote","客户可见说明");
         @GetMapping("/api/admin/xingwei/business/orders") Object orders() {
             return Map.of("items",List.of(order),"case",Map.of("recordId",11,"version",3,
-                    "handlingNote","内部处理说明","customerReply","正在核对"),"feedback",Map.of("operatorNote","内部反馈备注"),
+                    "handlingNote","内部处理说明","customerReply","正在核对"),"feedback",Map.of("operatorNote","内部反馈备注","followUpNote","内部跟进记录"),
                     "channel",Map.of("channelCode","TAOBAO","serviceState","AVAILABLE","note","内部渠道备注"));
         }
         @GetMapping("/api/admin/xingwei/audits") Object audits() {
@@ -35,6 +35,7 @@ class XingweiInternalFieldsBoundaryTest {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items[0].internalNote").doesNotExist())
                 .andExpect(jsonPath("$.case.handlingNote").doesNotExist())
                 .andExpect(jsonPath("$.feedback.operatorNote").doesNotExist())
+                .andExpect(jsonPath("$.feedback.followUpNote").doesNotExist())
                 .andExpect(jsonPath("$.channel.note").doesNotExist())
                 .andExpect(jsonPath("$.items[0].customerNote").value("客户可见说明"))
                 .andExpect(jsonPath("$.case.customerReply").value("正在核对"))

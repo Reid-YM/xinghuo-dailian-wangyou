@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-catalog.css?v=20261013v3d"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-catalog.js?v=20261017search1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-catalog.js?v=20261019cutover"></script>
 <link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
@@ -28,11 +28,11 @@
 
   <section class="xcat-hero">
     <div>
-      <p class="xw-kicker">V3D · 发布检查</p>
+      <p class="xw-kicker">服务发布检查</p>
       <h2>新建服务保持离线；正式上架前必须先完成发布检查。</h2>
-      <p>查看要求 <strong>服务查看权限</strong>；新增、编辑、下线和上架要求 <strong>服务管理权限</strong>。V3D 会检查游戏与分类、网址标识、名称、说明、预计时长、价格和到期时间；任何阻断项失败都不能从新版工作台上架。封面缺失仅提示警告，不额外新增审批表，也不产生第二份服务状态。游戏/分类启用与停用已拆到 V3E 独立工作台，必须先查看影响。</p>
+      <p>查看要求 <strong>服务查看权限</strong>；新增、编辑、下线和上架要求 <strong>服务管理权限</strong>。发布前会检查游戏与分类、网址标识、名称、说明、预计时长、价格和到期时间；任何阻断项失败都不能从新版工作台上架。封面缺失仅提示警告，不额外新增审批表，也不产生第二份服务状态。游戏与分类启停需先查看公开展示影响。</p>
     </div>
-    <div class="xcat-version"><span>当前版本</span><strong th:text="${catalogVersion}">20261013-v3e</strong><small th:text="${username}">admin</small></div>
+
   </section>
 
   <section class="xcat-message" id="xcatMessage" role="status">正在读取服务与游戏资料……</section>
@@ -62,12 +62,12 @@
 
   <div class="xcat-grid">
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>游戏资料</h3><p>结构仍保持只读；启用与停用请进入 V3E 独立工作台并先查看影响。</p></div></div>
+      <div class="xw-data-head"><div><h3>游戏资料</h3><p>编辑资料或调整启用状态，请进入游戏与分类工作台。</p></div></div>
       <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>游戏</th><th>业务状态</th><th>分类 / 服务</th><th>平台</th></tr></thead><tbody id="xcatGameRows"></tbody></table></div>
     </section>
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>分类资料</h3><p>结构仍保持只读；启用与停用请进入 V3E 独立工作台并先查看影响。</p></div></div>
-      <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>编码</th><th>分类</th><th>游戏</th><th>服务数</th></tr></thead><tbody id="xcatCategoryRows"></tbody></table></div>
+      <div class="xw-data-head"><div><h3>分类资料</h3><p>编辑资料或调整启用状态，请进入游戏与分类工作台。</p></div></div>
+      <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>分类</th><th>游戏</th><th>服务数</th></tr></thead><tbody id="xcatCategoryRows"></tbody></table></div>
     </section>
   </div>
 </main>

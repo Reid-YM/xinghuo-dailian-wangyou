@@ -79,7 +79,7 @@
 
   function modeLabel(snapshot) {
     switch (snapshot?.mode) {
-      case 'LEGACY_ADMIN_OVERRIDE': return '管理员兜底 · 全部数据';
+      case 'LEGACY_ADMIN_OVERRIDE': return '系统管理员 · 全部数据';
       case 'LEGACY_OPERATOR_COMPAT': return '员工授权 · 全部数据';
       case 'SHADOW_RBAC': return `角色权限 · ${scopeLabel(snapshot)}`;
       default: return '权限不可用';

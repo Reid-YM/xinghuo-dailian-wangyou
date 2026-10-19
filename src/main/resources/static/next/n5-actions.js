@@ -16,6 +16,12 @@
     return element;
   }
 
+  let fieldSequence = 0;
+  function fieldLabel(value, control) {
+    if (!control.id) control.id = 'n5aField' + (++fieldSequence);
+    const label = node('label', '', value); label.htmlFor = control.id; return label;
+  }
+
   function append(parent, ...children) {
     children.filter(Boolean).forEach((child) => parent.append(child));
     return parent;
@@ -108,8 +114,8 @@
     const form = document.createElement('form');
     form.dataset.n5Action = options.action;
     const field = node('div', 'n5a-field');
-    const label = node('label', '', options.label);
     const textarea = document.createElement('textarea');
+    const label = fieldLabel(options.label, textarea);
     textarea.maxLength = options.max;
     textarea.required = true;
     textarea.placeholder = options.placeholder;
@@ -184,11 +190,11 @@
     [['DELIVERY', '交付或进度'], ['CANCELLATION', '取消服务'], ['REFUND_REVIEW', '退款核对'], ['OTHER', '其他问题']].forEach(([value, label]) => {
       const option = document.createElement('option'); option.value = value; option.textContent = label; category.append(option);
     });
-    append(categoryField, node('label', '', '问题类型'), category);
+    append(categoryField, fieldLabel('问题类型', category), category);
     const contentField = node('div', 'n5a-field');
     const content = document.createElement('textarea');
     content.maxLength = 240; content.required = true; content.placeholder = '请描述具体情况，避免填写账号密码、验证码等敏感信息。';
-    append(contentField, node('label', '', '问题说明'), content, counter(content, 240));
+    append(contentField, fieldLabel('问题说明', content), content, counter(content, 240));
     const submit = node('button', 'n5a-submit', '提交售后问题'); submit.type = 'submit';
     append(form, categoryField, contentField, submit);
     form.addEventListener('submit', async (event) => {
@@ -238,7 +244,7 @@
       const field = node('div', 'n5a-field');
       const input = document.createElement('textarea');
       input.maxLength = 240; input.required = true; input.placeholder = '补充新的情况或对客服回复继续说明。';
-      append(field, node('label', '', '补充说明'), input, counter(input, 240));
+      append(field, fieldLabel('补充说明', input), input, counter(input, 240));
       const submit = node('button', 'n5a-submit', '提交到原记录'); submit.type = 'submit';
       append(form, field, submit);
       form.addEventListener('submit', async (event) => {
@@ -288,7 +294,7 @@
     center.id = 'n5ActionCenter'; center.dataset.key = key;
     const head = node('div', 'n5a-head');
     const copy = node('div');
-    append(copy, node('div', 'kicker', 'N5 · CUSTOMER ACTIONS'), node('h4', '', '业务补充与售后操作'), node('p', '', '写入动作直接提交到当前账号对应的生产业务记录；提交成功后会刷新个人中心数据。请勿填写密码、短信验证码或其他登录凭据。'));
+    append(copy, node('div', 'kicker', '订单服务'), node('h4', '', '业务补充与售后操作'), node('p', '', '补充信息或提交售后申请后，可在个人中心查看处理进度。请勿填写密码、短信验证码或其他登录凭据。'));
     head.append(copy); center.append(head);
     const grid = node('div', 'n5a-grid');
     if (detail.order) {

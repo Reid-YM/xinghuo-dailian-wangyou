@@ -25,6 +25,18 @@ public class AccountCenterPageController {
     }
 
     @RequireAccount
+    @GetMapping("/account/requests/{businessNo}")
+    public String requestDetail() { return "account-requests"; }
+
+    @RequireAccount
+    @GetMapping("/account/orders/{businessNo}")
+    public String orderDetail() { return "account-orders"; }
+
+    @RequireAccount
+    @GetMapping({"/account/favorites", "/account/submissions"})
+    public String personalAssets() { return "account"; }
+
+    @RequireAccount
     @GetMapping("/account/progress")
     public String progress() {
         return "account-progress";

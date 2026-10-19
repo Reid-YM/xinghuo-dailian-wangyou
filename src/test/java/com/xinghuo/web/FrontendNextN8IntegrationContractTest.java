@@ -53,7 +53,7 @@ class FrontendNextN8IntegrationContractTest {
 
         assertTrue(runtime.contains("N8 · TOTAL INTEGRATION"));
         assertTrue(runtime.contains("不代表当前账号真实订单"));
-        assertTrue(runtime.contains("旧前端继续保留回退"));
+        assertTrue(runtime.contains("这是新版预览，可通过页面中的旧版入口返回。"));
         assertTrue(runtime.contains("prefers-reduced-motion:reduce"));
         assertTrue(runtime.contains("当前网络已断开"));
         assertTrue(runtime.contains("aria-live"));

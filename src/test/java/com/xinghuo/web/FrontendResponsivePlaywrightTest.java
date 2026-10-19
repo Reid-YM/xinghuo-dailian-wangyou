@@ -26,7 +26,7 @@ class FrontendResponsivePlaywrightTest {
             assertTrue(containerWidth.doubleValue() >= 1600.0,
                     () -> "24-inch desktop canvas collapsed to " + containerWidth + "px");
             assertNoHorizontalOverflow(page, "Chromium 1920 desktop");
-            assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
+            assertEquals("none", string(page, "(getComputedStyle(document.querySelector('.site-header')).backdropFilter ?? getComputedStyle(document.querySelector('.site-header')).webkitBackdropFilter ?? 'none')"));
             assertTrue(number(page,
                     "document.querySelector('.hero-copy').getBoundingClientRect().width").doubleValue()
                     > number(page, "document.querySelector('.hero-media-panel').getBoundingClientRect().width").doubleValue(),
@@ -64,7 +64,7 @@ class FrontendResponsivePlaywrightTest {
             Number width = number(desktop, "document.querySelector('main.container').getBoundingClientRect().width");
             assertTrue(width.doubleValue() > 1360.0,
                     () -> "Safari desktop collapsed into a legacy narrow canvas: " + width + "px");
-            assertEquals("none", string(desktop, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"));
+            assertEquals("none", string(desktop, "(getComputedStyle(document.querySelector('.site-header')).backdropFilter ?? getComputedStyle(document.querySelector('.site-header')).webkitBackdropFilter ?? 'none')"));
         }
     }
 
@@ -133,7 +133,7 @@ class FrontendResponsivePlaywrightTest {
                 label + " mobile dock should be visible");
         assertEquals("none", string(page, "getComputedStyle(document.querySelector('.hero-media-panel')).display"),
                 label + " decorative hero media must not crowd the mobile conversion flow");
-        assertEquals("none", string(page, "getComputedStyle(document.querySelector('.site-header')).backdropFilter"),
+        assertEquals("none", string(page, "(getComputedStyle(document.querySelector('.site-header')).backdropFilter ?? getComputedStyle(document.querySelector('.site-header')).webkitBackdropFilter ?? 'none')"),
                 label + " header must not rely on glass blur");
         page.close();
     }

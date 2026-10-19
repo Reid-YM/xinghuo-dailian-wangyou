@@ -1,7 +1,13 @@
-(() => {
+(function initializeAccount() {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
+  const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(location.pathname)) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath()) && !document.querySelector('.page[data-page="account"].active')) {
+    window.addEventListener('xh:pagechange', initializeAccount, { once: true });
+    return;
+  }
 
   const PAGE_MAX = 1000;
   const ASSETS = new Map([
@@ -18,7 +24,8 @@
     return String(value ?? '').trim();
   }
 
-  function assetKey(pathname = location.pathname) {
+  function assetKey(pathname = runtimePath()) {
+    pathname = runtimePath(pathname);
     const match = /^\/next\/account(?:\/([^/?#]+))?\/?$/.exec(pathname);
     const child = text(match?.[1]).toLowerCase();
     if (['progress', 'tools', 'tool-progress'].includes(child)) return 'progress';
@@ -41,10 +48,10 @@
 
   function canonicalUrl(key = assetKey(), page = requestedPage(key)) {
     const url = new URL(location.href);
-    if (!ASSETS.has(key)) return url.pathname + url.search + url.hash;
+    if (!ASSETS.has(key)) return runtimeHref(url.pathname + url.search + url.hash);
     if (ASSETS.get(key).paged && page > 1) url.searchParams.set('page', String(page));
     else url.searchParams.delete('page');
-    return url.pathname + url.search + url.hash;
+    return runtimeHref(url.pathname + url.search + url.hash);
   }
 
   function canonicalize() {
@@ -52,7 +59,7 @@
     if (!key) return;
     const target = canonicalUrl(key, requestedPage(key));
     const current = location.pathname + location.search + location.hash;
-    if (target !== current) history.replaceState(history.state, '', target);
+    if (target !== current) navigation.replaceState(navigation.state, '', target);
   }
 
   function assetSection(key) {
@@ -83,12 +90,12 @@
     else url.searchParams.delete('page');
     ['auth', 'token', 'verifyToken', 'wechat', 'legacy', 'next'].forEach((name) => url.searchParams.delete(name));
     url.hash = '';
-    const target = url.pathname + url.search;
+    const target = runtimeHref(url.pathname + url.search);
     const current = location.pathname + location.search + location.hash;
     if (target === current) return false;
-    const state = { ...(history.state || {}), n21Asset: key, n21Page: safe };
-    if (mode === 'replace') history.replaceState(state, '', target);
-    else history.pushState(state, '', target);
+    const state = { ...(navigation.state || {}), n21Asset: key, n21Page: safe };
+    if (mode === 'replace') navigation.replaceState(state, '', target);
+    else navigation.pushState(state, '', target);
     return true;
   }
 
@@ -144,13 +151,13 @@
       const link = document.createElement('a');
       link.className = 'n21-asset-link';
       link.dataset.n21Asset = key;
-      link.href = `/next/account/${key}`;
+      link.href = runtimeHref(`/next/account/${key}`);
       link.textContent = meta.label;
       nav.append(link);
     });
     const note = document.createElement('span');
     note.className = 'n21-asset-note';
-    note.textContent = '收藏与投稿分页复用现有账号接口；工具站和投稿编辑器暂无 Next 对应页时继续使用旧版入口，攻略详情由 N22 留在 Next 预览链路。';
+    note.textContent = '查看收藏、工具进度和投稿；已发布内容可直接打开。';
     nav.append(note);
     return nav;
   }
@@ -163,17 +170,9 @@
     });
   }
 
-  function markLegacyTargets() {
+  function normalizeAssetLinks() {
     const root = document.querySelector('#n5PersonalAssets');
-    if (!root) return;
-    root.querySelectorAll('a[href]').forEach((link) => {
-      const raw = link.getAttribute('href') || '';
-      if (raw === '/mastery' || raw === '/account/submit') {
-        link.dataset.n14Legacy = '1';
-        link.dataset.n21Legacy = '1';
-      }
-    });
-    window.XHFrontendNextN14?.normalize?.(root);
+    if (root) window.XHFrontendNextN14?.normalize?.(root);
   }
 
   function focusAsset() {
@@ -181,7 +180,7 @@
     if (!key) return false;
     const section = assetSection(key);
     if (!section) return false;
-    const marker = `${key}:${location.pathname}${location.search}`;
+    const marker = `${key}:${runtimePath()}${location.search}`;
     if (section.dataset.n21Focused !== marker) {
       section.dataset.n21Focused = marker;
       section.scrollIntoView({ block: 'start' });
@@ -199,7 +198,7 @@
       const heading = root.querySelector('h3');
       if (heading) heading.after(nav); else root.prepend(nav);
     }
-    markLegacyTargets();
+    normalizeAssetLinks();
     updateNav();
     canonicalize();
     syncPager();
@@ -217,8 +216,9 @@
     if (assetLink && !event.defaultPrevented && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
       event.preventDefault();
       const key = assetLink.dataset.n21Asset;
-      const href = `/next/account/${key}`;
-      history.pushState({ ...(history.state || {}), n21Asset: key, n21Page: 1 }, '', href);
+      const href = runtimeHref(`/next/account/${key}`);
+      if (href !== location.pathname + location.search + location.hash)
+        navigation.pushState({ ...(navigation.state || {}), n21Asset: key, n21Page: 1 }, '', href);
       window.XHFrontendNextN17?.updateActive?.();
       window.XHFrontendNextN16?.applyRoute?.({ canonicalize: false });
       scheduleMount();
@@ -257,10 +257,16 @@
 
   observer = new MutationObserver(scheduleMount);
   observer.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      observer?.observe(document.body, { childList: true, subtree: true });
+      scheduleMount();
+    }
+  });
   window.addEventListener('pagehide', () => {
     observer?.disconnect();
     if (mountTimer) clearTimeout(mountTimer);
-  }, { once: true });
+  });
 
   window.XHFrontendNextN21 = {
     assetKey,

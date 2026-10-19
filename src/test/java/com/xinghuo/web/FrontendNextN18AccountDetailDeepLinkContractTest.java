@@ -45,7 +45,7 @@ class FrontendNextN18AccountDetailDeepLinkContractTest {
         String runtime = read("resources/static/next/n18-account-detail-deep-links.js");
 
         assertTrue(runtime.contains("/next/account/${section}/${encodeURIComponent(normalized)}"));
-        assertTrue(runtime.contains("history.pushState"));
+        assertTrue(runtime.contains("navigation.pushState"));
         assertTrue(runtime.contains("n18AccountDetail"));
         assertTrue(runtime.contains("pushParent(info)"));
         assertTrue(runtime.contains("window.addEventListener('popstate'"));
@@ -60,16 +60,16 @@ class FrontendNextN18AccountDetailDeepLinkContractTest {
         assertTrue(runtime.contains("current.searchParams.set('next', target)"));
         assertTrue(runtime.contains("transientParams"));
         assertTrue(runtime.contains("'auth', 'token', 'verifyToken', 'wechat', 'next', 'legacy'"));
-        assertTrue(runtime.contains("history.replaceState"));
+        assertTrue(runtime.contains("navigation.replaceState"));
     }
 
     @Test
     void detailRouteReusesN16TabSynchronizationWithoutAddingHistoryEntries() throws Exception {
         String runtime = read("resources/static/next/n18-account-detail-deep-links.js");
 
-        assertTrue(runtime.contains("history.replaceState(history.state, '', parent)"));
+        assertTrue(runtime.contains("navigation.replaceState(navigation.state, '', parent)"));
         assertTrue(runtime.contains("window.XHFrontendNextN16?.applyRoute?.({ canonicalize: false })"));
-        assertTrue(runtime.contains("history.replaceState(history.state, '', original)"));
+        assertTrue(runtime.contains("navigation.replaceState(navigation.state, '', original)"));
     }
 
     @Test

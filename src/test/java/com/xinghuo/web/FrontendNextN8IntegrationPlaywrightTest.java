@@ -29,10 +29,10 @@ class FrontendNextN8IntegrationPlaywrightTest {
 
             assertEquals("n8-integration", page.locator("html").getAttribute("data-frontend-next-stage"));
             assertEquals("8/8", page.locator("html").getAttribute("data-frontend-next-runtimes"));
-            assertEquals("FRONTEND NEXT · N8 INTEGRATION", page.locator(".badge").textContent());
-            assertTrue(page.locator(".badge").getAttribute("title").contains("旧前端仍保留"));
+            assertEquals("新版预览", page.locator(".badge").textContent());
+            assertTrue(page.locator(".badge").getAttribute("title").contains("旧版入口"));
             assertTrue(page.locator(".float .sub").textContent().contains("不代表当前账号真实订单"));
-            assertTrue(page.locator(".section .sub").textContent().contains("旧前端继续保留回退"));
+            assertTrue(page.locator(".section .sub").textContent().contains("跟踪订单和交付进度"));
 
             String css = page.locator("#frontend-next-n8-style").textContent();
             assertTrue(css.contains("prefers-reduced-motion:reduce"));

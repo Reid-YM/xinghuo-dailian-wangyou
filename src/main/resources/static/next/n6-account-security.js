@@ -21,6 +21,12 @@
     return element;
   }
 
+  function labelFor(value, id) {
+    const label = node('label', '', value);
+    label.htmlFor = id;
+    return label;
+  }
+
   function append(parent, ...children) {
     children.filter(Boolean).forEach((child) => parent.append(child));
     return parent;
@@ -192,7 +198,7 @@
     const row = node('div', 'n6-row');
     const field = node('div', 'n6-field');
     const email = document.createElement('input'); email.id = 'n6Email'; email.type = 'email'; email.maxLength = 160; email.required = true; email.autocomplete = 'email'; email.placeholder = 'name@example.com'; email.value = text(current.email);
-    append(field, node('label', '', '邮箱地址'), email, node('small', '', current.emailVerified ? '可重新验证新的安全邮箱。' : '发送后请在 30 分钟内完成验证。'));
+    append(field, labelFor('邮箱地址', 'n6Email'), email, node('small', '', current.emailVerified ? '可重新验证新的安全邮箱。' : '发送后请在 30 分钟内完成验证。'));
     const send = button('发送验证码', 'n6-btn'); send.type = 'submit'; append(row, field, send); requestForm.append(row);
     const requestMessage = node('div', 'n6-message'); requestMessage.id = 'n6EmailRequestMessage'; requestMessage.setAttribute('aria-live', 'polite'); requestForm.append(requestMessage);
 
@@ -200,7 +206,7 @@
     const confirmRow = node('div', 'n6-row');
     const codeField = node('div', 'n6-field');
     const code = document.createElement('input'); code.id = 'n6EmailCode'; code.maxLength = 12; code.required = true; code.autocomplete = 'one-time-code'; code.inputMode = 'numeric'; code.placeholder = '输入邮箱验证码';
-    append(codeField, node('label', '', '验证码'), code, node('small', '', '验证码最长 12 位；不要把验证码发送给其他人。'));
+    append(codeField, labelFor('验证码', 'n6EmailCode'), code, node('small', '', '验证码最长 12 位；不要把验证码发送给其他人。'));
     const confirm = button('确认验证', 'n6-btn primary'); confirm.type = 'submit'; append(confirmRow, codeField, confirm); confirmForm.append(confirmRow);
     const confirmMessage = node('div', 'n6-message'); confirmMessage.id = 'n6EmailConfirmMessage'; confirmMessage.setAttribute('aria-live', 'polite'); confirmForm.append(confirmMessage);
     append(steps, requestForm, confirmForm); card.append(steps);
@@ -254,13 +260,13 @@
     const form = document.createElement('form'); form.id = 'n6PasswordForm';
     const oldField = node('div', 'n6-field');
     const oldPassword = document.createElement('input'); oldPassword.id = 'n6OldPassword'; oldPassword.type = 'password'; oldPassword.maxLength = 72; oldPassword.required = true; oldPassword.autocomplete = 'current-password';
-    append(oldField, node('label', '', '原密码'), oldPassword);
+    append(oldField, labelFor('原密码', 'n6OldPassword'), oldPassword);
     const newField = node('div', 'n6-field');
     const newPassword = document.createElement('input'); newPassword.id = 'n6NewPassword'; newPassword.type = 'password'; newPassword.maxLength = 72; newPassword.required = true; newPassword.autocomplete = 'new-password';
-    append(newField, node('label', '', '新密码'), newPassword);
+    append(newField, labelFor('新密码', 'n6NewPassword'), newPassword);
     const confirmField = node('div', 'n6-field');
     const confirmPassword = document.createElement('input'); confirmPassword.id = 'n6ConfirmPassword'; confirmPassword.type = 'password'; confirmPassword.maxLength = 72; confirmPassword.required = true; confirmPassword.autocomplete = 'new-password';
-    append(confirmField, node('label', '', '确认新密码'), confirmPassword);
+    append(confirmField, labelFor('确认新密码', 'n6ConfirmPassword'), confirmPassword);
     const rules = node('ul', 'n6-password-rules');
     ['至少 8 位', '小写 / 大写 / 数字 / 符号至少包含两类', '服务端按 BCrypt 72 字节有效输入上限再次校验', '不能与原密码相同'].forEach((rule) => rules.append(node('li', '', rule)));
     const actions = node('div', 'n6-actions');
@@ -372,7 +378,7 @@
     const shell = node('div', 'shell');
     const head = node('div', 'n6-head');
     const copy = node('div');
-    append(copy, node('div', 'kicker', 'Frontend Next · N6 Account & Security'), node('h2', '', '账号设置与安全'), node('p', '', '账号资料、邮箱验证、密码修改和设备会话都直接复用现有账号安全接口；旧版账号中心继续保留为回退入口。'));
+    append(copy, node('div', 'kicker', '账号与安全'), node('h2', '', '账号设置与安全'), node('p', '', '管理账号资料、验证邮箱、修改密码并查看登录设备。'));
     append(head, copy, node('span', 'n6-badge', 'ACCOUNT SECURITY LIVE'));
     shell.append(head);
     const grid = node('div', 'n6-grid');
@@ -388,7 +394,7 @@
     mountedFingerprint = nextFingerprint;
     if(emailToken){const token=emailToken;emailToken='';setMessage('n6EmailRequestMessage','正在验证邮箱…');request('/api/account/email/verify?token='+encodeURIComponent(token)).then(()=>{setMessage('n6EmailRequestMessage','邮箱验证成功。','ok');return reloadAccount();}).catch(error=>setMessage('n6EmailRequestMessage',text(error.message)||'邮箱验证失败。','error'));}
     if(!initialFocus && location.pathname.startsWith('/account/settings')){initialFocus=true;section.scrollIntoView({block:'start'});}
-    const badge = $('.badge'); if (badge) badge.textContent = 'FRONTEND NEXT · N6 ACCOUNT SECURITY';
+    const badge = $('.badge'); if (badge) badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火服务平台';
   }
 
   function scheduleMount() {

@@ -40,7 +40,7 @@ class FrontendNextN16AccountDeepLinkContinuityContractTest {
         assertTrue(runtime.contains("['order-list', { canonical: 'orders', tab: 'orders'"));
         assertTrue(runtime.contains("['tool-progress', { canonical: 'progress', tab: 'orders'"));
         assertTrue(runtime.contains("return tab === 'quotes' ? '/next/account/requests' : '/next/account/orders'"));
-        assertTrue(runtime.contains("history.pushState"));
+        assertTrue(runtime.contains("navigation.pushState"));
         assertTrue(runtime.contains("window.addEventListener('popstate'"));
         assertTrue(runtime.contains("window.addEventListener('hashchange'"));
         assertTrue(runtime.contains("n5.state.active = info.tab"));

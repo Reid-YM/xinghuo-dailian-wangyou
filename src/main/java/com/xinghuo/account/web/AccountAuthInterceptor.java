@@ -68,7 +68,7 @@ public class AccountAuthInterceptor implements HandlerInterceptor {
         if (query != null && !query.isBlank()) {
             next = next + "?" + query;
         }
-        response.sendRedirect("/account/login?next=" + java.net.URLEncoder
+        response.sendRedirect("/account/login?" + ("1".equals(request.getParameter("legacy")) ? "legacy=1&" : "") + "next=" + java.net.URLEncoder
                 .encode(next, java.nio.charset.StandardCharsets.UTF_8));
         return false;
     }

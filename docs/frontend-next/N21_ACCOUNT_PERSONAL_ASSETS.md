@@ -109,3 +109,7 @@ N21 只在 Frontend Next 开发分支开发。
 - `app.frontend-next.default-enabled=false` 不变。
 
 静态契约已写入仓库，但本阶段不把“存在测试文件”等同于 Maven / Playwright / CI 已实际执行通过。
+
+## 2026-10-19 全站整合更新
+
+普通工具站、撰写投稿和攻略中心链接已进入当前 Next/正式命名空间，不再因早期阶段的旧版标记降级。明确注明“旧版”的入口仍保留 legacy=1。当前路由、分页/返回与鉴权验证以 COMPLETION_AUDIT.md 为准。

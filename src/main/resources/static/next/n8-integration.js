@@ -5,7 +5,7 @@
 
   const STAGE = 'N8 · TOTAL INTEGRATION';
   const HOME_PROGRESS_COPY = '示意进度卡仅用于展示界面，不代表当前账号真实订单；登录后请以个人中心真实业务记录为准。';
-  const HOME_STATUS_COPY = '服务大厅、真实询价、账号、业务记录与安全设置已逐步接入现有接口；Frontend Next 仍以 /next 并行运行，旧前端继续保留回退。';
+  const HOME_STATUS_COPY = '查看服务、提交需求，并在个人中心跟踪订单和交付进度。';
 
   function node(tag, className, text) {
     const element = document.createElement(tag);
@@ -44,8 +44,8 @@
 
     const badge = $('.badge');
     if (badge) {
-      badge.textContent = location.pathname.startsWith('/next') ? 'FRONTEND NEXT · N8 INTEGRATION' : '星火 · 新版服务平台';
-      badge.title = location.pathname.startsWith('/next') ? '并行运行中：旧前端仍保留，可随时回退。' : '当前使用新版服务入口，业务数据以服务器记录为准。';
+      badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火 · 新版服务平台';
+      badge.title = location.pathname.startsWith('/next') ? '这是新版预览，可通过页面中的旧版入口返回。' : '当前使用新版服务入口，业务数据以服务器记录为准。';
     }
     document.documentElement.dataset.frontendNextStage = 'n8-integration';
   }

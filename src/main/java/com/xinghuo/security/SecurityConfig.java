@@ -49,6 +49,7 @@ public class SecurityConfig {
             "/account", "/account/login", "/account/register", "/account/reset",
             "/account/settings", "/account/submit",
             "/account/requests", "/account/orders", "/account/progress",
+            "/account/requests/*", "/account/orders/*", "/account/favorites", "/account/submissions",
             "/account/quotes", "/account/demands", "/account/order", "/account/order-list",
             "/account/tools", "/account/tool-progress", "/account/profile", "/account/contact",
             "/account/security", "/account/devices", "/account/activity",

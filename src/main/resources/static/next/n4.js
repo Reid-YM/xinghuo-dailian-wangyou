@@ -22,6 +22,12 @@
     return element;
   }
 
+  function labelFor(value, id) {
+    const label = node('label', '', value);
+    label.htmlFor = id;
+    return label;
+  }
+
   function append(parent, ...children) {
     children.filter(Boolean).forEach((child) => parent.append(child));
     return parent;
@@ -115,7 +121,7 @@
     card.style.maxWidth = '460px';
     card.style.width = '100%';
     card.style.textAlign = 'center';
-    append(card, node('div', 'kicker', 'Frontend Next · N4'), node('h2', '', '正在读取账号状态…'), node('p', 'n4-note', '只读取当前浏览器自己的登录会话。'));
+    append(card, node('div', 'kicker', '账号服务'), node('h2', '', '正在读取账号状态…'), node('p', 'n4-note', '只读取当前浏览器自己的登录会话。'));
     append(wrap, card);
     page.append(wrap);
   }
@@ -174,9 +180,9 @@
     const card = node('div', 'n4-login');
     const copy = node('section', 'n4-login-copy');
     append(copy,
-      node('div', 'kicker', 'Frontend Next · N4 Account'),
+      node('div', 'kicker', '账号服务'),
       node('h1', '', '登录后查看\n你的真实服务记录'),
-      node('p', '', '新版个人中心直接复用现有账号会话，不另建用户体系。订单、设备和安全活动只读取当前账号自己的数据。')
+      node('p', '', '查看当前账号的订单、登录设备和安全活动。')
     );
     const trust = node('div', 'trust');
     [['账号隔离', '只显示当前账号数据'], ['微信扫码', '配置可用时直接登录'], ['设备管理', '查看当前登录设备'], ['旧版回退', '原账号中心继续保留']].forEach(([a, b]) => {
@@ -195,13 +201,13 @@
     [['PHONE', '手机号'], ['EMAIL', '邮箱'], ['QQ', 'QQ'], ['WECHAT', '微信号']].forEach(([value, label]) => {
       const option = node('option', '', label); option.value = value; type.append(option);
     });
-    append(typeWrap, node('label', '', '登录方式'), type);
+    append(typeWrap, labelFor('登录方式', 'n4ContactType'), type);
     const contactWrap = node('div', 'n4-field');
     const contact = document.createElement('input'); contact.id = 'n4ContactValue'; contact.autocomplete = 'username'; contact.maxLength = 120; contact.placeholder = '请输入账号';
-    append(contactWrap, node('label', '', '账号'), contact);
+    append(contactWrap, labelFor('账号', 'n4ContactValue'), contact);
     const passwordWrap = node('div', 'n4-field');
     const password = document.createElement('input'); password.id = 'n4Password'; password.type = 'password'; password.autocomplete = 'current-password'; password.maxLength = 72; password.placeholder = '请输入密码';
-    append(passwordWrap, node('label', '', '密码'), password);
+    append(passwordWrap, labelFor('密码', 'n4Password'), password);
     append(fields, typeWrap, contactWrap, passwordWrap);
     form.append(fields);
     const rememberLabel = node('label', 'n4-note');
@@ -318,7 +324,7 @@
     const shell = node('div', 'shell');
     const top = node('div', 'n4-top');
     const left = node('div');
-    left.append(node('div', 'kicker', 'Frontend Next · N4 Live Account'));
+    left.append(node('div', 'kicker', '当前账号'));
     const profileRow = node('div', 'n4-profile');
     const avatar = node('div', 'n4-avatar'); renderAvatar(avatar, profile);
     const copy = node('div');
@@ -342,7 +348,7 @@
     const section = node('section', 'n4-section');
     const content = node('div', 'shell n4-grid');
     append(content, renderOrdersPanel(), renderSidePanel()); section.append(content); page.append(section);
-    const badge = $('.badge'); if (badge) badge.textContent = 'FRONTEND NEXT · N4 ACCOUNT LIVE';
+    const badge = $('.badge'); if (badge) badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火服务平台';
   }
 
   async function doLogout() {

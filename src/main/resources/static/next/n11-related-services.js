@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
   const STAGE = 'N11 · RELATED SERVICES CONTINUITY';
   const DETAIL_RE = /^\/next\/service\/([^/?#]+)\/?$/;
@@ -17,7 +18,7 @@
   }
 
   function routeSlug() {
-    const match = location.pathname.match(DETAIL_RE);
+    const match = runtimePath().match(DETAIL_RE);
     if (!match) return null;
     try { return decodeURIComponent(match[1]); } catch (_) { return match[1]; }
   }
@@ -133,7 +134,7 @@
     const head = node('div', 'n11-head');
     const title = node('div');
     title.append(node('div', 'n10-kicker', 'Related Services'), node('h2', '', '同游戏的其他服务'));
-    head.append(title, node('p', '', '继续比较时保持在 Frontend Next 预览链路，不跳回旧页面。'));
+    head.append(title, node('p', '', '查看同一游戏的其他服务，按目标和进度选择。'));
     const grid = node('div', 'n11-grid');
     related.forEach(service => grid.append(card(service)));
     section.replaceChildren(head, grid);

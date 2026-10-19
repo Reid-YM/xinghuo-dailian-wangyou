@@ -50,6 +50,7 @@
 
 ### 攻略
 - `guide.css` / `guide-render.js` / `guide-community.*`：攻略前台；
+- `guide-community.js` 的 `XHGuideCommunity.mount(root)` 同时拥有旧攻略和 Next 详情的收藏、讨论、回复、举报请求；Next 的 `n22-guide-detail.js` 仅建立界面并显式挂载，不复制社区状态机。重复挂载同一 root 不重复绑定事件。
 - `admin-guides-workspace.css`：攻略后台主结构。
 
 ## 4. 后台
@@ -100,3 +101,14 @@
 - `admin-xingwei-labels.js`：新版后台枚举的显式中文显示字典，不改写 API 值，不扫描/替换 DOM，不负责用户输入或权限判定。
 
 - `scripts/generate-admin-search-index.py` 从新版模板与站点字段定义生成 `admin-xingwei-search-index.js`，只索引功能元数据，不包含业务记录；`--check` 检查生成物是否过期。主工作台 `admin-xingwei.js` 唯一负责权限过滤、关键词匹配和结果展示；静态表单沿用 URL 锚点，异步站点表单在自身 render 完成后定位，不使用轮询或 DOM 扫描补丁。
+
+## Next 公共可达性
+
+- `next/shell.js` 负责跳过导航和标签组通用键盘行为；各业务模块明确绑定自己的 tablist 并维护 tab/panel 的关联，不通过全局 DOM 修补观察器推断表单。
+- `next/index.html` 拥有公共手机输入/触控/禁用状态与导航留白；控件名称、表单错误、业务重绘后的焦点和对话框归各表单模块负责。
+- `next/n28-legal-single-source.js` 只安全展示正式中英文法律页面，并按与正式页一致的公开字段绑定主体/客服信息，不拥有第二份法律条款。
+
+- `next/game-detail.js` 负责独立游戏资料及该游戏公开服务列表，复用 `/api/catalog`、`/api/services` 和公开站点配置；`FrontendNextGameController` 复用原公开游戏校验，`FrontendNextPreviewController` 唯一生成文档元信息与资源指纹。
+
+- `next/shell.js` 唯一拥有正式/预览路径上下文和导航历史适配；各模块使用逻辑路由进行匹配，生成返回地址时使用同一命名空间，不改写全局 History API。
+- `assets/guest-business.js` 唯一拥有游客正式报价确认、付款二维码及履约展示，暴露可销毁的 mount 供 Next N13 使用，原记录页继续自动挂载。离页停止轮询、迟到响应保护及失败重试由共享模块负责；前端不传金额。独立 `/guest/access/{token}` 仍由原安全确认表单交换 HttpOnly 凭证。

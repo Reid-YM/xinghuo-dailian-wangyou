@@ -1,5 +1,7 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const navigation = window.XHFrontendShell?.navigation || history;
 
   const QUOTE_PATH = '/next/quote';
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -115,7 +117,7 @@
     const service = selectedService();
     const requested = new URLSearchParams(location.search).get('service');
     if (!service) {
-      if (requested && location.pathname === QUOTE_PATH && services().length) {
+      if (requested && runtimePath() === QUOTE_PATH && services().length) {
         renderUnavailable(requested);
         return;
       }
@@ -158,7 +160,7 @@
 
   function readyForUrlSync() {
     const select = $('#qSvc');
-    return location.pathname === QUOTE_PATH && Array.isArray(window.XHFrontendNextN2?.state?.services)
+    return runtimePath() === QUOTE_PATH && Array.isArray(window.XHFrontendNextN2?.state?.services)
       && !!select && !select.disabled && select.options.length > 0;
   }
 
@@ -170,11 +172,11 @@
     const next = text(service?.slug);
     if (next) url.searchParams.set('service', next); else url.searchParams.delete('service');
     if (current === next) return;
-    history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+    navigation.replaceState(navigation.state, '', url.pathname + url.search + url.hash);
   }
 
   function selectFromUrl() {
-    if (location.pathname !== QUOTE_PATH) return false;
+    if (runtimePath() !== QUOTE_PATH) return false;
     const slug = new URLSearchParams(location.search).get('service');
     if (!slug || !services().length) return false;
     const service = services().find(item => text(item?.slug) === slug);
@@ -206,7 +208,7 @@
   }
 
   function refreshContext({ syncUrl = true } = {}) {
-    if (location.pathname !== QUOTE_PATH && document.documentElement.dataset.frontendPage !== 'quote') return;
+    if (runtimePath() !== QUOTE_PATH && document.documentElement.dataset.frontendPage !== 'quote') return;
     render();
     if (syncUrl) syncUrlFromSelection();
   }
@@ -216,7 +218,7 @@
     if (!serviceSelect || optionObserver) return;
     optionObserver = new MutationObserver(() => {
       queueMicrotask(() => {
-        if (location.pathname === QUOTE_PATH) {
+        if (runtimePath() === QUOTE_PATH) {
           const requested = new URLSearchParams(location.search).get('service');
           if (requested && text(selectedService()?.slug) !== requested) selectFromUrl();
         }

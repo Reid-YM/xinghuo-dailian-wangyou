@@ -1,7 +1,13 @@
-(() => {
+(function initializeAccount() {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
+  const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(location.pathname)) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath()) && !document.querySelector('.page[data-page="account"].active')) {
+    window.addEventListener('xh:pagechange', initializeAccount, { once: true });
+    return;
+  }
 
   const BUSINESS_NO_RE = /^(XH[A-Z0-9]{10}|XH-[A-Z2-9]{24})$/;
   const transientParams = new Set(['auth', 'token', 'verifyToken', 'wechat', 'next', 'legacy']);
@@ -10,6 +16,7 @@
   let openingTimer = null;
   let closing = false;
   let lastMissing = '';
+  let focusedDetail = '';
 
   function text(value) {
     return String(value ?? '').trim();
@@ -22,7 +29,8 @@
     return BUSINESS_NO_RE.test(decoded) ? decoded : '';
   }
 
-  function routeInfo(pathname = location.pathname) {
+  function routeInfo(pathname = runtimePath()) {
+    pathname = runtimePath(pathname);
     const match = /^\/next\/account\/(requests|orders)\/([^/?#]+)\/?$/.exec(pathname);
     if (!match) return null;
     const businessNo = normalizeBusinessNo(match[2]);
@@ -42,7 +50,7 @@
     url.pathname = pathname;
     transientParams.forEach((key) => url.searchParams.delete(key));
     url.hash = '';
-    return url.pathname + url.search;
+    return runtimeHref(url.pathname + url.search);
   }
 
   function detailUrl(kind, businessNo) {
@@ -77,11 +85,11 @@
     const original = location.pathname + location.search + location.hash;
     const parent = parentUrl(info);
     if (!parent) return;
-    history.replaceState(history.state, '', parent);
+    navigation.replaceState(navigation.state, '', parent);
     try {
       window.XHFrontendNextN16?.applyRoute?.({ canonicalize: false });
     } finally {
-      history.replaceState(history.state, '', original);
+      navigation.replaceState(navigation.state, '', original);
       updateAccountNav();
     }
   }
@@ -125,7 +133,7 @@
     if (!target) return false;
     if (current.searchParams.get('next') === target) return true;
     current.searchParams.set('next', target);
-    history.replaceState(history.state, '', current.pathname + current.search + current.hash);
+    navigation.replaceState(navigation.state, '', current.pathname + current.search + current.hash);
     return true;
   }
 
@@ -141,6 +149,7 @@
   function applyDetailRoute() {
     const info = routeInfo();
     if (!info) {
+      focusedDetail = '';
       if (detailHostVisible()) closeRenderedDetail();
       return false;
     }
@@ -154,7 +163,11 @@
     syncParentContext(info);
     if (currentDetailNo(info.kind) === info.businessNo && detailHostVisible()) {
       openingKey = '';
-      document.querySelector('#n5Detail')?.scrollIntoView({ block: 'start' });
+      const focusKey = `${info.kind}:${info.businessNo}`;
+      if (focusedDetail !== focusKey) {
+        focusedDetail = focusKey;
+        document.querySelector('#n5Detail')?.scrollIntoView({ block: 'start' });
+      }
       return true;
     }
 
@@ -182,7 +195,7 @@
     if (!target) return false;
     const current = location.pathname + location.search + location.hash;
     if (target === current) return true;
-    history.pushState({ ...(history.state || {}), n18AccountDetail: `${kind}:${normalizeBusinessNo(businessNo)}` }, '', target);
+    navigation.pushState({ ...(navigation.state || {}), n18AccountDetail: `${kind}:${normalizeBusinessNo(businessNo)}` }, '', target);
     updateAccountNav();
     return true;
   }
@@ -192,7 +205,7 @@
     if (!target) return false;
     const current = location.pathname + location.search + location.hash;
     if (target === current) return true;
-    history.pushState({ ...(history.state || {}), n18AccountDetail: null }, '', target);
+    navigation.pushState({ ...(navigation.state || {}), n18AccountDetail: null }, '', target);
     updateAccountNav();
     return true;
   }
@@ -225,6 +238,7 @@
 
   window.addEventListener('popstate', () => {
     openingKey = '';
+    focusedDetail = '';
     lastMissing = '';
     if (routeInfo()) applyDetailRoute();
     else closeRenderedDetail();
@@ -237,10 +251,18 @@
 
   observer = new MutationObserver(() => applyDetailRoute());
   observer.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      observer?.observe(document.body, { childList: true, subtree: true });
+      applyDetailRoute();
+    }
+  });
   window.addEventListener('pagehide', () => {
     observer?.disconnect();
+    openingKey = '';
+    focusedDetail = '';
     if (openingTimer) clearTimeout(openingTimer);
-  }, { once: true });
+  });
 
   applyDetailRoute();
 

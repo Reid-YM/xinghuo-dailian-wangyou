@@ -10,13 +10,16 @@ const BRAND = {
 }
 
 // 与开发者工具上传的版本号保持一致，方便用户报问题时定位是哪一版
-const VERSION = '1.0.31'
+const VERSION = '1.0.32'
 
 /*
  * 工信部 ICP 备案号：备案通过后填写，展示在「我的 → 关于本工具」。
  * 形如 '蜀ICP备2026000000号-2'；留空则不展示这一行（未填真实备案号前不要写占位符）。
  */
 const ICP = '蜀ICP备2026062998号'
+
+/* 公安备案号：展示在「我的 → 关于本工具」；留空不展示。 */
+const POLICE = '川公网安备51162102000262号'
 
 /* 攻略源内容已在网站后台整理；此过滤器保留为内容回归保护。 */
 const CONTENT_FILTER = {
@@ -116,6 +119,7 @@ module.exports = {
   BRAND,
   VERSION,
   ICP,
+  POLICE,
   SITE,
   KF,
   CONTENT_FILTER,

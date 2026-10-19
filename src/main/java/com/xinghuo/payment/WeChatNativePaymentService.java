@@ -217,6 +217,7 @@ public class WeChatNativePaymentService {
             }
             throw error;
         }
+        validateQueryResult(transaction, paymentNo);
         if (transaction.getTradeState() == Transaction.TradeStateEnum.SUCCESS) {
             transactions.executeWithoutResult(status -> applySuccess(transaction));
         } else if (transaction.getTradeState() == Transaction.TradeStateEnum.CLOSED) {
@@ -245,6 +246,7 @@ public class WeChatNativePaymentService {
         query.setOutTradeNo(paymentNo);
         try {
             Transaction transaction = client.nativePay().queryOrderByOutTradeNo(query);
+            validateQueryResult(transaction, paymentNo);
             if (transaction.getTradeState() == Transaction.TradeStateEnum.SUCCESS) {
                 applySuccess(transaction);
                 return false;
@@ -277,12 +279,23 @@ public class WeChatNativePaymentService {
             try {
                 reconcile(row.paymentNo());
                 if (row.expiresAt() != null && row.expiresAt().isBefore(Instant.now())) {
-                    close(row.paymentNo());
+                    // This same-instance call bypasses Spring's @Transactional proxy.
+                    // Each expired payment needs its own row lock and rollback boundary.
+                    transactions.executeWithoutResult(status -> close(row.paymentNo()));
                 }
             } catch (RuntimeException error) {
                 // Keep the payment pending so the next run retries; never infer success from a timeout.
                 LOG.warn("WeChat Pay reconciliation failed for {}: {}", row.paymentNo(), error.getClass().getSimpleName());
             }
+        }
+    }
+
+    private void validateQueryResult(Transaction transaction, String paymentNo) {
+        if (transaction == null || transaction.getTradeState() == null
+                || !Objects.equals(client.merchantId(), transaction.getMchid())
+                || !Objects.equals(client.appId(), transaction.getAppid())
+                || !Objects.equals(paymentNo, transaction.getOutTradeNo())) {
+            throw new IllegalStateException("微信查单结果与当前支付单不匹配，请核对交易，暂不变更收款状态");
         }
     }
 

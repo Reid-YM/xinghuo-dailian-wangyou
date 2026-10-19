@@ -17,6 +17,7 @@
 
   // 数据同时保留英文名与中文名；界面按中文显示，英文名只用于搜索匹配。
   const zhName = entry => String(entry?.nameZh || entry?.name || '').trim();
+  const resolveImage = path => window.XinghuoCamoImages?.[path] || path || '';
   const TIER_LABELS = ['一级', '二级', '三级'];
 
   let game = null;
@@ -31,10 +32,11 @@
       if (parsed && typeof parsed === 'object') {
         parsed.progress = parsed.progress && typeof parsed.progress === 'object' ? parsed.progress : {};
         parsed.favorites = Array.isArray(parsed.favorites) ? parsed.favorites : [];
+        parsed.guideDone = parsed.guideDone && typeof parsed.guideDone === 'object' ? parsed.guideDone : {};
         return parsed;
       }
     } catch (ignored) {}
-    return { activeMode: null, progress: {}, favorites: [], updatedAt: null };
+    return { activeMode: null, progress: {}, favorites: [], guideDone: {}, updatedAt: null };
   }
 
   function saveState() {
@@ -165,7 +167,7 @@
     $('#tierCards').innerHTML = (mode.items || []).map((item, index) => {
       const done = tierCount(mode, item);
       return `<article class="camo-tier-card">
-        <div class="camo-tier-media"><img src="${esc(item.image || '')}" alt="${esc(zhName(item))} 迷彩" loading="lazy"></div>
+        <div class="camo-tier-media"><img src="${esc(resolveImage(item.image))}" alt="${esc(zhName(item))} 迷彩" loading="lazy"></div>
         <div class="camo-tier-body">
           <span class="camo-tier-label">${TIER_LABELS[index] || `第 ${index + 1} 层`}</span>
           <div class="camo-tier-title"><b>${esc(zhName(item))}</b><span class="mono">${done} / ${weapons}</span></div>
@@ -192,7 +194,7 @@
         const checked = isPyroDone(item.code);
         return `<label class="camo-pyro-card ${checked ? 'is-done' : ''}">
           <input type="checkbox" data-pyro-item="${esc(item.code)}" ${checked ? 'checked' : ''}>
-          <span class="camo-pyro-media"><img src="${esc(item.image || '')}" alt="${esc(zhName(item))} 迷彩" loading="lazy"></span>
+          <span class="camo-pyro-media"><img src="${esc(resolveImage(item.image))}" alt="${esc(zhName(item))} 迷彩" loading="lazy"></span>
           <span class="camo-pyro-body">
             <b>${esc(zhName(item))}</b>
             <small>${esc(item.requirement || '条件暂未公布')}</small>
@@ -248,13 +250,39 @@
     </label>`;
   }
 
+  function renderGuide(mode, weapon) {
+    const catalog = game.camoGuide || {};
+    const specific = mode.code === 'MULTIPLAYER' && catalog.weapons?.[weapon.code];
+    const guide = specific || catalog.classes?.[weapon.weaponType];
+    if (!guide) return '';
+    const checkbox = (key, title, text, image) => {
+      const id = `${weapon.code}::${key}`;
+      return `<label class="camo-guide-item"><input type="checkbox" data-guide-item="${esc(id)}" ${state.guideDone[id] ? 'checked' : ''}>
+        ${image ? `<img src="${esc(resolveImage(image))}" alt="" loading="lazy">` : ''}
+        <span><strong>${esc(title)}</strong>${text ? `<small>${esc(text)}</small>` : ''}</span></label>`;
+    };
+    const military = guide.military || {};
+    const images = specific ? [military.image].filter(Boolean) : (catalog.militaryImages?.length ? catalog.militaryImages : [military.image].filter(Boolean));
+    const tiles = Array.from({ length: military.count || 8 }, (_, i) => checkbox(`mil-${i}`,
+      military.levels?.[i] ? `${military.levels[i]}级` : `第${i + 1}档`, '', images[i % images.length]));
+    const groups = [['special', '特殊迷彩', 'special'], ['completionist', '完成主义', 'comp']].map(([field, title, prefix]) => {
+      const rows = (guide[field] || []).map((item, i) => item.text ? checkbox(`${prefix}-${i}`, item.name || `${title} ${i + 1}`,
+        `${item.estimate ? '参考条件 · ' : ''}${item.text}`, item.image) : '').join('');
+      return rows ? `<section><h4>${title}</h4>${rows}</section>` : '';
+    }).join('');
+    return `<section class="camo-guide"><h3>完整迷彩挑战</h3>
+      <p>${specific ? `满级 ${esc(guide.maxLevel || '待确认')} · ${esc(guide.unlock || '')}` : '职业通用挑战参考'} · 挑战勾选仅保存在本机，不计入大师进度</p>
+      <section><h4>军事迷彩 · ${military.count || 8} 档</h4><p>${military.estimate ? '参考条件 · ' : ''}${esc(military.text || '')}</p><div class="camo-military-grid">${tiles.join('')}</div></section>
+      ${groups}${guide.note ? `<p>${esc(guide.note)}</p>` : ''}</section>`;
+  }
+
   function renderWeapon(mode, weapon) {
     const stats = weaponStats(mode, weapon);
     const favorite = state.favorites.includes(weapon.code);
     const open = openWeapons.has(weapon.code);
     const label = zhName(weapon);
     const thumb = weapon.image
-      ? `<img class="weapon-thumb" src="${esc(weapon.image)}" alt="" loading="lazy">`
+      ? `<img class="weapon-thumb" src="${esc(resolveImage(weapon.image))}" alt="" loading="lazy">`
       : '<span class="weapon-thumb is-empty" aria-hidden="true"></span>';
     return `<article class="weapon-tracker ${open ? 'is-open' : ''}" data-weapon-wrap="${esc(weapon.code)}">
       <div class="weapon-tracker-head">
@@ -269,7 +297,7 @@
           <span class="weapon-chevron" aria-hidden="true">⌄</span>
         </button>
       </div>
-      <div class="weapon-tracker-body">${stats.items.map(item => renderCheckItem(mode, weapon, item)).join('')}</div>
+      <div class="weapon-tracker-body"><h3 class="camo-mastery-heading">大师迷彩 · 按顺序完成</h3>${stats.items.map(item => renderCheckItem(mode, weapon, item)).join('')}${renderGuide(mode, weapon)}</div>
     </article>`;
   }
 
@@ -339,7 +367,13 @@
   function toggleItem(weaponCode, itemCode, checked) {
     buckets(activeMode);
     state.progress[activeMode][weaponCode] = state.progress[activeMode][weaponCode] || {};
-    state.progress[activeMode][weaponCode][itemCode] = checked;
+    const items = modeByCode(activeMode)?.items || [];
+    const index = items.findIndex(item => item.code === itemCode);
+    if (index < 0) return;
+    items.forEach((item, i) => {
+      if (checked && i <= index) state.progress[activeMode][weaponCode][item.code] = true;
+      if (!checked && i >= index) delete state.progress[activeMode][weaponCode][item.code];
+    });
     saveState();
     render();
   }
@@ -505,6 +539,13 @@
     });
 
     $('#weaponGroups').addEventListener('change', event => {
+      const guide = event.target.closest('[data-guide-item]');
+      if (guide) {
+        if (guide.checked) state.guideDone[guide.dataset.guideItem] = true;
+        else delete state.guideDone[guide.dataset.guideItem];
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (ignored) {}
+        return;
+      }
       const input = event.target.closest('[data-camo-item]');
       if (!input) return;
       toggleItem(input.dataset.weapon, input.dataset.camoItem, input.checked);

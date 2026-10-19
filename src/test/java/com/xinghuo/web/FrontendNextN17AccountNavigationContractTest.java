@@ -49,7 +49,7 @@ class FrontendNextN17AccountNavigationContractTest {
         String runtime = read("resources/static/next/n17-account-navigation.js");
         assertTrue(runtime.contains("document.querySelector('#n4LoginForm')"));
         assertTrue(runtime.contains("document.querySelector('.page[data-page=\"account\"] > .n4-shell')"));
-        assertTrue(runtime.contains("history.pushState"));
+        assertTrue(runtime.contains("navigation.pushState"));
         assertTrue(runtime.contains("window.addEventListener('popstate'"));
         assertTrue(runtime.contains("new MutationObserver"));
         assertTrue(runtime.contains("existing?.remove()"));

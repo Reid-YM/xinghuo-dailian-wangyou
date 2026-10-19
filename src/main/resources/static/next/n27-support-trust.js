@@ -1,7 +1,8 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
-  const pathMatch = /^\/next\/(contact|trust)\/?$/.exec(location.pathname);
+  const pathMatch = /^\/next\/(contact|trust)\/?$/.exec(runtimePath());
   if (!pathMatch) return;
 
   const STAGE = 'N27 · SUPPORT & TRUST';
@@ -14,7 +15,7 @@
   let publicCasesRequest = 0;
 
   function currentPage() {
-    const match = /^\/next\/(contact|trust)\/?$/.exec(location.pathname);
+    const match = /^\/next\/(contact|trust)\/?$/.exec(runtimePath());
     return match ? match[1] : '';
   }
 
@@ -106,7 +107,8 @@
       robots.name = 'robots';
       document.head.append(robots);
     }
-    robots.content = 'noindex,follow';
+    if (window.XHFrontendShell?.isPreview === false) robots.remove();
+    else robots.content = 'noindex,follow';
   }
 
   function header(page) {
@@ -271,7 +273,7 @@
     const faq = list(configuration?.trustFaq);
     const faqSection = node('section', 'n27-section');
     const faqHead = node('div', 'n27-section-head');
-    faqHead.append(node('h2', '', '常见问题'), node('p', '', '答案继续复用后台现有信任 FAQ。'));
+    faqHead.append(node('h2', '', '常见问题'), node('p', '', '查看常见问题与服务说明。'));
     faqSection.append(faqHead);
     const faqGrid = node('div', 'n27-faq');
     faq.forEach((item) => {
@@ -290,7 +292,7 @@
     const contact = node('a', 'btn gold', '一对一咨询');
     contact.href = '/next/contact';
     actions.append(records, contact);
-    shell.append(actions, node('p', 'n27-note', 'N27 不复制服务规则或隐私政策正文；法律文本继续以正式 `/rules` 与 `/privacy` 为唯一来源。'));
+    shell.append(actions, node('p', 'n27-note', '服务规则和隐私政策请查看完整正文。'));
   }
 
   async function loadPublicCases() {

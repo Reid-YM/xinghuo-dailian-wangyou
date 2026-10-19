@@ -294,7 +294,7 @@
     center.id = 'n5ActionCenter'; center.dataset.key = key;
     const head = node('div', 'n5a-head');
     const copy = node('div');
-    append(copy, node('div', 'kicker', 'N5 · CUSTOMER ACTIONS'), node('h4', '', '业务补充与售后操作'), node('p', '', '写入动作直接提交到当前账号对应的生产业务记录；提交成功后会刷新个人中心数据。请勿填写密码、短信验证码或其他登录凭据。'));
+    append(copy, node('div', 'kicker', '订单服务'), node('h4', '', '业务补充与售后操作'), node('p', '', '补充信息或提交售后申请后，可在个人中心查看处理进度。请勿填写密码、短信验证码或其他登录凭据。'));
     head.append(copy); center.append(head);
     const grid = node('div', 'n5a-grid');
     if (detail.order) {

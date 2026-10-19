@@ -1,7 +1,9 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/mastery\/?$/.test(location.pathname)) return;
+  if (!/^\/next\/mastery\/?$/.test(runtimePath())) return;
 
   const STAGE = 'N24 · MASTERY TRACKER';
   const STORAGE_KEY = 'xinghuo-mw4-camo-tracker-v2';
@@ -77,7 +79,7 @@
     if (next.q) url.searchParams.set('q', next.q);
     if (next.type) url.searchParams.set('type', next.type);
     if (next.status && next.status !== 'all') url.searchParams.set('status', next.status);
-    history.replaceState({ ...(history.state || {}), n24Mastery: true }, '', url.pathname + url.search);
+    navigation.replaceState({ ...(navigation.state || {}), n24Mastery: true }, '', url.pathname + url.search);
   }
 
   function isMastery(mode) {
@@ -198,7 +200,8 @@
       robots.name = 'robots';
       document.head.append(robots);
     }
-    robots.content = 'noindex,follow';
+    if (window.XHFrontendShell?.isPreview === false) robots.remove();
+    else robots.content = 'noindex,follow';
   }
 
   function publishQuoteSnapshot() {
@@ -343,14 +346,14 @@
   }
 
   function scheduleCloudSave() {
-    if (!/^\/next\/mastery\/?$/.test(location.pathname) || !cloud.enabled || !cloud.ready || cloud.conflict || cloud.reading) return;
+    if (!/^\/next\/mastery\/?$/.test(runtimePath()) || !cloud.enabled || !cloud.ready || cloud.conflict || cloud.reading) return;
     clearTimeout(cloud.timer);
     if (!cloud.saving) setSync('pending', '本机进度已保存', '正在等待同步到账号…');
     cloud.timer = setTimeout(() => pushCloudProgress(false), 800);
   }
 
   async function pushCloudProgress(silent) {
-    if (!/^\/next\/mastery\/?$/.test(location.pathname) || !cloud.enabled || !cloud.ready || cloud.reading || cloud.conflict || cloud.saving) return;
+    if (!/^\/next\/mastery\/?$/.test(runtimePath()) || !cloud.enabled || !cloud.ready || cloud.reading || cloud.conflict || cloud.saving) return;
     cloud.saving = true;
     const revision = localRevision;
     let saved = false;
@@ -655,7 +658,7 @@
   }
 
   function render() {
-    if (!/^\/next\/mastery\/?$/.test(location.pathname)) return;
+    if (!/^\/next\/mastery\/?$/.test(runtimePath())) return;
     if (composingSearch && document.activeElement?.id === 'n24Search') return;
     composingSearch = false;
     clearTimeout(searchTimer);
@@ -752,7 +755,7 @@
     const status = $('#n24Status', section);
     const applySearch = () => {
       clearTimeout(searchTimer);
-      if (!/^\/next\/mastery\/?$/.test(location.pathname)) return;
+      if (!/^\/next\/mastery\/?$/.test(runtimePath())) return;
       writeRoute({ ...routeState(), mode: activeMode, q: search.value });
       searchTimer = setTimeout(render, 180);
     };
@@ -818,7 +821,7 @@
       });
       if (!response.ok) throw new Error(`工具数据读取失败（${response.status}）`);
       const payload = await response.json();
-      if (request !== requestToken || !/^\/next\/mastery\/?$/.test(location.pathname)) return;
+      if (request !== requestToken || !/^\/next\/mastery\/?$/.test(runtimePath())) return;
       game = list(payload.games).find((item) => text(item.code) === 'CODMW4') || list(payload.games)[0] || null;
       if (!game) throw new Error('没有找到可用的工具站游戏数据');
       const tracks = game.camoTracks || {};
@@ -838,7 +841,7 @@
   }
 
   window.addEventListener('popstate', () => {
-    if (!/^\/next\/mastery\/?$/.test(location.pathname)) return;
+    if (!/^\/next\/mastery\/?$/.test(runtimePath())) return;
     const requested = routeState().mode;
     if (modeByCode(requested)) activeMode = requested;
     if (game) { render(); checkAccount(); } else load();

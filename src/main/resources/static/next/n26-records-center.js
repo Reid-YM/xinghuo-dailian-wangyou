@@ -1,7 +1,8 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
-  if (!/^\/next\/records\/?$/.test(location.pathname)) return;
+  if (!/^\/next\/records\/?$/.test(runtimePath())) return;
 
   const STAGE = 'N26 · RECORDS CENTER';
   const KEY = 'xh_client_records_v1';

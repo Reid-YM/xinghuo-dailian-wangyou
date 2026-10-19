@@ -15,7 +15,7 @@ class FrontendNextAssetVersionTest {
             String hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(Path.of("src/main/resources/static/next/"+name))));
             assertTrue(response.getBody().contains("src=\"/next/"+name+"?v="+hash+"\""),name);
         }
-        for(String name:new String[]{"site-image-controls.js","site-image-controls.css","guide-community.js","guide-community.css"}) {
+        for(String name:new String[]{"site-image-controls.js","site-image-controls.css","guest-business.js","guide-community.js","guide-community.css"}) {
             String hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(Path.of("src/main/resources/static/assets/"+name))));
             assertTrue(response.getBody().contains("/assets/"+name+"?v="+hash));
         }

@@ -1,7 +1,10 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
+  const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(location.pathname)) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath())) return;
 
   const transientParams = new Set(['auth', 'token', 'verifyToken', 'wechat']);
   let applying = false;
@@ -41,12 +44,13 @@
     return String(value ?? '').trim();
   }
 
-  function suffix(pathname = location.pathname) {
+  function suffix(pathname = runtimePath()) {
+    pathname = runtimePath(pathname);
     const match = /^\/(?:next\/)?account(?:\/(.*?))?\/?$/.exec(pathname);
     return match ? text(match[1]) : '';
   }
 
-  function routeInfo(pathname = location.pathname, hash = location.hash) {
+  function routeInfo(pathname = runtimePath(), hash = location.hash) {
     const key = suffix(pathname);
     if (key === 'settings') {
       const anchor = text(hash).replace(/^#/, '').toLowerCase();
@@ -63,7 +67,7 @@
     url.searchParams.delete('legacy');
     url.searchParams.delete('next');
     url.hash = info.hash ? `#${info.hash}` : '';
-    return url.pathname + url.search + url.hash;
+    return runtimeHref(url.pathname + url.search + url.hash);
   }
 
   function supportedAccountTarget(raw) {
@@ -82,7 +86,7 @@
     const target = supportedAccountTarget(raw);
     if (!target || target === raw) return;
     current.searchParams.set('next', target);
-    history.replaceState(history.state, '', current.pathname + current.search + current.hash);
+    navigation.replaceState(navigation.state, '', current.pathname + current.search + current.hash);
   }
 
   function ensureGuestReturnParam() {
@@ -94,7 +98,7 @@
     const target = buildCanonical(info, current.href);
     if (!target) return;
     current.searchParams.set('next', target);
-    history.replaceState(history.state, '', current.pathname + current.search + current.hash);
+    navigation.replaceState(navigation.state, '', current.pathname + current.search + current.hash);
   }
 
   function normalizeAccountLink(link) {
@@ -141,7 +145,7 @@
 
   function focusRoute(info) {
     if (!info) return false;
-    const key = `${location.pathname}${location.hash}:${info.focus || ''}`;
+    const key = `${runtimePath()}${location.hash}:${info.focus || ''}`;
     if (focusedRoute === key) return true;
     const target = focusTarget(info);
     if (!target) return false;
@@ -169,7 +173,7 @@
     if (!info) return;
     const canonical = buildCanonical(info);
     const current = location.pathname + location.search + location.hash;
-    if (canonical && canonical !== current) history.replaceState(history.state, '', canonical);
+    if (canonical && canonical !== current) navigation.replaceState(navigation.state, '', canonical);
   }
 
   function applyRoute(options = {}) {
@@ -197,9 +201,9 @@
     url.searchParams.delete('legacy');
     url.searchParams.delete('next');
     url.hash = '';
-    const next = url.pathname + url.search;
+    const next = runtimeHref(url.pathname + url.search);
     if (next !== location.pathname + location.search + location.hash) {
-      history.pushState({ ...(history.state || {}), n16AccountRoute: tab.dataset.n5Tab }, '', next);
+      navigation.pushState({ ...(navigation.state || {}), n16AccountRoute: tab.dataset.n5Tab }, '', next);
       focusedRoute = '';
       window.requestAnimationFrame(() => focusRoute(routeInfo()));
     }

@@ -62,7 +62,8 @@ class FrontendNextN27SupportTrustContractTest {
         assertTrue(runtime.contains("legacy.dataset.n27Legacy = '1'"));
         assertTrue(runtime.contains("canonical.href = `https://wydlgf.cn/${page}`"));
         assertTrue(runtime.contains("robots.content = 'noindex,follow'"));
-        assertTrue(runtime.contains("正式 `/rules` 与 `/privacy` 为唯一来源"));
+        assertTrue(routes.contains("nextUrl(url, '/next/rules')"));
+        assertTrue(routes.contains("nextUrl(url, '/next/privacy')"));
 
         assertTrue(routes.contains("url.pathname === '/contact'"));
         assertTrue(routes.contains("nextUrl(url, '/next/contact')"));

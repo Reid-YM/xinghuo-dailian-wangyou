@@ -22,6 +22,7 @@
   let paymentTimer=null;
   let paymentGeneration=0;
   let initialFocus=false;
+  let suspended=false;
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
@@ -94,7 +95,7 @@
   }
 
   function authenticated() {
-    return !!profile() && !!$('.n4-shell', page);
+    return !suspended && page.classList.contains('active') && !!profile() && !!$('.n4-shell', page);
   }
 
   function installStyles() {
@@ -528,11 +529,13 @@
       if (failures.length) setMessage('部分业务数据暂不可用，其余已成功读取；旧版账号中心仍可回退。', 'error');
     } finally {
       state.loading = false;
+      if (generation !== state.generation && authenticated() && !$('#n5BusinessCenter')) scheduleMount();
     }
   }
 
   function scheduleMount() {
     if (mountTimer) clearTimeout(mountTimer);
+    if (suspended) return;
     mountTimer = setTimeout(() => {
       if (!authenticated()) {
         $('#n5BusinessCenter')?.remove();
@@ -548,11 +551,21 @@
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && page.classList.contains('active') && authenticated()) load();
   });
-  window.addEventListener('xh:pagechange',event=>{if(event.detail?.page!=='account')stopPayment();else if(state.detail?.order){const host=$('#n5Detail');if(host&&!host.hidden){stopPayment();$('#n5Payment')?.remove();paymentPanel(host,state.detail.order.businessNo||state.detail.order.orderNo);}}});
+  window.addEventListener('xh:pagechange',event=>{if(event.detail?.page!=='account'){stopPayment();++state.generation;if(mountTimer)clearTimeout(mountTimer);}else {scheduleMount();}if(event.detail?.page==='account'&&state.detail?.order){const host=$('#n5Detail');if(host&&!host.hidden){stopPayment();$('#n5Payment')?.remove();paymentPanel(host,state.detail.order.businessNo||state.detail.order.orderNo);}}});
   window.addEventListener('pagehide', () => {
+    suspended=true;
+    ++state.generation;
     stopPayment();
     if (observer) observer.disconnect();
     if (mountTimer) clearTimeout(mountTimer);
+  });
+
+  window.addEventListener('pageshow', event => {
+    suspended=false;
+    if(event.persisted){
+      observer.observe(page,{childList:true,subtree:true});
+      scheduleMount();
+    }
   });
 
   window.XHFrontendNextN5 = { reload: load, state };

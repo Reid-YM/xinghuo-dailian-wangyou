@@ -36,7 +36,7 @@ class FrontendNextN19AccountDetailContextContractTest {
         assertTrue(runtime.contains("context.ids.join('|')"));
         assertTrue(runtime.contains("dataset.n19Signature"));
         assertTrue(runtime.contains("window.XHFrontendNextN18?.detailUrl"));
-        assertTrue(runtime.contains("history.pushState"));
+        assertTrue(runtime.contains("navigation.pushState"));
     }
 
     @Test

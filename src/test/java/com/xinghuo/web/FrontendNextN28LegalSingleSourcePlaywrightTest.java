@@ -122,7 +122,7 @@ class FrontendNextN28LegalSingleSourcePlaywrightTest {
                     .last().getAttribute("href"));
             assertEquals("/next/contact", page.locator("#n28Legal a.n28-link[href='/next/contact']")
                     .getAttribute("href"));
-            assertEquals("/rules", page.getByText("打开正式原文", new Page.GetByTextOptions().setExact(true))
+            assertEquals("/rules?legacy=1", page.getByText("打开正式原文", new Page.GetByTextOptions().setExact(true))
                     .getAttribute("href"));
             assertEquals("https://wydlgf.cn/rules", page.locator("link[rel=canonical]").getAttribute("href"));
             assertEquals("noindex,follow", page.locator("meta[name=robots]").getAttribute("content"));

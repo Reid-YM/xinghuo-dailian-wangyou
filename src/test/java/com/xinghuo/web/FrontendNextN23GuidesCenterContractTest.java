@@ -24,7 +24,7 @@ class FrontendNextN23GuidesCenterContractTest {
     @Test
     void guideCenterUsesExistingPublicReadApiOnly() throws Exception {
         String runtime = read("resources/static/next/n23-guides-center.js");
-        assertTrue(runtime.contains("fetch('/api/guides?limit=100'"));
+        assertTrue(runtime.contains("fetch('/api/guides?' + query"));
         assertTrue(runtime.contains("method: 'GET'"));
         assertTrue(runtime.contains("credentials: 'same-origin'"));
         assertTrue(runtime.contains("cache: 'no-store'"));

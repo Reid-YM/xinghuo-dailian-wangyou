@@ -1,7 +1,10 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
+  const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(location.pathname)) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath())) return;
 
   const items = [
     ['overview', '总览', '/next/account'],
@@ -12,7 +15,8 @@
   ];
   let observer = null;
 
-  function routeKey(pathname = location.pathname) {
+  function routeKey(pathname = runtimePath()) {
+    pathname = runtimePath(pathname);
     const match = /^\/next\/account(?:\/([^?#]+))?\/?$/.exec(pathname);
     const child = String(match?.[1] || '').replace(/\/$/, '');
     if (['requests', 'quotes', 'demands'].includes(child) || child.startsWith('requests/')) return 'requests';
@@ -50,8 +54,9 @@
   }
 
   function navigate(href) {
+    href = runtimeHref(href);
     if (href === location.pathname + location.search + location.hash) return;
-    history.pushState({ ...(history.state || {}), n17AccountRoute: href }, '', href);
+    navigation.pushState({ ...(navigation.state || {}), n17AccountRoute: href }, '', href);
     const active = updateActive();
     if (active === 'overview') {
       document.querySelector('.n4-shell')?.scrollIntoView({ block: 'start' });
@@ -72,7 +77,7 @@
       const link = document.createElement('a');
       link.className = 'n17-account-link';
       link.dataset.n17Key = key;
-      link.href = href;
+      link.href = runtimeHref(href);
       link.textContent = label;
       nav.append(link);
     });
@@ -98,7 +103,7 @@
     const link = event.target.closest?.('#n17AccountNav a[href]');
     if (!link || event.defaultPrevented || event.button > 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const url = new URL(link.href, location.origin);
-    if (url.origin !== location.origin || !/^\/next\/account(?:\/|$)/.test(url.pathname)) return;
+    if (url.origin !== location.origin || !/^\/next\/account(?:\/|$)/.test(runtimePath(url.pathname))) return;
     event.preventDefault();
     navigate(url.pathname + url.search + url.hash);
   });

@@ -1,7 +1,8 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
-  if (!/^\/next\/guides\/?$/.test(location.pathname)) return;
+  if (!/^\/next\/guides\/?$/.test(runtimePath())) return;
 
   const STAGE = 'N23 · GUIDES CENTER';
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -10,6 +11,10 @@
   const list = (value) => Array.isArray(value) ? value : [];
   let requestToken = 0;
   let guides = [];
+  const knownGames = new Map();
+  let searchTimer = 0;
+  let composing = false;
+  const onRoute = () => /^\/next\/guides\/?$/.test(runtimePath());
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
@@ -109,35 +114,34 @@
       robots.name = 'robots';
       document.head.append(robots);
     }
-    robots.content = 'noindex,follow';
-  }
-
-  function filtered() {
-    const state = params();
-    const needle = state.q.toLowerCase();
-    let rows = guides.filter((guide) => {
-      if (state.game && text(guide.gameCode).toUpperCase() !== state.game) return false;
-      if (!needle) return true;
-      return [guide.title, guide.subtitle, guide.summary, guide.gameName, guide.gameCode, ...list(guide.tags)]
-        .some((value) => text(value).toLowerCase().includes(needle));
-    });
-    rows = [...rows].sort((a, b) => {
-      if (state.sort === 'popular') return Number(b.viewCount || 0) - Number(a.viewCount || 0);
-      if (state.sort === 'latest') return new Date(b.publishedAt || b.updatedAt || 0) - new Date(a.publishedAt || a.updatedAt || 0);
-      if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
-      if (Number(a.sortOrder || 0) !== Number(b.sortOrder || 0)) return Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
-      return new Date(b.publishedAt || b.updatedAt || 0) - new Date(a.publishedAt || a.updatedAt || 0);
-    });
-    return rows;
+    if (window.XHFrontendShell?.isPreview === false) robots.remove();
+    else robots.content = 'noindex,follow';
   }
 
   function gameOptions() {
-    const map = new Map();
-    guides.forEach((guide) => {
-      const code = text(guide.gameCode).toUpperCase();
-      if (code && !map.has(code)) map.set(code, text(guide.gameName) || code);
+    list(window.XHFrontendNextN2?.state?.catalog?.games).forEach(game => {
+      const code = text(game.code).toUpperCase();
+      if (code) knownGames.set(code, text(game.name) || code);
     });
-    return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1], 'zh-CN'));
+    guides.forEach(guide => {
+      const code = text(guide.gameCode).toUpperCase();
+      if (code) knownGames.set(code, text(guide.gameName) || code);
+    });
+    const selected = params().game;
+    if (selected && !knownGames.has(selected)) knownGames.set(selected, selected);
+    return [...knownGames.entries()].sort((a, b) => a[1].localeCompare(b[1], 'zh-CN'));
+  }
+
+  function syncGames(section) {
+    const game = $('#n23GuideGame', section);
+    if (!game) return;
+    const all = node('option', '', '全部游戏'); all.value = '';
+    game.replaceChildren(all);
+    gameOptions().forEach(([code, name]) => {
+      const option = node('option', '', `${name} · ${code}`);
+      option.value = code; game.append(option);
+    });
+    game.value = params().game;
   }
 
   function guideCard(guide) {
@@ -177,7 +181,8 @@
     const grid = $('.n23-grid', section);
     const summary = $('.n23-summary', section);
     if (!grid || !summary) return;
-    const rows = filtered();
+    grid.setAttribute('aria-busy', 'false');
+    const rows = guides;
     const state = params();
     summary.replaceChildren(
       node('span', '', '当前显示'),
@@ -194,7 +199,7 @@
       clear.addEventListener('click', () => {
         writeParams({ q: '', game: '', sort: 'featured' });
         syncControls(section);
-        renderCards(section);
+        load();
       });
       box.append(clear);
       empty.append(box);
@@ -204,12 +209,12 @@
     rows.forEach((guide) => grid.append(guideCard(guide)));
   }
 
-  function syncControls(section) {
+  function syncControls(section, force = false) {
     const state = params();
     const search = $('#n23GuideSearch', section);
     const game = $('#n23GuideGame', section);
     const sort = $('#n23GuideSort', section);
-    if (search) search.value = state.q;
+    if (search && (force || document.activeElement !== search)) search.value = state.q;
     if (game) game.value = game.querySelector(`option[value="${CSS.escape(state.game)}"]`) ? state.game : '';
     if (sort) sort.value = state.sort;
   }
@@ -267,24 +272,30 @@
     const grid = node('div', 'n23-grid');
     shell.append(head, toolbar, summary, grid);
 
-    let searchTimer = 0;
-    search.addEventListener('input', () => {
+
+    const searchChanged = event => {
+      if (composing || event?.isComposing) return;
       clearTimeout(searchTimer);
+      const state = params();
+      writeParams({ ...state, q: search.value });
+      ++requestToken;
+      renderLoading(section);
       searchTimer = setTimeout(() => {
-        const state = params();
-        writeParams({ ...state, q: search.value });
-        renderCards(section);
+        if (onRoute()) load();
       }, 180);
-    });
+    };
+    search.addEventListener('input', searchChanged);
+    search.addEventListener('compositionstart', () => { composing = true; clearTimeout(searchTimer); ++requestToken; });
+    search.addEventListener('compositionend', () => { composing = false; searchChanged(); });
     game.addEventListener('change', () => {
       const state = params();
       writeParams({ ...state, game: game.value });
-      renderCards(section);
+      load();
     });
     sort.addEventListener('change', () => {
       const state = params();
       writeParams({ ...state, sort: sort.value });
-      renderCards(section);
+      load();
     });
 
     syncControls(section);
@@ -292,18 +303,24 @@
   }
 
   function renderLoading(section) {
-    const shell = $('.shell', section);
-    if (!shell) return;
+    const grid = $('.n23-grid', section);
+    if (!grid) return;
+    const summary = $('.n23-summary', section);
+    summary?.replaceChildren(node('span', '', '正在读取攻略…'));
+    grid.setAttribute('aria-busy', 'true');
     const state = node('div', 'n23-state');
     const box = node('div');
     box.append(node('h2', '', '正在读取攻略中心'), node('p', '', '正在加载已公开攻略…'));
     state.append(box);
-    shell.replaceChildren(state);
+    grid.replaceChildren(state);
   }
 
   function renderError(section, message) {
-    const shell = $('.shell', section);
-    if (!shell) return;
+    const grid = $('.n23-grid', section);
+    if (!grid) return;
+    const summary = $('.n23-summary', section);
+    summary?.replaceChildren(node('span', '', '攻略读取失败，请重试。'));
+    grid.setAttribute('aria-busy', 'false');
     const state = node('div', 'n23-state');
     const box = node('div');
     box.append(node('h2', '', '攻略读取失败'), node('p', '', text(message) || '暂时无法读取攻略，请重试。'));
@@ -312,18 +329,25 @@
     retry.addEventListener('click', load);
     box.append(retry);
     state.append(box);
-    shell.replaceChildren(state);
+    grid.replaceChildren(state);
   }
 
   async function load() {
+    clearTimeout(searchTimer);
+    if (!onRoute()) return;
     const section = ensureSection();
     activate(section);
     installStyles();
     setMetadata();
+    if (!$('#n23GuideSearch', section)) installContent(section);
+    syncGames(section);
+    syncControls(section);
     renderLoading(section);
+    const filters = params();
+    const query = new URLSearchParams({limit: '200', ...filters});
     const request = ++requestToken;
     try {
-      const response = await fetch('/api/guides?limit=100', {
+      const response = await fetch('/api/guides?' + query, {
         method: 'GET',
         credentials: 'same-origin',
         cache: 'no-store',
@@ -331,25 +355,23 @@
       });
       if (!response.ok) throw new Error(`读取失败（${response.status}）`);
       const body = await response.json();
-      if (request !== requestToken || !/^\/next\/guides\/?$/.test(location.pathname)) return;
+      if (request !== requestToken || !onRoute()) return;
       guides = list(body);
-      installContent(section);
+      syncGames(section);
+      renderCards(section);
     } catch (error) {
-      if (request !== requestToken) return;
+      if (request !== requestToken || !onRoute()) return;
       renderError(section, error?.message);
     }
   }
 
   window.addEventListener('popstate', () => {
-    if (!/^\/next\/guides\/?$/.test(location.pathname)) return;
-    const section = ensureSection();
-    if (!guides.length) load();
-    else {
-      activate(section);
-      syncControls(section);
-      renderCards(section);
-    }
+    ++requestToken;
+    if (onRoute()) { syncControls(ensureSection(), true); load(); }
   });
+  window.addEventListener('xh:catalogupdated', () => { if (onRoute()) syncGames(ensureSection()); });
+  window.addEventListener('pagehide', () => { clearTimeout(searchTimer); ++requestToken; });
+  window.addEventListener('pageshow', event => { if (event.persisted && onRoute()) load(); });
 
   window.XHFrontendNextN23 = {
     reload: load,

@@ -109,3 +109,6 @@
 - `next/n28-legal-single-source.js` 只安全展示正式中英文法律页面，并按与正式页一致的公开字段绑定主体/客服信息，不拥有第二份法律条款。
 
 - `next/game-detail.js` 负责独立游戏资料及该游戏公开服务列表，复用 `/api/catalog`、`/api/services` 和公开站点配置；`FrontendNextGameController` 复用原公开游戏校验，`FrontendNextPreviewController` 唯一生成文档元信息与资源指纹。
+
+- `next/shell.js` 唯一拥有正式/预览路径上下文和导航历史适配；各模块使用逻辑路由进行匹配，生成返回地址时使用同一命名空间，不改写全局 History API。
+- `assets/guest-business.js` 唯一拥有游客正式报价确认、付款二维码及履约展示，暴露可销毁的 mount 供 Next N13 使用，原记录页继续自动挂载。离页停止轮询、迟到响应保护及失败重试由共享模块负责；前端不传金额。独立 `/guest/access/{token}` 仍由原安全确认表单交换 HttpOnly 凭证。

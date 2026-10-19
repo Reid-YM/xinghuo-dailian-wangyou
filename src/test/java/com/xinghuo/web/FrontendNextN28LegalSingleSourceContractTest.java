@@ -27,7 +27,7 @@ class FrontendNextN28LegalSingleSourceContractTest {
         String rules = read("resources/templates/rules.html");
         String privacy = read("resources/templates/privacy.html");
 
-        assertTrue(runtime.contains("fetch(`/${doc}`"));
+        assertTrue(runtime.contains("fetch(`/${doc}?legacy=1`"));
         assertTrue(runtime.contains("method: 'GET'"));
         assertTrue(runtime.contains("headers: { Accept: 'text/html' }"));
         assertTrue(runtime.contains("new DOMParser().parseFromString(html, 'text/html')"));

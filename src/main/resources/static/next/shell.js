@@ -4,6 +4,27 @@
   const titles = {home:'星火网游工作室',services:'服务大厅 · 星火网游',quote:'提交询价 · 星火网游',account:'个人中心 · 星火网游'};
   const base = location.pathname === '/next' || location.pathname.startsWith('/next/') ? '/next' : '';
   const route = page => page === 'home' ? (base || '/') : base + '/' + page;
+  function runtimePath(pathname = location.pathname) {
+    if (/^\/next(?:\/|$)/.test(pathname)) return pathname;
+    if (/^\/account\/(login|register|reset)\/?$/.test(pathname)) return '/next/account';
+    return pathname === '/' ? '/next' : '/next' + pathname;
+  }
+  function runtimeHref(value) {
+    if (base || value == null) return value;
+    const url = new URL(value, location.origin);
+    if (url.origin !== location.origin || !/^\/next(?:\/|$)/.test(url.pathname)) return value;
+    url.pathname = url.pathname.replace(/^\/next(?=\/|$)/, '') || '/';
+    if (url.pathname === '/account' && ['login','register','reset'].includes(url.searchParams.get('auth'))) {
+      url.pathname += '/' + url.searchParams.get('auth'); url.searchParams.delete('auth');
+    }
+    return url.pathname + url.search + url.hash;
+  }
+  const navigation = {
+    get state() { return history.state; },
+    pushState(state, unused, target) { history.pushState(state, unused, runtimeHref(target)); },
+    replaceState(state, unused, target) { history.replaceState(state, unused, runtimeHref(target)); }
+  };
+
   function resolveLocation() {
     const hash = location.hash.slice(1);
     if (pages.has(hash)) return hash;
@@ -48,7 +69,7 @@
     if(push)window.scrollTo({top:0,behavior:'instant'});
     let canonical=document.querySelector('link[rel=canonical]');if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.append(canonical);}
     canonical.href='https://wydlgf.cn'+(page==='home'?'/':'/'+page);
-    let robots=document.querySelector('meta[name=robots]');if(page==='account'){if(!robots){robots=document.createElement('meta');robots.name='robots';document.head.append(robots);}robots.content='noindex,nofollow';}else robots?.remove();
+    let robots=document.querySelector('meta[name=robots]');if(page==='account'||base){if(!robots){robots=document.createElement('meta');robots.name='robots';document.head.append(robots);}robots.content=page==='account'?'noindex,nofollow':'noindex,follow';}else robots?.remove();
     window.dispatchEvent(new CustomEvent('xh:pagechange', {detail:{page}}));
   }
   function toast(message) {
@@ -199,7 +220,7 @@
     if(event.target.closest('.record-card a[href="/records"]'))track('hero_order_click');
     const service=event.target.closest('a.home-service-card[href^="/service/"]');if(service)track('service_card_click',service.getAttribute('href').slice('/service/'.length));
   });
-  window.XHFrontendShell = {bindTabs, go, route, resolveLocation, applyConfiguration, updateServices, updateCatalog, dataUnavailable, safeAccountReturn, track, attribution, get configuration(){return configuration;}};
+  window.XHFrontendShell = {runtimePath, runtimeHref, navigation, isPreview: Boolean(base), bindTabs, go, route, resolveLocation, applyConfiguration, updateServices, updateCatalog, dataUnavailable, safeAccountReturn, track, attribution, get configuration(){return configuration;}};
   window.XHFrontendShell.configurationReady=loadConfiguration();
   publicCases();
   go(resolveLocation(), false);

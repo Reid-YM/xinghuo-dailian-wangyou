@@ -22,15 +22,36 @@ public class FrontendMigrationConfig implements WebMvcConfigurer {
             Map.entry("/account","/next/account"),Map.entry("/account/login","/next/account"),
             Map.entry("/account/register","/next/account"),Map.entry("/account/reset","/next/account"),
             Map.entry("/account/settings","/next/account/settings"),Map.entry("/account/requests","/next/account/requests"),
-            Map.entry("/account/orders","/next/account/orders"),Map.entry("/account/progress","/next/account/progress"));
+            Map.entry("/account/orders","/next/account/orders"),Map.entry("/account/progress","/next/account/progress"),
+            Map.entry("/guides","/next/guides"),Map.entry("/mastery","/next/mastery"),
+            Map.entry("/records","/next/records"),Map.entry("/contact","/next/contact"),Map.entry("/trust","/next/trust"),
+            Map.entry("/rules","/next/rules"),Map.entry("/privacy","/next/privacy"),
+            Map.entry("/rules-en","/next/rules-en"),Map.entry("/privacy-en","/next/privacy-en"),
+            Map.entry("/account/submit","/next/account/submit"));
         private final boolean enabled;
         public Replacement(boolean enabled){this.enabled=enabled;}
         @Override public void postHandle(HttpServletRequest request,HttpServletResponse response,Object handler,ModelAndView view) {
-            if(!enabled || view==null || response.isCommitted() || !("GET".equals(request.getMethod())||"HEAD".equals(request.getMethod())) || "1".equals(request.getParameter("legacy")))return;
+            if(!enabled || view==null || response.isCommitted() || !("GET".equals(request.getMethod())||"HEAD".equals(request.getMethod())))return;
             String name=view.getViewName();
-            if(name==null || name.startsWith("redirect:") || name.startsWith("forward:"))return;
             String path=request.getRequestURI().substring(request.getContextPath().length());
-            String target=ROUTES.get(path);if(target==null)return;
+            if ("1".equals(request.getParameter("legacy"))) {
+                if (name != null && name.startsWith("redirect:/account") && (path.startsWith("/account") || path.startsWith("/console"))) {
+                    int hash = name.indexOf('#');
+                    String target = hash < 0 ? name : name.substring(0, hash);
+                    view.setViewName(target + (target.contains("?") ? "&" : "?") + "legacy=1" + (hash < 0 ? "" : name.substring(hash)));
+                }
+                return;
+            }
+            if(name==null || name.startsWith("redirect:") || name.startsWith("forward:"))return;
+            String target=ROUTES.get(path);
+            if (target == null && (path.matches("/(service|game|guides|record)/[^/]+")
+                    || path.matches("/account/(requests|orders)/[^/]+")
+                    || path.matches("/account/(quotes|demands|order|order-list|tools|tool-progress|favorites|submissions|profile|contact|security|devices|activity)")
+                    || path.matches("/account/settings/(profile|contact|security)"))) target = "/next" + path;
+            if(target==null)return;
+            // Only the game profile owns game metadata; service pages also contain a game model.
+            if (path.startsWith("/game/")) request.setAttribute("frontendGame", view.getModel().get("game"));
+            request.setAttribute("frontendOriginalMetadata", new java.util.LinkedHashMap<>(view.getModel()));
             response.setHeader("Cache-Control","no-store");response.setHeader("X-Xinghuo-Frontend","next");
             view.setViewName("forward:"+target);
         }

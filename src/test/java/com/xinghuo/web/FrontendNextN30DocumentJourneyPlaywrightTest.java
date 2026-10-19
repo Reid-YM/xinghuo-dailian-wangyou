@@ -86,6 +86,8 @@ class FrontendNextN30DocumentJourneyPlaywrightTest {
                 json(route, 401, "{\"message\":\"请登录\"}");
             } else if (path.equals("/api/guides/test-guide")) {
                 json(route, 200, "{\"guide\":{\"slug\":\"test-guide\",\"title\":\"测试攻略\"},\"sections\":[{\"heading\":\"正文\",\"bodyMarkdown\":\"实际内容\"}]}");
+            } else if (path.startsWith("/api/guest/business/")) {
+                json(route, 403, "{}");
             } else if (path.startsWith("/api/")) {
                 json(route, 200, "[]");
             } else if (path.equals("/rules") || path.equals("/privacy")) {

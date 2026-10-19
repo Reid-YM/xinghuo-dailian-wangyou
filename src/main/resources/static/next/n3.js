@@ -272,7 +272,7 @@
     button.dataset.n3RealSubmit='true';
     button.addEventListener('click',submitQuote);
     const badge=$('.badge');
-    if(badge) badge.textContent='FRONTEND NEXT · N3 QUOTE ENABLED';
+    if(badge) badge.textContent=location.pathname.startsWith('/next')?'新版预览':'星火服务平台';
     const demoNote=[...document.querySelectorAll('.page[data-page="quote"] .sub')].find(node=>node.textContent.includes('演示模式'));
     if(demoNote) demoNote.textContent='提交后会生成业务编号，可随时查询进度。';
   }

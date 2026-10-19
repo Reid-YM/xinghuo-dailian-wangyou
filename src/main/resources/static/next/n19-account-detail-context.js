@@ -1,7 +1,10 @@
 (() => {
   'use strict';
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(location.pathname)) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath())) return;
 
   const BUSINESS_NO_RE = /^(XH[A-Z0-9]{10}|XH-[A-Z2-9]{24})$/;
   let observer = null;
@@ -85,7 +88,7 @@
   function routeTo(kind, businessNo) {
     const target = window.XHFrontendNextN18?.detailUrl?.(kind, businessNo);
     if (!target || target === location.pathname + location.search + location.hash) return false;
-    history.pushState({ ...(history.state || {}), n19DetailContext: `${kind}:${normalizeBusinessNo(businessNo)}` }, '', target);
+    navigation.pushState({ ...(navigation.state || {}), n19DetailContext: `${kind}:${normalizeBusinessNo(businessNo)}` }, '', target);
     window.XHFrontendNextN17?.updateActive?.();
     window.XHFrontendNextN18?.applyDetailRoute?.();
     return true;
@@ -97,9 +100,9 @@
     url.pathname = info.parent;
     ['auth', 'token', 'verifyToken', 'wechat', 'next', 'legacy', 'from'].forEach((key) => url.searchParams.delete(key));
     url.hash = '';
-    const target = url.pathname + url.search;
+    const target = runtimeHref(url.pathname + url.search);
     if (target === location.pathname + location.search + location.hash) return false;
-    history.pushState({ ...(history.state || {}), n19DetailContext: null }, '', target);
+    navigation.pushState({ ...(navigation.state || {}), n19DetailContext: null }, '', target);
     window.XHFrontendNextN17?.updateActive?.();
     window.XHFrontendNextN18?.applyDetailRoute?.();
     return true;

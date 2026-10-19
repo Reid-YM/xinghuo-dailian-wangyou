@@ -1,7 +1,8 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
-  if (!/^\/next\/account\/submit\/?$/.test(location.pathname)) return;
+  if (!/^\/next\/account\/submit\/?$/.test(runtimePath())) return;
 
   const STAGE = 'N25 · SUBMISSION WORKBENCH';
   const DRAFT_KEY = 'xinghuo:submission-draft:v1';

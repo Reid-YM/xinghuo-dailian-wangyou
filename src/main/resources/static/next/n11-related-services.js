@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
   const STAGE = 'N11 · RELATED SERVICES CONTINUITY';
   const DETAIL_RE = /^\/next\/service\/([^/?#]+)\/?$/;
@@ -17,7 +18,7 @@
   }
 
   function routeSlug() {
-    const match = location.pathname.match(DETAIL_RE);
+    const match = runtimePath().match(DETAIL_RE);
     if (!match) return null;
     try { return decodeURIComponent(match[1]); } catch (_) { return match[1]; }
   }

@@ -291,7 +291,7 @@
     const [catalog,services]=await Promise.allSettled([getJson('/api/catalog'),getJson('/api/services')]);
     const catalogOk=catalog.status==='fulfilled' && Array.isArray(catalog.value?.games);
     const servicesOk=services.status==='fulfilled' && Array.isArray(services.value);
-    if(catalogOk){state.catalog=catalog.value;window.XHFrontendShell?.updateCatalog?.(state.catalog);}
+    if(catalogOk){state.catalog=catalog.value;window.XHFrontendShell?.updateCatalog?.(state.catalog);window.dispatchEvent(new Event('xh:catalogupdated'));}
     if(servicesOk){state.services=services.value;renderServices();window.XHFrontendShell?.updateServices?.(state.services);}
     else if(!hadServices){$('.serviceGrid')?.replaceChildren(make('p','','服务目录暂时无法读取，请重试。'));window.XHFrontendShell?.dataUnavailable?.('nextHomeServices');}
     if(!state.catalog)window.XHFrontendShell?.dataUnavailable?.('nextHomeGames');

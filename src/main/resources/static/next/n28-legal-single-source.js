@@ -1,7 +1,9 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
 
-  const match = /^\/next\/(rules(?:-en)?|privacy(?:-en)?)\/?$/.exec(location.pathname);
+  const match = /^\/next\/(rules(?:-en)?|privacy(?:-en)?)\/?$/.exec(runtimePath());
   if (!match) return;
 
   const STAGE = 'N28 · LEGAL SINGLE SOURCE';
@@ -11,7 +13,7 @@
   let requestToken = 0;
 
   function currentDoc() {
-    const current = /^\/next\/(rules(?:-en)?|privacy(?:-en)?)\/?$/.exec(location.pathname);
+    const current = /^\/next\/(rules(?:-en)?|privacy(?:-en)?)\/?$/.exec(runtimePath());
     return current ? current[1] : '';
   }
 
@@ -38,15 +40,15 @@
     try {
       const url = new URL(safe, location.origin);
       if (url.origin !== location.origin) return safe;
-      if (url.searchParams.get('legacy') === '1') return url.pathname + url.search + url.hash;
-      if (url.pathname === '/rules-en' || url.pathname === '/privacy-en') return '/next' + url.pathname + url.search + url.hash;
-      if (url.pathname === '/rules') return '/next/rules' + url.search + url.hash;
-      if (url.pathname === '/privacy') return '/next/privacy' + url.search + url.hash;
-      if (url.pathname === '/contact') return '/next/contact' + url.search + url.hash;
-      if (url.pathname === '/trust') return '/next/trust' + url.search + url.hash;
-      if (url.pathname === '/records') return '/next/records' + url.search + url.hash;
-      if (url.pathname === '/quote') return '/next/quote' + url.search + url.hash;
-      return url.pathname + url.search + url.hash;
+      if (url.searchParams.get('legacy') === '1') return runtimeHref(url.pathname + url.search + url.hash);
+      if (url.pathname === '/rules-en' || url.pathname === '/privacy-en') return runtimeHref('/next' + url.pathname + url.search + url.hash);
+      if (url.pathname === '/rules') return runtimeHref('/next/rules' + url.search + url.hash);
+      if (url.pathname === '/privacy') return runtimeHref('/next/privacy' + url.search + url.hash);
+      if (url.pathname === '/contact') return runtimeHref('/next/contact' + url.search + url.hash);
+      if (url.pathname === '/trust') return runtimeHref('/next/trust' + url.search + url.hash);
+      if (url.pathname === '/records') return runtimeHref('/next/records' + url.search + url.hash);
+      if (url.pathname === '/quote') return runtimeHref('/next/quote' + url.search + url.hash);
+      return runtimeHref(url.pathname + url.search + url.hash);
     } catch (_) {
       return '';
     }
@@ -183,7 +185,8 @@
       robots.name = 'robots';
       document.head.append(robots);
     }
-    robots.content = 'noindex,follow';
+    if (window.XHFrontendShell?.isPreview === false) robots.remove();
+    else robots.content = 'noindex,follow';
   }
 
   function header(doc) {
@@ -263,7 +266,7 @@
   async function loadFormalSource(doc, request) {
     await window.XHFrontendShell?.configurationReady;
     if (request !== requestToken) return null;
-    const response = await fetch(`/${doc}`, {
+    const response = await fetch(`/${doc}?legacy=1`, {
       method: 'GET',
       credentials: 'same-origin',
       cache: 'no-store',

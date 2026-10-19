@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
   const KEY = 'xh_client_records_v1';
   const RECORD_RE = /^(XH[A-Z0-9]{10}|XH-[A-Z2-9]{24})$/;
@@ -38,7 +39,7 @@
   }
 
   function routeBusinessNo() {
-    const match = location.pathname.match(/^\/next\/record\/([^/?#]+)\/?$/);
+    const match = runtimePath().match(/^\/next\/record\/([^/?#]+)\/?$/);
     if (!match) return '';
     let value = match[1];
     try { value = decodeURIComponent(value); } catch (_) {}
@@ -74,8 +75,8 @@
   }
 
   function sync() {
-    if (/^\/next\/quote\/?$/.test(location.pathname)) rememberQuoteSuccess();
-    if (/^\/next\/record\//.test(location.pathname)) enhanceRecordDetail();
+    if (/^\/next\/quote\/?$/.test(runtimePath())) rememberQuoteSuccess();
+    if (/^\/next\/record\//.test(runtimePath())) enhanceRecordDetail();
   }
 
   const observer = new MutationObserver(sync);

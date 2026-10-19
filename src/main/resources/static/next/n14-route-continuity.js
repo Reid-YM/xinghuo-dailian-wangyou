@@ -1,7 +1,9 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
 
-  if (!/^\/next(?:\/|$)/.test(location.pathname)) return;
+  if (!/^\/next(?:\/|$)/.test(runtimePath())) return;
 
   const text = (value) => String(value ?? '').trim();
   const STAGE_RUNTIME_VERSIONS = (() => {
@@ -14,9 +16,8 @@
 
   function explicitLegacy(link, url) {
     if (!link || !url) return false;
-    if ((url.pathname === '/mastery' || url.pathname === '/account/submit') && link.dataset.n21Legacy === '1') return false;
     if (link.dataset.n10Legacy === '1' || link.dataset.n13Legacy === '1' || link.dataset.n14Legacy === '1' || link.dataset.n23Legacy === '1' || link.dataset.n24Legacy === '1' || link.dataset.n25Legacy === '1' || link.dataset.n26Legacy === '1' || link.dataset.n27Legacy === '1' || link.dataset.n28Legacy === '1') return true;
-    if (link.dataset.n22Legacy === '1' && url.pathname !== '/guides') return true;
+    if (link.dataset.n22Legacy === '1') return true;
     return url.searchParams.get('legacy') === '1';
   }
 
@@ -35,15 +36,24 @@
     const target = new URL(url.href);
     target.pathname = pathname;
     target.searchParams.delete('legacy');
-    return target.pathname + target.search + target.hash;
+    return runtimeHref(target.pathname + target.search + target.hash);
   }
 
   function normalizedHref(link) {
     const url = sameOriginUrl(link);
-    if (!url || explicitLegacy(link, url)) return '';
+    if (!url) return '';
+    if (explicitLegacy(link, url)) {
+      url.searchParams.set('legacy', '1');
+      return url.pathname + url.search + url.hash;
+    }
+    if (/^\/next(?:\/|$)/.test(url.pathname)) return runtimeHref(url.pathname + url.search + url.hash);
 
     if (url.pathname === '/services') return nextUrl(url, '/next/services');
     if (url.pathname === '/quote') return nextUrl(url, '/next/quote');
+    if (url.pathname === '/order') return nextUrl(url, '/next/records');
+    const oldOrder = /^\/order\/([^/?#]+)\/?$/.exec(url.pathname);
+    if (oldOrder) return nextUrl(url, `/next/record/${oldOrder[1]}`);
+    if (url.pathname === '/loadouts' || url.pathname === '/loadouts/') return nextUrl(url, '/next/mastery');
     if (url.pathname === '/records') return nextUrl(url, '/next/records');
     if (url.pathname === '/contact') return nextUrl(url, '/next/contact');
     if (url.pathname === '/trust') return nextUrl(url, '/next/trust');
@@ -89,7 +99,7 @@
   }
 
   function ensureRuntime(id, source, matcher) {
-    if (!matcher.test(location.pathname) || document.getElementById(id)) return;
+    if (!matcher.test(runtimePath()) || document.getElementById(id)) return;
     const script = document.createElement('script');
     script.id = id;
     script.src = source;
@@ -101,7 +111,7 @@
     document.querySelector('.nav')?.after(status);
     script.onload = () => status.remove();
     script.onerror = () => {
-      if (!matcher.test(location.pathname)) { status.remove(); return; }
+      if (!matcher.test(runtimePath())) { status.remove(); return; }
       status.textContent = '页面资源加载失败，请重试。';
       const retry = document.createElement('button');
       retry.type = 'button';

@@ -24,14 +24,16 @@ public class PublicUtilitySeoFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
         String path = request.getRequestURI();
+        String base = path.startsWith("/next/") ? "/next" : "";
+        if (!base.isEmpty()) path = path.substring(5);
 
         if ("GET".equalsIgnoreCase(request.getMethod())) {
             if ("/order".equals(path)) {
-                permanentRedirect(response, "/records");
+                permanentRedirect(request, response, base + "/records");
                 return;
             }
             if (path != null && path.startsWith("/order/")) {
-                permanentRedirect(response, "/record/" + path.substring("/order/".length()));
+                permanentRedirect(request, response, base + "/record/" + path.substring("/order/".length()));
                 return;
             }
         }
@@ -43,7 +45,8 @@ public class PublicUtilitySeoFilter extends OncePerRequestFilter {
         chain.doFilter((ServletRequest) request, (ServletResponse) response);
     }
 
-    private void permanentRedirect(HttpServletResponse response, String target) {
+    private void permanentRedirect(HttpServletRequest request, HttpServletResponse response, String target) {
+        if ("1".equals(request.getParameter("legacy"))) target += "?legacy=1";
         response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
         response.setHeader("Location", target);
         response.setHeader("X-Robots-Tag", NOINDEX);

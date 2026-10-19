@@ -1,5 +1,7 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
 
   const STAGE = 'N10 · SERVICE DETAIL PREVIEW';
   const DETAIL_RE = /^\/next\/service\/([^/?#]+)\/?$/;
@@ -64,7 +66,7 @@
   }
 
   function detailRoute() {
-    const match = location.pathname.match(DETAIL_RE);
+    const match = runtimePath().match(DETAIL_RE);
     if (!match) return null;
     try { return decodeURIComponent(match[1]); } catch (_) { return match[1]; }
   }
@@ -73,11 +75,11 @@
     if (!(link instanceof HTMLAnchorElement) || link.dataset.n10Legacy === '1') return;
     const raw = link.getAttribute('href') || '';
     if (!raw.startsWith('/service/') || raw.startsWith('/next/service/')) return;
-    link.setAttribute('href', '/next' + raw);
+    link.setAttribute('href', runtimeHref('/next' + raw));
   }
 
   function rewriteServiceLinks(root = document) {
-    if (!location.pathname.startsWith('/next')) return;
+    if (!runtimePath().startsWith('/next')) return;
     if (root instanceof HTMLAnchorElement) rewriteServiceLink(root);
     if (root.querySelectorAll) root.querySelectorAll('a[href^="/service/"]').forEach(rewriteServiceLink);
   }
@@ -163,7 +165,8 @@
       robots.name = 'robots';
       document.head.append(robots);
     }
-    robots.content = 'noindex,follow';
+    if (window.XHFrontendShell?.isPreview === false) robots.remove();
+    else robots.content = 'noindex,follow';
   }
 
   function fact(label, value) {

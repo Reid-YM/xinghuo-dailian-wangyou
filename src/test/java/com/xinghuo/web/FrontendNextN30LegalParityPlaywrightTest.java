@@ -49,7 +49,7 @@ class FrontendNextN30LegalParityPlaywrightTest {
                         assertTrue(displayed.contains("验收测试主体"));
                         if (doc.startsWith("privacy")) assertTrue(displayed.contains("support-test"));
                         assertEquals(0, page.locator(".n28-document script,.n28-document style,.n28-document iframe").count());
-                        assertEquals("/" + doc, page.locator("[data-n28-legacy]").getAttribute("href"));
+                        assertEquals("/" + doc + "?legacy=1", page.locator("[data-n28-legacy]").getAttribute("href"));
                         assertEquals("/next/privacy-en?utm_source=legal#contact", page.evaluate(
                                 "() => window.XHFrontendNextN15.safeAccountReturn('/privacy-en?utm_source=legal#contact')"));
                         assertEquals("/privacy-en?legacy=1", page.evaluate(

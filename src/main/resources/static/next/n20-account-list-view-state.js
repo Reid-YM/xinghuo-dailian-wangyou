@@ -1,7 +1,10 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
+  const navigation = window.XHFrontendShell?.navigation || history;
 
-  if (!/^\/next\/account(?:\/|$)/.test(location.pathname)) return;
+  if (!/^\/next\/account(?:\/|$)/.test(runtimePath())) return;
 
   const BUSINESS_NO_RE = /^(XH[A-Z0-9]{10}|XH-[A-Z2-9]{24})$/;
   const SORTS = new Set(['source', 'updated-desc', 'updated-asc']);
@@ -19,7 +22,8 @@
     return BUSINESS_NO_RE.test(normalized) ? normalized : '';
   }
 
-  function routeInfo(pathname = location.pathname) {
+  function routeInfo(pathname = runtimePath()) {
+    pathname = runtimePath(pathname);
     const match = /^\/next\/account\/(requests|orders)(?:\/([^/?#]+))?\/?$/.exec(pathname);
     if (!match) return null;
     return {
@@ -90,7 +94,7 @@
     if (view.q) url.searchParams.set('q', view.q); else url.searchParams.delete('q');
     if (view.status) url.searchParams.set('status', view.status); else url.searchParams.delete('status');
     if (view.sort !== 'source') url.searchParams.set('sort', view.sort); else url.searchParams.delete('sort');
-    return url.pathname + url.search + url.hash;
+    return runtimeHref(url.pathname + url.search + url.hash);
   }
 
   function filteredItems(info, source = location.href) {
@@ -117,7 +121,7 @@
     if (view.q) url.searchParams.set('q', view.q); else url.searchParams.delete('q');
     if (view.status) url.searchParams.set('status', view.status); else url.searchParams.delete('status');
     if (view.sort !== 'source') url.searchParams.set('sort', view.sort); else url.searchParams.delete('sort');
-    return url.pathname + url.search + url.hash;
+    return runtimeHref(url.pathname + url.search + url.hash);
   }
 
   function writeViewState(info, patch) {
@@ -135,7 +139,7 @@
     if (next.sort !== 'source') url.searchParams.set('sort', next.sort); else url.searchParams.delete('sort');
     const target = normalizedViewUrl(info, url.href);
     const currentUrl = location.pathname + location.search + location.hash;
-    if (target !== currentUrl) history.replaceState({ ...(history.state || {}), n20AccountListView: true }, '', target);
+    if (target !== currentUrl) navigation.replaceState({ ...(navigation.state || {}), n20AccountListView: true }, '', target);
     apply(info);
     return true;
   }
@@ -245,7 +249,7 @@
     const visible = new Set(ids);
     const total = sourceItems(info).length;
     const count = document.querySelector('#n20Count');
-    if (count) count.textContent = `当前接口已加载 ${total} 条 · 筛选后显示 ${ids.length} 条${total >= 50 ? ' · 当前接口单次最多返回 50 条' : ''}`;
+    if (count) count.textContent = `当前已加载 ${total} 条 · 筛选后显示 ${ids.length} 条${total >= 50 ? ' · 最多显示最近 50 条' : ''}`;
 
     const empty = body.querySelector('#n20Empty');
     if (!tbody) {
@@ -282,7 +286,7 @@
     links.forEach((link) => {
       let url;
       try { url = new URL(link.href, location.origin); } catch (ignore) { return; }
-      if (url.origin !== location.origin || !/^\/next\/record\//.test(url.pathname)) return;
+      if (url.origin !== location.origin || !/^\/next\/record\//.test(runtimePath(url.pathname))) return;
       const target = appendViewState(url);
       if (link.getAttribute('href') !== target) link.setAttribute('href', target);
       link.dataset.n20ViewState = '1';
@@ -322,7 +326,7 @@
 
     const normalized = normalizedViewUrl(info);
     const current = location.pathname + location.search + location.hash;
-    if (normalized !== current) history.replaceState(history.state, '', normalized);
+    if (normalized !== current) navigation.replaceState(navigation.state, '', normalized);
 
     mountToolbar(info);
     applyRows(info);

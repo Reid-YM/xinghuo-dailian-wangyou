@@ -1,5 +1,7 @@
 (() => {
   'use strict';
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
   const STAGE = 'N22 · GUIDE DETAIL PREVIEW';
   const DETAIL_RE = /^\/next\/guides\/([^/?#]+)\/?$/;
@@ -23,7 +25,7 @@
   }
 
   function detailRoute() {
-    const match = location.pathname.match(DETAIL_RE);
+    const match = runtimePath().match(DETAIL_RE);
     if (!match) return null;
     try { return decodeURIComponent(match[1]); } catch (_) { return match[1]; }
   }
@@ -104,7 +106,8 @@
       robots.name = 'robots';
       document.head.append(robots);
     }
-    robots.content = 'noindex,follow';
+    if (window.XHFrontendShell?.isPreview === false) robots.remove();
+    else robots.content = 'noindex,follow';
   }
 
   function appendMarkdownText(root, raw) {
@@ -244,8 +247,7 @@
     const home = node('a', '', '首页');
     home.href = '/next';
     const legacyList = node('a', '', '攻略中心');
-    legacyList.href = '/guides';
-    legacyList.dataset.n22Legacy = '1';
+    legacyList.href = runtimeHref('/next/guides');
     breadcrumb.append(home, node('span', '', '›'), legacyList, node('span', '', '›'), node('span', '', text(guide.title) || '攻略详情'));
 
     const hero = node('article', 'n22-hero');

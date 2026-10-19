@@ -12,7 +12,7 @@ N12 已补齐“询价上下文连续性”：`/next/quote?service={slug}` 会�
 
 N13 已补齐“业务记录预览链路”：N3 询价提交成功后进入 `/next/record/{businessNo}`，只读现有公开记录与进度截图，保留旧 `/record/{businessNo}` 对照入口，并对记录预览设置 `noindex,nofollow`。详见 [N13 业务记录预览链路](N13_RECORD_DETAIL_PREVIEW.md)。
 
-N14 已补齐“Next 内部路由连续性”：Next 页面里的普通 `/services`、`/quote`、`/account`、`/service/{slug}`、`/record/{businessNo}` 链接统一留在 `/next` 路径族；首页游戏卡片使用已加载真实 catalog 的 `seoSlug -> code` 映射进入 `/next/services?game={code}`。带 `legacy=1` 和已有显式 legacy 标记的旧版入口继续保留。N22 起攻略详情 `/guides/{slug}` 纳入归一，N23 起攻略中心 `/guides` 纳入归一，N24 起工具站 `/mastery` 纳入归一，N25 起投稿工作台 `/account/submit` 纳入归一，N26 起业务记录中心 `/records` 纳入归一，N27 起 `/contact` 与 `/trust` 纳入归一，N28 起 `/rules` 与 `/privacy` 在 Next 内进入对应单一来源预览。详见 [N14 Next 内部路由连续性](N14_ROUTE_CONTINUITY.md)。
+N14 已补齐“Next 内部路由连续性”：Next 页面里的普通 `/services`、`/quote`、`/account`、`/service/{slug}`、`/record/{businessNo}` 链接统一留在 `/next` 路径族；首页游戏卡片现进入独立 `/next/game/{seoSlug}`，保留游戏资料并按真实 gameCode 展示公开服务。带 `legacy=1` 和已有显式 legacy 标记的旧版入口继续保留。N22 起攻略详情 `/guides/{slug}` 纳入归一，N23 起攻略中心 `/guides` 纳入归一，N24 起工具站 `/mastery` 纳入归一，N25 起投稿工作台 `/account/submit` 纳入归一，N26 起业务记录中心 `/records` 纳入归一，N27 起 `/contact` 与 `/trust` 纳入归一，N28 起 `/rules` 与 `/privacy` 在 Next 内进入对应单一来源预览。详见 [N14 Next 内部路由连续性](N14_ROUTE_CONTINUITY.md)。
 
 N15 已补齐“认证回跳连续性”：密码登录、注册、微信开放平台扫码和小程序扫码统一使用安全 `next` 返回目标；已有旧版 `/services`、`/quote`、`/account`、`/service/{slug}`、`/record/{businessNo}` 深链在认证完成后归一到对应 `/next` 路径。微信 OAuth 取消、限流或失败时，只有从 Next 发起的流程返回 `/next/account`，旧版登录流程继续保持旧版。详见 [N15 认证回跳连续性](N15_AUTH_RETURN_CONTINUITY.md)。
 
@@ -50,21 +50,17 @@ N29 第三阶段已补齐窄屏长文本溢出保护：为 N23–N28 六类页�
 
 N30 已开始正式切换前的全链路验收第一批：N15 登录回跳补齐 N23–N28 攻略、工具站、投稿、记录中心、咨询/信任及法律页，保留显式 Legacy 与安全边界；新增 Chromium/WebKit 登录深链和“游客询价 → 公开记录 → 同 key 浏览器记录中心”真实 JS 协作回归。当前仅是模拟服务器的开发验收，尚不代表线上支付/订单和正式切流通过。详见 [N30 全链路验收第一阶段](N30_JOURNEY_GATES.md)。
 
-## 当前部署与流量状态
+## 部署与流量边界
 
-N9–N22 已于 2026-10-17 通过标准生产发布链进入同一生产应用，并保留 `/next/**` 作为显式预览入口；正式默认前端仍为 Legacy，没有把 `/`、`/services`、`/quote`、`/account` 等默认入口切到 Next。N23–N28 组合 CI 已在最新 main 上全绿；N29 在 N28 之上独立开发验证。正式流量仍不受本阶段开发影响。
+本轮完成开发与隔离验收，不执行生产部署或正式流量切换。代码默认 `app.frontend-next.default-enabled=false`；正式路径适配的测试在隔离环境显式打开开关。线上已运行版本需通过发布记录和实际页面另行核验，不能从当前分支、历史阶段文档或 CI 推导。
 
-用户要求正式前端保持旧版。当前代码默认关闭 Next 正式映射，发布后以实际正式页面核验为准；新版后台继续保留。详见 [前端回退记录](../development/2026-10-16-frontend-rollback.md)。重新启用正式 Next 必须单独获得明确授权。
-
-- 默认入口 /、/services、/quote、/account 及认证/设置子页保持旧视图和原账号鉴权。
-- 已部署生产预览入口目前仍是 N9–N22；N23–N29 尚未合并/部署，因此 `/next/guides`、`/next/mastery`、`/next/account/submit`、`/next/records`、`/next/contact`、`/next/trust`、`/next/rules`、`/next/privacy` 及 N29 移动底栏不能视为线上已发布能力。
-- 页面级回退使用 `?legacy=1`；整体回退配置 `app.frontend-next.default-enabled=false`。不能通过改静态首页文件假称已切换实际路由。
-- Next runtime 使用真实 64 位内容指纹；N23 以后按需加载的阶段 runtime 复用已版本化 N14 manifest 指纹，不再使用日期式固定版本。账号/console 写请求遵循服务端 `X-Requested-With: fetch`，不放宽鉴权。
-- 数据失败时只保留已读真实数据或错误/重试状态，不回退模拟商品、价格、订单、投稿或法律正文。
-- 原业务 API、数据库、金额确认与 Session/CSRF 保持；不引入第二套业务数据。
-
-最终替换阶段下一步重点转向全站移动端/错误态/空状态统一、真实全链路验收和正式切换前灰度准备；当前仍不能宣称完整替换已完成。
+- 原视图和账号鉴权保留，显式 `?legacy=1` 可回退；整体回退配置保持 false。
+- Next runtime 及按需阶段脚本各自使用 SHA256 内容指纹；写请求继续遵循现有 Session/权限/CSRF 和 `X-Requested-With: fetch`。
+- 数据失败时保留已读真实数据或展示错误/重试；不提供演示商品、价格、订单、投稿或法律副本。
+- 生产启用、真实商户交易和外部账号/设备可用性分别验收，正式发布单独授权。
 
 ## 2026-10-19 全前端开发收口
 
 正在独立分支整合 N23–N30 串联工作，补上分阶段测试遗漏的整页交互。发现并修复阶段脚本独立缓存失效、投稿草稿离页/提交清理、中文响应编码和手机长内容溢出；N29/N30 五组交互测试已纳入实际 UI job。攻略详情新增共享社区模块的收藏、评论、回复、举报及登录回跳。具体完成证据、待补项及发布边界以 [完整开发收口清单](COMPLETION_AUDIT.md) 为准，不把“第一批整合通过”当作整个前端开发完成。
+
+本轮继续补齐正式入口模式：公共壳层统一解析预览/正式路径及历史跳转，原控制器先完成账号鉴权和公开可见性检查，再转发新版文档；服务器保留服务/攻略 SEO 与结构化数据。原 `?legacy=1` 明确回退。新增本机 HTTP 双引擎验证真实 302、完整文档、账号深链、刷新和返回。游客记录挂接同一 `guest-business.js` 模块，报价确认、付款和履约继续走原游客凭证与服务端正式金额。本地最终构建通过 928 项检查（206 项浏览器条件跳过），完整浏览器与精确提交 CI 证据见验收清单及 PR #575；生产默认保持 Legacy。

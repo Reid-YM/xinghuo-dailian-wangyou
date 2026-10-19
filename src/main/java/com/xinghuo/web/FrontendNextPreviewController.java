@@ -42,6 +42,7 @@ public class FrontendNextPreviewController {
     private static final String N10_RUNTIME = "<script src=\"/next/n10-service-detail.js\" defer></script>";
     private static final String N11_RUNTIME = "<script src=\"/next/n11-related-services.js\" defer></script>";
     private static final String N12_RUNTIME = "<script src=\"/next/n12-quote-context.js\" defer></script>";
+    private static final String GUEST_BUSINESS_RUNTIME = "<script src=\"/assets/guest-business.js\" defer></script>";
     private static final String N13_RUNTIME = "<script src=\"/next/n13-record-detail.js\" defer></script>";
     private static final String N14_RUNTIME = "<script src=\"/next/n14-route-continuity.js\" defer></script>";
     private static final String N15_RUNTIME = "<script src=\"/next/n15-auth-return.js\" defer></script>";
@@ -104,6 +105,16 @@ public class FrontendNextPreviewController {
     public ResponseEntity<String> frontendNext() throws IOException { return render(null); }
 
     private ResponseEntity<String> render(HttpServletRequest request) throws IOException {
+        if (request != null && "1".equals(request.getParameter("legacy")) && request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI) == null) {
+            String path = request.getRequestURI().replaceFirst("^/next(?=/|$)", "");
+            if (path.isBlank() || path.equals("/home") || path.equals("/index.html")) path = "/";
+            String auth = request.getParameter("auth");
+            if (path.equals("/account") && java.util.Set.of("login", "register", "reset").contains(auth == null ? "" : auth)) path += "/" + auth;
+            String query = request.getQueryString();
+            if (query == null || query.isBlank()) query = "legacy=1";
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FOUND).location(java.net.URI.create(path + "?" + query))
+                    .cacheControl(CacheControl.noStore()).body("");
+        }
         String html;
         try (var input = index.getInputStream()) {
             html = StreamUtils.copyToString(input, StandardCharsets.UTF_8);
@@ -144,6 +155,7 @@ public class FrontendNextPreviewController {
         if (!html.contains(N12_RUNTIME)) {
             html = html.replace("</body>", N12_RUNTIME + "</body>");
         }
+        if (!html.contains(GUEST_BUSINESS_RUNTIME)) html = html.replace("</body>", GUEST_BUSINESS_RUNTIME + "</body>");
         if (!html.contains(N13_RUNTIME)) {
             html = html.replace("</body>", N13_RUNTIME + "</body>");
         }
@@ -188,6 +200,7 @@ public class FrontendNextPreviewController {
         html = html.replace(N14_RUNTIME, N14_RUNTIME.replace(" defer", " data-stage-versions=\""
                 + HtmlUtils.htmlEscape(manifest.toString()) + "\" defer"));
         html = versionRuntimes(html);
+        Map<?, ?> originalMetadata = request != null && request.getAttribute("frontendOriginalMetadata") instanceof Map<?, ?> model ? model : Map.of();
         GameCatalog game = request == null ? null : (GameCatalog) request.getAttribute("frontendGame");
         String original = request == null ? null : (String) request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
         boolean previewRequest = original == null || original.equals("/next") || original.startsWith("/next/");
@@ -220,8 +233,11 @@ public class FrontendNextPreviewController {
                 title = game.getSeoTitle() == null || game.getSeoTitle().isBlank() ? game.getName() + " 任务服务 · " + brand : game.getSeoTitle();
                 description = game.getSeoDescription() == null || game.getSeoDescription().isBlank() ? game.getDescription() : game.getSeoDescription();
             }
+            title = modelText(originalMetadata, "serviceTitle", modelText(originalMetadata, "pageTitle", title));
+            description = modelText(originalMetadata, "serviceDescription", modelText(originalMetadata, "pageDescription", description));
+            String canonicalUrl = modelText(originalMetadata, "canonicalUrl", "https://wydlgf.cn" + path);
             html = html.replace("<title>星火网游服务平台</title>", "<title>" + HtmlUtils.htmlEscape(title) + "</title>");
-            String metadata = "<meta name=\"description\" content=\"" + HtmlUtils.htmlEscape(description == null ? "" : description) + "\"/><link rel=\"canonical\" href=\"https://wydlgf.cn" + HtmlUtils.htmlEscape(path) + "\"/>";
+            String metadata = "<meta name=\"description\" content=\"" + HtmlUtils.htmlEscape(description == null ? "" : description) + "\"/><link rel=\"canonical\" href=\"" + HtmlUtils.htmlEscape(canonicalUrl) + "\"/>";
             if (previewRequest || privatePage) metadata += "<meta name=\"robots\" content=\"" + robotsPolicy + "\"/>";
             if (game != null) {
                 String canonical = "https://wydlgf.cn" + path;
@@ -241,6 +257,20 @@ public class FrontendNextPreviewController {
                         .replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026");
                 metadata += "<script type=\"application/ld+json\">" + json + "</script>";
             }
+            if (game == null && !originalMetadata.isEmpty()) {
+                String image = modelText(originalMetadata, "ogImage", "https://wydlgf.cn/og.png");
+                metadata += "<meta property=\"og:title\" content=\"" + HtmlUtils.htmlEscape(title) + "\"/>"
+                        + "<meta property=\"og:description\" content=\"" + HtmlUtils.htmlEscape(description == null ? "" : description) + "\"/>"
+                        + "<meta property=\"og:url\" content=\"" + HtmlUtils.htmlEscape(canonicalUrl) + "\"/>"
+                        + "<meta property=\"og:image\" content=\"" + HtmlUtils.htmlEscape(image) + "\"/>";
+                for (String key : new String[]{"productJsonLd", "articleJsonLd", "breadcrumbJsonLd", "faqJsonLd", "listJsonLd"}) {
+                    String value = modelText(originalMetadata, key, "");
+                    if (value.isBlank()) continue;
+                    String json = new ObjectMapper().writeValueAsString(new ObjectMapper().readTree(value))
+                            .replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026");
+                    metadata += "<script type=\"application/ld+json\">" + json + "</script>";
+                }
+            }
             html = html.replace("</head>", metadata + "</head>");
         }
         if (path.equals("/rules-en") || path.equals("/privacy-en")) html = html.replace("<html lang=\"zh-CN\">", "<html lang=\"en\">");
@@ -251,8 +281,12 @@ public class FrontendNextPreviewController {
         if (previewRequest || privatePage) response.header("X-Robots-Tag", robotsPolicy);
         return response.body(html);
     }
+    private static String modelText(Map<?, ?> model, String key, String fallback) {
+        Object value = model.get(key);
+        return value instanceof String text && !text.isBlank() ? text : fallback;
+    }
     private String versionRuntimes(String html) throws IOException {
-        for (String name : new String[]{"next/shell.js","next/n2.js","next/n3.js","next/n4.js","next/n4-mini.js","next/n5.js","next/n5-actions.js","next/n6-account-security.js","next/n7-auth.js","next/n8-integration.js","next/n10-service-detail.js","next/n11-related-services.js","next/n12-quote-context.js","next/n13-record-detail.js","next/n14-route-continuity.js","next/n15-auth-return.js","next/n16-account-deep-links.js","next/n17-account-navigation.js","next/n18-account-detail-deep-links.js","next/n19-account-detail-context.js","next/n20-account-list-view-state.js","next/n21-account-personal-assets.js","next/n22-guide-detail.js","assets/guide-community.js","assets/guide-community.css","assets/global-ui-controls.js","assets/frontend-controls-runtime.js","assets/site-image-controls.js","assets/site-image-controls.css"}) {
+        for (String name : new String[]{"next/shell.js","next/n2.js","next/n3.js","next/n4.js","next/n4-mini.js","next/n5.js","next/n5-actions.js","next/n6-account-security.js","next/n7-auth.js","next/n8-integration.js","next/n10-service-detail.js","next/n11-related-services.js","next/n12-quote-context.js","next/n13-record-detail.js","next/n14-route-continuity.js","next/n15-auth-return.js","next/n16-account-deep-links.js","next/n17-account-navigation.js","next/n18-account-detail-deep-links.js","next/n19-account-detail-context.js","next/n20-account-list-view-state.js","next/n21-account-personal-assets.js","next/n22-guide-detail.js","assets/guest-business.js","assets/guide-community.js","assets/guide-community.css","assets/global-ui-controls.js","assets/frontend-controls-runtime.js","assets/site-image-controls.js","assets/site-image-controls.css"}) {
             String version = runtimeVersion(name);
             String path = "/" + name;
             html = html.replace("src=\"" + path + "\"", "src=\"" + path + "?v=" + version + "\"");

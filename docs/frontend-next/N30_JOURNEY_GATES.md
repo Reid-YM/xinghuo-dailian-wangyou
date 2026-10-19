@@ -8,7 +8,7 @@ N15 账号登录回跳最初只覆盖 N1–N13 的 `/services`、`/quote`、`/ac
 
 ## 新增浏览器验收
 
-- `FrontendNextN30AuthReturnJourneyPlaywrightTest`：Chromium 和 WebKit 验证新版所有后续页面的登录回跳；旧版显式 escape、原 `/guest-access` 独立链路、外站与管理/API 入口的边界保持不变。
+- `FrontendNextN30AuthReturnJourneyPlaywrightTest`：Chromium 和 WebKit 验证新版所有后续页面的登录回跳；旧版显式 escape、原 `/guest/access/{token}` 独立链路、外站与管理/API 入口的边界保持不变。
 - `FrontendNextN30QuoteRecordJourneyPlaywrightTest`：Chromium 和 WebKit 在网络模拟中从 N3 真实提交运行时（请求 `POST /api/quote` 带幂等键）获取业务编号、由 N26 history bridge 写入与旧版相同的本机 `xh_client_records_v1`，再走 N13 `GET /api/records/{businessNo}` 详情以及 N26 `/next/records` 列表，验证持续可返回单条真实记录并且没有重复提交。
 - 这些验收使用本地 Playwright 路由模拟服务器返回（非生产业务请求）。它们验证浏览器内真实 JS 模块协作，但不声称已经完成线上全链路、真实微信支付、真实订单履约或账号授权验收。
 
@@ -23,3 +23,11 @@ N15 账号登录回跳最初只覆盖 N1–N13 的 `/services`、`/quote`、`/ac
 ## 发布与安全边界
 
 本阶段只改 N15 Next 客户端登录回跳，另增测试/文档；不改支付、账号 API、订单服务、权限、数据库或正式 Legacy 首页。默认继续 `app.frontend-next.default-enabled=false`。
+
+## 2026-10-19 当前整合验收
+
+上述“第一阶段”和旧 main SHA 是历史记录。当前整合包含正式路由、账号真实 Cookie、游客共享组件及完整公开页面；以 [COMPLETION_AUDIT.md](COMPLETION_AUDIT.md) 的逐项证据和最新 PR CI 为准。
+
+`FrontendRealSessionPlaywrightTest` 使用实际 AccountService BCrypt 和 AccountSessionService、AccountApiController，通过 loopback HTTP 接收 HttpOnly Cookie；验证错误密码、登录/刷新、登出清理、再次登录及服务端撤销。持久层是隔离存储替身，业务 API 响应是夹具，不声称真实生产订单/支付通过。
+
+专用游客入口由原控制器处理，不转发到 Next，不自动交换凭证；公开记录的付款区只在原游客凭证允许时展示。金额、付款和履约状态沿用服务端拥有的字段和 API，前端不新增收费规则或模拟交易。默认开关仍关闭；正式发布单独授权。

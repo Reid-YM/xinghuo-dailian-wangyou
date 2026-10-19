@@ -1,7 +1,9 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
+  const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
 
-  if (!/^\/next(?:\/|$)/.test(location.pathname)) return;
+  if (!/^\/next(?:\/|$)/.test(runtimePath())) return;
 
   const text = (value) => String(value ?? '').trim();
   const authModes = new Set(['login', 'register', 'reset']);
@@ -36,7 +38,7 @@
     if (/^\/(admin|api|logout)(\/|$)/i.test(url.pathname)) return fallback();
     if (/^\/account\/(login|register|reset)(\/|$)/i.test(url.pathname)) return fallback();
 
-    if (url.pathname === '/next/account' && authModes.has(text(url.searchParams.get('auth')).toLowerCase())) {
+    if (['/next/account', '/account'].includes(url.pathname) && authModes.has(text(url.searchParams.get('auth')).toLowerCase())) {
       url.searchParams.delete('auth');
       url.searchParams.delete('token');
       url.searchParams.delete('wechat');
@@ -47,8 +49,12 @@
       else if (url.pathname === '/services') url.pathname = '/next/services';
       else if (url.pathname === '/quote') url.pathname = '/next/quote';
       else if (url.pathname === '/account') url.pathname = '/next/account';
+      else if (/^\/account\/(?:(?:requests|orders)\/[^/]+|settings\/(?:profile|contact|security)|requests|quotes|demands|orders|order|order-list|progress|tools|tool-progress|favorites|submissions|settings|profile|contact|security|devices|activity)\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');
       else if (url.pathname === '/account/submit') url.pathname = '/next/account/submit';
       else if (url.pathname === '/guides') url.pathname = '/next/guides';
+      else if (url.pathname === '/loadouts' || url.pathname === '/loadouts/') url.pathname = '/next/mastery';
+      else if (url.pathname === '/order') url.pathname = '/next/records';
+      else if (/^\/order\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next/record/' + url.pathname.split('/')[2];
       else if (url.pathname === '/mastery') url.pathname = '/next/mastery';
       else if (url.pathname === '/records') url.pathname = '/next/records';
       else if (url.pathname === '/contact') url.pathname = '/next/contact';
@@ -57,11 +63,12 @@
       else if (url.pathname === '/privacy') url.pathname = '/next/privacy';
       else if (url.pathname === '/rules-en' || url.pathname === '/privacy-en') url.pathname = '/next' + url.pathname;
       else if (/^\/guides\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');
+      else if (/^\/game\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');
       else if (/^\/service\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');
       else if (/^\/record\/[^/]+\/?$/.test(url.pathname)) url.pathname = '/next' + url.pathname.replace(/\/$/, '');
     }
 
-    return url.pathname + url.search + url.hash;
+    return runtimeHref(url.pathname + url.search + url.hash);
   }
 
   function safeAccountReturn(requested) {
@@ -74,11 +81,11 @@
 
   function authUrl(mode) {
     const normalized = authModes.has(mode) ? mode : 'login';
-    const url = new URL('/next/account', location.origin);
-    if (normalized !== 'login') url.searchParams.set('auth', normalized);
+    const url = new URL(window.XHFrontendShell?.isPreview === false ? '/account/' + normalized : '/next/account', location.origin);
+    if (normalized !== 'login' && window.XHFrontendShell?.isPreview !== false) url.searchParams.set('auth', normalized);
     const target = requestedReturn();
     if (target !== fallback()) url.searchParams.set('next', target);
-    return url.pathname + url.search;
+    return runtimeHref(url.pathname + url.search);
   }
 
   function explicitLegacy(url) {

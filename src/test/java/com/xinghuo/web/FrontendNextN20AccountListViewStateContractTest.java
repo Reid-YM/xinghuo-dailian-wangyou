@@ -32,8 +32,8 @@ class FrontendNextN20AccountListViewStateContractTest {
         assertTrue(runtime.contains("state.orders?.items"));
         assertTrue(runtime.contains("function filteredItems"));
         assertTrue(runtime.contains("function visibleBusinessNos"));
-        assertTrue(runtime.contains("当前接口已加载"));
-        assertTrue(runtime.contains("当前接口单次最多返回 50 条"));
+        assertTrue(runtime.contains("当前已加载"));
+        assertTrue(runtime.contains("最多显示最近 50 条"));
         assertTrue(runtime.contains("当前筛选条件没有匹配记录"));
         assertFalse(runtime.contains("?page="));
         assertFalse(runtime.contains("&page="));
@@ -50,7 +50,7 @@ class FrontendNextN20AccountListViewStateContractTest {
         assertTrue(runtime.contains("STATUS_RE"));
         assertTrue(runtime.contains("updated-desc"));
         assertTrue(runtime.contains("updated-asc"));
-        assertTrue(runtime.contains("history.replaceState"));
+        assertTrue(runtime.contains("navigation.replaceState"));
         assertTrue(runtime.contains("statusSignature"));
         assertTrue(runtime.contains("MutationObserver"));
     }

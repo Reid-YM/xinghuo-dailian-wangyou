@@ -1,7 +1,8 @@
 (() => {
   'use strict';
+  const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
   const pattern = /^\/next\/game\/([^/]+)\/?$/;
-  if (!pattern.test(location.pathname)) return;
+  if (!pattern.test(runtimePath())) return;
   const text = value => String(value ?? '').trim();
   const list = value => Array.isArray(value) ? value : [];
   const code = value => text(value).toUpperCase();
@@ -76,7 +77,8 @@
       meta.content = content;
     };
     set('description', text(game.seoDescription) || text(game.description) || `${text(game.name)} 游戏任务服务，查看参考价格与预计时间。`);
-    set('robots', 'noindex,follow');
+    if (window.XHFrontendShell?.isPreview === false) document.querySelector('meta[name=robots]')?.remove();
+    else set('robots', 'noindex,follow');
     let canonical = document.querySelector('link[rel=canonical]');
     if (!canonical) { canonical = node('link'); canonical.rel = 'canonical'; document.head.append(canonical); }
     canonical.href = 'https://wydlgf.cn/game/' + encodeURIComponent(text(game.seoSlug));
@@ -125,18 +127,18 @@
     return response.json();
   }
   async function load() {
-    if (!pattern.test(location.pathname)) return;
-    const path = location.pathname, current = ++generation; styles(); const root = section(), shell = root.querySelector('.shell');
+    if (!pattern.test(runtimePath())) return;
+    const path = runtimePath(), current = ++generation; styles(); const root = section(), shell = root.querySelector('.shell');
     const loading = node('div', 'next-game-state', '正在读取游戏资料…'); loading.setAttribute('role', 'status'); shell.replaceChildren(loading);
     try {
       const [catalog, services] = await Promise.all([get('/api/catalog'), get('/api/services'), window.XHFrontendShell?.configurationReady]);
-      if (current !== generation || path !== location.pathname) return;
+      if (current !== generation || path !== runtimePath()) return;
       const slug = decodeURIComponent(pattern.exec(path)[1]);
       const game = list(catalog.games).find(game => text(game.seoSlug) === slug && game.active !== false);
       if (!game) { shell.replaceChildren(node('h1', '', '游戏资料不存在或已停止公开'), link('返回服务大厅', '/next/services')); return; }
       render(root, game, services, catalog);
     } catch (_) {
-      if (current !== generation || path !== location.pathname) return;
+      if (current !== generation || path !== runtimePath()) return;
       const state = node('div', 'next-game-state'); state.setAttribute('role', 'alert');
       state.append(node('h1', '', '游戏资料暂时无法读取'), node('p', '', '请检查网络后重试。'));
       const retry = node('button', 'btn gold', '重新读取'); retry.type = 'button'; retry.onclick = load;

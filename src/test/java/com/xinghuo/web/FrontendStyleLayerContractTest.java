@@ -14,7 +14,7 @@ class FrontendStyleLayerContractTest {
     void sharedSiteLoadsCompatibilityThenNextFoundation() throws Exception {
         String site = Files.readString(MAIN.resolve("resources/templates/fragments/site.html"));
         assertTrue(site.contains("/assets/site-experience-v2.css?v=20261012ux04"));
-        assertTrue(site.contains("/assets/frontend-next-foundation.css?v=20261014nx01"));
+        assertTrue(site.contains("/assets/frontend-next-foundation.css?v=20261019cc01"));
         assertTrue(site.contains("/assets/site-shell.js?v=20261012ss06"));
         assertTrue(site.contains("/assets/brand-logo.svg?v=20261008logo01"));
         assertTrue(site.contains("width=\"32\" height=\"32\" decoding=\"async\""));
@@ -26,7 +26,7 @@ class FrontendStyleLayerContractTest {
         assertFalse(site.contains("style=\"-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:none!important\""));
 
         int compatibility = site.indexOf("site-experience-v2.css?v=20261012ux04");
-        int next = site.indexOf("frontend-next-foundation.css?v=20261014nx01");
+        int next = site.indexOf("frontend-next-foundation.css?v=20261019cc01");
         int runtime = site.indexOf("frontend-controls-runtime.js");
         assertTrue(compatibility >= 0 && next > compatibility,
                 "Frontend Next must override the existing compatibility layer without deleting business CSS contracts");

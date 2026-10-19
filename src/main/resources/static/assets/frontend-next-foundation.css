@@ -122,9 +122,15 @@ body[data-page="home"] .field label{font-size:12px;font-weight:850}
 body[data-page="home"] input,body[data-page="home"] select,body[data-page="home"] textarea{border-color:#343b46;background:#0d1116}
 body[data-page="home"] input:focus,body[data-page="home"] select:focus,body[data-page="home"] textarea:focus{border-color:var(--xh-next-accent-line);box-shadow:0 0 0 3px var(--xh-next-accent-soft)}
 body[data-page="home"] .quote-submit{min-height:50px;margin-top:4px;border-radius:11px}
-body[data-page="home"] .quick-contact-card{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);gap:18px;align-items:center}
-body[data-page="home"] .quick-contact-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-body[data-page="home"] .quick-contact-item{border:1px solid var(--xh-next-line);border-radius:12px;background:rgba(255,255,255,.025)}
+/*
+  客服卡片：卡片位于右侧栏（约 360px），内部必须单列。
+  之前卡片与列表同时拆成两列，每列只剩约 95px：微信号被省略成 "A."、复制按钮被裁切。
+  这里改回单列，并去掉 item 外框，避免与 app.css 的 row / jump 形成双层边框。
+*/
+body[data-page="home"] .quick-contact-card{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+body[data-page="home"] .quick-contact-list{display:grid;grid-template-columns:1fr;gap:12px}
+body[data-page="home"] .quick-contact-item{border:0;border-radius:0;background:none}
+body[data-page="home"] .quick-contact-item+.quick-contact-item{padding-top:12px;border-top:1px solid var(--xh-next-line)}
 
 /* shared content rhythm */
 .section-title-rich,.game-entry-head{padding-bottom:14px;border-bottom:1px solid var(--xh-next-line)}

@@ -20,7 +20,7 @@ class FrontendBackendTotalIntegrationContractTest {
         String admin = read("resources/templates/admin-xingwei.html");
         String adminJs = read("resources/static/assets/admin-xingwei.js");
         assertTrue(site.contains("data-experience-shell=\"v4\""));
-        assertTrue(site.contains("frontend-next-foundation.css?v=20261014nx01"));
+        assertTrue(site.contains("frontend-next-foundation.css?v=20261019cc01"));
         assertTrue(site.contains("frontend-next-services.css?v=20261014nx03"));
         assertTrue(site.contains("frontend-next-conversion.css?v=20261014nx03"));
         assertTrue(site.contains("frontend-next-account.css?v=20261014nx04"));

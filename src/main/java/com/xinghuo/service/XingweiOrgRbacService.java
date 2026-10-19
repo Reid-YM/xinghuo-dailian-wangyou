@@ -119,7 +119,6 @@ public class XingweiOrgRbacService {
                     row.put("employeeNo", rs.getString("employee_no"));
                     row.put("displayName", rs.getString("display_name"));
                     row.put("status", rs.getString("status"));
-                    row.put("notes", rs.getString("notes"));
                     row.put("wecomUserId", rs.getString("wecom_user_id"));
                     row.put("departmentCode", rs.getString("department_code"));
                     row.put("departmentName", rs.getString("department_name"));
@@ -288,10 +287,10 @@ public class XingweiOrgRbacService {
                     """
                     UPDATE xw_admin_profiles
                     SET employee_no = ?, display_name = ?, department_id = ?, position_id = ?,
-                        status = ?, notes = ?, updated_at = NOW(6)
+                        status = ?, notes = CASE WHEN ? IS NULL THEN notes ELSE ? END, updated_at = NOW(6)
                     WHERE admin_user_id = ?
                     """,
-                    employeeNo, displayName, departmentId, positionId, status, notes, adminUserId);
+                    employeeNo, displayName, departmentId, positionId, status, input.notes(), notes, adminUserId);
             if (updated == 0) {
                 jdbc.update(
                         """

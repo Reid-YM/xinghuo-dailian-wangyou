@@ -49,23 +49,31 @@ class AdminDefaultReplacementSecurityTest {
     AnnotationConfigWebApplicationContext context;MockMvc mvc;XingweiPermissionGuard guard;
     @BeforeEach void setup(){context=new AnnotationConfigWebApplicationContext();context.setServletContext(new MockServletContext());context.register(TestConfig.class);context.refresh();mvc=MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();guard=context.getBean(XingweiPermissionGuard.class);}
     @AfterEach void close(){context.close();}
-    @Test void adminAndOperatorDefaultToNativeButOnlyRecoveryAdminCanRequestLegacy() throws Exception {
-        mvc.perform(get("/admin").with(user("operator").roles("OPERATOR"))).andExpect(status().isFound()).andExpect(redirectedUrl("/admin/xingwei")).andExpect(header().string("Cache-Control","no-store"));
-        mvc.perform(get("/admin").param("legacy","1").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
-        mvc.perform(get("/admin").param("legacy","1").with(user("admin").roles("ADMIN"))).andExpect(status().isOk()).andExpect(view().name("admin"));
-        mvc.perform(get("/admin/guides").with(user("operator").roles("OPERATOR"))).andExpect(redirectedUrl("/admin/xingwei/guides"));
-        mvc.perform(get("/admin/guides").param("legacy","1").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
+    @Test void retiredAliasesAlwaysRedirectToNativeForBothRoles() throws Exception {
+        for (String role : new String[]{"ADMIN", "OPERATOR"}) {
+            for (String[] route : new String[][]{{"/admin", "/admin/xingwei"},
+                    {"/admin/guides", "/admin/xingwei/guides"},
+                    {"/admin/frontend-controls", "/admin/xingwei/frontend-controls"}}) {
+                for (String legacy : new String[]{"0", "1"}) {
+                    mvc.perform(get(route[0]).param("legacy", legacy).with(user("staff").roles(role)))
+                            .andExpect(status().isFound()).andExpect(redirectedUrl(route[1]))
+                            .andExpect(header().string("Cache-Control", "no-store"));
+                }
+            }
+            mvc.perform(get("/assets/admin.js").with(user("staff").roles(role))).andExpect(status().isForbidden());
+            mvc.perform(get("/admin/orders").with(user("staff").roles(role))).andExpect(status().isForbidden());
+        }
     }
     @Test void nativeGuidesRenderIndependentWorkspaceAndRetainContentPermission()throws Exception {
         mvc.perform(get("/admin/xingwei/guides").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
         when(guard.has(any(),eq("content:view"))).thenReturn(true);
         mvc.perform(get("/admin/xingwei/guides").with(user("operator").roles("OPERATOR"))).andExpect(status().isOk()).andExpect(view().name("admin-xingwei-guides")).andExpect(model().attribute("xingweiMode",true)).andExpect(header().string("Cache-Control","no-store"));
-        mvc.perform(get("/admin/guides").param("legacy","1").with(user("admin").roles("ADMIN"))).andExpect(view().name("admin-guides"));
+        mvc.perform(get("/admin/guides").param("legacy","1").with(user("admin").roles("ADMIN"))).andExpect(redirectedUrl("/admin/xingwei/guides"));
     }
-    @Test void frontendControlDefaultsToNewShellAndRecoveryIsAdminOnly()throws Exception{
+    @Test void frontendControlOnlyUsesNewShell()throws Exception{
         mvc.perform(get("/admin/frontend-controls").with(user("operator").roles("OPERATOR"))).andExpect(redirectedUrl("/admin/xingwei/frontend-controls")).andExpect(header().string("Cache-Control","no-store"));
-        mvc.perform(get("/admin/frontend-controls").param("legacy","1").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
-        mvc.perform(get("/admin/frontend-controls").param("legacy","1").with(user("admin").roles("ADMIN"))).andExpect(view().name("admin-frontend-controls"));
+        mvc.perform(get("/admin/frontend-controls").param("legacy","1").with(user("operator").roles("OPERATOR"))).andExpect(redirectedUrl("/admin/xingwei/frontend-controls"));
+        mvc.perform(get("/admin/frontend-controls").param("legacy","1").with(user("admin").roles("ADMIN"))).andExpect(redirectedUrl("/admin/xingwei/frontend-controls"));
         mvc.perform(get("/admin/xingwei/frontend-controls").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
         when(guard.has(any(),eq("site:view"))).thenReturn(true);
         mvc.perform(get("/admin/xingwei/frontend-controls").with(user("operator").roles("OPERATOR"))).andExpect(view().name("admin-xingwei-frontend-controls")).andExpect(header().string("Cache-Control","no-store"));
@@ -73,7 +81,8 @@ class AdminDefaultReplacementSecurityTest {
     @Test void oldApisCannotBypassNativePermissionsAndNativeWritesStillRequireCsrf() throws Exception {
         mvc.perform(get("/api/admin/quotes").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
         mvc.perform(post("/api/admin/quotes").with(user("operator").roles("OPERATOR")).with(csrf())).andExpect(status().isForbidden());
-        mvc.perform(get("/api/admin/quotes").with(user("admin").roles("ADMIN"))).andExpect(status().isOk());
+        mvc.perform(get("/api/admin/quotes").with(user("admin").roles("ADMIN"))).andExpect(status().isForbidden());
+        mvc.perform(post("/api/admin/quotes").with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isForbidden());
         mvc.perform(get("/api/admin/xingwei/probe").with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
         when(guard.has(any(),eq("order:view"))).thenReturn(true);
         mvc.perform(get("/api/admin/xingwei/probe").with(user("operator").roles("OPERATOR"))).andExpect(status().isOk());
@@ -82,10 +91,12 @@ class AdminDefaultReplacementSecurityTest {
         mvc.perform(post("/api/admin/xingwei/probe").with(user("operator").roles("OPERATOR")).with(csrf())).andExpect(status().isOk());
         mvc.perform(get("/api/admin/xingwei/probe")).andExpect(status().isUnauthorized());
     }
-    @Test void validWeComSessionCanEnterDefaultRedirectButCannotEnterLegacyWorkspace() throws Exception {
+    @Test void validWeComSessionUsesSafeRedirectsEvenWithRetiredLegacyParameter() throws Exception {
         var session=new MockHttpSession();session.setAttribute(XingweiWeComSsoController.SSO_SESSION_KEY,new XingweiWeComSsoController.SsoIdentity("operator","staff_1","OPERATOR"));
+        mvc.perform(get("/admin/login").session(session).with(user("operator").roles("OPERATOR"))).andExpect(status().isOk()).andExpect(view().name("admin-login"));
         mvc.perform(get("/admin").session(session).with(user("operator").roles("OPERATOR"))).andExpect(redirectedUrl("/admin/xingwei"));
-        mvc.perform(get("/admin").param("legacy","1").session(session).with(user("operator").roles("OPERATOR"))).andExpect(status().isForbidden());
+        mvc.perform(get("/admin").param("legacy","1").session(session).with(user("operator").roles("OPERATOR"))).andExpect(redirectedUrl("/admin/xingwei"));
+        mvc.perform(get("/admin/frontend-controls").param("legacy","1").session(session).with(user("operator").roles("OPERATOR"))).andExpect(redirectedUrl("/admin/xingwei/frontend-controls"));
     }
     @Test void anonymousBrowserNavigationRedirectsWhileProgrammaticRequestsReturnUnauthorized()throws Exception{
         for(String path:new String[]{"/admin","/admin/xingwei"}){

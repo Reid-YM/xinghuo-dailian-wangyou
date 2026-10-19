@@ -163,11 +163,9 @@ public class XingweiAdminController {
     }
 
     @GetMapping("/admin/xingwei/releases")
-    String releases(Model model, CsrfToken csrf, Authentication authentication) {
-        common(model, csrf, authentication);
-        model.addAttribute("consoleVersion", CONSOLE_VERSION);
-        model.addAttribute("releaseHistory", RELEASE_HISTORY);
-        return "admin-xingwei-releases";
+    String releases(jakarta.servlet.http.HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-store");
+        return "redirect:/admin/xingwei";
     }
 
     @GetMapping("/admin/xingwei/business")
@@ -228,7 +226,6 @@ public class XingweiAdminController {
         model.addAttribute("csrf", csrf);
         model.addAttribute("username", authentication == null ? "admin" : authentication.getName());
         model.addAttribute("workspaceName", "星维网络服务工作室");
-        model.addAttribute("restoreAdmin",authentication!=null&&authentication.getAuthorities().stream().anyMatch(authority->"ROLE_ADMIN".equals(authority.getAuthority())));
     }
 
     public record ReleaseItem(String date, String version, String status, String title, String detail) {}

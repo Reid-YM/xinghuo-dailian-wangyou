@@ -116,9 +116,9 @@ public class XingweiChannelOperationsService {
         if (input.version() == null || input.version() < 0) throw new IllegalArgumentException("缺少有效版本号");
         ChannelState before = jdbc.queryForObject("SELECT * FROM xw_channel_status WHERE channel_code=?", this::stateRow, channel);
         int changed = jdbc.update("""
-                UPDATE xw_channel_status SET service_state=?,note=?,version=version+1,
+                UPDATE xw_channel_status SET service_state=?,note=CASE WHEN ? IS NULL THEN note ELSE ? END,version=version+1,
                 updated_by=?,updated_at=CURRENT_TIMESTAMP(6) WHERE channel_code=? AND version=?
-                """, state, note, actor.getName(), channel, input.version());
+                """, state, input.note(), note, actor.getName(), channel, input.version());
         if (changed != 1) throw new OptimisticLockingFailureException("渠道状态已更新，请刷新后重试");
         ChannelState after = jdbc.queryForObject("SELECT * FROM xw_channel_status WHERE channel_code=?", this::stateRow, channel);
         audits.log("CHANNEL_STATE_UPDATE", "CHANNEL", channel, actor.getName(), before, after, "维护内部渠道服务状态", request);

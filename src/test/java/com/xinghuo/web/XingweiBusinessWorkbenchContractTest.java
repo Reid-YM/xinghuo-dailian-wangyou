@@ -19,7 +19,7 @@ class XingweiBusinessWorkbenchContractTest {
 
         assertTrue(controller.contains("@GetMapping(\"/admin/xingwei/business\")"));
         assertTrue(controller.contains("return \"admin-xingwei-business\""));
-        assertTrue(template.contains("admin-xingwei-business.js?v=20261018fulfillment1"));
+        assertTrue(template.contains("admin-xingwei-business.js?v=20261019cutover"));
         assertTrue(template.contains("admin-xingwei-guest-offer.js?v=20261018unpaidflow1"));
         assertTrue(template.contains("meta name=\"_csrf\""));
         assertTrue(js.contains("/api/admin/xingwei/business/${endpoint}"));
@@ -48,7 +48,7 @@ class XingweiBusinessWorkbenchContractTest {
         String template = read("resources/templates/admin-xingwei-business.html");
         String css = read("resources/static/assets/admin-xingwei-business.css");
 
-        assertTrue(template.contains("href=\"/admin?legacy=1\""));
+        assertFalse(template.contains("legacy=1"));
         assertTrue(template.contains("href=\"/admin/xingwei\">返回星维后台</a>"));
         assertTrue(template.contains("xw-table-wrap"));
         assertTrue(css.contains("@media(max-width:680px)"));

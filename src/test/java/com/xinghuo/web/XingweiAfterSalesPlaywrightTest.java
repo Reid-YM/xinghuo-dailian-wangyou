@@ -110,7 +110,7 @@ class XingweiAfterSalesPlaywrightTest {
                     <p id="caseMessage"></p><table><tbody id="caseRows"></tbody></table>
                     <button id="casePrev"></button><span id="casePage"></span><button id="caseNext"></button>
                     <section id="caseDetail" hidden><div id="caseCurrent"></div><div id="caseFollowups"></div><div id="caseEvents"></div>
-                      <form id="caseUpdate" hidden><select name="status"><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select><textarea name="handlingNote"></textarea><textarea name="customerReply"></textarea><button type="submit">保存</button></form>
+                      <form id="caseUpdate" hidden><select name="status"><option value="IN_PROGRESS">处理中</option><option value="RESOLVED">已解决</option></select><textarea name="customerReply"></textarea><button type="submit">保存</button></form>
                     </section>
                     """;
             page.route("**/*", route -> route.fulfill(
@@ -139,12 +139,12 @@ class XingweiAfterSalesPlaywrightTest {
             page.locator("#caseFollowups").getByText("客户有新补充").waitFor();
             page.waitForFunction("() => Boolean(document.querySelector('#caseUpdate option[data-same-status]'))");
             page.locator("#caseUpdate select[name=status]").selectOption("IN_PROGRESS");
-            page.locator("#caseUpdate textarea[name=handlingNote]").fill("内部跟进");
             page.locator("#caseUpdate textarea[name=customerReply]").fill("仍在处理");
             page.locator("#caseUpdate button[type=submit]").click();
             page.waitForFunction("() => window.__sent.length===1 && document.querySelector('#caseMessage').textContent.includes('已保存')");
             assertEquals("IN_PROGRESS", page.evaluate("() => window.__sent[0].status"));
             assertEquals("仍在处理", page.evaluate("() => window.__sent[0].customerReply"));
+            assertEquals(false, page.evaluate("() => Object.hasOwn(window.__sent[0], 'handlingNote')"));
             assertEquals(1, page.evaluate("() => window.__sent[0].expectedVersion"));
             assertEquals(9, page.evaluate("() => window.__sent[0].acknowledgedFollowupId"));
             assertTrue(page.locator("#caseMessage").textContent().contains("已保存"));

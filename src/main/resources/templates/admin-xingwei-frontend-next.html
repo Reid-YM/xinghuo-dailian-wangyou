@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#101216"/>
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
-  <title>Frontend Next 灰度入口 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <title>服务入口设置 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <style>
     .fnr-shell{width:min(1040px,calc(100% - 28px));margin:0 auto;padding:30px 0 64px}
     .fnr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px}
@@ -28,14 +28,15 @@
     .fnr-safe{color:#6ee2a1}.fnr-warn{color:#ffc768}
     @media(max-width:760px){.fnr-top{display:grid}.fnr-grid{grid-template-columns:1fr}.fnr-actions{width:100%}.fnr-actions .xw-button{flex:1}}
   </style>
+<link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
 <main class="fnr-shell">
   <header class="fnr-top">
     <div>
-      <div class="fnr-kicker">Frontend Next · N9 Development</div>
-      <h1>服务入口灰度控制</h1>
-      <p>只控制公共页头、手机导航抽屉和页脚中的“服务”入口。默认保持旧版 <code>/services</code>，选择新版时目标变为 <code>/next/services</code>。两个页面都继续存在，可随时恢复旧版。</p>
+      <div class="fnr-kicker"><img class="xw-inline-brand" src="/assets/brand-logo.svg?v=20261019admin" alt="星火"/> 星维管理后台</div>
+      <h1>服务入口设置</h1>
+      <p>选择客户通过导航进入的服务页面。切换后，页头、手机导航和页脚会使用所选入口；两个服务页面均可预览。</p>
     </div>
     <div class="fnr-actions">
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/frontend-controls">前台展示控制</a>
@@ -47,43 +48,43 @@
 
   <section class="fnr-grid">
     <article class="fnr-card">
-      <div class="fnr-kicker">Controlled Rollout</div>
+      <div class="fnr-kicker">入口设置</div>
       <h2>当前公共服务入口</h2>
       <div class="fnr-current">
         <span>当前模式</span>
         <strong id="rolloutModeLabel">读取中…</strong>
-        <code id="rolloutHref">—</code>
+        <span id="rolloutHref">—</span>
       </div>
 
       <form id="frontendNextRolloutForm">
         <div class="fnr-field">
           <label for="servicesEntryMode">服务入口目标</label>
-          <select id="servicesEntryMode" name="servicesEntryMode">
-            <option value="legacy">旧版稳定入口 · /services</option>
-            <option value="next">新版候选入口 · /next/services</option>
+          <select id="servicesEntryMode" name="servicesEntryMode" disabled>
+            <option value="legacy">原版服务页</option>
+            <option value="next">新版服务页</option>
           </select>
         </div>
-        <button class="xw-button fnr-save" type="submit" id="saveRolloutMode">保存入口目标</button>
+        <button class="xw-button fnr-save" type="submit" id="saveRolloutMode" disabled>保存入口目标</button>
+        <button class="xw-button xw-button-ghost fnr-save" type="button" id="reloadRolloutMode">重新读取</button>
         <div class="fnr-message" id="rolloutMessage" role="status" aria-live="polite"></div>
       </form>
 
       <div class="fnr-note">
-        <b>开发安全边界：</b>这里不是自由 URL 输入框，只允许 <code>legacy</code> / <code>next</code> 两个后端白名单值。切换动作复用现有全局前端配置接口并进入操作审计；接口失败时公共模板仍按旧版默认值工作。本分支不包含部署或正式启用动作。
+        保存会更新客户的导航入口。若其他人员已修改配置，请重新读取并核对后再保存。
       </div>
     </article>
 
     <aside class="fnr-card">
-      <div class="fnr-kicker">Scope</div>
-      <h2>这一阶段会 / 不会改变什么</h2>
+      <div class="fnr-kicker">使用帮助</div>
+      <h2>切换入口说明</h2>
       <div class="fnr-list">
-        <div class="fnr-item"><b class="fnr-safe">✓ 会改变</b><span>公共页头“服务”、动态手机导航抽屉、公共页脚“服务大厅”的点击目标。</span></div>
-        <div class="fnr-item"><b class="fnr-safe">✓ 旧版保留</b><span><code>/services</code> 本身不会删除或重定向；模式恢复为 legacy 即回到旧入口。</span></div>
-        <div class="fnr-item"><b class="fnr-warn">— 暂不改变</b><span>首页默认路由 <code>/</code>、询价 <code>/quote</code>、账号 <code>/account</code>、服务详情和其它深层链接继续按原逻辑工作。</span></div>
-        <div class="fnr-item"><b class="fnr-warn">— 不涉及</b><span>订单、售后、支付、退款、企业微信写入和数据库结构。</span></div>
+        <div class="fnr-item"><b>客户导航</b><span>页头、手机导航和页脚的服务入口会使用所选页面。</span></div>
+        <div class="fnr-item"><b>预览与恢复</b><span>可先预览两个页面；需要恢复时，重新选择原版服务页并保存。</span></div>
+        <div class="fnr-item"><b>保存权限</b><span>拥有全站配置管理权限的人员可以修改入口。其他人员仅可查看。</span></div>
       </div>
     </aside>
   </section>
 </main>
-<script defer src="/assets/admin-frontend-next-rollout.js?v=20261016n9dev"></script>
+<script defer src="/assets/admin-frontend-next-rollout.js?v=20261019cutover"></script>
 </body>
 </html>

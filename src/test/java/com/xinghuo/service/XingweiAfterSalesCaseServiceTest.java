@@ -204,6 +204,25 @@ class XingweiAfterSalesCaseServiceTest {
     }
 
     @Test
+    void hiddenHandlingNoteAllowsFirstUpdateWithoutCreatingEmployeeRemarks() {
+        var result = cases.update("XW1", 1, "IN_PROGRESS", null, null, 0, actor, null);
+        assertEquals("IN_PROGRESS", result.status());
+        assertEquals("", result.handlingNote());
+        assertEquals("", cases.history("XW1", 1, actor).events().getFirst().handlingNote());
+    }
+
+    @Test
+    void omittedHandlingNotePreservesHistoryWhileRecordingStatusAndCustomerReply() {
+        cases.update("XW1", 1, "IN_PROGRESS", "历史内部处理备注", 0, actor, null);
+        var result = cases.update("XW1", 1, "RESOLVED", null, "问题已处理", 1, actor, null);
+        assertEquals("历史内部处理备注", result.handlingNote());
+        var history = cases.history("XW1", 1, actor);
+        assertEquals(2, history.events().size());
+        assertEquals("", history.events().get(1).handlingNote());
+        assertEquals("问题已处理", history.events().get(1).customerReply());
+    }
+
+    @Test
     void publicReplyAndInternalNoteAreSeparatelyRecordedInHistory() {
         var result = cases.update("XW1", 1, "IN_PROGRESS", "内部核对订单", "正在核对，请稍候",
                 0, actor, null);

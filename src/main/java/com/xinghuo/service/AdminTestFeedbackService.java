@@ -67,7 +67,9 @@ public class AdminTestFeedbackService {
         feedback.setContent(clean(request.content(), 5000));
         feedback.setPriority(priority(request.priority()));
         feedback.setStatus(status(request.status()));
-        feedback.setOperatorNote(optional(request.operatorNote(), 1000));
+        if (request.operatorNote() != null) {
+            feedback.setOperatorNote(optional(request.operatorNote(), 1000));
+        }
         feedback.setUpdatedAt(Instant.now());
         feedback = repo.save(feedback);
         ApiDtos.TestFeedbackResponse after = toResponse(feedback);

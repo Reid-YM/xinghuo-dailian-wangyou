@@ -8,16 +8,17 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>业务工作台 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261016flow2"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-business.js?v=20261018fulfillment1"></script><script defer src="/assets/admin-xingwei-guest-offer.js?v=20261018unpaidflow1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-business.js?v=20261019cutover"></script><script defer src="/assets/admin-xingwei-guest-offer.js?v=20261018unpaidflow1"></script>
+<link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
 <main class="xwb-shell">
   <header class="xwb-topbar">
     <div>
-      <p class="xw-kicker">星维 · 业务工作台</p>
+      <p class="xw-kicker"><img class="xw-workspace-logo" src="/assets/brand-logo.svg?v=20261019admin" alt="" width="26" height="26"/> 星维 · 业务工作台</p>
       <h1>询价 / 订单业务工作台</h1>
     </div>
     <div class="xwb-top-actions">
@@ -27,19 +28,17 @@
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/after-sales/cases">售后处理</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/work">我的工作</a><a class="xw-button xw-button-ghost" href="/admin/xingwei/maintenance">公开案例与业务维护</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
-      <a class="xw-button" href="/admin?legacy=1" th:if="${restoreAdmin == true}">管理员恢复入口</a>
     </div>
   </header>
 
   <section class="xwb-hero">
     <div>
-      <p class="xw-kicker">V3Z · 业务工作台</p>
-      <h2>看得到什么、能派给谁，都由后端真实数据范围决定。</h2>
-      <p>业务工作台只调用新版受控接口。全部数据范围可处理全部及未归属业务；本中心范围只处理本中心已归属业务；仅本人范围只处理本人负责业务。售后问题记录沿用订单查看权限和数据范围。旧后台继续保留，作为兼容与恢复入口。</p>
+      <p class="xw-kicker">业务处理</p>
+      <h2>按职责处理询价、订单与售后。</h2>
+      <p>仅展示当前员工获授权的业务。全部数据范围可处理全部及未归属业务；本中心范围只处理本中心已归属业务；仅本人范围只处理本人负责业务。售后问题记录沿用订单查看权限和数据范围。</p>
     </div>
     <div class="xwb-scope-card">
-      <span>当前工作台版本</span>
-      <strong th:text="${businessVersion}">20261016-v6a</strong>
+      <span>当前数据范围</span>
       <small id="xwbScopeText">等待权限快照</small>
     </div>
   </section>
@@ -139,7 +138,6 @@
     </div>
     <p class="xw-dialog-note" id="xwbAfterSalesDetailMeta"></p>
     <div class="xwb-detail-block"><strong>客户提交的说明</strong><div id="xwbAfterSalesDetailNote"></div></div>
-    <div class="xwb-detail-block"><strong>内部备注</strong><div id="xwbAfterSalesDetailInternal"></div></div>
     <p class="xwb-help">此处仅展示已记录的说明，不代表退款申请或处理状态。</p>
   </div>
 </dialog>
@@ -156,7 +154,7 @@
   <form id="xwbOrderActionForm"><input name="businessNo" type="hidden"/><input name="version" type="hidden"/>
     <div class="xw-form-grid"><label>履约状态<select name="status"><option value="WAITING_CONFIRMATION">待确认</option><option value="IN_PROGRESS">进行中</option><option value="COMPLETED">已完成</option><option value="CLOSED">已结单</option><option value="EXCEPTION">异常订单</option></select></label><label>进度百分比（可空）<input name="progressPercent" type="number" min="0" max="100"/></label></div>
     <label class="xw-form-wide">客户可见进度<input name="progressText" maxlength="240" required/></label>
-    <label class="xw-form-wide">客户可见备注<textarea name="customerNote" maxlength="500"></textarea></label><label class="xw-form-wide">内部备注<textarea name="internalNote" maxlength="1200"></textarea></label>
+    <label class="xw-form-wide">客户可见备注<textarea name="customerNote" maxlength="500"></textarea></label>
     <label class="xw-form-wide">修改原因<textarea name="reason" maxlength="500" required></textarea></label>
     <p class="xwb-help">订单付款、服务完成与最终结单相互独立：请先核对微信已收款，再确认交付并结单。结单后不可重新进入履约。</p><p id="xwbOrderActionState" role="status" aria-live="polite"></p><div class="xw-dialog-actions"><button class="xw-button" type="submit">保存订单</button></div>
   </form>

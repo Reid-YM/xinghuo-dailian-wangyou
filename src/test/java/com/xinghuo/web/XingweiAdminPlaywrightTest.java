@@ -149,7 +149,7 @@ class XingweiAdminPlaywrightTest {
             addMainScript(page);
             page.waitForFunction("() => document.documentElement.dataset.xwRuntimeState === 'mismatch'");
 
-            assertTrue(page.locator("#xwBackendStatus").textContent().contains("版本漂移"));
+            assertTrue(page.locator("#xwBackendStatus").textContent().contains("页面需要更新"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwBackendStatus').classList.contains('error')"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261016-v6a"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("运行 20261014-v3k"));

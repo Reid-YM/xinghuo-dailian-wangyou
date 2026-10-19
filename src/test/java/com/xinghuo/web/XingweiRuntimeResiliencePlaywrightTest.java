@@ -48,7 +48,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
             page.evaluate("() => window.dispatchEvent(new Event('online'))");
             page.waitForFunction("() => window.xwRuntimeHealth?.state === 'mismatch'");
             assertEquals("online", page.evaluate("() => window.xwRuntimeHealth.reason"));
-            assertTrue(page.locator("#xwBackendStatus").textContent().contains("版本漂移"));
+            assertTrue(page.locator("#xwBackendStatus").textContent().contains("页面需要更新"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261016-v6a"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("运行 20261014-v3l"));
         }

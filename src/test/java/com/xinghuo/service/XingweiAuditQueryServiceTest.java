@@ -87,6 +87,16 @@ class XingweiAuditQueryServiceTest {
         assertFalse(mapper.writeValueAsString(service.detail(2,self)).contains("SECRET_UPPERCASE"));
     }
     @Test
+    void internalNotesAndTechnicalChangesAreAbsentFromAuditSummaries() throws Exception {
+        add(1,"self","UPDATE","{\"internalNote\":\"历史员工备注\",\"notes\":\"员工备注\",\"operatorNote\":\"内部反馈\",\"version\":1}",
+                "{\"internalNote\":\"更新员工备注\",\"notes\":\"更新备注\",\"operatorNote\":\"更新内部反馈\",\"version\":2}","2026-10-16T00:00:00Z");
+        var detail=service.detail(1,self);
+        assertTrue(((java.util.List<?>)detail.get("changes")).isEmpty());
+        String json=mapper.writeValueAsString(detail);
+        assertFalse(json.contains("internalNote"));assertFalse(json.contains("requestId"));
+        assertFalse(json.contains("targetId"));assertFalse(json.contains("reason"));
+    }
+    @Test
     void malformedJsonAndNonObjectContentStayHidden()throws Exception{
         add(1,"self","UPDATE","SECRET_MALFORMED","{broken","2026-10-16T00:00:00Z");
         add(2,"self","UPDATE",null,"[\"SECRET_ARRAY\"]","2026-10-16T00:00:00Z");

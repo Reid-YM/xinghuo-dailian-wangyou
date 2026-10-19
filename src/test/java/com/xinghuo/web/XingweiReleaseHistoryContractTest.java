@@ -78,62 +78,17 @@ class XingweiReleaseHistoryContractTest {
     }
 
     @Test
-    void releasePageDocumentsCiAndRuntimeDoubleVerification() throws Exception {
-        String template = read("resources/templates/admin-xingwei-releases.html");
-        assertTrue(template.contains("版本与更新记录"));
-        assertTrue(template.contains("后续固定规则 · CI + 运行时双校验"));
-        assertTrue(template.contains("浏览器核对页面版本与实际后端版本"));
-        assertTrue(template.contains("th:each=\"item : ${releaseHistory}\""));
-        assertTrue(template.contains(">20261016-v6a</span>"));
-        assertTrue(template.contains(">V6A</strong>"));
-    }
-
-    @Test
-    void dashboardStatusMatchesReleaseTruthAndPendingPayment() throws Exception {
+    void employeeWorkspaceHidesTechnicalReleaseHistoryAndRecoveryLinks() throws Exception {
+        String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
         String dashboard = read("resources/templates/admin-xingwei.html");
-        String delivery = read("resources/templates/fragments/admin-delivery-roadmap.html");
-        String afterSales = read("resources/templates/admin-xingwei-after-sales.html");
-        String attention = read("resources/templates/admin-xingwei-after-sales-attention.html");
-        assertTrue(dashboard.contains("href=\"/admin/xingwei/releases\">查看版本迁移与交付</a>"));
-        assertTrue(dashboard.contains("th:text=\"${consoleStageLabel}\""));
-        assertTrue(dashboard.contains("V6A · UNIFIED DELIVERY"));
-        assertTrue(dashboard.contains("新版后台统一工作台"));
-        assertTrue(delivery.contains("<strong>V4J</strong>"));
-        assertTrue(delivery.contains("<strong>V4K</strong>"));
-        assertTrue(delivery.contains("<strong>V4L</strong>"));
-        assertTrue(delivery.contains("<strong>V4M</strong>"));
-        assertTrue(dashboard.contains("20261016-v6a"));
-        assertTrue(read("resources/templates/admin-xingwei-business.html").contains("th:text=\"${businessVersion}\">20261016-v6a"));
-        assertTrue(afterSales.contains("V4M · 已发布"));
-        assertTrue(afterSales.contains("admin-xingwei-after-sales.js?v=20261016v4k"));
-        assertTrue(afterSales.contains("admin-xingwei-after-sales-v4k-links.js?v=20261016v4k"));
-        assertTrue(attention.contains("V4M · 已发布"));
-        assertTrue(attention.contains("admin-xingwei-after-sales-attention.js?v=20261016v4m"));
-        assertTrue(attention.contains("等待时长"));
-        assertTrue(dashboard.contains("/assets/admin-xingwei.js?v=20261017search1"));
-        assertTrue(dashboard.contains("V3H 待真机验收"));
-        assertTrue(dashboard.contains("V3I 已上线"));
-        assertTrue(delivery.contains("impactToken"));
-        assertTrue(delivery.contains("<strong>V3N</strong>"));
-        assertTrue(delivery.contains("<strong>V3Q</strong>"));
-        assertTrue(delivery.contains("<strong>V3R</strong>"));
-        assertTrue(delivery.contains("<strong>V3S</strong>"));
-        assertTrue(delivery.contains("<strong>V3T</strong>"));
-        assertTrue(delivery.contains("<strong>V3U</strong>"));
-        assertTrue(delivery.contains("<strong>V3V</strong>"));
-        assertTrue(delivery.contains("<strong>V3W</strong>"));
-        assertTrue(delivery.contains("<strong>V3X</strong>"));
-        assertTrue(delivery.contains("<strong>V3Z</strong>"));
-        assertTrue(delivery.contains("客户订单售后说明回显"));
-        assertTrue(delivery.contains("实际部署状态以发布门禁为准"));
-        assertTrue(delivery.contains("已上线：企业微信与微信支付集成配置检查"));
-        assertTrue(dashboard.contains("生产流水线已启用"));
-        assertTrue(delivery.contains("<strong>V3L</strong>"));
-        assertTrue(delivery.contains("已上线：Frontend Next A1–A4"));
-        assertTrue(dashboard.contains("V4M 已上线 →"));
+        assertTrue(controller.contains("return \"redirect:/admin/xingwei\""));
+        assertTrue(dashboard.contains("hidden aria-hidden=\"true\" class=\"xw-runtime-metadata\""));
+        assertTrue(dashboard.contains("th:text=\"${consoleVersion}\""));
+        assertTrue(dashboard.contains("th:attr=\"data-runtime-stage=${consoleStage}\""));
+        assertFalse(dashboard.contains("xwReleaseHistoryLink"));
+        assertFalse(dashboard.contains("legacy=1"));
         assertTrue(dashboard.contains("/admin/xingwei/payments"));
-        assertFalse(dashboard.contains("<article class=\"xw-module xw-module-planned\" data-search=\"微信支付"));
-        assertFalse(dashboard.contains("<article class=\"xw-module xw-module-planned\" data-search=\"发布 部署"));
+        assertTrue(dashboard.contains("/assets/brand-logo.svg"));
     }
 
     @Test
@@ -157,7 +112,7 @@ class XingweiReleaseHistoryContractTest {
         assertTrue(js.contains("runtimeVersion"));
         assertTrue(js.contains("runtimeStage"));
         assertTrue(js.contains("versionMatches && stageMatches ? 'match' : 'mismatch'"));
-        assertTrue(js.contains("版本漂移 · 请刷新并检查发布"));
+        assertTrue(js.contains("页面需要更新 · 请刷新"));
         assertTrue(js.contains("cache: 'no-store'"));
         assertTrue(js.contains("xw:runtime-health"));
     }

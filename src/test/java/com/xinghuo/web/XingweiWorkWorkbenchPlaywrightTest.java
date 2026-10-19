@@ -87,6 +87,8 @@ class XingweiWorkWorkbenchPlaywrightTest {
             assertEquals(1, page.locator("#xwwTaskRows tr[data-bucket]:visible").count());
             page.locator("#xwwTaskRows tr[data-bucket]:visible .xw-mini-button").filter(new com.microsoft.playwright.Locator.FilterOptions().setHasText("更新履约")).click();
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwwEditDialog').open"));
+            assertFalse(page.locator("#xwwEditDialog").innerText().contains("当前版本"));
+            assertEquals(0,page.locator("#xwwEditInternalNote").count());
             page.locator("#xwwEditPercent").fill("60");
             page.locator("#xwwEditProgress").fill("已完成 60%");
             page.locator("#xwwEditReason").fill("更新当前代练进度");

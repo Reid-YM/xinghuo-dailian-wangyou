@@ -91,7 +91,7 @@
     $('channelStates').replaceChildren();
     for (const state of snapshot.channels) {
       const card = element('article',undefined,'xwc-channel');
-      card.append(element('h2',names[state.channelCode] || state.channelCode), element('span',states[state.serviceState] || '待核对','xwc-state'), element('p',state.note || '尚无状态说明。'));
+      card.append(element('h2',names[state.channelCode] || state.channelCode), element('span',states[state.serviceState] || '待核对','xwc-state'));
       if (snapshot.canManageChannels) card.append(button('维护状态',() => openState(state)));
       $('channelStates').append(card);
     }
@@ -135,7 +135,7 @@
     taskForm.elements.namedItem('title').focus();
   }
   function openState(state) {
-    for (const name of ['channelCode','version','serviceState','note']) stateForm.elements.namedItem(name).value = state[name] ?? '';
+    for (const name of ['channelCode','version','serviceState']) stateForm.elements.namedItem(name).value = state[name] ?? '';
     $('channelStateHeading').textContent = '维护' + names[state.channelCode] + '服务状态';
     $('channelStateFeedback').textContent = '';
     dirtyState = false; stateDialog.showModal();

@@ -35,7 +35,6 @@ public class XingweiSecurityPageController {
             case "SELF" -> "仅本人";
             default -> "无可见数据";
         });
-        model.addAttribute("restoreAdmin",access.allowAll());
         return "admin-xingwei-security";
     }
 }

@@ -51,3 +51,7 @@ button,input{font:inherit}
 .xw-search-results a:hover,.xw-search-results a:focus-visible{outline:2px solid #f4cb67;outline-offset:-2px}.xw-search-results span,#xwSearchHelp,#xwSearchDetailStatus{font-size:12px;color:#b7b4aa;line-height:1.7}
 :target{scroll-margin:100px}input:target,select:target,textarea:target,fieldset:target,.xw-located-field{outline:3px solid #f4cb67;outline-offset:4px}
 @media(max-width:640px){.xw-search-results{grid-template-columns:1fr;max-height:55vh}}
+
+/* Shared production workspace identity. */
+.xw-brand-mark, .fc-brand-mark { object-fit: contain; flex: 0 0 auto; }
+.xw-workspace-logo { display: inline-block; width: 26px; height: 26px; object-fit: contain; vertical-align: middle; margin-right: 6px; }

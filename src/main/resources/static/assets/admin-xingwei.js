@@ -17,7 +17,7 @@
     business:[['orders','询价与订单','处理客户需求、订单、售后与跟进，沿用当前岗位权限和业务数据范围。'],['catalog','服务与目录','维护服务项目、封面、有效期、游戏平台与搜索资料，发布及启停继续执行确认流程。'],['content','内容与社区','维护攻略、评论投稿与工具站内容，按权限查看和审核。'],['operations','会员与运营','处理会员、测试反馈、首页推荐与行为统计；全站资料仍受对应权限和数据范围约束。']],
     organization:[['structure','中心与岗位','查看正式中心架构与岗位词库，保持组织资料一致。'],['employees','员工与账号','查看员工档案、企业微信员工与账号安全，修改仍受岗位权限和数据范围约束。'],['roles','角色与权限','查看和维护角色权限，管理层安全兜底角色继续只读。']],
     channels:[['operations','渠道运营','安排和跟进官网、淘宝、闲鱼的渠道运营任务。'],['wechat','微信与支付','查看微信身份能力与受控支付入口，真实收款和外部操作仍按各自验收范围执行。'],['display','前台展示','维护前台导航、展示开关和主题参数。']],
-    system:[['site','站点配置','维护品牌、文案、图片与搜索展示。'],['audit','操作审计','按权限和数据范围查询操作记录与变更摘要。'],['delivery','发布与工具','查看发布回滚流程及开发工具状态，本页不直接执行生产部署。']]
+    system:[['site','站点配置','维护品牌、文案、图片与搜索展示。'],['audit','操作审计','按权限和数据范围查询操作记录与变更摘要。'],['delivery','状态与帮助','查看服务连接提示与工作台使用说明。']]
   };
   const groupedItems = Array.from(document.querySelectorAll('[data-workspace-group]'));
   const allowedModules = new Set();
@@ -411,7 +411,7 @@
       failures: healthFailures
     };
     publishRuntimeHealth(snapshot);
-    setBackendStatus('offline', '网络已断开 · 等待恢复后复核', '浏览器当前离线；网络恢复后会立即重新核对运行版本。');
+    setBackendStatus('offline', '网络已断开 · 等待恢复后复核', '浏览器当前离线；网络恢复后会自动重试。');
     if (serverTime) {
       serverTime.textContent = snapshot.runtimeVersion
         ? `上次核对 ${snapshot.runtimeVersion} · 当前离线`
@@ -458,9 +458,9 @@
       publishRuntimeHealth(snapshot);
 
       if (state === 'match') {
-        setBackendStatus('match', '服务正常 · 已核对', `页面与后端运行版本一致：${runtimeVersion} / ${window.XWLabels?.stage(runtimeStage) ?? runtimeStage}`);
+        setBackendStatus('match', '服务正常 · 已核对', '服务连接正常。');
       } else {
-        setBackendStatus('mismatch', '版本漂移 · 请刷新并检查发布', `页面：${declaredVersion || '未知'} / ${window.XWLabels?.stage(declaredStage) || declaredStage || '未知'}；运行：${runtimeVersion || '未知'} / ${window.XWLabels?.stage(runtimeStage) || runtimeStage || '未知'}`);
+        setBackendStatus('mismatch', '页面需要更新 · 请刷新', '页面内容与服务状态不一致，请刷新后继续操作。');
       }
       if (serverTime) serverTime.textContent = formatRuntimeLine(data, state);
     } catch (error) {
@@ -483,10 +483,10 @@
       publishRuntimeHealth(snapshot);
 
       if (state === 'stale') {
-        setBackendStatus('stale', '复核暂时失败 · 保留上次已核对版本', `最近一次已核对 ${snapshot.runtimeVersion}；本次${snapshot.error === 'timeout' ? '请求超时' : '请求失败'}，稍后自动重试。`);
+        setBackendStatus('stale', '复核暂时失败 · 稍后重试', '上一次服务连接正常，本次检查暂未成功，稍后自动重试。');
         if (serverTime) serverTime.textContent = `上次核对 ${snapshot.runtimeVersion} · 当前等待自动复核`;
       } else {
-        setBackendStatus('error', error?.name === 'AbortError' ? '服务检查超时' : '服务检查失败', '无法读取后台健康状态，版本一致性未完成核验。');
+        setBackendStatus('error', error?.name === 'AbortError' ? '服务检查超时' : '服务检查失败', '暂时无法检查服务连接，请稍后重试。');
         if (serverTime) serverTime.textContent = `页面 ${declaredVersion || '未知'} · 无法读取运行版本`;
       }
       console.warn('Xingwei admin health check failed', error);

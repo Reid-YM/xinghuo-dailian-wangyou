@@ -71,6 +71,12 @@ class XingweiChannelOperationsServiceTest {
     @SuppressWarnings("unchecked")
     private List<Task> tasks(Authentication actor,String q) { return (List<Task>) service.snapshot(actor,"","",q,0).get("items"); }
 
+    @Test void hiddenChannelNoteIsPreservedDuringStateUpdate() {
+        service.updateChannel("TAOBAO",admin,new StateInput("AVAILABLE","历史渠道备注",0L),null);
+        ChannelState updated=service.updateChannel("TAOBAO",admin,new StateInput("PAUSED",null,1L),null);
+        assertEquals("历史渠道备注",updated.note());
+        assertEquals("PAUSED",updated.serviceState());
+    }
     @Test
     void databaseMigrationStartsAllChannelsUnknownAndTaskScopeIsEnforced() {
         service.create(admin,input(2L,"本中心"),null);

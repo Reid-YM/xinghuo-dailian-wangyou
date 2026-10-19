@@ -5,8 +5,12 @@
   const csrf = $('meta[name="_csrf"]')?.content || '';
   const csrfHeader = $('meta[name="_csrf_header"]')?.content || '';
   let currentMode = 'legacy';
+  let revision = null;
+  let writable = false;
+  let loaded = false;
+  let busy = false;
+  const settingsEndpoint = '/api/admin/xingwei/site/global-ui';
 
-  const hrefFor = mode => mode === 'next' ? '/next/services' : '/services';
   const labelFor = mode => mode === 'next' ? '新版候选' : '旧版稳定';
 
   function setMessage(value, kind = '') {
@@ -23,15 +27,25 @@
     const label = $('#rolloutModeLabel');
     if (label) label.textContent = labelFor(currentMode);
     const href = $('#rolloutHref');
-    if (href) href.textContent = hrefFor(currentMode);
+    if (href) href.textContent = labelFor(currentMode);
     document.documentElement.dataset.servicesEntryMode = currentMode;
+  }
+
+  function syncControls() {
+    $('#servicesEntryMode').disabled = busy || !loaded || !writable;
+    $('#saveRolloutMode').disabled = busy || !loaded || !writable;
+    $('#reloadRolloutMode').disabled = busy;
   }
 
   async function api(path, options = {}) {
     const method = String(options.method || 'GET').toUpperCase();
     const headers = Object.assign({ Accept: 'application/json' }, options.headers || {});
     if (!['GET', 'HEAD'].includes(method) && csrf && csrfHeader) headers[csrfHeader] = csrf;
-    if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+    if (options.body !== undefined) {
+      if (!loaded || !writable || !revision) throw new Error('请先读取配置并确认保存权限。');
+      headers['Content-Type'] = 'application/json';
+      headers['If-Match'] = revision;
+    }
     const response = await fetch(path, {
       method,
       headers,
@@ -41,28 +55,46 @@
     });
     let payload = null;
     try { payload = await response.json(); } catch (ignore) { payload = null; }
-    if (response.status === 401 || response.status === 403) {
-      location.assign('/admin/login');
-      throw new Error('登录状态已失效，请重新登录。');
+    if (response.status === 401) throw new Error('登录状态已失效，请重新登录。');
+    if (response.status === 403) throw new Error('没有操作权限，请联系管理员。');
+    if (response.status === 409) {
+      loaded = false;
+      revision = null;
+      throw new Error('配置已被其他人员修改，请重新读取后核对再保存。');
     }
-    if (!response.ok) throw new Error(payload?.message || '请求失败，请稍后重试。');
+    if (!response.ok) throw new Error(payload?.error || payload?.message || '请求失败，请稍后重试。');
+    if (path === settingsEndpoint) revision = response.headers.get('ETag');
     return payload || {};
   }
 
   async function load() {
+    loaded = false;
+    revision = null;
+    busy = true;
+    syncControls();
     setMessage('正在读取当前入口…');
     try {
-      const settings = await api('/api/admin/global-ui-settings');
+      const [access, settings] = await Promise.all([
+        api('/api/admin/xingwei/site/access'), api(settingsEndpoint)
+      ]);
       render(settings.servicesEntryMode);
-      setMessage('当前配置已读取。', 'ok');
+      writable = access.canManageSite === true;
+      loaded = Boolean(revision);
+      if (!loaded) throw new Error('未能确认配置状态，请重新读取。');
+      setMessage(writable ? '当前配置已读取。' : '当前配置已读取，您拥有查看权限。', 'ok');
     } catch (error) {
-      render('legacy');
-      setMessage(`${error.message || '读取失败'} 页面按安全默认值显示旧版入口。`, 'error');
+      loaded = false;
+      revision = null;
+      setMessage(error.message || '读取失败，请重新读取。', 'error');
+    } finally {
+      busy = false;
+      syncControls();
     }
   }
 
   async function save(event) {
     event.preventDefault();
+    if (busy || !loaded || !writable || !revision) return;
     const select = $('#servicesEntryMode');
     const button = $('#saveRolloutMode');
     const requested = select?.value === 'next' ? 'next' : 'legacy';
@@ -72,7 +104,7 @@
       return;
     }
     if (requested === 'next') {
-      const ok = window.confirm('确认把公共“服务”入口切到新版 /next/services？旧 /services 仍会保留，可随时恢复。');
+      const ok = window.confirm('确认把公共“服务”入口切到新版？原服务页将继续保留，可随时恢复入口。');
       if (!ok) {
         if (select) select.value = currentMode;
         setMessage('已取消切换，入口配置未改变。');
@@ -80,30 +112,32 @@
       }
     }
 
+    busy = true;
+    syncControls();
     if (button) {
-      button.disabled = true;
       button.dataset.label = button.textContent;
       button.textContent = '保存中…';
     }
     setMessage('正在保存并写入操作审计…');
     try {
-      const settings = await api('/api/admin/global-ui-settings', {
+      const settings = await api(settingsEndpoint, {
         method: 'PATCH',
         body: {
           servicesEntryMode: requested,
           reason: requested === 'next'
-            ? 'Frontend Next N9：公共服务入口切换到新版候选'
-            : 'Frontend Next N9：公共服务入口回退到旧版稳定入口'
+            ? '公共服务入口切换到新版'
+            : '公共服务入口恢复原版'
         }
       });
       render(settings.servicesEntryMode);
-      setMessage(`保存成功：公共服务入口配置现在指向 ${hrefFor(currentMode)}。`, 'ok');
+      setMessage(`保存成功：公共服务入口配置现在指向 ${labelFor(currentMode)}。`, 'ok');
     } catch (error) {
       if (select) select.value = currentMode;
       setMessage(error.message || '保存失败，入口保持原值。', 'error');
     } finally {
+      busy = false;
+      syncControls();
       if (button) {
-        button.disabled = false;
         button.textContent = button.dataset.label || '保存入口目标';
         delete button.dataset.label;
       }
@@ -111,5 +145,6 @@
   }
 
   $('#frontendNextRolloutForm')?.addEventListener('submit', save);
+  $('#reloadRolloutMode')?.addEventListener('click', load);
   load();
 })();

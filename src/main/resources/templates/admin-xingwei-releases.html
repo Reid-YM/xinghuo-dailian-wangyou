@@ -8,7 +8,7 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>版本与更新记录 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-releases.css?v=20261014v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-runtime-health.css?v=20261017v1"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-release-observability.css?v=20261017v2"/>
@@ -22,12 +22,13 @@
   <script defer src="/assets/admin-xingwei-operations-alerts.js?v=20261017v1"></script>
   <script defer src="/assets/admin-xingwei-release-stability.js?v=20261017v1"></script>
   <script defer src="/assets/admin-xingwei-release-confirmation.js?v=20261017v1"></script>
+<link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
 <main class="xwr-shell">
   <header class="xwr-topbar">
     <div>
-      <p class="xw-kicker">星维 · 更新记录</p>
+      <p class="xw-kicker"><img class="xw-workspace-logo" src="/assets/brand-logo.svg?v=20261019admin" alt="" width="26" height="26"/> 星维 · 更新记录</p>
       <h1>版本与更新记录</h1>
       <p>此页展示当前运行包版本与功能记录，部署是否成功以发布流水线核验为准。V3K 起 CI 自动校验版本、阶段和模块状态；V3L 起后台页面还会与后端运行版本实时核对。</p>
     </div>

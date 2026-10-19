@@ -81,13 +81,13 @@ public class SecurityConfig {
                 .addFilterBefore(new AdminSessionStatusFilter(users), AuthorizationFilter.class)
                 .userDetailsService((UserDetailsService) users)
                 .authorizeHttpRequests(a -> a
+                        .requestMatchers("/assets/admin.js").denyAll()
                         .requestMatchers(PERMIT_ALL).permitAll()
                         .requestMatchers("/admin", "/admin/guides", "/admin/frontend-controls", "/admin/xingwei", "/admin/xingwei/**", "/api/admin/xingwei", "/api/admin/xingwei/**")
                         .hasAnyRole("ADMIN", "OPERATOR")
-                        // Legacy APIs cannot bypass Xingwei RBAC after the default migration.
-                        // Original ADMIN retains the explicit recovery workspace.
-                        .requestMatchers("/admin/**", "/api/admin/**")
-                        .hasRole("ADMIN")
+                        // Retired pages and APIs stay closed for password and WeCom sessions alike.
+                        .requestMatchers("/admin/**", "/api/admin", "/api/admin/**")
+                        .denyAll()
                         .anyRequest().denyAll())
                 .formLogin(f -> f
                         .loginPage("/admin/login")

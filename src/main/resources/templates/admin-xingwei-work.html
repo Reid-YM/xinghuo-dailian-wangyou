@@ -8,17 +8,18 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>我的工作 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261013v2e"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-work.css?v=20261013v2f"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-work.js?v=20261017search1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-work.js?v=20261019cutover"></script>
+<link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
 <main class="xww-shell">
   <header class="xww-topbar">
     <div>
-      <p class="xw-kicker">星维 · 我的工作</p>
+      <p class="xw-kicker"><img class="xw-workspace-logo" src="/assets/brand-logo.svg?v=20261019admin" alt="" width="26" height="26"/> 星维 · 我的工作</p>
       <h1>派单 / 我的工作</h1>
     </div>
     <div class="xww-top-actions">
@@ -36,8 +37,7 @@
       <p>本中心范围只展示本人任务和本中心队列，不把同中心其他员工的个人任务混入待办；仅本人范围只展示本人；全部数据范围还能处理跨中心队列和全局未归属。履约修改继续复用既有订单状态机、乐观锁和审计。</p>
     </div>
     <div class="xww-scope-card">
-      <span>当前工作台版本</span>
-      <strong th:text="${workVersion}">20261013-v2f</strong>
+      <span>当前工作范围</span>
       <small id="xwwScopeText">等待任务范围快照</small>
     </div>
   </section>
@@ -90,7 +90,7 @@
       <div><p class="xw-kicker">交付进度</p><h3 id="xwwEditTitle">更新履约</h3></div>
       <button type="button" class="xw-dialog-close" id="xwwEditClose" aria-label="关闭">×</button>
     </div>
-    <p class="xww-dialog-note" id="xwwEditContext">只允许修改本人已领取任务。保存时使用订单当前 version 做乐观锁校验。</p>
+    <p class="xww-dialog-note" id="xwwEditContext">只允许修改本人已领取任务。保存前会核对最新订单状态，资料变化时请重新读取。</p>
     <div class="xww-dialog-grid">
       <label>履约状态
         <select id="xwwEditStatus" required>
@@ -109,9 +109,7 @@
       <label class="wide">客户备注
         <textarea id="xwwEditCustomerNote" maxlength="500" placeholder="仅在确有需要时填写"></textarea>
       </label>
-      <label class="wide">内部备注
-        <textarea id="xwwEditInternalNote" maxlength="1200" placeholder="内部执行信息，不对外展示"></textarea>
-      </label>
+
       <label class="wide">本次修改原因
         <input id="xwwEditReason" type="text" maxlength="500" placeholder="例如：更新当前代练进度"/>
       </label>

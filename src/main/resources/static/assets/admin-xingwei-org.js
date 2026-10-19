@@ -108,7 +108,7 @@
   }
 
   function roleLabel(code) {
-    return (orgSnapshot?.roles || []).find((role) => role.code === code)?.name || code;
+    return (orgSnapshot?.roles || []).find((role) => role.code === code)?.name || '未命名角色';
   }
 
   function renderEmployees() {
@@ -118,16 +118,15 @@
       const roles = (employee.roleCodes || []).map(roleLabel).join('、') || '未配置';
       const name = employee.displayName || '未归档';
       const number = employee.employeeNo ? `<small class="xw-block-code">${escapeHtml(employee.employeeNo)}</small>` : '';
-      const wecomId = employee.wecomUserId && hasPermission('employee:manage')
-        ? `<small class="xw-block-code">企业微信：${escapeHtml(employee.wecomUserId)}</small>` : '';
+
       return `
         <tr>
           <td><strong>${escapeHtml(employee.username)}</strong></td>
-          <td>${escapeHtml(name)}${number}${wecomId}</td>
+          <td>${escapeHtml(name)}${number}</td>
           <td>${escapeHtml(employee.departmentName || '未分配')}</td>
           <td>${escapeHtml(employee.positionName || '未分配')}</td>
           <td>${escapeHtml(roles)}</td>
-          <td><span class="xw-pill">${escapeHtml(employee.legacyRole)}</span></td>
+          <td><span class="xw-pill">${employee.legacyRole === 'ADMIN' ? '系统管理员' : '员工账号'}</span></td>
           <td><button class="xw-mini-button" type="button" data-employee-edit="${employee.id}">配置</button></td>
         </tr>`;
     }).join('');
@@ -138,7 +137,7 @@
     if (!body || !orgSnapshot) return;
     body.innerHTML = (orgSnapshot.roles || []).map((role) => `
       <tr>
-        <td><strong>${escapeHtml(role.name)}</strong><small class="xw-block-code">${escapeHtml(role.code)}</small></td>
+        <td><strong>${escapeHtml(role.name)}</strong></td>
         <td>${escapeHtml(dataScopeLabel(role.dataScope))}</td>
         <td>${escapeHtml(role.permissionCount)} / ${escapeHtml((orgSnapshot.permissions || []).length)}</td>
         <td><span class="xw-pill ${role.enabled ? 'ok' : ''}">${role.enabled ? '启用' : '停用'}</span></td>
@@ -164,7 +163,7 @@
       orgSnapshot = await apiJson('/api/admin/xingwei/org/snapshot');
       renderOrg();
       const scope = dataScopeLabel(orgSnapshot.dataScope, orgSnapshot.scopeDepartmentCode);
-      setOrgMessage(`组织数据已连接 · ${orgSnapshot.counts?.departments ?? 0} 个中心 / ${orgSnapshot.counts?.positions ?? 0} 个岗位 · V2C 数据范围：${scope}`, 'ok');
+      setOrgMessage(`组织数据已连接 · ${orgSnapshot.counts?.departments ?? 0} 个中心 / ${orgSnapshot.counts?.positions ?? 0} 个岗位 · 数据范围：${scope}`, 'ok');
     } catch (error) {
       setOrgMessage(`组织数据读取失败或无查看权限：${error.message}`, 'error');
       console.warn('Xingwei org snapshot failed', error);
@@ -178,12 +177,12 @@
     if (!select || !orgSnapshot) return;
     const rows = (orgSnapshot.positions || []).filter((p) => !departmentCode || p.departmentCode === departmentCode);
     select.innerHTML = '<option value="">未分配岗位</option>' + rows
-      .map((p) => `<option value="${escapeHtml(p.code)}">${escapeHtml(p.code)} · ${escapeHtml(p.name)}</option>`).join('');
+      .map((p) => `<option value="${escapeHtml(p.code)}">${escapeHtml(p.name)}</option>`).join('');
     select.value = selectedCode && rows.some((p) => p.code === selectedCode) ? selectedCode : '';
   }
 
   function setEmployeeDialogMode(canProfile, canRoles) {
-    ['xwEmployeeName', 'xwEmployeeNo', 'xwEmployeeDepartment', 'xwEmployeePosition', 'xwEmployeeStatus', 'xwEmployeeNotes']
+    ['xwEmployeeName', 'xwEmployeeNo', 'xwEmployeeDepartment', 'xwEmployeePosition', 'xwEmployeeStatus']
       .forEach((id) => {
         const field = document.getElementById(id);
         if (field) field.disabled = !canProfile;
@@ -219,7 +218,6 @@
     document.getElementById('xwEmployeeName').value = employee.displayName || '';
     document.getElementById('xwEmployeeNo').value = employee.employeeNo || '';
     document.getElementById('xwEmployeeStatus').value = employee.status || 'ACTIVE';
-    document.getElementById('xwEmployeeNotes').value = employee.notes || '';
 
     const department = document.getElementById('xwEmployeeDepartment');
     const allowUnassigned = orgSnapshot.dataScope !== 'DEPARTMENT';
@@ -266,7 +264,7 @@
       <fieldset><legend>${escapeHtml(moduleName)}</legend>${rows.map((permission) => `
         <label class="xw-check-item">
           <input type="checkbox" value="${escapeHtml(permission.code)}" ${selected.has(permission.code) ? 'checked' : ''}/>
-          <span><strong>${escapeHtml(permission.name)}</strong><small>${escapeHtml(permission.code)}</small></span>
+          <span><strong>${escapeHtml(permission.name)}</strong></span>
         </label>`).join('')}</fieldset>`).join('');
     dialog.showModal();
   }
@@ -299,8 +297,7 @@
             displayName: document.getElementById('xwEmployeeName').value,
             departmentCode: document.getElementById('xwEmployeeDepartment').value,
             positionCode: document.getElementById('xwEmployeePosition').value,
-            status: document.getElementById('xwEmployeeStatus').value,
-            notes: document.getElementById('xwEmployeeNotes').value
+            status: document.getElementById('xwEmployeeStatus').value
           })
         });
       }

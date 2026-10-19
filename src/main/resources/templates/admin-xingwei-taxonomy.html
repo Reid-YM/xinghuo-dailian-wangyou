@@ -8,15 +8,16 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>游戏与分类管理 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-taxonomy.css?v=20261014v3i"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-taxonomy-v3i.css?v=20261014v3i"/>
   <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-taxonomy.js?v=20261017search1"></script>
+<link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
 <main class="xtax-shell">
   <header class="xtax-topbar">
-    <div><p class="xw-kicker">星维 · 游戏与分类</p><h1>游戏与分类管理</h1></div>
+    <div><p class="xw-kicker"><img class="xw-workspace-logo" src="/assets/brand-logo.svg?v=20261019admin" alt="" width="26" height="26"/> 星维 · 游戏与分类</p><h1>游戏与分类管理</h1></div>
     <div class="xtax-actions">
       <span class="xw-status" id="xtaxMode"><i></i><span>权限检查中</span></span>
       <span class="xw-status" id="xtaxStatus"><i></i><span>正在读取</span></span>
@@ -32,7 +33,7 @@
       <h2>先确认前台会发生什么，再执行启停；预览过期就强制重看。</h2>
       <p>V3I 在 V3F 的受控新增与资料编辑基础上强化启停安全：弹窗会明确显示当前前台公开服务数、操作后的公开服务数、父级游戏阻断和风险提示。提交时服务端重新计算影响快照；如果分类、服务或可见性在预览后发生变化，会拒绝旧确认并要求重新查看。</p>
     </div>
-    <div class="xtax-version"><span>当前版本</span><strong th:text="${taxonomyVersion}">20261014-v3i</strong><small th:text="${username}">admin</small></div>
+
   </section>
 
   <section class="xtax-message" id="xtaxMessage" role="status">正在读取现有游戏与分类……</section>

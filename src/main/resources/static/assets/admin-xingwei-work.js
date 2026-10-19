@@ -23,7 +23,6 @@
   const editPercent = document.getElementById('xwwEditPercent');
   const editProgress = document.getElementById('xwwEditProgress');
   const editCustomerNote = document.getElementById('xwwEditCustomerNote');
-  const editInternalNote = document.getElementById('xwwEditInternalNote');
   const editReason = document.getElementById('xwwEditReason');
   const editState = document.getElementById('xwwEditState');
   const csrfToken = document.querySelector('meta[name="_csrf"]')?.content || '';
@@ -122,7 +121,7 @@
     return normalize([
       item.businessNo, item.orderNo, item.game, item.demand, item.expectedTime,
       item.status, statusLabel(item.status), item.progressText, item.customerNote,
-      item.internalNote, bucketLabel(item.bucket), item.ownership?.departmentName
+      bucketLabel(item.bucket), item.ownership?.departmentName
     ].join(' '));
   }
 
@@ -314,12 +313,11 @@
   function openEdit(item) {
     editing = item;
     editTitle.textContent = `更新履约 · ${item.businessNo}`;
-    editContext.textContent = `当前版本 ${item.version} · ${bucketLabel(item.bucket)} · 保存后会重新读取服务端状态。`;
+    editContext.textContent = `${bucketLabel(item.bucket)}任务 · 保存前会核对最新状态。`;
     editStatus.value = item.status || 'IN_PROGRESS';
     editPercent.value = item.progressPercent == null ? '' : String(item.progressPercent);
     editProgress.value = item.progressText || '';
     editCustomerNote.value = item.customerNote || '';
-    editInternalNote.value = item.internalNote || '';
     editReason.value = '';
     editState.textContent = '';
     dialog.showModal();
@@ -335,7 +333,6 @@
       progressPercent: percentValue === '' ? null : Number(percentValue),
       progressText: editProgress.value.trim(),
       customerNote: editCustomerNote.value.trim() || null,
-      internalNote: editInternalNote.value.trim() || null,
       reason: editReason.value.trim() || null
     };
     if (!body.progressText) {

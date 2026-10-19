@@ -42,7 +42,7 @@ class XingweiWorkspacePanelsPlaywrightTest {
     @Test void chromiumWorkspacesSearchHistoryAndPhoneNavigation(){try(Playwright p=Playwright.create();Browser b=chromium(p)){navigation(b);}}
     @Test void webkitWorkspacesSearchHistoryAndPhoneNavigation(){try(Playwright p=Playwright.create();Browser b=p.webkit().launch()){navigation(b);}}
     private void navigation(Browser browser){
-        Page page=setup(browser,false,"");selected(page,"overview","运营总览");assertTrue(page.locator("#business").isHidden());assertTrue(page.locator("#org-console").isHidden());assertTrue(page.locator("#xwReleaseMenu .xw-version-card").isHidden());
+        Page page=setup(browser,false,"");selected(page,"overview","运营总览");assertTrue(page.locator("#business").isHidden());assertTrue(page.locator("#org-console").isHidden());assertEquals(0,page.locator("#xwReleaseMenu").count());assertTrue(page.locator(".xw-runtime-metadata").isHidden());
         page.locator(".xw-workspace-links a[href='#business']").click();selected(page,"business","业务中台");assertEquals(14,page.locator("#business .xw-module").count());assertEquals(5,page.locator("#business .xw-module:visible").count());
         for(String[] workspace:new String[][]{{"organization","组织与权限"},{"channels","渠道与微信"},{"system","系统工具"}}){page.locator(".xw-nav-item[href='#"+workspace[0]+"']").click();selected(page,workspace[0],workspace[1]);}
         page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("/tmp/admin-workspace-system-desktop.png")));

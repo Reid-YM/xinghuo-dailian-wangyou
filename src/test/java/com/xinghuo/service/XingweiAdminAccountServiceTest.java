@@ -49,6 +49,14 @@ class XingweiAdminAccountServiceTest {
     }
     Authentication actor(String name,long id,String scope,boolean write,boolean override){Authentication a=new UsernamePasswordAuthenticationToken(name,"",List.of());when(guard.resolve(a)).thenReturn(new AccessSnapshot("SHADOW_RBAC",override,List.of(),List.of(),scope,id,"01"));when(guard.has(eq(a),anyString())).thenAnswer(c->!c.getArgument(1,String.class).endsWith(":manage")||write);return a;}
     CreateInput input(String name,List<String> roles){return new CreateInput(name,"新员工","01","Sample-Login-913!","OPERATOR",roles);}
+    @Test void omittedEmployeeNotesStayInStorageAndOutOfEmployeeSnapshot() {
+        jdbc.update("UPDATE xw_admin_profiles SET notes='历史员工备注' WHERE admin_user_id=3");
+        var org = new XingweiOrgRbacService(jdbc);
+        var updated = org.updateEmployeeProfile(3,
+                new XingweiOrgRbacService.ProfileInput(null, "更新姓名", "01", null, "ACTIVE", null));
+        assertEquals("历史员工备注", jdbc.queryForObject("SELECT notes FROM xw_admin_profiles WHERE admin_user_id=3", String.class));
+        assertFalse(updated.containsKey("notes"));
+    }
     @Test void createsHashedIdentityWithExplicitRolesInOneTransaction(){
         work.create(input("new.staff",List.of("XW_MANAGEMENT")),first,null);
         var row=jdbc.queryForMap("SELECT id,password_hash,enabled,auth_version FROM admin_users WHERE username='new.staff'");

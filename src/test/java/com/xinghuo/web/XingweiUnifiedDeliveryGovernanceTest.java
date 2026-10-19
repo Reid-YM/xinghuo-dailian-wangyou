@@ -11,7 +11,7 @@ class XingweiUnifiedDeliveryGovernanceTest {
     @TempDir Path root;
     @Test
     void actualValidatorAcceptsPackageDeliveryButRejectsInventedDeploymentEvidenceAndUnknownStages() throws Exception {
-        for (String file : new String[]{"scripts/validate-xingwei-release-state.sh", "src/main/java/com/xinghuo/controller/XingweiAdminController.java", "src/main/resources/templates/admin-xingwei.html", "src/main/resources/templates/admin-xingwei-releases.html", ".github/workflows/ci.yml"}) {
+        for (String file : new String[]{"scripts/validate-xingwei-release-state.sh", "src/main/java/com/xinghuo/controller/XingweiAdminController.java", "src/main/resources/templates/admin-xingwei.html", "src/main/resources/templates/admin-xingwei-releases.html", ".github/workflows/ci.yml", ".github/workflows/deploy-production.yml"}) {
             Path target = root.resolve(file); Files.createDirectories(target.getParent()); Files.copy(Path.of(file), target);
         }
         assertEquals(0, validate());

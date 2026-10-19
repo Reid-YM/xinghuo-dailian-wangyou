@@ -42,7 +42,7 @@ class FrontendBackendTotalIntegrationContractTest {
         assertTrue(security.contains("\"/api/quote\""));
         assertTrue(security.contains("\"/api/records/**\""));
         assertTrue(security.contains(".requestMatchers(PERMIT_ALL).permitAll()"));
-        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin/**\")"));
+        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin\", \"/api/admin/**\")"));
         assertTrue(security.contains(".hasAnyRole(\"ADMIN\", \"OPERATOR\")"));
     }
 

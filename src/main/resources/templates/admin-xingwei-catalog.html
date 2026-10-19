@@ -8,21 +8,21 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>服务与游戏资料 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-catalog.css?v=20261013v3d"/>
   <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-catalog.js?v=20261017search1"></script>
+<link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
 <main class="xcat-shell">
   <header class="xcat-topbar">
-    <div><p class="xw-kicker">星维 · 服务目录</p><h1>服务与游戏资料</h1></div>
+    <div><p class="xw-kicker"><img class="xw-workspace-logo" src="/assets/brand-logo.svg?v=20261019admin" alt="" width="26" height="26"/> 星维 · 服务目录</p><h1>服务与游戏资料</h1></div>
     <div class="xcat-actions">
       <span class="xw-status" id="xcatManageMode"><i></i><span>权限检查中</span></span>
       <span class="xw-status" id="xcatStatus"><i></i><span>正在读取</span></span>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/taxonomy">游戏/分类启停</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/catalog-details">完整资料、图片与批量维护</a><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
-      <a class="xw-button xw-button-ghost" href="/admin?legacy=1" th:if="${restoreAdmin == true}">管理员恢复入口</a>
     </div>
   </header>
 

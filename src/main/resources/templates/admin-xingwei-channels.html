@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="_csrf" th:content="${_csrf.token}"/><meta name="_csrf_header" th:content="${_csrf.headerName}"/>
   <title>渠道运营 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-channels.css?v=20261016v4n"/>
+<link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body><main class="xwc-shell">
-  <header class="xwc-header"><div><p class="xw-kicker">星维 · 渠道运营</p><h1>渠道运营</h1><p>查看服务状态，安排官网、淘宝与闲鱼的运营任务。</p></div><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回后台</a></header>
+  <header class="xwc-header"><div><p class="xw-kicker"><img class="xw-workspace-logo" src="/assets/brand-logo.svg?v=20261019admin" alt="" width="26" height="26"/> 星维 · 渠道运营</p><h1>渠道运营</h1><p>查看服务状态，安排官网、淘宝与闲鱼的运营任务。</p></div><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回后台</a></header>
   <p class="xwc-note">服务状态由运营人员维护，仅用于内部协作；不代表平台接口实时状态，也不会自动发布商品或更改前台接单开关。请勿填写账号密码、令牌或客户敏感信息。</p>
   <p id="channelMessage" role="status" aria-live="polite">正在读取渠道运营数据…</p>
   <button id="channelRetry" class="xw-button xw-button-ghost" type="button" hidden>重新读取</button>
@@ -40,8 +41,7 @@
     <div class="xwc-heading"><h2 id="channelStateHeading">维护服务状态</h2><button type="button" data-close="state" aria-label="关闭状态编辑">关闭</button></div>
     <input name="channelCode" type="hidden"/><input name="version" type="hidden"/>
     <label>服务状态<select name="serviceState"><option value="UNKNOWN">待核对</option><option value="AVAILABLE">可接服务</option><option value="PAUSED">暂停接单</option></select></label>
-    <label>状态说明<textarea name="note" maxlength="500" rows="4"></textarea></label>
     <p id="channelStateFeedback" role="status" aria-live="polite"></p>
     <div class="xwc-actions"><button type="submit" class="xw-button">保存状态</button><button type="button" data-close="state" class="xw-button xw-button-ghost">取消编辑</button></div>
   </form></dialog>
-</main><script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script src="/assets/admin-xingwei-channels.js?v=20261016v4n" defer></script></body></html>
+</main><script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script src="/assets/admin-xingwei-channels.js?v=20261019cutover" defer></script></body></html>

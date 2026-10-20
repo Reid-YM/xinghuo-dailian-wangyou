@@ -29,3 +29,10 @@ body :is(.xw-dialog-actions,.xcat-dialog-actions,.xtax-dialog-actions,.xw-case-p
 @media(max-height:600px) and (max-width:1024px){
   body :is(.xw-topbar,.xwb-topbar){position:relative}
 }
+
+/* Shared visual states also cover workspaces with independent form components. */
+body :is(button,a.xw-button,input,select,textarea,[tabindex="0"]):focus-visible{outline:2px solid var(--xw-accent,#ffcf40);outline-offset:3px}
+body button:disabled{cursor:not-allowed}
+body :is(.xw-dialog-close,.xcat-dialog-head button,.xtax-dialog-head button){min-width:44px;min-height:44px}
+.xw-table-wrap:focus-visible{outline-offset:2px}
+@media(forced-colors:active){body :is(button,.xw-button,input,select,textarea){border-color:ButtonText}body :is(button,a,input,select,textarea,[tabindex="0"]):focus-visible{outline-color:Highlight}}

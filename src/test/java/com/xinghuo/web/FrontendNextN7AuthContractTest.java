@@ -46,7 +46,7 @@ class FrontendNextN7AuthContractTest {
         assertTrue(emailController.contains("/register/verify/request"));
         assertTrue(emailController.contains("/password/reset/request"));
         assertTrue(emailController.contains("/password/reset"));
-        assertTrue(runtime.contains("当前账号密码体系仅支持邮箱登录"));
+        assertTrue(runtime.contains("使用注册邮箱和密码登录"));
         assertFalse(runtime.contains("/api/next/account"));
     }
 }

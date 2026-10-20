@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const readWithDeadline = window.XHFrontendShell?.readWithDeadline || (read => read());
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
   if (!/^\/next\/guides\/?$/.test(runtimePath())) return;
@@ -121,14 +122,15 @@
   function gameOptions() {
     list(window.XHFrontendNextN2?.state?.catalog?.games).forEach(game => {
       const code = text(game.code).toUpperCase();
-      if (code) knownGames.set(code, text(game.name) || code);
+      if (code) knownGames.set(code, text(game.name) || '其他游戏');
     });
     guides.forEach(guide => {
       const code = text(guide.gameCode).toUpperCase();
-      if (code) knownGames.set(code, text(guide.gameName) || code);
+      if (code && text(guide.gameName)) knownGames.set(code, text(guide.gameName));
+      else if (code && !knownGames.has(code)) knownGames.set(code, '其他游戏');
     });
     const selected = params().game;
-    if (selected && !knownGames.has(selected)) knownGames.set(selected, selected);
+    if (selected && !knownGames.has(selected)) knownGames.set(selected, '其他游戏');
     return [...knownGames.entries()].sort((a, b) => a[1].localeCompare(b[1], 'zh-CN'));
   }
 
@@ -138,10 +140,14 @@
     const all = node('option', '', '全部游戏'); all.value = '';
     game.replaceChildren(all);
     gameOptions().forEach(([code, name]) => {
-      const option = node('option', '', `${name} · ${code}`);
+      const option = node('option', '', name);
       option.value = code; game.append(option);
     });
     game.value = params().game;
+  }
+
+  function guideGameName(guide) {
+    return text(guide.gameName) || knownGames.get(text(guide.gameCode).toUpperCase()) || '游戏攻略';
   }
 
   function guideCard(guide) {
@@ -157,13 +163,13 @@
       image.loading = 'lazy';
       cover.append(image);
     } else {
-      cover.append(node('span', '', text(guide.gameName) || text(guide.gameCode) || 'GAME GUIDE'));
+      cover.append(node('span', '', guideGameName(guide)));
     }
     const copy = node('div', 'n23-copy');
     const meta = node('div', 'n23-card-meta');
     if (guide.featured) meta.append(node('span', 'n23-chip', '精选'));
-    if (text(guide.gameName) || text(guide.gameCode)) meta.append(node('span', '', text(guide.gameName) || text(guide.gameCode)));
-    if (text(guide.difficulty)) meta.append(node('span', '', `· ${text(guide.difficulty)}`));
+    if (guideGameName(guide)) meta.append(node('span', '', guideGameName(guide)));
+    if (text(guide.difficulty)) meta.append(node('span', '', `· ${window.XHFrontendShell?.guideDifficulty?.(guide.difficulty) || '未标注'}`));
     if (Number(guide.estimatedMinutes) > 0) meta.append(node('span', '', `· ${Number(guide.estimatedMinutes)} 分钟`));
     copy.append(meta, node('h2', '', text(guide.title) || '攻略'));
     copy.append(node('p', '', text(guide.summary) || text(guide.subtitle) || '查看完整攻略内容。'));
@@ -187,7 +193,7 @@
     summary.replaceChildren(
       node('span', '', '当前显示'),
       node('strong', '', String(rows.length)),
-      node('span', '', `篇攻略${state.game ? ` · ${state.game}` : ''}${state.q ? ` · 搜索“${state.q}”` : ''}`)
+      node('span', '', `篇攻略${state.game ? ` · ${knownGames.get(state.game) || '其他游戏'}` : ''}${state.q ? ` · 搜索“${state.q}”` : ''}`)
     );
     grid.replaceChildren();
     if (!rows.length) {
@@ -254,7 +260,7 @@
     gameOptions().forEach(([code, name]) => {
       const option = document.createElement('option');
       option.value = code;
-      option.textContent = `${name} · ${code}`;
+      option.textContent = name;
       game.append(option);
     });
     const sort = document.createElement('select');
@@ -347,14 +353,16 @@
     const query = new URLSearchParams({limit: '200', ...filters});
     const request = ++requestToken;
     try {
-      const response = await fetch('/api/guides?' + query, {
-        method: 'GET',
-        credentials: 'same-origin',
-        cache: 'no-store',
-        headers: { Accept: 'application/json' }
+      const body = await readWithDeadline(async signal => {
+        const response = await fetch('/api/guides?' + query, {signal,
+          method: 'GET',
+          credentials: 'same-origin',
+          cache: 'no-store',
+          headers: { Accept: 'application/json' }
+        });
+        if (!response.ok) throw new Error(`读取失败（${response.status}）`);
+        return response.json();
       });
-      if (!response.ok) throw new Error(`读取失败（${response.status}）`);
-      const body = await response.json();
       if (request !== requestToken || !onRoute()) return;
       guides = list(body);
       syncGames(section);

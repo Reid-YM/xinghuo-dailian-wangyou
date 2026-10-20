@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const readWithDeadline = window.XHFrontendShell?.readWithDeadline || (read => read());
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
   const pattern = /^\/next\/game\/([^/]+)\/?$/;
   if (!pattern.test(runtimePath())) return;
@@ -122,9 +123,11 @@
     shell.append(grid, node('p', 'next-game-status', '价格和预计时间仅供参考，最终以客服核对当前进度后的确认为准。'));
   }
   async function get(path) {
-    const response = await fetch(path, {credentials:'same-origin',cache:'no-store',headers:{Accept:'application/json'}});
-    if (!response.ok) throw new Error('读取失败，请稍后重试。');
-    return response.json();
+    return readWithDeadline(async signal => {
+      const response = await fetch(path, {signal,credentials:'same-origin',cache:'no-store',headers:{Accept:'application/json'}});
+      if (!response.ok) throw new Error('读取失败，请稍后重试。');
+      return response.json();
+    });
   }
   async function load() {
     if (!pattern.test(runtimePath())) return;

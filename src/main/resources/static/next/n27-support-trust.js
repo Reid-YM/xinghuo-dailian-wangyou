@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const readWithDeadline = window.XHFrontendShell?.readWithDeadline || (read => read());
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
   const pathMatch = /^\/next\/(contact|trust)\/?$/.exec(runtimePath());
@@ -152,8 +153,8 @@
   }
 
   function pageStatusDetail(configuration) {
-    if (configuration?.quoteEnabled === false) return '当前网页询价入口已暂停，请使用后台配置的客服渠道确认。';
-    return '网页询价与客服渠道均以后台当前配置为准，不在新版页面写死联系方式。';
+    if (configuration?.quoteEnabled === false) return '当前网页询价入口已暂停，请联系下方客服确认。';
+    return '可通过下方渠道联系客服，说明游戏、当前进度和目标。';
   }
 
   function contactCard(item, primary = false) {
@@ -181,7 +182,7 @@
 
     const fallback = safeLink(configuration?.wecomKefuUrl);
     if (fallback && !channels.some((item) => safeLink(item?.jumpUrl) === fallback)) {
-      grid.append(contactCard({ label: '企业微信客服', note: '后台配置的一对一客服入口', jumpUrl: fallback }, channels.length === 0));
+      grid.append(contactCard({ label: '企业微信客服', note: '通过企业微信与客服一对一沟通', jumpUrl: fallback }, channels.length === 0));
     }
     if (!grid.childElementCount) {
       const empty = node('div', 'n27-empty', '当前没有配置可直接打开的客服渠道，可先提交询价留下需求与联系方式。');
@@ -204,7 +205,7 @@
       steps.append(card);
     });
     flow.append(steps);
-    shell.append(flow, node('p', 'n27-note', '本页只消费 `/api/site-config` 已公开的客服配置；联系方式仍由后台统一维护。'));
+    shell.append(flow, node('p', 'n27-note', '咨询时请提供游戏、当前进度和目标；已有业务请附上业务编号。'));
   }
 
   function trustCaseCard(item) {
@@ -238,7 +239,7 @@
 
     const configured = node('section', 'n27-section');
     const configuredHead = node('div', 'n27-section-head');
-    configuredHead.append(node('h2', '', '服务保障'), node('p', '', '由后台站点配置统一维护。'));
+    configuredHead.append(node('h2', '', '服务保障'), node('p', '', '了解服务流程与交付说明。'));
     configured.append(configuredHead);
     const configuredGrid = node('div', 'n27-grid');
     list(configuration?.trustCases).forEach((item) => configuredGrid.append(trustCaseCard(item)));
@@ -248,7 +249,7 @@
 
     const cases = node('section', 'n27-section');
     const casesHead = node('div', 'n27-section-head');
-    casesHead.append(node('h2', '', '公开完成案例'), node('p', '', '仅展示服务端明确允许公开的脱敏记录。'));
+    casesHead.append(node('h2', '', '公开完成案例'), node('p', '', '查看已公开的交付记录，客户信息已脱敏。'));
     cases.append(casesHead);
     const caseGrid = node('div', 'n27-grid');
     caseGrid.id = 'n27PublicCases';
@@ -302,14 +303,16 @@
     const caseGrid = $('#n27PublicCases');
     if (caseGrid) caseGrid.replaceChildren(node('div', 'n27-empty', '正在读取公开完成案例…'));
     try {
-      const response = await fetch('/api/public/cases', {
-        method: 'GET',
-        credentials: 'same-origin',
-        cache: 'no-store',
-        headers: { Accept: 'application/json' }
+      const body = await readWithDeadline(async signal => {
+        const response = await fetch('/api/public/cases', {signal,
+          method: 'GET',
+          credentials: 'same-origin',
+          cache: 'no-store',
+          headers: { Accept: 'application/json' }
+        });
+        if (!response.ok) throw new Error('public cases unavailable');
+        return response.json();
       });
-      if (!response.ok) throw new Error('public cases unavailable');
-      const body = await response.json();
       if (!Array.isArray(body)) throw new Error('public cases invalid response');
       if (request !== publicCasesRequest) return;
       publicCases = body;

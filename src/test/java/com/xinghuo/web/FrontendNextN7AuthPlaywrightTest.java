@@ -39,7 +39,7 @@ class FrontendNextN7AuthPlaywrightTest {
             assertEquals(1, page.locator("#n4ContactType option").count());
             assertEquals("EMAIL", page.locator("#n4ContactType").inputValue());
             assertEquals("email", page.locator("#n4ContactValue").getAttribute("type"));
-            assertTrue(page.locator("#n4LoginForm").textContent().contains("当前账号密码体系仅支持邮箱登录"));
+            assertTrue(page.locator("#n4LoginForm").textContent().contains("使用注册邮箱和密码登录"));
 
             page.locator(".n7-auth-tab[data-mode=register]").click();
             page.waitForSelector("#n7RegisterPanel:not([hidden])");

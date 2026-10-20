@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const readWithDeadline = window.XHFrontendShell?.readWithDeadline || (read => read());
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
   const navigation = window.XHFrontendShell?.navigation || history;
 
@@ -859,11 +860,13 @@
     renderState(section, '正在读取 MW4 工具数据', '正在加载武器、模式与迷彩配置…');
     const request = ++requestToken;
     try {
-      const response = await fetch('/api/tool-station', {
-        method: 'GET', credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' }
+      const payload = await readWithDeadline(async signal => {
+        const response = await fetch('/api/tool-station', {signal,
+          method: 'GET', credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' }
+        });
+        if (!response.ok) throw new Error(`工具数据读取失败（${response.status}）`);
+        return response.json();
       });
-      if (!response.ok) throw new Error(`工具数据读取失败（${response.status}）`);
-      const payload = await response.json();
       if (request !== requestToken || !/^\/next\/mastery\/?$/.test(runtimePath())) return;
       game = list(payload.games).find((item) => text(item.code) === 'CODMW4') || list(payload.games)[0] || null;
       if (!game) throw new Error('没有找到可用的工具站游戏数据');

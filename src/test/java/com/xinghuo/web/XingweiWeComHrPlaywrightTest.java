@@ -47,7 +47,12 @@ class XingweiWeComHrPlaywrightTest {
         try(Playwright playwright=Playwright.create()){
             for(BrowserType type:new BrowserType[]{playwright.chromium(),playwright.webkit()})try(Browser browser=type.launch()){
                 Page page=page(browser);page.locator("#xwcCreateMember").click();
-                page.locator("#xwcHrName").fill("员工乙");page.locator("#xwcHrDepartment").selectOption("2");page.locator("#xwcHrMobile").fill("13800000000");
+                assertTrue(page.locator("#xwcConfigured").innerText().contains("可管理"));
+                page.locator("#xwcHrName").fill("员工乙");page.locator("#xwcHrSubmit").click();
+                assertTrue(page.locator("#xwcHrMessage").innerText().contains("至少填写一项"));assertEquals(0,page.evaluate("()=>window.calls.length"));
+                page.locator("#xwcHrMobile").fill("13800000000");page.locator("#xwcHrSubmit").click();
+                assertTrue(page.locator("#xwcHrMessage").innerText().contains("正式岗位"));assertEquals(0,page.evaluate("()=>window.calls.length"));
+                page.locator("#xwcHrDepartment").selectOption("2");
                 page.locator("#xwcHrSubmit").click();page.waitForFunction("()=>!document.querySelector('#xwcHrPreview').hidden");
                 assertEquals(1,page.evaluate("()=>window.calls.length"));
                 assertEquals("hidden-position",page.evaluate("()=>window.calls[0].body.positionCode"));

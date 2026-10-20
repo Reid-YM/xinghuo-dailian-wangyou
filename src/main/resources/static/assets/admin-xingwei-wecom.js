@@ -131,7 +131,7 @@
   }
 
   function render() {
-    document.getElementById('xwcConfigured').textContent = snapshot?.configured ? '已配置 · 只读' : '未配置';
+    document.getElementById('xwcConfigured').textContent = snapshot?.configured ? (canManage ? '已配置 · 可管理' : '已配置 · 只读') : '未配置';
     document.getElementById('xwcEmployeeCount').textContent = String(snapshot?.counts?.employees ?? 0);
     document.getElementById('xwcDepartmentCount').textContent = String(snapshot?.counts?.departments ?? 0);
     document.getElementById('xwcPositionCount').textContent = String(snapshot?.counts?.positions ?? 0);
@@ -249,6 +249,18 @@
 
   byId('xwcHrForm').addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (!confirmation && edit.action === 'CREATE_MEMBER') {
+      const mobile = byId('xwcHrMobile').value.trim();
+      if (!mobile && !byId('xwcHrEmail').value.trim()) {
+        byId('xwcHrMessage').textContent = '手机号或邮箱至少填写一项。';return;
+      }
+      if (mobile && !/^[+0-9][0-9 -]{4,31}$/.test(mobile)) {
+        byId('xwcHrMessage').textContent = '请核对手机号格式。';return;
+      }
+    }
+    if (!confirmation && ['CREATE_MEMBER','TRANSFER_MEMBER'].includes(edit.action) && !byId('xwcHrPosition').value) {
+      byId('xwcHrMessage').textContent = '请先选择已有正式岗位的部门和岗位。';return;
+    }
     if (confirmation && byId('xwcHrConfirm').value.trim() !== confirmation.name) {
       byId('xwcHrMessage').textContent = '请输入预览中的完整名称确认。';return;
     }

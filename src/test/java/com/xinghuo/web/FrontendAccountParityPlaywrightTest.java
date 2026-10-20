@@ -52,16 +52,19 @@ class FrontendAccountParityPlaywrightTest {
                   else if(url.includes('/payments/')){if(method==='POST')window.paymentStatus='APPROVED';body={paymentNo:'PAY-1',businessNo:'B-1',amount:'88.00',subject:'客服确认服务',status:window.paymentStatus,expiresAt:new Date(Date.now()+60000).toISOString()};}
                   else if(url==='/api/account/progress')body=[{toolKey:'mw4-camo',version:1,updatedAt:'2026-10-16T00:00:00Z'}];
                   else if(url.startsWith('/api/account/favorites?'))body=window.favorited?[{targetType:'GUIDE',targetId:'actual-guide'}]:[];
-                  else if(url==='/api/account/favorites/toggle'){window.favorited=false;body={favorited:false};}
+                  else if(url==='/api/account/favorites/toggle'){window.favoriteBody=JSON.parse(options.body);window.favorited=false;body={favorited:false};}
                   else if(url.startsWith('/api/account/submissions?'))body=[{id:1,title:'我的稿件',status:window.submitted?'SUBMITTED':'WITHDRAWN',statusText:window.submitted?'等待审核':'已撤回'}];
                   else if(url.endsWith('/submissions/1/withdraw')){window.submitted=false;body={message:'已撤回'};}
                   else body=[];
                   return new Response(JSON.stringify(body));};}
               """);
             page.addScriptTag(new Page.AddScriptTagOptions().setPath(NEXT.resolve("n5.js")));page.waitForSelector("#n5PersonalAssets");
-            page.waitForFunction("()=>document.querySelector('[data-personal-asset=progress]').textContent.includes('mw4-camo')");
+            page.waitForFunction("()=>document.querySelector('[data-personal-asset=progress] .n5-source')");
+            assertFalse(page.locator("#n5PersonalAssets").textContent().contains("mw4-camo"));
+            assertFalse(page.locator("[data-personal-asset=favorites]").textContent().contains("actual-guide"));
             assertEquals("/guides/actual-guide",page.locator("[data-personal-asset=favorites] a").getAttribute("href"));
             page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,new Page.GetByRoleOptions().setName("取消收藏").setExact(true)).click();page.waitForFunction("()=>document.querySelector('[data-personal-asset=favorites]').textContent.includes('暂无')");
+            assertEquals("GUIDE",page.evaluate("()=>window.favoriteBody.targetType"));assertEquals("actual-guide",page.evaluate("()=>window.favoriteBody.targetId"));
             page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,new Page.GetByRoleOptions().setName("撤回投稿").setExact(true)).click();page.waitForFunction("()=>document.querySelector('[data-personal-asset=submissions]').textContent.includes('已撤回')");
             page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,new Page.GetByRoleOptions().setName("查看详情").setExact(true)).click();page.waitForSelector("#n5Payment button");
             assertTrue(page.locator("#n5Detail").textContent().contains("第一次公开回复"));assertTrue(page.locator("#n5Detail").textContent().contains("后续补充"));

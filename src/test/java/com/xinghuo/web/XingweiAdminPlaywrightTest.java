@@ -1,6 +1,7 @@
 package com.xinghuo.web;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Browser;
@@ -215,6 +216,9 @@ class XingweiAdminPlaywrightTest {
             assertEquals("155", page.locator("[data-org-kpi='positions']").textContent());
             assertTrue(page.locator("#xwDepartmentRows").textContent().contains("04 游戏业务中心"));
             assertTrue(page.locator("#xwPositionRows").textContent().contains("MW4 代练员"));
+            assertFalse(page.locator("#xwPositionRows").innerText().contains("XW-LC-"));
+            assertEquals(3,page.locator("#xwPositionRows tr").first().locator("td").count());
+            assertEquals(3,page.locator("#xwDepartmentRows tr").first().locator("td").count());
             assertTrue(page.locator("#xwEmployeeRows").textContent().contains("负责人"));
             assertTrue(page.locator("#xwRoleRows").textContent().contains("游戏业务中心"));
 
@@ -229,6 +233,9 @@ class XingweiAdminPlaywrightTest {
             page.locator("#xwRoleRows [data-role-edit]").first().click();
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwRoleDialog').open"));
             assertTrue(page.locator("#xwPermissionChecks").textContent().contains("查看组织"));
+            assertTrue(page.locator("#xwPermissionChecks legend").allTextContents().contains("工作台"));
+            assertFalse(page.locator("#xwPermissionChecks").innerText().contains("dashboard"));
+            assertEquals(1,page.locator("#xwPermissionChecks input[value='dashboard:view']").count());
             page.locator("[data-dialog-close='xwRoleDialog']").first().click();
 
             page.setViewportSize(390, 844);

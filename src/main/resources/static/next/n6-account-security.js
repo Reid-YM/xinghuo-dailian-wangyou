@@ -300,7 +300,7 @@
   }
 
   function deviceCard() {
-    const card = sectionCard('登录设备', '只显示当前账号自己的有效会话。会话 ID 仅作为服务端下线句柄，不在页面展示。', true);
+    const card = sectionCard('登录设备', '查看当前账号的登录设备，可退出不再使用的设备。', true);
     const list = node('div', 'n6-devices'); list.id = 'n6Devices';
     const items = sessions();
     if (!items.length) {

@@ -24,7 +24,7 @@
 
   function dataScopeLabel(scope, departmentCode = '') {
     if (scope === 'ALL') return '全部数据';
-    if (scope === 'DEPARTMENT') return departmentCode ? `本中心 · ${departmentCode}` : '本中心 · 未分配中心时仅本人';
+    if (scope === 'DEPARTMENT') return departmentCode ? '本中心' : '本中心 · 未分配中心时仅本人';
     if (scope === 'SELF') return '仅本人';
     return '无数据范围';
   }
@@ -79,7 +79,6 @@
     const departments = orgSnapshot.departments || [];
     body.innerHTML = departments.map((d) => `
       <tr>
-        <td><span class="xw-code">${escapeHtml(d.code)}</span></td>
         <td><strong>${escapeHtml(d.name)}</strong></td>
         <td>${escapeHtml(d.positionCount)}</td>
         <td><span class="xw-pill ${d.enabled ? 'ok' : ''}">${d.enabled ? '启用' : '停用'}</span></td>
@@ -100,7 +99,6 @@
     const rows = (orgSnapshot.positions || []).filter((p) => !departmentCode || p.departmentCode === departmentCode);
     body.innerHTML = rows.map((p) => `
       <tr>
-        <td><span class="xw-code">${escapeHtml(p.code)}</span></td>
         <td><strong>${escapeHtml(p.name)}</strong></td>
         <td>${escapeHtml(p.category)}</td>
         <td>${escapeHtml(p.departmentName)}</td>
@@ -260,8 +258,9 @@
       if (!grouped.has(permission.module)) grouped.set(permission.module, []);
       grouped.get(permission.module).push(permission);
     });
+    const moduleLabels={dashboard:'工作台',business:'业务处理',content:'内容管理',organization:'组织与员工',security:'账号与权限',channel:'渠道运营',wechat:'微信管理',payment:'支付管理',system:'站点管理',org:'组织架构',rbac:'角色权限'};
     document.getElementById('xwPermissionChecks').innerHTML = Array.from(grouped.entries()).map(([moduleName, rows]) => `
-      <fieldset><legend>${escapeHtml(moduleName)}</legend>${rows.map((permission) => `
+      <fieldset><legend>${escapeHtml(moduleLabels[moduleName]||'其他权限')}</legend>${rows.map((permission) => `
         <label class="xw-check-item">
           <input type="checkbox" value="${escapeHtml(permission.code)}" ${selected.has(permission.code) ? 'checked' : ''}/>
           <span><strong>${escapeHtml(permission.name)}</strong></span>

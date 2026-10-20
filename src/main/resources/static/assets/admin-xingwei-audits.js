@@ -2,7 +2,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const filters=$('auditFilters');
-  const labels={password:'密码',email:'邮箱',phone:'联系电话',role:'登录角色',roleCodes:'员工角色',active:'启用状态',businessNo:'业务编号',status:'处理状态',serviceState:'服务状态',dataScope:'数据范围',version:'版本号',progressPercent:'进度百分比',ownerAdminUserId:'负责人',handledByAdminUserId:'处理人',title:'标题',details:'说明',content:'内容',note:'备注',reason:'操作原因',enabled:'启用状态',visible:'可见状态',published:'发布状态',isPrimary:'主角色',departmentCode:'所属中心'};
+  const labels={password:'密码',email:'邮箱',phone:'联系电话',role:'登录角色',roleCodes:'员工角色',active:'启用状态',businessNo:'业务编号',status:'处理状态',serviceState:'服务状态',dataScope:'数据范围',progressPercent:'进度百分比',title:'标题',details:'说明',content:'内容',enabled:'启用状态',visible:'可见状态',published:'发布状态',isPrimary:'主角色',departmentCode:'所属中心'};
   const actionLabel=code=>window.XWLabels?.auditAction(code)||'其他操作';
   const targetLabel=code=>window.XWLabels?.auditTarget(code)||'其他业务对象';
   function changeValue(field,value){
@@ -61,8 +61,9 @@
     try{
       const data=await get('/api/admin/xingwei/audits/'+encodeURIComponent(id));if(current!==detailSequence)return;
       const content=$('auditDetail');content.append(el('p',actionLabel(data.entry.action)+' · '+data.entry.operatorName));
-      for(const change of data.changes){const row=el('p');const fieldLabel=el('strong',labels[change.field]||'其他字段');row.append(fieldLabel,document.createTextNode('：'+changeValue(change.field,change.before)+' → '+changeValue(change.field,change.after)));content.append(row);}
-      $('auditDetailMessage').textContent=data.changes.length?'敏感值与完整内容已隐藏。':'没有可展示的字段变化。';
+      const changes=data.changes.filter(change=>Object.hasOwn(labels,change.field));
+      for(const change of changes){const row=el('p');const fieldLabel=el('strong',labels[change.field]);row.append(fieldLabel,document.createTextNode('：'+changeValue(change.field,change.before)+' → '+changeValue(change.field,change.after)));content.append(row);}
+      $('auditDetailMessage').textContent=changes.length?'敏感值与完整内容已隐藏。':'没有可展示的字段变化。';
     }catch(error){if(current===detailSequence){$('auditDetailMessage').textContent=error.message;$('auditDetailRetry').hidden=false;}}
   }
   function close(){detailSequence++;$('auditDialog').close();}

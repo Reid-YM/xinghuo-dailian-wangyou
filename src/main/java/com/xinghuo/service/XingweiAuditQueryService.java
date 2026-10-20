@@ -25,6 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly=true)
 public class XingweiAuditQueryService {
     private static final int PAGE_SIZE=50;
+    // Only business fields may enter ordinary audit summaries. New technical fields stay private by default.
+    private static final Set<String> SUMMARY_FIELDS=Set.of("password", "email", "phone", "role", "roleCodes",
+            "active", "businessNo", "status", "serviceState", "dataScope", "progressPercent", "title",
+            "details", "content", "enabled", "visible", "published", "isPrimary", "departmentCode");
     private final JdbcTemplate jdbc;
     private final XingweiPermissionGuard guard;
     private final ObjectMapper mapper;
@@ -40,9 +44,9 @@ public class XingweiAuditQueryService {
         String where=scope.sql();
         List<Object> args=new ArrayList<>(scope.args());
         if(!q.isEmpty()) {
-            where+=" AND (a.target_id LIKE ? ESCAPE '!' OR a.operator_name LIKE ? ESCAPE '!' OR a.request_id LIKE ? ESCAPE '!')";
+            where+=" AND (a.target_id LIKE ? ESCAPE '!' OR a.operator_name LIKE ? ESCAPE '!')";
             String term="%"+q.replace("!","!!").replace("%","!%").replace("_","!_")+"%";
-            args.add(term); args.add(term); args.add(term);
+            args.add(term); args.add(term);
         }
         if(!action.isEmpty()) { where+=" AND a.action=?"; args.add(action); }
         // Business-day filters use Beijing time explicitly, independent of the server timezone.
@@ -73,8 +77,8 @@ public class XingweiAuditQueryService {
         long total=jdbc.queryForObject("SELECT COUNT(*)"+tables,Long.class,args.toArray());
         var listArgs=new ArrayList<>(args);listArgs.add(PAGE_SIZE);listArgs.add(page*PAGE_SIZE);
         var items=jdbc.query("SELECT a.id,a.user_id,a.action,a.ip,a.created_at,c.public_user_id"+tables+" ORDER BY a.created_at DESC,a.id DESC LIMIT ? OFFSET ?",(rs,n)->{
-            var row=new java.util.LinkedHashMap<String,Object>();row.put("id",rs.getLong("id"));
-            row.put("member",rs.getString("public_user_id")==null?(rs.getObject("user_id")==null?"未登录访客":"已移除会员 #"+rs.getLong("user_id")):rs.getString("public_user_id"));
+            var row=new java.util.LinkedHashMap<String,Object>();
+            row.put("member",rs.getString("public_user_id")==null?(rs.getObject("user_id")==null?"未登录访客":"已移除会员"):rs.getString("public_user_id"));
             row.put("action",rs.getString("action"));row.put("ipMasked",com.xinghuo.account.service.Masking.ip(rs.getString("ip")));
             row.put("createdAt",rs.getTimestamp("created_at").toInstant().toString());return row;
         },listArgs.toArray());
@@ -118,8 +122,7 @@ public class XingweiAuditQueryService {
             List<Change> out=new ArrayList<>();
             for(String key:keys) {
                 if(out.size()>=100) { out.add(new Change("其余字段","已省略","已省略")); break; }
-                if (Set.of("id", "version", "sourceQuoteId", "customerIpHash", "internalNote", "handlingNote",
-                        "internal_note", "handling_note", "operatorNote", "operator_note", "followUpNote", "follow_up_note", "notes", "note", "adminUserId", "ownerAdminUserId", "handledByAdminUserId").contains(key)) continue;
+                if (!SUMMARY_FIELDS.contains(key)) continue;
                 JsonNode l=left==null?null:left.get(key), r=right==null?null:right.get(key);
                 if(java.util.Objects.equals(l,r)) continue;
                 out.add(new Change(key.matches("[A-Za-z0-9_]{1,64}")?key:"其他字段",safe(key,l),safe(key,r)));
@@ -129,7 +132,7 @@ public class XingweiAuditQueryService {
     }
     private String safe(String key,JsonNode value) {
         if(value==null||value.isNull()) return "未设置";
-        if(Set.of("version","progressPercent","ownerAdminUserId","handledByAdminUserId").contains(key)&&value.isNumber()) return value.asText();
+        if("progressPercent".equals(key)&&value.isNumber()) return value.asText();
         if(Set.of("enabled","visible","published","isPrimary").contains(key)&&value.isBoolean()) return value.asText();
         if(Set.of("status","serviceState","dataScope").contains(key)&&value.isTextual()&&Set.of("TODO","IN_PROGRESS","DONE","CANCELLED","UNKNOWN","AVAILABLE","PAUSED","OPEN","RESOLVED","ALL","DEPARTMENT","SELF","WAITING_CONFIRMATION","COMPLETED","EXCEPTION","DRAFT","PUBLISHED","ARCHIVED","ACTIVE","INACTIVE").contains(value.asText())) return value.asText();
         return "内容已隐藏";

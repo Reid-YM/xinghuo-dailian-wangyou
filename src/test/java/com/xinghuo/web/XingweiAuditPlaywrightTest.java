@@ -19,7 +19,7 @@ class XingweiAuditPlaywrightTest {
           () => {window.failDetail=false;window.failList=false;window.auditUrls=[];
             window.fetch=async url=>{
               window.auditUrls.push(url);
-              if(url==='/api/admin/xingwei/audits/1')return new Response(JSON.stringify(window.failDetail?{error:'摘要读取失败'}:{entry:{id:1,action:'UPDATE',operatorName:'运营',requestId:'REQ-1'},changes:[{field:'status',before:'OPEN',after:'RESOLVED'},{field:'password',before:'内容已隐藏',after:'内容已隐藏'}]}),{status:window.failDetail?503:200});
+              if(url==='/api/admin/xingwei/audits/1')return new Response(JSON.stringify(window.failDetail?{error:'摘要读取失败'}:{entry:{id:1,action:'UPDATE',operatorName:'运营',requestId:'REQ-1'},changes:[{field:'status',before:'OPEN',after:'RESOLVED'},{field:'password',before:'内容已隐藏',after:'内容已隐藏'},{field:'internalFlag',before:'PRIVATE_BEFORE',after:'PRIVATE_AFTER'},{field:'version',before:1,after:2},{field:'ownerAdminUserId',before:12,after:13}]}),{status:window.failDetail?503:200});
               if(url.includes('/member-activity'))return new Response(JSON.stringify({items:[{id:7,member:'MEM-7',action:'LOGIN_OK',ipMasked:'192.168.*.*',createdAt:'2026-10-16T01:00:00Z'}],actions:['LOGIN_OK'],totalCount:1,pageSize:50}));
               return new Response(JSON.stringify(window.failList?{error:'暂时无法读取'}:{items:[{id:1,action:'UPDATE',operatorName:'运营<script>bad</script>',targetType:'ORDER',targetId:'O1',reason:'跟进处理',createdAt:'2026-10-16T01:00:00Z'}],actions:['UPDATE'],totalCount:101,pageSize:50}),{status:window.failList?503:200});
             };
@@ -40,7 +40,7 @@ class XingweiAuditPlaywrightTest {
             page.getByText("查看变更摘要",new Page.GetByTextOptions().setExact(true)).click();
             page.waitForFunction("() => document.querySelector('#auditDetail').textContent.includes('已解决')");
             assertTrue(page.locator("#auditDetail").textContent().contains("内容已隐藏"));
-            assertFalse(page.locator("#auditDetail").innerText().contains("REQ-1"));
+            for(String hidden:java.util.List.of("REQ-1","internalFlag","PRIVATE_","版本号","负责人"))assertFalse(page.locator("#auditDetail").innerText().contains(hidden));
             page.locator("#auditClose").click();
             page.locator("#auditFilters input[name=q]").fill("O1");page.locator("#auditFilters button[type=submit]").click();
             page.waitForFunction("()=>new URLSearchParams(location.search).get('q')==='O1'");

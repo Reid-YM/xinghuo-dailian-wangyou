@@ -34,7 +34,7 @@ class XingweiOperationsPlaywrightTest {
               if(url.endsWith('/logs'))return new Response(JSON.stringify([{action:'LOGIN',createdAt:'2026-10-16T00:00:00Z',ipMasked:'192.0.*.*'}]));
               if(url.endsWith('/display/services'))return new Response(JSON.stringify([{id:1,name:'公开服务',status:'PUBLISHED',gameCode:'MW4'}]));
               if(url.endsWith('/display'))return new Response(JSON.stringify([{data:{slotNo:1,mode:'AUTO',serviceId:null},revision:'slot-r1'}]));
-              if(url.includes('/submissions/'))return new Response(JSON.stringify({data:{id:1,title:'测试稿件',bodyMarkdown:'<script>不能执行</script>'},revision:'r1'}));
+              if(url.includes('/submissions/'))return new Response(JSON.stringify({data:{id:1,title:'测试稿件',bodyMarkdown:'<script>不能执行</script>',content:{internalToken:'PRIVATE_NESTED_TOKEN'},gameCode:'PRIVATE_GAME_CODE',targetType:'GUIDE',publishedSlug:'private-target-slug'},revision:'r1'}));
               const data=url.includes('/members')?{id:1,displayName:'测试用户',publicUserId:'XH-1',email:'test@example.invalid',role:'BUYER',status:'ACTIVE'}:
                 url.includes('/comments')?{id:1,content:'<script>不能执行</script>',status:'PENDING'}:
                 url.includes('/submissions')?{id:1,title:'测试稿件',status:'SUBMITTED'}:
@@ -118,10 +118,10 @@ class XingweiOperationsPlaywrightTest {
     private void allModules(Browser b)throws Exception{
         {
             Page page=setup(b,"module=comments");
-            assertTrue(page.locator("#operationsRows").textContent().contains("<script>不能执行</script>"));assertEquals(0,page.locator("#operationsRows script").count());
+            assertTrue(page.locator("#operationsRows").textContent().contains("<script>不能执行</script>"));assertEquals(0,page.locator("#operationsRows script").count());assertFalse(page.locator("#operationsRows h3").textContent().contains("#1"));
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("投稿审核").setExact(true)).click();
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("查看正文").setExact(true)).click();
-            page.waitForFunction("()=>document.querySelector('#operationsFields').textContent.includes('不能执行')");assertEquals(0,page.locator("#operationsFields script").count());page.locator("#operationsClose").click();
+            page.waitForFunction("()=>document.querySelector('#operationsFields').textContent.includes('不能执行')");assertEquals(0,page.locator("#operationsFields script").count());assertFalse(page.locator("#operationsFields").textContent().contains("PRIVATE_NESTED_TOKEN"));for(String hidden:java.util.List.of("internalToken","PRIVATE_GAME_CODE","private-target-slug","GUIDE"))assertFalse(page.locator("#operationsFields").textContent().contains(hidden));assertEquals("/guides/private-target-slug",page.locator("#operationsFields a").getAttribute("href"));page.locator("#operationsClose").click();
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("首页展示位").setExact(true)).click();
             page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("编辑展示位").setExact(true)).click();page.locator("#operations-mode").selectOption("MANUAL");assertEquals("手动",page.locator("#operations-mode option[value=MANUAL]").textContent());page.locator("#operations-serviceId").selectOption("1");page.locator("#operationsSave").click();page.waitForFunction("()=>!document.querySelector('#operationsDialog').open");
             assertEquals("\"slot-r1\"",page.evaluate("()=>window.calls.find(c=>c.method==='PATCH').headers['if-match']"));

@@ -90,7 +90,7 @@ public class XingweiWeComDirectoryService {
                 for (JsonNode idNode : ids) {
                     long id = idNode.asLong();
                     departmentIds.add(id);
-                    departments.add(departmentNames.getOrDefault(id, "未知部门 #" + id));
+                    departments.add(departmentNames.getOrDefault(id, "部门名称待同步"));
                 }
             }
             Map<String, Object> item = new LinkedHashMap<>();

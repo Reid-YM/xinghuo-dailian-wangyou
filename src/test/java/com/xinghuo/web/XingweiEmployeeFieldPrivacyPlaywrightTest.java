@@ -14,6 +14,44 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 
 @EnabledIfEnvironmentVariable(named="PLAYWRIGHT_UI_TESTS",matches="1")
 class XingweiEmployeeFieldPrivacyPlaywrightTest {
+    @Test void directoryShowsBusinessNamesAndKeepsTechnicalErrorsPrivate() throws Exception {
+        try (Playwright p=Playwright.create()) {
+            for (BrowserType type : new BrowserType[]{p.chromium(),p.webkit()}) {
+                try (Browser browser=type.launch()) {
+                    var resolver=new ClassLoaderTemplateResolver();resolver.setPrefix("templates/");resolver.setSuffix(".html");
+                    var engine=new SpringTemplateEngine();engine.setTemplateResolver(resolver);
+                    var context=new Context();context.setVariable("csrf",new DefaultCsrfToken("X-CSRF-TOKEN","_csrf","test-token"));
+                    String html=engine.process("admin-xingwei-wecom",context);
+                    Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(390,844));
+                    page.route("**/*",route->{String path=java.net.URI.create(route.request().url()).getPath();
+                        if(path.startsWith("/assets/"))route.fulfill(new Route.FulfillOptions().setPath(Path.of("src/main/resources/static"+path)));
+                        else route.fulfill(new Route.FulfillOptions().setContentType("text/html").setBody(html));});
+                    page.addInitScript("""
+                        window.directoryFail=false;
+                        window.fetch=async()=>window.directoryFail
+                          ?new Response(JSON.stringify({error:'employee:view private-vendor-diagnostic'}),{status:403})
+                          :new Response(JSON.stringify({configured:true,counts:{employees:1,departments:1,positions:1},
+                            employees:[{userId:'private-member',name:'员工甲',position:'客服',departments:['部门名称待同步'],departmentIds:[98765],status:999}],
+                            departments:[{id:2,parentId:0,name:'业务中心'}],
+                            positions:[{code:'PRIVATE_POSITION_CODE',name:'业务客服',departmentName:'业务中心'}]}));
+                        """);
+                    page.navigate("https://xinghuo.test/admin/xingwei/wecom");
+                    page.waitForFunction("()=>document.querySelector('#xwcEmployeeRows').textContent.includes('员工甲')");
+                    String text=page.locator("body").innerText();
+                    assertTrue(text.contains("业务客服"));assertTrue(text.contains("状态待同步"));
+                    for(String hidden:new String[]{"PRIVATE_POSITION_CODE","private-member","98765","999","employee:view"}) assertFalse(text.contains(hidden));
+                    assertEquals(2,page.locator("#xwcPositionRows tr td").count());
+                    page.locator("#xwcSearch").fill("员工甲");assertEquals(1,page.locator("#xwcEmployeeRows tr strong").count());
+                    page.evaluate("()=>window.directoryFail=true");page.locator("#xwcRefresh").click();
+                    page.waitForFunction("()=>document.querySelector('#xwcStatus').classList.contains('error')");
+                    assertTrue(page.locator("#xwcMessage").innerText().contains("员工查看权限"));
+                    assertFalse(page.locator("body").innerText().contains("private-vendor-diagnostic"));
+                    assertFalse(page.locator("body").innerText().contains("employee:view"));
+                    page.close();
+                }
+            }
+        }
+    }
     @Test void employeeAndRoleEditorsKeepPrivateFieldsHiddenWithoutLosingWrites() throws Exception {
         try (Playwright p=Playwright.create()) {
             for (BrowserType type : new BrowserType[]{p.chromium(),p.webkit()}) {

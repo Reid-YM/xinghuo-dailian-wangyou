@@ -268,14 +268,15 @@
   text-align: right;
 }
 
-/* 公安备案：仅展示官方徽标与备案号，不显示文字标签 */
-.about-police {
-  justify-content: flex-end;
+/* 备案号：官方徽标置于备案号左侧 */
+.about-icp-value {
+  display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8rpx;
 }
 
-.police-badge {
+.beian-badge {
   flex-shrink: 0;
   width: 28rpx;
   height: 30rpx;

@@ -25,8 +25,8 @@ class FrontendNextN2ContractTest {
     @Test
     void n2OnlyReadsExistingPublicCatalogAndServices() throws Exception {
         String js = Files.readString(NEXT.resolve("n2.js"));
-        assertTrue(js.contains("getJson('/api/catalog')"));
-        assertTrue(js.contains("getJson('/api/services')"));
+        assertTrue(js.contains("getJson('/api/catalog',controller.signal)"));
+        assertTrue(js.contains("getJson('/api/services',controller.signal)"));
         assertTrue(js.contains("method:'GET'"));
         assertTrue(js.contains("Promise.allSettled"));
         assertFalse(js.contains("/api/quote"));

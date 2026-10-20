@@ -5,6 +5,7 @@
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
   const state={catalog:null,services:null,category:'all',query:'',game:'',platform:'',sort:'default'};
   let loadRequest = 0;
+  let activeLoad = null;
   const text=value=>String(value??'').trim();
   const code=value=>text(value).toUpperCase();
   const list=value=>Array.isArray(value)?value:[];
@@ -13,10 +14,31 @@
     if(typeof window.toast==='function') window.toast(message);
   }
 
-  async function getJson(path){
-    const response=await fetch(path,{method:'GET',headers:{Accept:'application/json'},credentials:'same-origin',cache:'no-store'});
-    if(!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.json();
+  async function getJson(path,signal){
+    const controller=new AbortController();
+    const cancel=()=>controller.abort();
+    signal.addEventListener('abort',cancel,{once:true});
+    let timer,onAbort;
+    try {
+      return await Promise.race([
+        (async()=>{
+          const response=await fetch(path,{method:'GET',headers:{Accept:'application/json'},credentials:'same-origin',cache:'no-store',signal:controller.signal});
+          if(!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        })(),
+        new Promise((_,reject)=>{
+          onAbort=()=>reject(new Error('服务目录读取超时或已取消'));
+          controller.signal.addEventListener('abort',onAbort,{once:true});
+          // Bound both connection time and JSON body reads, even if a transport ignores abort.
+          timer=setTimeout(cancel,10000);
+          if(signal.aborted)cancel();
+        })
+      ]);
+    } finally {
+      clearTimeout(timer);
+      signal.removeEventListener('abort',cancel);
+      controller.signal.removeEventListener('abort',onAbort);
+    }
   }
 
   function make(tag,className,value){
@@ -242,7 +264,7 @@
     let node=$('#n2DataStatus');
     if(!node){
       node=make('div','',message);
-      node.id='n2DataStatus';
+      node.id='n2DataStatus';node.setAttribute('role','status');node.setAttribute('aria-live','polite');
       node.style.cssText='width:min(1420px,calc(100% - 40px));margin:12px auto 0;padding:10px 13px;border:1px solid #ffcb2d33;border-radius:10px;background:#ffcb2d0b;color:#aeb4bc;font-size:11px';
       $('.toolbar')?.after(node);
     }
@@ -287,22 +309,45 @@
 
   async function load(){
     const request = ++loadRequest;
+    activeLoad?.abort();
+    const controller=new AbortController();activeLoad=controller;
     const hadServices=Array.isArray(state.services);
+    const grid=$('.serviceGrid');grid?.setAttribute('aria-busy','true');
+    status(hadServices?'正在刷新服务目录，仍可查看已读取的服务。':'正在读取服务目录…','loading');
     ['qGame','qCat','qSvc'].forEach(id=>{const node=$('#'+id);if(node)node.disabled=true;});
-    const [catalog,services]=await Promise.allSettled([getJson('/api/catalog'),getJson('/api/services')]);
+    const catalogTask=getJson('/api/catalog',controller.signal).then(value=>{
+      if(request!==loadRequest)return;
+      if(!Array.isArray(value?.games))throw new Error('游戏目录格式不正确');
+      state.catalog=value;window.XHFrontendShell?.updateCatalog?.(state.catalog);
+      window.dispatchEvent(new Event('xh:catalogupdated'));
+      if(Array.isArray(state.services))renderServices();
+      populateQuote();installHallFilters();
+    });
+    const servicesTask=getJson('/api/services',controller.signal).then(value=>{
+      if(request!==loadRequest)return;
+      if(!Array.isArray(value))throw new Error('服务目录格式不正确');
+      state.services=value;restoreFilters();renderServices();
+      grid?.setAttribute('aria-busy','false');
+      window.XHFrontendShell?.updateServices?.(state.services);
+      if(state.catalog)populateQuote();
+      status('服务已读取，正在核对游戏分类…','loading');
+    }).catch(error=>{
+      if(request===loadRequest){
+        grid?.setAttribute('aria-busy','false');
+        if(!hadServices){grid?.replaceChildren(make('p','','服务目录暂时无法读取，请重试。'));window.XHFrontendShell?.dataUnavailable?.('nextHomeServices');}
+      }
+      throw error;
+    });
+    const [catalog,services]=await Promise.allSettled([catalogTask,servicesTask]);
     if (request !== loadRequest) return;
-    const catalogOk=catalog.status==='fulfilled' && Array.isArray(catalog.value?.games);
-    const servicesOk=services.status==='fulfilled' && Array.isArray(services.value);
-    if(catalogOk){state.catalog=catalog.value;window.XHFrontendShell?.updateCatalog?.(state.catalog);window.dispatchEvent(new Event('xh:catalogupdated'));}
-    if(servicesOk){state.services=services.value;renderServices();window.XHFrontendShell?.updateServices?.(state.services);}
-    else if(!hadServices){$('.serviceGrid')?.replaceChildren(make('p','','服务目录暂时无法读取，请重试。'));window.XHFrontendShell?.dataUnavailable?.('nextHomeServices');}
+    activeLoad=null;grid?.setAttribute('aria-busy','false');
+    const catalogOk=catalog.status==='fulfilled',servicesOk=services.status==='fulfilled';
     if(!state.catalog)window.XHFrontendShell?.dataUnavailable?.('nextHomeGames');
-    if(state.catalog){populateQuote();installHallFilters();}
     const ready=!!state.catalog && Array.isArray(state.services) && state.services.length>0;
     ['qGame','qCat','qSvc'].forEach(id=>{const node=$('#'+id);if(node)node.disabled=!ready;});
     if(catalogOk && servicesOk)status(`服务目录已更新：${state.catalog.games.length} 个游戏 · ${state.services.length} 个服务`,'ok');
     else {
-      status(hadServices?'服务刷新失败，保留上次真实数据；可重试。':'服务目录读取不完整，请重试；未使用演示服务或价格。','warn');
+      status(servicesOk?'服务已显示，游戏分类暂时无法完整读取，请重试。':hadServices?'服务刷新失败，保留上次真实数据；可重试。':'服务目录读取不完整，请重试；未使用演示服务或价格。','warn');
       const retry=make('button','btn','重新读取');retry.type='button';retry.onclick=()=>{retry.disabled=true;load().catch(()=>{retry.disabled=false;});};$('#n2DataStatus')?.append(retry);
     }
     const selected=new URLSearchParams(location.search).get('service');

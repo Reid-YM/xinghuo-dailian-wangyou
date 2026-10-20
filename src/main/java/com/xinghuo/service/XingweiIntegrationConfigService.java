@@ -20,7 +20,9 @@ public class XingweiIntegrationConfigService {
         List<Check> checks = List.of(
                 check("WECOM_CORP_ID", "企业身份", present("wecom.corp-id")),
                 check("WECOM_APP_SECRET", "通讯录读取授权", present("wecom.app-secret")));
-        return new WeComStatus(checks, allReady(checks), present("WECOM_SECRET"));
+        boolean writer = present("wecom.write-secret") || present("WECOM_SECRET");
+        boolean enabled = environment.getProperty("wecom.hr-write-enabled", Boolean.class, false);
+        return new WeComStatus(checks, allReady(checks), writer, enabled && present("wecom.write-secret") && present("wecom.corp-id"));
     }
 
     public PaymentStatus payment() {
@@ -72,7 +74,11 @@ public class XingweiIntegrationConfigService {
     }
 
     public record Check(String key, String label, boolean ready) {}
-    public record WeComStatus(List<Check> checks, boolean readConfigured, boolean writeCredentialPresent) {}
+    public record WeComStatus(List<Check> checks, boolean readConfigured, boolean writeCredentialPresent, boolean writeEnabled) {
+        public WeComStatus(List<Check> checks, boolean readConfigured, boolean writeCredentialPresent) {
+            this(checks, readConfigured, writeCredentialPresent, false);
+        }
+    }
     public record PaymentStatus(List<Check> checks, boolean configReady, boolean enabled,
                                 boolean miniAppIdMatches) {}
 }

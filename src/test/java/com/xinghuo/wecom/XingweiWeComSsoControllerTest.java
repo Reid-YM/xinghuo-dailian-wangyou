@@ -78,6 +78,7 @@ class XingweiWeComSsoControllerTest {
         String state = queryValue(start.getRedirectedUrl(), "state");
         when(client.userIdForCode("one-time-code")).thenReturn("staff_1");
         when(bindings.boundAdminUserId("staff_1")).thenReturn(2L);
+        when(client.member("staff_1")).thenReturn(new XingweiWeComDirectoryClient.Member("staff_1", "员工甲", "客服"));
         when(bindings.loginUser("staff_1"))
                 .thenReturn(User.withUsername("operator").password("unused").roles("OPERATOR").build());
 
@@ -90,7 +91,8 @@ class XingweiWeComSsoControllerTest {
         assertEquals("operator", saved.getAuthentication().getName());
         assertTrue(callback.getHeader("Cache-Control").contains("no-store"));
         verify(bindings).loginUser("staff_1");
-        verify(client, never()).member("staff_1");
+        verify(client).member("staff_1");
+        verify(positionRoles, never()).sync(org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.anyString());
         var replay = new MockHttpServletResponse();
         controller.callback("one-time-code", state, request, replay);
         assertEquals(403, replay.getStatus());
@@ -163,6 +165,21 @@ class XingweiWeComSsoControllerTest {
         assertEquals("/admin/xingwei/wecom/pending", callback.getRedirectedUrl());
         verify(positionRoles, never()).sync(org.mockito.ArgumentMatchers.anyLong(),
                 org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void boundMemberStillRequiresCurrentActiveDirectoryStatusBeforeLogin() throws Exception {
+        var controller = controller(true);
+        var request = new MockHttpServletRequest();var start = new MockHttpServletResponse();controller.login(request, start);
+        String state = queryValue(start.getRedirectedUrl(), "state");
+        when(client.userIdForCode("one-time-code")).thenReturn("staff_1");
+        when(bindings.boundAdminUserId("staff_1")).thenReturn(2L);
+        when(client.member("staff_1")).thenThrow(new IllegalStateException("成员已停用"));
+        var response = new MockHttpServletResponse();controller.callback("one-time-code", state, request, response);
+        assertEquals(403,response.getStatus());
+        verify(bindings,never()).loginUser(org.mockito.ArgumentMatchers.anyString());
+        verify(bindings,never()).registerPending(org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.anyString());
+        assertTrue(SecurityContextHolder.getContext().getAuthentication() == null);
     }
 
     private XingweiWeComSsoController controller(boolean enabled) {

@@ -44,6 +44,11 @@ class XingweiIntegrationConfigServiceTest {
 
         assertTrue(service.weCom().readConfigured());
         assertTrue(service.weCom().writeCredentialPresent());
+        assertFalse(service.weCom().writeEnabled());
+        environment.withProperty("wecom.hr-write-enabled", "true");
+        assertFalse(service.weCom().writeEnabled());
+        environment.withProperty("wecom.write-secret", "test-write-secret");
+        assertTrue(service.weCom().writeEnabled());
         assertTrue(service.payment().configReady());
         assertFalse(service.payment().enabled());
         assertTrue(service.payment().miniAppIdMatches());

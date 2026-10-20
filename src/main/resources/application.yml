@@ -70,6 +70,8 @@ app:
 wecom:
   corp-id: ${WECOM_CORP_ID:}
   app-secret: ${WECOM_APP_SECRET:}
+  write-secret: ${WECOM_SECRET:}
+  hr-write-enabled: ${WECOM_HR_WRITE_ENABLED:false}
   agent-id: ${WECOM_AGENT_ID:}
   sso-enabled: ${WECOM_SSO_ENABLED:false}
   auto-role-enabled: ${WECOM_AUTO_ROLE_ENABLED:false}

@@ -77,10 +77,18 @@ public class XingweiWeComDirectoryClient {
         query.put("access_token", accessToken());
         query.put("userid", userId);
         JsonNode response = get("/user/get", query);
+        return verifiedMember(userId, response);
+    }
+
+    static Member verifiedMember(String userId, JsonNode response) {
         if (!userId.equals(response.path("userid").asText(""))) {
             throw new IllegalStateException("企业微信成员身份不一致");
         }
-        return new Member(userId, response.path("name").asText(userId).trim(),
+        if (response.path("status").asInt(-1) != 1 || response.path("enable").asInt(1) == 0) {
+            throw new IllegalStateException("企业微信成员当前不可登录");
+        }
+        String name = response.path("name").asText("").trim();
+        return new Member(userId, name.isBlank() ? "企业微信员工" : name,
                 response.path("position").asText("").trim());
     }
 
@@ -107,8 +115,7 @@ public class XingweiWeComDirectoryClient {
         JsonNode json = getRaw(path, query);
         int errcode = json.path("errcode").asInt(0);
         if (errcode != 0) {
-            throw new IllegalStateException("企业微信 API 调用失败：" + errcode + " "
-                    + json.path("errmsg").asText("unknown error"));
+            throw new IllegalStateException("企业微信通讯录暂时无法读取，请检查应用授权");
         }
         return json;
     }
@@ -129,15 +136,14 @@ public class XingweiWeComDirectoryClient {
             JsonNode json = mapper.readTree(response.body());
             int errcode = json.path("errcode").asInt(0);
             if (errcode != 0) {
-                throw new IllegalStateException("企业微信 API 调用失败：" + errcode + " "
-                        + json.path("errmsg").asText("unknown error"));
+                throw new IllegalStateException("企业微信通讯录暂时无法读取，请检查应用授权");
             }
             return json;
         } catch (IOException e) {
-            throw new IllegalStateException("企业微信响应解析失败", e);
+            throw new IllegalStateException("企业微信响应暂时无法读取");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("企业微信请求被中断", e);
+            throw new IllegalStateException("企业微信请求被中断");
         }
     }
 

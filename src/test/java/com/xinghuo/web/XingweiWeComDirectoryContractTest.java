@@ -27,7 +27,8 @@ class XingweiWeComDirectoryContractTest {
         assertFalse(client.contains("/user/update"));
         assertFalse(client.contains("/user/delete"));
         assertFalse(properties.contains("contactSecret"));
-        assertFalse(app.contains("WECOM_SECRET"));
+        assertFalse(client.contains("wecom.write-secret"));
+        assertTrue(app.contains("hr-write-enabled: ${WECOM_HR_WRITE_ENABLED:false}"));
     }
 
     @Test
@@ -57,10 +58,14 @@ class XingweiWeComDirectoryContractTest {
         assertTrue(shell.contains("岗位与企业微信员工"));
         assertTrue(app.contains("WECOM_CORP_ID"));
         assertTrue(app.contains("WECOM_APP_SECRET"));
-        assertFalse(app.contains("contact-secret"));
+        assertFalse(propertiesContainWriteSecret());
     }
 
     private static String read(String relative) throws Exception {
         return Files.readString(MAIN.resolve(relative));
+    }
+
+    private static boolean propertiesContainWriteSecret() throws Exception {
+        return read("java/com/xinghuo/wecom/XingweiWeComProperties.java").contains("write-secret");
     }
 }

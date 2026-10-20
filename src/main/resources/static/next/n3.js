@@ -57,14 +57,8 @@
     const sections=[...quotePage.querySelectorAll('.formSec')];
     const chooseGrid=sections[0]?.querySelector('.formGrid');
     if(chooseGrid){
-      const platform=select('n3Platform',[
-        ['','请选择平台 / 不确定'],
-        ['Steam','Steam · PC'],
-        ['Battle.net','Battle.net · PC'],
-        ['PlayStation','PlayStation'],
-        ['Xbox','Xbox'],
-        ['Nintendo Switch 2','Nintendo Switch 2']
-      ]);
+      const platform=select('n3Platform',[['','请选择平台 / 不确定']]);
+      platform.disabled=true;
       const expectedTime=select('n3ExpectedTime',[
         ['','按客服安排'],['尽快','尽快'],['今天','今天'],['24小时内','24小时内'],['1–3天','1–3天'],['不着急','不着急']
       ]);
@@ -130,6 +124,22 @@
     }
   }
 
+  function syncPlatforms(){
+    const select=$('#n3Platform');
+    if(!select)return;
+    const catalog=window.XHFrontendNextN2?.state?.catalog;
+    const game=text($('#qGame')?.value).toUpperCase();
+    const previous=select.value;
+    const links=Array.isArray(catalog?.gamePlatforms)?catalog.gamePlatforms:[];
+    const supported=new Set(links.filter(row=>row.active!==false&&text(row.gameCode).toUpperCase()===game).map(row=>text(row.platformCode).toUpperCase()));
+    const rows=(Array.isArray(catalog?.platforms)?catalog.platforms:[]).filter(row=>row.active!==false&&supported.has(text(row.code).toUpperCase()));
+    const options=[new Option(rows.length?'请选择平台 / 不确定':'平台待客服确认','')];
+    rows.forEach(row=>options.push(new Option(text(row.name)||text(row.code),text(row.code))));
+    select.replaceChildren(...options);
+    if(options.some(option=>option.value===previous))select.value=previous;
+    select.disabled=!rows.length;
+  }
+
   function selectedText(id){
     const control=$(id);
     return text(control?.selectedOptions?.[0]?.textContent)||text(control?.value);
@@ -148,7 +158,7 @@
       demand:trim(selectedService,200),
       currentProgress:currentProgress||null,
       screenshotAssetId,
-      platform:trim($('#n3Platform')?.value,50)||null,
+      platform:$('#n3Platform')?.value?trim(selectedText('#n3Platform'),50):null,
       expectedTime:trim($('#n3ExpectedTime')?.value,100)||null,
       contactMethod:method||null,
       customerContact:contact||null,
@@ -200,6 +210,13 @@
     if(problem){
       message(problem,'error');
       return;
+    }
+
+    if(catalog){
+      const selected=catalog.services.find(row=>text(row.slug||row.id||row.name)===text($('#qSvc')?.value));
+      if($('#qSvc')?.disabled||!selected||text(selected.gameCode).toUpperCase()!==text($('#qGame')?.value).toUpperCase()||text(selected.category).toUpperCase()!==text($('#qCat')?.value).toUpperCase()){
+        message('所选服务正在更新或已不可用，请重新选择后提交。','error');return;
+      }
     }
 
     if(!idempotencyKey) idempotencyKey=uuid();
@@ -267,6 +284,8 @@
 
   function activate(){
     installFields();
+    window.addEventListener('xh:quoteselectionupdated',syncPlatforms);
+    syncPlatforms();
     const button=$('#submit');
     if(!button) return;
     button.onclick=null;

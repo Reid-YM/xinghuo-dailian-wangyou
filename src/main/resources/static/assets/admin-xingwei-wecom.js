@@ -40,7 +40,7 @@
     if (value === 2) return '已禁用';
     if (value === 4) return '未激活';
     if (value === 5) return '退出企业';
-    return `状态 ${value ?? '-'}`;
+    return '状态待同步';
   }
 
   function searchText(employee) {
@@ -97,12 +97,11 @@
     positionRows.replaceChildren();
     const rows = snapshot?.positions || [];
     if (!rows.length) {
-      emptyRow(positionRows, 3, '正式岗位为空');
+      emptyRow(positionRows, 2, '正式岗位为空');
       return;
     }
     rows.forEach((position) => {
       const tr = document.createElement('tr');
-      tr.appendChild(cell(position.code, 'xw-code'));
       tr.appendChild(cell(position.name));
       tr.appendChild(cell(position.departmentName));
       positionRows.appendChild(tr);
@@ -142,7 +141,7 @@
       status.classList.remove('ok');
       status.classList.add('error');
       status.querySelector('span').textContent = '读取失败';
-      setMessage(`企业微信通讯录读取失败或当前账号没有 employee:view：${error.message}`, 'error');
+      setMessage('企业微信通讯录暂时无法读取，请确认员工查看权限或稍后刷新。', 'error');
     } finally {
       refresh.disabled = false;
     }

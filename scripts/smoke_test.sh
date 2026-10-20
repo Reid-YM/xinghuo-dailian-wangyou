@@ -93,11 +93,27 @@ case "$FRONTEND_EXPECTED_MODE" in
     ;;
   *) echo "FAIL invalid FRONTEND_EXPECTED_MODE"; exit 1 ;;
 esac
+FRONTEND_EXPECTED_LEGACY_MODE=${FRONTEND_EXPECTED_LEGACY_MODE:-$FRONTEND_EXPECTED_MODE}
+case "$FRONTEND_EXPECTED_LEGACY_MODE" in next|legacy) ;; *) echo "FAIL invalid FRONTEND_EXPECTED_LEGACY_MODE"; exit 1 ;; esac
 for path in / /services /quote /account/login /account/register /account/reset; do
   check_code "${path}?legacy=1" 200
-  check_body_absent "${path}?legacy=1" '/next/shell.js'
-  check_header "${path}?legacy=1" X-Xinghuo-Frontend ''
+  if [ "$FRONTEND_EXPECTED_LEGACY_MODE" = next ]; then
+    check_body_contains "${path}?legacy=1" '/next/shell.js'
+    check_header "${path}?legacy=1" X-Xinghuo-Frontend next
+  else
+    check_body_absent "${path}?legacy=1" '/next/shell.js'
+    check_header "${path}?legacy=1" X-Xinghuo-Frontend ''
+  fi
 done
+if [ "$FRONTEND_EXPECTED_MODE" = next ] && [ "$FRONTEND_EXPECTED_LEGACY_MODE" = next ]; then
+  for document in rules privacy rules-en privacy-en; do
+    check_code "/api/public/legal/${document}" 200
+    check_body_contains "/api/public/legal/${document}" 'rules-card'
+    check_body_absent "/api/public/legal/${document}" '<script'
+    check_body_absent "/api/public/legal/${document}" '<header'
+  done
+  check_body_contains / 'class="brand-logo"'
+fi
 check_code /next/services 200
 check_code /admin 302 -H 'Accept: text/html'
 check_code /admin/xingwei 302 -H 'Accept: text/html'

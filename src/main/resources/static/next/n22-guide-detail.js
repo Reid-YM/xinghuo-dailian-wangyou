@@ -293,7 +293,7 @@
     const actions = node('div', 'n22-actions');
     const services = node('a', 'btn gold', '查看服务大厅');
     services.href = '/next/services';
-    const guideList = node('a', 'btn', '攻略中心（旧版）');
+    const guideList = node('a', 'btn', '重新打开攻略中心');
     guideList.href = '/guides';
     guideList.dataset.n22Legacy = '1';
     actions.append(services, guideList);
@@ -304,7 +304,7 @@
     }
     const note = node('div', 'n22-note');
     note.append(document.createTextNode('也可打开 '));
-    const legacy = node('a', '', '旧版攻略详情');
+    const legacy = node('a', '', '重新打开攻略详情');
     legacy.href = `/guides/${encodeURIComponent(slug)}`;
     legacy.dataset.n22Legacy = '1';
     note.append(legacy, document.createTextNode('。'));
@@ -326,7 +326,7 @@
     const retry = node('button', 'btn gold', '重新读取');
     retry.type = 'button';
     retry.dataset.n22Retry = '1';
-    const legacy = node('a', 'btn', '打开旧版攻略');
+    const legacy = node('a', 'btn', '重新打开攻略');
     legacy.href = `/guides/${encodeURIComponent(slug || '')}`;
     legacy.dataset.n22Legacy = '1';
     actions.append(retry, legacy);

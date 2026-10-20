@@ -154,7 +154,9 @@
   function setMetadata(source, doc) {
     const formalPath = `/${doc}`;
     const sourceTitle = text(source.querySelector('title')?.textContent);
-    document.title = sourceTitle || (doc.startsWith('rules') ? '服务规则 · 星火网游' : '隐私说明 · 星火网游');
+    document.title = sourceTitle || (doc.endsWith('-en')
+      ? (doc.startsWith('rules') ? 'Service Rules | Xinghuo Gaming Services' : 'Privacy Notice | Xinghuo Gaming Services')
+      : (doc.startsWith('rules') ? '服务规则 · 星火网游' : '隐私说明 · 星火网游'));
 
     let description = $('meta[name="description"]');
     if (!description) {
@@ -163,7 +165,7 @@
       document.head.append(description);
     }
     description.content = text(source.querySelector('meta[name="description"]')?.getAttribute('content'))
-      || (doc.startsWith('rules') ? '服务规则。' : '隐私说明。');
+      || (doc.endsWith('-en') ? (doc.startsWith('rules') ? 'Service rules for Xinghuo Gaming Services.' : 'Privacy notice for Xinghuo Gaming Services.') : (doc.startsWith('rules') ? '服务规则。' : '隐私说明。'));
 
     let canonical = $('link[rel="canonical"]');
     if (!canonical) {
@@ -266,7 +268,7 @@
   async function loadFormalSource(doc, request) {
     await window.XHFrontendShell?.configurationReady;
     if (request !== requestToken) return null;
-    const response = await fetch(`/${doc}?legacy=1`, {
+    const response = await fetch(`/api/public/legal/${doc}`, {
       method: 'GET',
       credentials: 'same-origin',
       cache: 'no-store',

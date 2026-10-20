@@ -71,7 +71,7 @@ class PublicUtilitySeoFilterTest {
 
 
     @Test
-    void enabledNextRecordsAreNoindexNofollowAndLegacyRollbackKeepsOldPolicy() throws Exception {
+    void enabledNextRecordsKeepPrivatePolicyEvenWithRetiredQuery() throws Exception {
         org.springframework.test.util.ReflectionTestUtils.setField(filter, "frontendNextEnabled", true);
         for (String path : java.util.List.of("/records", "/record/XHABCDEF1234")) {
             var nextRequest = new MockHttpServletRequest("GET", path);
@@ -83,7 +83,7 @@ class PublicUtilitySeoFilterTest {
             legacyRequest.setParameter("legacy", "1");
             var legacyResponse = new MockHttpServletResponse();
             filter.doFilterInternal(legacyRequest, legacyResponse, new MockFilterChain());
-            assertEquals("noindex, follow", legacyResponse.getHeader("X-Robots-Tag"));
+            assertEquals("noindex,nofollow", legacyResponse.getHeader("X-Robots-Tag"));
         }
     }
 

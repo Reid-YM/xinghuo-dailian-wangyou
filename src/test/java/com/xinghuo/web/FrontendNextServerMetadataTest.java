@@ -22,7 +22,7 @@ class FrontendNextServerMetadataTest {
         Set<String> paths = new LinkedHashSet<>();
         for (Object controller : controllers) for (var method : controller.getClass().getDeclaredMethods()) {
             GetMapping mapping = method.getAnnotation(GetMapping.class);
-            if (mapping != null) for (String path : mapping.value()) paths.add(path.replaceAll("\\{[^}]+}","test"));
+            if (mapping != null) for (String path : mapping.value()) if (path.startsWith("/next")) paths.add(path.replaceAll("\\{[^}]+}","test"));
         }
         assertTrue(paths.containsAll(List.of("/next", "/next/account/settings/security", "/next/records", "/next/rules-en", "/next/privacy-en")));
         for (String path : paths) {

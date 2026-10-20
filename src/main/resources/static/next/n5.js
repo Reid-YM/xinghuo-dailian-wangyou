@@ -552,7 +552,7 @@
       state.orders = results[2].status === 'fulfilled' ? results[2].value : { items: [], total: 0 };
       state.candidates = results[3].status === 'fulfilled' && Array.isArray(results[3].value) ? results[3].value : [];
       render();
-      if (failures.length) setMessage('部分业务数据暂不可用，其余已成功读取；旧版账号中心仍可回退。', 'error');
+      if (failures.length) setMessage('部分业务数据暂不可用，其余已成功读取；请重试或联系客服。', 'error');
     } finally {
       if (generation === state.generation) state.loading = false;
       if ((generation !== state.generation || profile() !== account) && authenticated() && !$('#n5BusinessCenter')) scheduleMount();

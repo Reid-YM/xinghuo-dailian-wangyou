@@ -53,10 +53,10 @@ class FrontendCanonicalSecurityTest {
         for(String path:paths())mvc.perform(get(path)).andExpect(forwardedUrl("/next"+path));
         mvc.perform(get("/account/orders/XHABCDEF1234/extra")).andExpect(status().is4xxClientError());
     }
-    @Test void explicitRollbackSurvivesAliasAndAccountLoginRedirects()throws Exception{
+    @Test void retiredQueryCannotRestoreOldAccountView()throws Exception{
         mvc.perform(get("/account/profile?legacy=1")).andExpect(redirectedUrl("/account/login?legacy=1&next=%2Faccount%2Fprofile%3Flegacy%3D1"));
         when(sessions.current(any())).thenReturn(Optional.of(mock(Account.class)));
-        mvc.perform(get("/account/profile?legacy=1")).andExpect(redirectedUrl("/account/settings?legacy=1#profile"));
-        mvc.perform(get("/account/orders?legacy=1")).andExpect(view().name("account-orders"));
+        mvc.perform(get("/account/profile?legacy=1")).andExpect(redirectedUrl("/account/settings#profile"));
+        mvc.perform(get("/account/orders?legacy=1")).andExpect(forwardedUrl("/next/account/orders"));
     }
 }

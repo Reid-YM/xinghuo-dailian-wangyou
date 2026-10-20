@@ -22,7 +22,7 @@ class FrontendNextN30LegalParityPlaywrightTest {
                     sources.put("/" + doc, Files.readString(Path.of("src/main/resources/templates/" + doc + ".html")));
                 page.route("**/*", route -> {
                     String path = URI.create(route.request().url()).getPath();
-                    if (sources.containsKey(path)) route.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(sources.get(path)));
+                    if (path.startsWith("/api/public/legal/") && sources.containsKey(path.substring("/api/public/legal".length()))) route.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(sources.get(path.substring("/api/public/legal".length()))));
                     else if (path.equals("/api/site-config")) route.fulfill(new Route.FulfillOptions().setContentType("application/json").setBody(
                             "{\"brandName\":\"测试星火\",\"legalEntityName\":\"验收测试主体\",\"wechatId\":\"support-test\"}"));
                     else FrontendNextN30DocumentJourneyPlaywrightTest.fulfill(route, mvc, new HashSet<>());
@@ -49,7 +49,7 @@ class FrontendNextN30LegalParityPlaywrightTest {
                         assertTrue(displayed.contains("验收测试主体"));
                         if (doc.startsWith("privacy")) assertTrue(displayed.contains("support-test"));
                         assertEquals(0, page.locator(".n28-document script,.n28-document style,.n28-document iframe").count());
-                        assertEquals("/" + doc + "?legacy=1", page.locator("[data-n28-legacy]").getAttribute("href"));
+                        assertEquals("/" + doc, page.locator("[data-n28-legacy]").getAttribute("href"));
                         assertEquals("/next/privacy-en?utm_source=legal#contact", page.evaluate(
                                 "() => window.XHFrontendNextN15.safeAccountReturn('/privacy-en?utm_source=legal#contact')"));
                         assertEquals("/privacy-en?legacy=1", page.evaluate(

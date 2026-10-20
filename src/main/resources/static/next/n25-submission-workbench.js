@@ -411,7 +411,7 @@
     const head = node('div', 'n25-head');
     const intro = node('div'); intro.append(node('div', 'n25-kicker', '创作与投稿'), node('h1', '', '攻略投稿工作台')); intro.append(node('p', '', '撰写攻略、自动保存本机草稿、安全预览正文，并跟踪审核与发布状态。'));
     const actions = node('div', 'n25-actions');
-    const legacy = node('a', 'btn', '打开旧版投稿页'); legacy.href = '/account/submit'; legacy.dataset.n25Legacy = '1';
+    const legacy = node('a', 'btn', '重新打开投稿页'); legacy.href = '/account/submit'; legacy.dataset.n25Legacy = '1';
     const assets = node('a', 'btn gold', '返回我的投稿'); assets.href = '/next/account/submissions'; actions.append(legacy, assets); head.append(intro, actions); shell.append(head);
 
     const auth = node('div', 'n25-auth'); auth.id = 'n25Auth'; auth.dataset.state = 'checking';

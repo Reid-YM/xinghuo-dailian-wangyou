@@ -82,7 +82,7 @@ class FrontendGuestBusinessPlaywrightTest {
             f.page.route("**/assets/guest-business.js*",Route::abort);
             f.page.route("**/api/guest/business/**",route->f.json(route,200,snapshot(0)));
             f.open("/record/"+NO,"#guestBusinessPanel:not([hidden])");
-            assertEquals("/record/"+NO+"?legacy=1",f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("打开旧版业务记录")).getAttribute("href"));
+            assertEquals("/record/"+NO,f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("重新打开业务记录")).getAttribute("href"));
             f.page.unroute("**/assets/guest-business.js*");
             f.page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("重新加载报价与付款")).click();
             f.page.getByRole(AriaRole.BUTTON,new Page.GetByRoleOptions().setName("接受报价并生成订单")).waitFor();

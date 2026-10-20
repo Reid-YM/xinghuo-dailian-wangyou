@@ -28,8 +28,8 @@ class FrontendNextN7AuthContractTest {
         assertTrue(runtime.contains("contactType: 'EMAIL'"));
         assertTrue(runtime.contains("'X-Requested-With': 'fetch'"));
         assertTrue(runtime.contains("window.XHFrontendNextN4Mini?.stop?.()"));
-        assertTrue(runtime.contains("旧版注册页"));
-        assertTrue(runtime.contains("旧版找回页"));
+        assertTrue(runtime.contains("重新打开注册页"));
+        assertTrue(runtime.contains("重新打开找回页"));
         assertFalse(runtime.contains("innerHTML"));
         assertFalse(runtime.contains("localStorage"));
         assertFalse(runtime.contains("sessionStorage"));

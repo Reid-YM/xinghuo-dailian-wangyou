@@ -194,7 +194,7 @@
     appendAccountReturn(actions, businessNo);
     const quote = make('a', 'btn gold', '继续提交询价'); quote.href = '/next/quote';
     const account = make('a', 'btn', '个人中心'); account.href = '/next/account';
-    const legacy = make('a', 'btn', '查看旧版记录页'); legacy.href = `/record/${encodeURIComponent(businessNo)}`; legacy.dataset.n13Legacy = '1';
+    const legacy = make('a', 'btn', '重新打开记录页'); legacy.href = `/record/${encodeURIComponent(businessNo)}`; legacy.dataset.n13Legacy = '1';
     actions.append(quote, account, legacy); aside.append(actions);
     aside.append(make('p', 'n13-safe', '通过业务编号查看已公开的进度。如需修改需求或处理售后，请登录个人中心或联系客服。'));
 
@@ -238,10 +238,10 @@
     shell.append(panel); section.append(shell);
     if (!window.XHGuestBusiness?.mount) {
       panel.hidden = false;
-      panel.append(make('p', '', '报价与付款组件加载失败。请重新加载页面，或打开旧版业务记录。'));
+      panel.append(make('p', '', '报价与付款组件加载失败。请重新加载页面，或重新打开业务记录。'));
       const retry = make('button', 'btn gold', '重新加载报价与付款'); retry.type = 'button';
       retry.onclick = () => location.reload();
-      const legacy = make('a', 'btn', '打开旧版业务记录'); legacy.href = '/record/' + encodeURIComponent(businessNo) + '?legacy=1';
+      const legacy = make('a', 'btn', '重新打开业务记录'); legacy.href = '/record/' + encodeURIComponent(businessNo);
       panel.append(retry, legacy); return;
     }
     guestBusiness = window.XHGuestBusiness.mount(panel, businessNo, {

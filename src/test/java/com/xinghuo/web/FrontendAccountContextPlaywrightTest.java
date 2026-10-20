@@ -71,7 +71,7 @@ class FrontendAccountContextPlaywrightTest {
             var published=f.page.locator("[data-personal-asset=submissions]").getByRole(AriaRole.LINK,new Locator.GetByRoleOptions().setName("查看已发布内容"));
             published.click();f.page.waitForSelector("#n22GuideDetail h1");assertTrue(URI.create(f.page.url()).getPath().equals(base+"/guides/test-guide"));
             assertEquals(base+"/guides",f.page.locator(".n22-breadcrumb a").nth(1).getAttribute("href"));
-            assertEquals("/guides?legacy=1",f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("攻略中心（旧版）")).getAttribute("href"));
+            assertEquals("/guides",f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("重新打开攻略中心").setExact(true)).getAttribute("href"));
             f.page.goBack();f.page.waitForSelector("#n21AssetNav");
             f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("撰写与管理投稿")).click();f.page.waitForSelector("#n25Submit:not([disabled])");
             assertEquals(base+"/account/submit",URI.create(f.page.url()).getPath());

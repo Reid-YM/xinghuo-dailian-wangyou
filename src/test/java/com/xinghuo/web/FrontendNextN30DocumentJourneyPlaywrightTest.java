@@ -66,7 +66,9 @@ class FrontendNextN30DocumentJourneyPlaywrightTest {
         try {
             URI uri = URI.create(route.request().url());
             String path = uri.getPath();
-            if (path.endsWith(".js") || path.endsWith(".css")) {
+            if (path.equals("/assets/brand-logo.svg")) {
+                route.fulfill(new Route.FulfillOptions().setContentType("image/svg+xml").setPath(STATIC.resolve("assets/brand-logo.svg")));
+            } else if (path.endsWith(".js") || path.endsWith(".css")) {
                 Path file = STATIC.resolve(path.substring(1));
                 if (!Files.isRegularFile(file)) { route.fulfill(new Route.FulfillOptions().setStatus(404)); return; }
                 if (path.matches("/next/n2[3-8]-.*\\.js")) {
@@ -88,11 +90,11 @@ class FrontendNextN30DocumentJourneyPlaywrightTest {
                 json(route, 200, "{\"guide\":{\"slug\":\"test-guide\",\"title\":\"测试攻略\"},\"sections\":[{\"heading\":\"正文\",\"bodyMarkdown\":\"实际内容\"}]}");
             } else if (path.startsWith("/api/guest/business/")) {
                 json(route, 403, "{}");
-            } else if (path.startsWith("/api/")) {
-                json(route, 200, "[]");
-            } else if (path.equals("/rules") || path.equals("/privacy")) {
+            } else if (path.matches("/api/public/legal/(rules|privacy)(-en)?")) {
                 route.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(
                         "<html><body><main><div class='rules-card'><h1>正式原文</h1><section><h2>内容</h2><p>测试正文</p></section></div></main></body></html>"));
+            } else if (path.startsWith("/api/")) {
+                json(route, 200, "[]");
             } else {
                 var response = mvc.perform(get(path)).andReturn().getResponse();
                 assertEquals(200, response.getStatus(), path);

@@ -46,8 +46,8 @@ class HtmlI18nNextForwardRegressionTest {
     }
 
     @Test void legacyAndGlobalRollbackStillApplyTheOriginalTranslationFilter() throws Exception {
-        verifyResponse("/rules-en", true, true, true);
-        verifyResponse("/privacy-en", true, true, true);
+        verifyResponse("/rules-en", true, true, false);
+        verifyResponse("/privacy-en", true, true, false);
         verifyResponse("/rules-en", false, false, true);
         verifyResponse("/privacy-en", false, false, true);
     }

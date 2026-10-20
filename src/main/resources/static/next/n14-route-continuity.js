@@ -43,7 +43,7 @@
     const url = sameOriginUrl(link);
     if (!url) return '';
     if (explicitLegacy(link, url)) {
-      url.searchParams.set('legacy', '1');
+      url.searchParams.delete('legacy');
       return url.pathname + url.search + url.hash;
     }
     if (/^\/next(?:\/|$)/.test(url.pathname)) return runtimeHref(url.pathname + url.search + url.hash);

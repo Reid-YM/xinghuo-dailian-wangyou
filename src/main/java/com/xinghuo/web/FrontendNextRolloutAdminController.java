@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class FrontendNextRolloutAdminController {
 
     @GetMapping("/admin/xingwei/frontend-next")
+    @org.springframework.security.access.prepost.PreAuthorize("@xingweiPermissionGuard.has(authentication,'site:view')")
     public String rollout(Model model, CsrfToken csrf) {
         model.addAttribute("csrf", csrf);
         return "admin-xingwei-frontend-next";

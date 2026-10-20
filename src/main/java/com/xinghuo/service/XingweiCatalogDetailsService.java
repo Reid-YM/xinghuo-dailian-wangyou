@@ -43,7 +43,28 @@ public class XingweiCatalogDetailsService {
         var after=services.adminList().stream().filter(item->item.id()==id).findFirst().orElseThrow(NotFoundException::new);return new State(after,revisions.current(Kind.SERVICE,id));
     }
     @Transactional(isolation=Isolation.READ_COMMITTED) public State updateGame(String code,ApiDtos.GameProfileUpdateRequest body,String expected,Authentication actor,HttpServletRequest request){global(actor,"service:manage");reason(body.reason());code=taxonomy.normalizeGame(code);revisions.lock(Kind.GAME,code,expected);var before=(ApiDtos.GameOptionResponse)game(code).data();var safe=new ApiDtos.GameProfileUpdateRequest(body.name(),body.nameEn(),body.aliases(),body.iconKey(),body.description(),body.publisher(),body.genres(),body.logoImage(),body.coverImage(),body.popularityScore(),body.featured(),body.businessStatus(),body.seoSlug(),body.seoTitle(),body.seoDescription(),body.sortOrder(),before.active(),body.platformCodes(),body.reason());taxonomy.updateGameProfile(code,safe,actor.getName(),request);entities.flush();return game(code);}
-    @Transactional(isolation=Isolation.READ_COMMITTED) public void delete(String kind,String key,Confirmation body,String expected,Authentication actor,HttpServletRequest request){global(actor,"service:manage");if(!guard.resolve(actor).allowAll())throw new AccessDeniedException("永久删除仅限恢复 ADMIN");if(!Objects.equals(key,body.confirmation()))throw new BadRequestException("请准确输入要删除的编号");if("games".equals(kind)){String code=taxonomy.normalizeGame(key);revisions.lock(Kind.GAME,code,expected);taxonomy.deleteGame(code,actor.getName(),request);}else if("categories".equals(kind)){long id;try{id=Long.parseLong(key);}catch(NumberFormatException invalid){throw new BadRequestException("分类编号无效");}revisions.lock(Kind.CATEGORY,id,expected);taxonomy.deleteCategory(id,actor.getName(),request);}else throw new BadRequestException("不支持的删除类型");entities.flush();}
+    @Transactional(isolation=Isolation.READ_COMMITTED)
+    public void delete(String kind,String key,Confirmation body,String expected,Authentication actor,HttpServletRequest request){
+        global(actor,"service:manage");
+        if(!guard.resolve(actor).allowAll())throw new AccessDeniedException("永久删除仅限系统管理员");
+        if("games".equals(kind)){
+            String code=taxonomy.normalizeGame(key);
+            revisions.lock(Kind.GAME,code,expected);
+            var current=(ApiDtos.GameOptionResponse)game(code).data();
+            confirmName(body,current.name());
+            taxonomy.deleteGame(code,actor.getName(),request);
+        }else if("categories".equals(kind)){
+            long id;try{id=Long.parseLong(key);}catch(NumberFormatException invalid){throw new BadRequestException("分类资料无效");}
+            revisions.lock(Kind.CATEGORY,id,expected);
+            var current=(ApiDtos.CategoryOptionResponse)category(id).data();
+            confirmName(body,current.name());
+            taxonomy.deleteCategory(id,actor.getName(),request);
+        }else throw new BadRequestException("不支持的删除类型");
+        entities.flush();
+    }
+    private void confirmName(Confirmation body,String name){
+        if(body==null||!Objects.equals(name,body.confirmation()))throw new BadRequestException("请准确输入要删除的资料名称");
+    }
     public ApiDtos.SiteImageUploadResponse image(String kind,MultipartFile file,Authentication actor,HttpServletRequest request){global(actor,"service:manage");var type=switch(kind){case "service"->UploadAsset.Kind.SERVICE_COVER;case "logo"->UploadAsset.Kind.GAME_LOGO;case "cover"->UploadAsset.Kind.GAME_COVER;default->throw new BadRequestException("图片类型无效");};audit.log("XW_CATALOG_IMAGE_REQUEST","CATALOG",kind,actor.getName(),null,Map.of("requested",true),"上传目录图片，待保存引用",request);var asset=uploads.storeImage(file,type);return new ApiDtos.SiteImageUploadResponse("/api/site-assets/"+asset.getId());}
     private void reason(String value){if(value==null||value.isBlank()||value.length()>500)throw new BadRequestException("请填写不超过500字的修改说明");}
     @Transactional(isolation=Isolation.READ_COMMITTED) public void bulk(BulkInput body,Authentication actor,HttpServletRequest request){global(actor,"service:manage");var items=body.items().stream().map(item->new BulkItem(taxonomy.normalizeGame(item.code()),item.revision(),item.impactToken())).sorted(Comparator.comparing(BulkItem::code)).toList();if(items.stream().map(item->taxonomy.normalizeGame(item.code())).distinct().count()!=items.size())throw new BadRequestException("游戏编号不能重复");if(body.active()==null&&body.featured()==null&&body.businessStatus()==null&&body.popularityScore()==null)throw new BadRequestException("请至少选择一项需要修改的资料");for(var item:items)revisions.lock(Kind.GAME,taxonomy.normalizeGame(item.code()),item.revision());

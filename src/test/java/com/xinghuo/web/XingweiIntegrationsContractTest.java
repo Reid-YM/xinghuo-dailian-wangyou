@@ -54,8 +54,8 @@ class XingweiIntegrationsContractTest {
         String html = engine.process("admin-xingwei-integrations", context);
         assertTrue(html.contains("读取配置齐全"));
         assertTrue(html.contains("真实收款开关关闭"));
-        assertTrue(html.contains("WECOM_CORP_ID"));
-        assertTrue(html.contains("WECHAT_PAY_MERCHANT_ID"));
+        assertFalse(html.contains("WECOM_CORP_ID"));
+        assertFalse(html.contains("WECHAT_PAY_MERCHANT_ID"));
         assertTrue(html.contains("<h2>微信支付</h2>"));
         assertTrue(html.contains("网站微信支付记录"));
         assertTrue(html.contains("暂无网站微信支付记录"));

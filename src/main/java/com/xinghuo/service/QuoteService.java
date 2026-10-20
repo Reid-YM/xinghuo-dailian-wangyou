@@ -201,7 +201,7 @@ public class QuoteService {
         q.setLeadScore(r.leadScore());
         q.setLeadIntentLevel(trimNull(r.leadIntentLevel()));
         q.setNextAction(trimNull(r.nextAction()));
-        q.setFollowUpNote(trimNull(r.followUpNote()));
+        if (r.followUpNote() != null) q.setFollowUpNote(trimNull(r.followUpNote()));
         q.setLastContactedAt(Instant.now());
         q.setUpdatedAt(Instant.now());
         QuoteLeadDtos.QuoteLeadResponse after = leadAdmin(q);

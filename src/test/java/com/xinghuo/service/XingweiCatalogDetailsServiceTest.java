@@ -33,7 +33,7 @@ class XingweiCatalogDetailsServiceTest {
         guard=mock(XingweiPermissionGuard.class);services=mock(ServiceCatalogService.class);taxonomy=mock(TaxonomyService.class);uploads=mock(UploadService.class);publish=mock(XingweiServicePublishReviewService.class);visibility=mock(XingweiTaxonomyControlService.class);var entities=mock(EntityManager.class);revisions=new XingweiCatalogRevisionService(jdbc,entities);
         admin=actor("admin","ALL",true,true);manager=actor("manager","ALL",true,false);narrow=actor("narrow","DEPARTMENT",true,false);viewer=actor("viewer","ALL",false,false);
         var game=json.readValue("{\"code\":\"MW4\",\"name\":\"游戏\",\"active\":false,\"businessStatus\":\"READY\",\"platformCodes\":[\"PC\"]}",ApiDtos.GameOptionResponse.class);
-        when(taxonomy.catalog(true)).thenReturn(new ApiDtos.CatalogResponse(List.of(game),List.of(),List.of(),List.of()));when(taxonomy.normalizeGame(anyString())).thenAnswer(call->call.getArgument(0,String.class).toUpperCase());
+        when(taxonomy.catalog(true)).thenReturn(new ApiDtos.CatalogResponse(List.of(game),List.of(new ApiDtos.CategoryOptionResponse(9L,"MW4","TASK","任务分类",null,null,false,0,0)),List.of(),List.of()));when(taxonomy.normalizeGame(anyString())).thenAnswer(call->call.getArgument(0,String.class).toUpperCase());
         when(services.adminList()).thenAnswer(call->List.of(json.readValue("{\"id\":1,\"slug\":\"actual-service\",\"gameCode\":\"MW4\",\"name\":\"服务\",\"category\":\"TASK\",\"shortDesc\":\"说明\",\"priceMode\":\"FIXED\",\"priceFixed\":88,\"durationText\":\"1天\",\"status\":\"AVAILABLE\",\"active\":true,\"version\":"+jdbc.queryForObject("SELECT version FROM services WHERE id=1",Long.class)+"}",ApiDtos.AdminServiceResponse.class)));
         when(services.update(eq(1L),any(),anyString(),isNull())).thenAnswer(call->{saved.set(call.getArgument(1));jdbc.update("UPDATE services SET version=version+1,updated_at=DATEADD('SECOND',1,updated_at) WHERE id=1");return services.adminList().getFirst();});
         var target=new XingweiCatalogDetailsService(guard,services,taxonomy,revisions,entities,uploads,publish,visibility,mock(AuditService.class));var tx=new TransactionInterceptor();tx.setTransactionManager(new DataSourceTransactionManager(ds));tx.setTransactionAttributeSource(new AnnotationTransactionAttributeSource());var factory=new ProxyFactory(target);factory.addAdvice(tx);work=(XingweiCatalogDetailsService)factory.getProxy();
@@ -52,6 +52,26 @@ class XingweiCatalogDetailsServiceTest {
         work.updateGame("MW4",input,game.revision(),manager,null);var captured=org.mockito.ArgumentCaptor.forClass(ApiDtos.GameProfileUpdateRequest.class);verify(taxonomy).updateGameProfile(eq("MW4"),captured.capture(),eq("manager"),isNull());assertEquals(false,captured.getValue().active());assertEquals(List.of("PC","PS5"),captured.getValue().platformCodes());assertEquals("/cover.png",captured.getValue().coverImage());
         assertThrows(AccessDeniedException.class,()->work.delete("games","MW4",new XingweiCatalogDetailsService.Confirmation("MW4"),game.revision(),manager,null));assertThrows(BadRequestException.class,()->work.delete("games","MW4",new XingweiCatalogDetailsService.Confirmation("WRONG"),game.revision(),admin,null));verify(taxonomy,never()).deleteGame(any(),any(),any());
     }
+    @Test void deleteRequiresCurrentNameAndRevisionAndPreservesDependencyChecks() {
+        var game=work.game("MW4");
+        assertThrows(BadRequestException.class,()->work.delete("games","MW4",new XingweiCatalogDetailsService.Confirmation("MW4"),game.revision(),admin,null));
+        assertThrows(OptimisticLockingFailureException.class,()->work.delete("games","MW4",new XingweiCatalogDetailsService.Confirmation("游戏"),"old",admin,null));
+        verify(taxonomy,never()).deleteGame(any(),any(),any());
+        doThrow(new BadRequestException("仍有关联服务，不能删除")).when(taxonomy).deleteGame("MW4","admin",null);
+        assertThrows(BadRequestException.class,()->work.delete("games","MW4",new XingweiCatalogDetailsService.Confirmation("游戏"),game.revision(),admin,null));
+        verify(taxonomy).deleteGame("MW4","admin",null);
+    }
+
+    @Test void categoryDeletionUsesCurrentNameWithTheSamePermissionAndRevisionRules() {
+        var state=work.category(9L);
+        assertThrows(AccessDeniedException.class,()->work.delete("categories","9",new XingweiCatalogDetailsService.Confirmation("任务分类"),state.revision(),manager,null));
+        assertThrows(BadRequestException.class,()->work.delete("categories","9",new XingweiCatalogDetailsService.Confirmation("9"),state.revision(),admin,null));
+        assertThrows(OptimisticLockingFailureException.class,()->work.delete("categories","9",new XingweiCatalogDetailsService.Confirmation("任务分类"),"old",admin,null));
+        verify(taxonomy,never()).deleteCategory(anyLong(),any(),any());
+        work.delete("categories","9",new XingweiCatalogDetailsService.Confirmation("任务分类"),state.revision(),admin,null);
+        verify(taxonomy).deleteCategory(9L,"admin",null);
+    }
+
     @Test void readOnlyAndNarrowRolesCannotMutateFullProfilesOrUpload()throws Exception{
         assertEquals(false,work.snapshot(narrow).get("canManage"));assertThrows(AccessDeniedException.class,()->work.updateService(1,input(),"v3",narrow,null));assertThrows(AccessDeniedException.class,()->work.updateService(1,input(),"v3",viewer,null));assertThrows(AccessDeniedException.class,()->work.image("service",null,narrow,null));verifyNoInteractions(uploads,publish);
     }

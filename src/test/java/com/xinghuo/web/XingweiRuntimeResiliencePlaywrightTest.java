@@ -33,8 +33,8 @@ class XingweiRuntimeResiliencePlaywrightTest {
                           const first = healthCalls === 1;
                           return {ok:true, json:async () => ({
                             ok:true,
-                            version:first ? '20261016-v6a' : '20261014-v3l',
-                            stage:first ? 'V6A · UNIFIED DELIVERY' : 'V3L · STABLE PRODUCTION',
+                            version:first ? '20261019-v6b' : '20261014-v3l',
+                            stage:first ? 'V6B · UNIFIED DELIVERY' : 'V3L · STABLE PRODUCTION',
                             serverTime:'2026-10-16T01:00:00+08:00'
                           })};
                         }
@@ -48,8 +48,8 @@ class XingweiRuntimeResiliencePlaywrightTest {
             page.evaluate("() => window.dispatchEvent(new Event('online'))");
             page.waitForFunction("() => window.xwRuntimeHealth?.state === 'mismatch'");
             assertEquals("online", page.evaluate("() => window.xwRuntimeHealth.reason"));
-            assertTrue(page.locator("#xwBackendStatus").textContent().contains("版本漂移"));
-            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261016-v6a"));
+            assertTrue(page.locator("#xwBackendStatus").textContent().contains("页面需要更新"));
+            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261019-v6b"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("运行 20261014-v3l"));
         }
     }
@@ -64,7 +64,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
                       window.fetch = async (url) => {
                         if (String(url) === '/api/admin/xingwei/access') throw new Error('network');
                         if (String(url) === '/api/admin/xingwei/health') {
-                          return {ok:true, json:async () => ({ok:true, version:'20261016-v6a', stage:'V6A · UNIFIED DELIVERY', serverTime:'2026-10-16T01:00:00+08:00'})};
+                          return {ok:true, json:async () => ({ok:true, version:'20261019-v6b', stage:'V6B · UNIFIED DELIVERY', serverTime:'2026-10-16T01:00:00+08:00'})};
                         }
                         return {ok:false, status:404, json:async () => ({})};
                       };
@@ -82,7 +82,7 @@ class XingweiRuntimeResiliencePlaywrightTest {
                 <body>
                   <main class="xw-main">
                     <header><div class="xw-topbar-actions"><span class="xw-status" id="xwBackendStatus"><i></i>正在检查服务</span></div></header>
-                    <section id="overview"><p class="xw-kicker">V6A · UNIFIED DELIVERY</p><div class="xw-version-card"><strong>20261016-v6a</strong><small id="xwServerTime">等待</small></div></section>
+                    <section id="overview"><p class="xw-kicker">V6B · UNIFIED DELIVERY</p><div class="xw-version-card"><strong>20261019-v6b</strong><small id="xwServerTime">等待</small></div></section>
                     <input id="xwModuleSearch"/>
                     <span id="xwSearchCount"></span>
                     <article class="xw-module"><div class="xw-module-index">B02</div>订单</article>

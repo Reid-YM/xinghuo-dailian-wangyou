@@ -81,6 +81,24 @@ class OrderServiceCharacterizationTest {
     }
 
     @Test
+    void omittedInternalNotePreservesHistoryWhenProgressIsUpdated() {
+        CustomerOrderRepository repo = mock(CustomerOrderRepository.class);
+        CustomerOrder existing = order(CustomerOrder.Status.IN_PROGRESS, 25, 3L);
+        existing.setInternalNote("历史内部处理备注");
+        when(repo.findByOrderNo(existing.getOrderNo())).thenReturn(Optional.of(existing));
+        OrderService service = new OrderService(repo, mock(UploadService.class), mock(AuditService.class));
+
+        service.update(existing.getOrderNo(), new ApiDtos.UpdateOrderRequest(
+                3L, "IN_PROGRESS", 45, "更新履约进度", null, null, "更新进度"),
+                "admin", mock(HttpServletRequest.class));
+
+        assertEquals(45, existing.getProgressPercent());
+        assertEquals("更新履约进度", existing.getProgressText());
+        assertEquals("历史内部处理备注", existing.getInternalNote());
+        verify(repo).flush();
+    }
+
+    @Test
     void completingOrderWithoutPercentDefaultsToHundredAndSetsFinishedAt() {
         CustomerOrderRepository repo = mock(CustomerOrderRepository.class);
         CustomerOrder existing = order(CustomerOrder.Status.IN_PROGRESS, 80, 7L);

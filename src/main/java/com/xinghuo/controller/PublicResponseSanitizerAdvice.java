@@ -32,6 +32,7 @@ public class PublicResponseSanitizerAdvice implements ResponseBodyAdvice<Object>
     private static final Set<String> INTERNAL_FIELDS = Set.of(
             "id",
             "internalNote",
+            "internal_note", "handlingNote", "handling_note", "operatorNote", "operator_note", "followUpNote", "follow_up_note",
             "version",
             "sourceQuoteId",
             "customerIpHash"
@@ -56,10 +57,13 @@ public class PublicResponseSanitizerAdvice implements ResponseBodyAdvice<Object>
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request,
                                   ServerHttpResponse response) {
-        if (body == null || !SANITIZED_PATHS.contains(request.getURI().getPath())) {
+        String path = request.getURI().getPath();
+        boolean privateLookup = path.matches("/api/(?:records|orders)/[^/]+");
+        if (body == null || (!privateLookup && !SANITIZED_PATHS.contains(path))) {
             return body;
         }
 
+        if (privateLookup) response.getHeaders().setCacheControl("no-store");
         JsonNode tree = objectMapper.valueToTree(body);
         stripInternalFields(tree);
         return tree;

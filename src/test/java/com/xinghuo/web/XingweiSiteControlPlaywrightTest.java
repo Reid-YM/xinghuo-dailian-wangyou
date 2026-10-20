@@ -34,10 +34,11 @@ class XingweiSiteControlPlaywrightTest {
         page.navigate("https://example.test/admin/xingwei/site?section="+section);
         for(String css:List.of("admin-xingwei.css","admin-xingwei-channels.css","admin-xingwei-site.css"))page.addStyleTag(new Page.AddStyleTagOptions().setPath(ASSETS.resolve(css)));
         page.evaluate("""
-          () => {window.calls=[];window.conflict=false;window.siteValues={brandName:'星火',legalEntityName:'星维网络',serviceStatus:'OPEN',statusShortText:'可接服务',primaryButtonLabel:'咨询服务',quoteEnabled:true,orderQueryEnabled:true,heroImage:'',heroImageHeight:220,heroImageFit:'cover',heroImagePositionX:50,heroImagePositionY:50,heroBackgroundImage:'',heroBackgroundOpacity:40,heroBackgroundFit:'cover',heroBackgroundPositionX:50,heroBackgroundPositionY:50,heroBackgroundBlur:0,serviceCoverHeight:180,serviceCoverFit:'cover',serviceCoverPositionX:50,serviceCoverPositionY:50};
+          () => {window.calls=[];window.conflict=false;window.gameValues=[{gameCode:'CODMW4',gameName:'实际游戏',statusCode:'OPEN',publicLabel:'可接服务',publicDetail:'',ctaLabel:'联系客服'}];window.siteValues={brandName:'星火',legalEntityName:'星维网络',serviceStatus:'OPEN',statusShortText:'可接服务',primaryButtonLabel:'咨询服务',quoteEnabled:true,orderQueryEnabled:true,heroImage:'',heroImageHeight:220,heroImageFit:'cover',heroImagePositionX:50,heroImagePositionY:50,heroBackgroundImage:'',heroBackgroundOpacity:40,heroBackgroundFit:'cover',heroBackgroundPositionX:50,heroBackgroundPositionY:50,heroBackgroundBlur:0,serviceCoverHeight:180,serviceCoverFit:'cover',serviceCoverPositionX:50,serviceCoverPositionY:50};
             window.fetch=async(url,options={})=>{window.calls.push({url,method:options.method,body:options.body,headers:options.headers});
               if(url.endsWith('/access'))return new Response(JSON.stringify({canManageSite:true,canManageSeo:true,canViewSite:true}));
               if(url.includes('/images/'))return new Response(JSON.stringify({url:'/api/site-assets/test-image'}));
+              if(url.includes('/site/games')){if(options.method==='PATCH')Object.assign(window.gameValues[0],JSON.parse(options.body));return new Response(JSON.stringify(window.gameValues),{headers:{ETag:'\"game-revision\"'}});}
               if(options.method==='PATCH'){
                 if(window.conflict)return new Response(JSON.stringify({error:'配置已变化，请重新读取；输入已保留'}),{status:409});
                 Object.assign(window.siteValues,JSON.parse(options.body));
@@ -50,22 +51,38 @@ class XingweiSiteControlPlaywrightTest {
         page.waitForFunction("() => !document.querySelector('#siteSave').disabled");
     }
     @Test
+    void gameNamesAreVisibleWhileUpdateKeysStayInProtocol()throws Exception{
+        try(Playwright p=Playwright.create()){
+            for(BrowserType type:new BrowserType[]{p.chromium(),p.webkit()})try(Browser b=type.launch()){
+                Page page=b.newPage();setupSite(page,"games");
+                assertEquals("实际游戏",page.locator("#siteGame option:checked").textContent());
+                assertEquals("CODMW4",page.locator("#siteGame").inputValue());
+                assertFalse(page.locator("#siteFields").innerText().contains("CODMW4"));
+                page.locator("[data-field=statusCode]").selectOption("PAUSED");page.locator("#siteSave").click();
+                page.waitForFunction("()=>document.querySelector('#siteMessage').textContent.includes('已保存')");
+                assertEquals(true,page.evaluate("()=>{const call=window.calls.find(c=>c.method==='PATCH');return call.url.endsWith('/games/CODMW4')&&JSON.parse(call.body).statusCode==='PAUSED'&&!!JSON.parse(call.body).reason&&call.headers['If-Match']==='\"game-revision\"';}"));
+            }
+        }
+    }
+    @Test
     void chromiumCarriesCsrfAndRevisionAndRetainsConflictingForm()throws Exception{
         try(Playwright p=Playwright.create();Browser b=chromium(p)){
             Page page=b.newPage();setupSite(page,"basic");
-            page.locator("[data-field=brandName]").fill("新的品牌");page.locator("input[name=reason]").fill("更新品牌文案");page.locator("#siteSave").click();
+            assertTrue(page.locator("input[name=reason]").isHidden());
+            page.locator("[data-field=brandName]").fill("新的品牌");page.locator("#siteSave").click();
             page.waitForFunction("() => document.querySelector('#siteMessage').textContent.includes('已保存')");
             assertEquals("test-csrf",page.evaluate("() => window.calls.find(x=>x.method==='PATCH').headers['X-CSRF-TOKEN']"));
             assertEquals("\"revision1\"",page.evaluate("() => window.calls.find(x=>x.method==='PATCH').headers['If-Match']"));
-            page.evaluate("() => window.conflict=true");page.locator("[data-field=brandName]").fill("保留草稿");page.locator("input[name=reason]").fill("第二次调整");page.locator("#siteSave").click();
+            page.evaluate("() => window.conflict=true");page.locator("[data-field=brandName]").fill("保留草稿");page.locator("#siteSave").click();
             page.waitForFunction("() => document.querySelector('#siteMessage').textContent.includes('配置已变化')");
             assertEquals("保留草稿",page.locator("[data-field=brandName]").inputValue());assertFalse(page.locator("#siteSave").isDisabled());
         }
     }
     @Test void chromiumNativeSitePreservesAllBasicFieldsAndAllowsFallbackStatusEditing()throws Exception{
         try(Playwright p=Playwright.create();Browser b=chromium(p)){
-            Page page=b.newPage();setupSite(page,"basic");assertEquals("OPEN",page.locator("[data-field=serviceStatus]").inputValue());
-            page.locator("[data-field=serviceStatus]").selectOption("RESERVATION");page.locator("[data-field=statusShortText]").fill("预约服务");page.locator("[data-field=primaryButtonLabel]").fill("联系预约");page.locator("input[name=reason]").fill("调整全站兜底入口");page.locator("#siteSave").click();page.waitForFunction("()=>document.querySelector('#siteMessage').textContent.includes('已保存')");
+            Page page=b.newPage();setupSite(page,"basic");
+            assertTrue(page.locator("input[name=reason]").isHidden());assertEquals("OPEN",page.locator("[data-field=serviceStatus]").inputValue());
+            page.locator("[data-field=serviceStatus]").selectOption("RESERVATION");page.locator("[data-field=statusShortText]").fill("预约服务");page.locator("[data-field=primaryButtonLabel]").fill("联系预约");page.locator("#siteSave").click();page.waitForFunction("()=>document.querySelector('#siteMessage').textContent.includes('已保存')");
             assertEquals(true,page.evaluate("()=>{const data=JSON.parse(window.calls.find(c=>c.method==='PATCH').body);return data.serviceStatus==='RESERVATION'&&data.statusShortText==='预约服务'&&data.primaryButtonLabel==='联系预约'&&data.brandName==='星火';}"));
         }
     }
@@ -78,7 +95,38 @@ class XingweiSiteControlPlaywrightTest {
             assertEquals("/api/site-assets/test-image",page.locator("[data-field=heroImage]").inputValue());
             assertEquals(0,page.evaluate("() => window.calls.filter(x=>x.method==='PATCH').length"));
             assertEquals(true,page.evaluate("() => document.documentElement.scrollWidth<=innerWidth"));
-            page.locator("input[name=reason]").fill("替换主图");page.locator("#siteSave").click();page.waitForFunction("() => document.querySelector('#siteMessage').textContent.includes('已保存')");
+            page.locator("#siteSave").click();page.waitForFunction("() => document.querySelector('#siteMessage').textContent.includes('已保存')");
+        }
+    }
+    @Test
+    void nativeFrontendControlsSaveBothAreasAndCarryFreshRevisions()throws Exception{
+        var repo=mock(SiteSettingRepository.class);when(repo.findAll()).thenReturn(List.of());
+        var values=Map.of("global",new SiteSettingService(repo).globalUiSettings(),"front",new FrontendControlService(repo).settings());
+        try(Playwright p=Playwright.create()){
+            for(BrowserType type:new BrowserType[]{p.chromium(),p.webkit()})try(Browser b=type.launch()){
+                Page page=b.newPage();String html=render("admin-xingwei-frontend-controls.html",true);
+                page.route("**/*",r->r.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(html)));
+                page.navigate("https://example.test/admin/xingwei/frontend-controls");
+                page.evaluate("""
+                  data=>{window.writes=[];window.revisions={global:1,front:1};window.fetch=async(url,opts={})=>{
+                    if(!url.startsWith('/api/admin/xingwei/site/'))throw new Error('Unexpected retired API');
+                    if(url.endsWith('/access'))return new Response(JSON.stringify({canManageSite:true}));
+                    const area=url.endsWith('/global-ui')?'global':'front';
+                    if(opts.method==='PATCH'){window.writes.push({url,body:JSON.parse(opts.body),headers:opts.headers});Object.assign(data[area],JSON.parse(opts.body));window.revisions[area]++;}
+                    return new Response(JSON.stringify(data[area]),{headers:{ETag:'"'+area+window.revisions[area]+'"'}});
+                  };}
+                  """,values);
+                page.addScriptTag(new Page.AddScriptTagOptions().setPath(ASSETS.resolve("admin-frontend-controls.js")));
+                page.waitForFunction("()=>!document.querySelector('#globalUiForm button[type=submit]').disabled");
+                page.locator("#globalUiForm [name=navServicesLabel]").fill("服务中心");page.locator("#globalUiForm button[type=submit]").click();
+                page.waitForFunction("()=>window.writes.length===1&&!document.querySelector('#globalUiForm button[type=submit]').disabled");
+                page.locator("#globalUiForm [name=navServicesLabel]").fill("服务大厅");page.locator("#globalUiForm button[type=submit]").click();
+                page.waitForFunction("()=>window.writes.length===2&&!document.querySelector('#globalUiForm button[type=submit]').disabled");
+                page.locator("#frontendControlsForm [name=themeRadius]").fill("20");page.locator("#frontendControlsForm button[type=submit]").click();
+                page.waitForFunction("()=>window.writes.length===3&&!document.querySelector('#frontendControlsForm button[type=submit]').disabled");
+                assertEquals(true,page.evaluate("()=>window.writes[0].headers['If-Match']==='\"global1\"'&&window.writes[1].headers['If-Match']==='\"global2\"'&&window.writes[2].headers['If-Match']==='\"front1\"'"));
+                assertEquals(true,page.evaluate("()=>window.writes.every(w=>w.headers['X-CSRF-TOKEN']==='test-csrf'&&!!w.body.reason)&&window.writes[2].body.themeRadius==='20'"));
+            }
         }
     }
     @Test

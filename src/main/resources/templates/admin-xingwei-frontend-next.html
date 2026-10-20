@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#101216"/>
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
-  <title>Frontend Next 灰度入口 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261013v1"/>
+  <title>服务入口设置 · 星维管理后台</title>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <style>
     .fnr-shell{width:min(1040px,calc(100% - 28px));margin:0 auto;padding:30px 0 64px}
     .fnr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px}
@@ -28,14 +28,15 @@
     .fnr-safe{color:#6ee2a1}.fnr-warn{color:#ffc768}
     @media(max-width:760px){.fnr-top{display:grid}.fnr-grid{grid-template-columns:1fr}.fnr-actions{width:100%}.fnr-actions .xw-button{flex:1}}
   </style>
+<link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
 <main class="fnr-shell">
   <header class="fnr-top">
     <div>
-      <div class="fnr-kicker">公共导航配置</div>
-      <h1>服务导航入口配置</h1>
-      <p>这里只控制“服务”导航使用标准地址 <code>/services</code>，还是显式新版地址 <code>/next/services</code>。全站默认版本由发布配置管理，此页不切换全站版本；查看旧版请使用 <code>?legacy=1</code>。</p>
+      <div class="fnr-kicker"><img class="xw-inline-brand" src="/assets/brand-logo.svg?v=20261019admin" alt="星火"/> 星维管理后台</div>
+      <h1>服务入口设置</h1>
+      <p>设置页头、手机导航和页脚的服务入口。默认入口遵循网站统一版本设置，直达入口直接打开新版服务页。这里只调整导航。</p>
     </div>
     <div class="fnr-actions">
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/frontend-controls">前台展示控制</a>
@@ -47,43 +48,43 @@
 
   <section class="fnr-grid">
     <article class="fnr-card">
-      <div class="fnr-kicker">Controlled Rollout</div>
+      <div class="fnr-kicker">入口设置</div>
       <h2>当前公共服务入口</h2>
       <div class="fnr-current">
         <span>当前模式</span>
         <strong id="rolloutModeLabel">读取中…</strong>
-        <code id="rolloutHref">—</code>
+        <span id="rolloutHref">—</span>
       </div>
 
       <form id="frontendNextRolloutForm">
         <div class="fnr-field">
           <label for="servicesEntryMode">服务入口目标</label>
-          <select id="servicesEntryMode" name="servicesEntryMode">
-            <option value="legacy">标准地址 · /services</option>
-            <option value="next">显式新版 · /next/services</option>
+          <select id="servicesEntryMode" name="servicesEntryMode" disabled>
+            <option value="legacy">默认服务入口</option>
+            <option value="next">新版直达入口</option>
           </select>
         </div>
-        <button class="xw-button fnr-save" type="submit" id="saveRolloutMode">保存入口目标</button>
+        <button class="xw-button fnr-save" type="submit" id="saveRolloutMode" disabled>保存入口目标</button>
+        <button class="xw-button xw-button-ghost fnr-save" type="button" id="reloadRolloutMode">重新读取</button>
         <div class="fnr-message" id="rolloutMessage" role="status" aria-live="polite"></div>
       </form>
 
       <div class="fnr-note">
-        <b>配置边界：</b>这里不是自由 URL 输入框，只允许 <code>legacy</code> / <code>next</code> 两个后端白名单值。切换动作复用现有全局前端配置接口并进入操作审计；接口失败不会改变已保存的配置。全站版本回退需使用发布配置，单独查看旧版使用 ?legacy=1。
+        保存会更新客户的导航入口。若其他人员已修改配置，请重新读取并核对后再保存；更改导航不会切换网站版本。
       </div>
     </article>
 
     <aside class="fnr-card">
-      <div class="fnr-kicker">Scope</div>
-      <h2>导航配置的作用范围</h2>
+      <div class="fnr-kicker">使用帮助</div>
+      <h2>服务导航说明</h2>
       <div class="fnr-list">
-        <div class="fnr-item"><b class="fnr-safe">✓ 会改变</b><span>公共页头“服务”、动态手机导航抽屉、公共页脚“服务大厅”的点击目标。</span></div>
-        <div class="fnr-item"><b class="fnr-safe">✓ 旧版保留</b><span>旧版页面继续通过 <code>/services?legacy=1</code> 保留；选择 legacy 仅恢复标准导航地址。</span></div>
-        <div class="fnr-item"><b class="fnr-warn">— 暂不改变</b><span>首页、询价、账号及其它深层链接的默认版本由全站发布配置决定，导航选择不覆盖该配置。</span></div>
-        <div class="fnr-item"><b class="fnr-warn">— 不涉及</b><span>订单、售后、支付、退款、企业微信写入和数据库结构。</span></div>
+        <div class="fnr-item"><b>默认入口</b><span>客户通过网站统一设置进入服务页。</span></div>
+        <div class="fnr-item"><b>新版直达</b><span>服务导航直接打开新版服务页；旧版仍可单独预览。</span></div>
+        <div class="fnr-item"><b>保存权限</b><span>拥有全站配置管理权限的人员可以修改入口。其他人员仅可查看。</span></div>
       </div>
     </aside>
   </section>
 </main>
-<script defer src="/assets/admin-frontend-next-rollout.js?v=20261019frontend-default"></script>
+<script defer src="/assets/admin-frontend-next-rollout.js?v=20261020cutover"></script>
 </body>
 </html>

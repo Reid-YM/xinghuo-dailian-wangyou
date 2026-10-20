@@ -44,7 +44,7 @@
   }
 
   function searchText(employee) {
-    return normalize([employee.name, employee.userId, employee.position, ...(employee.departments || [])].join(' '));
+    return normalize([employee.name, employee.position, ...(employee.departments || [])].join(' '));
   }
 
   function emptyRow(body, colspan, text) {
@@ -70,7 +70,6 @@
       const tr = document.createElement('tr');
       const employeeCell = document.createElement('td');
       append(employeeCell, 'strong', employee.name || '未命名');
-      append(employeeCell, 'small', employee.userId, 'xw-block-code');
       tr.appendChild(employeeCell);
       tr.appendChild(cell(employee.position || '未设置'));
       tr.appendChild(cell((employee.departments || []).join('、') || '未设置'));
@@ -83,14 +82,13 @@
     departmentRows.replaceChildren();
     const rows = snapshot?.departments || [];
     if (!rows.length) {
-      emptyRow(departmentRows, 3, snapshot?.configured ? '企业微信没有返回部门' : '尚未配置');
+      emptyRow(departmentRows, 2, snapshot?.configured ? '企业微信没有返回部门' : '尚未配置');
       return;
     }
     rows.forEach((department) => {
       const tr = document.createElement('tr');
-      tr.appendChild(cell(department.id));
       tr.appendChild(cell(department.name));
-      tr.appendChild(cell(department.parentId));
+      tr.appendChild(cell(snapshot.departments.find(parent => parent.id === department.parentId)?.name || (Number(department.parentId) === 0 ? '根部门' : '未设置')));
       departmentRows.appendChild(tr);
     });
   }
@@ -99,7 +97,7 @@
     positionRows.replaceChildren();
     const rows = snapshot?.positions || [];
     if (!rows.length) {
-      emptyRow(positionRows, 3, 'V63 正式岗位为空');
+      emptyRow(positionRows, 3, '正式岗位为空');
       return;
     }
     rows.forEach((position) => {
@@ -138,8 +136,8 @@
       status.classList.add('ok');
       status.querySelector('span').textContent = snapshot.configured ? '企业微信已连接' : '只读配置待完成';
       setMessage(snapshot.configured
-        ? `已读取 ${snapshot.counts?.employees ?? 0} 名员工、${snapshot.counts?.departments ?? 0} 个部门；正式岗位 ${snapshot.counts?.positions ?? 0} 个来自 V63。`
-        : '页面已上线，但服务器尚未配置 WECOM_CORP_ID / WECOM_APP_SECRET；V63 正式岗位仍可正常读取。', snapshot.configured ? 'ok' : '');
+        ? `已读取 ${snapshot.counts?.employees ?? 0} 名员工、${snapshot.counts?.departments ?? 0} 个部门；正式岗位 ${snapshot.counts?.positions ?? 0} 个。`
+        : '企业微信通讯录尚未连接，仍可查看正式岗位资料。', snapshot.configured ? 'ok' : '');
     } catch (error) {
       status.classList.remove('ok');
       status.classList.add('error');

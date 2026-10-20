@@ -46,8 +46,8 @@
     if(!rows.length){emptyRow(gameRows,6,'当前筛选条件没有游戏');return;}
     rows.forEach(row=>{
       const tr=document.createElement('tr');
-      const name=document.createElement('td');append(name,'strong',row.name,'xtax-primary');append(name,'small',row.code,'xtax-secondary');tr.appendChild(name);
-      tr.appendChild(cell(row.businessStatus||'—'));
+      const name=document.createElement('td');append(name,'strong',row.name,'xtax-primary');tr.appendChild(name);
+      tr.appendChild(cell(window.XWLabels?.value(row.businessStatus)||'未设置'));
       tr.appendChild(cell(row.categoryCount??0));
       tr.appendChild(cell(row.serviceCount??0));
       const stateCell=document.createElement('td');append(stateCell,'span',row.active?'启用':'停用',`xtax-state ${row.active?'on':'off'}`);tr.appendChild(stateCell);
@@ -61,8 +61,8 @@
     if(!rows.length){emptyRow(categoryRows,5,'当前筛选条件没有分类');return;}
     rows.forEach(row=>{
       const tr=document.createElement('tr');
-      const name=document.createElement('td');append(name,'strong',row.name,'xtax-primary');append(name,'small',row.code,'xtax-secondary');tr.appendChild(name);
-      tr.appendChild(cell(row.gameCode));
+      const name=document.createElement('td');append(name,'strong',row.name,'xtax-primary');tr.appendChild(name);
+      tr.appendChild(cell((snapshot.games||[]).find(game=>game.code===row.gameCode)?.name||'未分配游戏'));
       tr.appendChild(cell(row.serviceCount??0));
       const stateCell=document.createElement('td');append(stateCell,'span',row.active?'启用':'停用',`xtax-state ${row.active?'on':'off'}`);tr.appendChild(stateCell);
       const actions=document.createElement('td');actions.className='xtax-row-actions';actions.appendChild(actionButton('category',row.id));if(canManage)actions.appendChild(actionButton('edit-category',row.id,'编辑'));tr.appendChild(actions);
@@ -118,7 +118,7 @@
     document.getElementById('xtaxImpactPublicServices').textContent='-';
     visibleNow.textContent='-';visibleAfter.textContent='-';visibilitySummary.textContent='正在计算……';
     warnings.replaceChildren();warnings.hidden=true;
-    reason.value='';acknowledge.checked=false;reasonWrap.hidden=true;ackWrap.hidden=true;toggle.hidden=true;toggle.disabled=true;
+    reason.value='维护游戏分类启停';acknowledge.checked=false;reasonWrap.hidden=true;ackWrap.hidden=true;toggle.hidden=true;toggle.disabled=true;
   }
 
   function renderWarnings(items){
@@ -129,7 +129,7 @@
 
   function renderImpact(impact){
     currentImpact=impact;
-    dialogMeta.textContent=`${impact.type==='GAME'?'游戏':'分类'} · ${impact.name} · ${impact.key}`;
+    dialogMeta.textContent=`${impact.type==='GAME'?'游戏':'分类'} · ${impact.name}`;
     impactBox.textContent=`当前状态：${impact.active?'启用':'停用'}；目标状态：${impact.active?'停用':'启用'}`;
     document.getElementById('xtaxImpactCategories').textContent=String(impact.categoryCount??0);
     document.getElementById('xtaxImpactActiveCategories').textContent=String(impact.activeCategoryCount??0);
@@ -140,7 +140,7 @@
     visibilitySummary.textContent=impact.visibilitySummary||impact.effect||'—';
     renderWarnings(impact.warnings);
     effect.textContent=impact.effect||'—';
-    reasonWrap.hidden=!canManage;ackWrap.hidden=!canManage;toggle.hidden=!canManage;
+    reasonWrap.hidden=true;ackWrap.hidden=!canManage;toggle.hidden=!canManage;
     if(impact.active&&Number(impact.currentPublicServiceCount||0)>0){
       toggle.textContent=`确认停用并隐藏 ${impact.currentPublicServiceCount} 个前台服务`;
     }else if(!impact.active&&Number(impact.targetPublicServiceCount||0)>0){
@@ -212,12 +212,12 @@
     if(key!=null&&!row)return;
     let revision=null;
     if(key!=null){try{const response=await fetch('/api/admin/xingwei/catalog/taxonomy/'+(category?'categories/':'games/')+encodeURIComponent(key)+'/editor',{credentials:'same-origin',cache:'no-store'});const state=await parseResponse(response);if(!response.ok)throw new Error(state?.message||state?.error||'读取当前资料失败');row=state.data;revision=state.revision;}catch(error){setMessage(error.message,'error');return;}}
-    editTarget={category,key,revision};editForm.reset();
+    editTarget={category,key,revision};editForm.reset();field('xtaxEditReason').value=key==null?'新增目录资料':'维护目录资料';
     field('xtaxEditTitle').textContent=(row?'编辑':'新增')+(category?'分类':'游戏');
-    field('xtaxEditHint').textContent=row?'仅修改资料，不改变编码、归属及启停状态。':'新增后默认停用，需另行通过影响预览启用。';
+    field('xtaxEditHint').textContent=row?'编辑基础资料，启停状态请另行调整。':'新增后默认停用，需另行通过影响预览启用。';
     field('xtaxEditGameWrap').hidden=!category||Boolean(row);
     const select=field('xtaxEditGame');select.replaceChildren();
-    (snapshot.games||[]).forEach(g=>{const option=document.createElement('option');option.value=g.code;option.textContent=g.name+' · '+g.code;select.appendChild(option);});
+    (snapshot.games||[]).forEach(g=>{const option=document.createElement('option');option.value=g.code;option.textContent=g.name;select.appendChild(option);});
     if(row){field('xtaxEditName').value=row.name||'';field('xtaxEditIcon').value=row.iconKey||'';field('xtaxEditDescription').value=row.description||'';field('xtaxEditSort').value=row.sortOrder??'';if(category)select.value=row.gameCode;}
     if(!editDialog.open)editDialog.showModal();
   }

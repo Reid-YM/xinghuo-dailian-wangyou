@@ -42,7 +42,6 @@
   const afterSalesDetailDialog = document.getElementById('xwbAfterSalesDetailDialog');
   const afterSalesDetailMeta = document.getElementById('xwbAfterSalesDetailMeta');
   const afterSalesDetailNote = document.getElementById('xwbAfterSalesDetailNote');
-  const afterSalesDetailInternal = document.getElementById('xwbAfterSalesDetailInternal');
   const csrfToken = document.querySelector('meta[name="_csrf"]')?.content || '';
   const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
 
@@ -80,8 +79,8 @@
 
   function modeLabel(snapshot) {
     switch (snapshot?.mode) {
-      case 'LEGACY_ADMIN_OVERRIDE': return '管理员兜底 · 全部数据';
-      case 'LEGACY_OPERATOR_COMPAT': return '旧版运营员工兼容 · 全部数据';
+      case 'LEGACY_ADMIN_OVERRIDE': return '系统管理员 · 全部数据';
+      case 'LEGACY_OPERATOR_COMPAT': return '员工授权 · 全部数据';
       case 'SHADOW_RBAC': return `角色权限 · ${scopeLabel(snapshot)}`;
       default: return '权限不可用';
     }
@@ -204,7 +203,6 @@
   function openAfterSalesDetail(item) {
     afterSalesDetailMeta.textContent = `业务编号 ${item.businessNo || '—'} · 订单号 ${item.orderNo || '—'} · ${display(item.status) || '状态未知'} · 更新于 ${formatTime(item.updatedAt)}`;
     afterSalesDetailNote.textContent = item.customerNote || '暂无客户说明';
-    afterSalesDetailInternal.textContent = item.internalNote || '暂无内部备注';
     afterSalesDetailDialog.showModal();
   }
 
@@ -218,7 +216,7 @@
   function orderSearchText(item) {
     return normalize([
       item.businessNo, item.orderNo, item.status, display(item.status), item.progressText,
-      item.customerNote, item.internalNote, ownershipLabel(item.ownership)
+      item.customerNote, ownershipLabel(item.ownership)
     ].join(' '));
   }
 
@@ -314,8 +312,7 @@
 
       const noteCell = document.createElement('td');
       if (item.customerNote) appendText(noteCell, 'span', `客户说明：${item.customerNote}`, 'xwb-secondary');
-      if (item.internalNote) appendText(noteCell, 'small', `内部备注：${item.internalNote}`, 'xwb-secondary');
-      if (!item.customerNote && !item.internalNote) appendText(noteCell, 'span', '—', 'xw-muted-label');
+      if (!item.customerNote) appendText(noteCell, 'span', '—', 'xw-muted-label');
       tr.appendChild(noteCell);
 
       tr.appendChild(ownershipCell(item.ownership));
@@ -538,7 +535,7 @@
       access = await fetchJson('/api/admin/xingwei/access');
       accessBadge.classList.add('ok');
       accessBadge.lastChild.textContent = modeLabel(access);
-      scopeText.textContent = `${modeLabel(access)} · 权限点 ${(access.permissionCodes || []).length}`;
+      scopeText.textContent = modeLabel(access);
       tabs.find((button) => button.dataset.tab === 'quotes').hidden = !can('quote:view');
       tabs.find((button) => button.dataset.tab === 'orders').hidden = !can('order:view');
       tabs.find((button) => button.dataset.tab === 'exceptions').hidden = !can('order:view');
@@ -582,7 +579,7 @@
   }
   function openOrderAction(item = null) {
     if (!orderActionDialog || actionBusy || assignmentBusy) return;
-    orderActionForm.reset(); fillAction(orderActionForm,{businessNo:item?.businessNo,version:item?.version,status:item?.status || 'WAITING_CONFIRMATION',progressPercent:item?.progressPercent,progressText:item?.progressText,customerNote:item?.customerNote,internalNote:item?.internalNote});
+    orderActionForm.reset(); fillAction(orderActionForm,{businessNo:item?.businessNo,version:item?.version,status:item?.status || 'WAITING_CONFIRMATION',progressPercent:item?.progressPercent,progressText:item?.progressText,customerNote:item?.customerNote});
     document.getElementById('xwbOrderActionTitle').textContent = item ? '编辑订单 · ' + item.businessNo : '新建订单';
     document.getElementById('xwbOrderActionState').textContent = '';
     orderImageForm.hidden = !item; orderImageForm.reset(); orderDirty = false; imageDirty=false; orderActionDialog.showModal();
@@ -630,8 +627,8 @@
   orderActionDialog?.addEventListener('cancel',event => {event.preventDefault();closeAction('order');});
   async function quickOrderTransition(item, nextStatus, actionText) {
     if (actionBusy || assignmentBusy || !item.canManage || activeTab !== 'orders') return;
-    const reason = prompt(`请填写「${actionText}」原因（写入审计记录）：`, actionText + '，已核对履约进度');
-    if (!reason || !reason.trim()) return;
+    if (!confirm(`确认「${actionText}」？请先核对当前履约进度。`)) return;
+    const reason = actionText + '，已核对履约进度';
     if (nextStatus === 'CLOSED' && !confirm('结单后订单不能重新进入履约。请确认服务已交付、款项已核对，是否继续？')) return;
     const progressText = {
       IN_PROGRESS: '客服已安排服务，正在履约',
@@ -642,7 +639,7 @@
       version: item.version, status: nextStatus,
       progressPercent: nextStatus === 'IN_PROGRESS' ? (item.progressPercent ?? 0) : 100,
       progressText, customerNote: item.customerNote,
-      internalNote: item.internalNote, reason: reason.trim().slice(0, 500)
+      reason: reason.trim().slice(0, 500)
     };
     actionBusy = true;
     setMessage(`正在${actionText}……`);

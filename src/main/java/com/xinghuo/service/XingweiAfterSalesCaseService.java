@@ -214,8 +214,8 @@ public class XingweiAfterSalesCaseService {
         if (!"IN_PROGRESS".equals(next) && !"RESOLVED".equals(next)) {
             throw new IllegalArgumentException("处理状态只允许 IN_PROGRESS 或 RESOLVED");
         }
-        String note = handlingNote == null ? "" : handlingNote.trim();
-        if (note.isEmpty() || note.length() > 600) {
+        String note = handlingNote == null ? null : handlingNote.trim();
+        if (note != null && (note.isEmpty() || note.length() > 600)) {
             throw new IllegalArgumentException("处理说明须为 1 至 600 字");
         }
         String reply = customerReply == null ? null : customerReply.trim();
@@ -227,6 +227,8 @@ public class XingweiAfterSalesCaseService {
         if (before.version() != expectedVersion) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "售后记录已由其他人更新，请刷新后重试");
         }
+        String stateNote = note == null ? java.util.Objects.toString(before.handlingNote(), "") : note;
+        String eventNote = note == null ? "" : note;
         long acknowledged = acknowledgedFollowupId == null ? 0L : acknowledgedFollowupId;
         Long matchingFollowups = acknowledged > 0 ? jdbc.queryForObject("""
                 SELECT COUNT(*) FROM customer_order_after_sales_case_followups
@@ -245,7 +247,7 @@ public class XingweiAfterSalesCaseService {
                             (record_id, status, handling_note, handled_by_admin_user_id,
                              handled_through_followup_id, updated_at, version)
                         VALUES (?, ?, ?, ?, ?, NOW(6), 1)
-                        """, recordId, next, note, actorId, acknowledged);
+                        """, recordId, next, stateNote, actorId, acknowledged);
             } catch (DuplicateKeyException ex) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "售后记录已由其他人更新，请刷新后重试", ex);
             }
@@ -256,7 +258,7 @@ public class XingweiAfterSalesCaseService {
                            handled_through_followup_id = GREATEST(handled_through_followup_id, ?),
                            updated_at = NOW(6), version = version + 1
                      WHERE record_id = ? AND version = ?
-                    """, next, note, actorId, acknowledged, recordId, expectedVersion);
+                    """, next, stateNote, actorId, acknowledged, recordId, expectedVersion);
             if (updated != 1) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "售后记录已由其他人更新，请刷新后重试");
             }
@@ -266,10 +268,10 @@ public class XingweiAfterSalesCaseService {
                     (record_id, from_status, to_status, handling_note, customer_reply,
                      handled_by_admin_user_id, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, NOW(6))
-                """, recordId, before.status(), next, note, reply, actorId);
+                """, recordId, before.status(), next, eventNote, reply, actorId);
         CaseRecord after = record(orderNo, recordId);
         audit.log("XW_AFTER_SALES_CASE_UPDATE", "AFTER_SALES_RECORD", String.valueOf(recordId),
-                authentication.getName(), before, after, note, request);
+                authentication.getName(), before, after, note == null ? "更新售后处理结果" : note, request);
         return after;
     }
 

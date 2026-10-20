@@ -70,7 +70,7 @@ class GlobalUiControlContractTest {
         String security = read("java/com/xinghuo/security/SecurityConfig.java");
         assertTrue(security.contains("\"/api/public/**\""),
                 "public frontend settings/game-status APIs must remain permitAll");
-        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin/**\")"),
+        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin\", \"/api/admin/**\")"),
                 "admin APIs must stay protected");
     }
 

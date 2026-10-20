@@ -118,6 +118,8 @@ public class XingweiAuditQueryService {
             List<Change> out=new ArrayList<>();
             for(String key:keys) {
                 if(out.size()>=100) { out.add(new Change("其余字段","已省略","已省略")); break; }
+                if (Set.of("id", "version", "sourceQuoteId", "customerIpHash", "internalNote", "handlingNote",
+                        "internal_note", "handling_note", "operatorNote", "operator_note", "followUpNote", "follow_up_note", "notes", "note", "adminUserId", "ownerAdminUserId", "handledByAdminUserId").contains(key)) continue;
                 JsonNode l=left==null?null:left.get(key), r=right==null?null:right.get(key);
                 if(java.util.Objects.equals(l,r)) continue;
                 out.add(new Change(key.matches("[A-Za-z0-9_]{1,64}")?key:"其他字段",safe(key,l),safe(key,r)));
@@ -138,6 +140,6 @@ public class XingweiAuditQueryService {
         return value;
     }
     private record Clause(String sql,List<Object> args) {}
-    public record AuditItem(long id,String action,String targetType,String targetId,String operatorName,String reason,String requestId,String createdAt) {}
+    public record AuditItem(long id,String action,String targetType,@com.fasterxml.jackson.annotation.JsonIgnore String targetId,String operatorName,@com.fasterxml.jackson.annotation.JsonIgnore String reason,@com.fasterxml.jackson.annotation.JsonIgnore String requestId,String createdAt) {}
     public record Change(String field,String before,String after) {}
 }

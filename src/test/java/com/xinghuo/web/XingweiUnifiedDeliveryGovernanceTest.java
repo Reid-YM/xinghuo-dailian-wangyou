@@ -11,7 +11,7 @@ class XingweiUnifiedDeliveryGovernanceTest {
     @TempDir Path root;
     @Test
     void actualValidatorAcceptsPackageDeliveryButRejectsInventedDeploymentEvidenceAndUnknownStages() throws Exception {
-        for (String file : new String[]{"scripts/validate-xingwei-release-state.sh", "src/main/java/com/xinghuo/controller/XingweiAdminController.java", "src/main/resources/templates/admin-xingwei.html", "src/main/resources/templates/admin-xingwei-releases.html", ".github/workflows/ci.yml"}) {
+        for (String file : new String[]{"scripts/validate-xingwei-release-state.sh", "src/main/java/com/xinghuo/controller/XingweiAdminController.java", "src/main/resources/templates/admin-xingwei.html", "src/main/resources/templates/admin-xingwei-releases.html", ".github/workflows/ci.yml", ".github/workflows/deploy-production.yml"}) {
             Path target = root.resolve(file); Files.createDirectories(target.getParent()); Files.copy(Path.of(file), target);
         }
         assertEquals(0, validate());
@@ -22,11 +22,11 @@ class XingweiUnifiedDeliveryGovernanceTest {
         Files.writeString(initialDashboard,initialPage);
         Path controller = root.resolve("src/main/java/com/xinghuo/controller/XingweiAdminController.java");
         String original = Files.readString(controller);
-        Files.writeString(controller, original.replace("\"V6A\", \"本版本\"", "\"V6A\", \"已上线\""));
+        Files.writeString(controller, original.replace("\"V6B\", \"本版本\"", "\"V6B\", \"已上线\""));
         assertNotEquals(0, validate(), "package delivery cannot pretend to be a verified live release");
-        Files.writeString(controller, original.replace("V6A · UNIFIED DELIVERY", "V6A · UNKNOWN STAGE"));
+        Files.writeString(controller, original.replace("V6B · UNIFIED DELIVERY", "V6B · UNKNOWN STAGE"));
         Path dashboard = root.resolve("src/main/resources/templates/admin-xingwei.html");
-        Files.writeString(dashboard, Files.readString(dashboard).replace("V6A · UNIFIED DELIVERY", "V6A · UNKNOWN STAGE"));
+        Files.writeString(dashboard, Files.readString(dashboard).replace("V6B · UNIFIED DELIVERY", "V6B · UNKNOWN STAGE"));
         assertNotEquals(0, validate(), "an unknown stage must not bypass release-state checks");
     }
     private int validate() throws Exception {

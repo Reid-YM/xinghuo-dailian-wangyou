@@ -42,7 +42,7 @@ class XingweiWeComDirectoryContractTest {
         assertFalse(service.contains("biz_mail"));
         assertFalse(js.contains("innerHTML"));
         assertFalse(js.contains("insertAdjacentHTML"));
-        assertTrue(template.contains("V2G · 只读通讯录"));
+        assertTrue(template.contains("员工通讯录"));
         assertTrue(template.contains("/admin/xingwei/work"));
     }
 

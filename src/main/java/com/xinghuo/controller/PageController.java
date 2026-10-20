@@ -366,13 +366,9 @@ public class PageController {
     }
 
     @GetMapping(value={"/admin"})
-    String admin(Model m, CsrfToken csrf, Authentication auth,@RequestParam(defaultValue="0") String legacy,jakarta.servlet.http.HttpServletResponse response) {
-        response.setHeader("Cache-Control","no-store");
-        if(!"1".equals(legacy))return "redirect:/admin/xingwei";
-        if(auth==null||auth.getAuthorities().stream().noneMatch(authority->"ROLE_ADMIN".equals(authority.getAuthority())))throw new org.springframework.security.access.AccessDeniedException("恢复入口仅限原 ADMIN 管理员");
-        m.addAttribute("csrf", csrf);
-        m.addAttribute("username", auth.getName());
-        return "admin";
+    String admin(jakarta.servlet.http.HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-store");
+        return "redirect:/admin/xingwei";
     }
 
     private String rasterOgImage(String image) {

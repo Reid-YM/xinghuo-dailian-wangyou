@@ -70,7 +70,7 @@
   function render(){
     const target=$('siteFields');target.replaceChildren();
     if(section()==='games'){
-      const label=el('label','选择游戏'),select=el('select');select.id='siteGame';for(const row of cache||[]){const o=el('option',row.gameCode);o.value=row.gameCode;select.append(o);}select.value=game;
+      const label=el('label','选择游戏'),select=el('select');select.id='siteGame';for(const row of cache||[]){const o=el('option',row.gameName||'未命名游戏');o.value=row.gameCode;select.append(o);}select.value=game;
       select.addEventListener('change',()=>{if(dirty&&!confirm('切换游戏会放弃未保存的输入，是否继续？')){select.value=game;return;}game=select.value;dirty=false;render();});label.append(select);target.append(label);
     }
     const values=currentValues();for(const def of schemas[section()])target.append(field(def,values[def.key]));
@@ -89,7 +89,7 @@
       if(access.canViewSite===false){for(const option of selector.options)option.hidden=option.value!=='seo';selector.value='seo';}
       const result=await request(endpoint());if(id!==serial)return;cache=result.data;revision=result.revision;
       if(section()==='games'&&(!game||!cache.some(x=>x.gameCode===game)))game=cache[0]?.gameCode||'';
-      render();$('siteMessage').textContent=canWrite()?'已读取配置。修改后请填写原因并保存当前分区。':'当前账号只读。';
+      render();$('siteMessage').textContent=canWrite()?'已读取配置。修改后请保存当前分区。':'当前账号只读。';
     }catch(error){if(id===serial){$('siteMessage').textContent=error.message;$('siteSave').disabled=true;}}
     finally{if(id===serial){busy=false;selector.disabled=false;$('siteReload').disabled=false;}}
   }
@@ -99,7 +99,7 @@
   }
   form.addEventListener('input',()=>{dirty=true;});
   form.addEventListener('submit',async event=>{event.preventDefault();if(busy||!canWrite()||!revision)return;let body;
-    try{body=Object.fromEntries(schemas[section()].map(def=>[def.key,value(def,$('siteFields'))]));body.reason=form.elements.namedItem('reason').value.trim();}catch(error){$('siteMessage').textContent=error.message;return;}
+    try{body=Object.fromEntries(schemas[section()].map(def=>[def.key,value(def,$('siteFields'))]));body.reason='维护站点配置：'+selector.selectedOptions[0].textContent;}catch(error){$('siteMessage').textContent=error.message;return;}
     const url=endpoint()+'/'+(section()==='games'?encodeURIComponent(game):section());busy=true;selector.disabled=true;$('siteReload').disabled=true;for(const control of form.querySelectorAll('input,select,textarea,button'))control.disabled=true;$('siteMessage').textContent='正在保存…';
     try{const result=await request(url,'PATCH',body);cache=result.data;revision=result.revision;render();form.elements.namedItem('reason').value='';$('siteMessage').textContent='当前分区已保存，前台刷新后读取最新配置。';}
     catch(error){$('siteMessage').textContent=error.message;}

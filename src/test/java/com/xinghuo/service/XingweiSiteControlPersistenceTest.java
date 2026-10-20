@@ -34,6 +34,7 @@ class XingweiSiteControlPersistenceTest {
     void setup(){
         var ds=new DriverManagerDataSource("jdbc:h2:mem:site_persist"+System.nanoTime()+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa","");
         jdbc=new JdbcTemplate(ds);jdbc.execute("CREATE TABLE site_config(id BIGINT PRIMARY KEY)");jdbc.update("INSERT INTO site_config VALUES(1)");
+        jdbc.execute("CREATE TABLE game_catalog(code VARCHAR(32) PRIMARY KEY,name VARCHAR(80))");jdbc.update("INSERT INTO game_catalog VALUES('MW4','实际游戏')");
         jdbc.execute("CREATE TABLE site_settings(setting_key VARCHAR(100) PRIMARY KEY,setting_value VARCHAR(2000))");
         var repo=mock(SiteSettingRepository.class);
         when(repo.findAll()).thenAnswer(i->jdbc.query("SELECT * FROM site_settings",(rs,n)->SiteSetting.builder().settingKey(rs.getString(1)).settingValue(rs.getString(2)).updatedAt(Instant.now()).build()));

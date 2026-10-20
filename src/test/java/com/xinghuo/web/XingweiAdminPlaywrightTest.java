@@ -17,8 +17,8 @@ class XingweiAdminPlaywrightTest {
 
     private static final Path ASSETS = Path.of("src/main/resources/static/assets");
     private static final Path TEMPLATE = Path.of("src/main/resources/templates/admin-xingwei.html");
-    private static final String VERSION = "20261016-v6a";
-    private static final String STAGE = "V6A · UNIFIED DELIVERY";
+    private static final String VERSION = "20261019-v6b";
+    private static final String STAGE = "V6B · UNIFIED DELIVERY";
 
     @Test
     void desktopAndPhoneLayoutsStayInsideViewportAndNavigationWorks() throws Exception {
@@ -44,7 +44,7 @@ class XingweiAdminPlaywrightTest {
                     }
                     """, new Object[] {VERSION, STAGE});
             addMainScript(page);
-            page.waitForFunction("() => document.querySelector('#xwAccessMode')?.textContent.includes('管理员兜底')");
+            page.waitForFunction("() => document.querySelector('#xwAccessMode')?.textContent.includes('系统管理员')");
             page.waitForFunction("() => document.documentElement.dataset.xwRuntimeState === 'match'");
 
             assertTrue(page.locator("#xwBackendStatus").textContent().contains("已核对"));
@@ -149,12 +149,12 @@ class XingweiAdminPlaywrightTest {
             addMainScript(page);
             page.waitForFunction("() => document.documentElement.dataset.xwRuntimeState === 'mismatch'");
 
-            assertTrue(page.locator("#xwBackendStatus").textContent().contains("版本漂移"));
+            assertTrue(page.locator("#xwBackendStatus").textContent().contains("页面需要更新"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xwBackendStatus').classList.contains('error')"));
-            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261016-v6a"));
+            assertTrue(page.locator("#xwServerTime").textContent().contains("页面 20261019-v6b"));
             assertTrue(page.locator("#xwServerTime").textContent().contains("运行 20261014-v3k"));
             assertEquals("mismatch", page.evaluate("() => window.xwRuntimeHealth.state"));
-            assertEquals("20261016-v6a", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
+            assertEquals("20261019-v6b", page.evaluate("() => window.xwRuntimeHealth.declaredVersion"));
             assertEquals("20261014-v3k", page.evaluate("() => window.xwRuntimeHealth.runtimeVersion"));
             assertTrue((Boolean) page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
         }
@@ -203,7 +203,7 @@ class XingweiAdminPlaywrightTest {
                           {id:3, code:'rbac:view', name:'查看权限', module:'rbac', action:'view'}
                         ]
                       };
-                      window.fetch = async url => ({ok:true, json:async () => String(url).endsWith('/access') ? window.xwAccess : String(url).endsWith('/health') ? {version:'20261016-v6a',stage:'V6A · UNIFIED DELIVERY'} : snapshot});
+                      window.fetch = async url => ({ok:true, json:async () => String(url).endsWith('/access') ? window.xwAccess : String(url).endsWith('/health') ? {version:'20261019-v6b',stage:'V6B · UNIFIED DELIVERY'} : snapshot});
                     }
                     """);
             addMainScript(page);

@@ -43,7 +43,7 @@ class FrontendNextN8IntegrationContractTest {
         assertTrue(security.contains("\"/next\", \"/next/**\""));
         assertTrue(security.contains("\"/account\", \"/account/login\", \"/account/register\", \"/account/reset\""));
         assertTrue(security.contains(".requestMatchers(PERMIT_ALL).permitAll()"));
-        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin/**\")"));
+        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin\", \"/api/admin/**\")"));
         assertTrue(security.contains(".hasAnyRole(\"ADMIN\", \"OPERATOR\")"));
     }
 

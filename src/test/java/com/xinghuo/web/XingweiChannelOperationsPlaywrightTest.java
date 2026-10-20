@@ -66,7 +66,7 @@ class XingweiChannelOperationsPlaywrightTest {
             Page page=browser.newPage(new Browser.NewPageOptions().setViewportSize(390,844)); setup(page);
             assertEquals(true,page.evaluate("() => document.documentElement.scrollWidth<=innerWidth"));
             page.locator("#channelNext").click();
-            page.waitForURL("**page=2");
+            page.waitForFunction("() => new URL(location.href).searchParams.get('page')==='2'");
             page.waitForFunction("() => document.querySelector('#channelPage').textContent.includes('3')");
             page.goBack();
             page.waitForFunction("() => document.querySelector('#channelPage').textContent.includes('2')");

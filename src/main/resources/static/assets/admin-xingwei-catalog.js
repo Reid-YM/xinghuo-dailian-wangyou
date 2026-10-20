@@ -98,11 +98,11 @@
     rows.forEach((item)=>{
       const tr=document.createElement('tr');
       const serviceCell=document.createElement('td'); append(serviceCell,'strong',item.name,'xcat-primary'); append(serviceCell,'small',item.slug,'xcat-secondary'); tr.appendChild(serviceCell);
-      const gameCell=document.createElement('td'); append(gameCell,'span',item.gameCode,'xcat-primary'); append(gameCell,'small',item.category,'xcat-secondary'); tr.appendChild(gameCell);
-      const priceCell=document.createElement('td'); append(priceCell,'span',priceLabel(item),'xcat-primary'); append(priceCell,'small',item.priceMode,'xcat-secondary'); tr.appendChild(priceCell);
+      const gameCell=document.createElement('td'); append(gameCell,'span',(snapshot.games||[]).find(game=>game.code===item.gameCode)?.name||'未分配游戏','xcat-primary'); append(gameCell,'small',(snapshot.categories||[]).find(category=>category.code===item.category&&category.gameCode===item.gameCode)?.name||'未分配分类','xcat-secondary'); tr.appendChild(gameCell);
+      const priceCell=document.createElement('td'); append(priceCell,'span',priceLabel(item),'xcat-primary'); append(priceCell,'small',display(item.priceMode),'xcat-secondary'); tr.appendChild(priceCell);
       tr.appendChild(cell(item.durationText));
       const statusCell=document.createElement('td'); const badge=append(statusCell,'span',`${display(item.status)} · ${item.active?'启用':'停用'}`,`xcat-status ${item.active?'on':'off'}`); badge.title=item.shortDesc||''; tr.appendChild(statusCell);
-      const orderCell=document.createElement('td'); append(orderCell,'span',`展示 ${item.sortOrder}`,'xcat-primary'); append(orderCell,'small',`优先级 ${item.manualPriority} · v${item.version}`,'xcat-secondary'); tr.appendChild(orderCell);
+      const orderCell=document.createElement('td'); append(orderCell,'span',`展示 ${item.sortOrder}`,'xcat-primary'); append(orderCell,'small',`优先级 ${item.manualPriority}`,'xcat-secondary'); tr.appendChild(orderCell);
       const actionCell=document.createElement('td'); actionCell.className='xcat-row-actions';
       if(canManage){
         actionCell.appendChild(actionButton('编辑','edit',item.id));
@@ -119,18 +119,18 @@
   function renderGames() {
     gameRows.replaceChildren(); const rows=snapshot?.games||[];
     if(!rows.length){emptyRow(gameRows,4,'暂无游戏资料');return;}
-    rows.forEach((item)=>{const tr=document.createElement('tr'); const name=document.createElement('td'); append(name,'strong',item.name,'xcat-primary'); append(name,'small',item.code,'xcat-secondary'); tr.appendChild(name); tr.appendChild(cell(`${item.businessStatus||'—'} · ${item.active?'启用':'停用'}`)); tr.appendChild(cell(`${item.categoryCount??0} / ${item.serviceCount??0}`)); tr.appendChild(cell((item.platformCodes||[]).join('、')||'—')); gameRows.appendChild(tr);});
+    rows.forEach((item)=>{const tr=document.createElement('tr'); const name=document.createElement('td'); append(name,'strong',item.name,'xcat-primary'); tr.appendChild(name); tr.appendChild(cell(`${display(item.businessStatus)||'—'} · ${item.active?'启用':'停用'}`)); tr.appendChild(cell(`${item.categoryCount??0} / ${item.serviceCount??0}`)); tr.appendChild(cell((item.platformCodes||[]).map(code=>(snapshot.platforms||[]).find(platform=>platform.code===code)?.name||'其他平台').join('、')||'—')); gameRows.appendChild(tr);});
   }
 
   function renderCategories() {
     categoryRows.replaceChildren(); const rows=snapshot?.categories||[];
-    if(!rows.length){emptyRow(categoryRows,4,'暂无分类资料');return;}
-    rows.forEach((item)=>{const tr=document.createElement('tr'); tr.appendChild(cell(item.code,'xcat-primary')); tr.appendChild(cell(`${item.name}${item.active?'':' · 停用'}`)); tr.appendChild(cell(item.gameCode)); tr.appendChild(cell(item.serviceCount??0)); categoryRows.appendChild(tr);});
+    if(!rows.length){emptyRow(categoryRows,3,'暂无分类资料');return;}
+    rows.forEach((item)=>{const tr=document.createElement('tr'); tr.appendChild(cell(`${item.name}${item.active?'':' · 停用'}`)); tr.appendChild(cell((snapshot.games||[]).find(game=>game.code===item.gameCode)?.name||'未分配游戏')); tr.appendChild(cell(item.serviceCount??0)); categoryRows.appendChild(tr);});
   }
 
   function fillGameFilter() {
     const selected=gameFilter.value; const first=gameFilter.firstElementChild; gameFilter.replaceChildren(); if(first)gameFilter.appendChild(first);
-    (snapshot?.games||[]).forEach((game)=>{const option=document.createElement('option'); option.value=game.code; option.textContent=`${game.name} · ${game.code}`; gameFilter.appendChild(option);});
+    (snapshot?.games||[]).forEach((game)=>{const option=document.createElement('option'); option.value=game.code; option.textContent=game.name; gameFilter.appendChild(option);});
     if([...gameFilter.options].some((option)=>option.value===selected)) gameFilter.value=selected;
   }
 
@@ -153,7 +153,7 @@
     const previous=createGame.value;
     createGame.replaceChildren();
     const games=(snapshot?.games||[]).filter((game)=>game.active);
-    games.forEach((game)=>{const option=document.createElement('option'); option.value=game.code; option.textContent=`${game.name} · ${game.code}`; createGame.appendChild(option);});
+    games.forEach((game)=>{const option=document.createElement('option'); option.value=game.code; option.textContent=game.name; createGame.appendChild(option);});
     if([...createGame.options].some((option)=>option.value===previous)) createGame.value=previous;
     createGame.disabled=games.length===0;
     fillCreateCategories();
@@ -163,7 +163,7 @@
     const previous=createCategory.value;
     createCategory.replaceChildren();
     const categories=(snapshot?.categories||[]).filter((category)=>category.active&&category.gameCode===createGame.value);
-    categories.forEach((category)=>{const option=document.createElement('option'); option.value=category.code; option.textContent=`${category.name} · ${category.code}`; createCategory.appendChild(option);});
+    categories.forEach((category)=>{const option=document.createElement('option'); option.value=category.code; option.textContent=category.name; createCategory.appendChild(option);});
     if([...createCategory.options].some((option)=>option.value===previous)) createCategory.value=previous;
     createCategory.disabled=categories.length===0;
   }
@@ -171,6 +171,7 @@
   function openCreate() {
     if(!canManage||!snapshot) return;
     createForm.reset();
+    createReason.value='新增服务项目';
     createPriceMode.value='QUOTE';
     createSortOrder.value='0';
     createPriority.value='0';
@@ -186,7 +187,7 @@
   function openEdit(item) {
     if(!canManage) return;
     currentEdit=item;
-    editMeta.textContent=`${item.slug} · ${item.gameCode}/${item.category} · 当前 ${display(item.status)}`;
+    editMeta.textContent=`${item.name} · 当前 ${display(item.status)}`;
     editName.value=item.name||'';
     editShortDesc.value=item.shortDesc||'';
     editPriceMode.value=String(item.priceMode||'QUOTE').toUpperCase();
@@ -196,7 +197,7 @@
     editDuration.value=item.durationText||'';
     editSortOrder.value=String(item.sortOrder??0);
     editPriority.value=String(item.manualPriority??0);
-    editReason.value='';
+    editReason.value='维护服务资料';
     syncPriceFields(editPriceMode,editPriceFixed,editPriceMin,editPriceMax);
     editDialog.showModal();
     editName.focus();
@@ -306,7 +307,7 @@
     if(!canManage)return;
     currentReviewItem=item;
     currentReview=null;
-    reviewMeta.textContent=`${item.name} · ${item.slug} · ${item.gameCode}/${item.category}`;
+    reviewMeta.textContent=item.name;
     reviewSummary.classList.remove('ready','blocked');
     reviewSummary.textContent='正在执行发布前检查……';
     reviewChecks.replaceChildren();
@@ -338,7 +339,7 @@
       await write(`/api/admin/xingwei/catalog/services/${item.id}/restore`,'POST');
       closeReview();
       await loadSnapshot(false);
-      setMessage(`「${item.name}」已通过发布检查并正式上架，SERVICE_RESTORE 已记录审计。`,'ok');
+      setMessage(`「${item.name}」已通过发布检查并正式上架，操作已记录。`,'ok');
     }catch(error){
       setMessage(`上架失败：${error.message}`,'error');
       reviewPublish.disabled=false;

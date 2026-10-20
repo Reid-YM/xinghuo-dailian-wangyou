@@ -94,7 +94,12 @@ public class XingweiSiteControlService {
         audit.log("XINGWEI_SITE_ASSET_UPLOAD","SITE_ASSET",String.valueOf(asset.getId()),actor.getName(),null,Map.of("field",field),"上传配置草稿图片",request);
         return Map.of("url","/api/site-assets/"+asset.getId());
     }
-    private Object values(String area){return switch(area){case "site"->config.publicConfig();case "global-ui"->settings.globalUiSettings();case "frontend"->frontend.settings();case "games"->games.all().stream().map(g->new GameState(g.getGameCode(),g.getStatusCode().name(),g.getPublicLabel(),g.getPublicDetail(),g.getCtaLabel(),g.getUpdatedAt()==null?0L:g.getUpdatedAt().toEpochMilli())).toList();default->throw new IllegalArgumentException("配置类型无效");};}
+    private Object values(String area){return switch(area){case "site"->config.publicConfig();case "global-ui"->settings.globalUiSettings();case "frontend"->frontend.settings();case "games"->gameStates();default->throw new IllegalArgumentException("配置类型无效");};}
+    private List<GameState> gameStates(){
+        Map<String,String> names=new LinkedHashMap<>();
+        jdbc.query("SELECT code,name FROM game_catalog", rs->{names.put(rs.getString(1),rs.getString(2));});
+        return games.all().stream().map(g->new GameState(g.getGameCode(),names.getOrDefault(g.getGameCode(),"未命名游戏"),g.getStatusCode().name(),g.getPublicLabel(),g.getPublicDetail(),g.getCtaLabel(),g.getUpdatedAt()==null?0L:g.getUpdatedAt().toEpochMilli())).toList();
+    }
     private void requireRead(Authentication actor,String area){
         boolean allowed="site".equals(area)?guard.hasAny(actor,"site:view","seo:view"):guard.has(actor,"site:view");
         if(!allowed||"DENIED".equals(guard.resolve(actor).mode()))throw new AccessDeniedException("没有配置查看权限");
@@ -136,6 +141,6 @@ public class XingweiSiteControlService {
         throw new IllegalArgumentException("图片和跳转地址必须为 http(s) 地址或以 / 开头的站内路径");
     }
     private static String str(Object value){return value==null?null:String.valueOf(value);}
-    public record GameState(String gameCode,String statusCode,String publicLabel,String publicDetail,String ctaLabel,long updatedAtMs){}
+    public record GameState(String gameCode,String gameName,String statusCode,String publicLabel,String publicDetail,String ctaLabel,long updatedAtMs){}
     public record State(Object values,String revision){}
 }

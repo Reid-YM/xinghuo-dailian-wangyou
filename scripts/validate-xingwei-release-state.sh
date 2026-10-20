@@ -76,15 +76,15 @@ case "$console_stage" in
   *"UNIFIED DELIVERY")
     grep -Eq "new ReleaseItem\(\"[0-9]{4}-[0-9]{2}-[0-9]{2}\", \"${stage_tag}\", \"本版本\"," "$controller" \
       || fail "unified delivery stage ${stage_tag} must have a 本版本 release item"
-    require_literal "$dashboard" '生产部署结果以发布流水线核验为准'
+    require_literal "$dashboard" 'hidden aria-hidden="true" class="xw-runtime-metadata"'
     ;;
   *) fail "unsupported delivery stage: $console_stage" ;;
 esac
 
 # Known delivery truth that must not regress while real-device validation is pending.
 require_literal "$controller" '"V3H", "待真机验收"'
-require_literal "$dashboard" 'V3H 待真机验收'
-require_literal "$dashboard" '生产流水线已启用'
+require_literal "$dashboard" 'href="/admin/xingwei/payments"'
+require_literal '.github/workflows/deploy-production.yml' 'Require successful main CI'
 
 if grep -Fq '<article class="xw-module xw-module-planned" data-search="微信支付' "$dashboard"; then
   fail "V3H payment is implemented/pending validation and must not be shown as merely planned"

@@ -60,7 +60,7 @@ class XingweiTaxonomyControlPlaywrightTest {
             assertTrue(page.locator("#xtaxImpactPublicServices").textContent().contains("2"));
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xtaxToggle').disabled"));
 
-            page.locator("#xtaxReason").fill("赛季结束暂停接单");
+
             assertTrue((Boolean) page.evaluate("() => document.querySelector('#xtaxToggle').disabled"));
             page.locator("#xtaxAcknowledge").check();
             assertTrue((Boolean) page.evaluate("() => !document.querySelector('#xtaxToggle').disabled"));
@@ -70,7 +70,7 @@ class XingweiTaxonomyControlPlaywrightTest {
             assertEquals("PUT", page.evaluate("() => window.__writes[0].method"));
             assertEquals("csrf-token", page.evaluate("() => window.__writes[0].headers['X-CSRF-TOKEN']"));
             assertEquals(false, page.evaluate("() => window.__writes[0].body.active"));
-            assertEquals("赛季结束暂停接单", page.evaluate("() => window.__writes[0].body.reason"));
+            assertEquals("维护游戏分类启停", page.evaluate("() => window.__writes[0].body.reason"));
             assertEquals("impact-token-1", page.evaluate("() => window.__writes[0].body.impactToken"));
             assertTrue(page.locator("#xtaxMessage").textContent().contains("影响快照已校验"));
         }

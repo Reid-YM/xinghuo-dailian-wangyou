@@ -36,6 +36,7 @@ class XingweiSiteControlServiceTest {
     void setup(){
         JdbcTemplate jdbc=new JdbcTemplate(new DriverManagerDataSource("jdbc:h2:mem:site"+System.nanoTime()+";MODE=MySQL;DB_CLOSE_DELAY=-1","sa",""));
         jdbc.execute("CREATE TABLE site_config(id BIGINT PRIMARY KEY)");jdbc.update("INSERT INTO site_config VALUES(1)");
+        jdbc.execute("CREATE TABLE game_catalog(code VARCHAR(32) PRIMARY KEY,name VARCHAR(80))");jdbc.update("INSERT INTO game_catalog VALUES('MW4','实际游戏')");
         guard=mock(XingweiPermissionGuard.class);config=mock(SiteConfigService.class);settings=mock(SiteSettingService.class);frontend=mock(FrontendControlService.class);games=mock(GameStatusService.class);audit=mock(AuditService.class);
         actor=new UsernamePasswordAuthenticationToken("manager","",List.of());
         when(guard.resolve(actor)).thenReturn(new AccessSnapshot("SHADOW_RBAC",false,List.of(),List.of(),"ALL",1L,"03"));
@@ -82,6 +83,14 @@ class XingweiSiteControlServiceTest {
             assertThrows(IllegalArgumentException.class,()->service.update("site","visual",Map.of("heroImage",bad),revision,actor,null));
         assertThrows(IllegalArgumentException.class,()->service.update("frontend",null,Map.of("unknownKey","bad"),service.read("frontend",actor).revision(),actor,null));
         verify(config,never()).updateSection(any(),any(),any(),any());verify(frontend,never()).update(any());
+    }
+    @Test
+    void gameStateIncludesBusinessNameWithoutChangingItsUpdateKey(){
+        when(games.all()).thenReturn(List.of(com.xinghuo.model.GameStatus.builder().gameCode("MW4").statusCode(com.xinghuo.model.GameStatus.StatusCode.OPEN).publicLabel("可接单").build()));
+        var rows=(List<?>)service.read("games",actor).values();
+        var state=(XingweiSiteControlService.GameState)rows.getFirst();
+        assertEquals("实际游戏",state.gameName());
+        assertEquals("MW4",state.gameCode());
     }
     @Test
     void gameStateUpdatesUseRealGameStatusServiceRatherThanSiteFallback(){

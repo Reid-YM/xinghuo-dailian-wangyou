@@ -276,7 +276,10 @@ public class OrderService {
                         : request.progressPercent());
         order.setProgressText(request.progressText().trim());
         order.setCustomerNote(trimNull(request.customerNote()));
-        order.setInternalNote(trimNull(request.internalNote()));
+        // Hidden or omitted internal fields must not erase historical notes.
+        if (request.internalNote() != null) {
+            order.setInternalNote(trimNull(request.internalNote()));
+        }
         if ((nextStatus == CustomerOrder.Status.COMPLETED
                 || nextStatus == CustomerOrder.Status.CLOSED) && order.getFinishedAt() == null) {
             order.setFinishedAt(Instant.now());

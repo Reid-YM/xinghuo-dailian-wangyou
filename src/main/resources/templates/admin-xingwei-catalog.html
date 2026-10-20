@@ -8,31 +8,31 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>服务与游戏资料 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-catalog.css?v=20261013v3d"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-catalog.js?v=20261017search1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-catalog.js?v=20261019cutover"></script>
+<link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
 <main class="xcat-shell">
   <header class="xcat-topbar">
-    <div><p class="xw-kicker">星维 · 服务目录</p><h1>服务与游戏资料</h1></div>
+    <div><p class="xw-kicker"><img class="xw-workspace-logo" src="/assets/brand-logo.svg?v=20261019admin" alt="" width="26" height="26"/> 星维 · 服务目录</p><h1>服务与游戏资料</h1></div>
     <div class="xcat-actions">
       <span class="xw-status" id="xcatManageMode"><i></i><span>权限检查中</span></span>
       <span class="xw-status" id="xcatStatus"><i></i><span>正在读取</span></span>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/taxonomy">游戏/分类启停</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/catalog-details">完整资料、图片与批量维护</a><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
-      <a class="xw-button xw-button-ghost" href="/admin?legacy=1" th:if="${restoreAdmin == true}">管理员恢复入口</a>
     </div>
   </header>
 
   <section class="xcat-hero">
     <div>
-      <p class="xw-kicker">V3D · 发布检查</p>
+      <p class="xw-kicker">服务发布检查</p>
       <h2>新建服务保持离线；正式上架前必须先完成发布检查。</h2>
-      <p>查看要求 <strong>服务查看权限</strong>；新增、编辑、下线和上架要求 <strong>服务管理权限</strong>。V3D 会检查游戏与分类、网址标识、名称、说明、预计时长、价格和到期时间；任何阻断项失败都不能从新版工作台上架。封面缺失仅提示警告，不额外新增审批表，也不产生第二份服务状态。游戏/分类启用与停用已拆到 V3E 独立工作台，必须先查看影响。</p>
+      <p>查看要求 <strong>服务查看权限</strong>；新增、编辑、下线和上架要求 <strong>服务管理权限</strong>。发布前会检查游戏与分类、网址标识、名称、说明、预计时长、价格和到期时间；任何阻断项失败都不能从新版工作台上架。封面缺失仅提示警告，不额外新增审批表，也不产生第二份服务状态。游戏与分类启停需先查看公开展示影响。</p>
     </div>
-    <div class="xcat-version"><span>当前版本</span><strong th:text="${catalogVersion}">20261013-v3e</strong><small th:text="${username}">admin</small></div>
+
   </section>
 
   <section class="xcat-message" id="xcatMessage" role="status">正在读取服务与游戏资料……</section>
@@ -62,12 +62,12 @@
 
   <div class="xcat-grid">
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>游戏资料</h3><p>结构仍保持只读；启用与停用请进入 V3E 独立工作台并先查看影响。</p></div></div>
+      <div class="xw-data-head"><div><h3>游戏资料</h3><p>编辑资料或调整启用状态，请进入游戏与分类工作台。</p></div></div>
       <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>游戏</th><th>业务状态</th><th>分类 / 服务</th><th>平台</th></tr></thead><tbody id="xcatGameRows"></tbody></table></div>
     </section>
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>分类资料</h3><p>结构仍保持只读；启用与停用请进入 V3E 独立工作台并先查看影响。</p></div></div>
-      <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>编码</th><th>分类</th><th>游戏</th><th>服务数</th></tr></thead><tbody id="xcatCategoryRows"></tbody></table></div>
+      <div class="xw-data-head"><div><h3>分类资料</h3><p>编辑资料或调整启用状态，请进入游戏与分类工作台。</p></div></div>
+      <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>分类</th><th>游戏</th><th>服务数</th></tr></thead><tbody id="xcatCategoryRows"></tbody></table></div>
     </section>
   </div>
 </main>
@@ -91,7 +91,7 @@
       <label>预计时长<input id="xcatCreateDuration" maxlength="100" placeholder="例如 1-2 天" required/></label>
       <label>展示排序<input id="xcatCreateSortOrder" type="number" step="1" value="0" required/></label>
       <label>人工优先级<input id="xcatCreatePriority" type="number" step="1" value="0" required/></label>
-      <label class="xcat-span-2">新增原因<textarea id="xcatCreateReason" maxlength="500" rows="2" required placeholder="说明为什么新增该服务，记录服务创建审计"></textarea></label>
+      <input id="xcatCreateReason" type="hidden"/>
     </div>
     <div class="xcat-dialog-note">新服务默认下线并停用，封面和到期时间留空，热度为零。游戏和分类只能从已有目录选择；新增和修改请进入游戏与分类工作台。</div>
     <div class="xcat-dialog-actions">
@@ -117,7 +117,7 @@
       <label>预计时长<input id="xcatEditDuration" maxlength="100" required/></label>
       <label>展示排序<input id="xcatEditSortOrder" type="number" step="1" required/></label>
       <label>人工优先级<input id="xcatEditPriority" type="number" step="1" required/></label>
-      <label class="xcat-span-2">变更原因<textarea id="xcatEditReason" maxlength="500" rows="2" required placeholder="写清本次调整原因，进入审计日志"></textarea></label>
+      <input id="xcatEditReason" type="hidden"/>
     </div>
     <div class="xcat-dialog-note">访问标识、游戏、分类、封面、热度、到期时间和当前上下架状态在基础编辑中保持原值；完整字段、封面和有效期请使用本页上方的“完整资料、图片与批量维护”。</div>
     <div class="xcat-dialog-actions">

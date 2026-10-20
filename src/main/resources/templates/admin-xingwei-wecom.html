@@ -8,16 +8,17 @@
   <meta name="_csrf" th:content="${csrf.token}"/>
   <meta name="_csrf_header" th:content="${csrf.headerName}"/>
   <title>企业微信通讯录 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-wecom.css?v=20261013v2g"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-wecom.js?v=20261017search1"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-wecom.js?v=20261019cutover"></script>
+<link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
 <main class="xwc-shell">
   <header class="xwc-topbar">
     <div>
-      <p class="xw-kicker">星维 · 企业微信通讯录</p>
+      <p class="xw-kicker"><img class="xw-workspace-logo" src="/assets/brand-logo.svg?v=20261019admin" alt="" width="26" height="26"/> 星维 · 企业微信通讯录</p>
       <h1>企业微信通讯录</h1>
     </div>
     <div class="xwc-actions">
@@ -30,11 +31,11 @@
 
   <section class="xwc-hero">
     <div>
-      <p class="xw-kicker">V2G · 只读通讯录</p>
-      <h2>企业微信实时员工与部门，只读接入；155 个正式岗位继续以 V63 数据库为唯一真源。</h2>
-      <p>本页没有新增、调岗、停用、删除等写操作，也不读取或展示手机号、邮箱。接口统一受 <strong>员工查看</strong> 权限保护。</p>
+      <p class="xw-kicker">员工通讯录</p>
+      <h2>查看企业微信员工、部门及正式岗位资料。</h2>
+      <p>企业微信通讯录在此处仅供查看，当前账号需要员工查看权限。</p>
     </div>
-    <div class="xwc-version"><span>当前版本</span><strong th:text="${weComVersion}">20261013-v2g</strong><small th:text="${username}">admin</small></div>
+
   </section>
 
   <section class="xwc-message" id="xwcMessage" role="status">正在读取企业微信通讯录……</section>
@@ -59,10 +60,10 @@
   <div class="xwc-grid">
     <section class="xw-data-panel">
       <div class="xw-data-head"><div><h3>企业微信实时部门</h3><p>直接来自企业微信部门结构。</p></div></div>
-      <div class="xw-table-wrap xwc-scroll"><table class="xw-table"><thead><tr><th>编号</th><th>部门</th><th>上级编号</th></tr></thead><tbody id="xwcDepartmentRows"></tbody></table></div>
+      <div class="xw-table-wrap xwc-scroll"><table class="xw-table"><thead><tr><th>部门</th><th>上级部门</th></tr></thead><tbody id="xwcDepartmentRows"></tbody></table></div>
     </section>
     <section class="xw-data-panel">
-      <div class="xw-data-head"><div><h3>V63 正式岗位</h3><p>不再维护第二份岗位词库，避免岗位双真源。</p></div></div>
+      <div class="xw-data-head"><div><h3>正式岗位</h3><p>按所属中心查找岗位。</p></div></div>
       <div class="xw-table-wrap xwc-scroll"><table class="xw-table"><thead><tr><th>编码</th><th>岗位</th><th>中心</th></tr></thead><tbody id="xwcPositionRows"></tbody></table></div>
     </section>
   </div>

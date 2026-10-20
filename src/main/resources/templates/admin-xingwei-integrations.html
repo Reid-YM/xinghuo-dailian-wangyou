@@ -6,34 +6,35 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="_csrf" th:content="${csrf.token}"/>
   <title>企业微信与微信支付配置 · 星维管理后台</title>
-  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261017search1"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-integrations.css?v=20261014v3p"/>
-<script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script></head>
+<script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
+</head>
 <body>
 <main class="xwi-shell">
   <header class="xwi-top">
-    <div><p class="xw-kicker">星维 · 集成配置</p><h1>企业微信与微信支付配置</h1></div>
+    <div><p class="xw-kicker"><img class="xw-workspace-logo" src="/assets/brand-logo.svg?v=20261019admin" alt="" width="26" height="26"/> 星维 · 集成配置</p><h1>企业微信与微信支付配置</h1></div>
     <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回星维后台</a>
   </header>
-  <p class="xwi-intro">本页只检查服务器配置是否齐全，不读取或展示密钥、证书内容与文件路径。配置齐全不代表企业微信接口已验连，也不代表微信商户绑定或真实收款已通过。</p>
+  <p class="xwi-intro">查看企业微信和微信支付的配置准备情况。配置齐全后，仍需完成员工登录、通讯录和真实收款验证。</p>
 
   <section class="xwi-card" th:if="${weCom != null}">
     <div class="xwi-heading"><div><p class="xw-kicker">企业微信</p><h2>企业微信</h2></div><strong class="xwi-badge" th:classappend="${weCom.readConfigured} ? ' ready' : ' pending'" th:text="${weCom.readConfigured} ? '读取配置齐全' : '读取配置未齐全'">读取配置状态</strong></div>
-    <p>通讯录读取使用企业 ID 与只读应用密钥；员工、部门实时验连请进入通讯录页。岗位仍以 V63 数据库为真源。</p>
-    <ul class="xwi-checks"><li th:each="check : ${weCom.checks}"><span><strong th:text="${check.label}">配置项</strong><small th:text="${check.key}">WECOM_*</small></span><b th:classappend="${check.ready} ? ' ready' : ' pending'" th:text="${check.ready} ? '已配置' : '待配置'">待配置</b></li></ul>
-    <div class="xwi-note"><strong>员工写入</strong><span th:text="${weCom.writeCredentialPresent} ? '写入凭据已配置；写入能力仍在 PR #372，尚未并入主线或完成真实员工验收。' : '写入凭据待配置；写入能力仍在 PR #372，尚未并入主线。'">写入能力未上线</span></div>
+    <p>员工和部门信息可在通讯录页实时核对，岗位与角色在组织工作台维护。</p>
+    <ul class="xwi-checks"><li th:each="check : ${weCom.checks}"><span><strong th:text="${check.label}">配置项</strong></span><b th:classappend="${check.ready} ? ' ready' : ' pending'" th:text="${check.ready} ? '已配置' : '待配置'">待配置</b></li></ul>
+    <div class="xwi-note"><strong>员工写入</strong><span th:text="${weCom.writeCredentialPresent} ? '写入配置已准备，员工和部门修改功能尚未上线。' : '员工和部门修改功能尚未上线，相关配置仍待准备。'">写入能力未上线</span></div>
     <div class="xwi-actions"><a class="xw-button" href="/admin/xingwei/wecom">查看实时通讯录</a><a class="xw-button xw-button-ghost" href="/admin/xingwei/site">设置企微客服展示</a></div>
   </section>
 
   <section class="xwi-card" th:if="${payment != null}">
     <div class="xwi-heading"><div><p class="xw-kicker">微信支付</p><h2>微信支付</h2></div><strong class="xwi-badge" th:classappend="${payment.enabled} ? ' ready' : ' pending'" th:text="${payment.enabled} ? '扫码支付开关已开启' : '真实收款开关关闭'">支付开关状态</strong></div>
-    <p>以下检查覆盖现有网站 扫码支付的服务器配置。完成配置后仍需确认商户绑定、回调验签和小额真机支付；本页不会创建支付单或切换收款开关。</p>
-    <ul class="xwi-checks"><li th:each="check : ${payment.checks}"><span><strong th:text="${check.label}">配置项</strong><small th:text="${check.key}">WECHAT_PAY_*</small></span><b th:classappend="${check.ready} ? ' ready' : ' pending'" th:text="${check.ready} ? '已就绪' : '待核对'">待核对</b></li></ul>
-    <div class="xwi-note"><strong>扫码支付配置</strong><span th:text="${payment.configReady} ? '字段与文件检查通过；商户绑定和回调仍需真实环境验收。' : '仍有字段或文件未通过检查。'">待核对</span></div>
-    <div class="xwi-note"><strong>小程序支付</strong><span th:text="${payment.miniAppIdMatches} ? '支付 AppID 与当前小程序 AppID 一致；V3H PR #384 仍未合并，需适配星火迷彩追踪器并真机验收。' : '支付 AppID 与当前小程序 AppID 尚未匹配或小程序 AppID 未配置；V3H PR #384 仍未合并。'">待验收</span></div>
+    <p>查看网站扫码支付准备情况。正式使用前，需核对商户绑定、支付结果通知和小额真机支付。</p>
+    <ul class="xwi-checks"><li th:each="check : ${payment.checks}"><span><strong th:text="${check.label}">配置项</strong></span><b th:classappend="${check.ready} ? ' ready' : ' pending'" th:text="${check.ready} ? '已就绪' : '待核对'">待核对</b></li></ul>
+    <div class="xwi-note"><strong>扫码支付配置</strong><span th:text="${payment.configReady} ? '配置检查通过，商户绑定和支付结果通知仍待实际验证。' : '配置尚未齐全，请联系管理人员完善。'">待核对</span></div>
+    <div class="xwi-note"><strong>小程序支付</strong><span th:text="${payment.miniAppIdMatches} ? '支付应用与当前小程序匹配；小程序收款仍需完成适配和真机验证。' : '支付应用与当前小程序尚未匹配，请联系管理人员核对；小程序收款仍待验证。'">待验收</span></div>
     <div class="xwi-overview" th:if="${paymentOverview != null}">
       <h3>网站微信支付记录</h3>
-      <p>仅查看数据库中的网站微信支付单；状态以服务端记录为准，本页不发起查单或收款操作。</p>
+      <p>查看网站微信支付记录，处理支付订单请进入支付管理工作台。</p>
       <div class="xwi-metrics">
         <div><strong th:text="${paymentOverview.counts.total}">0</strong><span>总记录</span></div>
         <div><strong th:text="${paymentOverview.counts.pending}">0</strong><span>待支付</span></div>
@@ -41,14 +42,14 @@
         <div><strong th:text="${paymentOverview.counts.cancelled}">0</strong><span>已关闭</span></div>
       </div>
       <div class="xwi-table-wrap" th:if="${!paymentOverview.recent.isEmpty()}"><table class="xwi-table"><thead><tr><th>支付单</th><th>业务单</th><th>服务</th><th>金额</th><th>状态</th><th>建立时间</th></tr></thead><tbody>
-        <tr th:each="item : ${paymentOverview.recent}"><td th:text="${item.paymentNo}">支付单</td><td th:text="${item.businessNo}">业务单</td><td th:text="${item.subject}">服务</td><td th:text="|${item.amount} ${item.currency}|">金额</td><td th:text="${item.status}">状态</td><td th:text="${item.createdAt}">建立时间</td></tr>
+        <tr th:each="item : ${paymentOverview.recent}"><td th:text="${item.paymentNo}">支付单</td><td th:text="${item.businessNo}">业务单</td><td th:text="${item.subject}">服务</td><td th:text="|${item.amount} ${item.currency}|">金额</td><td th:switch="${item.status}"><span th:case="'CREATED'">待支付</span><span th:case="'APPROVED'">待支付</span><span th:case="'CAPTURED'">已支付</span><span th:case="'CANCELLED'">已关闭</span><span th:case="*">待核对</span></td><td th:text="${item.createdAt}">建立时间</td></tr>
       </tbody></table></div>
       <p th:if="${paymentOverview.recent.isEmpty()}">暂无网站微信支付记录。</p>
     </div>
     <div class="xwi-actions"><a class="xw-button" href="/admin/xingwei/payments">支付管理工作台</a><a class="xw-button xw-button-ghost" href="/admin/xingwei/business?tab=orders">查看新版订单工作台</a></div>
   </section>
 
-  <footer class="xwi-footer">配置来源为服务器环境变量与受控文件；前端只接收检查结果。生产启用继续执行主线 PR、CI 与零停机发布门禁。</footer>
+  <footer class="xwi-footer">配置状态仅供准备工作参考；员工登录和支付是否可用，以实际验证结果为准。</footer>
 </main>
 </body>
 </html>

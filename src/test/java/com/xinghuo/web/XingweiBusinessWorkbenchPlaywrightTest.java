@@ -80,7 +80,7 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             page.waitForFunction("() => document.querySelector('#xwbQuoteRows')?.textContent.includes('XH1001')");
 
             assertEquals(2, page.locator("#xwbQuoteRows tr[data-search]").count());
-            assertTrue(page.locator("#xwbAccessBadge").textContent().contains("管理员兜底"));
+            assertTrue(page.locator("#xwbAccessBadge").textContent().contains("系统管理员"));
             assertEquals("2", page.locator("#xwbKpiVisible").textContent());
             assertEquals("1", page.locator("#xwbKpiUnassigned").textContent());
 
@@ -107,7 +107,10 @@ class XingweiBusinessWorkbenchPlaywrightTest {
             assertEquals(1, page.locator("#xwbOrderRows tr[data-search]").count());
             assertFalse(page.locator("#xwbOrderRows").textContent().contains("XH1002"));
             assertTrue(page.locator("#xwbOrderRows").textContent().contains("客户说明：售后问题：进度不符"));
-            assertTrue(page.locator("#xwbOrderRows").textContent().contains("内部备注：客服已联系"));
+            assertFalse(page.locator("body").innerText().contains("客服已联系"));
+            assertEquals(0,page.locator("[name=internalNote],#xwbAfterSalesDetailInternal").count());
+            page.locator("#xwbSearch").fill("客服已联系");
+            assertEquals("0",page.locator("#xwbKpiFiltered").textContent());
             page.locator("#xwbSearch").fill("客户争议");
             assertEquals("1", page.locator("#xwbKpiFiltered").textContent());
 

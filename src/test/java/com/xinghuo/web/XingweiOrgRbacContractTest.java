@@ -48,7 +48,7 @@ class XingweiOrgRbacContractTest {
         }
         assertFalse(migration.contains("ALTER TABLE admin_users"), "organization migration must not change legacy login table");
         assertFalse(migration.contains("UPDATE admin_users"), "organization migration must not rewrite legacy roles");
-        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin/**\")"));
+        assertTrue(security.contains(".requestMatchers(\"/admin/**\", \"/api/admin\", \"/api/admin/**\")"));
         assertTrue(security.contains(".hasAnyRole(\"ADMIN\", \"OPERATOR\")"), "legacy ADMIN/OPERATOR remains the outer Spring Security boundary");
     }
 
@@ -94,17 +94,17 @@ class XingweiOrgRbacContractTest {
         String controller = read("java/com/xinghuo/controller/XingweiAdminController.java");
         String accessController = read("java/com/xinghuo/controller/XingweiPermissionController.java");
         assertTrue(template.contains("/assets/admin-xingwei-org.css?v=20261013v2a"));
-        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261017search1"));
-        assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261017search1"));
-        assertTrue(template.contains("V6A · UNIFIED DELIVERY"));
-        assertTrue(template.contains("V2C · 数据范围"));
-        assertTrue(template.contains("恢复管理员全量 · 员工按角色与数据范围执行"));
+        assertTrue(template.contains("/assets/admin-xingwei.js?v=20261019cutover"));
+        assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261019cutover"));
+        assertTrue(template.contains("V6B · UNIFIED DELIVERY"));
+        assertTrue(template.contains("员工数据范围"));
+        assertTrue(template.contains("员工按角色与数据范围执行"));
         assertTrue(orgJs.contains("/api/admin/xingwei/org/snapshot"));
         assertTrue(orgJs.contains("form.dataset.canProfile"));
         assertTrue(orgJs.contains("form.dataset.canRoles"));
         assertTrue(orgJs.contains("dataScopeLabel(scope"));
         assertTrue(orgJs.contains("availableEmployeeDepartments"));
-        assertTrue(orgJs.contains("V2C 数据范围"));
+        assertTrue(orgJs.contains("数据范围："));
         assertTrue(mainJs.contains("/api/admin/xingwei/access"));
         assertTrue(mainJs.contains("MODULE_PERMISSIONS"));
         assertTrue(mainJs.contains("employee:manage"));
@@ -116,7 +116,7 @@ class XingweiOrgRbacContractTest {
         assertTrue(mainJs.contains("xw:runtime-health"));
         assertTrue(accessController.contains("@GetMapping(\"/access\")"));
         assertTrue(controller.contains("20261013-v2c"));
-        assertTrue(controller.contains("20261016-v6a"));
+        assertTrue(controller.contains("20261019-v6b"));
     }
 
     private static int occurrences(String source, String needle) {

@@ -53,6 +53,20 @@ class AdminTestFeedbackServiceTest {
     }
 
     @Test
+    void omittedOperatorNoteDoesNotEraseHistoricalFeedbackNotes() {
+        var repo=mock(AdminTestFeedbackRepository.class);
+        var existing=AdminTestFeedback.builder().id(9L).title("问题").content("问题说明")
+                .priority(AdminTestFeedback.Priority.NORMAL).status(AdminTestFeedback.Status.NEW)
+                .operatorNote("历史内部备注").createdBy("staff").createdAt(Instant.now()).updatedAt(Instant.now()).build();
+        when(repo.findById(9L)).thenReturn(Optional.of(existing));
+        when(repo.save(any(AdminTestFeedback.class))).thenAnswer(call->call.getArgument(0));
+        var service=new AdminTestFeedbackService(repo,mock(AuditService.class));
+        service.update(9L,new ApiDtos.TestFeedbackUpdateRequest("问题",null,"问题说明","NORMAL","DONE",null),"staff",mock(HttpServletRequest.class));
+        assertEquals("历史内部备注",existing.getOperatorNote());
+        assertEquals(AdminTestFeedback.Status.DONE,existing.getStatus());
+    }
+
+    @Test
     void invalidUpdateStatusStillFailsBeforeSave() {
         AdminTestFeedbackRepository repo = mock(AdminTestFeedbackRepository.class);
         AuditService audit = mock(AuditService.class);

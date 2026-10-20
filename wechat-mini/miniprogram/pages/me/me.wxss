@@ -268,6 +268,19 @@
   text-align: right;
 }
 
+/* 公安备案：仅展示官方徽标与备案号，不显示文字标签 */
+.about-police {
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.police-badge {
+  flex-shrink: 0;
+  width: 28rpx;
+  height: 30rpx;
+}
+
 .about-note {
   margin-top: 20rpx;
   font-size: 22rpx;

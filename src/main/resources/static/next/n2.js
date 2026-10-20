@@ -139,8 +139,9 @@
     const counts=new Map();
     state.services.forEach(service=>{
       const key=code(service?.category).toLowerCase()||'uncategorized';
-      const current=counts.get(key)||{key,label:categoryName(service?.category,service?.gameCode),count:0};
+      const current=counts.get(key)||{key,label:categoryName(service?.category,service?.gameCode),count:0,games:new Set()};
       current.count+=1;
+      current.games.add(gameName(service?.gameCode));
       counts.set(key,current);
     });
     const fragment=document.createDocumentFragment();
@@ -148,12 +149,16 @@
     const all=make('button','cat active',`全部服务 (${state.services.length})`);
     all.type='button';all.dataset.cat='all';
     fragment.append(all);
+    const labelCounts=new Map();
+    counts.forEach(row=>labelCounts.set(row.label,(labelCounts.get(row.label)||0)+1));
     [...counts.values()].sort((a,b)=>a.label.localeCompare(b.label,'zh-CN')).forEach(row=>{
-      const item=make('button','cat',`${row.label} (${row.count})`);
+      const label=labelCounts.get(row.label)>1?`${row.label} · ${[...row.games].join('、')}`:row.label;
+      const item=make('button','cat',`${label} (${row.count})`);
       item.type='button';item.dataset.cat=row.key;
       fragment.append(item);
     });
     side.replaceChildren(fragment);
+    syncFilters();
   }
 
   function applyFilter(updateUrl=true){

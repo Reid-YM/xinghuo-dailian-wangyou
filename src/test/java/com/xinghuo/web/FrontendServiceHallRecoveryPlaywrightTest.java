@@ -45,6 +45,48 @@ class FrontendServiceHallRecoveryPlaywrightTest {
             assertEquals(List.of(),f.errors);
         }});
     }
+    @Test void sparseResultsDoNotStretchToTallSidebarAndSameNamedCategoriesAreDistinct()throws Exception {
+        both(browser->{try(var f=new FrontendCanonicalRoutesPlaywrightTest.Fixture(browser,1280,false)){
+            var catalog=new StringBuilder("{\"games\":[{\"code\":\"CODMW4\",\"name\":\"使命召唤\"},{\"code\":\"DMZ\",\"name\":\"DMZ\"}],\"platforms\":[],\"gamePlatforms\":[],\"categories\":[");
+            var services=new StringBuilder("[");
+            for(int i=0;i<20;i++) {
+                if(i>0){catalog.append(',');services.append(',');}
+                String name=i<2?"迷彩任务":"分类"+i;
+                String game=i==1?"DMZ":"CODMW4";
+                catalog.append("{\"code\":\"CAT").append(i).append("\",\"gameCode\":\"").append(game).append("\",\"name\":\"").append(name).append("\"}");
+                services.append("{\"id\":").append(i+1).append(",\"slug\":\"service-").append(i).append("\",\"gameCode\":\"").append(game).append("\",\"category\":\"CAT").append(i==2||i==3?0:i).append("\",\"name\":\"服务").append(i).append("\",\"priceMode\":\"FIXED\",\"priceFixed\":20}");
+            }
+            String catalogJson=catalog.append("]}").toString(),servicesJson=services.append("]").toString();
+            f.page.route("**/api/catalog",route->f.json(route,200,catalogJson));
+            f.page.route("**/api/services",route->f.json(route,200,servicesJson));
+            for(String base:List.of("","/next")) {
+                f.open(base+"/services?category=cat0",".serviceCard");
+                f.page.waitForFunction("()=>document.querySelector('#n2DataStatus').textContent.includes('服务目录已更新')");
+                assertEquals(3,f.page.locator(".serviceCard:not([hidden])").count());
+                assertTrue(f.page.locator(".cat[data-cat='cat0']").innerText().contains("使命召唤"));
+                assertTrue(f.page.locator(".cat[data-cat='cat1']").innerText().contains("DMZ"));
+                assertCompactResults(f.page);
+                f.page.locator(".cat[data-cat='all']").click();
+                assertEquals(20,f.page.locator(".serviceCard:not([hidden])").count());
+                f.page.locator(".cat[data-cat='cat1']").click();assertCompactResults(f.page);
+                f.page.reload();f.page.waitForSelector(".serviceCard:not([hidden])");assertCompactResults(f.page);
+                assertEquals("true",f.page.locator(".cat[data-cat='cat1']").getAttribute("aria-pressed"));
+                assertEquals(1,f.page.locator(".serviceCard:not([hidden])").count());
+            }
+            assertEquals(List.of(),f.errors);
+        }});
+    }
+    private void assertCompactResults(Page page) {
+        assertEquals(true,page.evaluate("""
+            ()=>{const side=document.querySelector('.services .side').getBoundingClientRect();
+                const card=document.querySelector('.serviceCard:not([hidden])').getBoundingClientRect();
+                const summary=document.querySelector('#hallResults').getBoundingClientRect();
+                const body=document.querySelector('.serviceCard:not([hidden]) .serviceBody').getBoundingClientRect();
+                return side.height>600 && card.top-summary.bottom<40 && card.height<400
+                    && card.bottom-body.bottom<4 && card.left>=side.right
+                    && document.documentElement.scrollWidth<=innerWidth;}
+            """));
+    }
     private void assertDesktopCards(Page page) {
         assertEquals(true,page.evaluate("""
             ()=>{const side=document.querySelector('.services .side').getBoundingClientRect();

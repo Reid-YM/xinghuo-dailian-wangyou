@@ -22,7 +22,7 @@
     <div class="xwi-heading"><div><p class="xw-kicker">企业微信</p><h2>企业微信</h2></div><strong class="xwi-badge" th:classappend="${weCom.readConfigured} ? ' ready' : ' pending'" th:text="${weCom.readConfigured} ? '读取配置齐全' : '读取配置未齐全'">读取配置状态</strong></div>
     <p>员工和部门信息可在通讯录页实时核对，岗位与角色在组织工作台维护。</p>
     <ul class="xwi-checks"><li th:each="check : ${weCom.checks}"><span><strong th:text="${check.label}">配置项</strong></span><b th:classappend="${check.ready} ? ' ready' : ' pending'" th:text="${check.ready} ? '已配置' : '待配置'">待配置</b></li></ul>
-    <div class="xwi-note"><strong>员工写入</strong><span th:text="${weCom.writeCredentialPresent} ? '写入配置已准备，员工和部门修改功能尚未上线。' : '员工和部门修改功能尚未上线，相关配置仍待准备。'">写入能力未上线</span></div>
+    <div class="xwi-note"><strong>通讯录管理</strong><span th:text="${weCom.writeEnabled} ? '管理入口已启用，仍需核对企业微信授权并完成专门测试成员验收。' : (${weCom.writeCredentialPresent} ? '管理凭据已准备，写入开关尚未启用。' : '管理凭据尚未准备，通讯录保持只读。')">通讯录保持只读</span></div>
     <div class="xwi-actions"><a class="xw-button" href="/admin/xingwei/wecom">查看实时通讯录</a><a class="xw-button xw-button-ghost" href="/admin/xingwei/site">设置企微客服展示</a></div>
   </section>
 

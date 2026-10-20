@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-wecom.css?v=20261013v2g"/>
-  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-wecom.js?v=20261020privacy"></script>
+  <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-wecom.js?v=20261020hr"></script>
 <link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
 </head>
 <body>
@@ -33,7 +33,7 @@
     <div>
       <p class="xw-kicker">员工通讯录</p>
       <h2>查看企业微信员工、部门及正式岗位资料。</h2>
-      <p>企业微信通讯录在此处仅供查看，当前账号需要员工查看权限。</p>
+      <p>查看实时通讯录。管理功能启用后，有全企业员工管理权限的账号可预览并确认变更。</p>
     </div>
 
   </section>
@@ -50,17 +50,19 @@
   <section class="xwc-toolbar">
     <label>搜索员工<input id="xwcSearch" type="search" placeholder="姓名 / 职务 / 部门" autocomplete="off"/></label>
     <button class="xw-button" id="xwcRefresh" type="button">刷新实时数据</button>
+    <button class="xw-button" id="xwcCreateMember" type="button" hidden>新增员工</button>
+    <button class="xw-button xw-button-ghost" id="xwcCreateDepartment" type="button" hidden>新增部门</button>
   </section>
 
   <section class="xw-data-panel">
     <div class="xw-data-head"><div><h3>企业微信实时员工</h3><p>仅展示最小必要字段；通讯录联系方式不会返回前端。</p></div><span class="xw-pill">员工查看</span></div>
-    <div class="xw-table-wrap"><table class="xw-table xwc-table"><thead><tr><th>员工</th><th>职务</th><th>部门</th><th>状态</th></tr></thead><tbody id="xwcEmployeeRows"></tbody></table></div>
+    <div class="xw-table-wrap"><table class="xw-table xwc-table"><thead><tr><th>员工</th><th>职务</th><th>部门</th><th>状态</th><th id="xwcEmployeeActionsHead" hidden>管理</th></tr></thead><tbody id="xwcEmployeeRows"></tbody></table></div>
   </section>
 
   <div class="xwc-grid">
     <section class="xw-data-panel">
       <div class="xw-data-head"><div><h3>企业微信实时部门</h3><p>直接来自企业微信部门结构。</p></div></div>
-      <div class="xw-table-wrap xwc-scroll"><table class="xw-table"><thead><tr><th>部门</th><th>上级部门</th></tr></thead><tbody id="xwcDepartmentRows"></tbody></table></div>
+      <div class="xw-table-wrap xwc-scroll"><table class="xw-table"><thead><tr><th>部门</th><th>上级部门</th><th id="xwcDepartmentActionsHead" hidden>管理</th></tr></thead><tbody id="xwcDepartmentRows"></tbody></table></div>
     </section>
     <section class="xw-data-panel">
       <div class="xw-data-head"><div><h3>正式岗位</h3><p>按所属中心查找岗位。</p></div></div>
@@ -68,5 +70,22 @@
     </section>
   </div>
 </main>
+<dialog id="xwcHrDialog" class="xwc-hr-dialog">
+  <form id="xwcHrForm">
+    <h2 id="xwcHrTitle">通讯录变更</h2>
+    <p id="xwcHrNotice">先预览，再输入名称确认。本操作会修改企业微信通讯录。</p>
+    <div id="xwcHrFields">
+      <label id="xwcHrNameField">名称<input id="xwcHrName" maxlength="64" autocomplete="off"/></label>
+      <label id="xwcHrDepartmentField"><span id="xwcHrDepartmentLabel">部门</span><select id="xwcHrDepartment"></select></label>
+      <label id="xwcHrPositionField">正式岗位<select id="xwcHrPosition"></select></label>
+      <label id="xwcHrMobileField">手机号<input id="xwcHrMobile" type="tel" maxlength="32" autocomplete="off"/></label>
+      <label id="xwcHrEmailField">邮箱<input id="xwcHrEmail" type="email" maxlength="128" autocomplete="off"/></label>
+    </div>
+    <div id="xwcHrPreview" hidden></div>
+    <label id="xwcHrConfirmField" hidden>输入预览中的名称确认<input id="xwcHrConfirm" maxlength="64" autocomplete="off"/></label>
+    <p id="xwcHrMessage" role="status"></p>
+    <div class="xwc-actions"><button id="xwcHrClose" type="button" class="xw-button xw-button-ghost">关闭</button><button id="xwcHrSubmit" type="submit" class="xw-button">预览变更</button></div>
+  </form>
+</dialog>
 </body>
 </html>

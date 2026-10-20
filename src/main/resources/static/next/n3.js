@@ -7,6 +7,32 @@
   let submitting=false;
   let idempotencyKey='';
   let screenshotAssetId=null;
+  const uploadTimeoutMs=deadline('__XH_TEST_UPLOAD_TIMEOUT_MS__',30000);
+  const quoteTimeoutMs=deadline('__XH_TEST_QUOTE_TIMEOUT_MS__',15000);
+
+  function deadline(testHook,fallback){
+    const value=Number(globalThis[testHook]);
+    return Number.isFinite(value)&&value>=50?value:fallback;
+  }
+
+  async function fetchWithDeadline(path,options,timeoutMs,timeoutMessage){
+    const controller=new AbortController();
+    let timer;
+    try{
+      return await Promise.race([
+        fetch(path,{...options,signal:controller.signal}),
+        new Promise((_,reject)=>{
+          timer=setTimeout(()=>{
+            const error=Object.assign(new Error(timeoutMessage),{name:'RequestTimeoutError'});
+            reject(error);
+            controller.abort();
+          },timeoutMs);
+        })
+      ]);
+    }finally{
+      clearTimeout(timer);
+    }
+  }
 
   function make(tag,className,value){
     const element=document.createElement(tag);
@@ -222,6 +248,7 @@
     if(!idempotencyKey) idempotencyKey=uuid();
     submitting=true;
     button.disabled=true;
+    button.setAttribute('aria-busy','true');
     const previous=button.textContent;
     button.textContent='正在提交…';
     message('正在安全提交询价，请勿重复点击。');
@@ -231,12 +258,12 @@
       if(image && !screenshotAssetId){
         if(!image.type.startsWith('image/'))throw new Error('请选择图片文件。');
         const upload=new FormData();upload.append('file',image);
-        const response=await fetch('/api/uploads/quote',{method:'POST',credentials:'same-origin',headers:{Accept:'application/json'},body:upload});
+        const response=await fetchWithDeadline('/api/uploads/quote',{method:'POST',credentials:'same-origin',headers:{Accept:'application/json'},body:upload},uploadTimeoutMs,'截图上传等待超时，当前内容已保留，请重试。');
         const uploaded=await response.json().catch(()=>({}));
         if(!response.ok||!uploaded.assetId)throw new Error(text(uploaded.message)||'截图上传失败，请重试。');screenshotAssetId=uploaded.assetId;window.XHFrontendShell?.track?.('screenshot_upload');
       }
       body.screenshotAssetId=screenshotAssetId;
-      const response=await fetch('/api/quote',{
+      const response=await fetchWithDeadline('/api/quote',{
         method:'POST',
         credentials:'same-origin',
         headers:{
@@ -245,7 +272,7 @@
           'Idempotency-Key':idempotencyKey
         },
         body:JSON.stringify(body)
-      });
+      },quoteTimeoutMs,'提交确认超时，询价可能已经受理；请直接重试，我们不会重复创建。');
       let result={};
       try{ result=await response.json(); }catch(ignore){ result={}; }
       if(!response.ok) throw Object.assign(new Error(serverMessage(result,response.status)),{status:response.status});
@@ -274,6 +301,7 @@
       // Keep the same idempotency key after failures so a retry cannot create a duplicate.
     }finally{
       if(imageInput)imageInput.disabled=false;
+      button.removeAttribute('aria-busy');
       submitting=false;
       if(button.disabled&&button.textContent==='正在提交…'){
         button.disabled=false;
@@ -293,7 +321,7 @@
     button.dataset.n3RealSubmit='true';
     button.addEventListener('click',submitQuote);
     const badge=$('.badge');
-    if(badge) badge.textContent=location.pathname.startsWith('/next')?'新版预览':'星火服务平台';
+    if(badge) badge.textContent='星火 · 游戏服务';
     const demoNote=[...document.querySelectorAll('.page[data-page="quote"] .sub')].find(node=>node.textContent.includes('演示模式'));
     if(demoNote) demoNote.textContent='提交后会生成业务编号，可随时查询进度。';
   }

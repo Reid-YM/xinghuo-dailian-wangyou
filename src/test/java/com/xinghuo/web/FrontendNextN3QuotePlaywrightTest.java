@@ -96,6 +96,50 @@ class FrontendNextN3QuotePlaywrightTest {
     }
 
     @Test
+    void chromiumTimeoutRestoresFormAndRetryReusesIdempotencyKey() {
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch()) {
+            Page page = browser.newPage();
+            AtomicInteger calls = new AtomicInteger();
+            List<String> keys = new CopyOnWriteArrayList<>();
+            routeQuotePage(page, route -> {
+                int call = calls.incrementAndGet();
+                keys.add(route.request().headers().getOrDefault("idempotency-key", ""));
+                if (call == 1) {
+                    try {
+                        Thread.sleep(180);
+                    } catch (InterruptedException error) {
+                        Thread.currentThread().interrupt();
+                    }
+                    route.abort();
+                    return;
+                }
+                route.fulfill(new Route.FulfillOptions()
+                        .setStatus(201)
+                        .setContentType("application/json")
+                        .setBody("{\"businessNo\":\"XH-Q-N3-TIMEOUT\",\"status\":\"NEW\"}"));
+            });
+
+            page.navigate("https://example.test/next/quote");
+            page.evaluate("() => globalThis.__XH_TEST_QUOTE_TIMEOUT_MS__ = 80");
+            page.addScriptTag(new Page.AddScriptTagOptions().setPath(NEXT.resolve("n3.js")));
+            fillRequired(page);
+
+            page.locator("#submit").click();
+            page.waitForSelector("#submit:has-text('重试提交')");
+            assertTrue(page.locator("#n3QuoteMessage").textContent().contains("可能已经受理"));
+            assertFalse(page.locator("#submit").isDisabled());
+            assertEquals(null, page.locator("#submit").getAttribute("aria-busy"));
+
+            page.locator("#submit").click();
+            page.waitForSelector("#n3QuoteMessage:has-text('XH-Q-N3-TIMEOUT')");
+
+            assertEquals(2, calls.get());
+            assertEquals(keys.getFirst(), keys.get(1));
+            assertFalse(keys.getFirst().isBlank());
+        }
+    }
+
+    @Test
     void screenshotFailureRetriesAndQuoteRetryReusesUploadedAssetAndIdempotencyKey() throws Exception {
         try (Playwright p=Playwright.create(); Browser browser=p.chromium().launch()) {
             Page page=browser.newPage();

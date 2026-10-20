@@ -394,7 +394,7 @@
     mountedFingerprint = nextFingerprint;
     if(emailToken){const token=emailToken;emailToken='';setMessage('n6EmailRequestMessage','正在验证邮箱…');request('/api/account/email/verify?token='+encodeURIComponent(token)).then(()=>{setMessage('n6EmailRequestMessage','邮箱验证成功。','ok');return reloadAccount();}).catch(error=>setMessage('n6EmailRequestMessage',text(error.message)||'邮箱验证失败。','error'));}
     if(!initialFocus && location.pathname.startsWith('/account/settings')){initialFocus=true;section.scrollIntoView({block:'start'});}
-    const badge = $('.badge'); if (badge) badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火服务平台';
+    const badge = $('.badge'); if (badge) badge.textContent = '星火 · 游戏服务';
   }
 
   function scheduleMount() {

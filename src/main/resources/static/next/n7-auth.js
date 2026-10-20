@@ -175,7 +175,7 @@
       contact.maxLength = 120;
     }
     const notes = $$('.n4-note', form);
-    if (notes.length) notes[0].textContent = '当前账号密码体系仅支持邮箱登录；也可使用微信开放平台或小程序扫码登录。';
+    if (notes.length) notes[0].textContent = '使用注册邮箱和密码登录，也可选择微信扫码登录。';
     const links = $('.n4-mini-links', form);
     if (links) {
       links.replaceChildren();
@@ -212,7 +212,7 @@
     panel.hidden = true;
     append(panel,
       node('h2', '', '注册邮箱账号'),
-      node('p', '', '验证码会发送到你的邮箱。注册成功后会直接建立当前浏览器登录会话。')
+      node('p', '', '验证码会发送到你的邮箱，注册成功后将自动登录。')
     );
     const grid = node('div', 'n7-grid');
     const email = input('n7RegisterEmail', 'email', 'you@example.com', 160, 'email');
@@ -251,7 +251,7 @@
     panel.hidden = true;
     append(panel,
       node('h2', '', '找回登录密码'),
-      node('p', '', '为避免账号枚举，无论邮箱是否存在，申请步骤都会返回同一种提示。')
+      node('p', '', '输入绑定邮箱，申请重置登录密码。')
     );
     const email = input('n7ResetEmail', 'email', '请输入绑定邮箱', 160, 'email');
     const requestGrid = node('div', 'n7-grid');

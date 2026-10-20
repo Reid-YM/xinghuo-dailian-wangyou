@@ -77,6 +77,39 @@
     node.textContent = message; node.setAttribute('role', 'status'); node.classList.add('show');
     clearTimeout(window.tt); window.tt = setTimeout(() => node.classList.remove('show'), 2000);
   }
+  function syncNavigation() {
+    const page = document.documentElement.dataset.frontendPage;
+    const target = ({'game-detail':'services','service-detail':'services','guide-detail':'guides','record-detail':'records','account-submit':'account'})[page] || page;
+    document.querySelectorAll('.navlink').forEach(link => {
+      const url = new URL(link.href, location.origin);
+      const path = url.pathname.replace(/^\/next(?=\/|$)/, '') || '/';
+      const active = link.dataset.go ? link.dataset.go === target : url.origin === location.origin && path === '/' + target;
+      link.classList.toggle('active', active);
+      if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+    });
+    const dock = document.querySelector('.next-mobile-dock');
+    const selected = dock?.querySelector('.navlink[aria-current="page"]');
+    if (selected?.getClientRects().length) {
+      const item = selected.getBoundingClientRect(), bounds = dock.getBoundingClientRect();
+      if (item.left < bounds.left) dock.scrollLeft -= bounds.left - item.left;
+      else if (item.right > bounds.right) dock.scrollLeft += item.right - bounds.right;
+    }
+  }
+  function guideDifficulty(value) {
+    return ({BEGINNER:'入门',INTERMEDIATE:'进阶',ADVANCED:'高阶',EXPERT:'精通'})[String(value || '').trim().toUpperCase()] || '未标注';
+  }
+  async function readWithDeadline(read) {
+    const controller = new AbortController();
+    let timer;
+    try {
+      return await Promise.race([
+        read(controller.signal),
+        new Promise((_, reject) => {
+          timer = setTimeout(() => { controller.abort(); reject(new Error('读取超时，请重试。')); }, 10000);
+        })
+      ]);
+    } finally { clearTimeout(timer); }
+  }
   document.querySelectorAll('a[data-go]').forEach(node => node.href = route(node.dataset.go));
   document.addEventListener('click', event => {
     const node = event.target.closest('[data-go]');
@@ -158,14 +191,15 @@
   }
   async function publicCases() {
     const section=document.getElementById('nextPublicCases'),grid=document.getElementById('nextPublicCaseGrid');if(!section||!grid)return;
-    try{const response=await fetch('/api/public/cases',{cache:'no-store',credentials:'same-origin'});if(!response.ok)return;const items=await response.json();if(!Array.isArray(items)||!items.length)return;
+    try{const items=await readWithDeadline(async signal=>{const response=await fetch('/api/public/cases',{signal,cache:'no-store',credentials:'same-origin'});if(!response.ok)throw new Error();return response.json();});if(!Array.isArray(items)||!items.length)return;
       grid.replaceChildren(...items.slice(0,6).map(item=>{const card=make('article',null,'card');card.append(make('small','已完成'),make('h3',item.maskedNo||'已脱敏记录'),make('p',item.summary||'已完成交付'));if(item.finishedAt)card.append(make('small','完成日期 '+String(item.finishedAt).slice(0,10)));return card;}));section.hidden=false;
     }catch(_){/* Only explicitly public records are shown; failure keeps this optional section hidden. */}
   }
   function applyConfiguration(site) {
     configuration = site;
     for (const field of ['brandName','heroTitle','heroSubtitle','footerText','quickContactTitle']) {
-      document.querySelectorAll('[data-config="'+field+'"]').forEach(node => {node.textContent=String(site[field] || '');});
+      const value = field === 'footerText' && site[field] === '前台仅展示客户需要的信息' ? '报价与服务安排以客服确认为准。' : site[field];
+      document.querySelectorAll('[data-config="'+field+'"]').forEach(node => {node.textContent=String(value || '');});
     }
     const brand = site.brandName || '星火网游';
     Object.assign(titles,{home:site.seoTitle || brand,services:'服务大厅 · '+brand,quote:'提交询价 · '+brand,account:'个人中心 · '+brand});
@@ -192,9 +226,12 @@
     let message=document.getElementById('nextConfigState');
     if(message)message.remove();
     try {
-      const response=await fetch('/api/site-config',{cache:'no-store',credentials:'same-origin'});
-      if(!response.ok)throw new Error();
-      const data=await response.json();if(!data || typeof data.brandName!=='string')throw new Error();
+      const data=await readWithDeadline(async signal=>{
+        const response=await fetch('/api/site-config',{signal,cache:'no-store',credentials:'same-origin'});
+        if(!response.ok)throw new Error();
+        return response.json();
+      });
+      if(!data || typeof data.brandName!=='string')throw new Error();
       applyConfiguration(data);return data;
     } catch (_) {
       document.documentElement.dataset.siteConfiguration='error';
@@ -220,7 +257,9 @@
     if(event.target.closest('.record-card a[href="/records"]'))track('hero_order_click');
     const service=event.target.closest('a.home-service-card[href^="/service/"]');if(service)track('service_card_click',service.getAttribute('href').slice('/service/'.length));
   });
-  window.XHFrontendShell = {runtimePath, runtimeHref, navigation, isPreview: Boolean(base), bindTabs, go, route, resolveLocation, applyConfiguration, updateServices, updateCatalog, dataUnavailable, safeAccountReturn, track, attribution, get configuration(){return configuration;}};
+  window.XHFrontendShell = {runtimePath, runtimeHref, navigation, isPreview: Boolean(base), bindTabs, go, route, resolveLocation, applyConfiguration, updateServices, updateCatalog, dataUnavailable, safeAccountReturn, track, attribution, guideDifficulty, readWithDeadline, get configuration(){return configuration;}};
+  new MutationObserver(syncNavigation).observe(document.documentElement, {attributes:true,attributeFilter:['data-frontend-page']});
+  window.addEventListener('resize', syncNavigation);
   window.XHFrontendShell.configurationReady=loadConfiguration();
   publicCases();
   go(resolveLocation(), false);

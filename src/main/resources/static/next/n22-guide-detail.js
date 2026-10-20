@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const readWithDeadline = window.XHFrontendShell?.readWithDeadline || (read => read());
   const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
 
@@ -10,6 +11,11 @@
   const text = (value) => String(value ?? '').trim();
   const list = (value) => Array.isArray(value) ? value : [];
   let routeRequest = 0;
+
+  function guideGameName(guide) {
+    const game = list(window.XHFrontendNextN2?.state?.catalog?.games).find(item => text(item.code).toUpperCase() === text(guide?.gameCode).toUpperCase());
+    return text(guide?.gameName) || text(game?.name) || '游戏攻略';
+  }
 
   function node(tag, className, value) {
     const element = document.createElement(tag);
@@ -201,7 +207,7 @@
       if (!slug) return;
       const link = document.createElement('a');
       link.href = `/next/guides/${encodeURIComponent(slug)}`;
-      link.append(node('strong', '', text(item?.title) || '相关攻略'), node('span', '', text(item?.gameName) || text(item?.gameCode) || '继续阅读'));
+      link.append(node('strong', '', text(item?.title) || '相关攻略'), node('span', '', guideGameName(item)));
       box.append(link);
     });
     return box.children.length ? box : null;
@@ -260,15 +266,15 @@
       image.loading = 'eager';
       cover.append(image);
     } else {
-      cover.append(node('span', 'n22-kicker', text(guide.gameName) || text(guide.gameCode) || 'Game Guide'));
+      cover.append(node('span', 'n22-kicker', guideGameName(guide)));
     }
     const copy = node('div', 'n22-hero-copy');
-    copy.append(node('div', 'n22-kicker', `${text(guide.gameName) || text(guide.gameCode) || '游戏攻略'} · GUIDE`));
+    copy.append(node('div', 'n22-kicker', `${guideGameName(guide)} · GUIDE`));
     copy.append(node('h1', 'n22-title', text(guide.title) || '攻略详情'));
     if (text(guide.subtitle)) copy.append(node('p', 'n22-summary', text(guide.subtitle)));
     copy.append(node('p', 'n22-summary', text(guide.summary) || '查看完整攻略步骤、相关服务与常见问题。'));
     const meta = node('div', 'n22-meta');
-    if (text(guide.difficulty)) meta.append(node('span', 'n22-chip', `难度 · ${text(guide.difficulty)}`));
+    if (text(guide.difficulty)) meta.append(node('span', 'n22-chip', `难度 · ${window.XHFrontendShell?.guideDifficulty?.(guide.difficulty) || '未标注'}`));
     if (Number(guide.estimatedMinutes) > 0) meta.append(node('span', 'n22-chip', `预计阅读 · ${Number(guide.estimatedMinutes)} 分钟`));
     if (text(guide.authorName)) meta.append(node('span', 'n22-chip', `作者 · ${text(guide.authorName)}`));
     list(guide.tags).slice(0, 8).forEach((tag) => { if (text(tag)) meta.append(node('span', 'n22-chip', text(tag))); });
@@ -335,13 +341,15 @@
   }
 
   async function getJson(path) {
-    const response = await fetch(path, {
-      headers: { Accept: 'application/json' },
-      credentials: 'same-origin',
-      cache: 'no-store'
+    return readWithDeadline(async signal => {
+      const response = await fetch(path, {signal,
+        headers: { Accept: 'application/json' },
+        credentials: 'same-origin',
+        cache: 'no-store'
+      });
+      if (!response.ok) throw new Error(response.status === 404 ? '没有找到对应的公开攻略，可能已下线或链接已更新。' : `攻略读取失败（HTTP ${response.status}）。`);
+      return response.json();
     });
-    if (!response.ok) throw new Error(response.status === 404 ? '没有找到对应的公开攻略，可能已下线或链接已更新。' : `攻略读取失败（HTTP ${response.status}）。`);
-    return response.json();
   }
 
   async function syncRoute() {

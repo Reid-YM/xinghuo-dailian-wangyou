@@ -44,8 +44,8 @@
 
     const badge = $('.badge');
     if (badge) {
-      badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火 · 新版服务平台';
-      badge.title = location.pathname.startsWith('/next') ? '这是新版独立访问入口，业务数据以服务器记录为准。' : '当前使用新版服务入口，业务数据以服务器记录为准。';
+      badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火 · 游戏服务';
+      badge.title = location.pathname.startsWith('/next') ? '这是新版独立访问入口，业务数据以服务器记录为准。' : '查看游戏服务与业务进度。';
     }
     document.documentElement.dataset.frontendNextStage = 'n8-integration';
   }

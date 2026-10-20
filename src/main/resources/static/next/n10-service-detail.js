@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const readWithDeadline = window.XHFrontendShell?.readWithDeadline || (read => read());
   const runtimePath = pathname => window.XHFrontendShell?.runtimePath?.(pathname) || pathname || location.pathname;
   const runtimeHref = value => window.XHFrontendShell?.runtimeHref?.(value) || value;
 
@@ -253,9 +254,11 @@
   }
 
   async function getJson(path) {
-    const response = await fetch(path, { headers: { Accept: 'application/json' }, credentials: 'same-origin', cache: 'no-store' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.json();
+    return readWithDeadline(async signal => {
+      const response = await fetch(path, {signal, headers: { Accept: 'application/json' }, credentials: 'same-origin', cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    });
   }
 
   async function loadDetail(slug) {

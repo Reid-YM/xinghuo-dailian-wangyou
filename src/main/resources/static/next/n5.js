@@ -526,7 +526,7 @@
     renderSummary($('#n5Summary'));
     renderRecords();
     renderCandidates();
-    const badge = $('.badge'); if (badge) badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火服务平台';
+    const badge = $('.badge'); if (badge) badge.textContent = '星火 · 游戏服务';
     setMessage('真实业务数据已读取。');
     if(!initialFocus && /^\/account\/(orders|requests|progress)$/.test(location.pathname)){initialFocus=true;const focus=location.pathname.endsWith('/progress')?section.querySelector('[data-personal-asset=progress]'):section;focus?.scrollIntoView({block:'start'});}
   }

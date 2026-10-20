@@ -72,8 +72,8 @@ class FrontendNextN12QuoteContextContractTest {
         assertFalse(runtime.contains("localStorage"));
         assertFalse(runtime.contains("sessionStorage"));
 
-        assertTrue(n3.contains("fetch('/api/quote'"));
+        assertTrue(n3.contains("fetchWithDeadline('/api/quote'"));
         assertTrue(n3.contains("'Idempotency-Key':idempotencyKey"));
-        assertTrue(n3.contains("fetch('/api/uploads/quote'"));
+        assertTrue(n3.contains("fetchWithDeadline('/api/uploads/quote'"));
     }
 }

@@ -348,7 +348,7 @@
     const section = node('section', 'n4-section');
     const content = node('div', 'shell n4-grid');
     append(content, renderOrdersPanel(), renderSidePanel()); section.append(content); page.append(section);
-    const badge = $('.badge'); if (badge) badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火服务平台';
+    const badge = $('.badge'); if (badge) badge.textContent = '星火 · 游戏服务';
   }
 
   async function doLogout() {

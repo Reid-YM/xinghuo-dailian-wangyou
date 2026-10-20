@@ -40,12 +40,12 @@
     const status = [...home.querySelectorAll('.section .sub')].find((item) =>
       item.textContent.includes('逐步接入') || item.textContent.includes('先统一视觉') || item.textContent.includes('新版后台')
     );
-    if (status) status.textContent = location.pathname.startsWith('/next') ? HOME_STATUS_COPY : '服务、询价、账号与业务进度已进入新版入口；原有业务数据与权限规则继续生效。';
+    if (status) status.textContent = location.pathname.startsWith('/next') ? HOME_STATUS_COPY : '服务、询价、账号与业务进度均可使用；业务数据与权限规则继续生效。';
 
     const badge = $('.badge');
     if (badge) {
-      badge.textContent = location.pathname.startsWith('/next') ? '新版预览' : '星火 · 游戏服务';
-      badge.title = location.pathname.startsWith('/next') ? '这是新版独立访问入口，业务数据以服务器记录为准。' : '查看游戏服务与业务进度。';
+      badge.textContent = '星火 · 游戏服务';
+      badge.title = '查看游戏服务与业务进度。';
     }
     document.documentElement.dataset.frontendNextStage = 'n8-integration';
   }

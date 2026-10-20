@@ -23,13 +23,15 @@ class FrontendNextN3QuoteContractTest {
     @Test
     void n3UsesExistingQuoteApiWithIdempotencyAndConsent() throws Exception {
         String js = Files.readString(NEXT.resolve("n3.js"));
-        assertTrue(js.contains("fetch('/api/quote'"));
+        assertTrue(js.contains("fetchWithDeadline('/api/quote'"));
         assertTrue(js.contains("method:'POST'"));
         assertTrue(js.contains("'Idempotency-Key':idempotencyKey"));
         assertTrue(js.contains("privacyConsent"));
         assertTrue(js.contains("window.XHFrontendShell?.attribution?.firstTouchSource"));
         assertTrue(js.contains("button.disabled=true"));
         assertTrue(js.contains("if(submitting) return"));
+        assertTrue(js.contains("fetchWithDeadline('/api/quote'"));
+        assertTrue(js.contains("询价可能已经受理"));
         assertTrue(js.contains("Keep the same idempotency key after failures"));
     }
 
@@ -37,6 +39,7 @@ class FrontendNextN3QuoteContractTest {
     void n3ImageAttachmentUsesExistingEndpointAndSafeDomRendering() throws Exception {
         String js = Files.readString(NEXT.resolve("n3.js"));
         assertTrue(js.contains("/api/uploads/quote"));
+        assertTrue(js.contains("fetchWithDeadline('/api/uploads/quote'"));
         assertTrue(js.contains("new FormData()"));
         assertTrue(js.contains("不上传密码或验证码"));
         assertFalse(js.contains("innerHTML"));

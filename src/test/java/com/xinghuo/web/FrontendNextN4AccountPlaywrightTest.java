@@ -89,7 +89,7 @@ class FrontendNextN4AccountPlaywrightTest {
             assertTrue(page.locator(".n4-table").textContent().contains("63%"));
             assertTrue(page.locator(".n4-stats").textContent().contains("7"));
             assertTrue(page.locator(".n4-stack").textContent().contains("Safari"));
-            assertTrue(page.locator(".badge").textContent().contains("新版预览"));
+            assertEquals("星火 · 游戏服务", page.locator(".badge").textContent());
         }
     }
 

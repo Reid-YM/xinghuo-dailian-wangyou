@@ -145,7 +145,9 @@
       counts.set(key,current);
     });
     const fragment=document.createDocumentFragment();
-    fragment.append(title);
+    const options=make('div','categoryOptions');
+    options.setAttribute('role','group');
+    options.setAttribute('aria-label','服务分类');
     const all=make('button','cat active',`全部服务 (${state.services.length})`);
     all.type='button';all.dataset.cat='all';
     fragment.append(all);
@@ -157,7 +159,8 @@
       item.type='button';item.dataset.cat=row.key;
       fragment.append(item);
     });
-    side.replaceChildren(fragment);
+    options.append(fragment);
+    side.replaceChildren(title,options);
     syncFilters();
   }
 
@@ -186,6 +189,18 @@
     if($('#hallPlatform'))$('#hallPlatform').value=state.platform;
     if($('#hallSort'))$('#hallSort').value=state.sort;
     $$('.side .cat').forEach(node=>{const active=node.dataset.cat===state.category;node.classList.toggle('active',active);node.setAttribute('aria-pressed',String(active));});
+    const options=$('.services .categoryOptions'),selected=options?.querySelector('.cat.active');
+    if(options?.clientWidth && selected){
+      const item=selected.getBoundingClientRect(),bounds=options.getBoundingClientRect();
+      if(options.scrollWidth>options.clientWidth){
+        if(item.left<bounds.left)options.scrollLeft-=bounds.left-item.left+4;
+        else if(item.right>bounds.right)options.scrollLeft+=item.right-bounds.right+4;
+      }
+      if(options.scrollHeight>options.clientHeight){
+        if(item.top<bounds.top)options.scrollTop-=bounds.top-item.top+4;
+        else if(item.bottom>bounds.bottom)options.scrollTop+=item.bottom-bounds.bottom+4;
+      }
+    }
   }
   function restoreFilters(){
     const params=new URLSearchParams(location.search);state.query=params.get('q')||'';state.game=code(params.get('game'));state.platform=code(params.get('platform'));state.category=(params.get('category')||'all').toLowerCase();state.sort=['name','price'].includes(params.get('sort'))?params.get('sort'):'default';syncFilters();applyFilter(false);

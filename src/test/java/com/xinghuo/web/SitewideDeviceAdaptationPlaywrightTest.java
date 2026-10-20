@@ -93,7 +93,7 @@ class SitewideDeviceAdaptationPlaywrightTest {
                     String services=java.util.stream.IntStream.range(0,20).mapToObj(i->FrontendCanonicalRoutesPlaywrightTest.SERVICES.strip().replaceAll("^\\[|\\]$","").replace("\"category\":\"LEVEL\"","\"category\":\"CAT"+i+"\"")).collect(java.util.stream.Collectors.joining(",","[","]"));
                     f.page.route("**/api/services",r->f.json(r,200,services));
                     f.open("/services",".serviceCard");
-                    assertEquals(true,f.page.locator(".services .side").evaluate("el=>el.scrollWidth>el.clientWidth&&el.getBoundingClientRect().height<120"));
+                    assertEquals(true,f.page.locator(".categoryOptions").evaluate("el=>el.scrollWidth>el.clientWidth&&el.getBoundingClientRect().height<120"));
                     f.page.locator(".cat[data-cat=cat19]").click();
                     assertEquals("true",f.page.locator(".cat[data-cat=cat19]").getAttribute("aria-pressed"));
                     assertEquals(1,f.page.locator(".serviceCard:visible").count());

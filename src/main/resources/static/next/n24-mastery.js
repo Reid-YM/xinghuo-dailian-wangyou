@@ -714,7 +714,7 @@
     intro.append(node('h1', '', `${text(game.shortName) || 'MW4'} 工具站`));
     intro.append(node('p', '', '大师迷彩按模式统一解锁；枪械挑战可独立勾选并保存在此设备。登录后可同步大师进度与收藏。'));
     const actions = node('div', 'n24-actions');
-    const legacy = node('a', 'btn', '打开旧版工具站');
+    const legacy = node('a', 'btn', '重新打开工具站');
     legacy.href = '/mastery';
     legacy.dataset.n24Legacy = '1';
     const quote = node('a', 'btn gold', '带进度去询价');

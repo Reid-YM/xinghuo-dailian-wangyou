@@ -34,14 +34,6 @@ public class FrontendMigrationConfig implements WebMvcConfigurer {
             if(!enabled || view==null || response.isCommitted() || !("GET".equals(request.getMethod())||"HEAD".equals(request.getMethod())))return;
             String name=view.getViewName();
             String path=request.getRequestURI().substring(request.getContextPath().length());
-            if ("1".equals(request.getParameter("legacy"))) {
-                if (name != null && name.startsWith("redirect:/account") && (path.startsWith("/account") || path.startsWith("/console"))) {
-                    int hash = name.indexOf('#');
-                    String target = hash < 0 ? name : name.substring(0, hash);
-                    view.setViewName(target + (target.contains("?") ? "&" : "?") + "legacy=1" + (hash < 0 ? "" : name.substring(hash)));
-                }
-                return;
-            }
             if(name==null || name.startsWith("redirect:") || name.startsWith("forward:"))return;
             String target=ROUTES.get(path);
             if (target == null && (path.matches("/(service|game|guides|record)/[^/]+")

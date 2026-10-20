@@ -180,8 +180,8 @@
     if (links) {
       links.replaceChildren();
       const legacy = document.createElement('a');
-      legacy.href = '/account/login?legacy=1';
-      legacy.textContent = '旧版登录入口';
+      legacy.href = '/account/login';
+      legacy.textContent = '返回登录';
       links.append(legacy);
     }
   }
@@ -234,8 +234,8 @@
     append(actions, send, submit); panel.append(actions);
     const status = node('div', 'n4-message n7-message'); status.id = 'n7RegisterMessage'; panel.append(status);
     const fallback = node('div', 'n7-fallback');
-    const legacy = document.createElement('a'); legacy.href = '/account/register?legacy=1'; legacy.textContent = '打开旧版注册页';
-    append(fallback, document.createTextNode('遇到兼容问题时仍可 '), legacy, document.createTextNode('。旧账号流程不会删除。'));
+    const legacy = document.createElement('a'); legacy.href = '/account/register'; legacy.textContent = '重新打开注册页';
+    append(fallback, document.createTextNode('如页面未响应，可 '), legacy, document.createTextNode('。'));
     panel.append(fallback);
 
     send.addEventListener('click', () => sendRegisterCode(email, send, status));
@@ -272,8 +272,8 @@
     const submit = button('确认重置 →', 'btn gold'); submit.id = 'n7ResetSubmit'; confirmActions.append(submit); confirmWrap.append(confirmActions); panel.append(confirmWrap);
     const status = node('div', 'n4-message n7-message'); status.id = 'n7ResetMessage'; panel.append(status);
     const fallback = node('div', 'n7-fallback');
-    const legacy = document.createElement('a'); legacy.href = '/account/reset?legacy=1'; legacy.textContent = '打开旧版找回页';
-    append(fallback, document.createTextNode('旧版找回流程继续保留，可随时 '), legacy, document.createTextNode('。'));
+    const legacy = document.createElement('a'); legacy.href = '/account/reset'; legacy.textContent = '重新打开找回页';
+    append(fallback, document.createTextNode('如页面未响应，可 '), legacy, document.createTextNode('。'));
     panel.append(fallback);
 
     send.addEventListener('click', () => requestReset(email, send, confirmWrap, status));

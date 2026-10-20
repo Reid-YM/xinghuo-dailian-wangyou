@@ -49,4 +49,24 @@ class FrontendDeploymentRollbackTest {
         assertEquals(0,result,Files.readString(temp.resolve("last-output")));
         assertEquals(List.of("next:8081","legacy:8080","upstream:8080"),Files.readAllLines(output));
     }
+    @Test void rollbackKeepsPreviousNextWithAvailableLegacyInsteadOfRequiringRetirement() throws Exception {
+        Path output=temp.resolve("retirement-smokes"),smoke=temp.resolve("retirement-smoke.sh");
+        Files.writeString(smoke,"printf '%s:%s:%s\\n' \"$FRONTEND_EXPECTED_MODE\" \"$FRONTEND_EXPECTED_LEGACY_MODE\" \"$1\" >> \"$CAPTURE\"\n");
+        String harness="""
+            log(){ :; }
+            fail(){ exit 1; }
+            sudo(){ :; }
+            wait_healthy(){ return 0; }
+            switch_upstream(){ :; }
+            MAIN_PORT=8080
+            SERVICE=dummy.service
+            PREVIOUS_JAR=/dummy/previous.jar
+            APP_LINK=/dummy/current.jar
+            PREVIOUS_FRONTEND_MODE=next
+            PREVIOUS_LEGACY_MODE=legacy
+            """+function("run_smoke")+"\n"+function("rollback_main")+"\nrun_smoke 8081\nrollback_main\n";
+        assertEquals(0,run(harness,Map.of("SMOKE_TEST",smoke.toString(),"CAPTURE",output.toString(),"FRONTEND_EXPECTED_MODE","next")));
+        assertEquals(List.of("next:next:8081","next:legacy:8080"),Files.readAllLines(output));
+    }
+
 }

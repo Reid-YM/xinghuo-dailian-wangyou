@@ -105,16 +105,6 @@ public class FrontendNextPreviewController {
     public ResponseEntity<String> frontendNext() throws IOException { return render(null); }
 
     private ResponseEntity<String> render(HttpServletRequest request) throws IOException {
-        if (request != null && "1".equals(request.getParameter("legacy")) && request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI) == null) {
-            String path = request.getRequestURI().replaceFirst("^/next(?=/|$)", "");
-            if (path.isBlank() || path.equals("/home") || path.equals("/index.html")) path = "/";
-            String auth = request.getParameter("auth");
-            if (path.equals("/account") && java.util.Set.of("login", "register", "reset").contains(auth == null ? "" : auth)) path += "/" + auth;
-            String query = request.getQueryString();
-            if (query == null || query.isBlank()) query = "legacy=1";
-            return ResponseEntity.status(org.springframework.http.HttpStatus.FOUND).location(java.net.URI.create(path + "?" + query))
-                    .cacheControl(CacheControl.noStore()).body("");
-        }
         String html;
         try (var input = index.getInputStream()) {
             html = StreamUtils.copyToString(input, StandardCharsets.UTF_8);

@@ -14,11 +14,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
 
 class FrontendMigrationRouteTest {
-    @Test void defaultRoutesActuallyForwardAndExplicitRollbackAndSwitchOffStillRenderLegacy() throws Exception {
+    @Test void defaultRoutesIgnoreRetiredQueryWhileOperatorRollbackRemainsAvailable() throws Exception {
         var mvc=MockMvcBuilders.standaloneSetup(new Pages()).addInterceptors(new FrontendMigrationConfig.Replacement(true)).build();
         mvc.perform(get("/")).andExpect(forwardedUrl("/next")).andExpect(header().string("Cache-Control","no-store"));
         mvc.perform(get("/services")).andExpect(forwardedUrl("/next/services"));
-        mvc.perform(get("/services").param("legacy","1")).andExpect(view().name("old-services"));
+        mvc.perform(get("/services").param("legacy","1")).andExpect(forwardedUrl("/next/services"));
         mvc.perform(get("/account/register")).andExpect(forwardedUrl("/next/account"));
         mvc.perform(get("/redirect")).andExpect(redirectedUrl("/account/login"));
         var rollback=MockMvcBuilders.standaloneSetup(new Pages()).addInterceptors(new FrontendMigrationConfig.Replacement(false)).build();
@@ -54,7 +54,7 @@ class FrontendMigrationRouteTest {
                 var mvc=MockMvcBuilders.standaloneSetup(new Pages()).addInterceptors(interceptor.getValue()).build();
                 mvc.perform(get("/")).andExpect(view().name(rollback ? "old-home" : "forward:/next"));
                 mvc.perform(get("/services")).andExpect(view().name(rollback ? "old-services" : "forward:/next/services"));
-                mvc.perform(get("/services").param("legacy","1")).andExpect(view().name("old-services"));
+                mvc.perform(get("/services").param("legacy","1")).andExpect(view().name(rollback ? "old-services" : "forward:/next/services"));
                 mvc.perform(get("/admin/xingwei")).andExpect(view().name("new-admin"));
             });
         }

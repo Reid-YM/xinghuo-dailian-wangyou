@@ -46,7 +46,7 @@ class FrontendNextGamePlaywrightTest {
                     assertEquals(0, f.page.locator(".next-game-card[data-service-slug=offline] a[href*='/quote']").count());
                     assertEquals(Boolean.TRUE, f.page.evaluate("() => document.documentElement.scrollWidth <= innerWidth + 1"));
                     assertEquals(1, f.page.getByRole(AriaRole.MAIN).count());
-                    assertTrue(f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("打开旧版游戏资料")).getAttribute("href").endsWith("?legacy=1"));
+                    assertTrue(f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("重新打开游戏资料")).getAttribute("href").endsWith("/game/test-game"));
                     if (browser.browserType().name().equals("chromium")) {
                         f.page.evaluate("async () => { await Promise.all(document.querySelector('.page.active').getAnimations().map(a => a.finished.catch(() => {}))); }");
                         Files.createDirectories(Path.of("target/frontend-review"));

@@ -120,7 +120,7 @@
       ? '查看客服渠道和接单状态，也可提交需求获取报价。'
       : '了解服务保障、已完成的交付案例和下单前常见问题。'));
     const actions = node('div', 'n27-actions');
-    const legacy = node('a', 'btn', page === 'contact' ? '打开旧版咨询页' : '打开旧版信任页');
+    const legacy = node('a', 'btn', page === 'contact' ? '重新打开咨询页' : '重新打开信任页');
     legacy.href = `/${page}`;
     legacy.dataset.n27Legacy = '1';
     const primary = node('a', 'btn gold', page === 'contact' ? '提交询价' : '查看服务大厅');

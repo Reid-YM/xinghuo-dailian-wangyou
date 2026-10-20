@@ -43,8 +43,7 @@ public class PublicUtilitySeoFilter extends OncePerRequestFilter {
         }
 
         if ("/records".equals(path) || (path != null && path.startsWith("/record/"))) {
-            boolean nextView = !"1".equals(request.getParameter("legacy"))
-                    && (!base.isEmpty() || frontendNextEnabled);
+            boolean nextView = (!base.isEmpty() || frontendNextEnabled);
             response.setHeader("X-Robots-Tag", nextView ? "noindex,nofollow" : NOINDEX);
         }
 
@@ -52,7 +51,7 @@ public class PublicUtilitySeoFilter extends OncePerRequestFilter {
     }
 
     private void permanentRedirect(HttpServletRequest request, HttpServletResponse response, String target) {
-        if ("1".equals(request.getParameter("legacy"))) target += "?legacy=1";
+        if (!frontendNextEnabled && "1".equals(request.getParameter("legacy"))) target += "?legacy=1";
         response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
         response.setHeader("Location", target);
         response.setHeader("X-Robots-Tag", NOINDEX);

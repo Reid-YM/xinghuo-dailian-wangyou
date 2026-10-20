@@ -64,11 +64,11 @@ class FrontendNextN28LegalSingleSourcePlaywrightTest {
                             .setBody(Files.readString(Path.of("src/main/resources/static" + path))));
                     return;
                 }
-                if (path.equals("/rules")) {
+                if (path.equals("/api/public/legal/rules")) {
                     route.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(rules));
                     return;
                 }
-                if (path.equals("/privacy")) {
+                if (path.equals("/api/public/legal/privacy")) {
                     route.fulfill(new Route.FulfillOptions().setContentType("text/html;charset=utf-8").setBody(privacy));
                     return;
                 }
@@ -122,7 +122,7 @@ class FrontendNextN28LegalSingleSourcePlaywrightTest {
                     .last().getAttribute("href"));
             assertEquals("/next/contact", page.locator("#n28Legal a.n28-link[href='/next/contact']")
                     .getAttribute("href"));
-            assertEquals("/rules?legacy=1", page.getByText("打开正式原文", new Page.GetByTextOptions().setExact(true))
+            assertEquals("/rules", page.getByText("打开正式原文", new Page.GetByTextOptions().setExact(true))
                     .getAttribute("href"));
             assertEquals("https://wydlgf.cn/rules", page.locator("link[rel=canonical]").getAttribute("href"));
             assertEquals("noindex,follow", page.locator("meta[name=robots]").getAttribute("content"));

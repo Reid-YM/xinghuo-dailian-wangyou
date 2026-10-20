@@ -70,11 +70,10 @@ extends OncePerRequestFilter {
         response.addHeader("Vary", "Cookie");
         // Canonical English legal pages forward to a Next ResponseEntity when enabled.
         // Wrapping that outer request can consume the forwarded body (HTTP 200, zero bytes).
-        // Keep the existing translator for explicit legacy=1 and global rollback.
+        // Keep the existing translator only for global operator rollback.
         String path = request.getRequestURI();
         if (frontendNextEnabled
                 && ("/rules-en".equals(path) || "/privacy-en".equals(path))
-                && !"1".equals(request.getParameter("legacy"))
                 && Locale.ENGLISH.getLanguage().equals(locale.getLanguage())) {
             chain.doFilter((ServletRequest) request, (ServletResponse) response);
             return;

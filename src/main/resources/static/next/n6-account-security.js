@@ -304,7 +304,7 @@
     const list = node('div', 'n6-devices'); list.id = 'n6Devices';
     const items = sessions();
     if (!items.length) {
-      list.append(node('div', 'n6-empty', '暂时没有可读取的设备会话。旧版账号中心仍可作为回退入口。'));
+      list.append(node('div', 'n6-empty', '暂时没有可读取的设备会话。请刷新重试或联系客服。'));
     }
     items.forEach((session) => {
       const row = node('div', 'n6-device');

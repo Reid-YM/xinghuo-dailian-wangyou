@@ -92,7 +92,7 @@ class FrontendNextN16AccountDeepLinkContinuityContractTest {
         assertTrue(migration.contains("Map.entry(\"/account/orders\",\"/next/account/orders\")"));
         assertTrue(migration.contains("Map.entry(\"/account/progress\",\"/next/account/progress\")"));
         assertTrue(migration.contains("app.frontend-next.default-enabled:false"));
-        assertTrue(migration.contains("\"1\".equals(request.getParameter(\"legacy\"))"));
+        assertFalse(migration.contains("\"1\".equals(request.getParameter(\"legacy\"))"));
     }
 
     @Test

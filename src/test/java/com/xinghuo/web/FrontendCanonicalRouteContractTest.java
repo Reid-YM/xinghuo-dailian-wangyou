@@ -36,8 +36,8 @@ class FrontendCanonicalRouteContractTest {
             var view=new ModelAndView("original");new FrontendMigrationConfig.Replacement(true).postHandle(new MockHttpServletRequest(method,"/services"),new MockHttpServletResponse(),new Object(),view);assertEquals("original",view.getViewName());
         }
         var request=new MockHttpServletRequest("GET","/guides");request.setParameter("legacy","1");
-        var view=new ModelAndView("guides");new FrontendMigrationConfig.Replacement(true).postHandle(request,new MockHttpServletResponse(),new Object(),view);assertEquals("guides",view.getViewName());
-        new FrontendMigrationConfig.Replacement(false).postHandle(new MockHttpServletRequest("GET","/guides"),new MockHttpServletResponse(),new Object(),view);assertEquals("guides",view.getViewName());
+        var view=new ModelAndView("guides");new FrontendMigrationConfig.Replacement(true).postHandle(request,new MockHttpServletResponse(),new Object(),view);assertEquals("forward:/next/guides",view.getViewName());
+        view=new ModelAndView("guides");new FrontendMigrationConfig.Replacement(false).postHandle(new MockHttpServletRequest("GET","/guides"),new MockHttpServletResponse(),new Object(),view);assertEquals("guides",view.getViewName());
     }
     @Test void newCanonicalAccountDeepLinksAndAssetsRequireTheOriginalAccountSession() throws Exception {
         var sessions=mock(AccountSessionService.class);when(sessions.current(any())).thenReturn(Optional.empty());
@@ -62,16 +62,17 @@ class FrontendCanonicalRouteContractTest {
         verifyNoInteractions(guests);
     }
 
-    @Test void previewExplicitRollbackReturnsToOriginalDocumentAndPreservesSafeReturnContext() throws Exception {
+    @Test void retiredQueryCannotLeaveNextOrConsumeAuthContext() throws Exception {
         var preview=new FrontendNextPreviewController();
-        for(String path:List.of("/next/services","/next/guides/test-guide","/next/record/XHABCDEF1234","/next/account/orders/XHABCDEF1234")){
-            var request=new MockHttpServletRequest("GET",path);request.setParameter("legacy","1");request.setQueryString("legacy=1&from=account-orders");
+        for(String path:List.of("/next/services","/next/guides/test-guide","/next/record/XHABCDEF1234","/next/account/orders/XHABCDEF1234","/next/account")) {
+            var request=new MockHttpServletRequest("GET",path);
+            request.setParameter("legacy","1");request.setParameter("auth","reset");
+            request.setQueryString("legacy=1&auth=reset&token=test-mail-token");
             var response=preview.frontendNext(request);
-            assertEquals(302,response.getStatusCode().value());assertEquals(path.substring(5)+"?legacy=1&from=account-orders",response.getHeaders().getLocation().toString());
+            assertEquals(200,response.getStatusCode().value());
+            assertNull(response.getHeaders().getLocation());
+            assertTrue(response.getBody().contains("/next/shell.js"));
             assertEquals("no-store",response.getHeaders().getCacheControl());
         }
-        var auth=new MockHttpServletRequest("GET","/next/account");auth.setParameter("legacy","1");auth.setParameter("auth","reset");auth.setQueryString("legacy=1&auth=reset&token=test-mail-token");
-        assertEquals("/account/reset?legacy=1&auth=reset&token=test-mail-token",preview.frontendNext(auth).getHeaders().getLocation().toString());
     }
-
 }

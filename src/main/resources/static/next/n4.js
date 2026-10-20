@@ -185,7 +185,7 @@
       node('p', '', '查看当前账号的订单、登录设备和安全活动。')
     );
     const trust = node('div', 'trust');
-    [['账号隔离', '只显示当前账号数据'], ['微信扫码', '配置可用时直接登录'], ['设备管理', '查看当前登录设备'], ['旧版回退', '原账号中心继续保留']].forEach(([a, b]) => {
+    [['账号隔离', '只显示当前账号数据'], ['微信扫码', '配置可用时直接登录'], ['设备管理', '查看当前登录设备'], ['业务认领', '核验后关联历史记录']].forEach(([a, b]) => {
       append(trust, append(node('div'), node('b', '', a), node('span', '', b)));
     });
     copy.append(trust);
@@ -226,7 +226,7 @@
     });
     form.append(wx);
     const links = node('div', 'n4-mini-links');
-    append(links, link('注册账号', '/account/register'), link('忘记密码', '/account/reset'), link('打开旧版账号中心', '/account?legacy=1'));
+    append(links, link('注册账号', '/account/register'), link('忘记密码', '/account/reset'), link('重新打开账号中心', '/account'));
     form.append(links);
     append(card, copy, form);
     outer.append(card);
@@ -250,11 +250,11 @@
   function renderOrdersPanel() {
     const panel = node('section', 'n4-panel');
     const title = node('div', 'n4-panel-title');
-    append(title, node('h2', '', '我的订单'), link('打开旧版完整中心 →', '/account?legacy=1', 'btn'));
+    append(title, node('h2', '', '我的订单'), link('返回个人中心 →', '/account', 'btn'));
     panel.append(title);
     const items = Array.isArray(state.orders?.items) ? state.orders.items : [];
     if (!items.length) {
-      append(panel, node('div', 'n4-empty', '当前账号还没有已归属订单。\n历史订单可在旧版账号中心按业务编号认领。'));
+      append(panel, node('div', 'n4-empty', '当前账号还没有已归属订单。\n历史订单可在个人中心核验并按业务编号认领。'));
       return panel;
     }
     const wrap = node('div', 'n4-table-wrap');
@@ -331,7 +331,7 @@
     append(copy, node('h1', '', `欢迎回来，${text(profile.displayName) || '星火用户'}`), node('p', '', `${text(profile.contactMasked) || '登录凭据已保护'} · 注册于 ${fmtDate(profile.createdAt)}`));
     append(profileRow, avatar, copy); left.append(profileRow);
     const actions = node('div', 'n4-actions');
-    const legacy = link('旧版完整中心', '/account?legacy=1', 'btn');
+    const legacy = link('个人中心', '/account', 'btn');
     const logout = button('退出登录', 'btn');
     logout.addEventListener('click', doLogout);
     append(actions, legacy, logout);
@@ -390,7 +390,7 @@
         page.replaceChildren();
         const wrap = node('div', 'shell n4-login-wrap');
         const panel = node('div', 'n4-panel');
-        append(panel, node('h2', '', '个人中心暂时无法读取'), node('p', 'n4-note', text(error.message) || '请稍后重试，旧版账号中心仍可使用。'), link('打开旧版账号中心 →', '/account?legacy=1', 'btn'));
+        append(panel, node('h2', '', '个人中心暂时无法读取'), node('p', 'n4-note', text(error.message) || '请稍后重试或联系客服。'), link('重新打开账号中心 →', '/account', 'btn'));
         wrap.append(panel); page.append(wrap);
       }
     } finally {

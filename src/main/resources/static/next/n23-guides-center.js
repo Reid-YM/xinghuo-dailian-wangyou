@@ -229,7 +229,7 @@
     intro.append(node('div', 'n23-kicker', '游戏攻略'), node('h1', '', '攻略中心'));
     intro.append(node('p', '', '按游戏查找攻略，浏览技巧、路线与进度说明。'));
     const actions = node('div', 'n23-head-actions');
-    const legacy = node('a', 'btn', '打开旧版攻略中心');
+    const legacy = node('a', 'btn', '重新打开攻略中心');
     legacy.href = '/guides';
     legacy.dataset.n23Legacy = '1';
     const services = node('a', 'btn gold', '查看服务大厅');

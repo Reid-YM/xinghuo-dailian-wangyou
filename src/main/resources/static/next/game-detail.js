@@ -101,7 +101,7 @@
     intro.append(facts);
     const actions = node('div', 'next-game-actions');
     actions.append(link('按游戏筛选服务', '/next/services?game=' + encodeURIComponent(game.code)), link('提交需求', '/next/quote?game=' + encodeURIComponent(game.code), 'btn gold'));
-    const legacy = link('打开旧版游戏资料', '/game/' + encodeURIComponent(game.seoSlug) + '?legacy=1'); legacy.dataset.n14Legacy = '1'; actions.append(legacy);
+    const legacy = link('重新打开游戏资料', '/game/' + encodeURIComponent(game.seoSlug)); legacy.dataset.n14Legacy = '1'; actions.append(legacy);
     intro.append(actions); hero.append(intro);
     const cover = image(game.coverImage, `${text(game.name)}封面`, 'next-game-cover'); if (cover) hero.append(cover);
     shell.append(hero, node('h2', 'next-game-heading', `${text(game.name)} 可接服务`));

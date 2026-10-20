@@ -73,7 +73,7 @@ class FrontendCanonicalRoutesPlaywrightTest {
         both(browser -> { try(Fixture f=new Fixture(browser,390,false)) {
             f.open("/","#nextHomeGames a");f.page.locator("#nextHomeGames a").click();
             f.page.waitForSelector("#nextGameDetail h1");assertTrue(f.page.url().endsWith("/game/test-game"));
-            assertEquals("/game/test-game?legacy=1",f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("打开旧版游戏资料")).getAttribute("href"));
+            assertEquals("/game/test-game",f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("重新打开游戏资料")).getAttribute("href"));
             f.page.locator(".next-game-card").getByRole(AriaRole.LINK,new Locator.GetByRoleOptions().setName("查看详情")).click();
             f.page.waitForSelector("#n10ServiceDetail h1");assertTrue(f.page.url().endsWith("/service/level"));
             f.page.goBack();f.page.waitForSelector("#nextGameDetail h1");

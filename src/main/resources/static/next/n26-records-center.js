@@ -163,7 +163,7 @@
     intro.append(node('div', 'n26-kicker', '业务进度'), node('h1', '', '业务记录'));
     intro.append(node('p', '', '输入业务编号查询进度，也可继续查看当前设备的最近记录。'));
     const actions = node('div', 'n26-actions');
-    const legacy = node('a', 'btn', '打开旧版业务记录'); legacy.href = '/records'; legacy.dataset.n26Legacy = '1';
+    const legacy = node('a', 'btn', '重新打开业务记录'); legacy.href = '/records'; legacy.dataset.n26Legacy = '1';
     const quote = node('a', 'btn gold', '提交新询价'); quote.href = '/next/quote';
     actions.append(legacy, quote); head.append(intro, actions); shell.append(head);
 

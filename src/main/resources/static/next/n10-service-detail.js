@@ -226,7 +226,7 @@
     aside.append(actions);
     const safe = node('div', 'n10-safe');
     safe.append(document.createTextNode('也可打开 '));
-    const legacy = node('a', '', '旧版服务详情');
+    const legacy = node('a', '', '重新打开服务详情');
     legacy.href = `/service/${encodeURIComponent(slug)}`;
     legacy.dataset.n10Legacy = '1';
     safe.append(legacy, document.createTextNode('。'));

@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>账号与登录安全 · 星维后台</title><meta name="robots" content="noindex,nofollow"/><link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/><link rel="stylesheet" href="/assets/admin-xingwei-integrations.css?v=20261013v1"/><meta name="_csrf" th:content="${csrf.token}"/><meta name="_csrf_header" th:content="${csrf.headerName}"/><link rel="stylesheet" href="/assets/admin-xingwei-accounts.css?v=20261016accounts1"/><script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-accounts.js?v=20261019cutover"></script><link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
+<link rel="stylesheet" href="/assets/admin-device-layout.css?v=20261021devices1"/>
 </head>
 <body th:attr="data-admin-username=${username}"><main class="xwi-shell">
   <header class="xwi-top"><div><p class="xw-kicker"><img class="xw-workspace-logo" src="/assets/brand-logo.svg?v=20261019admin" alt="" width="26" height="26"/> 账号与访问安全</p><h1>账号与登录安全</h1><p>当前登录：<strong th:text="${username}">管理员</strong></p></div><div class="xwi-actions"><a class="xw-button xw-button-ghost" href="/admin/xingwei">返回新版后台</a><form method="post" action="/logout"><input type="hidden" th:name="${csrf.parameterName}" th:value="${csrf.token}"/><button type="submit" class="xw-button">退出当前登录</button></form></div></header>

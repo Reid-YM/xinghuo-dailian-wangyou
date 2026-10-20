@@ -6,10 +6,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>待跟进时效队列 · 星维管理后台</title>
   <link rel="stylesheet" href="/assets/admin-xingwei.css?v=20261019cutover"/>
+  <link rel="stylesheet" href="/assets/admin-xingwei-org.css?v=20261013v2a"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261014v3x"/>
   <link rel="stylesheet" href="/assets/admin-xingwei-after-sales.css?v=20261016v4k"/>
   <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-after-sales-attention.js?v=20261016v4m"></script>
 <link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
+<link rel="stylesheet" href="/assets/admin-device-layout.css?v=20261021devices1"/>
 </head>
 <body>
 <main class="xwb-shell">
@@ -56,7 +58,7 @@
 
   <p id="attentionMessage" role="status">正在读取待跟进队列……</p>
   <section class="xw-data-panel xwb-panel" aria-label="待跟进时效队列">
-    <div class="xw-table-wrap xw-table-tall">
+    <div class="xw-table-wrap xw-table-tall" tabindex="0" role="region" aria-label="业务表格，可横向滚动">
       <table class="xw-table xwb-table">
         <thead><tr><th>业务编号</th><th>问题类型</th><th>客户说明</th><th>状态</th><th>最近客户活动</th><th>等待时长</th><th>操作</th></tr></thead>
         <tbody id="attentionRows"></tbody>

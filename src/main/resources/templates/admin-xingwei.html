@@ -14,6 +14,7 @@
   <script defer src="/assets/admin-xingwei.js?v=20261019cutover"></script>
   <script defer src="/assets/admin-xingwei-org.js?v=20261020fields"></script>
 <link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
+<link rel="stylesheet" href="/assets/admin-device-layout.css?v=20261021devices1"/>
 </head>
 <body>
 <div class="xw-shell">
@@ -153,22 +154,22 @@
 
       <article class="xw-data-panel" id="org-departments" data-workspace-group="structure" data-group-entry data-group-permission="org:view employee:view">
         <div class="xw-data-head"><div><h3>固定七大中心</h3><p>查看各中心的岗位数量和启用状态。</p></div></div>
-        <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>中心</th><th>正式岗位数</th><th>状态</th></tr></thead><tbody id="xwDepartmentRows"></tbody></table></div>
+        <div class="xw-table-wrap" tabindex="0" role="region" aria-label="业务表格，可横向滚动"><table class="xw-table"><thead><tr><th>中心</th><th>正式岗位数</th><th>状态</th></tr></thead><tbody id="xwDepartmentRows"></tbody></table></div>
       </article>
 
       <article class="xw-data-panel" id="org-positions" data-workspace-group="structure" data-group-entry data-group-permission="org:view employee:view">
         <div class="xw-data-head"><div><h3>155 岗位正式词库</h3><p>按中心查看正式岗位，配置员工档案时可直接选择。</p></div><label class="xw-inline-filter">筛选中心<select id="xwPositionDepartment"><option value="">全部中心</option></select></label></div>
-        <div class="xw-table-wrap xw-table-tall"><table class="xw-table"><thead><tr><th>岗位</th><th>类别</th><th>所属中心</th></tr></thead><tbody id="xwPositionRows"></tbody></table></div>
+        <div class="xw-table-wrap xw-table-tall" tabindex="0" role="region" aria-label="业务表格，可横向滚动"><table class="xw-table"><thead><tr><th>岗位</th><th>类别</th><th>所属中心</th></tr></thead><tbody id="xwPositionRows"></tbody></table></div>
       </article>
 
       <article class="xw-data-panel" id="org-employees" data-workspace-group="employees" data-group-entry data-group-permission="employee:view">
         <div class="xw-data-head"><div><h3>员工档案</h3><p>直接扩展现有管理账号，不新建第二套登录账号。读取和修改都会执行当前账号的数据范围。</p></div></div>
-        <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>账号</th><th>姓名/编号</th><th>中心</th><th>岗位</th><th>星维角色</th><th>登录角色</th><th>操作</th></tr></thead><tbody id="xwEmployeeRows"></tbody></table></div>
+        <div class="xw-table-wrap" tabindex="0" role="region" aria-label="业务表格，可横向滚动"><table class="xw-table"><thead><tr><th>账号</th><th>姓名/编号</th><th>中心</th><th>岗位</th><th>星维角色</th><th>登录角色</th><th>操作</th></tr></thead><tbody id="xwEmployeeRows"></tbody></table></div>
       </article>
 
       <article class="xw-data-panel" id="org-roles" data-workspace-group="roles" data-group-entry data-group-permission="rbac:view">
         <div class="xw-data-head"><div><h3>角色与权限点</h3><p>角色权限与数据范围会直接约束已分配该角色账号对新版星维接口和模块的访问；管理层安全兜底角色保持只读。</p></div></div>
-        <div class="xw-table-wrap"><table class="xw-table"><thead><tr><th>角色</th><th>数据范围</th><th>权限点</th><th>状态</th><th>操作</th></tr></thead><tbody id="xwRoleRows"></tbody></table></div>
+        <div class="xw-table-wrap" tabindex="0" role="region" aria-label="业务表格，可横向滚动"><table class="xw-table"><thead><tr><th>角色</th><th>数据范围</th><th>权限点</th><th>状态</th><th>操作</th></tr></thead><tbody id="xwRoleRows"></tbody></table></div>
       </article>
     </section>
 

@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="/assets/admin-xingwei-business.css?v=20261016flow2"/>
   <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-business.js?v=20261019cutover"></script><script defer src="/assets/admin-xingwei-guest-offer.js?v=20261018unpaidflow1"></script>
 <link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
+<link rel="stylesheet" href="/assets/admin-device-layout.css?v=20261021devices1"/>
 </head>
 <body>
 <main class="xwb-shell">
@@ -78,7 +79,7 @@
       <div><h3>询价与线索</h3><p>显示当前账号可查看的询价，按创建时间由新到旧排列。</p></div>
       <span class="xw-pill" id="xwbQuotePermission">询价查看</span>
     </div>
-    <div class="xw-table-wrap xw-table-tall">
+    <div class="xw-table-wrap xw-table-tall" tabindex="0" role="region" aria-label="业务表格，可横向滚动">
       <table class="xw-table xwb-table">
         <thead><tr><th>业务编号</th><th>需求</th><th>客户/平台</th><th>状态</th><th>归属</th><th>创建时间</th><th>操作</th></tr></thead>
         <tbody id="xwbQuoteRows"></tbody>
@@ -91,7 +92,7 @@
       <div><h3 id="xwbOrderHeading">订单与履约</h3><p id="xwbOrderDescription">询价转订单后沿用同一个业务编号，因此负责人和中心归属自动继承。异常订单由后端按状态和数据范围独立筛选。</p></div>
       <span class="xw-pill" id="xwbOrderPermission">订单查看</span>
     </div>
-    <div class="xw-table-wrap xw-table-tall">
+    <div class="xw-table-wrap xw-table-tall" tabindex="0" role="region" aria-label="业务表格，可横向滚动">
       <table class="xw-table xwb-table">
         <thead><tr><th>业务编号</th><th>履约状态</th><th>进度</th><th>客户说明</th><th>归属</th><th>更新时间</th><th>操作</th></tr></thead>
         <tbody id="xwbOrderRows"></tbody>

@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="/assets/admin-xingwei-catalog.css?v=20261013v3d"/>
   <script defer src="/assets/admin-xingwei-labels.js?v=20261017search1"></script><script defer src="/assets/admin-xingwei-catalog.js?v=20261019cutover"></script>
 <link rel="icon" href="/assets/brand-logo.svg?v=20261019admin" type="image/svg+xml"/>
+<link rel="stylesheet" href="/assets/admin-device-layout.css?v=20261021devices1"/>
 </head>
 <body>
 <main class="xcat-shell">
@@ -57,17 +58,17 @@
       <div><h3>服务项目</h3><p>新服务默认 已下线并停用；离线服务必须先执行发布检查，通过后才出现最终上架确认。</p></div>
       <div class="xcat-head-actions"><span class="xw-pill">服务查看权限 / 服务管理权限</span><button class="xw-button" id="xcatCreateOpen" type="button" hidden>新增服务</button></div>
     </div>
-    <div class="xw-table-wrap"><table class="xw-table xcat-service-table"><thead><tr><th>服务</th><th>游戏 / 分类</th><th>价格</th><th>时长</th><th>状态</th><th>排序</th><th>操作</th></tr></thead><tbody id="xcatServiceRows"></tbody></table></div>
+    <div class="xw-table-wrap" tabindex="0" role="region" aria-label="业务表格，可横向滚动"><table class="xw-table xcat-service-table"><thead><tr><th>服务</th><th>游戏 / 分类</th><th>价格</th><th>时长</th><th>状态</th><th>排序</th><th>操作</th></tr></thead><tbody id="xcatServiceRows"></tbody></table></div>
   </section>
 
   <div class="xcat-grid">
     <section class="xw-data-panel">
       <div class="xw-data-head"><div><h3>游戏资料</h3><p>编辑资料或调整启用状态，请进入游戏与分类工作台。</p></div></div>
-      <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>游戏</th><th>业务状态</th><th>分类 / 服务</th><th>平台</th></tr></thead><tbody id="xcatGameRows"></tbody></table></div>
+      <div class="xw-table-wrap xcat-scroll" tabindex="0" role="region" aria-label="业务表格，可横向滚动"><table class="xw-table"><thead><tr><th>游戏</th><th>业务状态</th><th>分类 / 服务</th><th>平台</th></tr></thead><tbody id="xcatGameRows"></tbody></table></div>
     </section>
     <section class="xw-data-panel">
       <div class="xw-data-head"><div><h3>分类资料</h3><p>编辑资料或调整启用状态，请进入游戏与分类工作台。</p></div></div>
-      <div class="xw-table-wrap xcat-scroll"><table class="xw-table"><thead><tr><th>分类</th><th>游戏</th><th>服务数</th></tr></thead><tbody id="xcatCategoryRows"></tbody></table></div>
+      <div class="xw-table-wrap xcat-scroll" tabindex="0" role="region" aria-label="业务表格，可横向滚动"><table class="xw-table"><thead><tr><th>分类</th><th>游戏</th><th>服务数</th></tr></thead><tbody id="xcatCategoryRows"></tbody></table></div>
     </section>
   </div>
 </main>

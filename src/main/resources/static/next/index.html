@@ -41,6 +41,18 @@
 .nav .brand-logo{grid-row:1/3;width:32px;height:32px;object-fit:contain;flex-shrink:0}
 .nav .brand span{overflow-wrap:anywhere;white-space:normal;max-width:260px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;line-height:1.25}.nav .brand small{margin-left:0}.nav .actions{flex-shrink:0}
 @media(max-width:680px){.nav .brand{max-width:none;flex:1}.nav .brand-logo{grid-row:auto}.nav .actions{margin-left:auto}.page .timeline{min-width:0;grid-template-columns:repeat(5,minmax(0,1fr))}.page .tn{overflow-wrap:anywhere}}
+
+/* Adapt the service workspace before tablet columns become too narrow. */
+@media(min-width:681px) and (max-width:1000px){.services{grid-template-columns:180px minmax(0,1fr)}}
+@media(max-width:760px){
+  .page[data-page=services] .head{padding:44px 0 24px}
+  .services{display:block}
+  .services .side{position:relative;top:auto;display:flex;align-items:center;gap:8px;overflow-x:auto;max-width:100%;margin-bottom:16px;overscroll-behavior-x:contain;scroll-padding-inline:12px;scrollbar-width:thin}
+  .services .side>b{flex:0 0 auto;white-space:nowrap}
+  .services .side .cat{flex:0 0 auto;width:auto;max-width:75vw;min-height:44px;margin:0;white-space:normal}
+}
+@media(max-width:1000px){.toast{bottom:calc(90px + env(safe-area-inset-bottom,0px))}}
+@media(max-height:600px) and (max-width:1000px){.toolbar{position:relative;top:auto}.side{position:relative;top:auto}}
 </style>
 <link rel="stylesheet" href="/assets/site-image-controls.css"/>
 <link rel="stylesheet" href="/assets/guide-community.css"/>

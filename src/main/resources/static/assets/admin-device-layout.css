@@ -1,0 +1,31 @@
+/* Shared device constraints, loaded after each workspace's component styles. */
+body :is(main,.xw-main,section,header,footer,form,label,fieldset){min-width:0}
+body :is(h1,h2,h3,p,label,.xw-status,.xw-button,.xw-pill){overflow-wrap:anywhere}
+body :is(input,select,textarea){max-width:100%;min-width:0}
+body :is(img,video,canvas){max-width:100%}
+body :is(.xw-table-wrap,.xcat-scroll){min-width:0;max-width:100%;overflow:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+body :is(.xw-dialog,.xcat-dialog,.xtax-dialog,.xwc-shell dialog){max-width:calc(100% - 24px);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto;overflow-wrap:anywhere}
+body :is(.xw-dialog-card,.xcat-dialog-card,.xtax-dialog-card){max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px)}
+body :is(.xw-dialog-head,.xcat-dialog-head,.xtax-dialog-head)>div{min-width:0}
+body :is(.xw-dialog-close,.xcat-dialog-head button){flex-shrink:0}
+body :is(.xw-dialog-actions,.xcat-dialog-actions,.xtax-dialog-actions,.xw-case-pager){flex-wrap:wrap}
+.xw-sidebar{height:100vh;height:100dvh;padding-bottom:max(24px,env(safe-area-inset-bottom,0px))}
+@media(max-width:1024px){
+  body :is(button,.xw-button,.xw-subnav a){min-height:44px}
+  body :is(input,select,textarea){font-size:16px!important}
+  body :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select){min-height:44px}
+  body :is(.xw-topbar,.xwb-topbar,.xwc-header){flex-wrap:wrap}
+  body :is(.xw-topbar,.xwb-topbar,.xwc-header)>div{min-width:0;max-width:100%}
+}
+@media(max-width:680px){
+  body :is(.xw-form-grid,.xcat-form-grid){grid-template-columns:minmax(0,1fr)}
+  body :is(.xw-data-head,.xw-inline-filter){flex-wrap:wrap;gap:10px}
+  .xw-case-filters label{width:100%}
+  .xw-case-filters :is(input,select){width:100%}
+  body :is(.xw-dialog-head,.xcat-dialog-head,.xtax-dialog-head){gap:12px}
+  body :is(.xw-dialog-card,.xcat-dialog-card,.xtax-dialog-card){padding:16px}
+}
+/* On landscape phones and while the keyboard is open, keep the content reachable. */
+@media(max-height:600px) and (max-width:1024px){
+  body :is(.xw-topbar,.xwb-topbar){position:relative}
+}

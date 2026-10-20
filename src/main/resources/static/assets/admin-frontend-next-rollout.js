@@ -11,7 +11,7 @@
   let busy = false;
   const settingsEndpoint = '/api/admin/xingwei/site/global-ui';
 
-  const labelFor = mode => mode === 'next' ? '新版候选' : '旧版稳定';
+  const labelFor = mode => mode === 'next' ? '新版直达入口' : '默认服务入口';
 
   function setMessage(value, kind = '') {
     const host = $('#rolloutMessage');
@@ -104,7 +104,7 @@
       return;
     }
     if (requested === 'next') {
-      const ok = window.confirm('确认把公共“服务”入口切到新版？原服务页将继续保留，可随时恢复入口。');
+      const ok = window.confirm('确认将服务导航改为新版直达入口？这里只调整导航，不更改网站统一版本设置。');
       if (!ok) {
         if (select) select.value = currentMode;
         setMessage('已取消切换，入口配置未改变。');
@@ -125,8 +125,8 @@
         body: {
           servicesEntryMode: requested,
           reason: requested === 'next'
-            ? '公共服务入口切换到新版'
-            : '公共服务入口恢复原版'
+            ? '服务导航改为新版直达入口'
+            : '服务导航恢复默认入口'
         }
       });
       render(settings.servicesEntryMode);

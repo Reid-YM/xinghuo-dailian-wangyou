@@ -137,12 +137,14 @@
 
   function payload(){
     const game=$('#qGame');
-    const selectedService=selectedText('#qSvc');
+    const service=$('#qSvc');
+    // Empty options represent missing catalog choices, not real services.
+    const selectedService=text(service?.value)?selectedText('#qSvc'):'';
     const contact=trim($('#n3CustomerContact')?.value,120);
     const method=trim($('#n3ContactMethod')?.value,40);
     const currentProgress=trim($('#goal')?.value,500);
     return {
-      game:trim(game?.value||selectedText('#qGame'),100),
+      game:trim(game?.value,100),
       demand:trim(selectedService,200),
       currentProgress:currentProgress||null,
       screenshotAssetId,

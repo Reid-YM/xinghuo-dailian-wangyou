@@ -36,12 +36,12 @@
     <div>
       <div class="fnr-kicker"><img class="xw-inline-brand" src="/assets/brand-logo.svg?v=20261019admin" alt="星火"/> 星维管理后台</div>
       <h1>服务入口设置</h1>
-      <p>选择客户通过导航进入的服务页面。切换后，页头、手机导航和页脚会使用所选入口；两个服务页面均可预览。</p>
+      <p>设置页头、手机导航和页脚的服务入口。默认入口遵循网站统一版本设置，直达入口直接打开新版服务页。这里只调整导航。</p>
     </div>
     <div class="fnr-actions">
       <a class="xw-button xw-button-ghost" href="/admin/xingwei/frontend-controls">前台展示控制</a>
       <a class="xw-button xw-button-ghost" href="/admin/xingwei">返回新版后台</a>
-      <a class="xw-button xw-button-ghost" href="/services" target="_blank" rel="noopener">预览旧版</a>
+      <a class="xw-button xw-button-ghost" href="/services?legacy=1" target="_blank" rel="noopener">预览旧版</a>
       <a class="xw-button" href="/next/services" target="_blank" rel="noopener">预览新版</a>
     </div>
   </header>
@@ -60,8 +60,8 @@
         <div class="fnr-field">
           <label for="servicesEntryMode">服务入口目标</label>
           <select id="servicesEntryMode" name="servicesEntryMode" disabled>
-            <option value="legacy">原版服务页</option>
-            <option value="next">新版服务页</option>
+            <option value="legacy">默认服务入口</option>
+            <option value="next">新版直达入口</option>
           </select>
         </div>
         <button class="xw-button fnr-save" type="submit" id="saveRolloutMode" disabled>保存入口目标</button>
@@ -70,21 +70,21 @@
       </form>
 
       <div class="fnr-note">
-        保存会更新客户的导航入口。若其他人员已修改配置，请重新读取并核对后再保存。
+        保存会更新客户的导航入口。若其他人员已修改配置，请重新读取并核对后再保存；更改导航不会切换网站版本。
       </div>
     </article>
 
     <aside class="fnr-card">
       <div class="fnr-kicker">使用帮助</div>
-      <h2>切换入口说明</h2>
+      <h2>服务导航说明</h2>
       <div class="fnr-list">
-        <div class="fnr-item"><b>客户导航</b><span>页头、手机导航和页脚的服务入口会使用所选页面。</span></div>
-        <div class="fnr-item"><b>预览与恢复</b><span>可先预览两个页面；需要恢复时，重新选择原版服务页并保存。</span></div>
+        <div class="fnr-item"><b>默认入口</b><span>客户通过网站统一设置进入服务页。</span></div>
+        <div class="fnr-item"><b>新版直达</b><span>服务导航直接打开新版服务页；旧版仍可单独预览。</span></div>
         <div class="fnr-item"><b>保存权限</b><span>拥有全站配置管理权限的人员可以修改入口。其他人员仅可查看。</span></div>
       </div>
     </aside>
   </section>
 </main>
-<script defer src="/assets/admin-frontend-next-rollout.js?v=20261019cutover"></script>
+<script defer src="/assets/admin-frontend-next-rollout.js?v=20261020cutover"></script>
 </body>
 </html>

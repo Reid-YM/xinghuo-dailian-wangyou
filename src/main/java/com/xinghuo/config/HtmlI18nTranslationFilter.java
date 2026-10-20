@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -37,6 +38,8 @@ extends OncePerRequestFilter {
     private static final Set<String> TRANSLATABLE_JSON_PATHS = Set.of("/api/site-config", "/api/services", "/api/catalog", "/api/tool-station", "/api/public/site-settings", "/api/public/cases");
     private final SmartLocaleResolver localeResolver;
     private final I18nDictionary dictionary;
+    @Value("${app.frontend-next.default-enabled:false}")
+    private boolean frontendNextEnabled;
 
     public HtmlI18nTranslationFilter(SmartLocaleResolver localeResolver, I18nDictionary dictionary) {
         this.localeResolver = localeResolver;
@@ -65,6 +68,17 @@ extends OncePerRequestFilter {
         this.localeResolver.persistIfAbsent(request, response, locale);
         response.setHeader("Content-Language", locale.toLanguageTag());
         response.addHeader("Vary", "Cookie");
+        // Canonical English legal pages forward to a Next ResponseEntity when enabled.
+        // Wrapping that outer request can consume the forwarded body (HTTP 200, zero bytes).
+        // Keep the existing translator for explicit legacy=1 and global rollback.
+        String path = request.getRequestURI();
+        if (frontendNextEnabled
+                && ("/rules-en".equals(path) || "/privacy-en".equals(path))
+                && !"1".equals(request.getParameter("legacy"))
+                && Locale.ENGLISH.getLanguage().equals(locale.getLanguage())) {
+            chain.doFilter((ServletRequest) request, (ServletResponse) response);
+            return;
+        }
         if (!Locale.ENGLISH.getLanguage().equals(locale.getLanguage())) {
             chain.doFilter((ServletRequest)request, (ServletResponse)response);
             return;

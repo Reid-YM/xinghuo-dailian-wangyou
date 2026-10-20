@@ -32,14 +32,26 @@ check_header() {
 check_body_contains() {
   local path=$1 expected=$2
   shift 2
-  local body
-  body=$(curl -sS "$@" "$BASE$path" || true)
-  if ! grep -Fq -- "$expected" <<<"$body"; then
-    echo "FAIL $path missing-body-fragment=$expected"
-    fail=1
-  else
-    echo "OK   $path contains=$expected"
-  fi
+  local body_file code="" attempt bytes
+  # Verify the actual response bytes, not a command-substitution/here-string copy.
+  # The full Next runtime marker is still mandatory; non-200 or incomplete bodies fail closed.
+  body_file=$(mktemp) || { echo "FAIL $path could-not-create-body-file"; fail=1; return 0; }
+  for attempt in 1 2 3; do
+    : > "$body_file"
+    code=""
+    if code=$(curl -sS --max-time 12 -o "$body_file" -w '%{http_code}' "$@" "$BASE$path" 2>/dev/null) &&
+       [ "$code" = 200 ] &&
+       grep -Fq -- "$expected" "$body_file"; then
+      echo "OK   $path contains=$expected"
+      rm -f "$body_file"
+      return 0
+    fi
+    [ "$attempt" -eq 3 ] || sleep 1
+  done
+  bytes=$(wc -c < "$body_file" | tr -d '[:space:]')
+  echo "FAIL $path missing-body-fragment=$expected after 3 attempts http=${code:-000} body_bytes=$bytes"
+  rm -f "$body_file"
+  fail=1
 }
 check_body_absent() {
   local path=$1 forbidden=$2
@@ -54,21 +66,38 @@ check_body_absent() {
 }
 check_code / 200
 check_code /services 200
-# 正式前端回退到旧版；候选、金丝雀、正式端口都必须确认实际视图，防止误切新版。
-check_header / X-Xinghuo-Frontend ''
-check_header /services X-Xinghuo-Frontend ''
-check_header /quote X-Xinghuo-Frontend ''
-check_header /account/login X-Xinghuo-Frontend ''
-check_body_contains / 'data-page="home"'
-check_body_contains /services 'data-page="services"'
-check_body_contains /quote 'data-page="quote"'
-check_body_contains /account/login 'data-page="account-login"'
-check_body_contains /account/register 'data-page="account-register"'
-check_body_contains /account/reset 'data-page="account-reset"'
+# 发布目标必须显式符合预期；不得把误回旧版或误切新版当成通过。
+FRONTEND_EXPECTED_MODE=${FRONTEND_EXPECTED_MODE:-next}
+case "$FRONTEND_EXPECTED_MODE" in
+  next)
+    for path in / /services /quote /account/login /account/register /account/reset /guides /mastery /records /contact /trust /rules /privacy /rules-en /privacy-en; do
+      check_header "$path" X-Xinghuo-Frontend next
+      check_body_contains "$path" '/next/shell.js'
+    done
+    check_body_contains / 'data-page="home"'
+    check_body_contains /services 'data-page="services"'
+    check_body_contains /quote 'data-page="quote"'
+    check_body_contains /account/login 'data-page="account"'
+    ;;
+  legacy)
+    for path in / /services /quote /account/login /account/register /account/reset; do
+      check_header "$path" X-Xinghuo-Frontend ''
+      check_body_absent "$path" '/next/shell.js'
+    done
+    check_body_contains / 'data-page="home"'
+    check_body_contains /services 'data-page="services"'
+    check_body_contains /quote 'data-page="quote"'
+    check_body_contains /account/login 'data-page="account-login"'
+    check_body_contains /account/register 'data-page="account-register"'
+    check_body_contains /account/reset 'data-page="account-reset"'
+    ;;
+  *) echo "FAIL invalid FRONTEND_EXPECTED_MODE"; exit 1 ;;
+esac
 for path in / /services /quote /account/login /account/register /account/reset; do
-  check_body_absent "$path" '/next/shell.js'
+  check_code "${path}?legacy=1" 200
+  check_body_absent "${path}?legacy=1" '/next/shell.js'
+  check_header "${path}?legacy=1" X-Xinghuo-Frontend ''
 done
-check_body_absent '/services?legacy=1' '/next/shell.js'
 check_code /next/services 200
 check_code /admin 302 -H 'Accept: text/html'
 check_code /admin/xingwei 302 -H 'Accept: text/html'
@@ -85,11 +114,12 @@ check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/</loc>'
 check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/mastery</loc>'
 check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/rules-en</loc>'
 check_body_contains /sitemap.xml '<loc>https://wydlgf.cn/privacy-en</loc>'
-# 商详页是人工询价服务，不是站内直接购买商品；必须保留 Service schema，且不能重新输出 Product merchant schema。
+# 服务详情现用服务端真实 ServiceItem 价格生成 Product + offers JSON-LD。
+# 门禁校验实际源数据结构与 canonical，不能用旧版 Service 断言误挡发布。
 check_code /service/weapon-leveling 200
-check_body_contains /service/weapon-leveling '"@type":"Service"'
+check_body_contains /service/weapon-leveling '"@type":"Product"'
+check_body_contains /service/weapon-leveling '"offers"'
 check_body_contains /service/weapon-leveling '<link rel="canonical" href="https://wydlgf.cn/service/weapon-leveling"'
-check_body_absent /service/weapon-leveling '"@type":"Product"'
 check_code /api/guides 200
 check_code /api/tool-station 200
 # 所有可索引 canonical 页面必须稳定输出中文正文，而不是只把响应头写成 zh-CN。
@@ -130,7 +160,11 @@ check_code '/language?lang=en&returnTo=/rules' 302
 check_header '/language?lang=en&returnTo=/rules' X-Robots-Tag 'noindex, nofollow'
 check_code /contact 200
 check_code /records 200
-check_header /records X-Robots-Tag 'noindex, follow'
+if [ "$FRONTEND_EXPECTED_MODE" = next ]; then
+  check_header /records X-Robots-Tag 'noindex,nofollow'
+else
+  check_header /records X-Robots-Tag 'noindex, follow'
+fi
 check_code /trust 200
 # 旧业务查询 URL 必须永久归并到当前 canonical 工具地址，不能继续返回第二套 200 页面。
 check_code /order 301

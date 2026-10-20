@@ -46,6 +46,7 @@ SMOKE_TEST=${SMOKE_TEST:-$ROOT/scripts/smoke_test.sh}
 TS=$(date +%Y%m%d%H%M%S)
 RELEASE_JAR="$RELEASES_DIR/xinghuo-v2-standard-$TS.jar"
 PREVIOUS_JAR=""
+PREVIOUS_FRONTEND_MODE=""
 CANARY_STARTED=0
 UPSTREAM_PORT="$MAIN_PORT"
 DEPLOY_GIT_SHA=${DEPLOY_GIT_SHA:-}
@@ -85,9 +86,22 @@ wait_healthy() {
 }
 
 run_smoke() {
-  local port=$1
+  local port=$1 expected_mode=${2:-${FRONTEND_EXPECTED_MODE:-next}}
   [ -f "$SMOKE_TEST" ] || fail "找不到冒烟脚本: $SMOKE_TEST"
-  bash "$SMOKE_TEST" "$port"
+  FRONTEND_EXPECTED_MODE="$expected_mode" bash "$SMOKE_TEST" "$port"
+}
+
+# Record the serving version before any cutover; rollback must verify that version's view.
+frontend_mode() {
+  local header
+  header=$(curl -fsS --max-time 8 -D - -o /dev/null "http://127.0.0.1:$1/" \
+    | tr -d '\r' \
+    | awk 'tolower($0) ~ /^x-xinghuo-frontend:/ {sub(/^[^:]+:[[:space:]]*/, ""); print; exit}') || return 1
+  case "$header" in
+    next) echo next ;;
+    '') echo legacy ;;
+    *) return 1 ;;
+  esac
 }
 
 switch_upstream() {
@@ -138,7 +152,7 @@ rollback_main() {
   sudo mv -Tf "$APP_LINK.next" "$APP_LINK"
   sudo systemctl start "$SERVICE"
 
-  if wait_healthy "$MAIN_PORT" 45 && run_smoke "$MAIN_PORT"; then
+  if wait_healthy "$MAIN_PORT" 45 && run_smoke "$MAIN_PORT" "$PREVIOUS_FRONTEND_MODE"; then
     if switch_upstream "$MAIN_PORT"; then
       log "↩️  已回滚到部署前版本，8080 与 nginx 均正常"
       return 0
@@ -187,6 +201,8 @@ PREVIOUS_JAR=$(readlink -f "$APP_LINK" 2>/dev/null || true)
 [ -n "$PREVIOUS_JAR" ] || fail "无法解析当前线上 JAR: $APP_LINK"
 [ -f "$PREVIOUS_JAR" ] || fail "当前线上 JAR 不存在: $PREVIOUS_JAR"
 healthy "$MAIN_PORT" || fail "发布前正式 :$MAIN_PORT 健康检查未通过"
+PREVIOUS_FRONTEND_MODE=$(frontend_mode "$MAIN_PORT") || fail "无法确认部署前前端模式"
+log "部署前前端模式: $PREVIOUS_FRONTEND_MODE（仅供回滚验收）"
 
 # 发布开始前必须确保 nginx 正在指向正式端口，而不是遗留金丝雀端口。
 sudo grep -q "127\.0\.0\.1:${MAIN_PORT};" "$UPSTREAM_CONF" || fail "nginx upstream 当前未指向正式 :$MAIN_PORT，请先人工确认现场"

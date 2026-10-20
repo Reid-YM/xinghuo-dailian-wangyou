@@ -124,9 +124,9 @@
   function renderServices(){
     const grid=$('.serviceGrid');
     if(!grid||!Array.isArray(state.services)) return;
-    if(!state.services.length){grid.replaceChildren(make('p','','当前暂无可展示的服务。'));renderCategories();return;}
     const fragment=document.createDocumentFragment();
     state.services.forEach((service,index)=>{const card=serviceCard(service);card.dataset.rank=String(index);fragment.append(card);});
+    if(!state.services.length)fragment.append(make('p','','当前暂无可展示的服务。'));
     grid.replaceChildren(fragment);
     renderCategories();
     applyFilter(false);
@@ -134,7 +134,7 @@
 
   function renderCategories(){
     const side=$('.services .side');
-    if(!side||!Array.isArray(state.services)||!state.services.length) return;
+    if(!side||!Array.isArray(state.services)) return;
     const title=make('b','','服务分类');
     const counts=new Map();
     state.services.forEach(service=>{
@@ -178,7 +178,7 @@
     cards.sort((a,b)=>state.sort==='name'?a.dataset.name.localeCompare(b.dataset.name,'zh-CN'):state.sort==='price'?(Number(a.dataset.price)-Number(b.dataset.price)):(Number(a.dataset.rank)-Number(b.dataset.rank))).forEach(card=>$('.serviceGrid')?.append(card));
     let summary=$('#hallResults');if(!summary){summary=make('p','','');summary.id='hallResults';summary.setAttribute('role','status');summary.style.gridColumn='1 / -1';$('.serviceGrid')?.prepend(summary);}
     summary.replaceChildren(document.createTextNode(`符合条件的服务 ${visible} 项 `));
-    if(!visible&&cards.length){const reset=make('button','btn','清除筛选');reset.type='button';reset.onclick=()=>{state.category='all';state.query='';state.game='';state.platform='';state.sort='default';syncFilters();applyFilter();};summary.append(reset);}
+    if(!visible&&(state.category!=='all'||state.query||state.game||state.platform||state.sort!=='default')){const reset=make('button','btn','清除筛选');reset.type='button';reset.onclick=()=>{state.category='all';state.query='';state.game='';state.platform='';state.sort='default';syncFilters();applyFilter();};summary.append(reset);}
     if(updateUrl&&location.pathname.endsWith('/services')){
       const url=new URL(location.href);[['q',state.query],['game',state.game],['platform',state.platform],['category',state.category==='all'?'':state.category],['sort',state.sort==='default'?'':state.sort]].forEach(([key,value])=>{if(value)url.searchParams.set(key,value);else url.searchParams.delete(key);});history.replaceState(history.state,'',url);
     }
@@ -242,6 +242,7 @@
       const select=$(`#${from}`),target=$(`#${to}`);
       if(select&&target) target.textContent=select.selectedOptions[0]?.textContent||'待选择';
     });
+    window.dispatchEvent(new Event('xh:quoteselectionupdated'));
   }
 
   function populateServices(){

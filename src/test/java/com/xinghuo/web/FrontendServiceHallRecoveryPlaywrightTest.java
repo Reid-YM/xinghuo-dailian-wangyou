@@ -21,6 +21,7 @@ class FrontendServiceHallRecoveryPlaywrightTest {
             f.page.waitForSelector(".serviceCard",new Page.WaitForSelectorOptions().setTimeout(4000));
             assertFalse(held.isEmpty());assertNull(f.page.evaluate("()=>window.XHFrontendNextN2.state.catalog"));
             assertEquals("false",f.page.locator(".serviceGrid").getAttribute("aria-busy"));
+            assertEquals(1,f.page.getByRole(com.microsoft.playwright.options.AriaRole.MAIN).count());
             assertTrue(f.page.locator("#n2DataStatus").innerText().contains("服务已读取"));
             assertFalse(f.page.locator(".serviceGrid").innerText().contains("正在读取"));
             assertTrue(f.page.locator("#qGame").isDisabled());
@@ -44,6 +45,7 @@ class FrontendServiceHallRecoveryPlaywrightTest {
             assertEquals(0,f.page.locator(".serviceCard").count());
             assertTrue(f.page.locator(".serviceGrid").innerText().contains("无法读取"));
             assertEquals("false",f.page.locator(".serviceGrid").getAttribute("aria-busy"));
+            assertEquals(1,f.page.getByRole(com.microsoft.playwright.options.AriaRole.MAIN).count());
             assertTrue(f.page.locator("#qSvc").isDisabled());
             if(bodyStall)f.page.evaluate("()=>window.restoreHallFetch()");
             else f.page.unroute("**/api/services");
@@ -74,6 +76,7 @@ class FrontendServiceHallRecoveryPlaywrightTest {
             assertTrue(f.page.locator(".serviceGrid").textContent().contains("最新真实服务"));
             assertTrue(f.page.locator("#n2DataStatus").textContent().contains("保留上次真实数据"));
             assertEquals("false",f.page.locator(".serviceGrid").getAttribute("aria-busy"));
+            assertEquals(1,f.page.getByRole(com.microsoft.playwright.options.AriaRole.MAIN).count());
             assertEquals(List.of(),f.errors);
         }});
     }

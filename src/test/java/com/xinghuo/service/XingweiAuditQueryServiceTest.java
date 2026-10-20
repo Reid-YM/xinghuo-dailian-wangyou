@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -95,6 +96,28 @@ class XingweiAuditQueryServiceTest {
         String json=mapper.writeValueAsString(detail);
         assertFalse(json.contains("internalNote"));assertFalse(json.contains("requestId"));
         assertFalse(json.contains("targetId"));assertFalse(json.contains("reason"));
+    }
+    @Test
+    void unknownAndSnakeCaseTechnicalFieldsNeverEnterSummaryButStoredAuditRemains() throws Exception {
+        String after="{\"newInternalToken\":\"TOKEN_PRIVATE\",\"request_id\":\"REQ_PRIVATE\",\"owner_admin_user_id\":41,\"status\":\"DONE\",\"progressPercent\":80}";
+        add(1,"self","UPDATE",null,after,"2026-10-16T00:00:00Z");
+        String json=mapper.writeValueAsString(service.detail(1,self));
+        for(String hidden:List.of("newInternalToken","request_id","owner_admin_user_id","TOKEN_PRIVATE","REQ_PRIVATE"))assertFalse(json.contains(hidden));
+        assertTrue(json.contains("DONE"));assertTrue(json.contains("80"));
+        assertEquals(after,jdbc.queryForObject("SELECT after_json FROM audit_logs WHERE id=1",String.class));
+        assertEquals(0L,service.list(self,"REQ-1","",null,null,0).get("totalCount"));
+        assertEquals(1L,service.list(self,"ORDER-1","",null,null,0).get("totalCount"));
+    }
+    @Test
+    void removedMembersDoNotExposeDatabaseIdentityInListOrJson() throws Exception {
+        jdbc.execute("CREATE TABLE customer_accounts(id BIGINT PRIMARY KEY,public_user_id VARCHAR(80))");
+        jdbc.execute("CREATE TABLE user_audit_log(id BIGINT PRIMARY KEY,user_id BIGINT,action VARCHAR(40),ip VARCHAR(45),created_at TIMESTAMP)");
+        jdbc.update("INSERT INTO user_audit_log VALUES(777,987654,'LOGIN_OK','192.168.10.23',?)",Timestamp.from(Instant.parse("2026-10-16T00:00:00Z")));
+        var result=service.memberActivity(admin,"","",null,null,0);
+        var item=(Map<?,?>)((List<?>)result.get("items")).getFirst();
+        assertEquals(Set.of("member","action","ipMasked","createdAt"),item.keySet());
+        assertEquals("已移除会员",item.get("member"));
+        assertFalse(mapper.writeValueAsString(result).contains("987654"));
     }
     @Test
     void malformedJsonAndNonObjectContentStayHidden()throws Exception{

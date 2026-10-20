@@ -44,7 +44,7 @@ class XingweiAdminConsoleContractTest {
 
         assertTrue(template.contains("/assets/admin-xingwei.css?v=20261019cutover"));
         assertTrue(template.contains("/assets/admin-xingwei.js?v=20261019cutover"));
-        assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261019cutover"));
+        assertTrue(template.contains("/assets/admin-xingwei-org.js?v=20261020fields"));
         assertTrue(template.contains("组织与权限"));
         assertTrue(template.contains("微信支付"));
         assertTrue(template.contains("自动检查服务连接"));

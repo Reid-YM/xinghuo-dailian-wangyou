@@ -368,9 +368,9 @@
         try{const result=await request(path+(kind==='progress'?'':'?page='+pageNumber+'&size=20'));if(!authenticated()||!content.isConnected||current!==generation)return;const list=Array.isArray(result)?result:[];content.replaceChildren();if(!list.length)content.append(node('p','','暂无记录。'));
           list.forEach(item=>{
             const row=node('div','n5-source');
-            if(kind==='progress'){row.append(node('b','','工具存档 · '+text(item.toolKey)),node('span','','最近同步：'+fmtDate(item.updatedAt)));const open=node('a','btn','打开工具站');open.href='/mastery';row.append(open);}
+            if(kind==='progress'){row.append(node('b','','工具存档'),node('span','','最近同步：'+fmtDate(item.updatedAt)));const open=node('a','btn','打开工具站');open.href='/mastery';row.append(open);}
             if(kind==='favorites'){
-              const target={GUIDE:'/guides/',GAME:'/game/',SERVICE:'/service/'}[item.targetType];const link=node(target?'a':'span','',text(item.targetType)+' · '+text(item.targetId));if(target)link.href=target+safeKey(item.targetId);row.append(link);
+              const target={GUIDE:'/guides/',GAME:'/game/',SERVICE:'/service/'}[item.targetType];const label={GUIDE:'攻略收藏',GAME:'游戏收藏',SERVICE:'服务收藏'}[item.targetType]||'收藏内容';const link=node(target?'a':'span','',label);if(target)link.href=target+safeKey(item.targetId);row.append(link,node('span','','收藏于 '+fmtDate(item.createdAt)));
               const remove=button('取消收藏','btn');remove.onclick=async()=>{if(remove.disabled)return;remove.disabled=true;try{const result=await request('/api/account/favorites/toggle',{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'fetch'},body:JSON.stringify({targetType:item.targetType,targetId:item.targetId})});if(result?.favorited){row.append(node('p','','收藏状态发生变化，请重新核对。'));remove.disabled=false;}else load();}catch(error){row.append(node('p','',text(error.message)||'更新失败。'));remove.disabled=false;}};row.append(remove);
             }
             if(kind==='submissions'){

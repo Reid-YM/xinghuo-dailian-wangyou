@@ -41,7 +41,7 @@ class FrontendNextN6AccountSecurityContractTest {
         assertFalse(js.contains("localStorage"));
         assertFalse(js.contains("sessionStorage"));
         assertTrue(js.contains("textContent"));
-        assertTrue(js.contains("会话 ID 仅作为服务端下线句柄，不在页面展示"));
+        assertTrue(js.contains("可退出不再使用的设备"));
         assertTrue(js.contains("不要把验证码发送给其他人"));
     }
 

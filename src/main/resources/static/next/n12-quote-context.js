@@ -105,7 +105,7 @@
     context.className = 'n12-context n12-context-warning';
     const copy = make('div');
     copy.append(make('small', '', 'Quote Context'), make('h3', '', '链接中的服务当前不可用'));
-    copy.append(make('p', '', slug ? `服务标识 ${slug} 当前不在公开目录中，可能已下架或链接已更新。你仍可重新选择其他服务。` : '请从当前公开目录中选择服务。'));
+    copy.append(make('p', '', slug ? '此服务可能已下架或链接已更新，请重新选择其他服务。' : '请从当前公开目录中选择服务。'));
     const actions = make('div', 'n12-context-actions');
     actions.append(actionLink('浏览服务大厅', '/next/services'));
     context.replaceChildren(copy, actions);

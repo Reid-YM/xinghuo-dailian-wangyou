@@ -59,7 +59,7 @@ class FrontendAccountContextPlaywrightTest {
             f.page.waitForFunction("() => document.querySelector('[data-personal-asset=favorites]')?.textContent.includes('第 2 页')");
             assertEquals(base+"/account/submit",f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("撰写与管理投稿")).getAttribute("href"));
             assertEquals(base+"/mastery",f.page.getByRole(AriaRole.LINK,new Page.GetByRoleOptions().setName("打开工具站")).getAttribute("href"));
-            assertEquals(1,asset.locator(".n5-source").count());assertTrue(asset.textContent().contains("guide-20"));
+            assertEquals(1,asset.locator(".n5-source").count());assertTrue(asset.textContent().contains("攻略收藏"));assertFalse(asset.textContent().contains("guide-20"));assertFalse(f.page.locator("[data-personal-asset=progress]").textContent().contains("CODMW4"));
             assertEquals(base+"/guides/guide-20",asset.locator(".n5-source a").getAttribute("href"));
             f.page.reload();f.page.waitForFunction("() => document.querySelector('[data-personal-asset=favorites]')?.textContent.includes('第 2 页')");
             asset.getByRole(AriaRole.BUTTON,new Locator.GetByRoleOptions().setName("上一页")).click();

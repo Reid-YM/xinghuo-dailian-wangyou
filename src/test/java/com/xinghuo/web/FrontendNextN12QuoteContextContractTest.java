@@ -65,6 +65,7 @@ class FrontendNextN12QuoteContextContractTest {
         assertTrue(runtime.contains("/next/service/${encodeURIComponent(slug)}"));
         assertTrue(runtime.contains("/next/services"));
         assertTrue(runtime.contains("链接中的服务当前不可用"));
+        assertFalse(runtime.contains("服务标识 ${slug}"));
         assertTrue(runtime.contains("重新选择"));
         assertFalse(runtime.contains("innerHTML"));
         assertFalse(runtime.contains("insertAdjacentHTML"));

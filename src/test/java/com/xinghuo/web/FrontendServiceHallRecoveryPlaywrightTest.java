@@ -33,6 +33,28 @@ class FrontendServiceHallRecoveryPlaywrightTest {
             assertEquals(List.of(),f.errors);
         }});
     }
+    @Test void desktopCardsStayBesideCategoriesAndInFirstScreenAfterFilteringAndReload()throws Exception {
+        both(browser->{try(var f=new FrontendCanonicalRoutesPlaywrightTest.Fixture(browser,1280,false)){
+            for(String base:List.of("","/next")) {
+                f.open(base+"/services",".serviceCard");
+                assertDesktopCards(f.page);
+                f.page.locator("#search").fill("等级");assertDesktopCards(f.page);
+                f.page.locator("#search").fill("");
+                f.page.reload();f.page.waitForSelector(".serviceCard");assertDesktopCards(f.page);
+            }
+            assertEquals(List.of(),f.errors);
+        }});
+    }
+    private void assertDesktopCards(Page page) {
+        assertEquals(true,page.evaluate("""
+            ()=>{const side=document.querySelector('.services .side').getBoundingClientRect();
+                const card=document.querySelector('.serviceGrid .serviceCard:not([hidden])').getBoundingClientRect();
+                const summary=document.querySelector('#hallResults').getBoundingClientRect();
+                return card.left>=side.right && card.top>=side.top && card.top<side.top+180
+                    && card.top<innerHeight && card.width>200 && summary.bottom<=card.top
+                    && document.documentElement.scrollWidth<=innerWidth;}
+            """));
+    }
     @Test void pendingFetchAndPendingJsonBodyBothTimeOutAndRecoverWithRetry()throws Exception {
         both(browser->{for(boolean bodyStall:List.of(false,true))try(var f=new FrontendCanonicalRoutesPlaywrightTest.Fixture(browser,390,false)){
             if(bodyStall)f.page.addInitScript("""

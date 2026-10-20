@@ -168,7 +168,7 @@
       const show=categoryOk&&queryOk&&gameOk&&platformOk;card.hidden=!show;if(show)visible++;
     });
     cards.sort((a,b)=>state.sort==='name'?a.dataset.name.localeCompare(b.dataset.name,'zh-CN'):state.sort==='price'?(Number(a.dataset.price)-Number(b.dataset.price)):(Number(a.dataset.rank)-Number(b.dataset.rank))).forEach(card=>$('.serviceGrid')?.append(card));
-    let summary=$('#hallResults');if(!summary){summary=make('p','','');summary.id='hallResults';summary.setAttribute('role','status');$('.serviceGrid')?.before(summary);}
+    let summary=$('#hallResults');if(!summary){summary=make('p','','');summary.id='hallResults';summary.setAttribute('role','status');summary.style.gridColumn='1 / -1';$('.serviceGrid')?.prepend(summary);}
     summary.replaceChildren(document.createTextNode(`符合条件的服务 ${visible} 项 `));
     if(!visible&&cards.length){const reset=make('button','btn','清除筛选');reset.type='button';reset.onclick=()=>{state.category='all';state.query='';state.game='';state.platform='';state.sort='default';syncFilters();applyFilter();};summary.append(reset);}
     if(updateUrl&&location.pathname.endsWith('/services')){

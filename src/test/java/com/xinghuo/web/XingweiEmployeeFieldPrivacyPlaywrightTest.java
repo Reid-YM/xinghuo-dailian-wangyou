@@ -47,7 +47,7 @@ class XingweiEmployeeFieldPrivacyPlaywrightTest {
               return new Response('{}');
             }
             if(url.endsWith('/health'))return new Response(JSON.stringify({version:'20261019-v6b',stage:'V6B · UNIFIED DELIVERY'}));
-            if(url.endsWith('/access'))return new Response(JSON.stringify({mode:'LEGACY_ADMIN_OVERRIDE',allowAll:true,dataScope:'ALL',permissionCodes:[]}));
+            if(url.endsWith('/access'))return new Response(JSON.stringify({mode:'SHADOW_RBAC',allowAll:false,dataScope:'ALL',roleCodes:['XW_STAFF'],permissionCodes:['employee:view','employee:manage','rbac:view','rbac:manage','org:view']}));
             return new Response(JSON.stringify(window.org));
           };
           """);
@@ -57,6 +57,8 @@ class XingweiEmployeeFieldPrivacyPlaywrightTest {
         assertEquals(0,page.locator("#xwEmployeeNotes").count());
         assertFalse(page.locator("body").innerText().contains("私密员工备注"));
         assertFalse(page.locator("body").innerText().contains("private-wecom-id"));
+        assertFalse(page.locator("#xwAccessMode").getAttribute("title").contains("XW_STAFF"));
+        assertFalse(page.locator("#xwAccessMode").getAttribute("title").contains("employee:manage"));
         page.locator("#xwEmployeeName").fill("员工乙");
         page.locator("#xwEmployeeForm button[type=submit]").click();
         page.waitForFunction("()=>window.writes.some(w=>w.url.endsWith('/profile'))&&!document.querySelector('#xwEmployeeDialog').open");

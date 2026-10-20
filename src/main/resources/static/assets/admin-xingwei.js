@@ -328,9 +328,7 @@
         badge.textContent = modeLabel(access);
         badge.classList.toggle('ok', access.mode !== 'DENIED');
         badge.classList.remove('error');
-        badge.title = access.mode === 'SHADOW_RBAC'
-          ? `角色：${(access.roleCodes || []).join('、') || '无'}；权限点：${(access.permissionCodes || []).length}；数据范围：${scopeLabel(access)}`
-          : '旧后台恢复与历史接口仅限原 ADMIN，员工通过新版权限和数据范围工作台操作。';
+        badge.title = `操作权限已核对 · 数据范围：${scopeLabel(access)}`;
       }
       filterModules();
       applyActionPermissions(document);

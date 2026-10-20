@@ -272,9 +272,11 @@
     const service=state.services.find(item=>(card.dataset.serviceSlug&&text(item?.slug)===card.dataset.serviceSlug)||(card.dataset.serviceId&&text(item?.id)===card.dataset.serviceId));
     if(!service) return;
     const game=$('#qGame'),category=$('#qCat'),serviceSelect=$('#qSvc');
-    if(game&&[...game.options].some(option=>code(option.value)===code(service.gameCode))) game.value=text(service.gameCode);
+    const gameOption=game&&[...game.options].find(option=>code(option.value)===code(service.gameCode));
+    if(gameOption)game.value=gameOption.value;
     populateCategories();
-    if(category&&[...category.options].some(option=>code(option.value)===code(service.category))) category.value=text(service.category);
+    const categoryOption=category&&[...category.options].find(option=>code(option.value)===code(service.category));
+    if(categoryOption)category.value=categoryOption.value;
     populateServices();
     const value=text(service.slug||service.id||service.name);
     if(serviceSelect&&[...serviceSelect.options].some(option=>option.value===value)) serviceSelect.value=value;

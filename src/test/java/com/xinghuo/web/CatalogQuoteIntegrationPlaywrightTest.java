@@ -28,8 +28,8 @@ class CatalogQuoteIntegrationPlaywrightTest {
         "platforms":[{"code":"PC","name":"后台配置的电脑平台","active":true},{"code":"CONSOLE","name":"后台配置的主机平台","active":true},{"code":"OFF","name":"停用平台","active":false}],
         "gamePlatforms":[{"gameCode":"CODMW4","platformCode":"PC","active":true},{"gameCode":"CODMW4","platformCode":"OFF","active":true},{"gameCode":"CODMW4","platformCode":"CONSOLE","active":false},{"gameCode":"SECOND","platformCode":"CONSOLE","active":true}]}
         """;
-    static final String SERVICES=FrontendCanonicalRoutesPlaywrightTest.SERVICES.strip().replaceAll("\\]$","") + "," + """
-        {"id":2,"slug":"second-rank","gameCode":"SECOND","category":"RANK","name":"游戏乙排位","priceMode":"QUOTE"}]
+    static final String SERVICES=FrontendCanonicalRoutesPlaywrightTest.SERVICES.strip().replace("\"category\":\"LEVEL\"","\"category\":\"level\"").replaceAll("\\]$","") + "," + """
+        {"id":2,"slug":"second-rank","gameCode":"SECOND","category":"rank","name":"游戏乙排位","priceMode":"QUOTE"}]
         """;
     interface Check {void run(Browser browser)throws Exception;}
     void both(Check check)throws Exception {
@@ -62,6 +62,7 @@ class CatalogQuoteIntegrationPlaywrightTest {
                 f.json(r,response.getStatus(),response.getContentAsString(StandardCharsets.UTF_8));
             }catch(Exception e){throw new RuntimeException(e);}});
             f.open("/quote?service=level","#n3Platform");ready(f.page);
+            assertEquals("LEVEL",f.page.locator("#qCat").inputValue());
             assertEquals(List.of("","PC"),f.page.locator("#n3Platform option").evaluateAll("els=>els.map(e=>e.value)"));
             f.page.locator("#n3Platform").selectOption("PC");
             f.page.locator("#qGame").selectOption("SECOND");
@@ -77,6 +78,18 @@ class CatalogQuoteIntegrationPlaywrightTest {
             assertEquals("后台配置的主机平台",payload.getValue().platform());assertTrue(payload.getValue().privacyConsent());
             assertEquals("/record/"+FrontendCanonicalRoutesPlaywrightTest.NO,f.page.locator("#n3QuoteMessage a").getAttribute("href"));
             assertEquals(true,f.page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth+1"));assertEquals(List.of(),f.errors);
+        }});
+    }
+    @Test void serviceCardQuoteKeepsCatalogCategoryWhenPublicServiceCodeIsLowercase()throws Exception {
+        both(browser->{try(var f=new FrontendCanonicalRoutesPlaywrightTest.Fixture(browser,390,false)) {
+            routes(f,new AtomicReference<>(CATALOG),new AtomicReference<>(SERVICES));
+            f.open("/services",".serviceCard");ready(f.page);
+            f.page.locator(".serviceCard[data-service-slug=second-rank] [data-n2-quote]").click();
+            f.page.waitForSelector(".page[data-page=quote].active");
+            assertEquals("SECOND",f.page.locator("#qGame").inputValue());assertEquals("RANK",f.page.locator("#qCat").inputValue());
+            assertEquals("second-rank",f.page.locator("#qSvc").inputValue());
+            assertEquals(List.of("","CONSOLE"),f.page.locator("#n3Platform option").evaluateAll("els=>els.map(e=>e.value)"));
+            assertEquals(List.of(),f.errors);
         }});
     }
     @Test void catalogRefreshPreservesValidPlatformAndClearsRemovedAssociationWithoutLosingDraft()throws Exception {

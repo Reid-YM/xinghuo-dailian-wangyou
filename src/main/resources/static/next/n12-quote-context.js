@@ -190,12 +190,14 @@
     if (!game || !category || !serviceSelect || game.disabled) return false;
     applyingUrlSelection = true;
     try {
-      if ([...game.options].some(option => code(option.value) === code(service.gameCode))) {
-        game.value = text(service.gameCode);
+      const gameOption = [...game.options].find(option => code(option.value) === code(service.gameCode));
+      if (gameOption) {
+        game.value = gameOption.value;
         game.dispatchEvent(new Event('change', { bubbles: true }));
       }
-      if ([...category.options].some(option => code(option.value) === code(service.category))) {
-        category.value = text(service.category);
+      const categoryOption = [...category.options].find(option => code(option.value) === code(service.category));
+      if (categoryOption) {
+        category.value = categoryOption.value;
         category.dispatchEvent(new Event('change', { bubbles: true }));
       }
       const value = text(service.slug || service.id || service.name);

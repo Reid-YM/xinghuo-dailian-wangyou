@@ -21,8 +21,6 @@ Page({
     version: business.VERSION,
     icp: business.ICP,
     hasIcp: !!business.ICP,
-    police: business.POLICE,
-    hasPolice: !!business.POLICE,
     sessionFrom: '',
 
     cloud: {

@@ -44,6 +44,12 @@ class FrontendShellOverflowPlaywrightTest {
                         () => [...document.querySelectorAll('.page.active .tablebox')].every(e=>e.getBoundingClientRect().right<=innerWidth+1 && getComputedStyle(e).overflowX==='auto')
                         """));
                 }
+                page.evaluate("()=>document.querySelectorAll('.page').forEach(e=>e.classList.toggle('active',e.dataset.page==='quote'))");
+                var input=page.locator(".page[data-page=quote] .field input:not([type=file])").first();
+                input.focus();input.press("End");
+                assertEquals("solid",input.evaluate("e=>getComputedStyle(e.closest('.field')).outlineStyle"));
+                assertTrue((Boolean)input.evaluate("e=>{const r=e.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1&&e.closest('.field').scrollLeft===0}"),"long input must stay visible and focusable without panning its field");
+                assertTrue((Boolean)page.evaluate("()=>document.documentElement.scrollWidth<=innerWidth+1"));
                 page.close();
             }
         }

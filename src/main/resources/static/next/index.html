@@ -32,6 +32,9 @@
 .page :is(h1,h2,h3,p,.panel,.summary,.stat,.serviceBody,.sumrow,.field){overflow-wrap:anywhere}
 .page :is(input,select,textarea,img,video){max-width:100%;min-width:0}
 .page :is(input,select){overflow:hidden;text-overflow:ellipsis}
+/* WebKit text controls can propagate their internal scroll width beyond the control. */
+.page .field{overflow:hidden;overflow:clip}
+.page .field:focus-within{outline:2px solid var(--gold);outline-offset:3px}
 .heroBtns,.serviceBtns{flex-wrap:wrap}.heroBtns>*{max-width:100%}
 .tablebox{min-width:0;max-width:100%}.toast{max-width:calc(100vw - 32px);overflow-wrap:anywhere}
 .nav .brand{display:grid;grid-template-columns:32px minmax(0,1fr);gap:0 8px;align-items:center;min-width:0;flex-shrink:1}

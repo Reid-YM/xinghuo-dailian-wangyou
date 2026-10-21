@@ -602,6 +602,13 @@
   color: #c6f24e;
   letter-spacing: 0.5rpx;
 }
+.camo-guide-group-note {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 20rpx;
+  line-height: 1.5;
+  color: #8b94a3;
+}
 .camo-guide-row {
   display: flex;
   align-items: flex-start;
@@ -617,8 +624,8 @@
   flex: none;
 }
 .camo-guide-thumb {
-  width: 120rpx;
-  height: 64rpx;
+  width: 150rpx;
+  height: 60rpx;
   border-radius: 10rpx;
   background: #1b1f27;
   border: 1rpx solid rgba(255, 255, 255, 0.08);
@@ -668,63 +675,6 @@
   color: #6f7785;
 }
 
-.camo-guide-tiles {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin-top: 12rpx;
-}
-.camo-guide-tile {
-  width: 48.5%;
-  margin-bottom: 18rpx;
-}
-.camo-guide-tile-media {
-  position: relative;
-}
-.camo-guide-tile-img {
-  width: 100%;
-  height: 120rpx;
-  border-radius: 12rpx;
-  background: #1b1f27;
-  border: 1rpx solid rgba(255, 255, 255, 0.08);
-}
-.camo-guide-tile-empty {
-  display: block;
-}
-.camo-guide-tile-label {
-  display: block;
-  margin-top: 6rpx;
-  font-size: 21rpx;
-  color: #dfe4ec;
-}
-.camo-guide-tile-req {
-  display: block;
-  margin-top: 2rpx;
-  font-size: 19rpx;
-  line-height: 1.4;
-  color: #8b94a3;
-}
-.camo-guide-military-note {
-  display: block;
-  margin-top: 4rpx;
-  font-size: 20rpx;
-  line-height: 1.5;
-  color: #6f7785;
-}
-
-.camo-guide-hint {
-  display: block;
-  margin: -4rpx 0 10rpx;
-  font-size: 20rpx;
-  color: #6f7785;
-}
-.camo-guide-tile {
-  position: relative;
-}
-.camo-guide-tile.on .camo-guide-tile-img {
-  opacity: 0.7;
-  border-color: rgba(198, 242, 78, 0.6);
-}
 .camo-guide-row.on .camo-guide-name {
   color: #c6f24e;
 }

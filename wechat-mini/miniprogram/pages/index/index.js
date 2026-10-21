@@ -26,7 +26,7 @@ function guideForClass(guide, weaponCode, guideDone, options) {
     }
   }
   let groups = (guide.groups || []).map(function (g) {
-    return { key: g.key, title: g.title, items: (g.items || []).map(mark) }
+    return { key: g.key, title: g.title, note: g.note || '', items: (g.items || []).map(mark) }
   })
   let militaryTiles = (guide.militaryTiles || []).map(function (item) {
     return {
@@ -49,7 +49,7 @@ function guideForClass(guide, weaponCode, guideDone, options) {
         return Object.assign({}, item, { req: item.req.slice(at) })
       }).filter(Boolean)
       const base = String(g.title || '').split(' · ')[0] || '迷彩'
-      return { key: g.key, title: base + ' · ' + items.length + ' 档', items: items }
+      return { key: g.key, title: base + ' · ' + items.length + ' 档', note: g.note || '', items: items }
     }).filter(function (g) { return g.items.length > 0 })
   }
   return {

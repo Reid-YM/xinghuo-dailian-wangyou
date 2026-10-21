@@ -57,20 +57,40 @@ function classHint(cls) {
 function buildGuideEntry(c, militaryImages) {
   const groups = []
   const military = c.military || {}
-  if (military.text) {
-    groups.push({
-      key: 'military',
-      title: '军事迷彩 · ' + (military.count || 8) + ' 档',
-      items: [{
-        key: 'military',
-        name: '按武器等级解锁',
-        req: military.text,
-        estimate: !!military.estimate,
-        image: resolveImage(military.image || ''),
-        imageRemote: api.asset(military.image || '')
-      }]
+  const milImages = (militaryImages && militaryImages.length) ? militaryImages : (military.image ? [military.image] : [])
+  const milLevels = military.levels || []
+  const militaryItems = []
+  const militaryTiles = []
+  for (let i = 0; i < (military.count || 8); i++) {
+    const img = milImages.length ? milImages[i % milImages.length] : ''
+    const level = milLevels[i]
+    const item = {
+      key: 'mil-' + i,
+      name: '军事迷彩 ' + (i + 1),
+      req: level ? ('武器等级 ' + level) : '按武器等级解锁',
+      estimate: !!military.estimate,
+      image: resolveImage(img),
+      imageRemote: api.asset(img)
+    }
+    militaryItems.push(item)
+    militaryTiles.push({
+      key: item.key,
+      label: level ? (level + '级') : ('第' + (i + 1) + '档'),
+      name: item.name,
+      req: item.req,
+      image: item.image,
+      imageRemote: item.imageRemote
     })
   }
+  if (militaryItems.length) {
+    groups.push({
+      key: 'military',
+      title: '军事迷彩 · ' + militaryItems.length + ' 档',
+      note: milLevels.length ? '' : (military.text || ''),
+      items: militaryItems
+    })
+  }
+
   const special = (c.special || []).map(function (it, i) {
     return {
       key: 'special-' + i,
@@ -82,6 +102,7 @@ function buildGuideEntry(c, militaryImages) {
     }
   }).filter(function (it) { return it.req })
   if (special.length) groups.push({ key: 'special', title: '特殊迷彩 · ' + special.length + ' 档', items: special })
+
   const comp = (c.completionist || []).map(function (it, i) {
     return {
       key: 'comp-' + i,
@@ -94,21 +115,6 @@ function buildGuideEntry(c, militaryImages) {
   }).filter(function (it) { return it.req })
   if (comp.length) groups.push({ key: 'completionist', title: '完成主义 · ' + comp.length + ' 档', items: comp })
 
-  const milImages = (militaryImages && militaryImages.length) ? militaryImages : (military.image ? [military.image] : [])
-  const milLevels = military.levels || []
-  const militaryTiles = []
-  for (let i = 0; i < (military.count || 8); i++) {
-    const img = milImages.length ? milImages[i % milImages.length] : ''
-    const level = milLevels[i]
-    militaryTiles.push({
-      key: 'mil-' + i,
-      label: level ? (level + '级') : ('第' + (i + 1) + '档'),
-      name: '军事迷彩 ' + (i + 1),
-      req: level ? ('武器等级 ' + level) : '按武器等级解锁',
-      image: resolveImage(img),
-      imageRemote: api.asset(img)
-    })
-  }
   return { groups: groups, militaryTiles: militaryTiles, note: c.note || '' }
 }
 

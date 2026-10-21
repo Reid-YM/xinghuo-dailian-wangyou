@@ -195,5 +195,8 @@ jobs:
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=yes \
             -o ConnectTimeout=15 \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=3 \
+            -o TCPKeepAlive=yes \
             "ubuntu@${PROD_SSH_HOST}" \
             "deploy ${DEPLOY_SHA}"

@@ -13,6 +13,23 @@ catalog.load().then(function (cat) {
   if (cat.eventMode) cat.eventMode.items.forEach(function (i) { checks.push(['迷彩', i.name, i.image]) })
   cat.weapons.slice(0, 3).forEach(function (w) { checks.push(['武器', w.name, w.image]) })
 
+  // 完整迷彩指南里的图片也逐个核对（按路径去重，避免重复刷屏）
+  const seenCamoImages = {}
+  function addCamoImage(kind, name, image) {
+    if (!image || seenCamoImages[image]) return
+    seenCamoImages[image] = true
+    checks.push([kind, name, image])
+  }
+  if (cat.camoGuide) {
+    Object.keys(cat.camoGuide.weapons || {}).forEach(function (code) {
+      const guide = cat.camoGuide.weapons[code]
+      ;(guide.militaryTiles || []).forEach(function (t) { addCamoImage('军事迷彩', code + ' ' + (t.name || t.label), t.image) })
+      ;(guide.groups || []).forEach(function (g) {
+        ;(g.items || []).forEach(function (i) { addCamoImage('迷彩', code + ' ' + i.name, i.image) })
+      })
+    })
+  }
+
   let bad = 0
   checks.forEach(function (c) {
     const isLocal = c[2].indexOf('/images/') === 0

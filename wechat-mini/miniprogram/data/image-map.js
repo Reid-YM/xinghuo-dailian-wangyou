@@ -1,7 +1,7 @@
 /**
  * 官网图片路径 -> 小程序包内路径 映射表
  *
- * 注意：微信开发者工具不会把 .webp 打进小程序包（实测），所以包内统一用 .jpg，
+ * 注意：微信开发者工具不会把 .webp 打进小程序包（实测），所以包内统一用 .jpg / .png，
  * 键仍保留官网的 .webp 路径（catalog.js 用官网路径查表）。
  */
 module.exports = {
@@ -13,14 +13,14 @@ module.exports = {
   "/assets/mw4camo/harmonic-break.webp": "/images/camo/harmonic-break.jpg",
   "/assets/mw4camo/helio.webp": "/images/camo/helio.jpg",
   "/assets/mw4camo/mercurial-drift.webp": "/images/camo/mercurial-drift.jpg",
-  "/assets/mw4camo/military-1.webp": "/images/camo/military-1.jpg",
-  "/assets/mw4camo/military-2.webp": "/images/camo/military-2.jpg",
-  "/assets/mw4camo/military-3.webp": "/images/camo/military-3.jpg",
-  "/assets/mw4camo/military-4.webp": "/images/camo/military-4.jpg",
-  "/assets/mw4camo/military-5.webp": "/images/camo/military-5.jpg",
-  "/assets/mw4camo/military-6.webp": "/images/camo/military-6.jpg",
-  "/assets/mw4camo/military-7.webp": "/images/camo/military-7.jpg",
-  "/assets/mw4camo/military-8.webp": "/images/camo/military-8.jpg",
+  "/assets/mw4camo/military-1.webp": "/images/camo/military-1.png",
+  "/assets/mw4camo/military-2.webp": "/images/camo/military-2.png",
+  "/assets/mw4camo/military-3.webp": "/images/camo/military-3.png",
+  "/assets/mw4camo/military-4.webp": "/images/camo/military-4.png",
+  "/assets/mw4camo/military-5.webp": "/images/camo/military-5.png",
+  "/assets/mw4camo/military-6.webp": "/images/camo/military-6.png",
+  "/assets/mw4camo/military-7.webp": "/images/camo/military-7.png",
+  "/assets/mw4camo/military-8.webp": "/images/camo/military-8.png",
   "/assets/mw4camo/military.webp": "/images/camo/military.jpg",
   "/assets/mw4camo/orion-reforged.webp": "/images/camo/orion-reforged.jpg",
   "/assets/mw4camo/parallax.webp": "/images/camo/parallax.jpg",
@@ -32,6 +32,24 @@ module.exports = {
   "/assets/mw4camo/pyroclast.webp": "/images/camo/pyroclast-1.jpg",
   "/assets/mw4camo/ripple-tide.webp": "/images/camo/ripple-tide.jpg",
   "/assets/mw4camo/special.webp": "/images/camo/special.jpg",
+  "/assets/mw4camo/special-treeline.webp": "/images/camo/special-treeline.png",
+  "/assets/mw4camo/special-spidersilk.webp": "/images/camo/special-spidersilk.png",
+  "/assets/mw4camo/special-tension.webp": "/images/camo/special-tension.png",
+  "/assets/mw4camo/special-struck-oil.webp": "/images/camo/special-struck-oil.png",
+  "/assets/mw4camo/special-brushstroke.webp": "/images/camo/special-brushstroke.png",
+  "/assets/mw4camo/special-white-pine.webp": "/images/camo/special-white-pine.png",
+  "/assets/mw4camo/special-asphalt.webp": "/images/camo/special-asphalt.png",
+  "/assets/mw4camo/special-black-topo.webp": "/images/camo/special-black-topo.png",
+  "/assets/mw4camo/special-brown.webp": "/images/camo/special-brown.png",
+  "/assets/mw4camo/special-desert-tactics.webp": "/images/camo/special-desert-tactics.png",
+  "/assets/mw4camo/special-green-tiger.webp": "/images/camo/special-green-tiger.png",
+  "/assets/mw4camo/special-thunderhead.webp": "/images/camo/special-thunderhead.png",
+  "/assets/mw4camo/special-mangrove.webp": "/images/camo/special-mangrove.png",
+  "/assets/mw4camo/special-fungal-grid.webp": "/images/camo/special-fungal-grid.png",
+  "/assets/mw4camo/special-white.webp": "/images/camo/special-white.png",
+  "/assets/mw4camo/special-autumn.webp": "/images/camo/special-autumn.png",
+  "/assets/mw4camo/special-snakeskin.webp": "/images/camo/special-snakeskin.png",
+  "/assets/mw4camo/special-space-time.webp": "/images/camo/special-space-time.png",
   "/assets/mw4weapon/50gs.webp": "/images/weapon/50gs.jpg",
   "/assets/mw4weapon/combatknife.webp": "/images/weapon/combatknife.jpg",
   "/assets/mw4weapon/finnlmg.webp": "/images/weapon/finnlmg.jpg",

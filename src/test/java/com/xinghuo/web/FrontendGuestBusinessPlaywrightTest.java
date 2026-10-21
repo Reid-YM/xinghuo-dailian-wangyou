@@ -26,6 +26,7 @@ class FrontendGuestBusinessPlaywrightTest {
                 f.page.route("**/api/guest/business/**",route->{
                     String path=URI.create(route.request().url()).getPath();String method=route.request().method();
                     if(method.equals("POST")) {
+                        assertEquals("fetch", route.request().headerValue("X-Requested-With"), "Guest write must set CSRF guard");
                         assertNull(route.request().postData(),"Client must not supply a charge amount");
                         if(path.endsWith("/accept")){accepts.incrementAndGet();stage.set(1);}
                         else if(path.endsWith("/payment/native")){payments.incrementAndGet();stage.set(2);}

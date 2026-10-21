@@ -15,6 +15,8 @@ import java.util.Map;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,11 +40,13 @@ public class GuestBusinessApiController {
 
     @PostMapping("/{businessNo}/accept")
     public Map<String, Object> accept(@PathVariable String businessNo, HttpServletRequest request) {
+        requireSameOriginFetch(request);
         return guests.accept(token(request), businessNo, request);
     }
 
     @PostMapping("/{businessNo}/payment/native")
     public PaymentView nativePayment(@PathVariable String businessNo, HttpServletRequest request) {
+        requireSameOriginFetch(request);
         return PaymentView.of(guests.nativePayment(token(request), businessNo));
     }
 
@@ -61,6 +65,18 @@ public class GuestBusinessApiController {
                 .contentType(MediaType.IMAGE_PNG)
                 .cacheControl(CacheControl.noStore())
                 .body(out.toByteArray());
+    }
+
+    /**
+     * CSRF defense-in-depth: a cross-site HTML form cannot set this custom
+     * header, while cross-origin fetch would need a CORS preflight.
+     * Keep the existing HttpOnly/SameSite capability checks in the service.
+     */
+    private static void requireSameOriginFetch(HttpServletRequest request) {
+        if (!"fetch".equals(request.getHeader("X-Requested-With"))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Missing X-Requested-With header");
+        }
     }
 
     private String token(HttpServletRequest request) {

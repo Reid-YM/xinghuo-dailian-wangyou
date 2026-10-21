@@ -43,10 +43,20 @@ class PublicCatalogFallbackTest {
         String html = new FrontendNextPreviewController().frontendNext(request).getBody();
 
         assertTrue(html.contains("<h2>已发布攻略</h2>"));
+        assertTrue(html.contains("<section id=\"n23-guides-ssr\""));
         assertTrue(html.contains("href=\"/guides/camo-roadmap\""));
         assertTrue(html.contains("迷彩路线"));
         assertFalse(html.contains("hidden-roadmap"));
         assertFalse(html.contains("草稿"));
+        int ssrStart = html.indexOf("<section id=\"n23-guides-ssr\"");
+        int ssrEnd = html.indexOf("</section>", ssrStart);
+        int interactivePageStart = html.indexOf("<section class=\"page\"", ssrStart);
+        assertTrue(ssrStart >= 0 && ssrEnd > ssrStart);
+        assertTrue(interactivePageStart > ssrEnd, "SSR block must precede the interactive shell");
+        String visibleFallback = html.substring(ssrStart, ssrEnd);
+        assertTrue(visibleFallback.contains("迷彩路线"));
+        assertFalse(visibleFallback.contains("草稿"));
+        assertFalse(visibleFallback.contains("<noscript"), "SSR must be visible without JavaScript");
     }
 
     @Test

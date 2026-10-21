@@ -89,6 +89,10 @@
     section.append(node('div', 'shell'));
     const footer = $('.next-footer') || $('.footer');
     if (footer) footer.before(section); else document.body.append(section);
+    // Canonical /guides can be served with published HTML while the API hydrates.
+    // Keep the interactive shell hidden until the request succeeds; on failure the
+    // server-rendered links remain usable instead of being replaced by a blank state.
+    section.hidden = Boolean($('#n23-guides-ssr'));
     return section;
   }
 
@@ -367,8 +371,11 @@
       guides = list(body);
       syncGames(section);
       renderCards(section);
+      $('#n23-guides-ssr')?.remove();
+      section.hidden = false;
     } catch (error) {
       if (request !== requestToken || !onRoute()) return;
+      if ($('#n23-guides-ssr')) return;
       renderError(section, error?.message);
     }
   }

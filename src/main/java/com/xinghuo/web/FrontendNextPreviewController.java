@@ -202,6 +202,18 @@ public class FrontendNextPreviewController {
         // contains loading placeholders. This fallback makes no API or DB writes.
         html = html.replace("<noscript><p>请启用 JavaScript 以使用服务大厅、询价和个人中心。</p></noscript>",
                 noScriptFallback(path, originalMetadata));
+        // Keep the published guide list in the initial HTML. The N23 runtime
+        // replaces this temporary, read-only block only after its API request succeeds.
+        if ("/guides".equals(path)) {
+            String guideMarkup = PublicCatalogFallback.markup(path, originalMetadata);
+            if (!guideMarkup.isBlank()) {
+                String serverRenderedGuides = "<section id=\"n23-guides-ssr\" class=\"shell\" "
+                        + "aria-label=\"攻略中心服务端内容\" style=\"padding:112px 0 32px;max-width:980px\">"
+                        + guideMarkup + "</section>";
+                html = html.replace("</nav>\n\n<section class=\"page\"",
+                        "</nav>\n\n" + serverRenderedGuides + "\n\n<section class=\"page\"");
+            }
+        }
         boolean privatePage = path.startsWith("/account") || path.equals("/records") || path.startsWith("/record/");
         String robotsPolicy = privatePage ? "noindex,nofollow" : "noindex,follow";
         {
@@ -312,7 +324,7 @@ public class FrontendNextPreviewController {
                 + "<h1>" + HtmlUtils.htmlEscape(heading) + "</h1>"
                 + "<p>" + HtmlUtils.htmlEscape(detail) + "</p>"
                 + "<p>使用服务筛选、提交表单和个人中心前，请启用 JavaScript。</p>"
-                + PublicCatalogFallback.markup(path, model)
+                + ("/guides".equals(path) ? "" : PublicCatalogFallback.markup(path, model))
                 + "<p><a href=\"/services\">服务大厅</a> · "
                 + "<a href=\"/guides\">攻略中心</a> · "
                 + "<a href=\"/rules\">服务规则</a> · "

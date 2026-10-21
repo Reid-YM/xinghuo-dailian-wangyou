@@ -44,7 +44,7 @@ class PublicCatalogFallbackTest {
 
         assertTrue(html.contains("<h2>已发布攻略</h2>"));
         assertTrue(html.contains("<section id=\"n23-guides-ssr\""));
-        assertTrue(html.contains("href=\\"/guides/camo-roadmap\\""));
+        assertTrue(html.contains("href=\"/guides/camo-roadmap\""));
         assertTrue(html.contains("迷彩路线"));
         assertFalse(html.contains("hidden-roadmap"));
         assertFalse(html.contains("草稿"));

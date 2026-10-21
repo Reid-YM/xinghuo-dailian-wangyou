@@ -197,6 +197,11 @@ public class FrontendNextPreviewController {
         String requestPath = request == null ? "/next" : request.getRequestURI();
         String path = original == null ? requestPath.replaceFirst("^/next(?=/|$)", "") : original;
         if (path.isBlank() || "/home".equals(path) || "/index.html".equals(path)) path = "/";
+        // An indexable canonical page must provide route-specific, usable information
+        // even when JavaScript is unavailable; the interactive shell alone only
+        // contains loading placeholders. This fallback makes no API or DB writes.
+        html = html.replace("<noscript><p>请启用 JavaScript 以使用服务大厅、询价和个人中心。</p></noscript>",
+                noScriptFallback(path));
         boolean privatePage = path.startsWith("/account") || path.equals("/records") || path.startsWith("/record/");
         String robotsPolicy = privatePage ? "noindex,nofollow" : "noindex,follow";
         {
@@ -271,6 +276,48 @@ public class FrontendNextPreviewController {
         if (previewRequest || privatePage) response.header("X-Robots-Tag", robotsPolicy);
         return response.body(html);
     }
+
+    /** Static, route-scoped no-script content: never render another user's data here. */
+    private static String noScriptFallback(String path) {
+        String heading;
+        String detail;
+        switch (path) {
+            case "/" -> {
+                heading = "星火游戏服务平台";
+                detail = "浏览游戏服务、了解服务规则并联系工作人员核对实际报价和进度。";
+            }
+            case "/services" -> {
+                heading = "游戏服务大厅";
+                detail = "浏览游戏与服务分类。具体项目及价格以服务详情和客服确认结果为准。";
+            }
+            case "/guides" -> {
+                heading = "游戏攻略中心";
+                detail = "查看游戏攻略与任务完成建议，服务项目可从服务大厅查找。";
+            }
+            case "/quote" -> {
+                heading = "提交服务询价";
+                detail = "请先浏览服务项目，再通过在线客服确认当前目标、价格和交付安排。";
+            }
+            case "/mastery" -> {
+                heading = "MW4 工具站";
+                detail = "武器和迷彩进度工具需要 JavaScript；可先浏览服务内容或联系客服。";
+            }
+            default -> {
+                heading = "星火游戏服务";
+                detail = "该互动页面需要 JavaScript；仍可通过下方链接查看服务规则和联系方式。";
+            }
+        }
+        return "<noscript><section class=\"shell\" aria-label=\"无脚本访问说明\" "
+                + "style=\"padding:116px 0 32px;max-width:760px\">"
+                + "<h1>" + HtmlUtils.htmlEscape(heading) + "</h1>"
+                + "<p>" + HtmlUtils.htmlEscape(detail) + "</p>"
+                + "<p>使用服务筛选、提交表单和个人中心前，请启用 JavaScript。</p>"
+                + "<p><a href=\"/services\">服务大厅</a> · "
+                + "<a href=\"/guides\">攻略中心</a> · "
+                + "<a href=\"/rules\">服务规则</a> · "
+                + "<a href=\"/contact\">联系方式</a></p></section></noscript>";
+    }
+
     private static String modelText(Map<?, ?> model, String key, String fallback) {
         Object value = model.get(key);
         return value instanceof String text && !text.isBlank() ? text : fallback;

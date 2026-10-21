@@ -337,7 +337,8 @@ public class FrontendNextPreviewController {
                 + "<h1>" + HtmlUtils.htmlEscape(heading) + "</h1>"
                 + "<p>" + HtmlUtils.htmlEscape(detail) + "</p>"
                 + "<p>使用服务筛选、提交表单和个人中心前，请启用 JavaScript。</p>"
-                + ("/guides".equals(path) ? "" : PublicCatalogFallback.markup(path, model))
+                + ("/guides".equals(path) || "/services".equals(path)
+                        ? "" : PublicCatalogFallback.markup(path, model))
                 + "<p><a href=\"/services\">服务大厅</a> · "
                 + "<a href=\"/guides\">攻略中心</a> · "
                 + "<a href=\"/rules\">服务规则</a> · "

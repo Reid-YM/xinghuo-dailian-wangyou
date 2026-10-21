@@ -8,8 +8,9 @@ const kf = require('../../utils/kf')
 const format = require('../../utils/format')
 
 /** 完整迷彩挑战：按武器 + 条目生成可勾选状态（本机记录，不计入主进度）。 */
-function guideForClass(guide, weaponCode, guideDone) {
+function guideForClass(guide, weaponCode, guideDone, options) {
   if (!guide) return null
+  const dmzOnly = !!(options && options.dmzOnly)
   function on(key) {
     return !!(guideDone && guideDone[weaponCode + '::' + key])
   }
@@ -24,21 +25,53 @@ function guideForClass(guide, weaponCode, guideDone) {
       on: on(item.key)
     }
   }
-  return {
-    note: guide.note || '',
-    groups: (guide.groups || []).map(function (g) {
-      return { key: g.key, title: g.title, items: (g.items || []).map(mark) }
-    }),
-    militaryTiles: (guide.militaryTiles || []).map(function (item) {
-      return {
-        key: item.key,
-        label: item.label,
-        image: item.image,
-        imageRemote: item.imageRemote,
-        on: on(item.key)
-      }
-    })
+  let groups = (guide.groups || []).map(function (g) {
+    return { key: g.key, title: g.title, items: (g.items || []).map(mark) }
+  })
+  let militaryTiles = (guide.militaryTiles || []).map(function (item) {
+    return {
+      key: item.key,
+      label: item.label,
+      image: item.image,
+      imageRemote: item.imageRemote,
+      on: on(item.key)
+    }
+  })
+  if (dmzOnly) {
+    // DMZ tab: only show the DMZ alternative requirements, not MP-only levels/camos.
+    militaryTiles = []
+    groups = groups.filter(function (g) {
+      return g.key !== 'military'
+    }).map(function (g) {
+      const items = g.items.map(function (item) {
+        const at = String(item.req || '').indexOf('DMZ：')
+        if (at < 0) return null
+        return Object.assign({}, item, { req: item.req.slice(at) })
+      }).filter(Boolean)
+      const base = String(g.title || '').split(' · ')[0] || '迷彩'
+      return { key: g.key, title: base + ' · ' + items.length + ' 档', items: items }
+    }).filter(function (g) { return g.items.length > 0 })
   }
+  return {
+    note: dmzOnly
+      ? 'DMZ 条件（来源 CODMunity）：仅显示该页面提供的 DMZ 替代要求；DMZ 精通三档见页面上方。'
+      : (guide.note || ''),
+    groups: groups,
+    militaryTiles: militaryTiles
+  }
+}
+
+function guideForWeapon(cat, modeCode, weapon, guideDone) {
+  const guideRoot = (cat && cat.camoGuide) || {}
+  const perWeapon = guideRoot.weapons && guideRoot.weapons[weapon.code]
+  const classGuide = guideRoot.classes && guideRoot.classes[weapon.cls]
+  if (modeCode === 'MULTIPLAYER') {
+    return guideForClass(perWeapon || classGuide, weapon.code, guideDone)
+  }
+  if (modeCode === 'DMZ' && perWeapon) {
+    return guideForClass(perWeapon, weapon.code, guideDone, { dmzOnly: true })
+  }
+  return guideForClass(classGuide, weapon.code, guideDone)
 }
 
 Page({
@@ -461,7 +494,7 @@ Page({
           total: mode.tiers.length,
           complete: wp.complete,
           expanded: !!expanded[w.code],
-          camoGuide: guideForClass((mode.code === 'MULTIPLAYER' && cat.camoGuide && cat.camoGuide.weapons && cat.camoGuide.weapons[w.code]) || (cat.camoGuide && cat.camoGuide.classes ? cat.camoGuide.classes[w.cls] : null), w.code, guideDone),
+          camoGuide: guideForWeapon(cat, mode.code, w, guideDone),
           tiers: wp.tiers.map(function (t) {
             return {
               key: t.key,

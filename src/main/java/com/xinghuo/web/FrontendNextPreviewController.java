@@ -214,6 +214,19 @@ public class FrontendNextPreviewController {
                         "</nav>\n\n" + serverRenderedGuides + "\n\n<section class=\"page\"");
             }
         }
+        // The service hall uses the same public-only server fallback. Keep the
+        // interactive shell hidden until the existing catalog API has hydrated it.
+        if ("/services".equals(path)) {
+            String serviceMarkup = PublicCatalogFallback.markup(path, originalMetadata);
+            if (!serviceMarkup.isBlank()) {
+                String serverRenderedServices = "<section id=\"n23-services-ssr\" class=\"shell\" "
+                        + "aria-label=\"服务大厅服务端内容\" style=\"padding:112px 0 32px\">"
+                        + serviceMarkup + "</section>";
+                html = html.replace("</nav>\n\n<section class=\"page\" data-page=\"services\"",
+                        "</nav>\n\n" + serverRenderedServices
+                                + "\n\n<section class=\"page\" style=\"display:none\" data-page=\"services\"");
+            }
+        }
         boolean privatePage = path.startsWith("/account") || path.equals("/records") || path.startsWith("/record/");
         String robotsPolicy = privatePage ? "noindex,nofollow" : "noindex,follow";
         {

@@ -38,11 +38,12 @@ function guideForClass(guide, weaponCode, guideDone, options) {
     }
   })
   if (dmzOnly) {
-    // DMZ tab: only show the DMZ alternative requirements, not MP-only levels/camos.
+    // DMZ tab: keep the level-based military camos; show DMZ alternatives for special/completionist.
     militaryTiles = []
-    groups = groups.filter(function (g) {
-      return g.key !== 'military'
-    }).map(function (g) {
+    groups = groups.map(function (g) {
+      if (g.key === 'military') {
+        return { key: g.key, title: g.title, note: 'DMZ 同样按武器等级解锁', items: g.items }
+      }
       const items = g.items.map(function (item) {
         const at = String(item.req || '').indexOf('DMZ：')
         if (at < 0) return null
@@ -54,7 +55,7 @@ function guideForClass(guide, weaponCode, guideDone, options) {
   }
   return {
     note: dmzOnly
-      ? 'DMZ 条件（来源 CODMunity）：仅显示该页面提供的 DMZ 替代要求；DMZ 精通三档见页面上方。'
+      ? '军事迷彩按武器等级解锁；特殊/完成主义仅显示 DMZ 条件；DMZ 精通三档见页面上方。'
       : (guide.note || ''),
     groups: groups,
     militaryTiles: militaryTiles
@@ -489,6 +490,7 @@ Page({
           image: useRemote ? (w.imageRemote || w.image) : w.image,
           imgFallback: !!w.imgFallback,
           hint: w.hint,
+          synced: !!w.guideSynced,
           fav: fav,
           count: wp.count,
           total: mode.tiers.length,

@@ -620,10 +620,13 @@ global.Page = function (def) {
   idx.data.groups.forEach(function (g) { g.weapons.forEach(function (w) { dmzWeapons.push(w) }) })
   const kgDmz = dmzWeapons.filter(function (w) { return w.code === 'KG7VULCAN' })[0]
   assert('DMZ 页能找到 KG-7 Vulcan', !!kgDmz, 'KG7VULCAN')
-  assert('DMZ 页不显示多人军事等级组', kgDmz.camoGuide.groups.every(function (g) { return g.key !== 'military' }), JSON.stringify(kgDmz.camoGuide.groups.map(function (g) { return g.key })))
+  const dmzMilitary = kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'military' })[0]
+  assert('DMZ 页显示军事迷彩', !!dmzMilitary && dmzMilitary.items.length === 8, JSON.stringify(kgDmz.camoGuide.groups.map(function (g) { return g.key })))
+  check('DMZ 军事迷彩等级条件', dmzMilitary.items[0].req, '武器等级 13')
   assert('DMZ 页显示 DMZ 条件', kgDmz.camoGuide.groups.some(function (g) { return g.items.some(function (i) { return i.req.indexOf('DMZ：') === 0 }) }), JSON.stringify(kgDmz.camoGuide.groups))
   check('DMZ 特殊迷彩档数', kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'special' })[0].title, '特殊迷彩 · 2 档')
   check('DMZ 完成主义档数', kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'completionist' })[0].title, '完成主义 · 3 档')
+  check('同步武器有已同步标记', kgDmz.synced, true)
   idx.onMode({ currentTarget: { dataset: { key: 'NOPE' } } })
   check('非法模式不生效', idx.data.activeMode, 'DMZ')
   idx.onMode({ currentTarget: { dataset: { key: 'MULTIPLAYER' } } })

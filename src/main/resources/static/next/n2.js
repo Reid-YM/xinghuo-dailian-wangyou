@@ -351,6 +351,13 @@
       if(!Array.isArray(value))throw new Error('服务目录格式不正确');
       state.services=value;restoreFilters();renderServices();
       grid?.setAttribute('aria-busy','false');
+      // Once the real public service API succeeds, replace the temporary SSR list
+      // with the interactive cards. If the request fails, the SSR links stay visible.
+      const serverRenderedHall=$('#n23-services-ssr');
+      if(serverRenderedHall){
+        serverRenderedHall.remove();
+        $('.page[data-page="services"]')?.style.removeProperty('display');
+      }
       window.XHFrontendShell?.updateServices?.(state.services);
       if(state.catalog)populateQuote();
       status('服务已读取，正在核对游戏分类…','loading');

@@ -17,6 +17,12 @@ const path = require('path')
 
 const API = 'https://wydlgf.cn/api/tool-station'
 const OUT = path.join(__dirname, '..', 'miniprogram', 'data', 'weapons.js')
+const LOCAL_FILE = process.argv[2] === '--file' ? path.resolve(process.argv[3] || '') : ''
+
+function guideVersionRank(version) {
+  const m = String(version || '').match(/(\d+)r(\d+)/i)
+  return m ? Number(m[1]) * 1000 + Number(m[2]) : 0
+}
 
 function fetchJson(url) {
   return new Promise(function (resolve, reject) {
@@ -36,11 +42,22 @@ function fetchJson(url) {
 }
 
 ;(async function () {
-  console.log('拉取 ' + API)
-  const json = await fetchJson(API)
+  const source = LOCAL_FILE || API
+  console.log((LOCAL_FILE ? '读取 ' : '拉取 ') + source)
+  const json = LOCAL_FILE ? JSON.parse(fs.readFileSync(LOCAL_FILE, 'utf8')) : await fetchJson(API)
 
   const game = (json.games || []).find(function (g) { return g.code === json.defaultGameCode }) || (json.games || [])[0]
   if (!game || !game.camoTracks) throw new Error('返回结构变了：找不到 games[]/camoTracks')
+
+  // 线上接口可能还没更新 camoGuide：保留快照中版本更高的完整迷彩数据
+  let previous = null
+  try { previous = require(OUT) } catch (e) {}
+  const previousGame = previous && ((previous.games || []).find(function (g) { return g.code === (previous.defaultGameCode || json.defaultGameCode) }) || (previous.games || [])[0])
+  if (previousGame && previousGame.camoGuide && game.camoGuide &&
+      guideVersionRank(previousGame.camoGuide.version) > guideVersionRank(game.camoGuide.version)) {
+    game.camoGuide = previousGame.camoGuide
+    console.log('  保留快照中更新的 camoGuide：' + game.camoGuide.version)
+  }
 
   const weapons = game.weapons || []
   const modes = (game.camoTracks.order || []).map(function (k) { return game.camoTracks.modes[k] }).filter(Boolean)
@@ -52,9 +69,9 @@ function fetchJson(url) {
     '/**',
     ' * 武器 / 迷彩数据快照（离线兜底用）—— **这个文件是自动生成的，不要手改**。',
     ' *',
-    ' * 来源：' + API,
-    ' * 生成：node tools/sync-data.js',
-    ' * camoTracks 版本：' + game.camoTracks.version + ' · storageVersion：' + json.storageVersion,
+    ' * 来源：' + (LOCAL_FILE ? '本地 ' + path.basename(LOCAL_FILE) + '（与 ' + API + ' 同结构）' : API),
+    ' * 生成：node tools/sync-data.js' + (LOCAL_FILE ? ' --file <本地 JSON>' : ''),
+    ' * camoTracks 版本：' + game.camoTracks.version + ' · camoGuide 版本：' + ((game.camoGuide && game.camoGuide.version) || '-') + ' · storageVersion：' + json.storageVersion,
     ' *',
     ' * 运行时优先用线上接口（改了网站就立刻生效）；接口不可用时才用这份快照。',
     ' * 官方公布新武器 / 新迷彩后，重跑同步脚本并提交新版本即可。',

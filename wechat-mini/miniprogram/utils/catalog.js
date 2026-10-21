@@ -117,12 +117,47 @@ function normalizeCamoGuide(raw) {
   })
   const weapons = {}
   Object.keys(raw.weapons || {}).forEach(function (code) {
-    weapons[code] = buildGuideEntry(raw.weapons[code])
+    weapons[code] = buildGuideEntry(raw.weapons[code], raw.militaryImages)
   })
   return { version: raw.version || '', note: raw.note || '', classes: classes, weapons: weapons }
 }
 
+/**
+ * camoGuide 版本号（形如 v25r2）比较：内置快照更新时优先内置，
+ * 避免线上接口还没更新时把小程序里的完整迷彩数据覆盖回旧版。
+ */
+function guideVersionRank(version) {
+  const m = String(version || '').match(/(\d+)r(\d+)/i)
+  return m ? Number(m[1]) * 1000 + Number(m[2]) : 0
+}
+
+function mergeNewestCamoGuide(payload) {
+  if (!payload || !Array.isArray(payload.games) || !builtinPayload) return payload
+  const bundledGames = builtinPayload.games || []
+  const bundledGame =
+    bundledGames.filter(function (g) { return g.code === (builtinPayload.defaultGameCode || payload.defaultGameCode) })[0] ||
+    bundledGames[0]
+  const bundledGuide = bundledGame && bundledGame.camoGuide
+  if (!bundledGuide) return payload
+
+  const game =
+    payload.games.filter(function (g) { return g.code === payload.defaultGameCode })[0] ||
+    payload.games[0]
+  if (!game) return payload
+
+  const remoteGuide = game.camoGuide
+  if (remoteGuide && guideVersionRank(remoteGuide.version) >= guideVersionRank(bundledGuide.version)) {
+    return payload
+  }
+
+  const games = payload.games.map(function (g) {
+    return g === game ? Object.assign({}, g, { camoGuide: bundledGuide }) : g
+  })
+  return Object.assign({}, payload, { games: games })
+}
+
 function normalize(payload, source, fetchedAt) {
+  payload = mergeNewestCamoGuide(payload)
   const games = (payload && payload.games) || []
   const game =
     games.filter(function (g) { return g.code === payload.defaultGameCode })[0] || games[0]
@@ -341,6 +376,7 @@ module.exports = {
   TTL,
   load,
   normalize,
+  mergeNewestCamoGuide,
   classHint,
   tierKey,
   eventKey,

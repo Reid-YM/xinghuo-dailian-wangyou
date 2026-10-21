@@ -3,7 +3,7 @@
  *
  * 来源：https://wydlgf.cn/api/tool-station
  * 生成：node tools/sync-data.js
- * camoTracks 版本：v25r1 · camoGuide 版本：v25r3 · storageVersion：v23r6
+ * camoTracks 版本：v25r1 · camoGuide 版本：v25r4 · storageVersion：v23r6
  *
  * 运行时优先用线上接口（改了网站就立刻生效）；接口不可用时才用这份快照。
  * 官方公布新武器 / 新迷彩后，重跑同步脚本并提交新版本即可。
@@ -716,8 +716,8 @@ module.exports = {
         "officialSource": "https://www.callofduty.com/"
       },
       "camoGuide": {
-        "version": "v25r3",
-        "note": "军事/特殊/完成主义迷彩已同步 CODMunity 的 6 把完整武器数据；其余武器为现有攻略估算，标「参考」的项以游戏内实测为准",
+        "version": "v25r4",
+        "note": "军事/特殊/完成主义迷彩数据与图片已同步 CODMunity 的 6 把完整武器；其余武器为现有攻略估算，标「参考」的项以游戏内实测为准",
         "classes": {
           "突击步枪": {
             "military": {
@@ -1519,19 +1519,19 @@ module.exports = {
                 "name": "Asphalt（沥青）",
                 "text": "22级；多人：瞄准射击击杀 50 名玩家；DMZ：瞄准射击击杀 125 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-asphalt.webp"
               },
               {
                 "name": "Black Topo（黑色地形）",
                 "text": "44级；多人：对玩家完成 10 次双杀；DMZ：对敌人完成 30 次双杀",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-black-topo.webp"
               },
               {
                 "name": "Brown（棕色）",
                 "text": "64级；多人：单局不死击杀 3 名玩家，累计 15 次；DMZ：单局无伤击杀 3 名敌人，累计 50 次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-brown.webp"
               }
             ],
             "completionist": [
@@ -1560,7 +1560,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "VEL46": {
             "maxLevel": "60",
@@ -1796,19 +1796,19 @@ module.exports = {
                 "name": "Struck Oil（钻油）",
                 "text": "22级；多人：近距离击杀 20 名玩家；DMZ：近距离击杀 75 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-struck-oil.webp"
               },
               {
                 "name": "Brushstroke（笔触）",
                 "text": "42级；多人：远距离击杀 10 名玩家；DMZ：远距离击杀 50 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-brushstroke.webp"
               },
               {
                 "name": "White Pine（白松）",
                 "text": "60级；多人：跳跃击杀 40 名玩家；DMZ：跳跃击杀 100 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-white-pine.webp"
               }
             ],
             "completionist": [
@@ -1837,7 +1837,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "WARLORD": {
             "maxLevel": "60",
@@ -1913,19 +1913,19 @@ module.exports = {
                 "name": "Desert Tactics（沙漠战术）",
                 "text": "18级；多人：近距离击杀 20 名玩家；DMZ：近距离击杀 75 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-desert-tactics.webp"
               },
               {
                 "name": "Green Tiger（绿虎）",
                 "text": "39级；多人：不换弹击杀 2 人，累计 10 次；DMZ：不换弹击杀 2 名敌人，累计 30 次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-green-tiger.webp"
               },
               {
                 "name": "Thunderhead（雷暴云砧）",
                 "text": "60级；DMZ：远距离击杀 100 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-thunderhead.webp"
               }
             ],
             "completionist": [
@@ -1954,7 +1954,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "TYPE73": {
             "maxLevel": "65",
@@ -2080,19 +2080,19 @@ module.exports = {
                 "name": "Mangrove（红树林）",
                 "text": "26级；多人：架设击杀 20 名玩家；DMZ：架设击杀 75 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-mangrove.webp"
               },
               {
                 "name": "Fungal Grid（菌格）",
                 "text": "49级；多人：蹲伏击杀 25 名玩家；DMZ：蹲伏击杀 75 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-fungal-grid.webp"
               },
               {
                 "name": "White（白色）",
                 "text": "73级；多人：远距离击杀 30 名玩家；DMZ：远距离击杀 100 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-white.webp"
               }
             ],
             "completionist": [
@@ -2121,7 +2121,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "ORIS86": {
             "maxLevel": "70",
@@ -2247,19 +2247,19 @@ module.exports = {
                 "name": "Treeline（林线）",
                 "text": "22级；多人：腰射击杀 10 名玩家",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-treeline.webp"
               },
               {
                 "name": "Spidersilk（蛛丝）",
                 "text": "47级；多人：爆头击杀 20 名玩家；DMZ：专注状态击杀 75 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-spidersilk.webp"
               },
               {
                 "name": "Tension（张力）",
                 "text": "75级；多人：单局无伤击杀 2 名玩家，累计 20 次；DMZ：单局无伤击杀 2 名敌人，累计 30 次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-tension.webp"
               }
             ],
             "completionist": [
@@ -2288,7 +2288,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "SIGNAL50": {
             "maxLevel": "74",
@@ -2364,19 +2364,19 @@ module.exports = {
                 "name": "Autumn（秋）",
                 "text": "13级；多人：瞄准射击击杀 25 名玩家；DMZ：瞄准射击击杀 75 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-autumn.webp"
               },
               {
                 "name": "Space Time（时空）",
                 "text": "25级；多人：单局不死击杀 3 名玩家，累计 5 次；DMZ：双持击杀 125 名敌人",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-space-time.webp"
               },
               {
                 "name": "Snakeskin（蛇皮）",
                 "text": "38级；多人：双持击杀 50 名玩家；DMZ：单局无伤击杀 3 名敌人，累计 15 次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-snakeskin.webp"
               }
             ],
             "completionist": [
@@ -2405,7 +2405,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "KARITP68": {
             "maxLevel": "28",

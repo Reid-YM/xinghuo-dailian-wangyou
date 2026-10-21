@@ -106,7 +106,7 @@ assert.strictEqual(ar.groups[0].items.length, 1)
 assert.strictEqual(ar.groups[0].items[0].image, '/images/camo/military.jpg', 'bundled swatch should map to local path')
 assert.strictEqual(ar.militaryTiles.length, 8, 'military should expand to 8 tiles')
 assert.strictEqual(ar.militaryTiles[0].label, '10级')
-assert.strictEqual(ar.militaryTiles[0].image, '/images/camo/military-1.jpg')
+assert.strictEqual(ar.militaryTiles[0].image, '/images/camo/military-1.png')
 
 // 勾选键 = 武器code + '::' + 条目key，同一职业内必须唯一
 const tickKeys = ar.militaryTiles.map(function (t) { return t.key })
@@ -126,7 +126,9 @@ const smgWeaponGuide = cat.camoGuide.weapons.SMG1
 assert.ok(smgWeaponGuide, 'per-weapon camo guide should be parsed')
 assert.strictEqual(smgWeaponGuide.militaryTiles.length, 8)
 assert.strictEqual(smgWeaponGuide.militaryTiles[0].label, '12级')
-assert.strictEqual(smgWeaponGuide.militaryTiles[0].image, '/images/camo/military-1.jpg', 'per-weapon tiles should use militaryImages')
+assert.strictEqual(smgWeaponGuide.militaryTiles[0].name, '军事迷彩 1')
+assert.strictEqual(smgWeaponGuide.militaryTiles[0].req, '武器等级 12')
+assert.strictEqual(smgWeaponGuide.militaryTiles[0].image, '/images/camo/military-1.png', 'per-weapon tiles should use militaryImages')
 assert.strictEqual(smgWeaponGuide.militaryTiles[7].label, '57级')
 assert.strictEqual(smgWeaponGuide.groups[1].title, '特殊迷彩 · 3 档')
 assert.strictEqual(smgWeaponGuide.groups[1].items[0].name, 'Asphalt（沥青）')
@@ -143,6 +145,17 @@ const kg = snapshotGame.camoGuide.weapons.KG7VULCAN
 assert.deepStrictEqual(kg.military.levels, [13, 22, 31, 38, 47, 54, 61, 69])
 assert.strictEqual(kg.special[0].name, 'Treeline（林线）')
 assert.strictEqual(kg.special[0].text, '22级；多人：腰射击杀 10 名玩家')
+const mergedKg = merged.camoGuide.weapons.KG7VULCAN
+assert.strictEqual(mergedKg.militaryTiles[0].name, '军事迷彩 1')
+assert.strictEqual(mergedKg.militaryTiles[0].req, '武器等级 13')
+const mergedKgSpecial = mergedKg.groups.filter(function (g) { return g.key === 'special' })[0]
+assert.strictEqual(mergedKgSpecial.items[0].image, '/images/camo/special-treeline.png')
+assert.strictEqual(new Set(mergedKgSpecial.items.map(function (i) { return i.image })).size, 3)
+for (const code of ['KG7VULCAN', 'REZI12', 'ISONIGHTSHADE', 'FINNLMG', 'MAR9', 'SANG9MM']) {
+  const guide = merged.camoGuide.weapons[code]
+  const special = guide.groups.filter(function (g) { return g.key === 'special' })[0]
+  assert.strictEqual(new Set(special.items.map(function (i) { return i.image })).size, special.items.length, code + ' special camo images should be distinct')
+}
 assert.strictEqual(kg.completionist[0].text, '单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人')
 assert.strictEqual(kg.completionist[1].text, '趴伏击杀 75 名玩家；DMZ：趴伏击杀 150 名敌人')
 const iso = snapshotGame.camoGuide.weapons.ISONIGHTSHADE

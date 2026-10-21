@@ -99,9 +99,12 @@ function buildGuideEntry(c, militaryImages) {
   const militaryTiles = []
   for (let i = 0; i < (military.count || 8); i++) {
     const img = milImages.length ? milImages[i % milImages.length] : ''
+    const level = milLevels[i]
     militaryTiles.push({
       key: 'mil-' + i,
-      label: milLevels[i] ? (milLevels[i] + '级') : ('第' + (i + 1) + '档'),
+      label: level ? (level + '级') : ('第' + (i + 1) + '档'),
+      name: '军事迷彩 ' + (i + 1),
+      req: level ? ('武器等级 ' + level) : '按武器等级解锁',
       image: resolveImage(img),
       imageRemote: api.asset(img)
     })

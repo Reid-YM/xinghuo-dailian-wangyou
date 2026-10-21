@@ -143,6 +143,10 @@ const kg = snapshotGame.camoGuide.weapons.KG7VULCAN
 assert.deepStrictEqual(kg.military.levels, [13, 22, 31, 38, 47, 54, 61, 69])
 assert.strictEqual(kg.special[0].name, 'Treeline（林线）')
 assert.strictEqual(kg.special[0].text, '22级；多人：腰射击杀 10 名玩家')
+assert.strictEqual(kg.completionist[0].text, '单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人')
+assert.strictEqual(kg.completionist[1].text, '趴伏击杀 75 名玩家；DMZ：趴伏击杀 150 名敌人')
+const iso = snapshotGame.camoGuide.weapons.ISONIGHTSHADE
+assert.strictEqual(iso.completionist[1].text, '从背后击杀 25 名玩家；DMZ：从背后击杀 75 名敌人')
 const sang = snapshotGame.camoGuide.weapons.SANG9MM
 assert.strictEqual(sang.special[1].name, 'Space Time（时空）')
 assert.strictEqual(sang.special[2].name, 'Snakeskin（蛇皮）')
@@ -151,6 +155,7 @@ for (const code of ['KG7VULCAN', 'REZI12', 'ISONIGHTSHADE', 'FINNLMG', 'MAR9', '
   assert.strictEqual(guide.military.levels.length, 8, code + ' should have 8 military levels')
   assert.strictEqual(guide.special.length, 3, code + ' should have 3 special camos')
   assert.ok(guide.special.every(function (s) { return s.name.indexOf('特殊迷彩') !== 0 }), code + ' should use real special camo names')
+  assert.ok(guide.completionist.slice(0, 3).every(function (s) { return s.text.indexOf('DMZ：') >= 0 }), code + ' completionist should include DMZ conditions')
 }
 
 

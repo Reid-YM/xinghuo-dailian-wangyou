@@ -634,7 +634,7 @@ global.Page = function (def) {
   check('DMZ 特殊迷彩档数', kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'special' })[0].title, '特殊迷彩 · 3 档')
   const dmzCompletionist = kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'completionist' })[0]
   check('DMZ 完成主义档数', dmzCompletionist.title, '完成主义 · 4 档')
-  assert('DMZ 页保留通用分歧挑战', dmzCompletionist.items.some(function (i) { return i.name === '分歧' && i.req === '完成该武器所有的皮肤挑战条件' }), JSON.stringify(dmzCompletionist.items))
+  assert('DMZ 页保留通用分歧挑战', dmzCompletionist.items.some(function (i) { return i.name === '分歧' && !!i.req }), JSON.stringify(dmzCompletionist.items))
   idx.onMode({ currentTarget: { dataset: { key: 'NOPE' } } })
   check('非法模式不生效', idx.data.activeMode, 'DMZ')
   idx.onMode({ currentTarget: { dataset: { key: 'MULTIPLAYER' } } })

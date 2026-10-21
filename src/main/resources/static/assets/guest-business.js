@@ -38,11 +38,15 @@
     };
 
     async function api(path, options = {}) {
+      const headers = {'Accept':'application/json', ...(options.headers || {})};
+      if (/^(POST|PUT|PATCH|DELETE)$/i.test(options.method || 'GET')) {
+        headers['X-Requested-With'] = 'fetch';
+      }
       const response = await fetch(path, {
         credentials: 'same-origin',
         cache: 'no-store',
-        headers: {'Accept':'application/json', ...(options.headers || {})},
-        ...options
+        ...options,
+        headers
       });
       if (response.status === 404 || response.status === 403) {
         const error = new Error('GUEST_ACCESS_UNAVAILABLE');

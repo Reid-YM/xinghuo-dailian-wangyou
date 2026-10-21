@@ -35,7 +35,8 @@ class WebCamoMiniParityPlaywrightTest {
         assertThat(page.locator("[data-guide-item^='HAN86::special-']")).hasCount(3);
         assertThat(page.locator("[data-guide-item^='HAN86::comp-']")).hasCount(4);
         assertThat(page.locator(".camo-guide")).containsText("满级 72");
-        assertThat(page.locator(".camo-guide")).containsText("46级，消音器50次击杀");
+        assertThat(page.locator(".camo-guide")).containsText("消音50次");
+        assertThat(page.locator(".camo-guide")).containsText("DMZ：消音125次");
         assertThat(page.locator(".camo-guide")).containsText("和声间奏");
         assertThat(page.locator(".camo-guide")).containsText("分歧");
         assertEquals(0, page.locator("[data-camo-item]").count());

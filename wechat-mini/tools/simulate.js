@@ -616,6 +616,14 @@ global.Page = function (def) {
   check('模式统计高亮项对得上', idx.data.modeStats.filter(function (m) { return m.code === 'WARZONE' })[0].short, '战区')
   idx.onMode({ currentTarget: { dataset: { key: 'DMZ' } } })
   assert('点 DMZ 卡片后第一档换了名字', idx.data.tierCounts[0].name && idx.data.tierCounts[0].name !== '霞流', idx.data.tierCounts[0].name)
+  const dmzWeapons = []
+  idx.data.groups.forEach(function (g) { g.weapons.forEach(function (w) { dmzWeapons.push(w) }) })
+  const kgDmz = dmzWeapons.filter(function (w) { return w.code === 'KG7VULCAN' })[0]
+  assert('DMZ 页能找到 KG-7 Vulcan', !!kgDmz, 'KG7VULCAN')
+  assert('DMZ 页不显示多人军事等级组', kgDmz.camoGuide.groups.every(function (g) { return g.key !== 'military' }), JSON.stringify(kgDmz.camoGuide.groups.map(function (g) { return g.key })))
+  assert('DMZ 页显示 DMZ 条件', kgDmz.camoGuide.groups.some(function (g) { return g.items.some(function (i) { return i.req.indexOf('DMZ：') === 0 }) }), JSON.stringify(kgDmz.camoGuide.groups))
+  check('DMZ 特殊迷彩档数', kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'special' })[0].title, '特殊迷彩 · 2 档')
+  check('DMZ 完成主义档数', kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'completionist' })[0].title, '完成主义 · 3 档')
   idx.onMode({ currentTarget: { dataset: { key: 'NOPE' } } })
   check('非法模式不生效', idx.data.activeMode, 'DMZ')
   idx.onMode({ currentTarget: { dataset: { key: 'MULTIPLAYER' } } })

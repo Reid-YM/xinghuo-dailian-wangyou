@@ -614,6 +614,12 @@ global.Page = function (def) {
   const mpSpecial = kgMp.camoGuide.groups.filter(function (g) { return g.key === 'special' })[0]
   assert('多人页不显示 DMZ 文案', mpSpecial.items.every(function (i) { return i.req.indexOf('DMZ：') < 0 }), JSON.stringify(mpSpecial.items))
 
+  idx.onPreviewCamo({ currentTarget: { dataset: { src: '/images/camo/military-1.png', name: '军事迷彩 1' } } })
+  check('打开迷彩预览', idx.data.camoPreview.visible, true)
+  check('预览图片正确', idx.data.camoPreview.src, '/images/camo/military-1.png')
+  idx.onCloseCamoPreview()
+  check('关闭迷彩预览', idx.data.camoPreview.visible, false)
+
   // 点模式卡片切换（就是「点多人显示哪 3 个迷彩」那个交互）
   idx.onMode({ currentTarget: { dataset: { key: 'WARZONE' } } })
   check('点战区卡片后切到战区', idx.data.activeMode, 'WARZONE')

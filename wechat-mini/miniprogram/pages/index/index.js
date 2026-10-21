@@ -136,6 +136,7 @@ Page({
     expanded: {},
     collapsed: {},
     guideDone: {},
+    camoPreview: { visible: false, src: '', name: '' },
     guideOpen: false,
     // 包内图片读不出来时（比如没打进上传包）整体切到官网地址
     useRemoteImages: false
@@ -332,11 +333,6 @@ Page({
   },
 
   /** 点迷彩图看大图 */
-  onPreviewCamo(e) {
-    const url = e.currentTarget.dataset.url
-    if (!url) return
-    wx.previewImage({ urls: [url] })
-  },
 
   /** 一对一咨询：直达微信客服会话（没配 corpId 时页面上是另一个按钮，走不到这里） */
   onContact() {
@@ -393,6 +389,22 @@ Page({
     this.setData({ guideDone: guideDone })
     this.render()
   },
+
+  onPreviewCamo(e) {
+    const src = e.currentTarget.dataset.src
+    if (!src) return
+    this.setData({
+      camoPreview: {
+        visible: true,
+        src: src,
+        name: e.currentTarget.dataset.name || '迷彩预览'
+      }
+    })
+  },
+  onCloseCamoPreview() {
+    this.setData({ camoPreview: { visible: false, src: '', name: '' } })
+  },
+  noop() {},
 
   /** 精通迷彩是模式级共享：顶部点一下 = 该模式全部武器该档一起标记 */
   onToggleMastery(e) {

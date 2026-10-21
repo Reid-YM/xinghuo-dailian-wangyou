@@ -181,7 +181,7 @@
               <view class="camo-guide-tiles" wx:if="{{grp.key === 'military'}}">
                 <view class="camo-guide-tile {{cg.on ? 'on' : ''}}" wx:for="{{grp.items}}" wx:for-item="cg" wx:key="key" data-key="{{w.code}}::{{cg.key}}" bindtap="onToggleGuideItem" role="button" aria-label="{{w.nameZh}}{{cg.name}}{{cg.on ? '已完成' : '未完成'}}">
                   <view class="camo-guide-tile-media">
-                    <image class="camo-guide-tile-img" wx:if="{{cg.image}}" src="{{cg.image}}" mode="aspectFill" lazy-load></image>
+                    <image class="camo-guide-tile-img" wx:if="{{cg.image}}" src="{{cg.image}}" mode="aspectFill" lazy-load catchtap="onPreviewCamo" data-src="{{cg.image}}" data-name="{{cg.name}}"></image>
                     <view class="camo-guide-tile-img camo-guide-tile-empty" wx:else></view>
                     <view class="camo-guide-checkbox {{cg.on ? 'on' : ''}}" aria-hidden="true">{{cg.on ? '✓' : ''}}</view>
                   </view>
@@ -192,7 +192,7 @@
               <block wx:if="{{grp.key !== 'military'}}">
                 <view class="camo-guide-row {{cg.on ? 'on' : ''}}" wx:for="{{grp.items}}" wx:for-item="cg" wx:key="key" data-key="{{w.code}}::{{cg.key}}" bindtap="onToggleGuideItem" role="button" aria-label="{{w.nameZh}}{{cg.name}}{{cg.on ? '已完成' : '未完成'}}">
                   <view class="camo-guide-thumb-wrap">
-                    <image class="camo-guide-thumb" wx:if="{{cg.image}}" src="{{cg.image}}" mode="aspectFill" lazy-load></image>
+                    <image class="camo-guide-thumb" wx:if="{{cg.image}}" src="{{cg.image}}" mode="aspectFill" lazy-load catchtap="onPreviewCamo" data-src="{{cg.image}}" data-name="{{cg.name}}"></image>
                     <view class="camo-guide-thumb camo-guide-thumb-empty" wx:else></view>
                     <view class="camo-guide-checkbox {{cg.on ? 'on' : ''}}" aria-hidden="true">{{cg.on ? '✓' : ''}}</view>
                   </view>
@@ -246,4 +246,11 @@
   </view>
 
   <view class="footer">{{brand}} · 数据来自星火官网工具站。本工具用于个人进度记录与查询。</view>
+  <view class="camo-preview-mask" wx:if="{{camoPreview.visible}}" bindtap="onCloseCamoPreview" role="dialog" aria-label="迷彩图片预览">
+    <view class="camo-preview-card" catchtap="noop">
+      <image class="camo-preview-img" wx:if="{{camoPreview.src}}" src="{{camoPreview.src}}" mode="aspectFit"></image>
+      <text class="camo-preview-name">{{camoPreview.name}}</text>
+      <text class="camo-preview-hint">点空白处关闭</text>
+    </view>
+  </view>
 </view>

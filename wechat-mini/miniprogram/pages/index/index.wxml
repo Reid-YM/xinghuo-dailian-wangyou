@@ -154,7 +154,10 @@
             lazy-load
           ></image>
           <view class="weapon-name-box" data-weapon="{{w.code}}" catchtap="onToggleExpand">
-            <text class="weapon-name">{{w.nameZh}}</text>
+            <view class="weapon-name-line">
+              <text class="weapon-name">{{w.nameZh}}</text>
+              <text class="weapon-synced" wx:if="{{w.synced}}">已同步</text>
+            </view>
             <text class="weapon-name-en">{{w.name}}</text>
           </view>
           <view
@@ -176,20 +179,33 @@
                 <text class="camo-guide-group-title">{{grp.title}}</text>
               </view>
               <text class="camo-guide-group-note" wx:if="{{grp.note}}">{{grp.note}}</text>
-              <view class="camo-guide-row {{cg.on ? 'on' : ''}}" wx:for="{{grp.items}}" wx:for-item="cg" wx:key="key" data-key="{{w.code}}::{{cg.key}}" bindtap="onToggleGuideItem" role="button" aria-label="{{w.nameZh}}{{cg.name}}{{cg.on ? '已完成' : '未完成'}}">
-                <view class="camo-guide-thumb-wrap">
-                  <image class="camo-guide-thumb" wx:if="{{cg.image}}" src="{{cg.image}}" mode="aspectFill" lazy-load></image>
-                  <view class="camo-guide-thumb camo-guide-thumb-empty" wx:else></view>
-                  <view class="camo-guide-checkbox {{cg.on ? 'on' : ''}}" aria-hidden="true">{{cg.on ? '✓' : ''}}</view>
-                </view>
-                <view class="camo-guide-row-body">
-                  <view class="camo-guide-row-top">
-                    <text class="camo-guide-name">{{cg.name}}</text>
-                    <text class="camo-guide-tag" wx:if="{{cg.estimate}}">参考</text>
+              <view class="camo-guide-tiles" wx:if="{{grp.key === 'military'}}">
+                <view class="camo-guide-tile {{cg.on ? 'on' : ''}}" wx:for="{{grp.items}}" wx:for-item="cg" wx:key="key" data-key="{{w.code}}::{{cg.key}}" bindtap="onToggleGuideItem" role="button" aria-label="{{w.nameZh}}{{cg.name}}{{cg.on ? '已完成' : '未完成'}}">
+                  <view class="camo-guide-tile-media">
+                    <image class="camo-guide-tile-img" wx:if="{{cg.image}}" src="{{cg.image}}" mode="aspectFill" lazy-load></image>
+                    <view class="camo-guide-tile-img camo-guide-tile-empty" wx:else></view>
+                    <view class="camo-guide-checkbox {{cg.on ? 'on' : ''}}" aria-hidden="true">{{cg.on ? '✓' : ''}}</view>
                   </view>
-                  <text class="camo-guide-req">{{cg.req}}</text>
+                  <text class="camo-guide-tile-label">{{cg.name}}</text>
+                  <text class="camo-guide-tile-req">{{cg.req}}</text>
                 </view>
               </view>
+              <block wx:if="{{grp.key !== 'military'}}">
+                <view class="camo-guide-row {{cg.on ? 'on' : ''}}" wx:for="{{grp.items}}" wx:for-item="cg" wx:key="key" data-key="{{w.code}}::{{cg.key}}" bindtap="onToggleGuideItem" role="button" aria-label="{{w.nameZh}}{{cg.name}}{{cg.on ? '已完成' : '未完成'}}">
+                  <view class="camo-guide-thumb-wrap">
+                    <image class="camo-guide-thumb" wx:if="{{cg.image}}" src="{{cg.image}}" mode="aspectFill" lazy-load></image>
+                    <view class="camo-guide-thumb camo-guide-thumb-empty" wx:else></view>
+                    <view class="camo-guide-checkbox {{cg.on ? 'on' : ''}}" aria-hidden="true">{{cg.on ? '✓' : ''}}</view>
+                  </view>
+                  <view class="camo-guide-row-body">
+                    <view class="camo-guide-row-top">
+                      <text class="camo-guide-name">{{cg.name}}</text>
+                      <text class="camo-guide-tag" wx:if="{{cg.estimate}}">参考</text>
+                    </view>
+                    <text class="camo-guide-req">{{cg.req}}</text>
+                  </view>
+                </view>
+              </block>
             </view>
             <view class="camo-guide-note" wx:if="{{w.camoGuide.note}}">{{w.camoGuide.note}}</view>
           </view>

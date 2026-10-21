@@ -229,7 +229,8 @@ function normalize(payload, source, fetchedAt) {
       image: resolveImage(w.image),
       imageRemote: api.asset(w.image),
       maxLevel: w.maxLevel || 0,
-      hint: classHint(w.weaponType || '')
+      hint: classHint(w.weaponType || ''),
+      guideSynced: !!(game.camoGuide && game.camoGuide.weapons && game.camoGuide.weapons[w.code] && /CODMunity/.test(game.camoGuide.weapons[w.code].note || ''))
     }
   })
 

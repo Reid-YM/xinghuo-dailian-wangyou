@@ -44,7 +44,8 @@ class FrontendMasteryParityPlaywrightTest {
                 assertThat(page.locator("[data-guide-item^='HAN86::special-']")).hasCount(3);
                 assertThat(page.locator("[data-guide-item^='HAN86::comp-']")).hasCount(4);
                 assertThat(page.locator(".n24-guide")).containsText("满级 72");
-                assertThat(page.locator(".n24-guide")).containsText("46级，消音器50次击杀");
+                assertThat(page.locator(".n24-guide")).containsText("消音50次");
+                assertThat(page.locator(".n24-guide")).containsText("DMZ：消音125次");
                 assertThat(page.locator("[data-guide-item='HAN86::mil-0']")).isChecked();
                 String progress=String.valueOf(page.evaluate("()=>JSON.stringify(JSON.parse(localStorage.getItem('xinghuo-mw4-camo-tracker-v2')).progress)"));
                 page.locator("[data-guide-item='HAN86::special-1']").check();

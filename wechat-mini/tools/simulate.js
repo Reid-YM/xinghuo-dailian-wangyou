@@ -608,6 +608,11 @@ global.Page = function (def) {
   check('三档迷彩带要求文案', typeof idx.data.tierCounts[0].requirement, 'string')
   check('默认模式是多人', idx.data.activeMode, 'MULTIPLAYER')
   check('多人第一档名', idx.data.tierCounts[0].name, '霞流')
+  const mpWeapons = []
+  idx.data.groups.forEach(function (g) { g.weapons.forEach(function (w) { mpWeapons.push(w) }) })
+  const kgMp = mpWeapons.filter(function (w) { return w.code === 'KG7VULCAN' })[0]
+  const mpSpecial = kgMp.camoGuide.groups.filter(function (g) { return g.key === 'special' })[0]
+  assert('多人页不显示 DMZ 文案', mpSpecial.items.every(function (i) { return i.req.indexOf('DMZ：') < 0 }), JSON.stringify(mpSpecial.items))
 
   // 点模式卡片切换（就是「点多人显示哪 3 个迷彩」那个交互）
   idx.onMode({ currentTarget: { dataset: { key: 'WARZONE' } } })
@@ -624,9 +629,10 @@ global.Page = function (def) {
   assert('DMZ 页显示军事迷彩', !!dmzMilitary && dmzMilitary.items.length === 8, JSON.stringify(kgDmz.camoGuide.groups.map(function (g) { return g.key })))
   check('DMZ 军事迷彩等级条件', dmzMilitary.items[0].req, '武器等级 13')
   assert('DMZ 页显示 DMZ 条件', kgDmz.camoGuide.groups.some(function (g) { return g.items.some(function (i) { return i.req.indexOf('DMZ：') === 0 }) }), JSON.stringify(kgDmz.camoGuide.groups))
-  check('DMZ 特殊迷彩档数', kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'special' })[0].title, '特殊迷彩 · 2 档')
+  const dmzSpecial = kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'special' })[0]
+  assert('DMZ 只显示 DMZ 条件', dmzSpecial.items.every(function (i) { return i.req.indexOf('DMZ：') === 0 }), JSON.stringify(dmzSpecial.items))
+  check('DMZ 特殊迷彩档数', kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'special' })[0].title, '特殊迷彩 · 3 档')
   check('DMZ 完成主义档数', kgDmz.camoGuide.groups.filter(function (g) { return g.key === 'completionist' })[0].title, '完成主义 · 3 档')
-  check('同步武器有已同步标记', kgDmz.synced, true)
   idx.onMode({ currentTarget: { dataset: { key: 'NOPE' } } })
   check('非法模式不生效', idx.data.activeMode, 'DMZ')
   idx.onMode({ currentTarget: { dataset: { key: 'MULTIPLAYER' } } })

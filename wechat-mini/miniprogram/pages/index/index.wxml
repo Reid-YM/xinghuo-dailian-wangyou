@@ -156,7 +156,6 @@
           <view class="weapon-name-box" data-weapon="{{w.code}}" catchtap="onToggleExpand">
             <view class="weapon-name-line">
               <text class="weapon-name">{{w.nameZh}}</text>
-              <text class="weapon-synced" wx:if="{{w.synced}}">已同步</text>
             </view>
             <text class="weapon-name-en">{{w.name}}</text>
           </view>

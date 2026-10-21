@@ -706,8 +706,8 @@
         "officialSource": "https://www.callofduty.com/"
       },
       "camoGuide": {
-        "version": "v25r4",
-        "note": "军事/特殊/完成主义迷彩数据与图片已同步 CODMunity 的 6 把完整武器；其余武器为现有攻略估算，标「参考」的项以游戏内实测为准",
+        "version": "v26r1",
+        "note": "多人/DMZ 条件整理自用户提供的腾讯文档（2026-10-21）；已拆分模式，避免重复。",
         "classes": {
           "突击步枪": {
             "military": {
@@ -1237,43 +1237,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "25级，20次架枪击杀",
+                "text": "架枪20次；DMZ：架枪75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "46级，消音器50次击杀",
+                "text": "消音50次；DMZ：消音125次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "72级，15次不死3杀",
+                "text": "不死亡3累计10次；DMZ：无伤击杀3累计50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "50次爆头击杀",
+                "text": "爆头50次；DMZ：爆头100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次双杀",
+                "text": "双杀25次；DMZ：双杀50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "M4": {
             "maxLevel": "72",
@@ -1287,43 +1295,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "26级，20次零距离击杀",
+                "text": "零距离20次；DMZ：零距离75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "51级，20次架枪击杀",
+                "text": "架枪20次；DMZ：架枪75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "71级，25次背后击杀",
+                "text": "背身25次；DMZ：背身100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "50次爆头击杀",
+                "text": "爆头50次；DMZ：爆头100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次双杀",
+                "text": "双杀25次；DMZ：双杀50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "HYEONBURST": {
             "maxLevel": "68",
@@ -1337,43 +1353,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "23级，10次不换弹2次击杀",
+                "text": "不装弹2累计10次；DMZ：不装弹2累计30次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "46级，20次远射击杀",
+                "text": "远射20次；DMZ：远射75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "68级，全自动100次击杀",
+                "text": "全自动模式100次；DMZ：消音250次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "50次爆头击杀",
+                "text": "爆头50次；DMZ：爆头100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次双杀",
+                "text": "双杀25次；DMZ：双杀50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "KASTOV762": {
             "maxLevel": "71",
@@ -1387,43 +1411,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "24级，10次不死3杀",
+                "text": "不死亡3累计10次；DMZ：无伤击杀5累计25次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "48级，20次远射击杀",
+                "text": "远射20次；DMZ：远射75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "71级，20次腰射击杀",
+                "text": "腰射30次；DMZ：腰射100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "50次爆头击杀",
+                "text": "爆头50次；DMZ：爆头100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次双杀",
+                "text": "双杀25次；DMZ：双杀50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "PATRIOTXMR": {
             "maxLevel": 72,
@@ -1447,43 +1479,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "24级，20次腰射击杀",
+                "text": "腰射20次；DMZ：腰射75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "49级，消音器50次击杀",
+                "text": "装备消音50次；DMZ：装备消音125次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "72级，30次远射击杀",
+                "text": "远射30次；DMZ：远射100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "50次爆头击杀",
+                "text": "爆头50次；DMZ：爆头100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次双杀",
+                "text": "双杀25次；DMZ：双杀50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "ISONIGHTSHADE": {
             "maxLevel": "64",
@@ -1507,19 +1547,19 @@
             "special": [
               {
                 "name": "Asphalt（沥青）",
-                "text": "22级；多人：瞄准射击击杀 50 名玩家；DMZ：瞄准射击击杀 125 名敌人",
+                "text": "举枪瞄准50次；DMZ：举枪瞄准125次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-asphalt.webp"
               },
               {
                 "name": "Black Topo（黑色地形）",
-                "text": "44级；多人：对玩家完成 10 次双杀；DMZ：对敌人完成 30 次双杀",
+                "text": "双杀10次；DMZ：双杀30次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-black-topo.webp"
               },
               {
                 "name": "Brown（棕色）",
-                "text": "64级；多人：单局不死击杀 3 名玩家，累计 15 次；DMZ：单局无伤击杀 3 名敌人，累计 50 次",
+                "text": "远射15次；DMZ：无伤击杀3累计50次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-brown.webp"
               }
@@ -1527,30 +1567,31 @@
             "completionist": [
               {
                 "name": "金",
-                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
-                "image": "/assets/mw4camo/gold.webp",
-                "estimate": false
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
+                "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "从背后击杀 25 名玩家；DMZ：从背后击杀 75 名敌人",
-                "image": "/assets/mw4camo/platinum.webp",
-                "estimate": false
+                "text": "背身25次；DMZ：背身75次",
+                "estimate": false,
+                "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "腰射击杀 50 名玩家；DMZ：腰射击杀 100 名敌人",
-                "image": "/assets/mw4camo/harmonic-break.webp",
-                "estimate": false
+                "text": "腰射50次；DMZ：腰射100次",
+                "estimate": false,
+                "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "VEL46": {
             "maxLevel": "60",
@@ -1564,43 +1605,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "20级，20次卧倒击杀",
+                "text": "卧倒20次；DMZ：举枪瞄准125次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "40级，20次卧倒击杀",
+                "text": "卧倒20次；DMZ：卧倒100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "60级，20次爆头击杀",
+                "text": "爆头20次；DMZ：爆头75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "25次背后击杀",
+                "text": "背身25次；DMZ：背身75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "50次腰射击杀",
+                "text": "腰射50次；DMZ：腰射100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "WZ55STRIGA": {
             "maxLevel": "60",
@@ -1614,43 +1663,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "20级，消音器50次击杀",
+                "text": "装备消音50次；DMZ：装备消音125次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "41级，20次跳跃击杀",
+                "text": "跳跃20次；DMZ：跳跃50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "60级，40次零距离击杀",
+                "text": "零距离40次；DMZ：零距离100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "25次背后击杀",
+                "text": "背身25次；DMZ：背身75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "50次腰射击杀",
+                "text": "腰射50次；DMZ：腰射100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "PPSH41": {
             "maxLevel": "62",
@@ -1664,43 +1721,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "20级，10次双杀",
+                "text": "双杀10次；DMZ：双杀30次（玩家）",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "41级，20次远射击杀",
+                "text": "远射20次；DMZ：远射75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "62级，举枪瞄准100次击杀",
+                "text": "举枪瞄准100次；DMZ：举枪瞄准250次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "25次背后击杀",
+                "text": "背身25次；DMZ：背身75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "50次腰射击杀",
+                "text": "腰射50次；DMZ：腰射100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "X58NYX": {
             "maxLevel": 53,
@@ -1724,43 +1789,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "17级，20次移动击杀",
+                "text": "移动20次；DMZ：移动75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "35级，20次远射击杀",
+                "text": "远射20次；DMZ：远射75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "53级，40次爆头击杀",
+                "text": "爆头40次；DMZ：远射100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "25次背后击杀",
+                "text": "背身25次；DMZ：背身75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "50次腰射击杀",
+                "text": "腰射50次；DMZ：腰射100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "REZI12": {
             "maxLevel": "60",
@@ -1784,19 +1857,19 @@
             "special": [
               {
                 "name": "Struck Oil（钻油）",
-                "text": "22级；多人：近距离击杀 20 名玩家；DMZ：近距离击杀 75 名敌人",
+                "text": "零距离20次；DMZ：零距离75次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-struck-oil.webp"
               },
               {
                 "name": "Brushstroke（笔触）",
-                "text": "42级；多人：远距离击杀 10 名玩家；DMZ：远距离击杀 50 名敌人",
+                "text": "远射10次；DMZ：远射50次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-brushstroke.webp"
               },
               {
                 "name": "White Pine（白松）",
-                "text": "60级；多人：跳跃击杀 40 名玩家；DMZ：跳跃击杀 100 名敌人",
+                "text": "跳跃40次；DMZ：跳跃100次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-white-pine.webp"
               }
@@ -1804,30 +1877,31 @@
             "completionist": [
               {
                 "name": "金",
-                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
-                "image": "/assets/mw4camo/gold.webp",
-                "estimate": false
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
+                "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "腰射击杀 125 名玩家；DMZ：腰射击杀 125 名敌人",
-                "image": "/assets/mw4camo/platinum.webp",
-                "estimate": false
+                "text": "腰射125次；DMZ：腰射125次",
+                "estimate": false,
+                "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "不换弹完成 2 杀，累计 25 次；DMZ：不换弹完成 2 杀，累计 50 次",
-                "image": "/assets/mw4camo/harmonic-break.webp",
-                "estimate": false
+                "text": "不装弹2累计25次；DMZ：不装弹2累计50次",
+                "estimate": false,
+                "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "WARLORD": {
             "maxLevel": "60",
@@ -1841,43 +1915,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "21级，20次移动击杀",
+                "text": "移动20次；DMZ：移动75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "41级，10次双杀",
+                "text": "双杀10次；DMZ：双杀30次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "60级，50次卧倒击杀",
+                "text": "卧倒50次；DMZ：卧倒125次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "50次腰射击杀",
+                "text": "腰射50次；DMZ：腰射125次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次不换弹2次击杀",
+                "text": "不装弹2累计25次；DMZ：不装弹2累计50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "FINNLMG": {
             "maxLevel": "60",
@@ -1901,19 +1983,19 @@
             "special": [
               {
                 "name": "Desert Tactics（沙漠战术）",
-                "text": "18级；多人：近距离击杀 20 名玩家；DMZ：近距离击杀 75 名敌人",
+                "text": "零距离20次；DMZ：零距离75次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-desert-tactics.webp"
               },
               {
                 "name": "Green Tiger（绿虎）",
-                "text": "39级；多人：不换弹击杀 2 人，累计 10 次；DMZ：不换弹击杀 2 名敌人，累计 30 次",
+                "text": "不装弹2累计10次；DMZ：不装弹2累计30次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-green-tiger.webp"
               },
               {
                 "name": "Thunderhead（雷暴云砧）",
-                "text": "60级；DMZ：远距离击杀 100 名敌人",
+                "text": "远射30次；DMZ：远射100次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-thunderhead.webp"
               }
@@ -1921,30 +2003,31 @@
             "completionist": [
               {
                 "name": "金",
-                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
-                "image": "/assets/mw4camo/gold.webp",
-                "estimate": false
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
+                "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "单局不死完成 3 杀，累计 15 次；DMZ：单局无伤完成 3 杀，累计 50 次",
-                "image": "/assets/mw4camo/platinum.webp",
-                "estimate": false
+                "text": "不死亡3累计15次；DMZ：无伤击杀3累计50次",
+                "estimate": false,
+                "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "不松扳机完成 2 杀，累计 25 次；DMZ：不松扳机完成 2 杀，累计 75 次",
-                "image": "/assets/mw4camo/harmonic-break.webp",
-                "estimate": false
+                "text": "不松开扳机2累计25次；DMZ：不松开扳机2累计75次",
+                "estimate": false,
+                "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "TYPE73": {
             "maxLevel": "65",
@@ -1958,43 +2041,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "23级，20次架枪击杀",
+                "text": "架枪20次；DMZ：架枪20次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "45级，10次双杀",
+                "text": "双杀10次；DMZ：双杀10次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "65级，40次爆头击杀",
+                "text": "爆头40次；DMZ：爆头40次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "15次不死3杀",
+                "text": "不死亡3累计15次；DMZ：无伤击杀3累计50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次不松扳机2次击杀",
+                "text": "不松开扳机2累计25次；DMZ：不松开扳机2累计75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "APOC338": {
             "maxLevel": "56",
@@ -2008,43 +2099,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "15级，20次腰射击杀",
+                "text": "腰射20次；DMZ：腰射20次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "36级，40次爆头击杀",
+                "text": "远射20次；DMZ：远射20次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "56级，100次卧倒击杀",
+                "text": "卧倒100次；DMZ：卧倒100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "15次不死3杀",
+                "text": "不死亡3累计15次；DMZ：无伤击杀3累计50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次不松扳机2次击杀",
+                "text": "不松开扳机2累计25次；DMZ：不松开扳机2累计75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "MAR9": {
             "maxLevel": "73",
@@ -2068,19 +2167,19 @@
             "special": [
               {
                 "name": "Mangrove（红树林）",
-                "text": "26级；多人：架设击杀 20 名玩家；DMZ：架设击杀 75 名敌人",
+                "text": "架枪20次；DMZ：架枪75次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-mangrove.webp"
               },
               {
                 "name": "Fungal Grid（菌格）",
-                "text": "49级；多人：蹲伏击杀 25 名玩家；DMZ：蹲伏击杀 75 名敌人",
+                "text": "蹲下25次；DMZ：蹲下75次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-fungal-grid.webp"
               },
               {
                 "name": "White（白色）",
-                "text": "73级；多人：远距离击杀 30 名玩家；DMZ：远距离击杀 100 名敌人",
+                "text": "远射30次；DMZ：远射100次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-white.webp"
               }
@@ -2088,30 +2187,31 @@
             "completionist": [
               {
                 "name": "金",
-                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
-                "image": "/assets/mw4camo/gold.webp",
-                "estimate": false
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
+                "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "趴伏击杀 75 名玩家；DMZ：趴伏击杀 150 名敌人",
-                "image": "/assets/mw4camo/platinum.webp",
-                "estimate": false
+                "text": "卧倒75次；DMZ：卧倒150次",
+                "estimate": false,
+                "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "一枪击杀 75 名玩家；DMZ：一枪击杀 150 名敌人",
-                "image": "/assets/mw4camo/harmonic-break.webp",
-                "estimate": false
+                "text": "一枪一个75次；DMZ：一枪一个150次",
+                "estimate": false,
+                "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "ORIS86": {
             "maxLevel": "70",
@@ -2125,43 +2225,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "27级，10次瞬狙击杀",
+                "text": "瞬狙10次；DMZ：瞬狙50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "49级，20次双杀",
+                "text": "双杀20次；DMZ：双杀50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "70级，15次不死3杀",
+                "text": "不死亡3累计15次；DMZ：不死亡3累计50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "75次卧倒击杀",
+                "text": "卧倒75次；DMZ：卧倒150次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "75次一枪一个",
+                "text": "一枪一个75次；DMZ：一枪一个150次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "MOSINNAGANT": {
             "maxLevel": "69",
@@ -2175,43 +2283,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "25级，25次爆头击杀",
+                "text": "爆头25次；DMZ：爆头75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "15次远射击杀",
+                "text": "远射15次；DMZ：不装弹2累计30次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "20次爆头击杀",
+                "text": "爆头20次；DMZ：集中注意力时250次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "75次卧倒击杀",
+                "text": "卧倒75次；DMZ：卧倒150次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "75次一枪一个",
+                "text": "一枪一个75次；DMZ：一枪一个150次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "KG7VULCAN": {
             "maxLevel": "75",
@@ -2235,19 +2351,19 @@
             "special": [
               {
                 "name": "Treeline（林线）",
-                "text": "22级；多人：腰射击杀 10 名玩家",
+                "text": "腰射10次；DMZ：无伤2次累计30次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-treeline.webp"
               },
               {
                 "name": "Spidersilk（蛛丝）",
-                "text": "47级；多人：爆头击杀 20 名玩家；DMZ：专注状态击杀 75 名敌人",
+                "text": "爆头20次；DMZ：集中注意力时75次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-spidersilk.webp"
               },
               {
                 "name": "Tension（张力）",
-                "text": "75级；多人：单局无伤击杀 2 名玩家，累计 20 次；DMZ：单局无伤击杀 2 名敌人，累计 30 次",
+                "text": "无伤2累计20次；DMZ：无伤完成0次击杀累计25次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-tension.webp"
               }
@@ -2255,30 +2371,31 @@
             "completionist": [
               {
                 "name": "金",
-                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
-                "image": "/assets/mw4camo/gold.webp",
-                "estimate": false
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
+                "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "趴伏击杀 75 名玩家；DMZ：趴伏击杀 150 名敌人",
-                "image": "/assets/mw4camo/platinum.webp",
-                "estimate": false
+                "text": "卧倒75次；DMZ：卧倒150次",
+                "estimate": false,
+                "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "一枪击杀 75 名玩家；DMZ：一枪击杀 150 名敌人",
-                "image": "/assets/mw4camo/harmonic-break.webp",
-                "estimate": false
+                "text": "一枪一个75次；DMZ：一枪一个150次",
+                "estimate": false,
+                "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "SIGNAL50": {
             "maxLevel": "74",
@@ -2292,43 +2409,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "28级，10次5秒内2杀",
+                "text": "五秒内击杀2名10次；DMZ：五秒内击杀2名10次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "52级，20次瞬狙击杀",
+                "text": "瞬狙20次；DMZ：瞬狙20次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "74级，40次远射击杀",
+                "text": "远射40次；DMZ：远射40次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "75次卧倒击杀",
+                "text": "卧倒75次；DMZ：卧倒150次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "75次一枪一个",
+                "text": "一枪一个75次；DMZ：一枪一个150次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "SANG9MM": {
             "maxLevel": "38",
@@ -2352,50 +2477,51 @@
             "special": [
               {
                 "name": "Autumn（秋）",
-                "text": "13级；多人：瞄准射击击杀 25 名玩家；DMZ：瞄准射击击杀 75 名敌人",
+                "text": "举枪瞄准25次；DMZ：举枪瞄准75次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-autumn.webp"
               },
               {
-                "name": "Space Time（时空）",
-                "text": "25级；多人：单局不死击杀 3 名玩家，累计 5 次；DMZ：双持击杀 125 名敌人",
-                "estimate": false,
-                "image": "/assets/mw4camo/special-space-time.webp"
-              },
-              {
                 "name": "Snakeskin（蛇皮）",
-                "text": "38级；多人：双持击杀 50 名玩家；DMZ：单局无伤击杀 3 名敌人，累计 15 次",
+                "text": "不死亡3累计5次；DMZ：不受伤3累计15次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-snakeskin.webp"
+              },
+              {
+                "name": "Space Time（时空）",
+                "text": "双持50次；DMZ：双持125次",
+                "estimate": false,
+                "image": "/assets/mw4camo/special-space-time.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
-                "image": "/assets/mw4camo/gold.webp",
-                "estimate": false
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
+                "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "从背后击杀 20 名玩家；DMZ：从背后击杀 75 名敌人",
-                "image": "/assets/mw4camo/platinum.webp",
-                "estimate": false
+                "text": "背身20次；DMZ：背身75次",
+                "estimate": false,
+                "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "腰射击杀 40 名玩家；DMZ：腰射击杀 100 名敌人",
-                "image": "/assets/mw4camo/harmonic-break.webp",
-                "estimate": false
+                "text": "腰射40次；DMZ：腰射100次",
+                "estimate": false,
+                "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊/完成主义迷彩数据与图片同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "KARITP68": {
             "maxLevel": "28",
@@ -2409,43 +2535,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "13级，15次悬挂击杀",
+                "text": "下挂15次；DMZ：下挂50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "25级，15次零距离击杀",
+                "text": "零距离15次；DMZ：零距离击杀50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "38级，消音器50次击杀",
+                "text": "消音50次；DMZ：消音125次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "20次背后击杀",
+                "text": "背身20次；DMZ：背身75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "40次腰射击杀",
+                "text": "腰射40次；DMZ：腰射100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "50GS": {
             "maxLevel": "50",
@@ -2459,43 +2593,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "18级，20次爆头击杀",
+                "text": "爆头20次；DMZ：爆头75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "34级，7次双杀",
+                "text": "双杀7次；DMZ：双杀20次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "50级，50零距离击杀",
+                "text": "零距离20次；DMZ：零距离75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "20次背后击杀",
+                "text": "背身20次；DMZ：背身75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "40次腰射击杀",
+                "text": "腰射40次；DMZ：腰射100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "MOHAVE357": {
             "maxLevel": "44",
@@ -2509,43 +2651,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "16级，15次一枪一个击杀",
+                "text": "一枪一个15次；DMZ：一枪一个50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "30级，10次不换弹2杀",
+                "text": "不装弹2累计15次；DMZ：不装弹2累计20次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "44级，30次零距离击杀",
+                "text": "零距离30次；DMZ：零距离75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "20次背后击杀",
+                "text": "背身20次；DMZ：背身75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "40次腰射击杀",
+                "text": "腰射40次；DMZ：腰射100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "RPG": {
             "maxLevel": "46",
@@ -2559,43 +2709,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "16级，10次趴下击杀",
+                "text": "趴下击杀10次；DMZ：趴下击杀25次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "31级，10次远射击杀",
+                "text": "远射10次；DMZ：远射25次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "46级，摧毁30个连杀或载具",
+                "text": "摧毁30个连杀奖励或道具；DMZ：摧毁50个连杀奖励或道具",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "15次无伤2杀",
+                "text": "无伤击杀2累计15次；DMZ：无伤击杀2累计50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "7次单局10杀",
+                "text": "一场比赛中击杀10名累计7次；DMZ：一场比赛中击杀10名累计15次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "ODEN": {
             "maxLevel": 65,
@@ -2619,43 +2777,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "25级，配备米里40毫米榴弹发射器25杀",
+                "text": "40毫米下挂25次；DMZ：40毫米下挂75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "44级，10次不换弹2次击杀",
+                "text": "不装弹2累计10次；DMZ：不装弹2累计30次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "65级，举枪瞄准100次击杀",
+                "text": "举枪瞄准100次；DMZ：举枪瞄准250次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "50次爆头击杀",
+                "text": "爆头50次；DMZ：爆头100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次双杀",
+                "text": "双杀25次；DMZ：双杀50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "CRONENSQUALL": {
             "maxLevel": 67,
@@ -2679,43 +2845,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "24级，20次零距离击杀",
+                "text": "零距离20次；DMZ：零距离75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "45级，20次架枪击杀",
+                "text": "架枪20次；DMZ：架枪75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "67级，15次不死3杀",
+                "text": "不死亡3累计15次；DMZ：举枪瞄准50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "50次爆头击杀",
+                "text": "爆头50次；DMZ：爆头100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次双杀",
+                "text": "双杀25次；DMZ：双杀50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "AXION": {
             "maxLevel": 69,
@@ -2739,43 +2913,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "23级，20次远射击杀",
+                "text": "远射20次；DMZ：远射75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "45级，配备米里40毫米榴弹发射器25杀",
+                "text": "40毫米下挂25次；DMZ：40毫米下挂75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "69级，25次不换弹2次击杀",
+                "text": "不装弹2累计25次；DMZ：不装弹2累计50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "50次爆头击杀",
+                "text": "爆头50次；DMZ：爆头100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次双杀",
+                "text": "双杀25次；DMZ：双杀50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "COMBATKNIFE": {
             "maxLevel": 46,
@@ -2799,43 +2981,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "16级，25次跳跃击杀",
+                "text": "跳跃时击杀25次；DMZ：跳跃时击杀100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "31级，25次强力近身处决",
+                "text": "强力近身处决25次；DMZ：强力近身处决75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "46级，25次5秒内2杀",
+                "text": "五秒内击杀2名25次；DMZ：五秒内击杀2名50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "15次不死3杀",
+                "text": "不死亡3累计15次；DMZ：无伤击杀3累计50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "25次背后击杀",
+                "text": "背身击杀25次；DMZ：背身击杀75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "JOKR": {
             "maxLevel": 46,
@@ -2859,43 +3049,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "16级，5次双杀",
+                "text": "双杀5次；DMZ：双杀15次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "31级，10次远射击杀",
+                "text": "远射10次；DMZ：远射20次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "46级，摧毁30个连杀或载具",
+                "text": "摧毁30个连杀奖励或道具；DMZ：摧毁50个连杀奖励或道具",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "15次无伤2杀",
+                "text": "无伤击杀2累计15次；DMZ：无伤击杀2累计50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "7次单局10杀",
+                "text": "一场比赛中击杀10名累计7次；DMZ：一场比赛中击杀10名累计15次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "PM40": {
             "maxLevel": 46,
@@ -2919,43 +3117,51 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "16级，25次直接击杀",
+                "text": "直接击杀25次；DMZ：直接击杀25次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "31级，5次不换弹2杀",
+                "text": "不装弹2累计5次；DMZ：不装弹2累计20次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "46级，40次移动击杀",
+                "text": "移动时击杀40次；DMZ：移动时击杀100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "15次无伤2杀",
+                "text": "无伤击杀2累计15次；DMZ：无伤击杀2累计50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "7次单局10杀",
+                "text": "一场比赛中击杀10名累计7次；DMZ：一场比赛中击杀10名累计15次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           },
           "ATALOS57": {
             "maxLevel": 54,
@@ -2979,43 +3185,108 @@
             "special": [
               {
                 "name": "特殊迷彩 1",
-                "text": "20级，10次不死3杀",
+                "text": "不死亡3累计10次；DMZ：架枪75次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 2",
-                "text": "37级，20次架枪击杀",
+                "text": "架枪20次；DMZ：无伤3次累计25次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
                 "name": "特殊迷彩 3",
-                "text": "54级，20次5秒内2杀",
+                "text": "五秒内击杀2名20次；DMZ：五秒内击杀2名50次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
+                "text": "单场比赛15次；DMZ：单场比赛100次",
+                "estimate": false,
                 "image": "/assets/mw4camo/gold.webp"
               },
               {
                 "name": "铂金",
-                "text": "75次卧倒击杀",
+                "text": "卧倒75次；DMZ：卧倒150次",
+                "estimate": false,
                 "image": "/assets/mw4camo/platinum.webp"
               },
               {
                 "name": "和声间奏",
-                "text": "75次一枪一个",
+                "text": "一枪一个75次；DMZ：一枪一个150次",
+                "estimate": false,
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
                 "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
+                "estimate": false,
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
+          },
+          "PILA": {
+            "maxLevel": 36,
+            "unlock": "",
+            "military": {
+              "count": 8,
+              "text": "按武器等级解锁",
+              "image": "/assets/mw4camo/military.webp",
+              "estimate": true
+            },
+            "special": [
+              {
+                "name": "特殊迷彩 1",
+                "text": "直接击杀10次；DMZ：直接击杀25次",
+                "estimate": false,
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 2",
+                "text": "双杀5次；DMZ：双杀100次",
+                "estimate": false,
+                "image": "/assets/mw4camo/special.webp"
+              },
+              {
+                "name": "特殊迷彩 3",
+                "text": "摧毁30个连杀奖励或道具；DMZ：摧毁50个连杀奖励或道具",
+                "estimate": false,
+                "image": "/assets/mw4camo/special.webp"
+              }
+            ],
+            "completionist": [
+              {
+                "name": "金",
+                "text": "单场比赛15次；DMZ：单场比赛50次",
+                "estimate": false,
+                "image": "/assets/mw4camo/gold.webp"
+              },
+              {
+                "name": "铂金",
+                "text": "无伤击杀2累计15次；DMZ：无伤击杀2累计50次",
+                "estimate": false,
+                "image": "/assets/mw4camo/platinum.webp"
+              },
+              {
+                "name": "和声间奏",
+                "text": "一场比赛中击杀10名累计7次；DMZ：一场比赛中击杀10名累计15次",
+                "estimate": false,
+                "image": "/assets/mw4camo/harmonic-break.webp"
+              },
+              {
+                "name": "分歧",
+                "text": "完成该武器全部迷彩挑战",
+                "estimate": false,
+                "image": "/assets/mw4camo/divergence.webp"
+              }
+            ],
+            "note": "条件整理自用户提供的腾讯文档（2026-10-21）；多人/DMZ 已拆分。"
           }
         },
         "source": "Lunana66 武器迷彩信息表（docs.qq.com/smartsheet/DQ3FRemRxcHZrTFJo）2026-10-18"

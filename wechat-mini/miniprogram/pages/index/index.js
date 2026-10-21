@@ -11,6 +11,7 @@ const format = require('../../utils/format')
 function guideForClass(guide, weaponCode, guideDone, options) {
   if (!guide) return null
   const dmzOnly = !!(options && options.dmzOnly)
+  const mpOnly = !!(options && options.mpOnly)
   function on(key) {
     return !!(guideDone && guideDone[weaponCode + '::' + key])
   }
@@ -52,6 +53,18 @@ function guideForClass(guide, weaponCode, guideDone, options) {
       const base = String(g.title || '').split(' · ')[0] || '迷彩'
       return { key: g.key, title: base + ' · ' + items.length + ' 档', note: g.note || '', items: items }
     }).filter(function (g) { return g.items.length > 0 })
+  } else if (mpOnly) {
+    // Multiplayer tab: strip the DMZ half so the two modes do not show identical text.
+    groups = groups.map(function (g) {
+      if (g.key === 'military') return g
+      const items = g.items.map(function (item) {
+        const text = String(item.req || '')
+        const at = text.indexOf('DMZ：')
+        if (at < 0) return item
+        return Object.assign({}, item, { req: text.slice(0, at).replace(/[；;]\s*$/, '').trim() })
+      })
+      return Object.assign({}, g, { items: items })
+    })
   }
   return {
     note: dmzOnly
@@ -67,7 +80,7 @@ function guideForWeapon(cat, modeCode, weapon, guideDone) {
   const perWeapon = guideRoot.weapons && guideRoot.weapons[weapon.code]
   const classGuide = guideRoot.classes && guideRoot.classes[weapon.cls]
   if (modeCode === 'MULTIPLAYER') {
-    return guideForClass(perWeapon || classGuide, weapon.code, guideDone)
+    return guideForClass(perWeapon || classGuide, weapon.code, guideDone, { mpOnly: true })
   }
   if (modeCode === 'DMZ' && perWeapon) {
     return guideForClass(perWeapon, weapon.code, guideDone, { dmzOnly: true })
@@ -490,7 +503,6 @@ Page({
           image: useRemote ? (w.imageRemote || w.image) : w.image,
           imgFallback: !!w.imgFallback,
           hint: w.hint,
-          synced: !!w.guideSynced,
           fav: fav,
           count: wp.count,
           total: mode.tiers.length,

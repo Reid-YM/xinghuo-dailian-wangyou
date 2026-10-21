@@ -3,7 +3,7 @@
  *
  * 来源：https://wydlgf.cn/api/tool-station
  * 生成：node tools/sync-data.js
- * camoTracks 版本：v25r1 · storageVersion：v23r6
+ * camoTracks 版本：v25r1 · camoGuide 版本：v25r2 · storageVersion：v23r6
  *
  * 运行时优先用线上接口（改了网站就立刻生效）；接口不可用时才用这份快照。
  * 官方公布新武器 / 新迷彩后，重跑同步脚本并提交新版本即可。
@@ -716,8 +716,8 @@ module.exports = {
         "officialSource": "https://www.callofduty.com/"
       },
       "camoGuide": {
-        "version": "v25r1",
-        "note": "军事/特殊仅突击步枪（汉86）为官方数值，其余职业为估算；标「参考」的项以游戏内实测为准",
+        "version": "v25r2",
+        "note": "军事/特殊迷彩已同步 CODMunity 的 6 把完整武器数据；其余武器为现有攻略估算，标「参考」的项以游戏内实测为准",
         "classes": {
           "突击步枪": {
             "military": {
@@ -1500,24 +1500,37 @@ module.exports = {
             "unlock": "军阶4级解锁",
             "military": {
               "count": 8,
-              "text": "武器等级解锁（满级 64）：每达到指定等级解锁一款",
+              "text": "按武器等级解锁：12 / 19 / 25 / 31 / 38 / 44 / 50 / 57 级",
               "image": "/assets/mw4camo/military.webp",
-              "estimate": false
+              "estimate": false,
+              "levels": [
+                12,
+                19,
+                25,
+                31,
+                38,
+                44,
+                50,
+                57
+              ]
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
-                "text": "22级，举枪瞄准50次击杀",
+                "name": "Asphalt（沥青）",
+                "text": "22级；多人：瞄准射击击杀 50 名玩家；DMZ：瞄准射击击杀 125 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 2",
-                "text": "44级，10次双杀",
+                "name": "Black Topo（黑色地形）",
+                "text": "44级；多人：对玩家完成 10 次双杀；DMZ：对敌人完成 30 次双杀",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 3",
-                "text": "64级，15次远射击杀",
+                "name": "Brown（棕色）",
+                "text": "64级；多人：单局不死击杀 3 名玩家，累计 15 次；DMZ：单局无伤击杀 3 名敌人，累计 50 次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
@@ -1543,7 +1556,8 @@ module.exports = {
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "VEL46": {
             "maxLevel": "60",
@@ -1638,7 +1652,7 @@ module.exports = {
                 "image": "/assets/mw4camo/harmonic-break.webp"
               },
               {
-                "name": "���歧",
+                "name": "分歧",
                 "text": "完成该武器所有的皮肤挑战",
                 "image": "/assets/mw4camo/divergence.webp"
               }
@@ -1760,24 +1774,37 @@ module.exports = {
             "unlock": "军阶4级解锁",
             "military": {
               "count": 8,
-              "text": "武器等级解锁（满级 60）：每达到指定等级解锁一款",
+              "text": "按武器等级解锁：11 / 18 / 26 / 30 / 38 / 42 / 47 / 54 级",
               "image": "/assets/mw4camo/military.webp",
-              "estimate": false
+              "estimate": false,
+              "levels": [
+                11,
+                18,
+                26,
+                30,
+                38,
+                42,
+                47,
+                54
+              ]
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
-                "text": "22级，20次零距离击杀",
+                "name": "Struck Oil（钻油）",
+                "text": "22级；多人：近距离击杀 20 名玩家；DMZ：近距离击杀 75 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 2",
-                "text": "42级，10次远射击杀",
+                "name": "Brushstroke（笔触）",
+                "text": "42级；多人：远距离击杀 10 名玩家；DMZ：远距离击杀 50 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 3",
-                "text": "60级，40次跳跃击杀",
+                "name": "White Pine（白松）",
+                "text": "60级；多人：跳跃击杀 40 名玩家；DMZ：跳跃击杀 100 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
@@ -1803,7 +1830,8 @@ module.exports = {
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "WARLORD": {
             "maxLevel": "60",
@@ -1860,24 +1888,37 @@ module.exports = {
             "unlock": "军阶4级解锁",
             "military": {
               "count": 8,
-              "text": "武器等级解锁（满级 60）：每达到指定等级解锁一款",
+              "text": "按武器等级解锁：12 / 18 / 24 / 31 / 37 / 42 / 48 / 53 级",
               "image": "/assets/mw4camo/military.webp",
-              "estimate": false
+              "estimate": false,
+              "levels": [
+                12,
+                18,
+                24,
+                31,
+                37,
+                42,
+                48,
+                53
+              ]
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
-                "text": "18级，20次零距离击杀",
+                "name": "Desert Tactics（沙漠战术）",
+                "text": "18级；多人：近距离击杀 20 名玩家；DMZ：近距离击杀 75 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 2",
-                "text": "39级，10次不换弹2次击杀",
+                "name": "Green Tiger（绿虎）",
+                "text": "39级；多人：不换弹击杀 2 人，累计 10 次；DMZ：不换弹击杀 2 名敌人，累计 30 次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 3",
-                "text": "60级，30次远射击杀",
+                "name": "Thunderhead（雷暴云砧）",
+                "text": "60级；DMZ：远距离击杀 100 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
@@ -1903,7 +1944,8 @@ module.exports = {
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "TYPE73": {
             "maxLevel": "65",
@@ -2010,24 +2052,37 @@ module.exports = {
             "unlock": "军阶4级解锁",
             "military": {
               "count": 8,
-              "text": "武器等级解锁（满级 73）：每达到指定等级解锁一款",
+              "text": "按武器等级解锁：10 / 19 / 29 / 38 / 45 / 52 / 58 / 69 级",
               "image": "/assets/mw4camo/military.webp",
-              "estimate": false
+              "estimate": false,
+              "levels": [
+                10,
+                19,
+                29,
+                38,
+                45,
+                52,
+                58,
+                69
+              ]
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
-                "text": "26级，20次架枪击杀",
+                "name": "Mangrove（红树林）",
+                "text": "26级；多人：架设击杀 20 名玩家；DMZ：架设击杀 75 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 2",
-                "text": "49级，25次蹲下击杀",
+                "name": "Fungal Grid（菌格）",
+                "text": "49级；多人：蹲伏击杀 25 名玩家；DMZ：蹲伏击杀 75 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 3",
-                "text": "73级，30次远射击杀",
+                "name": "White（白色）",
+                "text": "73级；多人：远距离击杀 30 名玩家；DMZ：远距离击杀 100 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
@@ -2053,7 +2108,8 @@ module.exports = {
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "ORIS86": {
             "maxLevel": "70",
@@ -2160,24 +2216,37 @@ module.exports = {
             "unlock": "军阶4级解锁",
             "military": {
               "count": 8,
-              "text": "武器等级解锁（满级 75）：每达到指定等级解锁一款",
+              "text": "按武器等级解锁：13 / 22 / 31 / 38 / 47 / 54 / 61 / 69 级",
               "image": "/assets/mw4camo/military.webp",
-              "estimate": false
+              "estimate": false,
+              "levels": [
+                13,
+                22,
+                31,
+                38,
+                47,
+                54,
+                61,
+                69
+              ]
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
-                "text": "22级，10次腰射击杀",
+                "name": "Treeline（林线）",
+                "text": "22级；多人：腰射击杀 10 名玩家",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 2",
-                "text": "47级，20次爆头击杀",
+                "name": "Spidersilk（蛛丝）",
+                "text": "47级；多人：爆头击杀 20 名玩家；DMZ：专注状态击杀 75 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 3",
-                "text": "75级，20次无伤2杀",
+                "name": "Tension（张力）",
+                "text": "75级；多人：单局无伤击杀 2 名玩家，累计 20 次；DMZ：单局无伤击杀 2 名敌人，累计 30 次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
@@ -2203,7 +2272,8 @@ module.exports = {
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "SIGNAL50": {
             "maxLevel": "74",
@@ -2260,24 +2330,37 @@ module.exports = {
             "unlock": "军阶4级解锁",
             "military": {
               "count": 8,
-              "text": "武器等级解锁（满级 38）：每达到指定等级解锁一款",
+              "text": "按武器等级解锁：9 / 13 / 17 / 21 / 25 / 28 / 31 / 35 级",
               "image": "/assets/mw4camo/military.webp",
-              "estimate": false
+              "estimate": false,
+              "levels": [
+                9,
+                13,
+                17,
+                21,
+                25,
+                28,
+                31,
+                35
+              ]
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
-                "text": "13级，举枪瞄准25次击杀",
+                "name": "Autumn（秋）",
+                "text": "13级；多人：瞄准射击击杀 25 名玩家；DMZ：瞄准射击击杀 75 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 2",
-                "text": "25级，5次不死3杀",
+                "name": "Space Time（时空）",
+                "text": "25级；多人：单局不死击杀 3 名玩家，累计 5 次；DMZ：双持击杀 125 名敌人",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               },
               {
-                "name": "特殊迷彩 3",
-                "text": "38级，50次双持击杀",
+                "name": "Snakeskin（蛇皮）",
+                "text": "38级；多人：双持击杀 50 名玩家；DMZ：单局无伤击杀 3 名敌人，累计 15 次",
+                "estimate": false,
                 "image": "/assets/mw4camo/special.webp"
               }
             ],
@@ -2303,7 +2386,8 @@ module.exports = {
                 "image": "/assets/mw4camo/divergence.webp"
               }
             ],
-            "mastery": "模式大师-霞流"
+            "mastery": "模式大师-霞流",
+            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "KARITP68": {
             "maxLevel": "28",

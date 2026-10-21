@@ -53,7 +53,7 @@ const payload = {
       { code: 'LMG1', name: 'LMG One', nameZh: '机枪一号', image: '', weaponType: '轻机枪' }
     ],
     camoGuide: {
-      version: 'v1',
+      version: 'v99r1',
       militaryImages: ['/assets/mw4camo/military-1.webp', '/assets/mw4camo/military-2.webp'],
       note: '测试说明',
       classes: {
@@ -74,6 +74,17 @@ const payload = {
         '冲锋枪': {
           military: { count: 8, text: '按武器等级解锁（具体等级未公布）', estimate: true },
           special: [{ name: '特殊迷彩 1', text: '等级 + 挑战（未公布）', estimate: true }],
+          completionist: [{ name: 'Gold（金）', text: '单局 15 击杀', estimate: false }]
+        }
+      },
+      weapons: {
+        SMG1: {
+          military: { count: 8, text: '按武器等级解锁：12 / 19 / 25 / 31 / 38 / 44 / 50 / 57 级', estimate: false, image: '/assets/mw4camo/military.webp', levels: [12, 19, 25, 31, 38, 44, 50, 57] },
+          special: [
+            { name: 'Asphalt（沥青）', text: '22级；多人：瞄准射击击杀 50 名玩家', estimate: false },
+            { name: 'Black Topo（黑色地形）', text: '44级；多人：对玩家完成 10 次双杀', estimate: false },
+            { name: 'Brown（棕色）', text: '64级；多人：单局不死击杀 3 名玩家，累计 15 次', estimate: false }
+          ],
           completionist: [{ name: 'Gold（金）', text: '单局 15 击杀', estimate: false }]
         }
       }
@@ -110,6 +121,38 @@ assert.strictEqual(ar.groups[2].items[2].name, 'Harmonic Break（谐波）')
 const smg = cat.camoGuide.classes['冲锋枪']
 assert.strictEqual(smg.groups[0].items[0].estimate, true, 'estimate flag should survive')
 assert.strictEqual(smg.militaryTiles[0].label, '第1档')
+
+const smgWeaponGuide = cat.camoGuide.weapons.SMG1
+assert.ok(smgWeaponGuide, 'per-weapon camo guide should be parsed')
+assert.strictEqual(smgWeaponGuide.militaryTiles.length, 8)
+assert.strictEqual(smgWeaponGuide.militaryTiles[0].label, '12级')
+assert.strictEqual(smgWeaponGuide.militaryTiles[0].image, '/images/camo/military-1.jpg', 'per-weapon tiles should use militaryImages')
+assert.strictEqual(smgWeaponGuide.militaryTiles[7].label, '57级')
+assert.strictEqual(smgWeaponGuide.groups[1].title, '特殊迷彩 · 3 档')
+assert.strictEqual(smgWeaponGuide.groups[1].items[0].name, 'Asphalt（沥青）')
+assert.strictEqual(smgWeaponGuide.groups[1].items[2].name, 'Brown（棕色）')
+
+// 线上 API 还没更新 camoGuide 时，内置快照的新版本必须胜出
+const oldRemote = JSON.parse(JSON.stringify(payload))
+oldRemote.games[0].camoGuide.version = 'v1'
+const merged = catalog.normalize(oldRemote, 'remote', Date.now())
+const snapshot = require(path.join(root, 'data', 'weapons.js'))
+const snapshotGame = snapshot.games.filter(function (g) { return g.code === 'CODMW4' })[0]
+assert.strictEqual(merged.camoGuide.version, snapshotGame.camoGuide.version)
+const kg = snapshotGame.camoGuide.weapons.KG7VULCAN
+assert.deepStrictEqual(kg.military.levels, [13, 22, 31, 38, 47, 54, 61, 69])
+assert.strictEqual(kg.special[0].name, 'Treeline（林线）')
+assert.strictEqual(kg.special[0].text, '22级；多人：腰射击杀 10 名玩家')
+const sang = snapshotGame.camoGuide.weapons.SANG9MM
+assert.strictEqual(sang.special[1].name, 'Space Time（时空）')
+assert.strictEqual(sang.special[2].name, 'Snakeskin（蛇皮）')
+for (const code of ['KG7VULCAN', 'REZI12', 'ISONIGHTSHADE', 'FINNLMG', 'MAR9', 'SANG9MM']) {
+  const guide = snapshotGame.camoGuide.weapons[code]
+  assert.strictEqual(guide.military.levels.length, 8, code + ' should have 8 military levels')
+  assert.strictEqual(guide.special.length, 3, code + ' should have 3 special camos')
+  assert.ok(guide.special.every(function (s) { return s.name.indexOf('特殊迷彩') !== 0 }), code + ' should use real special camo names')
+}
+
 
 // 页面渲染时按武器职业取指南；没有数据的职业应当是 undefined（模板里有 wx:if 保护）
 const arWeapon = cat.weapons.filter(function (w) { return w.code === 'AR1' })[0]

@@ -145,7 +145,7 @@ assert.strictEqual(merged.camoGuide.version, snapshotGame.camoGuide.version)
 const kg = snapshotGame.camoGuide.weapons.KG7VULCAN
 assert.deepStrictEqual(kg.military.levels, [13, 22, 31, 38, 47, 54, 61, 69])
 assert.strictEqual(kg.special[0].name, 'Treeline（林线）')
-assert.strictEqual(kg.special[0].text, '22级；多人：腰射击杀 10 名玩家')
+assert.strictEqual(kg.special[0].text, '腰射10次；DMZ：无伤2次累计30次')
 const mergedKg = merged.camoGuide.weapons.KG7VULCAN
 assert.strictEqual(mergedKg.militaryTiles[0].name, '军事迷彩 1')
 assert.strictEqual(mergedKg.militaryTiles[0].req, '武器等级 13')
@@ -157,13 +157,15 @@ for (const code of ['KG7VULCAN', 'REZI12', 'ISONIGHTSHADE', 'FINNLMG', 'MAR9', '
   const special = guide.groups.filter(function (g) { return g.key === 'special' })[0]
   assert.strictEqual(new Set(special.items.map(function (i) { return i.image })).size, special.items.length, code + ' special camo images should be distinct')
 }
-assert.strictEqual(kg.completionist[0].text, '单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人')
-assert.strictEqual(kg.completionist[1].text, '趴伏击杀 75 名玩家；DMZ：趴伏击杀 150 名敌人')
+assert.strictEqual(kg.completionist[0].text, '单场比赛15次；DMZ：单场比赛100次')
+assert.strictEqual(kg.completionist[1].text, '卧倒75次；DMZ：卧倒150次')
 const iso = snapshotGame.camoGuide.weapons.ISONIGHTSHADE
-assert.strictEqual(iso.completionist[1].text, '从背后击杀 25 名玩家；DMZ：从背后击杀 75 名敌人')
+assert.strictEqual(iso.completionist[1].text, '背身25次；DMZ：背身75次')
 const sang = snapshotGame.camoGuide.weapons.SANG9MM
-assert.strictEqual(sang.special[1].name, 'Space Time（时空）')
-assert.strictEqual(sang.special[2].name, 'Snakeskin（蛇皮）')
+assert.strictEqual(sang.special[1].name, 'Snakeskin（蛇皮）')
+assert.strictEqual(sang.special[1].text, '不死亡3累计5次；DMZ：不受伤3累计15次')
+assert.strictEqual(sang.special[2].name, 'Space Time（时空）')
+assert.strictEqual(sang.special[2].text, '双持50次；DMZ：双持125次')
 for (const code of ['KG7VULCAN', 'REZI12', 'ISONIGHTSHADE', 'FINNLMG', 'MAR9', 'SANG9MM']) {
   const guide = snapshotGame.camoGuide.weapons[code]
   assert.strictEqual(guide.military.levels.length, 8, code + ' should have 8 military levels')

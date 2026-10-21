@@ -11,6 +11,7 @@ const format = require('../../utils/format')
 function guideForClass(guide, weaponCode, guideDone, options) {
   if (!guide) return null
   const dmzOnly = !!(options && options.dmzOnly)
+  const mpOnly = !!(options && options.mpOnly)
   function on(key) {
     return !!(guideDone && guideDone[weaponCode + '::' + key])
   }
@@ -45,13 +46,28 @@ function guideForClass(guide, weaponCode, guideDone, options) {
         return { key: g.key, title: g.title, note: 'DMZ 同样按武器等级解锁', items: g.items }
       }
       const items = g.items.map(function (item) {
-        const at = String(item.req || '').indexOf('DMZ：')
-        if (at < 0) return null
-        return Object.assign({}, item, { req: item.req.slice(at) })
+        const req = String(item.req || '')
+        const at = req.indexOf('DMZ：')
+        if (at >= 0) return Object.assign({}, item, { req: req.slice(at) })
+        // Divergence is a shared completionist requirement, not a mode-specific alternative.
+        if (g.key === 'completionist' && item.name === '分歧') return item
+        return null
       }).filter(Boolean)
       const base = String(g.title || '').split(' · ')[0] || '迷彩'
       return { key: g.key, title: base + ' · ' + items.length + ' 档', note: g.note || '', items: items }
     }).filter(function (g) { return g.items.length > 0 })
+  } else if (mpOnly) {
+    // Multiplayer tab: strip the DMZ half so the two modes do not show identical text.
+    groups = groups.map(function (g) {
+      if (g.key === 'military') return g
+      const items = g.items.map(function (item) {
+        const text = String(item.req || '')
+        const at = text.indexOf('DMZ：')
+        if (at < 0) return item
+        return Object.assign({}, item, { req: text.slice(0, at).replace(/[；;]\s*$/, '').trim() })
+      })
+      return Object.assign({}, g, { items: items })
+    })
   }
   return {
     note: dmzOnly
@@ -67,7 +83,7 @@ function guideForWeapon(cat, modeCode, weapon, guideDone) {
   const perWeapon = guideRoot.weapons && guideRoot.weapons[weapon.code]
   const classGuide = guideRoot.classes && guideRoot.classes[weapon.cls]
   if (modeCode === 'MULTIPLAYER') {
-    return guideForClass(perWeapon || classGuide, weapon.code, guideDone)
+    return guideForClass(perWeapon || classGuide, weapon.code, guideDone, { mpOnly: true })
   }
   if (modeCode === 'DMZ' && perWeapon) {
     return guideForClass(perWeapon, weapon.code, guideDone, { dmzOnly: true })
@@ -120,6 +136,7 @@ Page({
     expanded: {},
     collapsed: {},
     guideDone: {},
+    camoPreview: { visible: false, src: '', name: '' },
     guideOpen: false,
     // 包内图片读不出来时（比如没打进上传包）整体切到官网地址
     useRemoteImages: false
@@ -316,11 +333,6 @@ Page({
   },
 
   /** 点迷彩图看大图 */
-  onPreviewCamo(e) {
-    const url = e.currentTarget.dataset.url
-    if (!url) return
-    wx.previewImage({ urls: [url] })
-  },
 
   /** 一对一咨询：直达微信客服会话（没配 corpId 时页面上是另一个按钮，走不到这里） */
   onContact() {
@@ -377,6 +389,22 @@ Page({
     this.setData({ guideDone: guideDone })
     this.render()
   },
+
+  onPreviewCamo(e) {
+    const src = e.currentTarget.dataset.src
+    if (!src) return
+    this.setData({
+      camoPreview: {
+        visible: true,
+        src: src,
+        name: e.currentTarget.dataset.name || '迷彩预览'
+      }
+    })
+  },
+  onCloseCamoPreview() {
+    this.setData({ camoPreview: { visible: false, src: '', name: '' } })
+  },
+  noop() {},
 
   /** 精通迷彩是模式级共享：顶部点一下 = 该模式全部武器该档一起标记 */
   onToggleMastery(e) {
@@ -490,7 +518,6 @@ Page({
           image: useRemote ? (w.imageRemote || w.image) : w.image,
           imgFallback: !!w.imgFallback,
           hint: w.hint,
-          synced: !!w.guideSynced,
           fav: fav,
           count: wp.count,
           total: mode.tiers.length,

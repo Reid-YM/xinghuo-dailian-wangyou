@@ -3,7 +3,7 @@
  *
  * 来源：https://wydlgf.cn/api/tool-station
  * 生成：node tools/sync-data.js
- * camoTracks 版本：v25r1 · camoGuide 版本：v25r2 · storageVersion：v23r6
+ * camoTracks 版本：v25r1 · camoGuide 版本：v25r3 · storageVersion：v23r6
  *
  * 运行时优先用线上接口（改了网站就立刻生效）；接口不可用时才用这份快照。
  * 官方公布新武器 / 新迷彩后，重跑同步脚本并提交新版本即可。
@@ -716,8 +716,8 @@ module.exports = {
         "officialSource": "https://www.callofduty.com/"
       },
       "camoGuide": {
-        "version": "v25r2",
-        "note": "军事/特殊迷彩已同步 CODMunity 的 6 把完整武器数据；其余武器为现有攻略估算，标「参考」的项以游戏内实测为准",
+        "version": "v25r3",
+        "note": "军事/特殊/完成主义迷彩已同步 CODMunity 的 6 把完整武器数据；其余武器为现有攻略估算，标「参考」的项以游戏内实测为准",
         "classes": {
           "突击步枪": {
             "military": {
@@ -1537,18 +1537,21 @@ module.exports = {
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
-                "image": "/assets/mw4camo/gold.webp"
+                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
+                "image": "/assets/mw4camo/gold.webp",
+                "estimate": false
               },
               {
                 "name": "铂金",
-                "text": "50次爆头击杀",
-                "image": "/assets/mw4camo/platinum.webp"
+                "text": "从背后击杀 25 名玩家；DMZ：从背后击杀 75 名敌人",
+                "image": "/assets/mw4camo/platinum.webp",
+                "estimate": false
               },
               {
                 "name": "和声间奏",
-                "text": "25次双杀",
-                "image": "/assets/mw4camo/harmonic-break.webp"
+                "text": "腰射击杀 50 名玩家；DMZ：腰射击杀 100 名敌人",
+                "image": "/assets/mw4camo/harmonic-break.webp",
+                "estimate": false
               },
               {
                 "name": "分歧",
@@ -1557,7 +1560,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "VEL46": {
             "maxLevel": "60",
@@ -1811,18 +1814,21 @@ module.exports = {
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
-                "image": "/assets/mw4camo/gold.webp"
+                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
+                "image": "/assets/mw4camo/gold.webp",
+                "estimate": false
               },
               {
                 "name": "铂金",
-                "text": "50次腰射击杀",
-                "image": "/assets/mw4camo/platinum.webp"
+                "text": "腰射击杀 125 名玩家；DMZ：腰射击杀 125 名敌人",
+                "image": "/assets/mw4camo/platinum.webp",
+                "estimate": false
               },
               {
                 "name": "和声间奏",
-                "text": "25次不换弹2次击杀",
-                "image": "/assets/mw4camo/harmonic-break.webp"
+                "text": "不换弹完成 2 杀，累计 25 次；DMZ：不换弹完成 2 杀，累计 50 次",
+                "image": "/assets/mw4camo/harmonic-break.webp",
+                "estimate": false
               },
               {
                 "name": "分歧",
@@ -1831,7 +1837,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "WARLORD": {
             "maxLevel": "60",
@@ -1925,18 +1931,21 @@ module.exports = {
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
-                "image": "/assets/mw4camo/gold.webp"
+                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
+                "image": "/assets/mw4camo/gold.webp",
+                "estimate": false
               },
               {
                 "name": "铂金",
-                "text": "15次不死3杀",
-                "image": "/assets/mw4camo/platinum.webp"
+                "text": "单局不死完成 3 杀，累计 15 次；DMZ：单局无伤完成 3 杀，累计 50 次",
+                "image": "/assets/mw4camo/platinum.webp",
+                "estimate": false
               },
               {
                 "name": "和声间奏",
-                "text": "25次不松扳机2次击杀",
-                "image": "/assets/mw4camo/harmonic-break.webp"
+                "text": "不松扳机完成 2 杀，累计 25 次；DMZ：不松扳机完成 2 杀，累计 75 次",
+                "image": "/assets/mw4camo/harmonic-break.webp",
+                "estimate": false
               },
               {
                 "name": "分歧",
@@ -1945,7 +1954,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "TYPE73": {
             "maxLevel": "65",
@@ -2089,18 +2098,21 @@ module.exports = {
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
-                "image": "/assets/mw4camo/gold.webp"
+                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
+                "image": "/assets/mw4camo/gold.webp",
+                "estimate": false
               },
               {
                 "name": "铂金",
-                "text": "75次卧倒击杀",
-                "image": "/assets/mw4camo/platinum.webp"
+                "text": "趴伏击杀 75 名玩家；DMZ：趴伏击杀 150 名敌人",
+                "image": "/assets/mw4camo/platinum.webp",
+                "estimate": false
               },
               {
                 "name": "和声间奏",
-                "text": "75次一枪一个",
-                "image": "/assets/mw4camo/harmonic-break.webp"
+                "text": "一枪击杀 75 名玩家；DMZ：一枪击杀 150 名敌人",
+                "image": "/assets/mw4camo/harmonic-break.webp",
+                "estimate": false
               },
               {
                 "name": "分歧",
@@ -2109,7 +2121,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "ORIS86": {
             "maxLevel": "70",
@@ -2253,18 +2265,21 @@ module.exports = {
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
-                "image": "/assets/mw4camo/gold.webp"
+                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
+                "image": "/assets/mw4camo/gold.webp",
+                "estimate": false
               },
               {
                 "name": "铂金",
-                "text": "75次卧倒击杀",
-                "image": "/assets/mw4camo/platinum.webp"
+                "text": "趴伏击杀 75 名玩家；DMZ：趴伏击杀 150 名敌人",
+                "image": "/assets/mw4camo/platinum.webp",
+                "estimate": false
               },
               {
                 "name": "和声间奏",
-                "text": "75次一枪一个",
-                "image": "/assets/mw4camo/harmonic-break.webp"
+                "text": "一枪击杀 75 名玩家；DMZ：一枪击杀 150 名敌人",
+                "image": "/assets/mw4camo/harmonic-break.webp",
+                "estimate": false
               },
               {
                 "name": "分歧",
@@ -2273,7 +2288,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "SIGNAL50": {
             "maxLevel": "74",
@@ -2367,18 +2382,21 @@ module.exports = {
             "completionist": [
               {
                 "name": "金",
-                "text": "单局15次击杀",
-                "image": "/assets/mw4camo/gold.webp"
+                "text": "单局击杀 15 名玩家；DMZ：单局击杀 100 名敌人",
+                "image": "/assets/mw4camo/gold.webp",
+                "estimate": false
               },
               {
                 "name": "铂金",
-                "text": "20次背后击杀",
-                "image": "/assets/mw4camo/platinum.webp"
+                "text": "从背后击杀 20 名玩家；DMZ：从背后击杀 75 名敌人",
+                "image": "/assets/mw4camo/platinum.webp",
+                "estimate": false
               },
               {
                 "name": "和声间奏",
-                "text": "40次腰射击杀",
-                "image": "/assets/mw4camo/harmonic-break.webp"
+                "text": "腰射击杀 40 名玩家；DMZ：腰射击杀 100 名敌人",
+                "image": "/assets/mw4camo/harmonic-break.webp",
+                "estimate": false
               },
               {
                 "name": "分歧",
@@ -2387,7 +2405,7 @@ module.exports = {
               }
             ],
             "mastery": "模式大师-霞流",
-            "note": "军事/特殊迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
+            "note": "军事/特殊/完成主义迷彩数据同步自 CODMunity（2026-10-21）；DMZ 为对应模式条件。"
           },
           "KARITP68": {
             "maxLevel": "28",

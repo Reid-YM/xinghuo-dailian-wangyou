@@ -201,7 +201,7 @@ public class FrontendNextPreviewController {
         // even when JavaScript is unavailable; the interactive shell alone only
         // contains loading placeholders. This fallback makes no API or DB writes.
         html = html.replace("<noscript><p>请启用 JavaScript 以使用服务大厅、询价和个人中心。</p></noscript>",
-                noScriptFallback(path));
+                noScriptFallback(path, originalMetadata));
         boolean privatePage = path.startsWith("/account") || path.equals("/records") || path.startsWith("/record/");
         String robotsPolicy = privatePage ? "noindex,nofollow" : "noindex,follow";
         {
@@ -278,7 +278,7 @@ public class FrontendNextPreviewController {
     }
 
     /** Static, route-scoped no-script content: never render another user's data here. */
-    private static String noScriptFallback(String path) {
+    private static String noScriptFallback(String path, Map<?, ?> model) {
         String heading;
         String detail;
         switch (path) {
@@ -312,6 +312,7 @@ public class FrontendNextPreviewController {
                 + "<h1>" + HtmlUtils.htmlEscape(heading) + "</h1>"
                 + "<p>" + HtmlUtils.htmlEscape(detail) + "</p>"
                 + "<p>使用服务筛选、提交表单和个人中心前，请启用 JavaScript。</p>"
+                + PublicCatalogFallback.markup(path, model)
                 + "<p><a href=\"/services\">服务大厅</a> · "
                 + "<a href=\"/guides\">攻略中心</a> · "
                 + "<a href=\"/rules\">服务规则</a> · "

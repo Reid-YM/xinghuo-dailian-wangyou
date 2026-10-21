@@ -46,9 +46,12 @@ function guideForClass(guide, weaponCode, guideDone, options) {
         return { key: g.key, title: g.title, note: 'DMZ 同样按武器等级解锁', items: g.items }
       }
       const items = g.items.map(function (item) {
-        const at = String(item.req || '').indexOf('DMZ：')
-        if (at < 0) return null
-        return Object.assign({}, item, { req: item.req.slice(at) })
+        const req = String(item.req || '')
+        const at = req.indexOf('DMZ：')
+        if (at >= 0) return Object.assign({}, item, { req: req.slice(at) })
+        // Divergence is a shared completionist requirement, not a mode-specific alternative.
+        if (g.key === 'completionist' && item.name === '分歧') return item
+        return null
       }).filter(Boolean)
       const base = String(g.title || '').split(' · ')[0] || '迷彩'
       return { key: g.key, title: base + ' · ' + items.length + ' 档', note: g.note || '', items: items }

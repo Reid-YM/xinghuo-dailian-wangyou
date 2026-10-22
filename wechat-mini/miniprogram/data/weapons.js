@@ -1432,10 +1432,10 @@ module.exports = {
                 "image": "/assets/mw4camo/special-KASTOV762-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Yellow",
                 "text": "腰射30次；DMZ：腰射100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-KASTOV762-3.webp"
               }
             ],
             "completionist": [
@@ -1810,10 +1810,10 @@ module.exports = {
                 "image": "/assets/mw4camo/special-X58NYX-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Lime",
                 "text": "爆头40次；DMZ：远射100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-X58NYX-3.webp"
               }
             ],
             "completionist": [
@@ -2191,7 +2191,7 @@ module.exports = {
                 "name": "White（白色）",
                 "text": "远射30次；DMZ：远射100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-white.webp"
+                "image": "/assets/mw4camo/special-MAR9-3.webp"
               }
             ],
             "completionist": [
@@ -2666,16 +2666,16 @@ module.exports = {
                 "image": "/assets/mw4camo/special-MOHAVE357-1.webp"
               },
               {
-                "name": "Gunmetal",
+                "name": "Wallpaper",
                 "text": "不装弹2累计15次；DMZ：不装弹2累计20次",
                 "estimate": false,
                 "image": "/assets/mw4camo/special-MOHAVE357-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Garland",
                 "text": "零距离30次；DMZ：零距离75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-MOHAVE357-3.webp"
               }
             ],
             "completionist": [

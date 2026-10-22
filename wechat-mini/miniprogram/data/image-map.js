@@ -176,5 +176,9 @@ module.exports = {
   "/assets/mw4camo/special-HAN86-3.webp": "/images/camo/special-HAN86-3.jpg",
   "/assets/mw4camo/special-KG7VULCAN-1.webp": "/images/camo/special-KG7VULCAN-1.jpg",
   "/assets/mw4camo/special-KG7VULCAN-2.webp": "/images/camo/special-KG7VULCAN-2.jpg",
-  "/assets/mw4camo/special-KG7VULCAN-3.webp": "/images/camo/special-KG7VULCAN-3.jpg"
+  "/assets/mw4camo/special-KG7VULCAN-3.webp": "/images/camo/special-KG7VULCAN-3.jpg",
+  "/assets/mw4camo/special-MAR9-3.webp": "/images/camo/special-MAR9-3.jpg",
+  "/assets/mw4camo/special-X58NYX-3.webp": "/images/camo/special-X58NYX-3.jpg",
+  "/assets/mw4camo/special-MOHAVE357-3.webp": "/images/camo/special-MOHAVE357-3.jpg",
+  "/assets/mw4camo/special-KASTOV762-3.webp": "/images/camo/special-KASTOV762-3.jpg"
 }

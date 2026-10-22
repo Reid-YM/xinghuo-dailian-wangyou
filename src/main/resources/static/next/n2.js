@@ -190,16 +190,8 @@
     if($('#hallSort'))$('#hallSort').value=state.sort;
     $$('.side .cat').forEach(node=>{const active=node.dataset.cat===state.category;node.classList.toggle('active',active);node.setAttribute('aria-pressed',String(active));});
     const options=$('.services .categoryOptions'),selected=options?.querySelector('.cat.active');
-    if(options?.clientWidth && selected){
-      const item=selected.getBoundingClientRect(),bounds=options.getBoundingClientRect();
-      if(options.scrollWidth>options.clientWidth){
-        if(item.left<bounds.left)options.scrollLeft-=bounds.left-item.left+4;
-        else if(item.right>bounds.right)options.scrollLeft+=item.right-bounds.right+4;
-      }
-      if(options.scrollHeight>options.clientHeight){
-        if(item.top<bounds.top)options.scrollTop-=bounds.top-item.top+4;
-        else if(item.bottom>bounds.bottom)options.scrollTop+=item.bottom-bounds.bottom+4;
-      }
+    if(options && selected){
+      selected.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
     }
   }
   function restoreFilters(){

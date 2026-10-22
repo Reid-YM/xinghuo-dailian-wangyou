@@ -150,7 +150,7 @@ const mergedKg = merged.camoGuide.weapons.KG7VULCAN
 assert.strictEqual(mergedKg.militaryTiles[0].name, '军事迷彩 1')
 assert.strictEqual(mergedKg.militaryTiles[0].req, '武器等级 13')
 const mergedKgSpecial = mergedKg.groups.filter(function (g) { return g.key === 'special' })[0]
-assert.strictEqual(mergedKgSpecial.items[0].image, '/images/camo/special-treeline.png')
+assert.strictEqual(mergedKgSpecial.items[0].image, '/images/camo/special-KG7VULCAN-1.jpg')
 assert.strictEqual(new Set(mergedKgSpecial.items.map(function (i) { return i.image })).size, 3)
 for (const code of ['KG7VULCAN', 'REZI12', 'ISONIGHTSHADE', 'FINNLMG', 'MAR9', 'SANG9MM']) {
   const guide = merged.camoGuide.weapons[code]

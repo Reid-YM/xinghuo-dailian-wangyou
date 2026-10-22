@@ -738,27 +738,7 @@
 .camo-guide-row.on .camo-guide-thumb {
   opacity: 0.7;
 }
-.camo-guide-checkbox {
-  position: absolute;
-  top: -8rpx;
-  left: -8rpx;
-  z-index: 2;
-  width: 34rpx;
-  height: 34rpx;
-  line-height: 30rpx;
-  text-align: center;
-  border: 2rpx solid #5f6673;
-  border-radius: 8rpx;
-  background: rgba(13, 15, 19, 0.92);
-  color: transparent;
-  font-size: 22rpx;
-  font-weight: 700;
-}
-.camo-guide-checkbox.on {
-  border-color: #c6f24e;
-  background: #c6f24e;
-  color: #0d0f13;
-}
+
 
 /* 没有实拍图的武器：借同类图并降低不透明度，明确是占位 */
 .w-img.fallback {
@@ -821,4 +801,25 @@
 .camo-preview-hint {
   font-size: 20rpx;
   color: #7f8794;
+}
+
+.camo-guide-tile-done {
+  position: absolute;
+  top: 6rpx;
+  right: 6rpx;
+  z-index: 2;
+  padding: 2rpx 7rpx;
+  border-radius: 999rpx;
+  background: #c6f24e;
+  color: #0d0f13;
+  font-size: 15rpx;
+  line-height: 22rpx;
+  font-weight: 700;
+}
+.camo-guide-done {
+  margin-left: auto;
+  color: #c6f24e;
+  font-size: 18rpx;
+  font-weight: 600;
+  white-space: nowrap;
 }

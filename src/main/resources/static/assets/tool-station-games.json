@@ -1236,22 +1236,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Smoke",
                 "text": "架枪20次；DMZ：架枪75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-HAN86-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Stormwave",
                 "text": "消音50次；DMZ：消音125次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-HAN86-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Red",
                 "text": "不死亡3累计10次；DMZ：无伤击杀3累计50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-HAN86-3.webp"
               }
             ],
             "completionist": [
@@ -1294,22 +1294,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Myriad",
                 "text": "零距离20次；DMZ：零距离75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-M4-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Green",
                 "text": "架枪20次；DMZ：架枪75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-M4-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Night Ops",
                 "text": "背身25次；DMZ：背身100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-M4-3.webp"
               }
             ],
             "completionist": [
@@ -1352,22 +1352,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Ponderosa",
                 "text": "不装弹2累计10次；DMZ：不装弹2累计30次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-HYEONBURST-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Red Rain",
                 "text": "远射20次；DMZ：远射75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-HYEONBURST-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Kitty Kaos",
                 "text": "全自动模式100次；DMZ：消音250次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-HYEONBURST-3.webp"
               }
             ],
             "completionist": [
@@ -1410,16 +1410,16 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Samnim",
                 "text": "不死亡3累计10次；DMZ：无伤击杀5累计25次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-KASTOV762-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Raster Aux",
                 "text": "远射20次；DMZ：远射75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-KASTOV762-2.webp"
               },
               {
                 "name": "特殊迷彩 3",
@@ -1478,22 +1478,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Dune Sea",
                 "text": "腰射20次；DMZ：腰射75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PATRIOTXMR-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Scorch",
                 "text": "装备消音50次；DMZ：装备消音125次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PATRIOTXMR-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Disperse",
                 "text": "远射30次；DMZ：远射100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PATRIOTXMR-3.webp"
               }
             ],
             "completionist": [
@@ -1549,19 +1549,19 @@
                 "name": "Asphalt（沥青）",
                 "text": "举枪瞄准50次；DMZ：举枪瞄准125次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-asphalt.webp"
+                "image": "/assets/mw4camo/special-ISONIGHTSHADE-1.webp"
               },
               {
                 "name": "Black Topo（黑色地形）",
                 "text": "双杀10次；DMZ：双杀30次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-black-topo.webp"
+                "image": "/assets/mw4camo/special-ISONIGHTSHADE-2.webp"
               },
               {
                 "name": "Brown（棕色）",
                 "text": "远射15次；DMZ：无伤击杀3累计50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-brown.webp"
+                "image": "/assets/mw4camo/special-ISONIGHTSHADE-3.webp"
               }
             ],
             "completionist": [
@@ -1604,22 +1604,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Jungle Shadow",
                 "text": "卧倒20次；DMZ：举枪瞄准125次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-VEL46-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Ghast",
                 "text": "卧倒20次；DMZ：卧倒100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-VEL46-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Gunmetal",
                 "text": "爆头20次；DMZ：爆头75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-VEL46-3.webp"
               }
             ],
             "completionist": [
@@ -1662,22 +1662,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Stellation",
                 "text": "装备消音50次；DMZ：装备消音125次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-WZ55STRIGA-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Rattlesnake",
                 "text": "跳跃20次；DMZ：跳跃50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-WZ55STRIGA-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Dark Tan",
                 "text": "零距离40次；DMZ：零距离100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-WZ55STRIGA-3.webp"
               }
             ],
             "completionist": [
@@ -1720,22 +1720,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Blackwell",
                 "text": "双杀10次；DMZ：双杀30次（玩家）",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PPSH41-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Iron",
                 "text": "远射20次；DMZ：远射75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PPSH41-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Currents",
                 "text": "举枪瞄准100次；DMZ：举枪瞄准250次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PPSH41-3.webp"
               }
             ],
             "completionist": [
@@ -1788,16 +1788,16 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Sniper Veil",
                 "text": "移动20次；DMZ：移动75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-X58NYX-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Carbonated",
                 "text": "远射20次；DMZ：远射75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-X58NYX-2.webp"
               },
               {
                 "name": "特殊迷彩 3",
@@ -1859,19 +1859,19 @@
                 "name": "Struck Oil（钻油）",
                 "text": "零距离20次；DMZ：零距离75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-struck-oil.webp"
+                "image": "/assets/mw4camo/special-REZI12-1.webp"
               },
               {
                 "name": "Brushstroke（笔触）",
                 "text": "远射10次；DMZ：远射50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-brushstroke.webp"
+                "image": "/assets/mw4camo/special-REZI12-2.webp"
               },
               {
                 "name": "White Pine（白松）",
                 "text": "跳跃40次；DMZ：跳跃100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-white-pine.webp"
+                "image": "/assets/mw4camo/special-REZI12-3.webp"
               }
             ],
             "completionist": [
@@ -1914,22 +1914,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Redshift",
                 "text": "移动20次；DMZ：移动75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-WARLORD-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Corrupted Clay",
                 "text": "双杀10次；DMZ：双杀30次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-WARLORD-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Magma Ire",
                 "text": "卧倒50次；DMZ：卧倒125次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-WARLORD-3.webp"
               }
             ],
             "completionist": [
@@ -1985,19 +1985,19 @@
                 "name": "Desert Tactics（沙漠战术）",
                 "text": "零距离20次；DMZ：零距离75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-desert-tactics.webp"
+                "image": "/assets/mw4camo/special-FINNLMG-1.webp"
               },
               {
                 "name": "Green Tiger（绿虎）",
                 "text": "不装弹2累计10次；DMZ：不装弹2累计30次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-green-tiger.webp"
+                "image": "/assets/mw4camo/special-FINNLMG-2.webp"
               },
               {
                 "name": "Thunderhead（雷暴云砧）",
                 "text": "远射30次；DMZ：远射100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-thunderhead.webp"
+                "image": "/assets/mw4camo/special-FINNLMG-3.webp"
               }
             ],
             "completionist": [
@@ -2040,22 +2040,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Ash Pine",
                 "text": "架枪20次；DMZ：架枪20次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-TYPE73-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Outcrop",
                 "text": "双杀10次；DMZ：双杀10次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-TYPE73-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Foxtrail",
                 "text": "爆头40次；DMZ：爆头40次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-TYPE73-3.webp"
               }
             ],
             "completionist": [
@@ -2098,22 +2098,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Phantom Flux",
                 "text": "腰射20次；DMZ：腰射20次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-APOC338-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Mineral",
                 "text": "远射20次；DMZ：远射20次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-APOC338-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Tiger Swipe",
                 "text": "卧倒100次；DMZ：卧倒100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-APOC338-3.webp"
               }
             ],
             "completionist": [
@@ -2169,13 +2169,13 @@
                 "name": "Mangrove（红树林）",
                 "text": "架枪20次；DMZ：架枪75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-mangrove.webp"
+                "image": "/assets/mw4camo/special-MAR9-1.webp"
               },
               {
                 "name": "Fungal Grid（菌格）",
                 "text": "蹲下25次；DMZ：蹲下75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-fungal-grid.webp"
+                "image": "/assets/mw4camo/special-MAR9-2.webp"
               },
               {
                 "name": "White（白色）",
@@ -2224,22 +2224,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Hibiscus",
                 "text": "瞬狙10次；DMZ：瞬狙50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-ORIS86-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Fire Topo",
                 "text": "双杀20次；DMZ：双杀50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-ORIS86-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Deep Space",
                 "text": "不死亡3累计15次；DMZ：不死亡3累计50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-ORIS86-3.webp"
               }
             ],
             "completionist": [
@@ -2282,22 +2282,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Ice Sheer",
                 "text": "爆头25次；DMZ：爆头75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-MOSINNAGANT-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Fractal Snow",
                 "text": "远射15次；DMZ：不装弹2累计30次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-MOSINNAGANT-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Sticker Shock",
                 "text": "爆头20次；DMZ：集中注意力时250次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-MOSINNAGANT-3.webp"
               }
             ],
             "completionist": [
@@ -2353,19 +2353,19 @@
                 "name": "Treeline（林线）",
                 "text": "腰射10次；DMZ：无伤2次累计30次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-treeline.webp"
+                "image": "/assets/mw4camo/special-KG7VULCAN-1.webp"
               },
               {
                 "name": "Spidersilk（蛛丝）",
                 "text": "爆头20次；DMZ：集中注意力时75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-spidersilk.webp"
+                "image": "/assets/mw4camo/special-KG7VULCAN-2.webp"
               },
               {
                 "name": "Tension（张力）",
                 "text": "无伤2累计20次；DMZ：无伤完成0次击杀累计25次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-tension.webp"
+                "image": "/assets/mw4camo/special-KG7VULCAN-3.webp"
               }
             ],
             "completionist": [
@@ -2408,22 +2408,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Anaconda",
                 "text": "五秒内击杀2名10次；DMZ：五秒内击杀2名10次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-SIGNAL50-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Ripplewave",
                 "text": "瞬狙20次；DMZ：瞬狙20次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-SIGNAL50-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Sunburn",
                 "text": "远射40次；DMZ：远射40次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-SIGNAL50-3.webp"
               }
             ],
             "completionist": [
@@ -2479,19 +2479,19 @@
                 "name": "Autumn（秋）",
                 "text": "举枪瞄准25次；DMZ：举枪瞄准75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-autumn.webp"
+                "image": "/assets/mw4camo/special-SANG9MM-1.webp"
               },
               {
                 "name": "Snakeskin（蛇皮）",
                 "text": "不死亡3累计5次；DMZ：不受伤3累计15次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-snakeskin.webp"
+                "image": "/assets/mw4camo/special-SANG9MM-2.webp"
               },
               {
                 "name": "Space Time（时空）",
                 "text": "双持50次；DMZ：双持125次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special-space-time.webp"
+                "image": "/assets/mw4camo/special-SANG9MM-3.webp"
               }
             ],
             "completionist": [
@@ -2534,22 +2534,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Off Grid",
                 "text": "下挂15次；DMZ：下挂50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-KARITP68-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Urban Flamingo",
                 "text": "零距离15次；DMZ：零距离击杀50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-KARITP68-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Smokescreen",
                 "text": "消音50次；DMZ：消音125次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-KARITP68-3.webp"
               }
             ],
             "completionist": [
@@ -2592,22 +2592,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Frosted",
                 "text": "爆头20次；DMZ：爆头75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-50GS-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Splatter Ops",
                 "text": "双杀7次；DMZ：双杀20次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-50GS-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Red Tiger",
                 "text": "零距离20次；DMZ：零距离75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-50GS-3.webp"
               }
             ],
             "completionist": [
@@ -2650,16 +2650,16 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Miami",
                 "text": "一枪一个15次；DMZ：一枪一个50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-MOHAVE357-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Gunmetal",
                 "text": "不装弹2累计15次；DMZ：不装弹2累计20次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-MOHAVE357-2.webp"
               },
               {
                 "name": "特殊迷彩 3",
@@ -2708,22 +2708,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Digi Bark",
                 "text": "趴下击杀10次；DMZ：趴下击杀25次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-RPG-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Stone Bits",
                 "text": "远射10次；DMZ：远射25次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-RPG-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Bubblegum Ops",
                 "text": "摧毁30个连杀奖励或道具；DMZ：摧毁50个连杀奖励或道具",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-RPG-3.webp"
               }
             ],
             "completionist": [
@@ -2776,22 +2776,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Dark Moss",
                 "text": "40毫米下挂25次；DMZ：40毫米下挂75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-ODEN-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Shale",
                 "text": "不装弹2累计10次；DMZ：不装弹2累计30次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-ODEN-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Hot Rod",
                 "text": "举枪瞄准100次；DMZ：举枪瞄准250次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-ODEN-3.webp"
               }
             ],
             "completionist": [
@@ -2844,22 +2844,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Oni",
                 "text": "零距离20次；DMZ：零距离75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-CRONENSQUALL-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Urban Smoke",
                 "text": "架枪20次；DMZ：架枪75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-CRONENSQUALL-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Optical Reverb",
                 "text": "不死亡3累计15次；DMZ：举枪瞄准50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-CRONENSQUALL-3.webp"
               }
             ],
             "completionist": [
@@ -2912,22 +2912,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Splinter Rock",
                 "text": "远射20次；DMZ：远射75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-AXION-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Sunset Tropic",
                 "text": "40毫米下挂25次；DMZ：40毫米下挂75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-AXION-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Cyan",
                 "text": "不装弹2累计25次；DMZ：不装弹2累计50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-AXION-3.webp"
               }
             ],
             "completionist": [
@@ -2980,22 +2980,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Raster Lite",
                 "text": "跳跃时击杀25次；DMZ：跳跃时击杀100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-COMBATKNIFE-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Stockpile",
                 "text": "强力近身处决25次；DMZ：强力近身处决75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-COMBATKNIFE-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Deathbed",
                 "text": "五秒内击杀2名25次；DMZ：五秒内击杀2名50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-COMBATKNIFE-3.webp"
               }
             ],
             "completionist": [
@@ -3048,22 +3048,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Thicket",
                 "text": "双杀5次；DMZ：双杀15次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-JOKR-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Tectonic",
                 "text": "远射10次；DMZ：远射20次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-JOKR-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Blue Tiger",
                 "text": "摧毁30个连杀奖励或道具；DMZ：摧毁50个连杀奖励或道具",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-JOKR-3.webp"
               }
             ],
             "completionist": [
@@ -3116,22 +3116,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Night Snow",
                 "text": "直接击杀25次；DMZ：直接击杀25次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PM40-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Recursive",
                 "text": "不装弹2累计5次；DMZ：不装弹2累计20次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PM40-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Urban Standard",
                 "text": "移动时击杀40次；DMZ：移动时击杀100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PM40-3.webp"
               }
             ],
             "completionist": [
@@ -3184,22 +3184,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Dry Brush",
                 "text": "不死亡3累计10次；DMZ：架枪75次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-ATALOS57-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Backcountry",
                 "text": "架枪20次；DMZ：无伤3次累计25次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-ATALOS57-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Dread Plague",
                 "text": "五秒内击杀2名20次；DMZ：五秒内击杀2名50次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-ATALOS57-3.webp"
               }
             ],
             "completionist": [
@@ -3242,22 +3242,22 @@
             },
             "special": [
               {
-                "name": "特殊迷彩 1",
+                "name": "Frontier",
                 "text": "直接击杀10次；DMZ：直接击杀25次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PILA-1.webp"
               },
               {
-                "name": "特殊迷彩 2",
+                "name": "Sandwash",
                 "text": "双杀5次；DMZ：双杀100次",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PILA-2.webp"
               },
               {
-                "name": "特殊迷彩 3",
+                "name": "Digital Fall",
                 "text": "摧毁30个连杀奖励或道具；DMZ：摧毁50个连杀奖励或道具",
                 "estimate": false,
-                "image": "/assets/mw4camo/special.webp"
+                "image": "/assets/mw4camo/special-PILA-3.webp"
               }
             ],
             "completionist": [

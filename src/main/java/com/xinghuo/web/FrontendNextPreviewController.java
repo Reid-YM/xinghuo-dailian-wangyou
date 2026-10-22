@@ -214,6 +214,18 @@ public class FrontendNextPreviewController {
                         "</nav>\n\n" + serverRenderedGuides + "\n\n<section class=\"page\"");
             }
         }
+        // The service hall uses the same public-only server fallback. Keep the
+        // interactive shell hidden until the existing catalog API has hydrated it.
+        if ("/services".equals(path)) {
+            String serviceMarkup = PublicCatalogFallback.markup(path, originalMetadata);
+            if (!serviceMarkup.isBlank()) {
+                String serverRenderedServices = "<section id=\"n23-services-ssr\" class=\"shell\" "
+                        + "aria-label=\"服务大厅服务端内容\" style=\"padding:112px 0 32px\">"
+                        + serviceMarkup + "</section>";
+                html = html.replace("<section class=\"page\" data-page=\"services\"",
+                        serverRenderedServices + "\n\n<section class=\"page\" style=\"display:none\" data-page=\"services\"");
+            }
+        }
         boolean privatePage = path.startsWith("/account") || path.equals("/records") || path.startsWith("/record/");
         String robotsPolicy = privatePage ? "noindex,nofollow" : "noindex,follow";
         {
@@ -324,7 +336,8 @@ public class FrontendNextPreviewController {
                 + "<h1>" + HtmlUtils.htmlEscape(heading) + "</h1>"
                 + "<p>" + HtmlUtils.htmlEscape(detail) + "</p>"
                 + "<p>使用服务筛选、提交表单和个人中心前，请启用 JavaScript。</p>"
-                + ("/guides".equals(path) ? "" : PublicCatalogFallback.markup(path, model))
+                + ("/guides".equals(path) || "/services".equals(path)
+                        ? "" : PublicCatalogFallback.markup(path, model))
                 + "<p><a href=\"/services\">服务大厅</a> · "
                 + "<a href=\"/guides\">攻略中心</a> · "
                 + "<a href=\"/rules\">服务规则</a> · "

@@ -190,16 +190,8 @@
     if($('#hallSort'))$('#hallSort').value=state.sort;
     $$('.side .cat').forEach(node=>{const active=node.dataset.cat===state.category;node.classList.toggle('active',active);node.setAttribute('aria-pressed',String(active));});
     const options=$('.services .categoryOptions'),selected=options?.querySelector('.cat.active');
-    if(options?.clientWidth && selected){
-      const item=selected.getBoundingClientRect(),bounds=options.getBoundingClientRect();
-      if(options.scrollWidth>options.clientWidth){
-        if(item.left<bounds.left)options.scrollLeft-=bounds.left-item.left+4;
-        else if(item.right>bounds.right)options.scrollLeft+=item.right-bounds.right+4;
-      }
-      if(options.scrollHeight>options.clientHeight){
-        if(item.top<bounds.top)options.scrollTop-=bounds.top-item.top+4;
-        else if(item.bottom>bounds.bottom)options.scrollTop+=item.bottom-bounds.bottom+4;
-      }
+    if(options && selected){
+      selected.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
     }
   }
   function restoreFilters(){
@@ -303,6 +295,7 @@
     item.classList.add('active');
     $$('.services .side .cat').forEach(row=>row.setAttribute('aria-pressed',String(row===item)));
     state.category=item.dataset.cat||'all';
+    syncFilters();
     applyFilter();
   });
 
@@ -351,6 +344,13 @@
       if(!Array.isArray(value))throw new Error('服务目录格式不正确');
       state.services=value;restoreFilters();renderServices();
       grid?.setAttribute('aria-busy','false');
+      // Once the real public service API succeeds, replace the temporary SSR list
+      // with the interactive cards. If the request fails, the SSR links stay visible.
+      const serverRenderedHall=$('#n23-services-ssr');
+      if(serverRenderedHall){
+        serverRenderedHall.remove();
+        $('.page[data-page="services"]')?.style.removeProperty('display');
+      }
       window.XHFrontendShell?.updateServices?.(state.services);
       if(state.catalog)populateQuote();
       status('服务已读取，正在核对游戏分类…','loading');
@@ -358,6 +358,9 @@
       if(request===loadRequest){
         grid?.setAttribute('aria-busy','false');
         if(!hadServices){grid?.replaceChildren(make('p','','服务目录暂时无法读取，请重试。'));window.XHFrontendShell?.dataUnavailable?.('nextHomeServices');}
+        // If the canonical page is showing SSR links, reveal the interactive shell
+        // as well so the failure status and retry control remain usable.
+        if($('#n23-services-ssr'))$('.page[data-page="services"]')?.style.removeProperty('display');
       }
       throw error;
     });

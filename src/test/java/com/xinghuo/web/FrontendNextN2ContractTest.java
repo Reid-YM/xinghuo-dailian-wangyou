@@ -29,6 +29,9 @@ class FrontendNextN2ContractTest {
         assertTrue(js.contains("getJson('/api/services',controller.signal)"));
         assertTrue(js.contains("method:'GET'"));
         assertTrue(js.contains("Promise.allSettled"));
+        assertTrue(js.contains("const serverRenderedHall=$('#n23-services-ssr');"));
+        assertTrue(js.contains("serverRenderedHall.remove();"));
+        assertTrue(js.contains("style.removeProperty('display')"));
         assertFalse(js.contains("/api/quote"));
         assertFalse(js.contains("method:'POST'"));
         assertFalse(js.contains("innerHTML"));

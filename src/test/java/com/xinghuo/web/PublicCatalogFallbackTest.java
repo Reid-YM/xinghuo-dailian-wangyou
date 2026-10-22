@@ -25,6 +25,14 @@ class PublicCatalogFallbackTest {
         String html = new FrontendNextPreviewController().frontendNext(request).getBody();
 
         assertTrue(html.contains("<h2>公开服务目录</h2>"));
+        assertTrue(html.contains("<section id=\"n23-services-ssr\""));
+        assertTrue(html.contains("<section class=\"page\" style=\"display:none\" data-page=\"services\""));
+        int ssrStart = html.indexOf("<section id=\"n23-services-ssr\"");
+        int interactivePageStart = html.indexOf("<section class=\"page\" style=\"display:none\" data-page=\"services\"", ssrStart);
+        assertTrue(ssrStart >= 0 && interactivePageStart > ssrStart);
+        String visibleFallback = html.substring(ssrStart, interactivePageStart);
+        assertTrue(visibleFallback.contains("href=\"/service/mw4-camo\""));
+        assertFalse(visibleFallback.contains("private-service"));
         assertTrue(html.contains("href=\"/service/mw4-camo\""));
         assertTrue(html.contains("&lt;img src=x onerror=alert(1)&gt;"));
         assertTrue(html.contains("&lt;/noscript&gt;&lt;script&gt;"));

@@ -303,6 +303,7 @@
     item.classList.add('active');
     $$('.services .side .cat').forEach(row=>row.setAttribute('aria-pressed',String(row===item)));
     state.category=item.dataset.cat||'all';
+    syncFilters();
     applyFilter();
   });
 

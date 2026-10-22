@@ -222,9 +222,8 @@ public class FrontendNextPreviewController {
                 String serverRenderedServices = "<section id=\"n23-services-ssr\" class=\"shell\" "
                         + "aria-label=\"服务大厅服务端内容\" style=\"padding:112px 0 32px\">"
                         + serviceMarkup + "</section>";
-                html = html.replace("</nav>\n\n<section class=\"page\" data-page=\"services\"",
-                        "</nav>\n\n" + serverRenderedServices
-                                + "\n\n<section class=\"page\" style=\"display:none\" data-page=\"services\"");
+                html = html.replace("<section class=\"page\" data-page=\"services\"",
+                        serverRenderedServices + "\n\n<section class=\"page\" style=\"display:none\" data-page=\"services\"");
             }
         }
         boolean privatePage = path.startsWith("/account") || path.equals("/records") || path.startsWith("/record/");

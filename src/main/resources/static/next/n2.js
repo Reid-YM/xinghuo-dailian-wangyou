@@ -365,6 +365,9 @@
       if(request===loadRequest){
         grid?.setAttribute('aria-busy','false');
         if(!hadServices){grid?.replaceChildren(make('p','','服务目录暂时无法读取，请重试。'));window.XHFrontendShell?.dataUnavailable?.('nextHomeServices');}
+        // If the canonical page is showing SSR links, reveal the interactive shell
+        // as well so the failure status and retry control remain usable.
+        if($('#n23-services-ssr'))$('.page[data-page="services"]')?.style.removeProperty('display');
       }
       throw error;
     });

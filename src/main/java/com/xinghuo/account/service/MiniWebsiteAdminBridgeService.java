@@ -197,19 +197,25 @@ public class MiniWebsiteAdminBridgeService {
         }
         Quote existing = entityManager.find(Quote.class, id, LockModeType.PESSIMISTIC_WRITE);
         if (existing == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "询价不存在");
-        boolean allowed = switch (existing.getStatus()) {
-            case NEW -> requested == Quote.Status.CONTACTED || requested == Quote.Status.CANCELLED;
-            case CONTACTED -> requested == Quote.Status.QUOTED
-                    || requested == Quote.Status.CLOSED || requested == Quote.Status.CANCELLED;
-            case QUOTED -> requested == Quote.Status.CLOSED || requested == Quote.Status.CANCELLED;
-            case CLOSED, CANCELLED, CONVERTED -> false;
-        };
+        boolean allowed = legalQuoteTransition(existing.getStatus(), requested);
         if (!allowed) throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "询价状态已变化或不允许该流转，请刷新后核对");
         ApiDtos.QuoteAdminResponse saved = quotes.updateStatus(id,
                 new ApiDtos.QuoteStatusUpdate(requested.name(), reason.trim()),
                 "mini:" + actor.username(), request);
         return MiniQuoteView.from(saved);
+    }
+
+    /** Finalized, cancelled and converted quotes cannot be resurrected from the mini UI. */
+    static boolean legalQuoteTransition(Quote.Status current, Quote.Status requested) {
+        if (current == null || requested == null) return false;
+        return switch (current) {
+            case NEW -> requested == Quote.Status.CONTACTED || requested == Quote.Status.CANCELLED;
+            case CONTACTED -> requested == Quote.Status.QUOTED
+                    || requested == Quote.Status.CLOSED || requested == Quote.Status.CANCELLED;
+            case QUOTED -> requested == Quote.Status.CLOSED || requested == Quote.Status.CANCELLED;
+            case CLOSED, CANCELLED, CONVERTED -> false;
+        };
     }
 
     private BoundAdmin require(String code, String needed) {

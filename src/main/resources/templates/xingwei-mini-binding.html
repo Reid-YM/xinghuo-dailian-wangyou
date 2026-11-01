@@ -18,27 +18,4 @@ button{background:#c6f24e;border:0;margin-right:8px;cursor:pointer}
 <input id="pair" type="text" maxlength="8" inputmode="numeric" autocomplete="off" placeholder="请输入八位数字">
 <div><button id="confirm">确认绑定</button><button id="revoke">解除当前登录账号绑定</button></div>
 <p id="result" role="status"></p></section>
-<script th:inline="javascript">
-const token=document.querySelector('meta[name="_csrf"]').content;
-const header=document.querySelector('meta[name="_csrf_header"]').content;
-async function act(path,body){
- const out=document.getElementById('result');out.textContent='处理中…';
- try{
-  const res=await fetch(path,{method:'POST',credentials:'same-origin',
-    headers:{'Content-Type':'application/json',[header]:token},
-    body:JSON.stringify(body||{})});
-  const data=await res.json().catch(()=>({}));
-  out.textContent=data.message||(!res.ok?'操作失败 HTTP '+res.status:'操作成功');
- }catch(e){out.textContent='网络失败，请稍后重试'}
-}
-document.getElementById('confirm').addEventListener('click',()=>{
- const code=document.getElementById('pair').value.trim();
- if(!/^[0-9]{8}$/.test(code)){document.getElementById('result').textContent='请输入八位数字';return}
- act('/api/admin/xingwei/mini-binding/confirm',{code});
-});
-document.getElementById('revoke').addEventListener('click',()=>{
- if(window.confirm('确定解除当前网站管理员的微信绑定吗？')){
-  act('/api/admin/xingwei/mini-binding/revoke',{});
- }
-});
-</script></main></body></html>
+<script src="/assets/mini-admin-binding.js" defer></script></main></body></html>

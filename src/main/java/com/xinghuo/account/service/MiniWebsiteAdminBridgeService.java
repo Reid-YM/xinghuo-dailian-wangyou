@@ -92,7 +92,7 @@ public class MiniWebsiteAdminBridgeService {
             String code = String.format(java.util.Locale.ROOT, "%08d", RANDOM.nextInt(100_000_000));
             try {
                 jdbc.update("INSERT INTO xw_mini_admin_challenges (code_hash, mini_openid_hash, expires_at) " +
-                        "VALUES (?, ?, CURRENT_TIMESTAMP + INTERVAL '5 minutes')", sha(code), digest);
+                        "VALUES (?, ?, DATE_ADD(CURRENT_TIMESTAMP(6), INTERVAL 5 MINUTE))", sha(code), digest);
                 return new Challenge(code, 300);
             } catch (DataIntegrityViolationException collision) {
                 // Extremely unlikely eight-digit collision. Generate a different one.

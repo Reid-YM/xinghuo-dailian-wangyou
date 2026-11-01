@@ -65,6 +65,7 @@ class QuoteServiceCharacterizationTest {
         QuoteRepository repo = mock(QuoteRepository.class);
         UploadService uploads = mock(UploadService.class);
         Quote existing = quote(Quote.Status.QUOTED);
+        existing.setCustomerAccountId(7L);
         when(repo.findByIdempotencyKey("same-key")).thenReturn(Optional.of(existing));
         QuoteService service = new QuoteService(repo, uploads, mock(AuditService.class), mock(OrderService.class));
 
@@ -77,6 +78,24 @@ class QuoteServiceCharacterizationTest {
         assertEquals(existing.getId(), response.id());
         assertEquals(existing.getBusinessNo(), response.businessNo());
         assertEquals("QUOTED", response.status());
+        verify(repo, never()).save(org.mockito.ArgumentMatchers.any(Quote.class));
+        verify(uploads, never()).bind(org.mockito.ArgumentMatchers.any(), eq("QUOTE"), anyString());
+    }
+
+    @Test
+    void idempotencyKeyCannotRevealAnotherAccountsExistingQuote() {
+        QuoteRepository repo = mock(QuoteRepository.class);
+        UploadService uploads = mock(UploadService.class);
+        Quote existing = quote(Quote.Status.QUOTED);
+        existing.setCustomerAccountId(7L);
+        when(repo.findByIdempotencyKey("same-key")).thenReturn(Optional.of(existing));
+        QuoteService service = new QuoteService(repo, uploads, mock(AuditService.class), mock(OrderService.class));
+
+        assertThrows(BadRequestException.class, () -> service.create(
+                request(null), "same-key", "other-ip", 8L));
+        assertThrows(BadRequestException.class, () -> service.create(
+                request(null), "same-key", "anonymous-ip", null));
+
         verify(repo, never()).save(org.mockito.ArgumentMatchers.any(Quote.class));
         verify(uploads, never()).bind(org.mockito.ArgumentMatchers.any(), eq("QUOTE"), anyString());
     }

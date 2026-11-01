@@ -41,6 +41,31 @@ public class MiniWebsiteAdminController {
         limiter.check("mini:admin:me:" + RequestUtils.clientIp(request), 35, Duration.ofMinutes(15));
         return bridge.me(body.loginCode());
     }
+    public record QuoteChange(@NotBlank String loginCode, @NotBlank String id,
+                              @NotBlank String status, @NotBlank String reason) {}
+
+    @PostMapping("/quotes")
+    public List<MiniWebsiteAdminBridgeService.MiniQuoteView> quotes(@Valid @RequestBody Code body,
+                                                                     HttpServletRequest request) {
+        limiter.check("mini:admin:quotes:" + RequestUtils.clientIp(request), 30, Duration.ofMinutes(15));
+        return bridge.listQuotes(body.loginCode());
+    }
+
+    @PostMapping("/quotes/update")
+    public MiniWebsiteAdminBridgeService.MiniQuoteView updateQuote(
+            @Valid @RequestBody QuoteChange body, HttpServletRequest request) {
+        limiter.check("mini:admin:quotes:update:" + RequestUtils.clientIp(request),
+                10, Duration.ofMinutes(15));
+        java.util.UUID id;
+        try {
+            id = java.util.UUID.fromString(body.id());
+        } catch (IllegalArgumentException ex) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "询价标识格式无效");
+        }
+        return bridge.updateQuote(body.loginCode(), id, body.status(), body.reason(), request);
+    }
+
     @PostMapping("/orders")
     public List<MiniWebsiteAdminBridgeService.MiniOrderView> orders(@Valid @RequestBody Code body,
                                                                      HttpServletRequest request) {

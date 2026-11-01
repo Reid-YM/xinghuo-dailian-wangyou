@@ -54,6 +54,11 @@ public class QuoteService {
         Optional<Quote> old = repo.findByIdempotencyKey(key);
         if (old.isPresent()) {
             Quote q = old.get();
+            // An idempotency key must never reveal a quote belonging to another
+            // account (including an anonymous request changing to a linked login).
+            if (!java.util.Objects.equals(q.getCustomerAccountId(), customerAccountId)) {
+                throw new BadRequestException("该询价请求标识已由其他账号使用，请重新提交");
+            }
             ensureBusinessNo(q);
             return quoteResponse(q);
         }

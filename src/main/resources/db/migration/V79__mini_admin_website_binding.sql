@@ -1,17 +1,21 @@
--- Mini admin access is always confirmed inside the authenticated website admin session.
--- Store salted-independent SHA-256 digests only; never persist a wx.login code or browser cookie.
+-- 星火小程序管理员绑定：MySQL 8 / InnoDB；仅新增表，无生产数据改写。
+-- 微信 OpenID 和八位短码只保存 SHA-256 摘要。
 CREATE TABLE xw_mini_admin_challenges (
-  code_hash CHAR(64) PRIMARY KEY,
+  code_hash CHAR(64) NOT NULL PRIMARY KEY,
   mini_openid_hash CHAR(64) NOT NULL,
-  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  consumed_at TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE INDEX idx_xw_mini_admin_challenges_expiry ON xw_mini_admin_challenges(expires_at);
+  expires_at DATETIME(6) NOT NULL,
+  consumed_at DATETIME(6) NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  KEY idx_xw_mini_admin_challenges_expiry (expires_at),
+  KEY idx_xw_mini_admin_challenges_openid (mini_openid_hash, consumed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='小程序管理员绑定短码，不保存明文';
 
 CREATE TABLE xw_mini_admin_bindings (
-  admin_user_id BIGINT PRIMARY KEY REFERENCES admin_users(id) ON DELETE CASCADE,
-  mini_openid_hash CHAR(64) NOT NULL UNIQUE,
+  admin_user_id BIGINT NOT NULL PRIMARY KEY,
+  mini_openid_hash CHAR(64) NOT NULL,
   admin_auth_version BIGINT NOT NULL,
-  bound_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+  bound_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  UNIQUE KEY uk_xw_mini_admin_binding_openid (mini_openid_hash),
+  CONSTRAINT fk_xw_mini_admin_binding_user FOREIGN KEY (admin_user_id)
+    REFERENCES admin_users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='网站管理员与小程序微信身份显式绑定';

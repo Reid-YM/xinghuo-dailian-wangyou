@@ -1,5 +1,7 @@
 package com.xinghuo.account.service;
 
+import com.xinghuo.account.dto.AccountDtos;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xinghuo.account.model.Account;
@@ -164,6 +166,27 @@ public class WeChatMiniBridgeService {
             throw AccountException.badRequest("PAIR_EXPIRED", "登录码已失效，请重新获取");
         }
         return account;
+    }
+
+    /** 网站服务端验证一次性微信登录码，严禁让客户端指定账户 ID。 */
+    @Transactional(readOnly = true)
+    public Long requireLinkedAccountId(String loginCode) {
+        MiniIdentity mini = exchange(loginCode);
+        Account account = findLinked(mini);
+        if (account == null || !account.isLoginable()) throw AccountException.unauthenticated();
+        return account.getId();
+    }
+
+    /** 已关联网站账号的本人订单列表，不接收客户端传入的用户 ID。 */
+    @Transactional(readOnly = true)
+    public AccountDtos.OrderListResponse miniOrders(String loginCode, int page, int size) {
+        Long accountId = requireLinkedAccountId(loginCode);
+        int safePage = Math.max(0, Math.min(page, 50));
+        int safeSize = Math.max(1, Math.min(size, 50));
+        return new AccountDtos.OrderListResponse(
+                orders.listOrders(accountId, safePage, safeSize)
+                        .stream().map(AccountDtos.OrderItem::of).toList(),
+                orders.countOrders(accountId), safePage, safeSize);
     }
 
     @Transactional(readOnly = true)

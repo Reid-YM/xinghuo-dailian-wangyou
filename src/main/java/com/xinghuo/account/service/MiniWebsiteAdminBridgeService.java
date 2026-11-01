@@ -5,6 +5,8 @@ import com.xinghuo.security.XingweiPermissionGuard;
 import com.xinghuo.service.AuditService;
 import com.xinghuo.service.OrderService;
 import com.xinghuo.service.QuoteService;
+import com.xinghuo.model.AuditLog;
+import com.xinghuo.repository.AuditLogRepository;
 import com.xinghuo.model.Quote;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
@@ -36,17 +38,19 @@ public class MiniWebsiteAdminBridgeService {
     private final XingweiPermissionGuard permission;
     private final OrderService orders;
     private final QuoteService quotes;
+    private final AuditLogRepository auditLogRepository;
     private final EntityManager entityManager;
     private final AuditService audits;
 
     public MiniWebsiteAdminBridgeService(JdbcTemplate jdbc, WeChatMiniBridgeService wechat,
             XingweiPermissionGuard permission, OrderService orders, QuoteService quotes,
-            EntityManager entityManager, AuditService audits) {
+            AuditLogRepository auditLogRepository, EntityManager entityManager, AuditService audits) {
         this.jdbc = jdbc;
         this.wechat = wechat;
         this.permission = permission;
         this.orders = orders;
         this.quotes = quotes;
+        this.auditLogRepository = auditLogRepository;
         this.entityManager = entityManager;
         this.audits = audits;
     }
@@ -54,7 +58,8 @@ public class MiniWebsiteAdminBridgeService {
     public record Challenge(String code, int expiresInSeconds) {}
     public record MiniAdminView(boolean linked, String username, boolean canViewOrders,
                                 boolean canManageOrders, boolean canViewQuotes,
-                                boolean canManageQuotes, String dataScope) {}
+                                boolean canManageQuotes, boolean canConvertQuotes,
+                                boolean canViewAudit, String dataScope) {}
     public record MiniOrderView(String orderNo, String businessNo, String status,
                                 Integer progressPercent, String progressText, String customerNote,
                                 String updatedAt, long version) {
@@ -140,14 +145,16 @@ public class MiniWebsiteAdminBridgeService {
 
     public MiniAdminView me(String loginCode) {
         BoundAdmin bound = lookup(loginCode);
-        if (bound == null) return new MiniAdminView(false, "", false, false, false, false, "NONE");
+        if (bound == null) return new MiniAdminView(false, "", false, false, false, false, false, false, "NONE");
         XingweiPermissionGuard.AccessSnapshot scope = permission.resolve(bound.identity());
         boolean all = "ALL".equals(scope.dataScope());
         return new MiniAdminView(true, bound.username(),
                 all && permission.has(bound.identity(), "order:view"),
                 all && permission.has(bound.identity(), "order:manage"),
                 all && permission.has(bound.identity(), "quote:view"),
-                all && permission.has(bound.identity(), "quote:manage"), scope.dataScope());
+                all && permission.has(bound.identity(), "quote:manage"),
+                all && permission.has(bound.identity(), "quote:manage") && permission.has(bound.identity(), "order:manage"),
+                all && permission.has(bound.identity(), "audit:view"), scope.dataScope());
     }
 
     public List<MiniOrderView> listOrders(String loginCode) {
@@ -204,6 +211,56 @@ public class MiniWebsiteAdminBridgeService {
                 new ApiDtos.QuoteStatusUpdate(requested.name(), reason.trim()),
                 "mini:" + actor.username(), request);
         return MiniQuoteView.from(saved);
+    }
+
+    /** Sanitized website events; never expose before/after JSON, reasons or IP. */
+    public record MiniAuditView(Long id, String action, String targetType, String targetId,
+                                String operator, String createdAt) {
+        static MiniAuditView from(AuditLog log) {
+            return new MiniAuditView(log.getId(), log.getAction(), log.getTargetType(),
+                    log.getTargetId(), log.getOperatorName(),
+                    String.valueOf(log.getCreatedAt()));
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<MiniAuditView> listAudit(String loginCode) {
+        require(loginCode, "audit:view");
+        return auditLogRepository.findTop100ByOrderByCreatedAtDesc().stream()
+                .filter(x -> "QUOTE".equals(x.getTargetType()) || "ORDER".equals(x.getTargetType()))
+                .limit(50).map(MiniAuditView::from).toList();
+    }
+
+    /** A quotation review is not a payment confirmation. The resulting order stays WAITING_CONFIRMATION. */
+    @Transactional
+    public MiniOrderView convertQuote(String loginCode, UUID id, String reason,
+                                      HttpServletRequest request) {
+        BoundAdmin actor = require(loginCode, "quote:manage");
+        if (!permission.has(actor.identity(), "order:manage")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "转单需要同时拥有网站询价和订单管理权限");
+        }
+        if (id == null || reason == null || reason.isBlank() || reason.length() > 500) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请填写有效询价和转单原因");
+        }
+        Quote quote = entityManager.find(Quote.class, id, LockModeType.PESSIMISTIC_WRITE);
+        if (quote == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "询价不存在");
+        if (!legalConversionStatus(quote.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "仅已报价询价可转为待确认订单，请先刷新核对状态");
+        }
+        ApiDtos.AdminOrderResponse created = quotes.convertToOrder(id,
+                new ApiDtos.QuoteConvertRequest(reason.trim()),
+                "mini:" + actor.username(), request);
+        if (!"WAITING_CONFIRMATION".equals(created.status())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "转单结果状态异常，请到网站后台核对");
+        }
+        return MiniOrderView.from(created);
+    }
+
+    static boolean legalConversionStatus(Quote.Status status) {
+        return status == Quote.Status.QUOTED;
     }
 
     /** Finalized, cancelled and converted quotes cannot be resurrected from the mini UI. */

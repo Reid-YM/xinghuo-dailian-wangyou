@@ -27,6 +27,35 @@ class MiniWebsiteAdminBridgeServiceTest {
     }
 
     @Test
+    void onlyHumanReviewedQuotedLeadCanConvert() {
+        assertTrue(MiniWebsiteAdminBridgeService.legalConversionStatus(Quote.Status.QUOTED));
+        for (Quote.Status status : Quote.Status.values()) {
+            if (status != Quote.Status.QUOTED) {
+                assertFalse(MiniWebsiteAdminBridgeService.legalConversionStatus(status));
+            }
+        }
+        assertFalse(MiniWebsiteAdminBridgeService.legalConversionStatus(null));
+    }
+
+    @Test
+    void auditProjectionExcludesSensitiveBeforeAfterAndIp() {
+        com.xinghuo.model.AuditLog item = com.xinghuo.model.AuditLog.builder()
+                .id(100L).action("QUOTE_CONVERTED").targetType("QUOTE")
+                .targetId("XH1234").operatorName("mini:auditor")
+                .beforeJson("PRIVATE_BEFORE").afterJson("PRIVATE_AFTER")
+                .ipAddress("PRIVATE_IP").reason("PRIVATE_NOTE")
+                .createdAt(Instant.parse("2026-11-02T00:00:00Z")).build();
+        MiniWebsiteAdminBridgeService.MiniAuditView projected =
+                MiniWebsiteAdminBridgeService.MiniAuditView.from(item);
+        assertEquals("QUOTE_CONVERTED", projected.action());
+        assertEquals(6, MiniWebsiteAdminBridgeService.MiniAuditView.class.getRecordComponents().length);
+        assertFalse(projected.toString().contains("PRIVATE_BEFORE"));
+        assertFalse(projected.toString().contains("PRIVATE_AFTER"));
+        assertFalse(projected.toString().contains("PRIVATE_IP"));
+        assertFalse(projected.toString().contains("PRIVATE_NOTE"));
+    }
+
+    @Test
     void quoteStatusTransitionFollowsStrictReviewWorkflow() {
         assertTrue(MiniWebsiteAdminBridgeService.legalQuoteTransition(
                 Quote.Status.NEW, Quote.Status.CONTACTED));

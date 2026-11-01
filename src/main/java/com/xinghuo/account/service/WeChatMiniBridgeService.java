@@ -189,6 +189,11 @@ public class WeChatMiniBridgeService {
                 orders.countOrders(accountId), safePage, safeSize);
     }
 
+    /** Server-only validated identity; mini clients must never supply an OpenID directly. */
+    public String verifiedMiniOpenId(String loginCode) {
+        return exchange(loginCode).openId();
+    }
+
     @Transactional(readOnly = true)
     public MiniProfile profile(String loginCode) {
         MiniIdentity mini = exchange(loginCode);

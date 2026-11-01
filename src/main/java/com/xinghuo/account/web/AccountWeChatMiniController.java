@@ -5,6 +5,7 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.xinghuo.account.dto.AccountDtos;
 import com.xinghuo.account.model.Account;
 import com.xinghuo.account.service.AccountSessionService;
 import com.xinghuo.account.service.RateLimiter;
@@ -92,6 +93,14 @@ public class AccountWeChatMiniController {
         return bridge.profile(body.loginCode());
     }
 
+    /** 网站已有订单的本人只读列表；一次性微信码由本站服务端校验。 */
+    @PostMapping("/my-orders")
+    public AccountDtos.OrderListResponse myOrders(@Valid @RequestBody MiniOrdersRequest body,
+                                                   HttpServletRequest request) {
+        rateLimiter.check("mini:orders:" + RequestUtils.clientIp(request), 30, Duration.ofMinutes(15));
+        return bridge.miniOrders(body.loginCode(), body.page(), body.size());
+    }
+
     /** 手机号快速验证：把授权到的手机号存进已关联账号的联系方式。 */
     @PostMapping(value = "/sync-phone", consumes = MediaType.APPLICATION_JSON_VALUE)
     public PhoneResult syncPhone(@Valid @RequestBody SyncPhoneRequest body, HttpServletRequest request) {
@@ -160,6 +169,7 @@ public class AccountWeChatMiniController {
     public record ChallengeView(String code, long expiresIn, boolean binding, String qrImage) {}
     public record PollView(String status, String identityHint) {}
     public record LoginCode(@NotBlank String loginCode) {}
+    public record MiniOrdersRequest(@NotBlank String loginCode, int page, int size) {}
     public record Confirm(@NotBlank String code, @NotBlank String loginCode) {}
     public record SyncProfileRequest(@NotBlank String loginCode, @Size(max = 60) String nickName) {}
     public record SyncPhoneRequest(@NotBlank String loginCode, @NotBlank String phoneCode) {}

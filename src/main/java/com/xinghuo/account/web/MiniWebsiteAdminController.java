@@ -66,6 +66,32 @@ public class MiniWebsiteAdminController {
         return bridge.updateQuote(body.loginCode(), id, body.status(), body.reason(), request);
     }
 
+    public record ConvertInput(@NotBlank String loginCode, @NotBlank String id,
+                               @NotBlank String reason) {}
+
+    @PostMapping("/quotes/convert")
+    public MiniWebsiteAdminBridgeService.MiniOrderView convertQuote(
+            @Valid @RequestBody ConvertInput body, HttpServletRequest request) {
+        limiter.check("mini:admin:quotes:convert:" + RequestUtils.clientIp(request),
+                6, Duration.ofMinutes(15));
+        java.util.UUID id;
+        try {
+            id = java.util.UUID.fromString(body.id());
+        } catch (IllegalArgumentException ex) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "询价标识格式无效");
+        }
+        return bridge.convertQuote(body.loginCode(), id, body.reason(), request);
+    }
+
+    @PostMapping("/audit")
+    public List<MiniWebsiteAdminBridgeService.MiniAuditView> audit(
+            @Valid @RequestBody Code body, HttpServletRequest request) {
+        limiter.check("mini:admin:audit:" + RequestUtils.clientIp(request),
+                24, Duration.ofMinutes(15));
+        return bridge.listAudit(body.loginCode());
+    }
+
     @PostMapping("/orders")
     public List<MiniWebsiteAdminBridgeService.MiniOrderView> orders(@Valid @RequestBody Code body,
                                                                      HttpServletRequest request) {

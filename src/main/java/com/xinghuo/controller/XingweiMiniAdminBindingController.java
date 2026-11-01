@@ -1,6 +1,9 @@
 package com.xinghuo.controller;
 
 import com.xinghuo.account.service.MiniWebsiteAdminBridgeService;
+import com.xinghuo.account.service.RateLimiter;
+import com.xinghuo.account.service.RequestUtils;
+import java.time.Duration;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -13,8 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class XingweiMiniAdminBindingController {
     private final MiniWebsiteAdminBridgeService bridge;
-    public XingweiMiniAdminBindingController(MiniWebsiteAdminBridgeService bridge) {
+    private final RateLimiter rateLimiter;
+    public XingweiMiniAdminBindingController(MiniWebsiteAdminBridgeService bridge, RateLimiter rateLimiter) {
         this.bridge = bridge;
+        this.rateLimiter = rateLimiter;
     }
     public record Confirm(@Pattern(regexp="[0-9]{8}") String code) {}
 
@@ -27,6 +32,11 @@ public class XingweiMiniAdminBindingController {
     @ResponseBody
     public Map<String,String> confirm(@Valid @RequestBody Confirm body,
             Authentication identity, HttpServletRequest request) {
+        // Explicit per-admin and per-IP throttles prevent 8-digit pairing-code guessing.
+        rateLimiter.check("mini:binding:actor:" +
+                (identity == null ? "anonymous" : identity.getName()), 8, Duration.ofMinutes(15));
+        rateLimiter.check("mini:binding:ip:" + RequestUtils.clientIp(request),
+                20, Duration.ofMinutes(15));
         bridge.confirm(body.code(), identity, request);
         return Map.of("message", "网站管理员与微信小程序已绑定");
     }

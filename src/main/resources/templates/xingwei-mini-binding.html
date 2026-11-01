@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>星维网站后台 · 绑定微信管理员</title>
+<meta name="_csrf" th:content="${_csrf.token}">
+<meta name="_csrf_header" th:content="${_csrf.headerName}">
+<style>body{background:#10151c;color:#f2f4f7;font:16px system-ui;margin:0;padding:28px}
+main{max-width:570px;margin:auto}section{background:#1b2430;border-radius:15px;padding:24px}
+input,button{font:inherit;padding:12px;border-radius:8px}
+input{background:#0d1117;border:1px solid #586575;color:white;width:95%;margin:12px 0}
+button{background:#c6f24e;border:0;margin-right:8px;cursor:pointer}
+.warn{color:#ffc27b;line-height:1.7}#result{white-space:pre-line}</style></head>
+<body><main><a href="/admin/xingwei" style="color:#c6f24e">返回星维后台</a>
+<h1>微信小程序管理员绑定</h1><section>
+<p>请先在微信小程序「管理后台 → 网站订单管理 → 申请绑定」获取八位码，在五分钟内输入下方。</p>
+<p class="warn">当前登录的网站管理员必须拥有全局订单查看权限。绑定后可在小程序查看权限范围内的网站订单，有订单管理权限的管理员还可处理进度。请勿转发绑定码。</p>
+<label for="pair">八位绑定码</label>
+<input id="pair" type="text" maxlength="8" inputmode="numeric" autocomplete="off" placeholder="请输入八位数字">
+<div><button id="confirm">确认绑定</button><button id="revoke">解除当前登录账号绑定</button></div>
+<p id="result" role="status"></p></section>
+<script th:inline="javascript">
+const token=document.querySelector('meta[name="_csrf"]').content;
+const header=document.querySelector('meta[name="_csrf_header"]').content;
+async function act(path,body){
+ const out=document.getElementById('result');out.textContent='处理中…';
+ try{
+  const res=await fetch(path,{method:'POST',credentials:'same-origin',
+    headers:{'Content-Type':'application/json',[header]:token},
+    body:JSON.stringify(body||{})});
+  const data=await res.json().catch(()=>({}));
+  out.textContent=data.message||(!res.ok?'操作失败 HTTP '+res.status:'操作成功');
+ }catch(e){out.textContent='网络失败，请稍后重试'}
+}
+document.getElementById('confirm').addEventListener('click',()=>{
+ const code=document.getElementById('pair').value.trim();
+ if(!/^[0-9]{8}$/.test(code)){document.getElementById('result').textContent='请输入八位数字';return}
+ act('/api/admin/xingwei/mini-binding/confirm',{code});
+});
+document.getElementById('revoke').addEventListener('click',()=>{
+ if(window.confirm('确定解除当前网站管理员的微信绑定吗？')){
+  act('/api/admin/xingwei/mini-binding/revoke',{});
+ }
+});
+</script></main></body></html>

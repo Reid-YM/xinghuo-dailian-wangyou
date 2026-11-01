@@ -166,6 +166,11 @@ public class WeChatMiniBridgeService {
         return account;
     }
 
+    /** Resolve the mini user's OpenID only on this trusted server. Never return it to clients. */
+    public String verifiedMiniOpenId(String loginCode) {
+        return exchange(loginCode).openId();
+    }
+
     @Transactional(readOnly = true)
     public MiniProfile profile(String loginCode) {
         MiniIdentity mini = exchange(loginCode);

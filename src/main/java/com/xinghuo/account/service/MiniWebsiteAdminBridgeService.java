@@ -4,6 +4,11 @@ import com.xinghuo.dto.ApiDtos;
 import com.xinghuo.security.XingweiPermissionGuard;
 import com.xinghuo.service.AuditService;
 import com.xinghuo.service.OrderService;
+import com.xinghuo.service.QuoteService;
+import com.xinghuo.model.Quote;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import java.util.UUID;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -30,20 +35,26 @@ public class MiniWebsiteAdminBridgeService {
     private final WeChatMiniBridgeService wechat;
     private final XingweiPermissionGuard permission;
     private final OrderService orders;
+    private final QuoteService quotes;
+    private final EntityManager entityManager;
     private final AuditService audits;
 
     public MiniWebsiteAdminBridgeService(JdbcTemplate jdbc, WeChatMiniBridgeService wechat,
-            XingweiPermissionGuard permission, OrderService orders, AuditService audits) {
+            XingweiPermissionGuard permission, OrderService orders, QuoteService quotes,
+            EntityManager entityManager, AuditService audits) {
         this.jdbc = jdbc;
         this.wechat = wechat;
         this.permission = permission;
         this.orders = orders;
+        this.quotes = quotes;
+        this.entityManager = entityManager;
         this.audits = audits;
     }
 
     public record Challenge(String code, int expiresInSeconds) {}
     public record MiniAdminView(boolean linked, String username, boolean canViewOrders,
-                                boolean canManageOrders, String dataScope) {}
+                                boolean canManageOrders, boolean canViewQuotes,
+                                boolean canManageQuotes, String dataScope) {}
     public record MiniOrderView(String orderNo, String businessNo, String status,
                                 Integer progressPercent, String progressText, String customerNote,
                                 String updatedAt, long version) {
@@ -51,6 +62,16 @@ public class MiniWebsiteAdminBridgeService {
             return new MiniOrderView(x.orderNo(), x.businessNo(), x.status(),
                     x.progressPercent(), x.progressText(), x.customerNote(),
                     String.valueOf(x.updatedAt()), x.version());
+        }
+    }
+    /** No customer contact, customer IP, internal notes or CRM metadata are returned. */
+    public record MiniQuoteView(String id, String businessNo, String game, String demand,
+                                String currentProgress, String platform, String expectedTime,
+                                String status, String createdAt) {
+        static MiniQuoteView from(ApiDtos.QuoteAdminResponse x) {
+            return new MiniQuoteView(x.id().toString(), x.businessNo(), x.game(),
+                    x.demand(), x.currentProgress(), x.platform(), x.expectedTime(),
+                    x.status(), String.valueOf(x.createdAt()));
         }
     }
     private record BoundAdmin(long id, String username, String role, long authVersion,
@@ -119,12 +140,14 @@ public class MiniWebsiteAdminBridgeService {
 
     public MiniAdminView me(String loginCode) {
         BoundAdmin bound = lookup(loginCode);
-        if (bound == null) return new MiniAdminView(false, "", false, false, "NONE");
+        if (bound == null) return new MiniAdminView(false, "", false, false, false, false, "NONE");
         XingweiPermissionGuard.AccessSnapshot scope = permission.resolve(bound.identity());
         boolean all = "ALL".equals(scope.dataScope());
         return new MiniAdminView(true, bound.username(),
                 all && permission.has(bound.identity(), "order:view"),
-                all && permission.has(bound.identity(), "order:manage"), scope.dataScope());
+                all && permission.has(bound.identity(), "order:manage"),
+                all && permission.has(bound.identity(), "quote:view"),
+                all && permission.has(bound.identity(), "quote:manage"), scope.dataScope());
     }
 
     public List<MiniOrderView> listOrders(String loginCode) {
@@ -150,6 +173,43 @@ public class MiniWebsiteAdminBridgeService {
         ApiDtos.AdminOrderResponse result = orders.update(
                 orderNo, safe, "mini:" + bound.username(), request);
         return MiniOrderView.from(result);
+    }
+
+    /** Website remains authoritative. Only ALL-scope quote:view can read the list. */
+    public List<MiniQuoteView> listQuotes(String loginCode) {
+        require(loginCode, "quote:view");
+        return quotes.list().stream().limit(100).map(MiniQuoteView::from).toList();
+    }
+
+    /** Restricted, audited quote status transitions; no price or payment operation. */
+    @Transactional
+    public MiniQuoteView updateQuote(String loginCode, UUID id, String nextStatus,
+                                     String reason, HttpServletRequest request) {
+        BoundAdmin actor = require(loginCode, "quote:manage");
+        if (id == null || reason == null || reason.isBlank() || reason.length() > 500) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "必须填写有效询价与处理原因");
+        }
+        Quote.Status requested;
+        try {
+            requested = Quote.Status.valueOf(nextStatus == null ? "" : nextStatus);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "不支持的询价处理状态");
+        }
+        Quote existing = entityManager.find(Quote.class, id, LockModeType.PESSIMISTIC_WRITE);
+        if (existing == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "询价不存在");
+        boolean allowed = switch (existing.getStatus()) {
+            case NEW -> requested == Quote.Status.CONTACTED || requested == Quote.Status.CANCELLED;
+            case CONTACTED -> requested == Quote.Status.QUOTED
+                    || requested == Quote.Status.CLOSED || requested == Quote.Status.CANCELLED;
+            case QUOTED -> requested == Quote.Status.CLOSED || requested == Quote.Status.CANCELLED;
+            case CLOSED, CANCELLED, CONVERTED -> false;
+        };
+        if (!allowed) throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "询价状态已变化或不允许该流转，请刷新后核对");
+        ApiDtos.QuoteAdminResponse saved = quotes.updateStatus(id,
+                new ApiDtos.QuoteStatusUpdate(requested.name(), reason.trim()),
+                "mini:" + actor.username(), request);
+        return MiniQuoteView.from(saved);
     }
 
     private BoundAdmin require(String code, String needed) {
